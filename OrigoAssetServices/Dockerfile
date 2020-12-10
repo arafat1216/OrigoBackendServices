@@ -14,7 +14,7 @@ COPY . .
 RUN dotnet build "OrigoAssetServices.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "OrigoAssetServicesOrigoAssetServices.csproj" -c Release -o /app/publish
+RUN dotnet publish "OrigoAssetServices.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
