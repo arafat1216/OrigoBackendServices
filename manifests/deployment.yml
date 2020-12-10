@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: assetsbackend 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: assetsbackend
+  template:
+    metadata:
+      labels:
+        app: assetsbackend 
+    spec:
+      containers:
+        - name: assetsbackend 
+          image: origov2acr.azurecr.io/assetsbackend
+          ports:
+          - containerPort: 443
