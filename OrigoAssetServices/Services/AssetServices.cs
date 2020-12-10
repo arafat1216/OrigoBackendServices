@@ -6,7 +6,7 @@ namespace OrigoAssetServices.Services
 {
     public class AssetServices : IAssetServices
     {
-        AssetServices(ILogger<AssetServices> logger, AssetsContext assetContext)
+        public AssetServices(ILogger<AssetServices> logger, AssetsContext assetContext)
         {
             Logger = logger;
             AssetContext = assetContext;
