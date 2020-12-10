@@ -97,14 +97,14 @@ stages:
             displayName: Package helm charts
             inputs:
               command: 'package'
-              chartPath: OrigoAssetsServices/charts/origoassetsservices
+              chartPath: OrigoAssetsServices/charts/origoassetservices
 
           - task: HelmDeploy@0
             displayName: Helm upgrade
             inputs:
               command: upgrade
               chartType: FilePath
-              chartPath: $(Build.ArtifactStagingDirectory)/origoassetsservices
+              chartPath: $(Build.ArtifactStagingDirectory)/origoassetservices
 
   - deployment: DeployPullRequest
     displayName: Deploy Pull request
