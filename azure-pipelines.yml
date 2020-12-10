@@ -18,6 +18,11 @@ variables:
   tag: '$(Build.BuildId)'
   imagePullSecret: 'origov2acr3b6d-auth'
 
+  azureSubscriptionEndpoint: 
+  azureContainerRegistry: contoso.azurecr.io
+  azureResourceGroup: Contoso
+  kubernetesCluster: Contoso
+
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
   
@@ -61,6 +66,8 @@ stages:
       runOnce:
         deploy:
           steps:
+          - checkout: self
+
           - task: KubernetesManifest@0
             displayName: Create imagePullSecret
             inputs:
@@ -79,6 +86,25 @@ stages:
                 $(imagePullSecret)
               containers: |
                 $(containerRegistry)/$(imageRepository):$(tag)
+
+          - task: HelmInstaller@0
+            displayName: Install Helm
+            inputs:
+              helmVersion: 'latest'
+              installKubectl: true
+
+          - task: HelmDeploy@0
+            displayName: Package helm charts
+            inputs:
+              command: 'package'
+              chartPath: OrigoAssetsServices/charts/origoassetsservices
+
+          - task: HelmDeploy@0
+            displayName: Helm upgrade
+            inputs:
+              command: upgrade
+              chartType: FilePath
+              chartPath: $(Build.ArtifactStagingDirectory)/origoassetsservices
 
   - deployment: DeployPullRequest
     displayName: Deploy Pull request

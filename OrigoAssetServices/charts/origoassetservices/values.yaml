@@ -3,38 +3,36 @@
 # Declare variables to be passed into your templates.
 fullnameOverride: origoassetservices
 replicaCount: 1
+namespace: develop
 image:
-  repository: origoassetservices
-  tag: stable
+  repository: origov2acr.azurecr.io/assetsbackend
+  tag: 3642
   pullPolicy: IfNotPresent
-imagePullSecrets: []
-  # Optionally specify an array of imagePullSecrets.
-  # Secrets must be manually created in the namespace.
-  # ref: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
-  #
-  # This uses credentials from secret "myRegistryKeySecretName".
-  # - name: myRegistryKeySecretName
+imagePullSecrets:
+  - name: origov2acr3b6d-auth
 service:
   type: ClusterIP
   port: 80
 
 deployment:
-  containerPort: 80
+  containerPort: 443
 
 probes:
   enabled: false
 
 ingress:
-  enabled: false
-  annotations: {}
-    kubernetes.io/tls-acme: "true"
-  path: /
-    hosts:
-      - assets.local
-  tls: []
-    - secretName: chart-example-tls
-      hosts:
-        - assets.local
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: apiorigov2dev.mytos.no
+      paths:
+        - assets
+#  tls: []
+#    - secretName: chart-example-tls
+#      hosts:
+#        - assets.local
 secrets: {}
   # Optionally specify a set of secret objects whose values
   # will be injected as environment variables by default.
