@@ -48,7 +48,7 @@ stages:
         tags: |
           $(tag)
           
-    - publish: charts
+    - publish: OrigoAssetServices/charts
       artifact: helmcharts
 
 - stage: Deploy
