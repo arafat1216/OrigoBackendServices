@@ -17,4 +17,4 @@ spec:
       name: http
   selector:
     app: {{ template "origoassetservices.name" . }}
-    release: {{ .Release.Name | quote}}
+    release: {{ .Release.Name | quote }}
