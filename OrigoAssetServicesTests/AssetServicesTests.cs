@@ -1,14 +1,13 @@
-using System;
 using Xunit;
 
 namespace OrigoAssetServicesTests
 {
-    public class UnitTest1
+    public class AssetServicesTests
     {
         [Fact]
         public void Test1()
         {
-
+            var assetService = new AssetServices();
         }
     }
 }

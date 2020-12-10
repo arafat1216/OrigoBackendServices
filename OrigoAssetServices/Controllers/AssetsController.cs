@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using OrigoAssetServices.Models;
+using OrigoAssetServices.Services;
 
 namespace OrigoAssetServices.Controllers
 {
@@ -11,29 +10,20 @@ namespace OrigoAssetServices.Controllers
     [Route("[controller]")]
     public class AssetsController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
         private readonly ILogger<AssetsController> _logger;
 
-        public AssetsController(ILogger<AssetsController> logger)
+        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices)
         {
             _logger = logger;
+            AssetServices = assetServices;
         }
 
+        public IAssetServices AssetServices { get; }
+
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public IEnumerable<Asset> Get()
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+            return AssetServices.GetAssetsForUser(1); 
         }
     }
 }
