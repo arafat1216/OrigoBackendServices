@@ -48,8 +48,8 @@ stages:
         tags: |
           $(tag)
           
-    - upload: manifests
-      artifact: manifests
+    - publish: charts
+      artifact: helmcharts
 
 - stage: Deploy
   displayName: Deploy stage
@@ -75,18 +75,6 @@ stages:
               secretName: $(imagePullSecret)
               dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
               
-          - task: KubernetesManifest@0
-            displayName: Deploy to Kubernetes cluster
-            inputs:
-              action: deploy
-              manifests: |
-                $(Pipeline.Workspace)/manifests/deployment.yml
-                $(Pipeline.Workspace)/manifests/service.yml
-              imagePullSecrets: |
-                $(imagePullSecret)
-              containers: |
-                $(containerRegistry)/$(imageRepository):$(tag)
-
           - task: HelmInstaller@0
             displayName: Install Helm
             inputs:
@@ -97,14 +85,14 @@ stages:
             displayName: Package helm charts
             inputs:
               command: 'package'
-              chartPath: OrigoAssetsServices/charts/origoassetservices
+              chartPath: $(Pipeline.Workspace)/helmcharts/origoassetservices
 
           - task: HelmDeploy@0
             displayName: Helm upgrade
             inputs:
               command: upgrade
               chartType: FilePath
-              chartPath: $(Build.ArtifactStagingDirectory)/origoassetservices
+              chartPath: $(Pipeline.Workspace)/helmcharts/origoassetservices
 
   - deployment: DeployPullRequest
     displayName: Deploy Pull request
