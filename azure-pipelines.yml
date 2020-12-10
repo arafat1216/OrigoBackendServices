@@ -82,17 +82,14 @@ stages:
               installKubectl: true
 
           - task: HelmDeploy@0
-            displayName: Package helm charts
-            inputs:
-              command: 'package'
-              chartPath: $(Pipeline.Workspace)/helmcharts/origoassetservices
-
-          - task: HelmDeploy@0
             displayName: Helm upgrade
             inputs:
               command: upgrade
               chartType: FilePath
+              overrideValues: image.tag=$(tag)
+              arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts/origoassetservices
+              install: true
 
   - deployment: DeployPullRequest
     displayName: Deploy Pull request
