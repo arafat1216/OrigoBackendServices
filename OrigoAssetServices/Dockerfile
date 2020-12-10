@@ -7,7 +7,7 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ["OrigoAssetServices/OrigoAssetServices.csproj", "OrigoAssetServices/"]
+COPY ["./OrigoAssetServices.csproj", "OrigoAssetServices/"]
 RUN dotnet restore "OrigoAssetServices/OrigoAssetServices.csproj"
 COPY . .
 WORKDIR "/src/OrigoAssetServices"
