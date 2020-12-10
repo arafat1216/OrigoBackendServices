@@ -10,7 +10,7 @@ metadata:
   labels:
     app: {{ template "origoassetservices.name" . }}
     chart: {{ template "origoassetservices.chart" . }}
-    release: {{ .Release.Name }}
+    release: {{ .Release.Name | quote }}
     heritage: {{ .Release.Service }}
 {{- with .Values.ingress.annotations }}
   annotations:

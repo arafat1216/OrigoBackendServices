@@ -6,7 +6,7 @@ metadata:
     app: {{ template "origoassetservices.name" . }}
     chart: {{ template "origoassetservices.chart" . }}
     draft: {{ .Values.draft | default "draft-app" }}
-    release: {{ .Release.Name }}
+    release: {{ .Release.Name | quote }}
     heritage: {{ .Release.Service }}
 spec:
   revisionHistoryLimit: 0
@@ -14,13 +14,13 @@ spec:
   selector:
     matchLabels:
       app: {{ template "origoassetservices.name" . }}
-      release: {{ .Release.Name }}
+      release: {{ .Release.Name | quote }}
   template:
     metadata:
       labels:
         app: {{ template "origoassetservices.name" . }}
         draft: {{ .Values.draft | default "draft-app" }}
-        release: {{ .Release.Name }}
+        release: {{ .Release.Name | quote }}
       annotations:
         buildID: {{ .Values.buildID | default "" | quote }}
     spec:
