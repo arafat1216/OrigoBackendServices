@@ -9,12 +9,12 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
 COPY ["./OrigoAssetServices.csproj", "OrigoAssetServices/"]
 RUN dotnet restore "OrigoAssetServices/OrigoAssetServices.csproj"
-COPY . .
 WORKDIR "/src/OrigoAssetServices"
+COPY . .
 RUN dotnet build "OrigoAssetServices.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "OrigoAssetServices.csproj" -c Release -o /app/publish
+RUN dotnet publish "OrigoAssetServicesOrigoAssetServices.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
