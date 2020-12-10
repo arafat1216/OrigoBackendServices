@@ -7,7 +7,7 @@ namespace OrigoAssetServicesTests
         [Fact]
         public void Test1()
         {
-            var assetService = new AssetServices();
+            //var assetService = new AssetServices();
         }
     }
 }
