@@ -52,7 +52,7 @@ stages:
       displayName: Create database migration scripts
       inputs:
         installdependencies: true # required for net 3.1+
-        projectpath: '$(Build.SourcesDirectory)/OrigoAssetServices/OrigoAssetServices.csproj'
+        projectpath: '$(Build.SourcesDirectory)/OrigoAssetServices.csproj'
         databasecontexts: 'AssetsContext'
         targetfolder: '$(build.artifactstagingdirectory)/migrations'
 
