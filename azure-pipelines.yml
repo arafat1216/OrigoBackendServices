@@ -47,15 +47,56 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
-          
+
+    - task: efcore-migration-script-generator-task@0
+      displayName: Create database migration scripts
+      inputs:
+        installdependencies: true # required for net 3.1+
+        projectpath: '$(Build.SourcesDirectory)/OrigoAssetServices/OrigoAssetServices.csproj'
+        databasecontexts: 'AssetsContext'
+        targetfolder: '$(build.artifactstagingdirectory)/migrations'
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish migrations'
+      inputs:
+        targetPath: '$(build.artifactstagingdirectory)/migrations'
+        artifact: 'migrations'
+    
     - publish: OrigoAssetServices/charts
       artifact: helmcharts
 
 - stage: Deploy
   displayName: Deploy stage
   dependsOn: Build
-
+  variables:
+    - group: AssetsLibrary
   jobs:
+  - deployment: MigrateDatabase
+    environment: 'AssetsBackend.develop'
+    displayName: Migrate database
+    variables:
+      namespace: develop
+    pool:
+      vmImage: windows-latest
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: Download migration scripts
+            inputs:
+              artifactName: 'migrations'
+              downloadPath: '$(System.ArtifactsDirectory)/migrations'
+          - task: SqlAzureDacpacDeployment@1
+            displayName: Run sql migrations
+            inputs:
+              azureConnectionType: ConnectedServiceNameARM
+              azureSubscription: OrigoV2ServiceConnection
+              authenticationType: connectionString
+              connectionString: $(AssetsDbConnection)
+              deployType: SqlTask
+              sqlFile: $(System.ArtifactsDirectory)/migrations/YourDBContext.sql$(System.ArtifactsDirectory)/migrations/AssetsDbContext.sql
+
   - deployment: Deploy
     condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
     displayName: Deploy

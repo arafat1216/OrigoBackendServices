@@ -23,7 +23,7 @@ namespace OrigoAssetServices
         {
             services.AddControllers();
 
-            services.AddDbContext<AssetsContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AssetsContext")));
+            services.AddDbContext<AssetsContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AssetsDbConnection")));
 
             services.AddScoped<IAssetServices, AssetServices>();
         }
