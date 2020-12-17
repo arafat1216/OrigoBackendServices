@@ -30,6 +30,28 @@ variables:
   k8sNamespaceForPR: 'review-app-$(System.PullRequest.PullRequestId)'
 
 stages:
+- stage: MigrationScripts
+  displayName: Create migration scripts
+  jobs:
+  - job: MigrationScripts
+    displayName: Migration scripts
+    pool:
+      vmImage: windows-latest
+    steps:
+    - task: efcore-migration-script-generator-task@0
+      displayName: Create database migration scripts
+      inputs:
+        installdependencies: true # required for net 3.1+
+        projectpath: '$(Build.SourcesDirectory)/OrigoAssetServices/OrigoAssetServices.csproj'
+        databasecontexts: 'AssetsContext'
+        targetfolder: '$(build.artifactstagingdirectory)/migrations'
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish migrations'
+      inputs:
+        targetPath: '$(build.artifactstagingdirectory)/migrations'
+        artifact: 'migrations'
+
 - stage: Build
   displayName: Build stage
   jobs:  
@@ -48,26 +70,14 @@ stages:
         tags: |
           $(tag)
 
-    - task: efcore-migration-script-generator-task@0
-      displayName: Create database migration scripts
-      inputs:
-        installdependencies: true # required for net 3.1+
-        projectpath: '$(Build.SourcesDirectory)/OrigoAssetServices.csproj'
-        databasecontexts: 'AssetsContext'
-        targetfolder: '$(build.artifactstagingdirectory)/migrations'
-
-    - task: PublishPipelineArtifact@1
-      displayName: 'Publish migrations'
-      inputs:
-        targetPath: '$(build.artifactstagingdirectory)/migrations'
-        artifact: 'migrations'
-    
     - publish: OrigoAssetServices/charts
       artifact: helmcharts
 
 - stage: Deploy
   displayName: Deploy stage
-  dependsOn: Build
+  dependsOn:
+    - Build
+    - MigrationScripts
   variables:
     - group: AssetsLibrary
   jobs:
