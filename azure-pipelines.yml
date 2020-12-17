@@ -119,7 +119,7 @@ stages:
             inputs:
               command: upgrade
               chartType: FilePath
-              releaseName: Assets
+              releaseName: assets
               namespace: $(namespace)
               overrideValues: image.tag=$(tag),namespace=$(namespace)
               arguments: --version $(tag)
