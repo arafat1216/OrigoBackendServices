@@ -30,8 +30,8 @@ variables:
   k8sNamespaceForPR: 'review-app-$(System.PullRequest.PullRequestId)'
 
 stages:
-- stage: MigrationScripts
-  displayName: Create migration scripts
+- stage: Build
+  displayName: Build stage
   jobs:
   - job: MigrationScripts
     displayName: Migration scripts
@@ -51,10 +51,6 @@ stages:
       inputs:
         targetPath: '$(build.artifactstagingdirectory)/migrations'
         artifact: 'migrations'
-
-- stage: Build
-  displayName: Build stage
-  jobs:  
   - job: Build
     displayName: Build
     pool:
@@ -75,9 +71,7 @@ stages:
 
 - stage: Deploy
   displayName: Deploy stage
-  dependsOn:
-    - Build
-    - MigrationScripts
+  dependsOn: Build
   variables:
     - group: AssetsLibrary
   jobs:
@@ -105,7 +99,7 @@ stages:
               authenticationType: connectionString
               connectionString: $(AssetsDbConnection)
               deployType: SqlTask
-              sqlFile: $(System.ArtifactsDirectory)/migrations/YourDBContext.sql$(System.ArtifactsDirectory)/migrations/AssetsDbContext.sql
+              sqlFile: $(System.ArtifactsDirectory)/migrations/AssetsContext.sql
 
   - deployment: Deploy
     condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
