@@ -1,8 +1,9 @@
-﻿using System;
+﻿using OrigoAssetServices.Interfaces;
+using System;
 
 namespace OrigoAssetServices.Models
 {
-    public class AssetHolder
+    public class AssetHolder : IAggregateRoot
     {
         public int Id { get; set; }
         /// <summary>
