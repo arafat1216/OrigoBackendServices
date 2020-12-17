@@ -9,7 +9,6 @@ resources:
 - repo: self
 
 variables:
-
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '09ee8083-2a55-4731-876c-d6df7059bd8f'
   imageRepository: 'assetsbackend'
@@ -17,11 +16,7 @@ variables:
   dockerfilePath: '**/Dockerfile'
   tag: '$(Build.BuildId)'
   imagePullSecret: 'origov2acr3b6d-auth'
-
-  azureSubscriptionEndpoint: 
-  azureContainerRegistry: contoso.azurecr.io
-  azureResourceGroup: Contoso
-  kubernetesCluster: Contoso
+  namespace: develop # TODO: set by condition based on branch
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
@@ -113,13 +108,6 @@ stages:
           steps:
           - checkout: self
 
-          - task: KubernetesManifest@0
-            displayName: Create imagePullSecret
-            inputs:
-              action: createSecret
-              secretName: $(imagePullSecret)
-              dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
-              
           - task: HelmInstaller@0
             displayName: Install Helm
             inputs:
@@ -131,7 +119,9 @@ stages:
             inputs:
               command: upgrade
               chartType: FilePath
-              overrideValues: image.tag=$(tag)
+              releaseName: Assets
+              namespace: $(namespace)
+              overrideValues: image.tag=$(tag),namespace=$(namespace)
               arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts/origoassetservices
               install: true
@@ -156,27 +146,24 @@ stages:
               useConfigurationFile: true
               inline: '{ "kind": "Namespace", "apiVersion": "v1", "metadata": { "name": "$(k8sNamespaceForPR)" }}'
 
-          - task: KubernetesManifest@0
-            displayName: Create imagePullSecret
+          - task: HelmInstaller@0
+            displayName: Install Helm
             inputs:
-              action: createSecret
-              secretName: $(imagePullSecret)
-              namespace: $(k8sNamespaceForPR)
-              dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
-          
-          - task: KubernetesManifest@0
-            displayName: Deploy to the new namespace in the Kubernetes cluster
+              helmVersion: 'latest'
+              installKubectl: true
+
+          - task: HelmDeploy@0
+            displayName: Helm upgrade
             inputs:
-              action: deploy
+              command: upgrade
+              chartType: FilePath
+              releaseName: Assets
               namespace: $(k8sNamespaceForPR)
-              manifests: |
-                $(Pipeline.Workspace)/manifests/deployment.yml
-                $(Pipeline.Workspace)/manifests/service.yml
-              imagePullSecrets: |
-                $(imagePullSecret)
-              containers: |
-                $(containerRegistry)/$(imageRepository):$(tag)
-          
+              overrideValues: image.tag=$(tag),namespace=$(k8sNamespaceForPR)
+              arguments: --version $(tag)
+              chartPath: $(Pipeline.Workspace)/helmcharts/origoassetservices
+              install: true
+
           - task: Kubernetes@1
             name: get
             displayName: 'Get services in the new namespace'
@@ -186,7 +173,7 @@ stages:
               namespace: $(k8sNamespaceForPR)
               arguments: svc
               outputFormat: jsonpath='http://{.items[0].status.loadBalancer.ingress[0].ip}:{.items[0].spec.ports[0].port}'
-              
+
           # Getting the IP of the deployed service and writing it to a variable for posing comment
           - script: |
               url="$(get.KubectlOutput)"
