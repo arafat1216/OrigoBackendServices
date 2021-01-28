@@ -12,7 +12,7 @@ imagePullSecrets:
   - name: origov2acr3b6d-auth
 service:
   type: ClusterIP
-  port: 80
+  port: 8090
 
 deployment:
   containerPort: 80
@@ -24,15 +24,17 @@ ingress:
   enabled: true
   annotations:
     kubernetes.io/ingress.class: traefik
-    ingress.kubernetes.io/rewrite-target: /
+    ingress.kubernetes.io/protocol: https
+    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
   hosts:
-    - host: apiorigov2dev.mytos.no
+    - host: origov2dev.mytos.no
       paths:
-        - assets
-#  tls: []
-#    - secretName: chart-example-tls
-#      hosts:
-#        - assets.local
+        - /assets
+  tls: []
+    - secretName: letsencrypt
+     hosts:
+       - origov2dev.mytos.no
 secrets: {}
   # Optionally specify a set of secret objects whose values
   # will be injected as environment variables by default.

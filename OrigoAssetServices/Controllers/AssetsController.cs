@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoAssetServices.Models;
@@ -7,6 +8,7 @@ using OrigoAssetServices.Services;
 namespace OrigoAssetServices.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("[controller]")]
     public class AssetsController : ControllerBase
     {
