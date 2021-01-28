@@ -32,9 +32,10 @@ ingress:
       paths:
         - /assets
   tls:
-    - secretName: letsencrypt
+   - secretName: letsencrypt
      hosts:
        - origov2dev.mytos.no
+
 secrets: {}
   # Optionally specify a set of secret objects whose values
   # will be injected as environment variables by default.
