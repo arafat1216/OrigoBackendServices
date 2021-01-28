@@ -31,7 +31,7 @@ ingress:
     - host: origov2dev.mytos.no
       paths:
         - /assets
-  tls: []
+  tls:
     - secretName: letsencrypt
      hosts:
        - origov2dev.mytos.no
