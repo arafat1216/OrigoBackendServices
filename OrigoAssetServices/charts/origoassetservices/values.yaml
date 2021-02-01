@@ -15,7 +15,7 @@ service:
   port: 8090
 
 deployment:
-  containerPort: 80
+  containerPort: 8090
 
 probes:
   enabled: false
@@ -30,7 +30,7 @@ ingress:
   hosts:
     - host: origov2dev.mytos.no
       paths:
-        - /assets
+        - /origoapi/assets
   tls:
    - secretName: letsencrypt
      hosts:

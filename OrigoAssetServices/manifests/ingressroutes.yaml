@@ -1,0 +1,14 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: origofrontend-ingressroute
+  namespace: develop
+spec:
+  routes:
+  - match: Host(`origov2dev.mytos.no`) && PathPrefix(`/origoapi/assets`)
+    kind: Rule
+    services:
+    - name: origoassetservices
+      port: 8090
+  tls:
+    certResolver: letsencrypt
