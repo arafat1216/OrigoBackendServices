@@ -1,7 +1,7 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: origofrontend-ingressroute
+  name: origoassets-ingressroute
   namespace: develop
 spec:
   routes:
@@ -9,6 +9,6 @@ spec:
     kind: Rule
     services:
     - name: origoassetservices
-      port: 8090
+      port: https
   tls:
     certResolver: letsencrypt

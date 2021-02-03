@@ -15,7 +15,7 @@ service:
   port: 8090
 
 deployment:
-  containerPort: 8090
+  containerPort: 80
 
 probes:
   enabled: false
@@ -27,6 +27,8 @@ ingress:
     ingress.kubernetes.io/protocol: https
     traefik.ingress.kubernetes.io/frontend-entry-points: http,https
     traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/router.middlewares: traefik-https-only@kubernetescrd
+    traefik.frontend.passHostHeader: "true"
   hosts:
     - host: origov2dev.mytos.no
       paths:

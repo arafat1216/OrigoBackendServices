@@ -30,18 +30,17 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: {{ .Values.deployment.containerPort }}
+            - containerPort: {{ .Values.deployment.containerPort }}
               protocol: TCP
           {{- if .Values.probes.enabled }}
           livenessProbe:
             httpGet:
               path: /
-              port: http
+              port: 80
           readinessProbe:
             httpGet:
               path: /
-              port: http
+              port: 80
           {{- end }}
           env:
             {{- $root := . }}
