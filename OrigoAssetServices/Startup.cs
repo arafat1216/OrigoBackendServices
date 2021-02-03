@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -42,42 +43,42 @@ namespace OrigoAssetServices
                 options.RequireHttpsMetadata = !WebHostEnvironment.IsDevelopment();
             });
 
-                //    options.TokenValidationParameters = new TokenValidationParameters
-                //    {
-                //        ClockSkew = TimeSpan.FromMinutes(5),
-                //        RequireSignedTokens = true,
-                //        RequireExpirationTime = true,
-                //        ValidateAudience = true,
-                //        ValidAudience = Configuration["Authentication:AuthConfig:Audience"],
-                //        ValidateIssuer = true,
-                //        ValidIssuer = Configuration["Authentication:AuthConfig:Issuer"],
-                //        ValidateIssuerSigningKey = true,
-                //        //IssuerSigningKey = openidconfig.SigningKeys.FirstOrDefault(),
-                //        ValidateLifetime = true,
-                //    };
+            //    options.TokenValidationParameters = new TokenValidationParameters
+            //    {
+            //        ClockSkew = TimeSpan.FromMinutes(5),
+            //        RequireSignedTokens = true,
+            //        RequireExpirationTime = true,
+            //        ValidateAudience = true,
+            //        ValidAudience = Configuration["Authentication:AuthConfig:Audience"],
+            //        ValidateIssuer = true,
+            //        ValidIssuer = Configuration["Authentication:AuthConfig:Issuer"],
+            //        ValidateIssuerSigningKey = true,
+            //        //IssuerSigningKey = openidconfig.SigningKeys.FirstOrDefault(),
+            //        ValidateLifetime = true,
+            //    };
 
-                //    options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
-                //    {
-                //        OnTokenValidated = (context) =>
-                //        {
-                //            // Add access token to user's claim
-                //            if (context.SecurityToken is JwtSecurityToken token && context.Principal.Identity is ClaimsIdentity identity && !identity.HasClaim(c => c.Type == "access_token"))
-                //            {
-                //                identity.AddClaim(new Claim("access_token", token.RawData));
-                //            }
-                //            return Task.CompletedTask;
-                //        },
-                //        OnAuthenticationFailed = (context) =>
-                //        {
-                //            return Task.CompletedTask;
-                //        },
-                //        OnForbidden = (context) =>
-                //        {
-                //            return Task.CompletedTask;
-                //        }
-                //    };
-                //});
-            }
+            //    options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+            //    {
+            //        OnTokenValidated = (context) =>
+            //        {
+            //            // Add access token to user's claim
+            //            if (context.SecurityToken is JwtSecurityToken token && context.Principal.Identity is ClaimsIdentity identity && !identity.HasClaim(c => c.Type == "access_token"))
+            //            {
+            //                identity.AddClaim(new Claim("access_token", token.RawData));
+            //            }
+            //            return Task.CompletedTask;
+            //        },
+            //        OnAuthenticationFailed = (context) =>
+            //        {
+            //            return Task.CompletedTask;
+            //        },
+            //        OnForbidden = (context) =>
+            //        {
+            //            return Task.CompletedTask;
+            //        }
+            //    };
+            //});
+        }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -86,6 +87,12 @@ namespace OrigoAssetServices
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.Use(async (context, next) =>
+            {
+                await next.Invoke();
+                Trace.WriteLine(context.Request.ToString());
+            });
 
             app.UseRouting();
 
