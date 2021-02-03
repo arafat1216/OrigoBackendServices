@@ -29,10 +29,11 @@ ingress:
     traefik.ingress.kubernetes.io/redirect-entry-point: https
     traefik.ingress.kubernetes.io/router.middlewares: traefik-https-only@kubernetescrd
     traefik.frontend.passHostHeader: "true"
+    
   hosts:
     - host: origov2dev.mytos.no
       paths:
-        - /origoapi/assets
+        - /origoapi
   tls:
    - secretName: letsencrypt
      hosts:

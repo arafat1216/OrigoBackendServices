@@ -30,3 +30,34 @@ Create chart name and version as used by the chart label.
 {{- define "origoassetservices.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{/*
+Common labels
+*/}}
+{{- define "origoassetservices.labels" -}}
+helm.sh/chart: {{ include "origoassetservices.chart" . }}
+{{ include "origoassetservices.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{/*
+Selector labels
+*/}}
+{{- define "origoassetservices.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "origoassetservices.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end -}}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "origoassetservices.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create -}}
+    {{ default (include "origoassetservices.fullname" .) .Values.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}

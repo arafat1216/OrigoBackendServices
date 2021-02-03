@@ -1,14 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: {{ .Values.namespace }}
-  name: {{ template "origoassetservices.fullname" . }}
+  name: {{ include "origoassetservices.fullname" . }}
   labels:
-    app: {{ template "origoassetservices.name" . }}
-    chart: {{ template "origoassetservices.chart" . }}
-    draft: {{ .Values.draft | default "draft-app" }}
-    release: {{ .Release.Name | quote }}
-    heritage: {{ .Release.Service }}
+    {{- include "origoassetservices.labels" . | nindent 4 }}
 spec:
   revisionHistoryLimit: 0
   replicas: {{ .Values.replicaCount }}
@@ -19,8 +14,6 @@ spec:
     metadata:
       labels:
         {{- include "origoassetservices.selectorLabels" . | nindent 8 }}
-    annotations:
-        buildID: {{ .Values.buildID | default "" | quote }}
     spec:
       containers:
         - name: {{ .Chart.Name }}

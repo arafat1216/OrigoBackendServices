@@ -1,18 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: {{ .Values.namespace }}
-  name: {{ template "origoassetservices.fullname" . }}
+  name: {{ include "origoassetservices.fullname" . }}
   labels:
-    app: {{ template "origoassetservices.name" . }}
-    chart: {{ template "origoassetservices.chart" . }}
-    release: {{ .Release.Name | quote }}
-    heritage: {{ .Release.Service }}
+    {{- include "origoassetservices.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
       targetPort: 80
   selector:
-    app: {{ template "origoassetservices.name" . }}
-    release: {{ .Release.Name | quote }}
+    {{- include "origoassetservices.selectorLabels" . | nindent 4 }}
