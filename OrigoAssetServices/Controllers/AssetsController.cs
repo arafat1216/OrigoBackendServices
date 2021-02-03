@@ -8,7 +8,7 @@ using OrigoAssetServices.Services;
 namespace OrigoAssetServices.Controllers
 {
     [ApiController]
-    [Authorize]
+    //[Authorize]
     [Route("[controller]")]
     public class AssetsController : ControllerBase
     {

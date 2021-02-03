@@ -17,7 +17,7 @@ namespace OrigoAssetServices.Services
 
         public IEnumerable<Asset> GetAssetsForUser(int userId)
         {
-            return new List<Asset>(){new Asset{AssetName = "iPhone"}};
+            return new List<Asset>() { new Asset { AssetName = "iPhone" } };
         }
     }
 }

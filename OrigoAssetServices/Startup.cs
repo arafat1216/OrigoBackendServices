@@ -4,14 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using OrigoAssetServices.Models;
 using OrigoAssetServices.Services;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace OrigoAssetServices
 {
@@ -36,7 +30,6 @@ namespace OrigoAssetServices
 
             services.AddScoped<IAssetServices, AssetServices>();
 
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
@@ -93,8 +86,6 @@ namespace OrigoAssetServices
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 

@@ -9,6 +9,6 @@ spec:
     kind: Rule
     services:
     - name: origoassetservices
-      port: https
+      port: 8090
   tls:
     certResolver: letsencrypt
