@@ -14,15 +14,12 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ template "origoassetservices.name" . }}
-      release: {{ .Release.Name | quote }}
+      {{- include "origoassetservices.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ template "origoassetservices.name" . }}
-        draft: {{ .Values.draft | default "draft-app" }}
-        release: {{ .Release.Name | quote }}
-      annotations:
+        {{- include "origoassetservices.selectorLabels" . | nindent 8 }}
+    annotations:
         buildID: {{ .Values.buildID | default "" | quote }}
     spec:
       containers:
