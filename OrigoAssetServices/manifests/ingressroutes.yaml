@@ -5,7 +5,7 @@ metadata:
   namespace: develop
 spec:
   routes:
-  - match: Host(`origov2dev.mytos.no`) && PathPrefix(`/origoapi/assets`)
+  - match: Host(`origov2dev.mytos.no`) && PathPrefix(`/origoapi`)
     kind: Rule
     services:
     - name: origoassetservices

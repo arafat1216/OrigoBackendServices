@@ -19,7 +19,7 @@ metadata:
 spec:
   defaultBackend:
     service:
-      name: default-backend
+      name: {{ $fullName | quote}}
       port:
         number: {{ $servicePort }}
 {{- if .Values.ingress.tls }}
