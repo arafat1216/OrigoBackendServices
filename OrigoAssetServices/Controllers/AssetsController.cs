@@ -9,7 +9,7 @@ namespace OrigoAssetServices.Controllers
 {
     [ApiController]
     //[Authorize]
-    [Route("[controller]")]
+    [Route("/origoapi/[controller]")]
     public class AssetsController : ControllerBase
     {
         private readonly ILogger<AssetsController> _logger;
