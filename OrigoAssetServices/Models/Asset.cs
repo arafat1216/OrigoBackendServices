@@ -12,6 +12,7 @@ namespace OrigoAssetServices.Models
         public int Id { get; set; }
         [Required]
         public Guid AssetId { get; set; }
+
         [Required]
         [StringLength(100)]
         public string AssetName {get; set;}
@@ -29,6 +30,8 @@ namespace OrigoAssetServices.Models
         /// The id of department for the company which owns or controls the asset.
         /// </summary>
         public Guid DepartmentId { get; set; }
-
+        public string Imei { get; set; }
+        public string Vendor { get; set; }
+        public string PhoneNumber { get; set; }
     }
 }
