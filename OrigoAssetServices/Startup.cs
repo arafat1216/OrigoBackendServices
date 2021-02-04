@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using OrigoAssetServices.Models;
 using OrigoAssetServices.Services;
 
@@ -81,7 +82,7 @@ namespace OrigoAssetServices
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
             if (env.IsDevelopment())
             {
@@ -91,7 +92,7 @@ namespace OrigoAssetServices
             app.Use(async (context, next) =>
             {
                 await next.Invoke();
-                Trace.WriteLine(context.Request.ToString());
+                logger.LogInformation($"Request received {context.Request.Path}");
             });
 
             app.UseRouting();
