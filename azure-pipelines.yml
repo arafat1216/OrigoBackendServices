@@ -75,6 +75,7 @@ stages:
         $id=docker images --filter "label=test=$(Build.BuildId)" -q | Select-Object -First 1
         docker create --name testcontainer $id
         docker cp testcontainer:/TestResults $(Build.SourcesDirectory)/TestResults
+        docker cp testcontainer:/CodeCoverage $(Build.SourcesDirectory)/CodeCoverage
         docker rm testcontainer
       displayName: 'Copy test results' 
 
