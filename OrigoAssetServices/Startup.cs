@@ -124,8 +124,8 @@ namespace OrigoAssetServices
             app.UseAuthentication();
 
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AssetManagementApi v1"));
-            
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/origoapi/swagger/v1/swagger.json", "AssetManagementApi v1"));
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
