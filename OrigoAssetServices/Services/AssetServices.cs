@@ -16,7 +16,7 @@ namespace OrigoAssetServices.Services
         public ILogger<AssetServices> Logger { get; }
         public AssetsContext AssetContext { get; }
 
-        public IEnumerable<Asset> GetAssetsForUser(Guid userId)
+        public IList<Asset> GetAssetsForUser(Guid userId)
         {
             return new List<Asset>() {
                 new Asset {

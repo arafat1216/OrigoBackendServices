@@ -51,15 +51,49 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
-    - task: Docker@2
-      displayName: Build and push an image to container registry
+    - task: Docker@2 # Can't use buildAndPush since arguments are needed
+      displayName: Build image
       inputs:
-        command: buildAndPush
+        command: build
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        arguments: --build-arg SONAR_TOKEN=$(SonarToken) --build-arg BUILD_ID=$(Build.BuildId)
+        tags: |
+          $(tag)
+    - task: Docker@2
+      displayName: Push an image to container registry
+      inputs:
+        command: push
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
+
+    - pwsh: |
+        $id=docker images --filter "label=test=$(Build.BuildId)" -q | Select-Object -First 1
+        docker create --name testcontainer $id
+        docker cp testcontainer:/TestResults $(Build.SourcesDirectory)/TestResults
+        docker rm testcontainer
+      displayName: 'Copy test results' 
+
+    - script: |
+        dotnet tool install -g dotnet-reportgenerator-globaltool
+        reportgenerator -reports:$(Build.SourcesDirectory)/TestResults/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines;Cobertura
+      displayName: "Create Coverage Report"
+
+    - task: PublishCodeCoverageResults@1
+      inputs:
+        codeCoverageTool: Cobertura
+        summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
+      displayName: 'Publish code coverage'
+
+    - task: PublishTestResults@2
+      inputs:
+        testRunner: VSTest
+        testResultsFiles: '**/*.trx'
+      displayName: 'Publish test results'
 
     - publish: OrigoAssetServices/charts
       artifact: helmcharts

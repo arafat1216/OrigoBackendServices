@@ -6,6 +6,6 @@ namespace OrigoAssetServices.Services
 {
     public interface IAssetServices
     {
-        IEnumerable<Asset> GetAssetsForUser(Guid userId);
+        IList<Asset> GetAssetsForUser(Guid userId);
     }
 }

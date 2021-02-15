@@ -1,9 +1,11 @@
-using System.Diagnostics;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OrigoAssetServices.Models;
@@ -27,6 +29,18 @@ namespace OrigoAssetServices
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddHealthChecks()
+                .AddCheck("self", () => HealthCheckResult.Healthy())
+                .AddSqlServer(
+                    connectionString: Configuration.GetConnectionString("AssetsDbConnection"),
+                    healthQuery: "SELECT 1;",
+                    name: "sql",
+                    failureStatus: HealthStatus.Degraded,
+                    tags: new string[] { "db", "sql", "sqlserver" }
+                );
+
+            services.AddHealthChecksUI().AddInMemoryStorage();
 
             services.AddDbContext<AssetsContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AssetsDbConnection")));
 
@@ -95,6 +109,8 @@ namespace OrigoAssetServices
                 logger.LogInformation($"Request received {context.Request.Path}");
             });
 
+            app.UseHealthChecks("/healthz");
+
             app.UseRouting();
 
             app.UseAuthorization();
@@ -104,6 +120,12 @@ namespace OrigoAssetServices
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                // endpoints.MapHealthChecks("/healthz", new HealthCheckOptions
+                // {
+                //     Predicate = _ => true,
+                //     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                // });
+                endpoints.MapHealthChecksUI();
             });
         }
     }
