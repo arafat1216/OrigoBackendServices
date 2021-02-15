@@ -19,7 +19,7 @@ RUN dotnet sonarscanner begin \
   /o:"${SONAR_ORGANIZATION_KEY}" \
   /d:sonar.host.url="${SONAR_HOST_URL}" \
   /d:sonar.login="${SONAR_TOKEN}" \
-  /d:sonar.cs.opencover.reportsPaths=/coverage.opencover.xml
+  /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.cobertura.xml
 
 RUN dotnet build -c Release -o /app/build --no-restore OrigoAssetServices/OrigoAssetServices.csproj
 
@@ -31,6 +31,7 @@ RUN dotnet test --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Cod
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
 RUN reportgenerator -reports:/TestResults/**/coverage.cobertura.xml -targetdir:/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
+RUN find /TestResults -mindepth 2 -maxdepth 2 -name "coverage.cobertura.xml" -print -exec cp {} /CodeCoverage/ \;
 
 FROM build AS publish
 RUN dotnet publish "OrigoAssetServices/OrigoAssetServices.csproj" -c Release -o /app/publish

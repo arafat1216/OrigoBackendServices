@@ -82,7 +82,7 @@ stages:
     - task: PublishCodeCoverageResults@1
       inputs:
         codeCoverageTool: Cobertura
-        summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
+        summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/coverage.cobertura.xml'
       displayName: 'Publish code coverage'
 
     - task: PublishTestResults@2
