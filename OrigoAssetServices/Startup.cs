@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using OrigoAssetServices.Models;
 using OrigoAssetServices.Services;
 
@@ -56,6 +57,11 @@ namespace OrigoAssetServices
                 options.Authority = Configuration["Authentication:AuthConfig:Authority"];
                 options.Audience = Configuration["Authentication:AuthConfig:Audience"];
                 options.RequireHttpsMetadata = !WebHostEnvironment.IsDevelopment();
+            });
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "AssetManagementApi", Version = "v1" });
             });
 
             //    options.TokenValidationParameters = new TokenValidationParameters
@@ -109,7 +115,7 @@ namespace OrigoAssetServices
                 logger.LogInformation($"Request received {context.Request.Path}");
             });
 
-            app.UseHealthChecks("/healthz");
+            app.UseHealthChecks("/healthz");
 
             app.UseRouting();
 
@@ -117,6 +123,9 @@ namespace OrigoAssetServices
 
             app.UseAuthentication();
 
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AssetManagementApi v1"));
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
