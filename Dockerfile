@@ -30,7 +30,7 @@ RUN dotnet test --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Cod
 
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
-#RUN reportgenerator -reports:/TestResults/**/coverage.cobertura.xml -targetdir:/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
+RUN reportgenerator -reports:/TestResults/**/coverage.cobertura.xml -targetdir:/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
 
 FROM build AS publish
 RUN dotnet publish "OrigoAssetServices/OrigoAssetServices.csproj" -c Release -o /app/publish
