@@ -26,6 +26,8 @@ namespace OrigoAssetServices
 
         public IWebHostEnvironment WebHostEnvironment { get; set; }
 
+        private readonly string swaggerBasePath = "origoapi";
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -123,8 +125,15 @@ namespace OrigoAssetServices
 
             app.UseAuthentication();
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/origoapi/swagger/v1/swagger.json", "AssetManagementApi v1"));
+            app.UseSwagger(c =>
+            {
+                c.RouteTemplate = swaggerBasePath + "/swagger/{documentName}/swagger.json";
+            });
+            app.UseSwaggerUI(c =>
+            {
+                c.RoutePrefix = $"{swaggerBasePath}/swagger";
+                c.SwaggerEndpoint($"/{swaggerBasePath}/swagger/v1/swagger.json", "AssetManagementApi v1");
+            });
 
             app.UseEndpoints(endpoints =>
             {
