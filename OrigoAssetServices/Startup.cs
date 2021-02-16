@@ -2,6 +2,7 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,9 +62,13 @@ namespace OrigoAssetServices
                 options.RequireHttpsMetadata = !WebHostEnvironment.IsDevelopment();
             });
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "AssetManagementApi", Version = "v1" });
+                c.DocumentFilter<SwaggerDocumentFilter>();
             });
 
             //    options.TokenValidationParameters = new TokenValidationParameters
