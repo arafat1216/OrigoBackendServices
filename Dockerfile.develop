@@ -6,12 +6,12 @@ ENV DOTNET_USE_POLLING_FILE_WATCHER=true
 EXPOSE 80
 
 WORKDIR /src
-COPY ["OrigoAssetServices/OrigoAssetServices.csproj", "OrigoAssetServices/"]
+COPY ["AssetServices/AssetServices.csproj", "AssetServices/"]
 
-RUN dotnet restore "OrigoAssetServices/OrigoAssetServices.csproj"
+RUN dotnet restore "AssetServices/AssetServices.csproj"
 COPY . .
-WORKDIR "/src/OrigoAssetServices"
-RUN dotnet build --no-restore "OrigoAssetServices.csproj" -c $BUILD_CONFIGURATION
+WORKDIR "/src/AssetServices"
+RUN dotnet build --no-restore "AssetServices.csproj" -c $BUILD_CONFIGURATION
 
 RUN echo "exec dotnet run --no-build --no-launch-profile -c $BUILD_CONFIGURATION --" > /entrypoint.sh
 

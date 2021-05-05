@@ -4,6 +4,7 @@
 
 trigger:
 - master
+- develop
 
 resources:
 - repo: self
@@ -37,7 +38,7 @@ stages:
       displayName: Create database migration scripts
       inputs:
         installdependencies: true # required for net 3.1+
-        projectpath: '$(Build.SourcesDirectory)/OrigoAssetServices/OrigoAssetServices.csproj'
+        projectpath: '$(Build.SourcesDirectory)/AssetServices/AssetServices.csproj'
         databasecontexts: 'AssetsContext'
         targetfolder: '$(build.artifactstagingdirectory)/migrations'
 
@@ -91,7 +92,7 @@ stages:
         testResultsFiles: '**/*.trx'
       displayName: 'Publish test results'
 
-    - publish: OrigoAssetServices/charts
+    - publish: AssetServices/charts
       artifact: helmcharts
 
 - stage: Deploy
@@ -153,7 +154,7 @@ stages:
               namespace: $(namespace)
               overrideValues: image.tag=$(tag),namespace=$(namespace)
               arguments: --version $(tag)
-              chartPath: $(Pipeline.Workspace)/helmcharts/origoassetservices
+              chartPath: $(Pipeline.Workspace)/helmcharts/AssetServices
               install: true
 
   - deployment: DeployPullRequest
@@ -191,7 +192,7 @@ stages:
               namespace: $(k8sNamespaceForPR)
               overrideValues: image.tag=$(tag),namespace=$(k8sNamespaceForPR)
               arguments: --version $(tag)
-              chartPath: $(Pipeline.Workspace)/helmcharts/origoassetservices
+              chartPath: $(Pipeline.Workspace)/helmcharts/AssetServices
               install: true
 
           - task: Kubernetes@1
