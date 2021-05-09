@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AssetServices.Models;
 using Microsoft.Extensions.Logging;
 
@@ -13,35 +14,13 @@ namespace AssetServices
             AssetContext = assetContext;
         }
 
-        public ILogger<AssetServices> Logger { get; }
-        public AssetsContext AssetContext { get; }
+        private ILogger<AssetServices> Logger { get; }
+        private AssetsContext AssetContext { get; }
 
         public IList<Asset> GetAssetsForUser(Guid userId)
         {
-            return new List<Asset>() {
-                // new Asset {
-                //     AssetId = new Guid("361f11bb-c8e5-42ca-a008-7e1cfba893ad"),
-                //     AssetName = "iPhone",
-                //     AssetHolder = new AssetHolder{
-                //         AssetHolderId = Guid.NewGuid(),
-                //         CompanyId = Guid.NewGuid(),
-                //         DepartmentId = Guid.NewGuid()
-                //     },
-                //     Imei = "353041092945465",
-                //     Vendor = "Apple"
-                // },
-                // new Asset {
-                //     AssetId = new Guid("75e887ac-6ea4-4cfe-b49d-fdc3dba450a9"),
-                //     AssetName = "iPhone XS",
-                //     AssetHolder = new AssetHolder{
-                //         AssetHolderId = Guid.NewGuid(),
-                //         CompanyId = Guid.NewGuid(),
-                //         DepartmentId = Guid.NewGuid()
-                //     },
-                //     Imei = "357229098092251",
-                //     Vendor = "Apple"
-                // }
-            };
+            Logger.LogInformation($"Assets from {userId} retrieved.");
+            return AssetContext.Assets.Where(a => a.AssetHolderId == userId).ToList();
         }
     }
 }

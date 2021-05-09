@@ -12,6 +12,7 @@ namespace AssetServices.Models
         {
         }
 
+
         /// <summary>
         /// External Id of the Asset
         /// </summary>

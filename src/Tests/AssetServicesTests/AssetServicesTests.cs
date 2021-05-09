@@ -13,7 +13,7 @@ namespace AssetServicesTests
         public AssetServicesTests()
             : base(
                 new DbContextOptionsBuilder<AssetsContext>()
-                    .UseSqlite()
+                    .UseSqlite("Data Source=sqliteunittests.db")
                     .Options
             )
         {
@@ -25,16 +25,14 @@ namespace AssetServicesTests
         public void GetAssetsForUser_ForUserOne_CheckCount()
         {
             // Arrange
-            using (var context = new AssetsContext(ContextOptions))
-            {
-                var assetService = new AssetServices.AssetServices(Mock.Of<ILogger<AssetServices.AssetServices>>(), context);
+            using var context = new AssetsContext(ContextOptions);
+            var assetService = new AssetServices.AssetServices(Mock.Of<ILogger<AssetServices.AssetServices>>(), context);
 
-                // Act
-                var assetsFromUser = assetService.GetAssetsForUser(ASSETHOLDER_ONE_ID);
+            // Act
+            var assetsFromUser = assetService.GetAssetsForUser(ASSETHOLDER_ONE_ID);
 
-                // Assert
-                Assert.Equal(2, assetsFromUser.Count);
-            }
+            // Assert
+            Assert.Equal(2, assetsFromUser.Count);
         }
     }
 }
