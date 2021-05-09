@@ -7,16 +7,17 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["CustomerServices/CustomerServices.csproj", "CustomerServices/"]
-RUN dotnet restore "CustomerServices/CustomerServices.csproj"
-COPY . .
-WORKDIR "/src/CustomerServices"
-RUN dotnet build "CustomerServices.csproj" -c Release -o /app/build
+COPY ["src/Services/Customer/Customer.API/Customer.API.csproj", "Customer.API/"]
+RUN dotnet restore "Customer.API/Customer.API.csproj"
+COPY /src/Core/. Core/.
+COPY /src/Services/Customer. Customer/.
+WORKDIR "/src/Services/Customer/Customer.API"
+RUN dotnet build "Customer.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "CustomerServices.csproj" -c Release -o /app/publish
+RUN dotnet publish "Customer.API.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "CustomerServices.dll"]
+ENTRYPOINT ["dotnet", "Customer.API.dll"]
