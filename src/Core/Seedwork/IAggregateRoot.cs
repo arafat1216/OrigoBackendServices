@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Seedwork
+﻿namespace Common.Seedwork
 {
     public interface IAggregateRoot
     {

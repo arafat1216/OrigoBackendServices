@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Infrastructure.Seedwork;
+using Common.Seedwork;
 
 namespace AssetServices.Models
 {

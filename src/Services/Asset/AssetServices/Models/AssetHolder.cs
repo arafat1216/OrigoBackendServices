@@ -1,5 +1,5 @@
 ﻿using System;
-using Infrastructure.Seedwork;
+using Common.Seedwork;
 
 namespace AssetServices.Models
 {

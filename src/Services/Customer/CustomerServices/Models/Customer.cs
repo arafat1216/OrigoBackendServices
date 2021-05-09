@@ -1,19 +1,20 @@
 ﻿using System;
-using Infrastructure.Seedwork;
+using Common.Seedwork;
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
 namespace CustomerServices.Models
 {
     public class Customer : Entity, IAggregateRoot
     {
-        public Guid CustomerId { get; }
+        public Guid CustomerId { get; protected set; }
 
-        public string CompanyName { get; }
+        public string CompanyName { get; protected set; }
 
-        public string OrgNumber { get; }
+        public string OrgNumber { get; protected set; }
 
-        public Address CompanyAddress { get; }
+        public Address CompanyAddress { get; protected set; }
 
-        public ContactPerson CustomerContactPerson { get; }
+        public ContactPerson CustomerContactPerson { get; protected set; }
 
         protected Customer()
         {
