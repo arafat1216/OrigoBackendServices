@@ -12,7 +12,6 @@ namespace AssetServices.Models
         {
         }
 
-
         /// <summary>
         /// External Id of the Asset
         /// </summary>
@@ -48,7 +47,5 @@ namespace AssetServices.Models
         public string Vendor { get; set; }
 
         public string PhoneNumber { get; set; }
-
-        public void BuyoutDevice() { }
     }
 }
