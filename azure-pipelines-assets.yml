@@ -110,7 +110,7 @@ stages:
     - group: AssetsLibrary
   jobs:
   - deployment: MigrateDatabase
-    environment: 'AssetsBackend.develop'
+    environment: 'BackendServices.develop'
     displayName: Migrate database
     variables:
       namespace: develop

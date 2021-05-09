@@ -110,7 +110,7 @@ stages:
     - group: CustomerLibrary
   jobs:
   - deployment: MigrateDatabase
-    environment: 'CustomerBackend.develop'
+    environment: 'BackendServices.develop'
     displayName: Migrate database
     variables:
       namespace: develop
