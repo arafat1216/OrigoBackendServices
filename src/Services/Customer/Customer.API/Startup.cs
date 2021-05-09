@@ -3,6 +3,7 @@ using CustomerServices.Infrastructure;
 using CustomerServices.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,9 +26,15 @@ namespace Customer.API
         {
 
             services.AddControllers();
+            var apiVersion = new ApiVersion(1, 0);
+            services.AddApiVersioning(config =>
+            {
+                config.DefaultApiVersion = apiVersion;
+                config.AssumeDefaultVersionWhenUnspecified = true;
+            });
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "CustomerServices", Version = "v1" });
+                c.SwaggerDoc($"v{apiVersion.MajorVersion}", new OpenApiInfo { Title = "CustomerServices", Version = $"v{apiVersion.MajorVersion}" });
             });
             services.AddDbContext<CustomerContext>(options => options.UseSqlServer(Configuration.GetConnectionString("CustomerConnectionString")));
             services.AddScoped<ICustomerServices, CustomerServices.CustomerServices>();

@@ -11,7 +11,8 @@ using Microsoft.Extensions.Logging;
 namespace Customer.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class CustomersController : ControllerBase
     {
         private readonly ICustomerServices _customerServices;
