@@ -9,11 +9,12 @@ trigger:
     - develop
   paths:
     include:
-    - charts
+    - charts/customer-api
     - src/Core
-    - src/Services/Asset
-    exclude:
     - src/Services/Customer
+    exclude:
+    - charts/asset-api
+    - src/Services/Asset
 
 resources:
 - repo: self
@@ -21,7 +22,7 @@ resources:
 variables:
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '09ee8083-2a55-4731-876c-d6df7059bd8f'
-  imageRepository: 'assetsbackend'
+  imageRepository: 'customersbackend'
   containerRegistry: 'origov2acr.azurecr.io'
   dockerfilePath: '**/Dockerfile'
   tag: '$(Build.BuildId)'
@@ -41,15 +42,13 @@ stages:
   - job: MigrationScripts
     displayName: Migration scripts
     pool:
-      vmImage: windows-latest
+      vmImage: $(vmImageName)
     steps:
-    - task: efcore-migration-script-generator-task@0
-      displayName: Create database migration scripts
-      inputs:
-        installdependencies: true # required for net 3.1+
-        projectpath: '$(Build.SourcesDirectory)/AssetServices/AssetServices.csproj'
-        databasecontexts: 'AssetsContext'
-        targetfolder: '$(build.artifactstagingdirectory)/migrations'
+    - script: 'dotnet tool install --global dotnet-ef'
+      displayName: Install EF Core
+
+    - script: 'dotnet ef migrations script --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/Customer/CustomerServices/CustomerServices.csproj'
+      displayName: Create migration scripts
 
     - task: PublishPipelineArtifact@1
       displayName: 'Publish migrations'
@@ -101,17 +100,17 @@ stages:
         testResultsFiles: '**/*.trx'
       displayName: 'Publish test results'
 
-    - publish: AssetServices/charts
+    - publish: charts/customer-api
       artifact: helmcharts
 
 - stage: Deploy
   displayName: Deploy stage
   dependsOn: Build
   variables:
-    - group: AssetsLibrary
+    - group: CustomerLibrary
   jobs:
   - deployment: MigrateDatabase
-    environment: 'AssetsBackend.develop'
+    environment: 'CustomerBackend.develop'
     displayName: Migrate database
     variables:
       namespace: develop
@@ -132,16 +131,16 @@ stages:
               azureConnectionType: ConnectedServiceNameARM
               azureSubscription: OrigoV2ServiceConnection
               authenticationType: connectionString
-              connectionString: $(AssetsDbConnection)
+              connectionString: $(CustomerDbConnection)
               deployType: SqlTask
-              sqlFile: $(System.ArtifactsDirectory)/migrations/AssetsContext.sql
+              sqlFile: $(System.ArtifactsDirectory)/migrations/migrations.sql
 
   - deployment: Deploy
     condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
     displayName: Deploy
     pool:
       vmImage: $(vmImageName)
-    environment: 'AssetsBackend.develop'
+    environment: 'CustomerBackend.develop'
     strategy:
       runOnce:
         deploy:
@@ -159,11 +158,11 @@ stages:
             inputs:
               command: upgrade
               chartType: FilePath
-              releaseName: assets
+              releaseName: customers
               namespace: $(namespace)
               overrideValues: image.tag=$(tag),namespace=$(namespace)
               arguments: --version $(tag)
-              chartPath: $(Pipeline.Workspace)/helmcharts/AssetServices
+              chartPath: $(Pipeline.Workspace)/helmcharts
               install: true
 
   - deployment: DeployPullRequest
@@ -172,7 +171,7 @@ stages:
     pool:
       vmImage: $(vmImageName)
       
-    environment: 'AssetsBackend.$(k8sNamespaceForPR)'
+    environment: 'CustomerBackend.$(k8sNamespaceForPR)'
     strategy:
       runOnce:
         deploy:
@@ -197,11 +196,11 @@ stages:
             inputs:
               command: upgrade
               chartType: FilePath
-              releaseName: Assets
+              releaseName: Customers
               namespace: $(k8sNamespaceForPR)
               overrideValues: image.tag=$(tag),namespace=$(k8sNamespaceForPR)
               arguments: --version $(tag)
-              chartPath: $(Pipeline.Workspace)/helmcharts/AssetServices
+              chartPath: $(Pipeline.Workspace)/helmcharts
               install: true
 
           - task: Kubernetes@1
