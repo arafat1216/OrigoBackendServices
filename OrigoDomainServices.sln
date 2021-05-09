@@ -44,7 +44,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 		charts\asset-api\templates\service.yaml = charts\asset-api\templates\service.yaml
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "src\Core\Infrastructure.csproj", "{7ED75F5E-1C74-48A9-9CC2-B1323181456A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "src\Core\Common.csproj", "{7ED75F5E-1C74-48A9-9CC2-B1323181456A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Asset", "Asset", "{E5BD172D-7117-4C40-BEB0-6DE70C1286CB}"
 EndProject

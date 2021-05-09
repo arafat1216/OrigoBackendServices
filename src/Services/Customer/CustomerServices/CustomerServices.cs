@@ -1,13 +1,21 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using CustomerServices.Models;
 
 namespace CustomerServices
 {
-    class CustomerServices : ICustomerServices
+    public class CustomerServices : ICustomerServices
     {
-        public IList<Customer> GetCustomers()
+        private readonly ICustomerRepository _customerRepository;
+
+        public CustomerServices(ICustomerRepository customerRepository)
         {
-            return null;
+            _customerRepository = customerRepository;
+        }
+
+        public async Task<IList<Customer>> GetCustomersAsync()
+        {
+            return await _customerRepository.GetCustomersAsync();
         }
     }
 }

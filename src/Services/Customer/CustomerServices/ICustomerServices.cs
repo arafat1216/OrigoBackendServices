@@ -1,10 +1,11 @@
 ﻿using CustomerServices.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CustomerServices
 {
     public interface ICustomerServices
     {
-        IList<Customer> GetCustomers();
+        Task<IList<Customer>> GetCustomersAsync();
     }
 }
