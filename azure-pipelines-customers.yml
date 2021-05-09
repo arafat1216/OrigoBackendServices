@@ -140,7 +140,7 @@ stages:
     displayName: Deploy
     pool:
       vmImage: $(vmImageName)
-    environment: 'CustomerBackend.develop'
+    environment: 'BackendServices.develop'
     strategy:
       runOnce:
         deploy:
@@ -171,7 +171,7 @@ stages:
     pool:
       vmImage: $(vmImageName)
       
-    environment: 'CustomerBackend.$(k8sNamespaceForPR)'
+    environment: 'BackendServices.$(k8sNamespaceForPR)'
     strategy:
       runOnce:
         deploy:
