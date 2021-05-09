@@ -24,7 +24,7 @@ variables:
   dockerRegistryServiceConnection: '09ee8083-2a55-4731-876c-d6df7059bd8f'
   imageRepository: 'customersbackend'
   containerRegistry: 'origov2acr.azurecr.io'
-  dockerfilePath: '**/Dockerfile'
+  dockerfilePath: 'src/Services/Customer/Customer.API/Dockerfile'
   tag: '$(Build.BuildId)'
   imagePullSecret: 'origov2acr3b6d-auth'
   namespace: develop # TODO: set by condition based on branch
@@ -64,6 +64,7 @@ stages:
       displayName: Build image
       inputs:
         command: build
+        buildContext: '$(Build.Repository.LocalPath)'
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
@@ -74,6 +75,7 @@ stages:
       displayName: Push an image to container registry
       inputs:
         command: push
+        buildContext: '$(Build.Repository.LocalPath)'
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
