@@ -33,6 +33,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "asset-api", "asset-api", "{
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "customer-api", "customer-api", "{45217BC1-D812-44F3-AF44-732C89E8496D}"
+	ProjectSection(SolutionItems) = preProject
+		charts\customer-api\.helmignore = charts\customer-api\.helmignore
+		charts\customer-api\Chart.yaml = charts\customer-api\Chart.yaml
+		charts\customer-api\values.yaml = charts\customer-api\values.yaml
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{569E8B6B-0521-491B-959F-8840E457A0E6}"
 	ProjectSection(SolutionItems) = preProject
@@ -51,6 +56,16 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssetServicesTests", "src\Tests\AssetServicesTests\AssetServicesTests.csproj", "{322A9CA5-A8B8-40E5-8F55-BBA39CE27945}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Customer", "Customer", "{B25E42AB-E423-4006-9A2B-9A2ADC9A89D0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{808AC5B1-E29E-471C-8433-C8D0E856CA70}"
+	ProjectSection(SolutionItems) = preProject
+		charts\customer-api\templates\_helpers.tpl = charts\customer-api\templates\_helpers.tpl
+		charts\customer-api\templates\deployment.yaml = charts\customer-api\templates\deployment.yaml
+		charts\customer-api\templates\ingress.yaml = charts\customer-api\templates\ingress.yaml
+		charts\customer-api\templates\NOTES.txt = charts\customer-api\templates\NOTES.txt
+		charts\customer-api\templates\secrets.yaml = charts\customer-api\templates\secrets.yaml
+		charts\customer-api\templates\service.yaml = charts\customer-api\templates\service.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -103,6 +118,7 @@ Global
 		{E5BD172D-7117-4C40-BEB0-6DE70C1286CB} = {F6199CE9-065E-4FB3-A72A-F8B90B838B73}
 		{322A9CA5-A8B8-40E5-8F55-BBA39CE27945} = {E5BD172D-7117-4C40-BEB0-6DE70C1286CB}
 		{B25E42AB-E423-4006-9A2B-9A2ADC9A89D0} = {F6199CE9-065E-4FB3-A72A-F8B90B838B73}
+		{808AC5B1-E29E-471C-8433-C8D0E856CA70} = {45217BC1-D812-44F3-AF44-732C89E8496D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DAEDEBBF-933A-4FFE-B734-B9E748AF86E1}

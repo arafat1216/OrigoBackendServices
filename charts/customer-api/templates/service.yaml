@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "CustomerServices.fullname" . }}
+  labels:
+    {{- include "CustomerServices.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 80
+  selector:
+    {{- include "CustomerServices.selectorLabels" . | nindent 4 }}
