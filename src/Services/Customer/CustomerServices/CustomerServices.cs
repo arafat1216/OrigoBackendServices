@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CustomerServices.Models;
 
@@ -16,6 +17,16 @@ namespace CustomerServices
         public async Task<IList<Customer>> GetCustomersAsync()
         {
             return await _customerRepository.GetCustomersAsync();
+        }
+
+        public async Task<Customer> AddCustomerAsync(Customer newCustomer)
+        {
+            return await _customerRepository.AddAsync(newCustomer);
+        }
+
+        public async Task<Customer> GetCustomerAsync(Guid customerId)
+        {
+            return await _customerRepository.GetCustomerAsync(customerId);
         }
     }
 }

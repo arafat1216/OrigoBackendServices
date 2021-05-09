@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CustomerServices.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CustomerServices.Infrastructure
 {
@@ -10,22 +12,24 @@ namespace CustomerServices.Infrastructure
         private readonly CustomerContext _context;
         public CustomerRepository(CustomerContext context)
         {
-
+            _context = context;
         }
 
-        public Customer Add(Customer customer)
+        public async Task<Customer> AddAsync(Customer customer)
         {
-            throw new NotImplementedException();
+            _context.Customers.Add(customer);
+            await _context.SaveChangesAsync();
+            return customer;
         }
 
-        public Task<IList<Customer>> GetCustomersAsync()
+        public async Task<IList<Customer>> GetCustomersAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Customers.ToListAsync();
         }
 
-        public Task<IList<Customer>> GetCustomerAsync(Guid customerId)
+        public async Task<Customer> GetCustomerAsync(Guid customerId)
         {
-            throw new NotImplementedException();
+            return await _context.Customers.FirstOrDefaultAsync(c => c.CustomerId == customerId);
         }
     }
 }
