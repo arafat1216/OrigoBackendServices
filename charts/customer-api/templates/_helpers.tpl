@@ -2,7 +2,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "AssetServices.name" -}}
+{{- define "CustomerServices.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -11,7 +11,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "AssetServices.fullname" -}}
+{{- define "CustomerServices.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -27,16 +27,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "AssetServices.chart" -}}
+{{- define "CustomerServices.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Common labels
 */}}
-{{- define "AssetServices.labels" -}}
-helm.sh/chart: {{ include "AssetServices.chart" . }}
-{{ include "AssetServices.selectorLabels" . }}
+{{- define "CustomerServices.labels" -}}
+helm.sh/chart: {{ include "CustomerServices.chart" . }}
+{{ include "CustomerServices.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -46,17 +46,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "AssetServices.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "AssetServices.name" . }}
+{{- define "CustomerServices.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "CustomerServices.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "AssetServices.serviceAccountName" -}}
+{{- define "CustomerServices.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create -}}
-    {{ default (include "AssetServices.fullname" .) .Values.serviceAccount.name }}
+    {{ default (include "CustomerServices.fullname" .) .Values.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
