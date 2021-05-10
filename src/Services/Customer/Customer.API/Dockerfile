@@ -18,6 +18,8 @@ COPY /src/Core/. Core/.
 COPY /src/Services/Customer/. Services/Customer/.
 COPY /src/Services/Customer/Tests/CustomerServices.UnitTests/. Services/Customer/Tests/CustomerServices.UnitTests/.
 
+WORKDIR "/src/Services/Customer/Customer.API"
+
 RUN dotnet sonarscanner begin \
   /k:"${SONAR_PROJECT_KEY}" \
   /o:"${SONAR_ORGANIZATION_KEY}" \
@@ -25,7 +27,6 @@ RUN dotnet sonarscanner begin \
   /d:sonar.login="${SONAR_TOKEN}" \
   /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.cobertura.xml
 
-WORKDIR "/src/Services/Customer/Customer.API"
 RUN dotnet build "Customer.API.csproj" -c Release -o /app/build
 
 ARG BUILD_ID
