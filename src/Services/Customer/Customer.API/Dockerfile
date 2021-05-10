@@ -12,7 +12,7 @@ COPY ["src/Services/Customer/CustomerServices/CustomerServices.csproj", "Service
 COPY ["src/Services/Customer/Customer.API/Customer.API.csproj", "Services/Customer/Customer.API/Customer.API.csproj"]
 RUN dotnet restore "Services/Customer/Customer.API/Customer.API.csproj"
 COPY /src/Core/. Core/.
-COPY /src/Services/Customer. Services/Customer/.
+COPY /src/Services/Customer/. Services/Customer/.
 WORKDIR "/src/Services/Customer/Customer.API"
 RUN dotnet build "Customer.API.csproj" -c Release -o /app/build
 
