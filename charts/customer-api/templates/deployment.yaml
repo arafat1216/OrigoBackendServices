@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "CustomerServices.fullname" . }}
+  name: {{ include "customerservices.fullname" . }}
   labels:
-    {{- include "CustomerServices.labels" . | nindent 4 }}
+    {{- include "customerservices.labels" . | nindent 4 }}
 spec:
   revisionHistoryLimit: 0
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "CustomerServices.selectorLabels" . | nindent 6 }}
+      {{- include "customerservices.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "CustomerServices.selectorLabels" . | nindent 8 }}
+        {{- include "customerservices.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
@@ -39,7 +39,7 @@ spec:
             - name: {{ $ref }}_{{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "CustomerServices.fullname" $root }}-{{ $ref | lower }}
+                  name: {{ template "customerservices.fullname" $root }}-{{ $ref | lower }}
                   key: {{ $key }}
             {{- end }}
             {{- end }}

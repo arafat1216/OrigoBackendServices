@@ -1,5 +1,5 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "CustomerServices.fullname" . -}}
+{{- $fullName := include "customerservices.fullname" . -}}
 {{- $servicePort := .Values.service.port -}}
 {{- $ingressPath := .Values.ingress.path -}}
 apiVersion: networking.k8s.io/v1
@@ -8,8 +8,8 @@ metadata:
   namespace: {{ .Values.namespace}}
   name: {{ $fullName }}
   labels:
-    app: {{ template "CustomerServices.name" . }}
-    chart: {{ template "CustomerServices.chart" . }}
+    app: {{ template "customerservices.name" . }}
+    chart: {{ template "customerservices.chart" . }}
     release: {{ .Release.Name | quote }}
     heritage: {{ .Release.Service }}
 {{- with .Values.ingress.annotations }}
