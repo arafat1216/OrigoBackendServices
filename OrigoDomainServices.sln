@@ -69,6 +69,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		azure-pipelines-customers.yml = azure-pipelines-customers.yml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5F61689A-C83C-40C1-88C4-567CB50363F9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomerServices.UnitTests", "src\Services\Customer\Tests\CustomerServices.UnitTests\CustomerServices.UnitTests.csproj", "{C0901A9A-2332-495E-B063-0B9A154B4E16}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +103,10 @@ Global
 		{C1D1A4EA-EE80-41CD-B924-0E7359975292}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1D1A4EA-EE80-41CD-B924-0E7359975292}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1D1A4EA-EE80-41CD-B924-0E7359975292}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0901A9A-2332-495E-B063-0B9A154B4E16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0901A9A-2332-495E-B063-0B9A154B4E16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0901A9A-2332-495E-B063-0B9A154B4E16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0901A9A-2332-495E-B063-0B9A154B4E16}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -119,6 +127,8 @@ Global
 		{808AC5B1-E29E-471C-8433-C8D0E856CA70} = {45217BC1-D812-44F3-AF44-732C89E8496D}
 		{20512BEA-2958-4218-BAB3-95FCE7363A93} = {D811BE4C-599D-475A-9870-8C0BCA0ABECE}
 		{C1D1A4EA-EE80-41CD-B924-0E7359975292} = {20512BEA-2958-4218-BAB3-95FCE7363A93}
+		{5F61689A-C83C-40C1-88C4-567CB50363F9} = {0799563F-7C86-4EC3-B912-73E06AA4FAA6}
+		{C0901A9A-2332-495E-B063-0B9A154B4E16} = {5F61689A-C83C-40C1-88C4-567CB50363F9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DAEDEBBF-933A-4FFE-B734-B9E748AF86E1}

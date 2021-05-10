@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CustomerServices.Models;
+using Microsoft.Extensions.Logging;
 
 namespace CustomerServices
 {
     public class CustomerServices : ICustomerServices
     {
+        private readonly ILogger<CustomerServices> _logger;
         private readonly ICustomerRepository _customerRepository;
 
-        public CustomerServices(ICustomerRepository customerRepository)
+        public CustomerServices(ILogger<CustomerServices> logger, ICustomerRepository customerRepository)
         {
+            _logger = logger;
             _customerRepository = customerRepository;
         }
 
