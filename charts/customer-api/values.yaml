@@ -12,7 +12,11 @@ imagePullSecrets:
   - name: origov2acr3b6d-auth
 service:
   type: ClusterIP
-  port: 8095
+  port: 80
+env: 
+  "ASPNETCORE_ENVIRONMENT": "Staging"
+  "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true"
+  "ASPNETCORE_URLS": "https://+:443;http://+:80"
 
 deployment:
   containerPort: 80
