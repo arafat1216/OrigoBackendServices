@@ -2,27 +2,40 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 fullnameOverride: customerservices
-replicaCount: 1
 namespace: develop
-image:
-  repository: origov2acr.azurecr.io/customersbackend
-  tag: 3642
-  pullPolicy: IfNotPresent
-imagePullSecrets:
-  - name: origov2acr3b6d-auth
 service:
   type: ClusterIP
   port: 80
-env: 
-  "ASPNETCORE_ENVIRONMENT": "Staging"
-  "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true"
-  "ASPNETCORE_URLS": "https://+:443;http://+:80"
 
 deployment:
   containerPort: 80
+  replicaCount: 2
+  env: 
+    "ASPNETCORE_ENVIRONMENT": "Staging"
+    "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true"
+    "ASPNETCORE_URLS": "https://+:443;http://+:80"
 
-probes:
-  enabled: false
+  image:
+    repository: origov2acr.azurecr.io/customersbackend
+    tag: 3642
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets:
+    - name: origov2acr3b6d-auth
+
+  secretVolumes:
+    - secretVolume:
+       name: "secrets"
+       secretName: "secret-appsettings"
+
+  volumeMounts:
+    - volumeMount:
+        name: "secret"
+        mountPath: "/app/secrets"
+        readOnly: true
+
+  probes:
+    enabled: false
 
 ingress:
   enabled: true
@@ -39,9 +52,9 @@ ingress:
       paths:
         - /origoapi
   tls:
-   - secretName: letsencrypt
-     hosts:
-       - origov2dev.mytos.no
+    - secretName: letsencrypt
+      hosts:
+        - origov2dev.mytos.no
 
 secrets: {}
   # Optionally specify a set of secret objects whose values

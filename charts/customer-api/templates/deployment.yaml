@@ -6,7 +6,7 @@ metadata:
     {{- include "customerservices.labels" . | nindent 4 }}
 spec:
   revisionHistoryLimit: 0
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.deployment.replicaCount }}
   selector:
     matchLabels:
       {{- include "customerservices.selectorLabels" . | nindent 6 }}
@@ -17,12 +17,12 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.deployment.containerPort }}
               protocol: TCP
-          {{- if .Values.probes.enabled }}
+          {{- if .Values.deployment.probes.enabled }}
           livenessProbe:
             httpGet:
               path: /
@@ -33,6 +33,10 @@ spec:
               port: 80
           {{- end }}
           env:
+          {{- range $ref, $value := .Values.deployment.env }}
+          - name: {{ $ref }}
+            value: {{ $value }}
+          {{- end }}
             {{- $root := . }}
             {{- range $ref, $values := .Values.secrets }}
             {{- range $key, $value := $values }}
@@ -43,9 +47,21 @@ spec:
                   key: {{ $key }}
             {{- end }}
             {{- end }}
+          volumeMounts:
+          {{- range .Values.deployment.volumeMounts }}
+          - name: {{ .volumeMount.name }}
+            mountPath: {{ .volumeMount.mountPath }}
+            readOnly: {{ .volumeMount.readOnly }}
+          {{- end }}
           resources:
+      volumes:
+      {{- range .Values.deployment.secretVolumes }}
+      - name: {{ .secretVolume.name }}
+        secret:
+          secretName: {{ .secretVolume.secretName }}
+      {{- end }}
 {{ toYaml .Values.resources | indent 12 }}
-    {{- with .Values.imagePullSecrets }}
+    {{- with .Values.deployment.imagePullSecrets }}
       imagePullSecrets:
 {{ toYaml . | indent 8 }}
     {{- end }}
