@@ -30,7 +30,7 @@ deployment:
 
   volumeMounts:
     - volumeMount:
-        name: "secret"
+        name: "secrets"
         mountPath: "/app/secrets"
         readOnly: true
 
