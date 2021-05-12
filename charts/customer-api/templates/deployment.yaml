@@ -34,8 +34,8 @@ spec:
           {{- end }}
           env:
           {{- range $ref, $value := .Values.deployment.env }}
-          - name: {{ $ref }}
-            value: {{ $value }}
+          - name: {{ $ref | quote }}
+            value: {{ $value | quote }}
           {{- end }}
             {{- $root := . }}
             {{- range $ref, $values := .Values.secrets }}

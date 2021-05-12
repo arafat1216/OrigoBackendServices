@@ -13,7 +13,7 @@ namespace Customer.API
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-             .ConfigureAppConfiguration((hostingContext, config) =>
+             .ConfigureAppConfiguration((_, config) =>
              {
                  config.AddJsonFile("secrets/appsettings.secrets.json", optional: true);
              })
