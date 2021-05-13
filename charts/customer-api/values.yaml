@@ -38,7 +38,7 @@ deployment:
     enabled: false
 
 ingress:
-  enabled: true
+  enabled: false
   annotations:
     kubernetes.io/ingress.class: traefik
     ingress.kubernetes.io/protocol: https
@@ -46,15 +46,6 @@ ingress:
     traefik.ingress.kubernetes.io/redirect-entry-point: https
     traefik.ingress.kubernetes.io/router.middlewares: traefik-https-only@kubernetescrd
     traefik.frontend.passHostHeader: "true"
-
-  hosts:
-    - host: origov2dev.mytos.no
-      paths:
-        - /origoapi
-  tls:
-    - secretName: letsencrypt
-      hosts:
-        - origov2dev.mytos.no
 
 secrets: {}
   # Optionally specify a set of secret objects whose values

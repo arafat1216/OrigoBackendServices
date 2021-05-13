@@ -54,13 +54,13 @@ spec:
             readOnly: {{ .volumeMount.readOnly }}
           {{- end }}
           resources:
+{{ toYaml .Values.resources | indent 12 }}
       volumes:
       {{- range .Values.deployment.secretVolumes }}
       - name: {{ .secretVolume.name }}
         secret:
           secretName: {{ .secretVolume.secretName }}
       {{- end }}
-{{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.deployment.imagePullSecrets }}
       imagePullSecrets:
 {{ toYaml . | indent 8 }}
