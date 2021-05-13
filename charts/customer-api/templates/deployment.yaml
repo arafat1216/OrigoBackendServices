@@ -53,8 +53,6 @@ spec:
             mountPath: {{ .volumeMount.mountPath }}
             readOnly: {{ .volumeMount.readOnly }}
           {{- end }}
-          resources:
-{{ toYaml .Values.resources | indent 12 }}
       volumes:
       {{- range .Values.deployment.secretVolumes }}
       - name: {{ .secretVolume.name }}
