@@ -161,7 +161,7 @@ stages:
               chartType: FilePath
               releaseName: customers
               namespace: $(namespace)
-              overrideValues: image.tag=$(tag),namespace=$(namespace)
+              overrideValues: deployment.image.tag=$(tag),namespace=$(namespace)
               arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts
               install: true
