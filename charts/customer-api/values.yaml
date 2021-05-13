@@ -5,7 +5,7 @@ fullnameOverride: customerservices
 namespace: develop
 service:
   type: ClusterIP
-  port: 80
+  port: 8090
 
 deployment:
   containerPort: 80
@@ -13,7 +13,7 @@ deployment:
   env: 
     "ASPNETCORE_ENVIRONMENT": "Staging"
     "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true"
-    "ASPNETCORE_URLS": "https://+:443;http://+:80"
+    "ASPNETCORE_URLS": http://+:8090"
 
   image:
     repository: origov2acr.azurecr.io/customersbackend
