@@ -26,7 +26,6 @@ variables:
   containerRegistry: 'origov2acr.azurecr.io'
   dockerfilePath: 'src/Services/Customer/Customer.API/Dockerfile'
   tag: '$(Build.BuildId)'
-  imagePullSecret: 'origov2acr3b6d-auth'
   namespace: develop # TODO: set by condition based on branch
 
   # Agent VM image name

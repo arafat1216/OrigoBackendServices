@@ -20,9 +20,6 @@ deployment:
     tag: 3642
     pullPolicy: IfNotPresent
 
-  imagePullSecrets:
-    - name: origov2acr3b6d-auth
-
   secretVolumes:
     - secretVolume:
        name: "secrets"
