@@ -19,7 +19,7 @@ namespace Customer.API
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -34,7 +34,7 @@ namespace Customer.API
             });
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc($"v{apiVersion.MajorVersion}", new OpenApiInfo { Title = "CustomerServices", Version = $"v{apiVersion.MajorVersion}" });
+                c.SwaggerDoc($"v{apiVersion.MajorVersion}", new OpenApiInfo { Title = "Customer Management", Version = $"v{apiVersion.MajorVersion}" });
             });
             services.AddDbContext<CustomerContext>(options => options.UseSqlServer(Configuration.GetConnectionString("CustomerConnectionString")));
             services.AddScoped<ICustomerServices, CustomerServices.CustomerServices>();

@@ -1,32 +1,30 @@
 ﻿using System;
-using Common.Seedwork;
+using AssetServices.Models;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
-// ReSharper disable MemberCanBePrivate.Global
 
-namespace AssetServices.Models
+namespace Asset.API.ViewModels
 {
-    public class Asset : Entity, IAggregateRoot
+    public record Asset
     {
-        // TODO: Set to protected as DDD best practice
-        protected Asset()
+        public Asset()
         {
+
         }
 
-        public Asset(Guid assetId, Guid customerId, string serialNumber, Guid assetCategoryId, string brand, string model,
-            LifecycleType lifecycleType, DateTime purchaseDate, Guid assetHolderId,
-            bool isActive, Guid? managedByDepartmentId = null)
+        public Asset(AssetServices.Models.Asset asset)
         {
-            AssetId = assetId;
-            CustomerId = customerId;
-            SerialNumber = serialNumber;
-            AssetCategoryId = assetCategoryId;
-            Brand = brand;
-            Model = model;
-            LifecycleType = lifecycleType;
-            PurchaseDate = purchaseDate;
-            AssetHolderId = assetHolderId;
-            IsActive = isActive;
-            ManagedByDepartmentId = managedByDepartmentId;
+            AssetId = asset.AssetId;
+            CustomerId = asset.CustomerId;
+            SerialNumber = asset.SerialNumber;
+            AssetCategoryName = asset.AssetCategory.Name;
+            Brand = asset.Brand;
+            Model = asset.Model;
+            LifecycleType = asset.LifecycleType;
+            PurchaseDate = asset.PurchaseDate;
+            ManagedByDepartmentId = asset.ManagedByDepartmentId.HasValue ? asset.ManagedByDepartmentId.Value.ToString() : string.Empty;
+            AssetHolderId = asset.AssetHolderId;
+            IsActive = asset.IsActive;
         }
 
         /// <summary>
@@ -48,12 +46,7 @@ namespace AssetServices.Models
         /// <summary>
         /// The category this asset belongs to.
         /// </summary>
-        public Guid AssetCategoryId { get; protected set; }
-
-        /// <summary>
-        /// The category this asset belongs to.
-        /// </summary>
-        public AssetCategory AssetCategory { get; protected set; }
+        public string AssetCategoryName { get; protected set;  }
 
         /// <summary>
         /// The asset brand (e.g. Samsung)
@@ -70,21 +63,21 @@ namespace AssetServices.Models
         /// </summary>
         public LifecycleType LifecycleType { get; protected set; }
 
+        /// <summary>
+        /// The date the asset was purchased.
+        /// </summary>
         public DateTime PurchaseDate { get; protected set; }
-
+        
         /// <summary>
         /// The department or cost center this asset is assigned to.
         /// </summary>
-        public Guid? ManagedByDepartmentId { get; protected set; }
+        public string ManagedByDepartmentId { get; protected set; }
 
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
         public Guid AssetHolderId { get; protected set; }
 
-        /// <summary>
-        /// Is this asset activated
-        /// </summary>
-        public bool IsActive { get; protected set; }
+        public bool IsActive { get; set; }
     }
 }

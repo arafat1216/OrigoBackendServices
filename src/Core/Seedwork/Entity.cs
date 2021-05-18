@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MediatR;
 
 // ReSharper disable NonReadonlyMemberInGetHashCode
@@ -9,6 +10,9 @@ namespace Common.Seedwork
     {
         int? _requestedHashCode;
         public virtual int Id { get; protected set; }
+
+        public DateTime CreatedDate { get; protected set; }
+        public DateTime LastUpdatedDate { get; protected set; }
 
         private List<INotification> _domainEvents;
         public IReadOnlyCollection<INotification> DomainEvents => _domainEvents?.AsReadOnly();
