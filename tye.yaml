@@ -5,6 +5,10 @@
 #    https://aka.ms/AA7q20u
 #
 name: origodomainservices
+extensions:
+- name: dapr
+  log-level: debug
+- name: zipkin
 services:
 - name: asset-api
   project: src/Services/Asset/Asset.API/Asset.API.csproj
