@@ -14,3 +14,5 @@ services:
   project: src/Services/Asset/Asset.API/Asset.API.csproj
 - name: customer-api
   project: src/Services/Customer/Customer.API/Customer.API.csproj
+- name: origoapigateway
+  project: src/ApiGateways/OrigoApiGateway/OrigoApiGateway/OrigoApiGateway.csproj

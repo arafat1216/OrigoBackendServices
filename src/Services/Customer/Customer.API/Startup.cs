@@ -27,7 +27,7 @@ namespace Customer.API
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
+            services.AddControllers().AddDapr();
             services.AddApiVersioning(config =>
             {
                 config.DefaultApiVersion = _apiVersion;

@@ -9,9 +9,8 @@ trigger:
     - develop
   paths:
     include:
-    - charts/customer-api
-    - src/Core
-    - src/Services/Customer
+    - charts/origoapigateway
+    - src/ApiGateways
 
 resources:
 - repo: self
@@ -19,9 +18,9 @@ resources:
 variables:
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '09ee8083-2a55-4731-876c-d6df7059bd8f'
-  imageRepository: 'customersbackend'
+  imageRepository: 'origoapigateway'
   containerRegistry: 'origov2acr.azurecr.io'
-  dockerfilePath: 'src/Services/Customer/Customer.API/Dockerfile'
+  dockerfilePath: '**/Dockerfile'
   tag: '$(Build.BuildId)'
   namespace: develop # TODO: set by condition based on branch
 
@@ -34,23 +33,9 @@ variables:
 stages:
 - stage: Build
   displayName: Build stage
+  variables:
+    - group: OrigoApiGateway
   jobs:
-  - job: MigrationScripts
-    displayName: Migration scripts
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - script: 'dotnet tool install --global dotnet-ef'
-      displayName: Install EF Core
-
-    - script: 'dotnet ef migrations script --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/Customer/CustomerServices/CustomerServices.csproj'
-      displayName: Create migration scripts
-
-    - task: PublishPipelineArtifact@1
-      displayName: 'Publish migrations'
-      inputs:
-        targetPath: '$(build.artifactstagingdirectory)/migrations'
-        artifact: 'migrations'
   - job: Build
     displayName: Build
     pool:
@@ -60,7 +45,6 @@ stages:
       displayName: Build image
       inputs:
         command: build
-        buildContext: '$(Build.Repository.LocalPath)'
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
@@ -71,7 +55,6 @@ stages:
       displayName: Push an image to container registry
       inputs:
         command: push
-        buildContext: '$(Build.Repository.LocalPath)'
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
@@ -98,41 +81,15 @@ stages:
         testResultsFiles: '**/*.trx'
       displayName: 'Publish test results'
 
-    - publish: charts/customer-api
+    - publish: OrigoApiGateway/charts
       artifact: helmcharts
 
 - stage: Deploy
   displayName: Deploy stage
   dependsOn: Build
   variables:
-    - group: CustomerLibrary
+    - group: OrigoApiGateway
   jobs:
-  - deployment: MigrateDatabase
-    environment: 'BackendServices.develop'
-    displayName: Migrate database
-    variables:
-      namespace: develop
-    pool:
-      vmImage: windows-latest
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: Download migration scripts
-            inputs:
-              artifactName: 'migrations'
-              downloadPath: '$(System.ArtifactsDirectory)/migrations'
-          - task: SqlAzureDacpacDeployment@1
-            displayName: Run sql migrations
-            inputs:
-              azureConnectionType: ConnectedServiceNameARM
-              azureSubscription: OrigoV2ServiceConnection
-              authenticationType: connectionString
-              connectionString: $(CustomerDbConnection)
-              deployType: SqlTask
-              sqlFile: $(System.ArtifactsDirectory)/migrations/migrations.sql
-
   - deployment: Deploy
     condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
     displayName: Deploy
@@ -156,11 +113,11 @@ stages:
             inputs:
               command: upgrade
               chartType: FilePath
-              releaseName: customers
+              releaseName: origoapigateway
               namespace: $(namespace)
               overrideValues: deployment.image.tag=$(tag),namespace=$(namespace)
               arguments: --version $(tag)
-              chartPath: $(Pipeline.Workspace)/helmcharts
+              chartPath: $(Pipeline.Workspace)/helmcharts/origoapigateway
               install: true
 
   - deployment: DeployPullRequest
@@ -169,7 +126,7 @@ stages:
     pool:
       vmImage: $(vmImageName)
       
-    environment: 'BackendServices.$(k8sNamespaceForPR)'
+    environment: 'BackendServices.develop.$(k8sNamespaceForPR)'
     strategy:
       runOnce:
         deploy:
@@ -194,11 +151,11 @@ stages:
             inputs:
               command: upgrade
               chartType: FilePath
-              releaseName: Customers
+              releaseName: Assets
               namespace: $(k8sNamespaceForPR)
               overrideValues: image.tag=$(tag),namespace=$(k8sNamespaceForPR)
               arguments: --version $(tag)
-              chartPath: $(Pipeline.Workspace)/helmcharts
+              chartPath: $(Pipeline.Workspace)/helmcharts/OrigoApiGateway
               install: true
 
           - task: Kubernetes@1
