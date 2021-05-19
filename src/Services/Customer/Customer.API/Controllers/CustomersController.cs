@@ -68,7 +68,7 @@ namespace Customer.API.Controllers
 
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Customer), (int) HttpStatusCode.Created)]
-        public async Task<ActionResult> CreateCustomer([FromBody] NewCustomer customer)
+        public async Task<ActionResult<ViewModels.Customer>> CreateCustomer([FromBody] NewCustomer customer)
         {
             var companyAddress = new CustomerServices.Models.Address(customer.CompanyAddress.Street,
                 customer.CompanyAddress.PostCode, customer.CompanyAddress.City, customer.CompanyAddress.Country);

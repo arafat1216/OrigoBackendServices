@@ -11,7 +11,7 @@ namespace Common.Seedwork
         int? _requestedHashCode;
         public virtual int Id { get; protected set; }
 
-        public DateTime CreatedDate { get; protected set; }
+        public DateTime CreatedDate { get; protected set; } = DateTime.UtcNow;
         public DateTime LastUpdatedDate { get; protected set; }
 
         private List<INotification> _domainEvents;
