@@ -12,8 +12,8 @@ namespace Asset.API.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route(
-        "api/v{version:apiVersion}/Customers/{customerId:guid}/Assets")] // Assets should only be available through a given customer
+    // Assets should only be available through a given customer
+    [Route("api/v{version:apiVersion}/Customers/{customerId:guid}/Assets")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
     public class AssetsController : ControllerBase

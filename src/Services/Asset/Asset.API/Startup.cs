@@ -20,6 +20,8 @@ namespace Asset.API
             Configuration = configuration;
         }
 
+        private readonly ApiVersion _apiVersion = new(1, 0);
+
         private IConfiguration Configuration { get; }
 
 
@@ -27,15 +29,14 @@ namespace Asset.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            var apiVersion = new ApiVersion(1, 0);
             services.AddApiVersioning(config =>
             {
-                config.DefaultApiVersion = apiVersion;
+                config.DefaultApiVersion = _apiVersion;
                 config.AssumeDefaultVersionWhenUnspecified = true;
             });
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Asset Management", Version = $"v{apiVersion.MajorVersion}" });
+                c.SwaggerDoc($"v{_apiVersion.MajorVersion}", new OpenApiInfo { Title = "Asset Management", Version = $"v{_apiVersion.MajorVersion}" });
             });
             services.AddDbContext<AssetsContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AssetConnectionString")));
             services.AddScoped<IAssetServices, AssetServices.AssetServices>();
@@ -64,7 +65,7 @@ namespace Asset.API
             }
 
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Customer Asset Services v1"));
+            app.UseSwaggerUI(c => c.SwaggerEndpoint($"/swagger/v{_apiVersion.MajorVersion}/swagger.json", $"Customer Asset Services v{_apiVersion.MajorVersion}"));
 
             app.UseRouting();
 
