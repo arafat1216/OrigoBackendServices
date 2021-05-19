@@ -67,7 +67,7 @@ namespace Asset.API.Controllers
             var newAsset = new AssetServices.Models.Asset(Guid.NewGuid(), customerId, asset.SerialNumber,
                 asset.AssetCategoryId, asset.Brand, asset.Model, asset.LifecycleType, asset.PurchaseDate,
                 asset.AssetHolderId, asset.IsActive, asset.ManagedByDepartmentId);
-            var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, newAsset);
+            var updatedAsset = await _assetServices.AddAssetForCustomerAsync(newAsset);
             var updatedAssetView = new ViewModels.Asset(updatedAsset);
 
             return CreatedAtAction(nameof(CreateAsset), new {id = updatedAssetView.AssetId}, updatedAssetView);

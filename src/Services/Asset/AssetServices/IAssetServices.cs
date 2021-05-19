@@ -9,6 +9,6 @@ namespace AssetServices
     {
         Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId);
         Task<IList<Asset>> GetAssetsForCustomerAsync(Guid customerId);
-        Task<Asset> AddAssetForCustomerAsync(Guid customerId, Asset newAsset);
+        Task<Asset> AddAssetForCustomerAsync(Asset newAsset);
     }
 }

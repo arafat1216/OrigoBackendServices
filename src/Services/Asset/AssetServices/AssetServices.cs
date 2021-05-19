@@ -27,9 +27,9 @@ namespace AssetServices
             return await _assetRepository.GetAssetsAsync(customerId);
         }
 
-        public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, Asset newAsset)
+        public async Task<Asset> AddAssetForCustomerAsync(Asset newAsset)
         {
-            throw new NotImplementedException();
+            return await _assetRepository.AddAsync(newAsset);
         }
     }
 }
