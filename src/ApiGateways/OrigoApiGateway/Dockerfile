@@ -15,11 +15,14 @@ ARG PROJECT_NAME
 WORKDIR /src
 
 # Restore Nuget-packages for projects
-COPY ["./${PROJECT_NAME}/${PROJECT_NAME}.csproj", "${PROJECT_NAME}/"]
-COPY ["./${PROJECT_NAME}.Tests/${PROJECT_NAME}.Tests.csproj", "${PROJECT_NAME}.Tests/"]
-RUN dotnet restore
+COPY ["./OrigoApiGateway/OrigoApiGateway.csproj", "OrigoApiGateway/OrigoApiGateway.csproj"]
+COPY ["./OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj", "OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj"]
+RUN dotnet restore "OrigoApiGateway/OrigoApiGateway.csproj"
+RUN dotnet restore "OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj"
 
-COPY . .
+COPY /src/ApiGateways/OrigoApiGateway/. ApiGateways/OrigoApiGateway/.
+
+WORKDIR "/src/ApiGateways/OrigoApiGateway"
 
 RUN dotnet sonarscanner begin \
   /k:"${SONAR_PROJECT_KEY}" \
@@ -28,12 +31,12 @@ RUN dotnet sonarscanner begin \
   /d:sonar.login="${SONAR_TOKEN}" \
   /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.cobertura.xml
 
-RUN dotnet build -c Release -o /app/build --no-restore ${PROJECT_NAME}/${PROJECT_NAME}.csproj
+RUN dotnet build -c Release -o /app/build --no-restore "OrigoApiGateway/OrigoApiGateway.csproj"
 
 ARG BUILD_ID
 LABEL test=${BUILD_ID}
 
-RUN dotnet test --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore ${PROJECT_NAME}.Tests/${PROJECT_NAME}.Tests.csproj
+RUN dotnet test --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj
 
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
@@ -43,7 +46,7 @@ RUN find /TestResults -mindepth 2 -maxdepth 2 -name "coverage.cobertura.xml" -pr
 RUN find /CodeCoverage -name "coverage.cobertura.xml" -print | xargs sed -i 's/\/src/\./g'
 
 FROM build AS publish
-WORKDIR "/src/OrigoApiGateway"
+WORKDIR "/src/ApiGateways/OrigoApiGateway/OrigoApiGateway"
 RUN dotnet publish "OrigoApiGateway.csproj" -c Release -o /app/publish
 
 # Create app image
