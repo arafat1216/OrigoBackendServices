@@ -28,7 +28,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var customers = await HttpClient.GetFromJsonAsync<IList<CustomerDTO>>("/Customers");
+                var customers = await HttpClient.GetFromJsonAsync<IList<CustomerDTO>>($"{Options.ApiPath}");
                 if (customers == null) return null;
                 var origoCustomers = new List<OrigoCustomer>();
                 foreach (var customer in customers) origoCustomers.Add(new OrigoCustomer(customer));
@@ -55,7 +55,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var customer = await HttpClient.GetFromJsonAsync<CustomerDTO>($"/Customers/{customerId}");
+                var customer = await HttpClient.GetFromJsonAsync<CustomerDTO>($"{Options.ApiPath}/{customerId}");
                 return customer == null ? null : new OrigoCustomer(customer);
             }
             catch (HttpRequestException exception)
@@ -79,7 +79,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync("/Customers", newCustomer);
+                var response = await HttpClient.PostAsJsonAsync("{Options.ApiPath}", newCustomer);
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new BadHttpRequestException("Unable to save customer", (int) response.StatusCode);

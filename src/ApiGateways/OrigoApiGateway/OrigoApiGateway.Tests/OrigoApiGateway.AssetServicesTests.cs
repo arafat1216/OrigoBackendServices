@@ -60,7 +60,7 @@ namespace OrigoApiGateway.Tests
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object) {BaseAddress = new Uri("http://localhost")};
             mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-            var options = new AssetConfiguration() { ApiBaseUrl = "https://localhost", ApiPort = "44300", ApiPath = @"/assets" };
+            var options = new AssetConfiguration() { ApiPath = @"/assets" };
             var optionsMock = new Mock<IOptions<AssetConfiguration>>();
             optionsMock.Setup(o => o.Value).Returns(options);
 

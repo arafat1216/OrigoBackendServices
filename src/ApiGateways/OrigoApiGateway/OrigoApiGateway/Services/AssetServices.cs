@@ -29,7 +29,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var assets = await HttpClient.GetFromJsonAsync<IList<AssetDTO>>($"/Customers/{customerId}/Assets/{userId}");
+                var assets = await HttpClient.GetFromJsonAsync<IList<AssetDTO>>($"{_options.ApiPath}/{customerId}/Assets/{userId}");
                 if (assets == null)
                 {
                     return null;
@@ -62,7 +62,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var assets = await HttpClient.GetFromJsonAsync<IList<AssetDTO>>($"/Customers/{customerId}/Assets");
+                var assets = await HttpClient.GetFromJsonAsync<IList<AssetDTO>>($"{_options.ApiPath}/{customerId}/Assets");
                 if (assets == null)
                 {
                     return null;
@@ -93,7 +93,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"/customers/{customerId}/assets", newAsset);
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/assets", newAsset);
                 if (response.IsSuccessStatusCode)
                 {
                     if (response.Content.Headers.ContentType is { MediaType: "application/json" })
