@@ -44,7 +44,7 @@ stages:
     - script: 'dotnet tool install --global dotnet-ef'
       displayName: Install EF Core
 
-    - script: 'dotnet ef migrations script --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/Assets/AssetServices/AssetServices.csproj'
+    - script: 'dotnet ef migrations script --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/Asset/AssetServices/AssetServices.csproj'
       displayName: Create migration scripts
 
     - task: PublishPipelineArtifact@1
@@ -61,6 +61,7 @@ stages:
       displayName: Build image
       inputs:
         command: build
+        buildContext: '$(Build.Repository.LocalPath)'
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
@@ -71,6 +72,7 @@ stages:
       displayName: Push an image to container registry
       inputs:
         command: push
+        buildContext: '$(Build.Repository.LocalPath)'
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
