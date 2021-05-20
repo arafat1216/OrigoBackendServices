@@ -9,6 +9,7 @@ trigger:
     - develop
   paths:
     include:
+    - azure-pipelines-assets.yml
     - charts/asset-api
     - src/Core
     - src/Services/Asset
@@ -21,9 +22,8 @@ variables:
   dockerRegistryServiceConnection: '09ee8083-2a55-4731-876c-d6df7059bd8f'
   imageRepository: 'assetsbackend'
   containerRegistry: 'origov2acr.azurecr.io'
-  dockerfilePath: '/src/Services/Assets/Asset.API/Dockerfile'
+  dockerfilePath: '/src/Services/Asset/Asset.API/Dockerfile'
   tag: '$(Build.BuildId)'
-  imagePullSecret: 'origov2acr3b6d-auth'
   namespace: develop # TODO: set by condition based on branch
 
   # Agent VM image name
