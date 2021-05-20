@@ -46,6 +46,7 @@ stages:
       displayName: Build image
       inputs:
         command: build
+        buildContext: '$(Build.Repository.LocalPath)'
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
@@ -56,6 +57,7 @@ stages:
       displayName: Push an image to container registry
       inputs:
         command: push
+        buildContext: '$(Build.Repository.LocalPath)'
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
