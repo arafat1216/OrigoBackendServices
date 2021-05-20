@@ -1,4 +1,4 @@
-fullnameOverride: AssetServices
+fullnameOverride: assetservices
 namespace: develop
 
 service:
