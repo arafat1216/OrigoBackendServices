@@ -22,7 +22,7 @@ variables:
   dockerRegistryServiceConnection: '09ee8083-2a55-4731-876c-d6df7059bd8f'
   imageRepository: 'assetsbackend'
   containerRegistry: 'origov2acr.azurecr.io'
-  dockerfilePath: '/src/Services/Asset/Asset.API/Dockerfile'
+  dockerfilePath: 'src/Services/Asset/Asset.API/Dockerfile'
   tag: '$(Build.BuildId)'
   namespace: develop # TODO: set by condition based on branch
 
