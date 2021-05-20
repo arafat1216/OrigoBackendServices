@@ -61,7 +61,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{20512BEA-2958-4218-BAB3-95FCE7363A93}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssetServicesTests", "src\Services\Asset\Tests\AssetServices.UnitTests\AssetServicesTests.csproj", "{C1D1A4EA-EE80-41CD-B924-0E7359975292}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssetServices.UnitTests", "src\Services\Asset\Tests\AssetServices.UnitTests\AssetServices.UnitTests.csproj", "{C1D1A4EA-EE80-41CD-B924-0E7359975292}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{53A585AE-D327-48BE-98EE-128E4F32E5EC}"
 	ProjectSection(SolutionItems) = preProject
