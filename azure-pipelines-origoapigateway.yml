@@ -21,7 +21,7 @@ variables:
   dockerRegistryServiceConnection: '09ee8083-2a55-4731-876c-d6df7059bd8f'
   imageRepository: 'origoapigateway'
   containerRegistry: 'origov2acr.azurecr.io'
-  dockerfilePath: 'src\ApiGateways\OrigoApiGateway\Dockerfile'
+  dockerfilePath: 'src/ApiGateways/OrigoApiGateway/Dockerfile'
   tag: '$(Build.BuildId)'
   namespace: develop # TODO: set by condition based on branch
 
