@@ -1,10 +1,8 @@
-﻿using System;
-
-namespace Customer.API.ViewModels
+﻿namespace Customer.API.ViewModels
 {
     public record Customer
     {
-        public Guid Id { get; set; }
+        public System.Guid Id { get; set; }
 
         public string CompanyName { get; set; }
 

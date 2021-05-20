@@ -9,6 +9,5 @@ namespace CustomerServices.Models
         Task<Customer> AddAsync(Customer customer);
         Task<IList<Customer>> GetCustomersAsync();
         Task<Customer> GetCustomerAsync(Guid customerId);
-
     }
 }

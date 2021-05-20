@@ -19,22 +19,23 @@ namespace Customer.API
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private readonly ApiVersion _apiVersion = new(1, 0);
+
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
-            var apiVersion = new ApiVersion(1, 0);
+            services.AddControllers().AddDapr();
             services.AddApiVersioning(config =>
             {
-                config.DefaultApiVersion = apiVersion;
+                config.DefaultApiVersion = _apiVersion;
                 config.AssumeDefaultVersionWhenUnspecified = true;
             });
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc($"v{apiVersion.MajorVersion}", new OpenApiInfo { Title = "CustomerServices", Version = $"v{apiVersion.MajorVersion}" });
+                c.SwaggerDoc($"v{_apiVersion.MajorVersion}", new OpenApiInfo { Title = "Customer Management", Version = $"v{_apiVersion.MajorVersion}" });
             });
             services.AddDbContext<CustomerContext>(options => options.UseSqlServer(Configuration.GetConnectionString("CustomerConnectionString")));
             services.AddScoped<ICustomerServices, CustomerServices.CustomerServices>();
@@ -50,7 +51,7 @@ namespace Customer.API
             }
 
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CustomerServices v1"));
+            app.UseSwaggerUI(c => c.SwaggerEndpoint($"/swagger/v{_apiVersion.MajorVersion}/swagger.json", $"CustomerServices v{_apiVersion.MajorVersion}"));
 
             app.UseRouting();
 

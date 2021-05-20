@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Customer.API.ViewModels
+﻿namespace Customer.API.ViewModels
 {
     public record NewCustomer
     {

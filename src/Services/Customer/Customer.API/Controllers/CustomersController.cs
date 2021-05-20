@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -13,6 +14,8 @@ namespace Customer.API.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
+    [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
     public class CustomersController : ControllerBase
     {
         private readonly ICustomerServices _customerServices;
@@ -26,9 +29,9 @@ namespace Customer.API.Controllers
 
         [Route("{customerId:Guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<ViewModels.Customer>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ViewModels.Customer), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<CustomerServices.Models.Customer>>> Get(Guid customerId)
+        public async Task<ActionResult<ViewModels.Customer>> Get(Guid customerId)
         {
             var customer = await _customerServices.GetCustomerAsync(customerId);
             if (customer == null) return NotFound();
@@ -45,7 +48,7 @@ namespace Customer.API.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ViewModels.Customer>), (int) HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<CustomerServices.Models.Customer>>> Get()
+        public async Task<ActionResult<IEnumerable<ViewModels.Customer>>> Get()
         {
             var customers = await _customerServices.GetCustomersAsync();
             var customerList = new List<ViewModels.Customer>();
@@ -65,7 +68,7 @@ namespace Customer.API.Controllers
 
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Customer), (int) HttpStatusCode.Created)]
-        public async Task<ActionResult> CreateCustomer([FromBody] NewCustomer customer)
+        public async Task<ActionResult<ViewModels.Customer>> CreateCustomer([FromBody] NewCustomer customer)
         {
             var companyAddress = new CustomerServices.Models.Address(customer.CompanyAddress.Street,
                 customer.CompanyAddress.PostCode, customer.CompanyAddress.City, customer.CompanyAddress.Country);

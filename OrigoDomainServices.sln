@@ -67,11 +67,43 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		azure-pipelines-assets.yml = azure-pipelines-assets.yml
 		azure-pipelines-customers.yml = azure-pipelines-customers.yml
+		azure-pipelines-origoapigateway.yml = azure-pipelines-origoapigateway.yml
+		tye.yaml = tye.yaml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5F61689A-C83C-40C1-88C4-567CB50363F9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomerServices.UnitTests", "src\Services\Customer\Tests\CustomerServices.UnitTests\CustomerServices.UnitTests.csproj", "{C0901A9A-2332-495E-B063-0B9A154B4E16}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiGateways", "ApiGateways", "{0176317A-193F-43DE-919D-FC6A1E84BF2E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OrigoApiGateWay", "OrigoApiGateWay", "{648A7EC2-BAFB-4365-8501-C69D63C59B7C}"
+	ProjectSection(SolutionItems) = preProject
+		src\ApiGateways\OrigoApiGateway\Dockerfile = src\ApiGateways\OrigoApiGateway\Dockerfile
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrigoApiGateway", "src\ApiGateways\OrigoApiGateway\OrigoApiGateway\OrigoApiGateway.csproj", "{33565CA6-D258-417E-A467-07C2CB06C663}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1D6FE7EF-D120-4993-BD84-39701AB88B5B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrigoApiGateway.Tests", "src\ApiGateways\OrigoApiGateway\OrigoApiGateway.Tests\OrigoApiGateway.Tests.csproj", "{78DB531E-0B8E-4C52-A233-35488E436D4C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "origoapigateway", "origoapigateway", "{23F495F5-BB43-4A62-B3F5-096174995E42}"
+	ProjectSection(SolutionItems) = preProject
+		charts\origoapigateway\.helmignore = charts\origoapigateway\.helmignore
+		charts\origoapigateway\Chart.yaml = charts\origoapigateway\Chart.yaml
+		charts\origoapigateway\values.yaml = charts\origoapigateway\values.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{DE0A244E-6997-43B7-B187-E97D4847AAC1}"
+	ProjectSection(SolutionItems) = preProject
+		charts\origoapigateway\templates\_helpers.tpl = charts\origoapigateway\templates\_helpers.tpl
+		charts\origoapigateway\templates\deployment.yaml = charts\origoapigateway\templates\deployment.yaml
+		charts\origoapigateway\templates\ingress.yaml = charts\origoapigateway\templates\ingress.yaml
+		charts\origoapigateway\templates\NOTES.txt = charts\origoapigateway\templates\NOTES.txt
+		charts\origoapigateway\templates\secrets.yaml = charts\origoapigateway\templates\secrets.yaml
+		charts\origoapigateway\templates\service.yaml = charts\origoapigateway\templates\service.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -107,6 +139,14 @@ Global
 		{C0901A9A-2332-495E-B063-0B9A154B4E16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0901A9A-2332-495E-B063-0B9A154B4E16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0901A9A-2332-495E-B063-0B9A154B4E16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33565CA6-D258-417E-A467-07C2CB06C663}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33565CA6-D258-417E-A467-07C2CB06C663}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33565CA6-D258-417E-A467-07C2CB06C663}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33565CA6-D258-417E-A467-07C2CB06C663}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78DB531E-0B8E-4C52-A233-35488E436D4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78DB531E-0B8E-4C52-A233-35488E436D4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78DB531E-0B8E-4C52-A233-35488E436D4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78DB531E-0B8E-4C52-A233-35488E436D4C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -129,6 +169,13 @@ Global
 		{C1D1A4EA-EE80-41CD-B924-0E7359975292} = {20512BEA-2958-4218-BAB3-95FCE7363A93}
 		{5F61689A-C83C-40C1-88C4-567CB50363F9} = {0799563F-7C86-4EC3-B912-73E06AA4FAA6}
 		{C0901A9A-2332-495E-B063-0B9A154B4E16} = {5F61689A-C83C-40C1-88C4-567CB50363F9}
+		{0176317A-193F-43DE-919D-FC6A1E84BF2E} = {8DEC9CCC-E8BB-4482-B54D-6E480C19D4A6}
+		{648A7EC2-BAFB-4365-8501-C69D63C59B7C} = {0176317A-193F-43DE-919D-FC6A1E84BF2E}
+		{33565CA6-D258-417E-A467-07C2CB06C663} = {648A7EC2-BAFB-4365-8501-C69D63C59B7C}
+		{1D6FE7EF-D120-4993-BD84-39701AB88B5B} = {648A7EC2-BAFB-4365-8501-C69D63C59B7C}
+		{78DB531E-0B8E-4C52-A233-35488E436D4C} = {1D6FE7EF-D120-4993-BD84-39701AB88B5B}
+		{23F495F5-BB43-4A62-B3F5-096174995E42} = {8D5A9903-F29E-457C-A27C-199EF34B1933}
+		{DE0A244E-6997-43B7-B187-E97D4847AAC1} = {23F495F5-BB43-4A62-B3F5-096174995E42}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DAEDEBBF-933A-4FFE-B734-B9E748AF86E1}

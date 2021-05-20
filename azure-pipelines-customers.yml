@@ -12,9 +12,6 @@ trigger:
     - charts/customer-api
     - src/Core
     - src/Services/Customer
-    exclude:
-    - charts/asset-api
-    - src/Services/Asset
 
 resources:
 - repo: self

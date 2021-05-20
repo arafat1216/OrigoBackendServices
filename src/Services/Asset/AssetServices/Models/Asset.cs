@@ -1,51 +1,90 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using Common.Seedwork;
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace AssetServices.Models
 {
     public class Asset : Entity, IAggregateRoot
     {
-
         // TODO: Set to protected as DDD best practice
-        public Asset()
+        protected Asset()
         {
+        }
+
+        public Asset(Guid assetId, Guid customerId, string serialNumber, Guid assetCategoryId, string brand, string model,
+            LifecycleType lifecycleType, DateTime purchaseDate, Guid assetHolderId,
+            bool isActive, Guid? managedByDepartmentId = null)
+        {
+            AssetId = assetId;
+            CustomerId = customerId;
+            SerialNumber = serialNumber;
+            AssetCategoryId = assetCategoryId;
+            Brand = brand;
+            Model = model;
+            LifecycleType = lifecycleType;
+            PurchaseDate = purchaseDate;
+            AssetHolderId = assetHolderId;
+            IsActive = isActive;
+            ManagedByDepartmentId = managedByDepartmentId;
         }
 
         /// <summary>
         /// External Id of the Asset
         /// </summary>
-        public Guid AssetId { get; set; }
-
-        [Required]
-        [StringLength(100)]
-        public string AssetName { get; set; }
+        public Guid AssetId { get; protected set; }
 
         /// <summary>
-        /// Id of the person owning or controlling the asset
+        /// Asset is linked to this customer 
         /// </summary>
-        public Guid AssetHolderId { get; set; }
+        public Guid CustomerId { get; protected set; }
 
         /// <summary>
-        /// The current owner of the asset
+        /// The unique serial number for the asset. For mobile phones and other devices
+        /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
-        /// <value></value>
-        public AssetHolder AssetHolder { get; set; }
+        public string SerialNumber { get; protected set; }
 
         /// <summary>
-        /// Id of the company owning or controlling the asset.
+        /// The category this asset belongs to.
         /// </summary>
-        public Guid CompanyId { get; set; }
+        public Guid AssetCategoryId { get; protected set; }
 
         /// <summary>
-        /// The id of department for the company which owns or controls the asset.
+        /// The category this asset belongs to.
         /// </summary>
-        public Guid DepartmentId { get; set; }
+        public AssetCategory AssetCategory { get; protected set; }
 
-        public string Imei { get; set; }
+        /// <summary>
+        /// The asset brand (e.g. Samsung)
+        /// </summary>
+        public string Brand { get; protected set; }
 
-        public string Vendor { get; set; }
+        /// <summary>
+        /// The model or product name of this asset (e.g. Samsung Galaxy)
+        /// </summary>
+        public string Model { get; protected set; }
 
-        public string PhoneNumber { get; set; }
+        /// <summary>
+        /// The type of lifecycle for this asset.
+        /// </summary>
+        public LifecycleType LifecycleType { get; protected set; }
+
+        public DateTime PurchaseDate { get; protected set; }
+
+        /// <summary>
+        /// The department or cost center this asset is assigned to.
+        /// </summary>
+        public Guid? ManagedByDepartmentId { get; protected set; }
+
+        /// <summary>
+        /// The employee holding the asset.
+        /// </summary>
+        public Guid AssetHolderId { get; protected set; }
+
+        /// <summary>
+        /// Is this asset activated
+        /// </summary>
+        public bool IsActive { get; protected set; }
     }
 }

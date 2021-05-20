@@ -1,6 +1,8 @@
 using System;
-using Microsoft.EntityFrameworkCore;
+using AssetServices.Infrastructure;
 using AssetServices.Models;
+using Microsoft.EntityFrameworkCore;
+
 // ReSharper disable InconsistentNaming
 
 namespace AssetServicesTests
@@ -10,6 +12,7 @@ namespace AssetServicesTests
         private readonly Guid ASSET_ONE_ID = new("4e7413da-54c9-4f79-b882-f66ce48e5074");
         private readonly Guid ASSET_TWO_ID = new("6c38b551-a5c2-4f53-8df8-221bf8485c61");
         private readonly Guid ASSET_THREE_ID = new("80665d26-90b4-4a3a-a20d-686b64466f32");
+        protected readonly Guid COMPANY_ID = new("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
 
         protected readonly Guid ASSETHOLDER_ONE_ID = new("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
         private readonly Guid ASSETHOLDER_TWO_ID = new();
@@ -28,28 +31,23 @@ namespace AssetServicesTests
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
-            var assetOne = new AssetServices.Models.Asset
-            {
-                AssetId = ASSET_ONE_ID,
-                AssetName = "Asset 1",
-                AssetHolderId = ASSETHOLDER_ONE_ID
-            };
+            var assetOne = new Asset(ASSET_ONE_ID, COMPANY_ID,  "123456789012345",
+                Guid.NewGuid(), "Samsung", "Samsung Galaxy S20",
+                LifecycleType.Leasing, new DateTime(2021, 4, 1), ASSETHOLDER_ONE_ID, true);
 
-            var assetTwo = new AssetServices.Models.Asset
-            {
-                AssetId = ASSET_TWO_ID,
-                AssetName = "Asset 2",
-                AssetHolderId = ASSETHOLDER_ONE_ID
-            };
+            var assetTwo = new Asset(ASSET_TWO_ID, COMPANY_ID,  "123456789012364",
+                Guid.NewGuid(), "Apple", "Apple iPhone 8",
+                LifecycleType.Leasing, new DateTime(2021, 5, 1), ASSETHOLDER_TWO_ID, true);
 
-            var assetThree = new AssetServices.Models.Asset
-            {
-                AssetId = ASSET_THREE_ID,
-                AssetName = "Asset 3",
-                AssetHolderId = ASSETHOLDER_TWO_ID
-            };
+            var assetThree = new Asset(ASSET_THREE_ID, COMPANY_ID,  "123456789012399",
+                Guid.NewGuid(), "Samsung", "Samsung Galaxy S21",
+                LifecycleType.Leasing, new DateTime(2021, 6, 1), ASSETHOLDER_ONE_ID, true);
 
-            context.AddRange(assetOne, assetTwo, assetThree);
+            var assetOther = new Asset(Guid.NewGuid(), Guid.NewGuid(), "123457789012399",
+                Guid.NewGuid(), "Samsung", "Samsung Galaxy S21",
+                LifecycleType.Leasing, new DateTime(2021, 6, 1), Guid.NewGuid(), true);
+
+            context.AddRange(assetOne, assetTwo, assetThree, assetOther);
 
             context.SaveChanges();
         }

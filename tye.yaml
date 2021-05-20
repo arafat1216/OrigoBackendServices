@@ -1,0 +1,18 @@
+# tye application configuration file
+# read all about it at https://github.com/dotnet/tye
+#
+# when you've given us a try, we'd love to know what you think:
+#    https://aka.ms/AA7q20u
+#
+name: origodomainservices
+extensions:
+- name: dapr
+  log-level: debug
+- name: zipkin
+services:
+- name: assetservice
+  project: src/Services/Asset/Asset.API/Asset.API.csproj
+- name: customerservice
+  project: src/Services/Customer/Customer.API/Customer.API.csproj
+- name: origoapigateway
+  project: src/ApiGateways/OrigoApiGateway/OrigoApiGateway/OrigoApiGateway.csproj

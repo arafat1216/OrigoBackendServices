@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AssetServices.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace AssetServices.Models
+namespace AssetServices.Infrastructure
 {
     public class AssetsContext : DbContext
     {
@@ -12,7 +13,8 @@ namespace AssetServices.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Asset>().ToTable("Assets");
+            modelBuilder.Entity<Asset>().ToTable("Asset");
+            modelBuilder.Entity<Asset>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
         }
     }
 }

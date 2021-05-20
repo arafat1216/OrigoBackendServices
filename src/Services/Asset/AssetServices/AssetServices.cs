@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using AssetServices.Models;
 using Microsoft.Extensions.Logging;
 
@@ -8,19 +8,28 @@ namespace AssetServices
 {
     public class AssetServices : IAssetServices
     {
-        public AssetServices(ILogger<AssetServices> logger, AssetsContext assetContext)
+        private readonly IAssetRepository _assetRepository;
+        private readonly ILogger<AssetServices> _logger;
+
+        public AssetServices(ILogger<AssetServices> logger, IAssetRepository assetRepository)
         {
-            Logger = logger;
-            AssetContext = assetContext;
+            _logger = logger;
+            _assetRepository = assetRepository;
         }
 
-        private ILogger<AssetServices> Logger { get; }
-        private AssetsContext AssetContext { get; }
-
-        public IList<Asset> GetAssetsForUser(Guid userId)
+        public async Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId,  Guid userId)
         {
-            Logger.LogInformation($"Assets from {userId} retrieved.");
-            return AssetContext.Assets.Where(a => a.AssetHolderId == userId).ToList();
+            return await _assetRepository.GetAssetsForUserAsync(customerId, userId);
+        }
+
+        public async Task<IList<Asset>> GetAssetsForCustomerAsync(Guid customerId)
+        {
+            return await _assetRepository.GetAssetsAsync(customerId);
+        }
+
+        public async Task<Asset> AddAssetForCustomerAsync(Asset newAsset)
+        {
+            return await _assetRepository.AddAsync(newAsset);
         }
     }
 }
