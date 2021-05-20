@@ -1,6 +1,3 @@
-# Global argument to be used across all stages
-ARG PROJECT_NAME=OrigoApiGateway
-
 # To run Sonarcloud and code coverage reports we need a dotnet.core SDK image with some extra tools installed.
 FROM origov2acr.azurecr.io/baseimage-dotnetcore-sonarcloud:latest AS build
 
@@ -10,13 +7,11 @@ ARG SONAR_ORGANIZATION_KEY=mytos
 ARG SONAR_HOST_URL=https://sonarcloud.io
 ARG SONAR_TOKEN
 
-ARG PROJECT_NAME
-
 WORKDIR /src
 
 # Restore Nuget-packages for projects
-COPY ["./OrigoApiGateway/OrigoApiGateway.csproj", "OrigoApiGateway/OrigoApiGateway.csproj"]
-COPY ["./OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj", "OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj"]
+COPY ["src/ApiGateways/OrigoApiGateway/OrigoApiGateway.csproj", "ApiGateways/OrigoApiGateway/OrigoApiGateway.csproj"]
+COPY ["src/ApiGateways/OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj", "ApiGateways/OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj"]
 RUN dotnet restore "OrigoApiGateway/OrigoApiGateway.csproj"
 RUN dotnet restore "OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj"
 
