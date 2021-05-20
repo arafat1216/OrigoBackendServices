@@ -1,28 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "AssetServices.fullname" . }}
+  name: {{ include "assetservices.fullname" . }}
   labels:
-    {{- include "AssetServices.labels" . | nindent 4 }}
+    {{- include "assetservices.labels" . | nindent 4 }}
 spec:
   revisionHistoryLimit: 0
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.deployment.replicaCount }}
   selector:
     matchLabels:
-      {{- include "AssetServices.selectorLabels" . | nindent 6 }}
+      {{- include "assetservices.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "AssetServices.selectorLabels" . | nindent 8 }}
+        {{- include "assetservices.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.deployment.containerPort }}
               protocol: TCP
-          {{- if .Values.probes.enabled }}
+          {{- if .Values.deployment.probes.enabled }}
           livenessProbe:
             httpGet:
               path: /
@@ -33,18 +33,33 @@ spec:
               port: 80
           {{- end }}
           env:
+          {{- range $ref, $value := .Values.deployment.env }}
+          - name: {{ $ref | quote }}
+            value: {{ $value | quote }}
+          {{- end }}
             {{- $root := . }}
             {{- range $ref, $values := .Values.secrets }}
             {{- range $key, $value := $values }}
             - name: {{ $ref }}_{{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "AssetServices.fullname" $root }}-{{ $ref | lower }}
+                  name: {{ template "assetservices.fullname" $root }}-{{ $ref | lower }}
                   key: {{ $key }}
             {{- end }}
             {{- end }}
-          resources:
-{{ toYaml .Values.resources | indent 12 }}
+          volumeMounts:
+          {{- range .Values.deployment.volumeMounts }}
+          - name: {{ .volumeMount.name }}
+            mountPath: {{ .volumeMount.mountPath }}
+            readOnly: {{ .volumeMount.readOnly }}
+          {{- end }}
+      volumes:
+      {{- range .Values.deployment.secretVolumes }}
+      - name: {{ .secretVolume.name }}
+        secret:
+          secretName: {{ .secretVolume.secretName }}
+      {{- end }}
+
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
 {{ toYaml . | indent 8 }}

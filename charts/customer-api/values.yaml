@@ -1,8 +1,6 @@
-# Default values for customerservices.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
 fullnameOverride: customerservices
 namespace: develop
+
 service:
   type: ClusterIP
   port: 80
@@ -23,7 +21,7 @@ deployment:
   secretVolumes:
     - secretVolume:
        name: "secrets"
-       secretName: "secret-appsettings"
+       secretName: "secret-customer-appsettings"
 
   volumeMounts:
     - volumeMount:

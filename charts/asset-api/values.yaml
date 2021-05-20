@@ -1,27 +1,39 @@
-# Default values for AssetServices.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
 fullnameOverride: AssetServices
-replicaCount: 1
 namespace: develop
-image:
-  repository: origov2acr.azurecr.io/assetsbackend
-  tag: 3642
-  pullPolicy: IfNotPresent
-imagePullSecrets:
-  - name: origov2acr3b6d-auth
+
 service:
   type: ClusterIP
-  port: 8090
+  port: 80
 
 deployment:
   containerPort: 80
+  replicaCount: 2
+  env:
+    "ASPNETCORE_ENVIRONMENT": "Staging"
+    "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true"
+    "ASPNETCORE_URLS": http://+:80"
 
-probes:
-  enabled: false
+  image:
+    repository: origov2acr.azurecr.io/assetsbackend
+    tag: 3642
+    pullPolicy: IfNotPresent
+
+  secretVolumes:
+    - secretVolume:
+       name: "secrets"
+       secretName: "secret-asset-appsettings"
+
+  volumeMounts:
+    - volumeMount:
+        name: "secrets"
+        mountPath: "/app/secrets"
+        readOnly: true
+
+  probes:
+    enabled: false
 
 ingress:
-  enabled: true
+  enabled: false
   annotations:
     kubernetes.io/ingress.class: traefik
     ingress.kubernetes.io/protocol: https
@@ -29,15 +41,6 @@ ingress:
     traefik.ingress.kubernetes.io/redirect-entry-point: https
     traefik.ingress.kubernetes.io/router.middlewares: traefik-https-only@kubernetescrd
     traefik.frontend.passHostHeader: "true"
-
-  hosts:
-    - host: origov2dev.mytos.no
-      paths:
-        - /origoapi
-  tls:
-   - secretName: letsencrypt
-     hosts:
-       - origov2dev.mytos.no
 
 secrets: {}
   # Optionally specify a set of secret objects whose values
