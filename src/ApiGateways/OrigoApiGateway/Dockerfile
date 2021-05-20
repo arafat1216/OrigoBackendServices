@@ -15,7 +15,6 @@ ARG PROJECT_NAME
 WORKDIR /src
 
 # Restore Nuget-packages for projects
-COPY *.sln .
 COPY ["./${PROJECT_NAME}/${PROJECT_NAME}.csproj", "${PROJECT_NAME}/"]
 COPY ["./${PROJECT_NAME}.Tests/${PROJECT_NAME}.Tests.csproj", "${PROJECT_NAME}.Tests/"]
 RUN dotnet restore
