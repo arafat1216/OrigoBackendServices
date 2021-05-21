@@ -10,5 +10,6 @@ namespace AssetServices.Models
         Task<IList<Asset>> GetAssetsAsync(Guid customerId);
         Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId);
         Task<Asset> GetAssetAsync(Guid customerId, Guid assetId);
+        Task<AssetCategory> GetAssetCategoryAsync(Guid assetAssetCategoryId);
     }
 }

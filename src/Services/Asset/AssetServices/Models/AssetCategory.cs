@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Common.Seedwork;
 
 namespace AssetServices.Models
@@ -24,5 +25,7 @@ namespace AssetServices.Models
         public string Name { get; set; }
 
         public bool UsesImei { get; set; }
+
+        public List<Asset> Assets { get; set; }
     }
 }

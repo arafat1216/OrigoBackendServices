@@ -9,6 +9,9 @@ namespace AssetServices
     {
         Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId);
         Task<IList<Asset>> GetAssetsForCustomerAsync(Guid customerId);
-        Task<Asset> AddAssetForCustomerAsync(Asset newAsset);
+        Task<Asset> GetAssetForCustomerAsync(Guid customerId, Guid assetId);
+        Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId,
+            string brand, string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid assetHolderId,
+            bool isActive, Guid managedByDepartmentId);
     }
 }

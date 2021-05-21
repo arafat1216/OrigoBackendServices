@@ -32,19 +32,19 @@ namespace AssetServicesTests
             context.Database.EnsureCreated();
 
             var assetOne = new Asset(ASSET_ONE_ID, COMPANY_ID,  "123456789012345",
-                Guid.NewGuid(), "Samsung", "Samsung Galaxy S20",
+                1, "Samsung", "Samsung Galaxy S20",
                 LifecycleType.Leasing, new DateTime(2021, 4, 1), ASSETHOLDER_ONE_ID, true);
 
             var assetTwo = new Asset(ASSET_TWO_ID, COMPANY_ID,  "123456789012364",
-                Guid.NewGuid(), "Apple", "Apple iPhone 8",
+                1, "Apple", "Apple iPhone 8",
                 LifecycleType.Leasing, new DateTime(2021, 5, 1), ASSETHOLDER_TWO_ID, true);
 
             var assetThree = new Asset(ASSET_THREE_ID, COMPANY_ID,  "123456789012399",
-                Guid.NewGuid(), "Samsung", "Samsung Galaxy S21",
+                1, "Samsung", "Samsung Galaxy S21",
                 LifecycleType.Leasing, new DateTime(2021, 6, 1), ASSETHOLDER_ONE_ID, true);
 
             var assetOther = new Asset(Guid.NewGuid(), Guid.NewGuid(), "123457789012399",
-                Guid.NewGuid(), "Samsung", "Samsung Galaxy S21",
+                1, "Samsung", "Samsung Galaxy S21",
                 LifecycleType.Leasing, new DateTime(2021, 6, 1), Guid.NewGuid(), true);
 
             context.AddRange(assetOne, assetTwo, assetThree, assetOther);

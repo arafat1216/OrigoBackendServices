@@ -16,9 +16,12 @@ namespace AssetServices.Infrastructure
             _context = context;
         }
 
-        public Task<Asset> AddAsync(Asset asset)
+        public async Task<Asset> AddAsync(Asset asset)
         {
-            throw new NotImplementedException();
+            _context.Assets.Add(asset);
+            await _context.SaveChangesAsync();
+            return await _context.Assets.Include(a => a.AssetCategory)
+                .FirstOrDefaultAsync(a => a.AssetId == asset.AssetId);
         }
 
         public async Task<IList<Asset>> GetAssetsAsync(Guid customerId)
@@ -31,14 +34,14 @@ namespace AssetServices.Infrastructure
             return await _context.Assets.Where(a => a.CustomerId == customerId && a.AssetHolderId == userId).ToListAsync();
         }
 
-        public Task<Asset> GetAssetAsync(Guid customerId, Guid assetId)
+        public async Task<Asset> GetAssetAsync(Guid customerId, Guid assetId)
         {
-            throw new NotImplementedException();
+            return await _context.Assets.Where(a => a.CustomerId == customerId && a.AssetId == assetId).FirstOrDefaultAsync();
         }
 
-        public Task<Asset> GetAssetAsync(Guid assetId)
+        public async Task<AssetCategory> GetAssetCategoryAsync(Guid assetAssetCategoryId)
         {
-            throw new NotImplementedException();
+            return await _context.AssetCategories.Where(c => c.AssetCategoryId == assetAssetCategoryId).FirstOrDefaultAsync();
         }
     }
 }

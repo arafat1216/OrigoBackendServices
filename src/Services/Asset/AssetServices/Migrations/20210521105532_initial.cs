@@ -33,8 +33,7 @@ namespace AssetServices.Migrations
                     AssetId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SerialNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AssetCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AssetCategoryId1 = table.Column<int>(type: "int", nullable: true),
+                    AssetCategoryId = table.Column<int>(type: "int", nullable: false),
                     Brand = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Model = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LifecycleType = table.Column<int>(type: "int", nullable: false),
@@ -43,23 +42,23 @@ namespace AssetServices.Migrations
                     AssetHolderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Asset", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Asset_AssetCategory_AssetCategoryId1",
-                        column: x => x.AssetCategoryId1,
+                        name: "FK_Asset_AssetCategory_AssetCategoryId",
+                        column: x => x.AssetCategoryId,
                         principalTable: "AssetCategory",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Asset_AssetCategoryId1",
+                name: "IX_Asset_AssetCategoryId",
                 table: "Asset",
-                column: "AssetCategoryId1");
+                column: "AssetCategoryId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

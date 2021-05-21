@@ -12,7 +12,7 @@ namespace AssetServices.Models
         {
         }
 
-        public Asset(Guid assetId, Guid customerId, string serialNumber, Guid assetCategoryId, string brand, string model,
+        public Asset(Guid assetId, Guid customerId, string serialNumber, int assetCategoryId, string brand, string model,
             LifecycleType lifecycleType, DateTime purchaseDate, Guid assetHolderId,
             bool isActive, Guid? managedByDepartmentId = null)
         {
@@ -48,7 +48,7 @@ namespace AssetServices.Models
         /// <summary>
         /// The category this asset belongs to.
         /// </summary>
-        public Guid AssetCategoryId { get; protected set; }
+        public int AssetCategoryId { get; protected set; }
 
         /// <summary>
         /// The category this asset belongs to.

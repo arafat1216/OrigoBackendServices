@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Asset.API.ViewModels;
 using AssetServices;
+using AssetServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -27,11 +28,10 @@ namespace Asset.API.Controllers
             _assetServices = assetServices;
         }
 
-        [Route("{userId:Guid}")]
+        [Route("/Users/{userId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> Get(Guid customerId, Guid userId)
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> GetAssetsForUser(Guid customerId, Guid userId)
         {
             var assets = await _assetServices.GetAssetsForUserAsync(customerId, userId);
 
@@ -39,9 +39,10 @@ namespace Asset.API.Controllers
             foreach (var asset in assets)
             {
                 var assetToReturn = new ViewModels.Asset(asset);
+                assetList.Add(assetToReturn);
             }
 
-            return assetList;
+            return Ok(assetList);
         }
 
         [HttpGet]
@@ -55,22 +56,50 @@ namespace Asset.API.Controllers
             foreach (var asset in assets)
             {
                 var assetToReturn = new ViewModels.Asset(asset);
+                assetList.Add(assetToReturn);
             }
 
-            return assetList;
+            return Ok(assetList);
+        }
+
+        [Route("/{assetId:Guid}")]
+        [HttpGet]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> Get(Guid customerId, Guid assetId)
+        {
+            var asset = await _assetServices.GetAssetForCustomerAsync(customerId, assetId);
+
+            if (asset == null)
+            {
+                return NotFound();
+            }
+            return Ok(new ViewModels.Asset(asset));
         }
 
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> CreateAsset(Guid customerId, [FromBody] NewAsset asset)
         {
-            var newAsset = new AssetServices.Models.Asset(Guid.NewGuid(), customerId, asset.SerialNumber,
-                asset.AssetCategoryId, asset.Brand, asset.Model, asset.LifecycleType, asset.PurchaseDate,
-                asset.AssetHolderId, asset.IsActive, asset.ManagedByDepartmentId);
-            var updatedAsset = await _assetServices.AddAssetForCustomerAsync(newAsset);
-            var updatedAssetView = new ViewModels.Asset(updatedAsset);
+            try
+            {
+                var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.SerialNumber,
+                    asset.AssetCategoryId, asset.Brand, asset.Model, asset.LifecycleType, asset.PurchaseDate,
+                    asset.AssetHolderId, asset.IsActive, asset.ManagedByDepartmentId);
+                var updatedAssetView = new ViewModels.Asset(updatedAsset);
 
-            return CreatedAtAction(nameof(CreateAsset), new {id = updatedAssetView.AssetId}, updatedAssetView);
+                return CreatedAtAction(nameof(CreateAsset), new {id = updatedAssetView.AssetId}, updatedAssetView);
+
+            }
+            catch (AssetCategoryNotFoundException)
+            {
+                return BadRequest("Unable to find assetCategoryId");
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
     }
 }

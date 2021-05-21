@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AssetServices.Migrations
 {
     [DbContext(typeof(AssetsContext))]
-    [Migration("20210519114613_commonfields")]
-    partial class commonfields
+    [Migration("20210521105532_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,10 +28,7 @@ namespace AssetServices.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<Guid>("AssetCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("AssetCategoryId1")
+                    b.Property<int>("AssetCategoryId")
                         .HasColumnType("int");
 
                     b.Property<Guid>("AssetHolderId")
@@ -74,7 +71,7 @@ namespace AssetServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssetCategoryId1");
+                    b.HasIndex("AssetCategoryId");
 
                     b.ToTable("Asset");
                 });
@@ -109,10 +106,17 @@ namespace AssetServices.Migrations
             modelBuilder.Entity("AssetServices.Models.Asset", b =>
                 {
                     b.HasOne("AssetServices.Models.AssetCategory", "AssetCategory")
-                        .WithMany()
-                        .HasForeignKey("AssetCategoryId1");
+                        .WithMany("Assets")
+                        .HasForeignKey("AssetCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AssetCategory");
+                });
+
+            modelBuilder.Entity("AssetServices.Models.AssetCategory", b =>
+                {
+                    b.Navigation("Assets");
                 });
 #pragma warning restore 612, 618
         }
