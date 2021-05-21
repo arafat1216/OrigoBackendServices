@@ -84,7 +84,7 @@ stages:
         testResultsFiles: '**/*.trx'
       displayName: 'Publish test results'
 
-    - publish: charts/OrigoApiGateway
+    - publish: charts/origoapigateway
       artifact: helmcharts
 
 - stage: Deploy
