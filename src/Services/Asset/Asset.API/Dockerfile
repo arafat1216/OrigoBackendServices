@@ -48,6 +48,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS final
 WORKDIR /app
 
 COPY --from=publish /app/publish .
+
+ENV ASPNETCORE_URLS=http://+:3810
+
 ENTRYPOINT ["dotnet", "Asset.API.dll"]
 
 EXPOSE 3810

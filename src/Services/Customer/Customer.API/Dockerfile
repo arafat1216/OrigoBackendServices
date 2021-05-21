@@ -47,6 +47,8 @@ RUN dotnet publish "Customer.API.csproj" -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS final
 WORKDIR /app
 
+ENV ASPNETCORE_URLS=http://+:3800
+
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Customer.API.dll"]
 

@@ -17,7 +17,6 @@ deployment:
   env:
     "ASPNETCORE_ENVIRONMENT": "Staging"
     "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true"
-    "ASPNETCORE_URLS": http://+:3810"
 
   image:
     repository: origov2acr.azurecr.io/assetsbackend
