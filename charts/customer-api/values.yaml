@@ -8,6 +8,11 @@ service:
 deployment:
   containerPort: 80
   replicaCount: 2
+  annotations:
+    dapr.io/enabled: "true"
+    dapr.io/app-id: "customerservices"
+    dapr.io/app-port: "3500"
+
   env: 
     "ASPNETCORE_ENVIRONMENT": "Staging"
     "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true"

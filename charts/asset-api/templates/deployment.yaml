@@ -14,6 +14,10 @@ spec:
     metadata:
       labels:
         {{- include "assetservices.selectorLabels" . | nindent 8 }}
+      {{- with .Values.deployment.annotations }}
+      annotations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
