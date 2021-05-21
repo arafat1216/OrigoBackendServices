@@ -10,9 +10,9 @@ extensions:
   log-level: debug
 - name: zipkin
 services:
-- name: assetservice
+- name: assetservices
   project: src/Services/Asset/Asset.API/Asset.API.csproj
-- name: customerservice
+- name: customerservices
   project: src/Services/Customer/Customer.API/Customer.API.csproj
 - name: origoapigateway
   project: src/ApiGateways/OrigoApiGateway/OrigoApiGateway/OrigoApiGateway.csproj
