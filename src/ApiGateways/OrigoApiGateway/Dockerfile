@@ -51,4 +51,4 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "OrigoApiGateway.dll"]
 
-EXPOSE 80
+EXPOSE 8090

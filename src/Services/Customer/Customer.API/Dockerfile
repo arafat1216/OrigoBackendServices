@@ -50,4 +50,4 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Customer.API.dll"]
 
-EXPOSE 80
+EXPOSE 3800
