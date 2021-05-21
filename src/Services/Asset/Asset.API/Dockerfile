@@ -47,9 +47,7 @@ RUN dotnet publish "Asset.API.csproj" -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS final
 WORKDIR /app
 
-ENV ASPNETCORE_URLS=http://+:3810
-
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Asset.API.dll"]
 
-EXPOSE 3810
+EXPOSE 80
