@@ -3,7 +3,7 @@ namespace: develop
 
 service:
   type: ClusterIP
-  port: 80
+  port: 3810
 
 deployment:
   containerPort: 80
@@ -11,7 +11,8 @@ deployment:
   annotations:
     dapr.io/enabled: "true"
     dapr.io/app-id: "assetservices"
-    dapr.io/app-port: "3500"
+    dapr.io/app-port: "3810"
+    dapr.io/log-level: "debug"
 
   env:
     "ASPNETCORE_ENVIRONMENT": "Staging"
