@@ -78,7 +78,6 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> CreateAsset(Guid customerId, [FromBody] NewAsset asset)
         {
-            _logger.LogInformation($"Information from GetCustomerAsync {{userId}}");
             var createdAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset);
             if (createdAsset != null)
             {
