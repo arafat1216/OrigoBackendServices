@@ -28,7 +28,7 @@ namespace Asset.API.Controllers
             _assetServices = assetServices;
         }
 
-        [Route("/Users/{userId:Guid}")]
+        [Route("Users/{userId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> GetAssetsForUser(Guid customerId, Guid userId)
@@ -47,7 +47,6 @@ namespace Asset.API.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> Get(Guid customerId)
         {
             var assets = await _assetServices.GetAssetsForCustomerAsync(customerId);
@@ -62,7 +61,7 @@ namespace Asset.API.Controllers
             return Ok(assetList);
         }
 
-        [Route("/{assetId:Guid}")]
+        [Route("{assetId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
