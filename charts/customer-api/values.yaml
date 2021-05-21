@@ -11,7 +11,7 @@ deployment:
   annotations:
     dapr.io/enabled: "true"
     dapr.io/app-id: "customerservices"
-    dapr.io/app-port: "3800"
+    dapr.io/app-port: "80"
     dapr.io/log-level: "debug"
 
   env: 

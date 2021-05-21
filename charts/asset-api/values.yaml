@@ -11,7 +11,7 @@ deployment:
   annotations:
     dapr.io/enabled: "true"
     dapr.io/app-id: "assetservices"
-    dapr.io/app-port: "3810"
+    dapr.io/app-port: "80"
     dapr.io/log-level: "debug"
 
   env:
