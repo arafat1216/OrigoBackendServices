@@ -120,7 +120,7 @@ stages:
               namespace: $(namespace)
               overrideValues: deployment.image.tag=$(tag),namespace=$(namespace)
               arguments: --version $(tag)
-              chartPath: $(Pipeline.Workspace)/helmcharts/origoapigateway
+              chartPath: $(Pipeline.Workspace)/helmcharts
               install: true
 
   - deployment: DeployPullRequest
