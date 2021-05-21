@@ -10,10 +10,10 @@ ARG SONAR_TOKEN
 WORKDIR /src
 
 # Restore Nuget-packages for projects
-COPY ["src/ApiGateways/OrigoApiGateway/OrigoApiGateway.csproj", "ApiGateways/OrigoApiGateway/OrigoApiGateway.csproj"]
-COPY ["src/ApiGateways/OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj", "ApiGateways/OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj"]
-RUN dotnet restore "OrigoApiGateway/OrigoApiGateway.csproj"
-RUN dotnet restore "OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj"
+COPY ["src/ApiGateways/OrigoApiGateway/OrigoApiGateway/OrigoApiGateway.csproj", "ApiGateways/OrigoApiGateway/OrigoApiGateway/OrigoApiGateway.csproj"]
+COPY ["src/ApiGateways/OrigoApiGateway/OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj", "ApiGateways/OrigoApiGateway/OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj"]
+RUN dotnet restore "ApiGateways/OrigoApiGateway/OrigoApiGateway/OrigoApiGateway.csproj"
+RUN dotnet restore "ApiGateways/OrigoApiGateway/OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj"
 
 COPY /src/ApiGateways/OrigoApiGateway/. ApiGateways/OrigoApiGateway/.
 
