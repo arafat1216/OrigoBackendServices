@@ -86,10 +86,10 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/assets", newAsset);
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/Assets", newAsset);
                 if (!response.IsSuccessStatusCode)
                 {
-                    var exception = new BadHttpRequestException("Unable to save customer", (int) response.StatusCode);
+                    var exception = new BadHttpRequestException("Unable to save asset", (int) response.StatusCode);
                     _logger.LogError(exception, "Unable to save Asset.");
                     throw exception;
                 }
@@ -98,7 +98,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Invalid JSON in AddAssetForCustomerAsync.");
+                _logger.LogError(exception, "Unable to save Asset.");
                 throw;
             }
         }
