@@ -78,12 +78,19 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> CreateAsset(Guid customerId, [FromBody] NewAsset asset)
         {
-            var createdAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset);
-            if (createdAsset != null)
+            try
             {
-                return CreatedAtAction(nameof(CreateAsset), new { id = createdAsset.Id }, createdAsset);
+                var createdAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset);
+                if (createdAsset != null)
+                {
+                    return CreatedAtAction(nameof(CreateAsset), new { id = createdAsset.Id }, createdAsset);
+                }
+                return BadRequest();
             }
-            return BadRequest();
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
     }
 }

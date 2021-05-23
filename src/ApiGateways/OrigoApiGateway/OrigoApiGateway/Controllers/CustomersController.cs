@@ -31,11 +31,18 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoCustomer>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<IList<OrigoCustomer>>> Get()
         {
-            Logger.LogInformation($"Information from GetCustomersAsync");
-            var customers = await CustomerServices.GetCustomersAsync();
-            return customers != null ? Ok(customers) : NotFound();
+            try
+            {
+                var customers = await CustomerServices.GetCustomersAsync();
+                return customers != null ? Ok(customers) : NotFound();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
 
         [Route("{customerId:Guid}")]
@@ -44,9 +51,15 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IList<OrigoCustomer>>> Get(Guid customerId)
         {
-            Logger.LogInformation($"Information from GetCustomerAsync {{userId}}");
-            var customer = await CustomerServices.GetCustomerAsync(customerId);
-            return customer != null ? Ok(customer) : NotFound();
+            try
+            {
+                var customer = await CustomerServices.GetCustomerAsync(customerId);
+                return customer != null ? Ok(customer) : NotFound();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
 
         [HttpPost]
@@ -54,7 +67,6 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<OrigoCustomer>> CreateCustomer([FromBody] OrigoNewCustomer newCustomer)
         {
-            Logger.LogInformation($"Information from GetCustomerAsync {{userId}}");
             try
             {
                 var createdCustomer = await CustomerServices.CreateCustomerAsync(newCustomer);
