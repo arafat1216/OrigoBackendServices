@@ -17,18 +17,18 @@ namespace OrigoApiGateway.Services
         {
             _logger = logger;
             HttpClient = httpClient;
-            Options = options.Value;
+            _options = options.Value;
         }
 
         private readonly ILogger<CustomerServices> _logger;
         private HttpClient HttpClient { get; }
-        private readonly CustomerConfiguration Options;
+        private readonly CustomerConfiguration _options;
 
         public async Task<IList<OrigoCustomer>> GetCustomersAsync()
         {
             try
             {
-                var customers = await HttpClient.GetFromJsonAsync<IList<CustomerDTO>>($"{Options.ApiPath}");
+                var customers = await HttpClient.GetFromJsonAsync<IList<CustomerDTO>>($"{_options.ApiPath}");
                 if (customers == null) return null;
                 var origoCustomers = new List<OrigoCustomer>();
                 foreach (var customer in customers) origoCustomers.Add(new OrigoCustomer(customer));
@@ -55,7 +55,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var customer = await HttpClient.GetFromJsonAsync<CustomerDTO>($"{Options.ApiPath}/{customerId}");
+                var customer = await HttpClient.GetFromJsonAsync<CustomerDTO>($"{_options.ApiPath}/{customerId}");
                 return customer == null ? null : new OrigoCustomer(customer);
             }
             catch (HttpRequestException exception)
@@ -93,8 +93,6 @@ namespace OrigoApiGateway.Services
                 _logger.LogError(exception, "GetCustomersAsync unknown error.");
                 throw;
             }
-
-            return null;
         }
     }
 }

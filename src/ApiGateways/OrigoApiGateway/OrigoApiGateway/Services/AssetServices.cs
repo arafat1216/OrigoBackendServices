@@ -1,12 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using OrigoApiGateway.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 
 namespace OrigoApiGateway.Services
@@ -20,7 +21,7 @@ namespace OrigoApiGateway.Services
             _options = options.Value;
         }
 
-        private ILogger<AssetServices> _logger;
+        private readonly ILogger<AssetServices> _logger;
         private HttpClient HttpClient { get; }
         private readonly AssetConfiguration _options;
 
@@ -29,16 +30,12 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var assets = await HttpClient.GetFromJsonAsync<IList<AssetDTO>>($"{_options.ApiPath}/{customerId}/Assets/{userId}");
-                if (assets == null)
-                {
-                    return null;
-                }
+                var assets =
+                    await HttpClient.GetFromJsonAsync<IList<AssetDTO>>(
+                        $"{_options.ApiPath}/{customerId}/Assets/{userId}");
+                if (assets == null) return null;
                 var origoAssets = new List<OrigoAsset>();
-                foreach (var asset in assets)
-                {
-                    origoAssets.Add(new OrigoAsset(asset));
-                }
+                foreach (var asset in assets) origoAssets.Add(new OrigoAsset(asset));
                 return origoAssets;
             }
             catch (HttpRequestException exception)
@@ -62,30 +59,26 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var assets = await HttpClient.GetFromJsonAsync<IList<AssetDTO>>($"{_options.ApiPath}/{customerId}/Assets");
-                if (assets == null)
-                {
-                    return null;
-                }
+                var assets =
+                    await HttpClient.GetFromJsonAsync<IList<AssetDTO>>($"{_options.ApiPath}/{customerId}/Assets");
+                if (assets == null) return null;
                 var origoAssets = new List<OrigoAsset>();
-                foreach (var asset in assets)
-                {
-                    origoAssets.Add(new OrigoAsset(asset));
-                }
+                foreach (var asset in assets) origoAssets.Add(new OrigoAsset(asset));
                 return origoAssets;
             }
             catch (HttpRequestException exception)
             {
-                _logger.LogError(exception, "GetAssetsForUserAsync failed with HttpRequestException.");
+                _logger.LogError(exception, "GetAssetsForCustomerAsync failed with HttpRequestException.");
             }
             catch (NotSupportedException exception)
             {
-                _logger.LogError(exception, "GetAssetsForUserAsync failed with content type is not valid.");
+                _logger.LogError(exception, "GetAssetsForCustomerAsync failed with content type is not valid.");
             }
             catch (JsonException exception)
             {
-                _logger.LogError(exception, "GetAssetsForUserAsync failed with invalid JSON.");
+                _logger.LogError(exception, "GetAssetsForCustomerAsync failed with invalid JSON.");
             }
+
             return null;
         }
 
@@ -94,32 +87,20 @@ namespace OrigoApiGateway.Services
             try
             {
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/assets", newAsset);
-                if (response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
-                    if (response.Content.Headers.ContentType is { MediaType: "application/json" })
-                    {
-                        var contentStream = await response.Content.ReadAsStreamAsync();
-
-                        try
-                        {
-                            var asset = await JsonSerializer.DeserializeAsync<AssetDTO>(contentStream, new JsonSerializerOptions { IgnoreNullValues = true, PropertyNameCaseInsensitive = true });
-                            return asset == null ? null : new OrigoAsset(asset);
-                        }
-                        catch (JsonException) // Invalid JSON
-                        {
-                            Console.WriteLine("Invalid JSON.");
-                            return null;
-                        }
-                    }
+                    var exception = new BadHttpRequestException("Unable to save customer", (int) response.StatusCode);
+                    _logger.LogError(exception, "Unable to save Asset.");
+                    throw exception;
                 }
+                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                return asset == null ? null : new OrigoAsset(asset);
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception);
-                return null;
+                _logger.LogError(exception, "Invalid JSON in AddAssetForCustomerAsync.");
+                throw;
             }
-
-            return null;
         }
     }
 }
