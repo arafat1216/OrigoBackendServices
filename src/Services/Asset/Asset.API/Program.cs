@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -13,10 +14,9 @@ namespace Asset.API
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureLogging(logging =>
+                .ConfigureAppConfiguration((_, config) =>
                 {
-                    logging.ClearProviders();
-                    logging.AddConsole();
+                    config.AddJsonFile("secrets/appsettings.secrets.json", optional: true);
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
