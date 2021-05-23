@@ -84,7 +84,7 @@ namespace OrigoApiGateway
                 c.SwaggerDoc($"v{_apiVersion.MajorVersion}", new OpenApiInfo { Title = "Origo API Gateway", Version = $"v{_apiVersion.MajorVersion}" });
             });
 
-            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_CONNECTIONSTRING"]);
+            services.AddApplicationInsightsTelemetry();
 
             //    options.TokenValidationParameters = new TokenValidationParameters
             //    {

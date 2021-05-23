@@ -37,7 +37,7 @@ namespace Customer.API
             {
                 c.SwaggerDoc($"v{_apiVersion.MajorVersion}", new OpenApiInfo { Title = "Customer Management", Version = $"v{_apiVersion.MajorVersion}" });
             });
-            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_CONNECTIONSTRING"]);
+            services.AddApplicationInsightsTelemetry();
             services.AddDbContext<CustomerContext>(options => options.UseSqlServer(Configuration.GetConnectionString("CustomerConnectionString")));
             services.AddScoped<ICustomerServices, CustomerServices.CustomerServices>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();

@@ -20,6 +20,7 @@ namespace Asset.API.Controllers
     public class AssetsController : ControllerBase
     {
         private readonly IAssetServices _assetServices;
+        // ReSharper disable once NotAccessedField.Local
         private readonly ILogger<AssetsController> _logger;
 
         public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices)
