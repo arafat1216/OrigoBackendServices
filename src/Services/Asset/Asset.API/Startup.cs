@@ -38,6 +38,8 @@ namespace Asset.API
             {
                 c.SwaggerDoc($"v{_apiVersion.MajorVersion}", new OpenApiInfo { Title = "Asset Management", Version = $"v{_apiVersion.MajorVersion}" });
             });
+            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_CONNECTIONSTRING"]);
+
             services.AddDbContext<AssetsContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AssetConnectionString")));
             services.AddScoped<IAssetServices, AssetServices.AssetServices>();
             services.AddScoped<IAssetRepository, AssetRepository>();
