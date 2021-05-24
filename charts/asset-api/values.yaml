@@ -14,7 +14,6 @@ deployment:
     dapr.io/app-port: "80"
     dapr.io/log-level: "debug"
     dapr.io/config: "appconfig-assetservices"
-    dapr.io/app-ssl: "true"
 
   env:
     "ASPNETCORE_ENVIRONMENT": "Staging"
