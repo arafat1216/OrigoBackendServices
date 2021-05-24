@@ -157,7 +157,7 @@ stages:
             inputs:
               command: upgrade
               chartType: FilePath
-              releaseName: customers
+              releaseName: customerservices
               namespace: $(namespace)
               overrideValues: deployment.image.tag=$(tag),namespace=$(namespace)
               arguments: --version $(tag)

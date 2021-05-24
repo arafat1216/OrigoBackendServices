@@ -22,6 +22,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomerServices", "src\Services\Customer\CustomerServices\CustomerServices.csproj", "{4D1F0CEA-DF89-481D-848B-6EBD23578528}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "charts", "charts", "{8D5A9903-F29E-457C-A27C-199EF34B1933}"
+	ProjectSection(SolutionItems) = preProject
+		open-telemetry-collector-appinsights.yaml = open-telemetry-collector-appinsights.yaml
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "asset-api", "asset-api", "{02F63936-07AB-4111-B54F-8FEB54FA4322}"
 	ProjectSection(SolutionItems) = preProject
@@ -40,6 +43,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{569E8B6B-0521-491B-959F-8840E457A0E6}"
 	ProjectSection(SolutionItems) = preProject
 		charts\asset-api\templates\_helpers.tpl = charts\asset-api\templates\_helpers.tpl
+		charts\asset-api\templates\collector-config.yaml = charts\asset-api\templates\collector-config.yaml
 		charts\asset-api\templates\deployment.yaml = charts\asset-api\templates\deployment.yaml
 		charts\asset-api\templates\ingress.yaml = charts\asset-api\templates\ingress.yaml
 		charts\asset-api\templates\NOTES.txt = charts\asset-api\templates\NOTES.txt
