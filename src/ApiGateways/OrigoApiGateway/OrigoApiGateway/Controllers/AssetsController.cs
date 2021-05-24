@@ -74,7 +74,7 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("Customers/{customerId:guid}/{userId:Guid}")]
+        [Route("Customers/{customerId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
