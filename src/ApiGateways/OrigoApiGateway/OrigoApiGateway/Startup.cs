@@ -49,7 +49,6 @@ namespace OrigoApiGateway
 
             services.AddHealthChecksUI().AddInMemoryStorage();
 
-            services.AddScoped<IAssetServices, AssetServices>();
             services.Configure<AssetConfiguration>(Configuration.GetSection("Asset"));
             services.Configure<CustomerConfiguration>(Configuration.GetSection("Customer"));
             services.Configure<UserConfiguration>(Configuration.GetSection("User"));
