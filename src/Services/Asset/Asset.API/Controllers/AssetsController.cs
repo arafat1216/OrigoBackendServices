@@ -29,13 +29,17 @@ namespace Asset.API.Controllers
             _assetServices = assetServices;
         }
 
-        [Route("Customers/{customerId:guid}/Users/{userId:Guid}")]
+        [Route("customers/{customerId:guid}/users/{userId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> GetAssetsForUser(Guid customerId, Guid userId)
         {
             var assets = await _assetServices.GetAssetsForUserAsync(customerId, userId);
-
+            if (assets == null)
+            {
+                return NotFound();
+            }
             var assetList = new List<ViewModels.Asset>();
             foreach (var asset in assets)
             {
@@ -46,12 +50,17 @@ namespace Asset.API.Controllers
             return Ok(assetList);
         }
 
-        [Route("Customers/{customerId:guid}")]
+        [Route("customers/{customerId:guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> Get(Guid customerId)
         {
             var assets = await _assetServices.GetAssetsForCustomerAsync(customerId);
+            if (assets == null)
+            {
+                return NotFound();
+            }
 
             var assetList = new List<ViewModels.Asset>();
             foreach (var asset in assets)
@@ -63,14 +72,13 @@ namespace Asset.API.Controllers
             return Ok(assetList);
         }
 
-        [Route("{assetId:Guid}/Customers/{customerId:guid}")]
+        [Route("{assetId:Guid}/customers/{customerId:guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> Get(Guid customerId, Guid assetId)
         {
             var asset = await _assetServices.GetAssetForCustomerAsync(customerId, assetId);
-
             if (asset == null)
             {
                 return NotFound();
@@ -78,7 +86,7 @@ namespace Asset.API.Controllers
             return Ok(new ViewModels.Asset(asset));
         }
 
-        [Route("Customers/{customerId:guid}")]
+        [Route("customers/{customerId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.BadRequest)]
@@ -96,7 +104,7 @@ namespace Asset.API.Controllers
             }
             catch (AssetCategoryNotFoundException)
             {
-                return BadRequest("Unable to find assetCategoryId");
+                return BadRequest("Unable to find Asset CategoryId");
             }
             catch (Exception)
             {

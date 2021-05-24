@@ -28,7 +28,7 @@ namespace OrigoApiGateway.Controllers
         }
 
 
-        [Route("Customers/{customerId:guid}/{userId:Guid}")]
+        [Route("customers/{customerId:guid}/{userId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -51,7 +51,7 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("Customers/{customerId:guid}")]
+        [Route("customers/{customerId:guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -74,7 +74,7 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("Customers/{customerId:guid}")]
+        [Route("customers/{customerId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
