@@ -2,7 +2,7 @@ apiVersion: dapr.io/v1alpha1
 kind: Configuration
 metadata:
   name: appconfig-assetservices
-  namespace: devlop
+  namespace: develop
 spec:
   tracing:
     samplingRate: "1"
