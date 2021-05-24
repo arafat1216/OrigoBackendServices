@@ -14,7 +14,7 @@ namespace Asset.API.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     // Assets should only be available through a given customer
-    [Route("api/v{version:apiVersion}/Customers/{customerId:guid}/Assets")]
+    [Route("api/v{version:apiVersion}")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
     public class AssetsController : ControllerBase
@@ -29,7 +29,7 @@ namespace Asset.API.Controllers
             _assetServices = assetServices;
         }
 
-        [Route("Users/{userId:Guid}")]
+        [Route("Customers/{customerId:guid}/Assets/Users/{userId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> GetAssetsForUser(Guid customerId, Guid userId)
@@ -46,6 +46,7 @@ namespace Asset.API.Controllers
             return Ok(assetList);
         }
 
+        [Route("Customers/{customerId:guid}/Assets")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> Get(Guid customerId)
@@ -62,7 +63,7 @@ namespace Asset.API.Controllers
             return Ok(assetList);
         }
 
-        [Route("{assetId:Guid}")]
+        [Route("Customers/{customerId:guid}/Assets/{assetId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -77,6 +78,7 @@ namespace Asset.API.Controllers
             return Ok(new ViewModels.Asset(asset));
         }
 
+        [Route("Customers/{customerId:guid}/Assets")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.BadRequest)]

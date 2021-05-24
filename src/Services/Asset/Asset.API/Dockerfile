@@ -27,7 +27,7 @@ RUN dotnet sonarscanner begin \
   /d:sonar.login="${SONAR_TOKEN}" \
   /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.cobertura.xml
 
-RUN dotnet build "Asset.API.csproj" -c Release -o /app/build
+RUN dotnet build "Asset.API.csproj" -c Release --no-restore -o /app/build
 
 ARG BUILD_ID
 LABEL test=${BUILD_ID}

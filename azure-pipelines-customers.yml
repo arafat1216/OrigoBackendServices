@@ -195,7 +195,7 @@ stages:
             inputs:
               command: upgrade
               chartType: FilePath
-              releaseName: Customers
+              releaseName: customerservices
               namespace: $(k8sNamespaceForPR)
               overrideValues: image.tag=$(tag),namespace=$(k8sNamespaceForPR)
               arguments: --version $(tag)
