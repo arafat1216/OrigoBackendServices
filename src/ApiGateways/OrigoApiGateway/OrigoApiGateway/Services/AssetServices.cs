@@ -32,7 +32,7 @@ namespace OrigoApiGateway.Services
             {
                 var assets =
                     await HttpClient.GetFromJsonAsync<IList<AssetDTO>>(
-                        $"{_options.ApiPath}/{customerId}/Assets/{userId}");
+                        $"{_options.ApiPath}/{customerId}/{userId}");
                 if (assets == null) return null;
                 var origoAssets = new List<OrigoAsset>();
                 foreach (var asset in assets) origoAssets.Add(new OrigoAsset(asset));
@@ -60,7 +60,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 var assets =
-                    await HttpClient.GetFromJsonAsync<IList<AssetDTO>>($"{_options.ApiPath}/{customerId}/Assets");
+                    await HttpClient.GetFromJsonAsync<IList<AssetDTO>>($"{_options.ApiPath}/{customerId}");
                 if (assets == null) return null;
                 var origoAssets = new List<OrigoAsset>();
                 foreach (var asset in assets) origoAssets.Add(new OrigoAsset(asset));
@@ -86,7 +86,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/Assets", newAsset);
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}", newAsset);
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to save asset", (int) response.StatusCode);
