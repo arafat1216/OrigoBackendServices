@@ -56,6 +56,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{808AC5B1-E29E-471C-8433-C8D0E856CA70}"
 	ProjectSection(SolutionItems) = preProject
 		charts\customer-api\templates\_helpers.tpl = charts\customer-api\templates\_helpers.tpl
+		charts\customer-api\templates\collector-config.yaml = charts\customer-api\templates\collector-config.yaml
 		charts\customer-api\templates\deployment.yaml = charts\customer-api\templates\deployment.yaml
 		charts\customer-api\templates\ingress.yaml = charts\customer-api\templates\ingress.yaml
 		charts\customer-api\templates\NOTES.txt = charts\customer-api\templates\NOTES.txt
@@ -102,6 +103,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{DE0A244E-6997-43B7-B187-E97D4847AAC1}"
 	ProjectSection(SolutionItems) = preProject
 		charts\origoapigateway\templates\_helpers.tpl = charts\origoapigateway\templates\_helpers.tpl
+		charts\origoapigateway\templates\collector-config.yaml = charts\origoapigateway\templates\collector-config.yaml
 		charts\origoapigateway\templates\deployment.yaml = charts\origoapigateway\templates\deployment.yaml
 		charts\origoapigateway\templates\ingress.yaml = charts\origoapigateway\templates\ingress.yaml
 		charts\origoapigateway\templates\NOTES.txt = charts\origoapigateway\templates\NOTES.txt

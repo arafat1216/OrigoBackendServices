@@ -1,8 +1,8 @@
 apiVersion: dapr.io/v1alpha1
 kind: Configuration
 metadata:
-  name: appconfig
-  namespace: default
+  name: appconfig-origoapigateway
+  namespace: develop
 spec:
   tracing:
     samplingRate: "1"

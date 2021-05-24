@@ -13,7 +13,7 @@ deployment:
     dapr.io/app-id: "customerservices"
     dapr.io/app-port: "80"
     dapr.io/log-level: "debug"
-    dapr.io/config: "appconfig"
+    dapr.io/config: "appconfig-customerservices"
 
   env: 
     "ASPNETCORE_ENVIRONMENT": "Staging"
