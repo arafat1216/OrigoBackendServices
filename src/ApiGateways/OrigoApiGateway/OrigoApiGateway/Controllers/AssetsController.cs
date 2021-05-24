@@ -15,7 +15,7 @@ namespace OrigoApiGateway.Controllers
     [ApiVersion("1.0")]
     //[Authorize]
     // Assets should only be available through a given customer
-    [Route("/origoapi/v{version:apiVersion}/Customers/{customerId:guid}/[controller]")]
+    [Route("/origoapi/v{version:apiVersion}/[controller]")]
     public class AssetsController : ControllerBase
     {
         private readonly ILogger<AssetsController> _logger;
@@ -28,7 +28,7 @@ namespace OrigoApiGateway.Controllers
         }
 
 
-        [Route("{userId:Guid}")]
+        [Route("Customers/{customerId:guid}/{userId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -51,6 +51,7 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("Customers/{customerId:guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -73,6 +74,7 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("Customers/{customerId:guid}/{userId:Guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
