@@ -13,6 +13,7 @@ namespace AssetServicesTests
         private readonly Guid ASSET_TWO_ID = new("6c38b551-a5c2-4f53-8df8-221bf8485c61");
         private readonly Guid ASSET_THREE_ID = new("80665d26-90b4-4a3a-a20d-686b64466f32");
         protected readonly Guid COMPANY_ID = new("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
+        protected readonly Guid ASSET_CATEGORY_ID = new Guid("9a9dd12f-e523-4fae-a9df-dddda5c719de");
 
         protected readonly Guid ASSETHOLDER_ONE_ID = new("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
         private readonly Guid ASSETHOLDER_TWO_ID = new();
@@ -31,7 +32,7 @@ namespace AssetServicesTests
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
-            var assetCategory = new AssetCategory(Guid.NewGuid(), "Mobile phones", true);
+            var assetCategory = new AssetCategory(ASSET_CATEGORY_ID, "Mobile phones", true);
             context.Add(assetCategory);
             context.SaveChanges();
 

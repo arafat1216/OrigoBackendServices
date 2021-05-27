@@ -9,7 +9,8 @@ namespace OrigoApiGateway.Services
     {
         Task<IList<OrigoAsset>> GetAssetsForUserAsync(Guid customerId, Guid userId);
         Task<IList<OrigoAsset>> GetAssetsForCustomerAsync(Guid customerId);
-
+        Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId);
         Task<OrigoAsset> AddAssetForCustomerAsync(Guid customerId, NewAsset newAsset);
+        Task<OrigoAsset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive);
     }
 }

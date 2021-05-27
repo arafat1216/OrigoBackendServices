@@ -13,7 +13,7 @@ namespace AssetServices.Models
         }
 
         public Asset(Guid assetId, Guid customerId, string serialNumber, int assetCategoryId, string brand, string model,
-            LifecycleType lifecycleType, DateTime purchaseDate, Guid assetHolderId,
+            LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
             bool isActive, Guid? managedByDepartmentId = null)
         {
             AssetId = assetId;
@@ -80,11 +80,16 @@ namespace AssetServices.Models
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
-        public Guid AssetHolderId { get; protected set; }
+        public Guid? AssetHolderId { get; protected set; }
 
         /// <summary>
         /// Is this asset activated
         /// </summary>
         public bool IsActive { get; protected set; }
+
+        public void SetActiveStatus(bool isActive)
+        {
+            IsActive = isActive;
+        }
     }
 }

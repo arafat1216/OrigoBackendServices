@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OrigoApiGateway.Models
+﻿namespace OrigoApiGateway.Models
 {
     public record OrigoNewCustomer
     {

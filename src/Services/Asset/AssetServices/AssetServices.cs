@@ -34,8 +34,8 @@ namespace AssetServices
         }
         
         public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId, string brand,
-            string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid assetHolderId, bool isActive,
-            Guid managedByDepartmentId)
+            string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive,
+            Guid? managedByDepartmentId)
         {
             var assetCategory = await _assetRepository.GetAssetCategoryAsync(assetCategoryId);
             if (assetCategory == null)
@@ -46,6 +46,19 @@ namespace AssetServices
             var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory.Id, brand, model,
                 lifecycleType, purchaseDate, assetHolderId, isActive, managedByDepartmentId);
             return await _assetRepository.AddAsync(newAsset);
+        }
+
+        public async Task<Asset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive)
+        {
+            var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
+            if (asset == null)
+            {
+                return null;
+            }
+
+            asset.SetActiveStatus(isActive);
+            await _assetRepository.SaveChanges();
+            return asset;
         }
     }
 }

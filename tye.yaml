@@ -12,7 +12,13 @@ extensions:
 services:
 - name: assetservices
   project: src/Services/Asset/Asset.API/Asset.API.csproj
+  bindings:
+  - port: 58888
 - name: customerservices
   project: src/Services/Customer/Customer.API/Customer.API.csproj
+  bindings:
+  - port: 58889
 - name: origoapigateway
   project: src/ApiGateways/OrigoApiGateway/OrigoApiGateway/OrigoApiGateway.csproj
+  bindings:
+  - port: 58890

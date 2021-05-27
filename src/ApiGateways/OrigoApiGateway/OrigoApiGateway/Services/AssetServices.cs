@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Dapr.Client;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,11 +19,13 @@ namespace OrigoApiGateway.Services
         public AssetServices(ILogger<AssetServices> logger, HttpClient httpClient, IOptions<AssetConfiguration> options)
         {
             _logger = logger;
+            _daprClient = new DaprClientBuilder().Build();
             HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _options = options.Value;
         }
 
         private readonly ILogger<AssetServices> _logger;
+        private readonly DaprClient _daprClient;
         private HttpClient HttpClient { get; }
         private readonly AssetConfiguration _options;
 
@@ -82,6 +86,31 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
+        public async Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId)
+        {
+            try
+            {
+                var asset =
+                    await HttpClient.GetFromJsonAsync<AssetDTO>($"{_options.ApiPath}/{assetId}/customers/{customerId}");
+                return asset == null ? null : new OrigoAsset(asset);
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAssetForCustomerAsync failed with HttpRequestException.");
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetAssetForCustomerAsync failed with content type is not valid.");
+            }
+
+            catch (JsonException exception)
+            {
+                _logger.LogError(exception, "GetAssetForCustomerAsync failed with invalid JSON.");
+            }
+
+            return null;
+        }
+
         public async Task<OrigoAsset> AddAssetForCustomerAsync(Guid customerId, NewAsset newAsset)
         {
             try
@@ -99,6 +128,30 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Unable to save Asset.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoAsset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive)
+        {
+            try
+            {
+                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/activate/{isActive.ToString().ToLower()}";
+                //TODO: Why isn't Patch supported? Dapr translates it to POST.
+                var response =  await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var exception = new BadHttpRequestException("Unable to set status for asset", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to set status for asset.");
+                    throw exception;
+                }
+                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                return asset == null ? null : new OrigoAsset(asset);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to set status for asset.");
                 throw;
             }
         }

@@ -74,6 +74,29 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("{assetId:guid}/customers/{customerId:guid}")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoAsset>> GetAsset(Guid customerId, Guid assetId)
+        {
+            try
+            {
+                var asset = await _assetServices.GetAssetForCustomerAsync(customerId, assetId);
+                if (asset == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(asset);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
         [Route("customers/{customerId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.Created)]
@@ -88,6 +111,29 @@ namespace OrigoApiGateway.Controllers
                     return CreatedAtAction(nameof(CreateAsset), new { id = createdAsset.Id }, createdAsset);
                 }
                 return BadRequest();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{assetId:Guid}/customers/{customerId:guid}/Activate/{isActive:bool}")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> SetActiveStatusOnAsset(Guid customerId, Guid assetId, bool isActive)
+        {
+            try
+            {
+                var updatedAsset = await _assetServices.UpdateActiveStatus(customerId, assetId, isActive);
+                if (updatedAsset == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(updatedAsset);
+
             }
             catch (Exception)
             {

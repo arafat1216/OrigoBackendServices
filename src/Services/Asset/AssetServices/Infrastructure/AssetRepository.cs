@@ -26,22 +26,31 @@ namespace AssetServices.Infrastructure
 
         public async Task<IList<Asset>> GetAssetsAsync(Guid customerId)
         {
-            return await _context.Assets.Include(a => a.AssetCategory).Where(a => a.CustomerId == customerId).ToListAsync();
+            return await _context.Assets.Include(a => a.AssetCategory).Where(a => a.CustomerId == customerId)
+                .ToListAsync();
         }
 
         public async Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId)
         {
-            return await _context.Assets.Include(a => a.AssetCategory).Where(a => a.CustomerId == customerId && a.AssetHolderId == userId).ToListAsync();
+            return await _context.Assets.Include(a => a.AssetCategory)
+                .Where(a => a.CustomerId == customerId && a.AssetHolderId == userId).ToListAsync();
         }
 
         public async Task<Asset> GetAssetAsync(Guid customerId, Guid assetId)
         {
-            return await _context.Assets.Include(a => a.AssetCategory).Where(a => a.CustomerId == customerId && a.AssetId == assetId).FirstOrDefaultAsync();
+            return await _context.Assets.Include(a => a.AssetCategory)
+                .Where(a => a.CustomerId == customerId && a.AssetId == assetId).FirstOrDefaultAsync();
         }
 
         public async Task<AssetCategory> GetAssetCategoryAsync(Guid assetAssetCategoryId)
         {
-            return await _context.AssetCategories.Where(c => c.AssetCategoryId == assetAssetCategoryId).FirstOrDefaultAsync();
+            return await _context.AssetCategories.Where(c => c.AssetCategoryId == assetAssetCategoryId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task SaveChanges()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

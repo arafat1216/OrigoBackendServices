@@ -11,7 +11,9 @@ namespace AssetServices
         Task<IList<Asset>> GetAssetsForCustomerAsync(Guid customerId);
         Task<Asset> GetAssetForCustomerAsync(Guid customerId, Guid assetId);
         Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId,
-            string brand, string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid assetHolderId,
-            bool isActive, Guid managedByDepartmentId);
+            string brand, string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
+            bool isActive, Guid? managedByDepartmentId);
+
+        Task<Asset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive);
     }
 }
