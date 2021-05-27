@@ -6,9 +6,9 @@ using Xunit;
 
 namespace CustomerServices.UnitTests
 {
-    public class CustomerServicesTests : CustomerBaseTest
+    public class CustomerServicesServicesTests : CustomerServicesBaseTest
     {
-        public CustomerServicesTests()
+        public CustomerServicesServicesTests()
             : base(
                 new DbContextOptionsBuilder<CustomerContext>()
                     .UseSqlite("Data Source=sqliteunittests.db")
@@ -20,7 +20,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void GetAssetsForUser_ForUserOne_CheckCount()
+        public async void GetCompanyOne_CheckName()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);

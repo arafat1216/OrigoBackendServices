@@ -1,4 +1,6 @@
-﻿namespace OrigoApiGateway.Models
+﻿using OrigoApiGateway.Models.BackendDTO;
+
+namespace OrigoApiGateway.Models
 {
     public class OrigoAddress
     {

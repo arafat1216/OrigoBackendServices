@@ -1,4 +1,5 @@
-﻿using CustomerServices.Models;
+﻿using System.Diagnostics.Contracts;
+using CustomerServices.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CustomerServices.Infrastructure
@@ -7,6 +8,8 @@ namespace CustomerServices.Infrastructure
     {
         public DbSet<Customer> Customers { get; set; }
 
+        public DbSet<User> Users { get; set; }
+
         public CustomerContext(DbContextOptions<CustomerContext> options)
             : base(options)
         { }
@@ -14,7 +17,9 @@ namespace CustomerServices.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Customer>().ToTable("Customer");
+            modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<Customer>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            modelBuilder.Entity<User>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
         }
     }
 }

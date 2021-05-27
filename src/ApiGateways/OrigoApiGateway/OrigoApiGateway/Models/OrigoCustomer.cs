@@ -1,4 +1,5 @@
 ﻿using System;
+using OrigoApiGateway.Models.BackendDTO;
 
 namespace OrigoApiGateway.Models
 {

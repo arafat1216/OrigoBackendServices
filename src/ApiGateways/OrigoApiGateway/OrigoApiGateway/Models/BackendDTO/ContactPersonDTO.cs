@@ -1,4 +1,4 @@
-﻿namespace OrigoApiGateway.Models
+﻿namespace OrigoApiGateway.Models.BackendDTO
 {
     public class ContactPersonDTO
     {

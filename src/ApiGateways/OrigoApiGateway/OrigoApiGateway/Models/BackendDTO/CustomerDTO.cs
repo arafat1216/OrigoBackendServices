@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OrigoApiGateway.Models
+namespace OrigoApiGateway.Models.BackendDTO
 {
     /// <summary>
     /// Customer object received from the customer backend services.

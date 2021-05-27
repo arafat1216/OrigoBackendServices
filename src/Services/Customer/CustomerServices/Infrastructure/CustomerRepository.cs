@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CustomerServices.Models;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,24 @@ namespace CustomerServices.Infrastructure
         public async Task<Customer> GetCustomerAsync(Guid customerId)
         {
             return await _context.Customers.FirstOrDefaultAsync(c => c.CustomerId == customerId);
+        }
+
+        public async Task<IList<User>> GetAllUsersAsync(Guid customerId)
+        {
+            return await _context.Users.Include(u => u.Customer).Where(u => u.Customer.CustomerId == customerId)
+                .ToListAsync();
+        }
+
+        public async Task<User> GetUserAsync(Guid customerId, Guid userId)
+        {
+            return await _context.Users.Include(u => u.Customer).Where(u => u.Customer.CustomerId == customerId && u.UserId == userId).FirstOrDefaultAsync();
+        }
+
+        public async Task<User> AddUserAsync(User newUser)
+        {
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
+            return newUser;
         }
     }
 }

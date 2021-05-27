@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Common.Seedwork;
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
@@ -15,6 +17,8 @@ namespace CustomerServices.Models
         public Address CompanyAddress { get; protected set; }
 
         public ContactPerson CustomerContactPerson { get; protected set; }
+
+        public IList<User> Users { get; set; }
 
         protected Customer()
         {

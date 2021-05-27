@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
-namespace AssetServicesTests
+namespace AssetServices.UnitTests
 {
     public class AssetServicesTests : AssetBaseTest
     {
@@ -23,7 +23,7 @@ namespace AssetServicesTests
             await using var context = new AssetsContext(ContextOptions);
             var assetRepository = new AssetRepository(context);
             var assetService =
-                new AssetServices.AssetServices(Mock.Of<ILogger<AssetServices.AssetServices>>(), assetRepository);
+                new global::AssetServices.AssetServices(Mock.Of<ILogger<global::AssetServices.AssetServices>>(), assetRepository);
 
             // Act
             var assetsFromUser = await assetService.GetAssetsForUserAsync(COMPANY_ID, ASSETHOLDER_ONE_ID);
@@ -40,7 +40,7 @@ namespace AssetServicesTests
             await using var context = new AssetsContext(ContextOptions);
             var assetRepository = new AssetRepository(context);
             var assetService =
-                new AssetServices.AssetServices(Mock.Of<ILogger<AssetServices.AssetServices>>(), assetRepository);
+                new global::AssetServices.AssetServices(Mock.Of<ILogger<global::AssetServices.AssetServices>>(), assetRepository);
 
             // Act
             var assetsFromUser = await assetService.GetAssetsForCustomerAsync(COMPANY_ID);
@@ -57,7 +57,7 @@ namespace AssetServicesTests
             await using var context = new AssetsContext(ContextOptions);
             var assetRepository = new AssetRepository(context);
             var assetService =
-                new AssetServices.AssetServices(Mock.Of<ILogger<AssetServices.AssetServices>>(), assetRepository);
+                new global::AssetServices.AssetServices(Mock.Of<ILogger<global::AssetServices.AssetServices>>(), assetRepository);
 
             // Act
             var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "4543534535344", ASSET_CATEGORY_ID, "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), ASSETHOLDER_ONE_ID, true, Guid.NewGuid());
@@ -75,7 +75,7 @@ namespace AssetServicesTests
             await using var context = new AssetsContext(ContextOptions);
             var assetRepository = new AssetRepository(context);
             var assetService =
-                new AssetServices.AssetServices(Mock.Of<ILogger<AssetServices.AssetServices>>(), assetRepository);
+                new global::AssetServices.AssetServices(Mock.Of<ILogger<global::AssetServices.AssetServices>>(), assetRepository);
 
             // Act
             var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "4543534535344", ASSET_CATEGORY_ID, "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, null);

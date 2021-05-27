@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using CustomerServices.Infrastructure;
 using CustomerServices.Models;
 using Microsoft.EntityFrameworkCore;
@@ -6,13 +7,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CustomerServices.UnitTests
 {
-    public class CustomerBaseTest
+    public class CustomerServicesBaseTest
     {
         protected readonly Guid CUSTOMER_ONE_ID = new("661b01e0-481b-4e7d-8076-a0e7b6496ae3");
         private readonly Guid CUSTOMER_TWO_ID = new("f1530515-fe2e-4e2f-84c2-c60da5875e22");
         private readonly Guid CUSTOMER_THREE_ID = new("6fb371c9-da3e-4ce4-b4e4-bc7f020eebf9");
 
-        protected CustomerBaseTest(DbContextOptions<CustomerContext> contextOptions)
+        protected readonly Guid USER_ONE_ID = new Guid("42803f8e-5608-4beb-a3e6-029b8e229d91");
+        private readonly Guid USER_TWO_ID = new Guid("39349c24-6e47-4a5e-9bab-7b65f438fac5");
+
+        protected CustomerServicesBaseTest(DbContextOptions<CustomerContext> contextOptions)
         {
             ContextOptions = contextOptions;
             Seed();
@@ -40,6 +44,11 @@ namespace CustomerServices.UnitTests
 
 
             context.AddRange(customerOne, customerTwo, customerThree);
+
+            var userOne = new User(customerOne, USER_ONE_ID, "Jane", "Doe", "jane@doe.com", "+4799999999", "007");
+            var userTwo = new User(customerTwo,  USER_TWO_ID, "John", "Doe", "john@doe.com", "+4791111111", "X");
+
+            context.AddRange(userOne, userTwo);
 
             context.SaveChanges();
         }

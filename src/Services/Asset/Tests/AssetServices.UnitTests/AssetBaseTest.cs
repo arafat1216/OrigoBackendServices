@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 // ReSharper disable InconsistentNaming
 
-namespace AssetServicesTests
+namespace AssetServices.UnitTests
 {
     public class AssetBaseTest
     {

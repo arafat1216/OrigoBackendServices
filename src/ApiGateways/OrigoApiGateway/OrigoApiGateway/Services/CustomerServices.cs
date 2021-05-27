@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.BackendDTO;
 
 namespace OrigoApiGateway.Services
 {
