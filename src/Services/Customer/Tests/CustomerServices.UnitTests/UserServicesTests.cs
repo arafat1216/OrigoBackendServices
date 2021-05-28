@@ -9,7 +9,8 @@ namespace CustomerServices.UnitTests
     public class UserServicesTests : CustomerServicesBaseTest
     {
         public UserServicesTests() : base(new DbContextOptionsBuilder<CustomerContext>()
-            .UseSqlite("Data Source=sqliteunittests.db").Options)
+            // ReSharper disable once StringLiteralTypo
+            .UseSqlite("Data Source=sqliteusersunittests.db").Options)
         {
         }
 
