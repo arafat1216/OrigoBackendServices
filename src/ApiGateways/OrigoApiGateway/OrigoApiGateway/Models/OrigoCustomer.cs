@@ -3,7 +3,7 @@ using OrigoApiGateway.Models.BackendDTO;
 
 namespace OrigoApiGateway.Models
 {
-    public class OrigoCustomer
+    public record OrigoCustomer
     {
         public OrigoCustomer(CustomerDTO customerDTO){
             Id = customerDTO.Id;

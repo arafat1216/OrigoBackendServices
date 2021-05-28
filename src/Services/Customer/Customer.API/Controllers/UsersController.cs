@@ -1,30 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Customer.API.ViewModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace Customer.API.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/[controller]/{customerId:Guid}")]
+    [Route("api/v{version:apiVersion}/customers/{customerId:Guid}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
 
         private readonly IUserServices _userServices;
-        private readonly ILogger<UserController> _logger;
+        private readonly ILogger<UsersController> _logger;
 
-        public UserController(ILogger<UserController> logger, IUserServices userServices)
+        public UsersController(ILogger<UsersController> logger, IUserServices userServices)
         {
             _logger = logger;
             _userServices = userServices;
@@ -58,9 +56,9 @@ namespace Customer.API.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.Customer), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<ViewModels.Customer>> CreateUserForCustomer(Guid customerId, [FromBody] NewUser newUser)
+        public async Task<ActionResult<User>> CreateUserForCustomer(Guid customerId, [FromBody] NewUser newUser)
         {
             try
             {

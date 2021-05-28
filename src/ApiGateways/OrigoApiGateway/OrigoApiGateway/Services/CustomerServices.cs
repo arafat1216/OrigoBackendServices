@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 
@@ -82,9 +83,7 @@ namespace OrigoApiGateway.Services
             {
                 var response = await HttpClient.PostAsJsonAsync("{Options.ApiPath}", newCustomer);
                 if (!response.IsSuccessStatusCode)
-                {
                     throw new BadHttpRequestException("Unable to save customer", (int) response.StatusCode);
-                }
 
                 var customer = await response.Content.ReadFromJsonAsync<CustomerDTO>();
                 return customer == null ? null : new OrigoCustomer(customer);
@@ -95,5 +94,6 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
     }
 }

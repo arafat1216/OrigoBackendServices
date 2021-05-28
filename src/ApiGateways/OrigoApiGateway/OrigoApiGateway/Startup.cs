@@ -75,8 +75,9 @@ namespace OrigoApiGateway
                 DaprClient.CreateInvokeHttpClient("customerservices"),
                 x.GetRequiredService<IOptions<CustomerConfiguration>>()));
 
-            //services.AddHttpClient<ICustomerServices, CustomerServices>();
-            //services.AddHttpClient<IUserServices, UserServices>();
+            services.AddSingleton<IUserServices>(x => new UserServices(x.GetRequiredService<ILogger<UserServices>>(),
+                DaprClient.CreateInvokeHttpClient("customerservices"),
+                x.GetRequiredService<IOptions<UserConfiguration>>()));
 
             services.AddSwaggerGen(c =>
             {

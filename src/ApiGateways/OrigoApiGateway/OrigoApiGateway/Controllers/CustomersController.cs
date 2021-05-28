@@ -19,10 +19,10 @@ namespace OrigoApiGateway.Controllers
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
     public class CustomersController : ControllerBase
     {
-        private ILogger<AssetsController> Logger { get; }
+        private ILogger<CustomersController> Logger { get; }
         public ICustomerServices CustomerServices { get; }
 
-        public CustomersController(ILogger<AssetsController> logger, ICustomerServices customerServices)
+        public CustomersController(ILogger<CustomersController> logger, ICustomerServices customerServices)
         {
             Logger = logger;
             CustomerServices = customerServices;
