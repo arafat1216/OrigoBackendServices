@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Asset.API.ViewModels;
 using AssetServices;
@@ -54,9 +55,9 @@ namespace Asset.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> Get(Guid customerId)
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> Get(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 50)
         {
-            var assets = await _assetServices.GetAssetsForCustomerAsync(customerId);
+            var assets = await _assetServices.GetAssetsForCustomerAsync(customerId, search, page, limit, cancellationToken);
             if (assets == null)
             {
                 return NotFound();

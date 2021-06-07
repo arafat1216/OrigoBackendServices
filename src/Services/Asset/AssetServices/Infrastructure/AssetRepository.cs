@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AssetServices.Models;
+using Common.Extensions;
+using Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AssetServices.Infrastructure
@@ -24,16 +27,28 @@ namespace AssetServices.Infrastructure
                 .FirstOrDefaultAsync(a => a.AssetId == asset.AssetId);
         }
 
-        public async Task<IList<Asset>> GetAssetsAsync(Guid customerId)
+        public async Task<IList<Asset>> GetAssetsAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
         {
-            return await _context.Assets.Include(a => a.AssetCategory).Where(a => a.CustomerId == customerId)
-                .ToListAsync();
+            if (string.IsNullOrEmpty(search))
+            {
+                return await _context.Assets
+                    .Include(a => a.AssetCategory)
+                    .Where(a => a.CustomerId == customerId)
+                    .ToListAsync();
+            }
+            else
+            {
+                return await _context.Assets
+                    .Include(a => a.AssetCategory)
+                    .Where(a => a.CustomerId == customerId && a.Brand.Contains(search))
+                    .ToListAsync();
+            }
         }
 
         public async Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId)
         {
             return await _context.Assets.Include(a => a.AssetCategory)
-                .Where(a => a.CustomerId == customerId && a.AssetHolderId == userId).ToListAsync();
+                .Where(a => a.CustomerId == customerId && a.AssetHolderId == userId).AsNoTracking().ToListAsync();
         }
 
         public async Task<Asset> GetAssetAsync(Guid customerId, Guid assetId)

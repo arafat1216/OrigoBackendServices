@@ -41,10 +41,10 @@ namespace AssetServices.UnitTests
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
 
             // Act
-            var assetsFromUser = await assetService.GetAssetsForCustomerAsync(COMPANY_ID);
+            var assetsFromUser = await assetService.GetAssetsForCustomerAsync(COMPANY_ID, string.Empty, 1, 10, new System.Threading.CancellationToken());
 
             // Assert
-            Assert.Equal(3, assetsFromUser.Count);
+            Assert.Equal(3, assetsFromUser.Items.Count);
         }
 
         [Fact]
