@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using AssetServices.Exceptions;
 using AssetServices.Models;
+using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace AssetServices
@@ -23,9 +25,9 @@ namespace AssetServices
             return await _assetRepository.GetAssetsForUserAsync(customerId, userId);
         }
 
-        public async Task<IList<Asset>> GetAssetsForCustomerAsync(Guid customerId)
+        public async Task<IList<Asset>> GetAssetsForCustomerAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
         {
-            return await _assetRepository.GetAssetsAsync(customerId);
+            return await _assetRepository.GetAssetsAsync(customerId, search, page, limit, cancellationToken);
         }
 
         public async Task<Asset> GetAssetForCustomerAsync(Guid customerId, Guid assetId)

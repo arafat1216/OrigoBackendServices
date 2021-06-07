@@ -18,6 +18,7 @@ namespace OrigoApiGateway.Controllers
     [Route("/origoapi/v{version:apiVersion}/[controller]")]
     public class AssetsController : ControllerBase
     {
+        // ReSharper disable once NotAccessedField.Local
         private readonly ILogger<AssetsController> _logger;
         private readonly IAssetServices _assetServices;
 

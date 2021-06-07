@@ -81,7 +81,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync("{Options.ApiPath}", newCustomer);
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", newCustomer);
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save customer", (int) response.StatusCode);
 

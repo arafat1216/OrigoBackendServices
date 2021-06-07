@@ -1,4 +1,4 @@
-﻿namespace OrigoApiGateway.Controllers
+﻿namespace OrigoApiGateway.Models
 {
     public record NewUser
     {
