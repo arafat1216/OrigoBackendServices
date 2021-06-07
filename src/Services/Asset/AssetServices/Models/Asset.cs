@@ -91,5 +91,25 @@ namespace AssetServices.Models
         {
             IsActive = isActive;
         }
+
+        public void UpdateBrand(string brand)
+        {
+            Brand = brand;
+        }
+
+        public void UpdateModel(string model)
+        {
+            Model = model;
+        }
+
+        public void ChangeSerialNumber(string serialNumber)
+        {
+            SerialNumber = serialNumber;
+        }
+
+        public void ChangePurchaseDate(DateTime purchaseDate)
+        {
+            PurchaseDate = purchaseDate;
+        }
     }
 }
