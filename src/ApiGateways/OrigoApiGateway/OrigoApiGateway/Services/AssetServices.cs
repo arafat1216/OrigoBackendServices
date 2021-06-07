@@ -95,6 +95,9 @@ namespace OrigoApiGateway.Services
 
                 var origoPagedAssets = new OrigoPagedAssets();
                 foreach (var asset in pagedAssetsDto.Assets) origoPagedAssets.Assets.Add(new OrigoAsset(asset));
+                origoPagedAssets.CurrentPage = pagedAssetsDto.CurrentPage;
+                origoPagedAssets.TotalItems = pagedAssetsDto.TotalItems;
+                origoPagedAssets.TotalPages = pagedAssetsDto.TotalPages;
                 return origoPagedAssets;
             }
             catch (HttpRequestException exception)

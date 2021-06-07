@@ -52,7 +52,7 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("customers/{customerId:guid}")]
+        [Route("customers/{customerId:guid}/search")]
         [HttpGet]
         [ProducesResponseType(typeof(OrigoPagedAssets), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
