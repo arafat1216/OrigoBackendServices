@@ -25,9 +25,16 @@ namespace AssetServices
             return await _assetRepository.GetAssetsForUserAsync(customerId, userId);
         }
 
-        public async Task<IList<Asset>> GetAssetsForCustomerAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
+        public async Task<PagedModel<Asset>> GetAssetsForCustomerAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
         {
-            return await _assetRepository.GetAssetsAsync(customerId, search, page, limit, cancellationToken);
+            try
+            {
+                return await _assetRepository.GetAssetsAsync(customerId, search, page, limit, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw new ReadingDataException(exception);
+            }
         }
 
         public async Task<Asset> GetAssetForCustomerAsync(Guid customerId, Guid assetId)

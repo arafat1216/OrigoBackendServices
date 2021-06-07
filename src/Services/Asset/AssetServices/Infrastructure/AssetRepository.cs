@@ -27,21 +27,21 @@ namespace AssetServices.Infrastructure
                 .FirstOrDefaultAsync(a => a.AssetId == asset.AssetId);
         }
 
-        public async Task<IList<Asset>> GetAssetsAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
+        public async Task<PagedModel<Asset>> GetAssetsAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(search))
             {
                 return await _context.Assets
                     .Include(a => a.AssetCategory)
                     .Where(a => a.CustomerId == customerId)
-                    .ToListAsync();
+                    .PaginateAsync(page, limit, cancellationToken);
             }
             else
             {
                 return await _context.Assets
                     .Include(a => a.AssetCategory)
                     .Where(a => a.CustomerId == customerId && a.Brand.Contains(search))
-                    .ToListAsync();
+                    .PaginateAsync(page, limit, cancellationToken);
             }
         }
 
