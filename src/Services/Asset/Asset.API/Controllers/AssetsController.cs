@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Asset.API.ViewModels;
 using AssetServices;
+using AssetServices.Models;
 using AssetServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -135,6 +136,28 @@ namespace Asset.API.Controllers
 
                 return Ok(new ViewModels.Asset(updatedAsset));
 
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{assetId:Guid}/customers/{customerId:guid}/ChangeLifecycleType/{newLifeCycleType:LifecycleType}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid customerId, Guid assetId, LifecycleType newLifecycleType)
+        {
+            try
+            {
+                var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, assetId, newLifecycleType);
+                if (updatedAsset == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new ViewModels.Asset(updatedAsset));
             }
             catch (Exception)
             {

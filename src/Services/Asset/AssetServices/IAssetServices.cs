@@ -15,7 +15,7 @@ namespace AssetServices
         Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId,
             string brand, string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
             bool isActive, Guid? managedByDepartmentId);
-
+        Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, LifecycleType newLifecycleType);
         Task<Asset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive);
     }
 }

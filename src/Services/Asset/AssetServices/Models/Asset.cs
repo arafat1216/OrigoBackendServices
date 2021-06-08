@@ -70,6 +70,11 @@ namespace AssetServices.Models
         /// </summary>
         public LifecycleType LifecycleType { get; protected set; }
 
+        public void SetLifeCycleType(LifecycleType newLifecycleType)
+        {
+            LifecycleType = newLifecycleType;
+        }
+
         public DateTime PurchaseDate { get; protected set; }
 
         /// <summary>
@@ -91,5 +96,7 @@ namespace AssetServices.Models
         {
             IsActive = isActive;
         }
+
+       
     }
 }
