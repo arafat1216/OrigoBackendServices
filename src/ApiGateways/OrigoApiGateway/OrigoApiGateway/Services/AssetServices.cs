@@ -64,10 +64,10 @@ namespace OrigoApiGateway.Services
             try
             {
                 var assets =
-                    await HttpClient.GetFromJsonAsync<List<AssetDTO>>($"{_options.ApiPath}/customers/{customerId}");
+                    await HttpClient.GetFromJsonAsync<PagedAssetsDTO>($"{_options.ApiPath}/customers/{customerId}");
                 if (assets == null) return null;
                 var origoAssets = new List<OrigoAsset>();
-                foreach (var asset in assets) origoAssets.Add(new OrigoAsset(asset));
+                foreach (var asset in assets.Assets) origoAssets.Add(new OrigoAsset(asset));
                 return origoAssets;
             }
             catch (HttpRequestException exception)
