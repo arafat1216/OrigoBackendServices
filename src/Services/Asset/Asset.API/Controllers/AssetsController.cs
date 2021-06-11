@@ -143,15 +143,30 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/ChangeLifecycleType/{newLifeCycleType:LifecycleType}")]
+        [Route("{assetId:Guid}/customers/{customerId:guid}/ChangeLifecycleType/{newLifecycleType:int}")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.UnprocessableEntity)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid customerId, Guid assetId, LifecycleType newLifecycleType)
+        public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid customerId, Guid assetId, int newLifecycleType)
         {
             try
             {
-                var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, assetId, newLifecycleType);
+                // Check if given int is within valid range of values
+                if (!Enum.IsDefined(typeof(LifecycleType), newLifecycleType))
+                {
+                    Array arr = Enum.GetValues(typeof(LifecycleType));
+                    string errorMsg = string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", newLifecycleType);
+                    foreach (LifecycleType e in arr)
+                    {
+                        errorMsg += $"    - {(int)e} ({e})\n";
+                    }
+                    return UnprocessableEntity(errorMsg);
+                    
+                }
+                LifecycleType nlt = (LifecycleType)newLifecycleType;
+                var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, assetId, nlt);
                 if (updatedAsset == null)
                 {
                     return NotFound();

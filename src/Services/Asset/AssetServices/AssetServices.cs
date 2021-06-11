@@ -64,7 +64,7 @@ namespace AssetServices
             {
                 return null;
             }
-
+                    
             asset.SetLifeCycleType(newLifecycleType);
             await _assetRepository.SaveChanges();
             return asset;
