@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Asset.API.ViewModels
+namespace OrigoApiGateway.Models
 {
-    public class UpdateAsset
+    public class OrigoUpdateAsset
     {
         /// <summary>
         /// The unique serial number for the asset. For mobile phones and other devices

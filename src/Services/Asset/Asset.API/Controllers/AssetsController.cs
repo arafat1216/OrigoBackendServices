@@ -113,28 +113,6 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("customers/{customerId:guid}/Update")]
-        [HttpPatch]
-        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> UpdateAsset(Guid customerId, [FromBody] UpdateAsset asset)
-        {
-            try
-            {
-                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, asset.AssetId, asset.SerialNumber, asset.Brand, asset.Model, asset.PurchaseDate);
-                if (updatedAsset == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(new ViewModels.Asset(updatedAsset)); 
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
         [Route("{assetId:Guid}/customers/{customerId:guid}/Activate/{isActive:bool}")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
@@ -151,6 +129,28 @@ namespace Asset.API.Controllers
 
                 return Ok(new ViewModels.Asset(updatedAsset));
 
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{assetId:Guid}/customers/{customerId:guid}/Update")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> UpdateAsset(Guid customerId,Guid assetId, [FromBody] UpdateAsset asset)
+        {
+            try
+            {
+                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.SerialNumber, asset.Brand, asset.Model, asset.PurchaseDate);
+                if (updatedAsset == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new ViewModels.Asset(updatedAsset));
             }
             catch (Exception)
             {
