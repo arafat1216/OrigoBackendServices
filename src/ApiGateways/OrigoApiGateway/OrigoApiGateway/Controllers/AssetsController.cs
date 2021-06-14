@@ -52,6 +52,29 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("customers/{customerId:guid}/search")]
+        [HttpGet]
+        [ProducesResponseType(typeof(OrigoPagedAssets), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoPagedAssets>> SearchForAsset(Guid customerId, string search, int page = 1, int limit = 50)
+        {
+            try
+            {
+                var origoPagedAssets = await _assetServices.SearchForAssetsForCustomerAsync(customerId, search, page, limit);
+                if (origoPagedAssets == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(origoPagedAssets);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
         [Route("customers/{customerId:guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]

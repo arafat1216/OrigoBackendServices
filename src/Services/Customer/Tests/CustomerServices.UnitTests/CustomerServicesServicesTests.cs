@@ -33,6 +33,10 @@ namespace CustomerServices.UnitTests
 
             // Assert
             Assert.Equal("COMPANY ONE", customer.CompanyName);
+            Assert.Equal("My Way 1", customer.CompanyAddress.Street);
+            Assert.Equal("1111", customer.CompanyAddress.PostCode);
+            Assert.Equal("My City", customer.CompanyAddress.City);
+            Assert.Equal("NO", customer.CompanyAddress.Country);
         }
     }
 }

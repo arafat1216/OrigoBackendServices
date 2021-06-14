@@ -64,11 +64,41 @@ namespace OrigoApiGateway.Services
             try
             {
                 var assets =
-                    await HttpClient.GetFromJsonAsync<IList<AssetDTO>>($"{_options.ApiPath}/customers/{customerId}");
+                    await HttpClient.GetFromJsonAsync<PagedAssetsDTO>($"{_options.ApiPath}/customers/{customerId}");
                 if (assets == null) return null;
                 var origoAssets = new List<OrigoAsset>();
-                foreach (var asset in assets) origoAssets.Add(new OrigoAsset(asset));
+                foreach (var asset in assets.Assets) origoAssets.Add(new OrigoAsset(asset));
                 return origoAssets;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAssetsForCustomerAsync failed with HttpRequestException.");
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetAssetsForCustomerAsync failed with content type is not valid.");
+            }
+            catch (JsonException exception)
+            {
+                _logger.LogError(exception, "GetAssetsForCustomerAsync failed with invalid JSON.");
+            }
+
+            return null;
+        }
+
+        public async Task<OrigoPagedAssets> SearchForAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 50)
+        {
+            try
+            {
+                var pagedAssetsDto = await HttpClient.GetFromJsonAsync<PagedAssetsDTO>($"{_options.ApiPath}/customers/{customerId}?q={search}&page={page}&limit={limit}");
+                if (pagedAssetsDto == null) return null;
+
+                var origoPagedAssets = new OrigoPagedAssets();
+                foreach (var asset in pagedAssetsDto.Assets) origoPagedAssets.Assets.Add(new OrigoAsset(asset));
+                origoPagedAssets.CurrentPage = pagedAssetsDto.CurrentPage;
+                origoPagedAssets.TotalItems = pagedAssetsDto.TotalItems;
+                origoPagedAssets.TotalPages = pagedAssetsDto.TotalPages;
+                return origoPagedAssets;
             }
             catch (HttpRequestException exception)
             {

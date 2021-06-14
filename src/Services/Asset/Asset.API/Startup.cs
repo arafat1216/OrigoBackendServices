@@ -39,7 +39,7 @@ namespace Asset.API
             });
             services.AddApplicationInsightsTelemetry();
 
-            services.AddDbContext<AssetsContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AssetConnectionString")));
+            services.AddDbContext<AssetsContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AssetConnectionString")), ServiceLifetime.Transient);
             services.AddScoped<IAssetServices, AssetServices.AssetServices>();
             services.AddScoped<IAssetRepository, AssetRepository>();
 

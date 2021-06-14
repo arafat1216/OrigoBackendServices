@@ -53,24 +53,30 @@ namespace Asset.API.Controllers
 
         [Route("customers/{customerId:guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(PagedAssetList), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> Get(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 50)
+        public async Task<ActionResult<PagedAssetList>> Get(Guid customerId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
-            var assets = await _assetServices.GetAssetsForCustomerAsync(customerId, search, page, limit, cancellationToken);
-            if (assets == null)
+            var pagedAssetResult = await _assetServices.GetAssetsForCustomerAsync(customerId, search, page, limit, cancellationToken);
+            if (pagedAssetResult == null)
             {
                 return NotFound();
             }
 
             var assetList = new List<ViewModels.Asset>();
-            foreach (var asset in assets)
+            foreach (var asset in pagedAssetResult.Items)
             {
                 var assetToReturn = new ViewModels.Asset(asset);
                 assetList.Add(assetToReturn);
             }
 
-            return Ok(assetList);
+            return Ok(new PagedAssetList
+            {
+                CurrentPage = pagedAssetResult.CurrentPage,
+                TotalItems = pagedAssetResult.TotalItems,
+                TotalPages = pagedAssetResult.TotalPages,
+                Assets = assetList
+            });
         }
 
         [Route("{assetId:Guid}/customers/{customerId:guid}")]
