@@ -165,8 +165,8 @@ namespace Asset.API.Controllers
                     return UnprocessableEntity(errorMsg);
                     
                 }
-                LifecycleType nlt = (LifecycleType)newLifecycleType;
-                var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, assetId, nlt);
+                LifecycleType lifecycleType = (LifecycleType)newLifecycleType;
+                var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, assetId, lifecycleType);
                 if (updatedAsset == null)
                 {
                     return NotFound();

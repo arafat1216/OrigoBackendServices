@@ -185,5 +185,28 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, int newLifecycleType)
+        {
+            try
+            {
+                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/ChangeLifecycleType/{newLifecycleType}";
+                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var exception = new BadHttpRequestException("Unable to change lifecycle type for asset", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to change lifecycle type for asset.");
+                    throw exception;
+                }
+                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                return asset == null ? null : new OrigoAsset(asset);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to change lifecycle type for asset.");
+                throw;
+            }
+        }
     }
 }
