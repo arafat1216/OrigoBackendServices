@@ -36,7 +36,7 @@ namespace OrigoApiGateway.Services
             {
                 var assets =
                     await HttpClient.GetFromJsonAsync<IList<AssetDTO>>(
-                        $"{_options.ApiPath}/customers/{customerId}/{userId}");
+                        $"{_options.ApiPath}/customers/{customerId}/users/{userId}");
                 if (assets == null) return null;
                 var origoAssets = new List<OrigoAsset>();
                 foreach (var asset in assets) origoAssets.Add(new OrigoAsset(asset));
@@ -148,7 +148,7 @@ namespace OrigoApiGateway.Services
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/customers/{customerId}", newAsset);
                 if (!response.IsSuccessStatusCode)
                 {
-                    var exception = new BadHttpRequestException("Unable to save asset", (int) response.StatusCode);
+                    var exception = new BadHttpRequestException("Unable to save asset", (int)response.StatusCode);
                     _logger.LogError(exception, "Unable to save Asset.");
                     throw exception;
                 }
@@ -169,7 +169,7 @@ namespace OrigoApiGateway.Services
                 var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
                 var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/activate/{isActive.ToString().ToLower()}";
                 //TODO: Why isn't Patch supported? Dapr translates it to POST.
-                var response =  await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to set status for asset", (int)response.StatusCode);
@@ -182,6 +182,27 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Unable to set status for asset.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset)
+        {
+            try
+            {
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{assetId}/customers/{customerId}/update/", updateAsset);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var exception = new BadHttpRequestException("Unable to update asset", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to update asset.");
+                    throw exception;
+                }
+                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                return asset == null ? null : new OrigoAsset(asset);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to update asset.");
                 throw;
             }
         }
