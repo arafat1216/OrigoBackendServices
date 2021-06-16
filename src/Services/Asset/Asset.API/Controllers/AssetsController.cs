@@ -162,7 +162,8 @@ namespace Asset.API.Controllers
                     {
                         errorMsg += $"    - {(int)e} ({e})\n";
                     }
-                    return UnprocessableEntity(errorMsg);
+                    throw new InvalidLifecycleTypeException(errorMsg);
+                    //return UnprocessableEntity(errorMsg);
                     
                 }
                 LifecycleType lifecycleType = (LifecycleType)newLifecycleType;
@@ -173,6 +174,10 @@ namespace Asset.API.Controllers
                 }
 
                 return Ok(new ViewModels.Asset(updatedAsset));
+            }
+            catch (InvalidLifecycleTypeException ex)
+            {
+                return UnprocessableEntity(ex.Message);
             }
             catch (Exception)
             {

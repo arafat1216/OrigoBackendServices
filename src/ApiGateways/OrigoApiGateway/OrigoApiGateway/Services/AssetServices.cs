@@ -9,6 +9,7 @@ using Dapr.Client;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 
@@ -195,8 +196,18 @@ namespace OrigoApiGateway.Services
                 var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
                 if (!response.IsSuccessStatusCode)
                 {
-                    var exception = new BadHttpRequestException("Unable to change lifecycle type for asset", (int)response.StatusCode);
-                    _logger.LogError(exception, "Unable to change lifecycle type for asset.");
+                    Exception exception;
+                    if (response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+                    {
+                        exception = new InvalidLifecycleTypeException(response.ReasonPhrase);
+                        _logger.LogError(exception, "Invalid lifecycletype given for asset.");
+                    }
+                    else
+                    {
+                        exception = new BadHttpRequestException("Unable to change lifecycle type for asset", (int)response.StatusCode);
+                        _logger.LogError(exception, "Unable to change lifecycle type for asset.");
+                    }
+                    
                     throw exception;
                 }
                 var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
