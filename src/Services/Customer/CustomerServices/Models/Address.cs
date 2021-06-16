@@ -17,12 +17,12 @@ namespace CustomerServices.Models
 
         public Address() { }
 
-        public Address(string street, string city, string country, string postCode)
+        public Address(string street, string postCode, string city, string country)
         {
             Street = street;
+            PostCode = postCode;
             City = city;
             Country = country;
-            PostCode = postCode;
         }
 
         protected override IEnumerable<object> GetEqualityComponents()

@@ -20,7 +20,7 @@ namespace AssetServices
             _assetRepository = assetRepository;
         }
 
-        public async Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId,  Guid userId)
+        public async Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId)
         {
             return await _assetRepository.GetAssetsForUserAsync(customerId, userId);
         }
@@ -41,7 +41,7 @@ namespace AssetServices
         {
             return await _assetRepository.GetAssetAsync(customerId, assetId);
         }
-        
+
         public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId, string brand,
             string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive,
             Guid? managedByDepartmentId)
@@ -79,6 +79,35 @@ namespace AssetServices
             }
 
             asset.SetActiveStatus(isActive);
+            await _assetRepository.SaveChanges();
+            return asset;
+        }
+
+        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string serialNumber, string brand, string model, DateTime purchaseDate)
+        {
+            var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
+
+            if (asset == null)
+            {
+                return null;
+            }
+            if (!string.IsNullOrWhiteSpace(serialNumber))
+            {
+                asset.ChangeSerialNumber(serialNumber);
+            }
+            if (!string.IsNullOrWhiteSpace(brand))
+            {
+                asset.UpdateBrand(brand);
+            }
+            if (!string.IsNullOrWhiteSpace(model))
+            {
+                asset.UpdateModel(model);
+            }
+            if (purchaseDate != default)
+            {
+                asset.ChangePurchaseDate(purchaseDate);
+            }
+
             await _assetRepository.SaveChanges();
             return asset;
         }
