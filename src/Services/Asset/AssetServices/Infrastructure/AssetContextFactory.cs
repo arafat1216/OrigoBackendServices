@@ -9,7 +9,7 @@ namespace AssetServices.Infrastructure
         public AssetsContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<AssetsContext>();
-            optionsBuilder.UseSqlServer(@"Server=LAPTOP-E9VE3MC7\SQLEXPRESS;Database=Assets;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer("Server=localhost;Database=Assets;Trusted_Connection=True;");
 
             return new AssetsContext(optionsBuilder.Options);
         }
