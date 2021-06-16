@@ -163,8 +163,6 @@ namespace Asset.API.Controllers
                         errorMsg += $"    - {(int)e} ({e})\n";
                     }
                     throw new InvalidLifecycleTypeException(errorMsg);
-                    //return UnprocessableEntity(errorMsg);
-                    
                 }
                 LifecycleType lifecycleType = (LifecycleType)newLifecycleType;
                 var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, assetId, lifecycleType);
