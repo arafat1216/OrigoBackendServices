@@ -163,5 +163,28 @@ namespace Asset.API.Controllers
                 return BadRequest();
             }
         }
+
+        [Route("{assetId:Guid}/customer/{customerId:guid}/user/{userId:Guid}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> SetActiveStatusOnAsset(Guid customerId, Guid assetId, Guid userId)
+        {
+            try
+            {
+                var updatedAsset = await _assetServices.AssignAsset(customerId, assetId, userId);
+                if (updatedAsset == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new ViewModels.Asset(updatedAsset));
+
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
     }
 }

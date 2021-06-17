@@ -14,5 +14,6 @@ namespace OrigoApiGateway.Services
         Task<OrigoAsset> AddAssetForCustomerAsync(Guid customerId, NewAsset newAsset);
         Task<OrigoAsset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive);
         Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset);
+        Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid userId);
     }
 }

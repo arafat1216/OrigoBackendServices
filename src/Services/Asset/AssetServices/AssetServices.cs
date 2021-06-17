@@ -98,5 +98,20 @@ namespace AssetServices
             await _assetRepository.SaveChanges();
             return asset;
         }
+
+        public async Task<Asset> AssignAsset(Guid customerId, Guid assetId, Guid userId)
+        {
+            var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
+            if (asset == null)
+            {
+                return null;
+            }
+          
+            // TODO: check if user id is valid.
+
+            asset.AssignAssetToUser(userId);
+            await _assetRepository.SaveChanges();
+            return asset;
+        }
     }
 }

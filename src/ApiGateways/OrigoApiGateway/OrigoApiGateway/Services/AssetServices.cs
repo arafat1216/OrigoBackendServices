@@ -206,5 +206,28 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid userId)
+        {
+            try
+            {
+                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                var requestUri = $"{_options.ApiPath}/{assetId}/customer/{customerId}/user/{userId}";
+                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var exception = new BadHttpRequestException("Unable to assing asset", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to assing asset.");
+                    throw exception;
+                }
+                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                return asset == null ? null : new OrigoAsset(asset);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to assing asset.");
+                throw;
+            }
+        }
     }
 }

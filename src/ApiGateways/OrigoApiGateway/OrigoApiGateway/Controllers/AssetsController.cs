@@ -186,5 +186,28 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
+
+        [Route("{assetId:Guid}/customers/{customerId:guid}/user/{userId:guid}")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, Guid userId)
+        {
+            try
+            {
+                var assignedAsset = await _assetServices.AssignAsset(customerId, assetId, userId);
+                if (assignedAsset == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(assignedAsset);
+
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
     }
 }
