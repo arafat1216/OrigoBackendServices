@@ -35,7 +35,7 @@ namespace Asset.API.Controllers
 
         [Route("customers/{customerId:guid}/users/{userId:Guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> GetAssetsForUser(Guid customerId, Guid userId)
         {
@@ -98,7 +98,7 @@ namespace Asset.API.Controllers
 
         [Route("customers/{customerId:guid}")]
         [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> CreateAsset(Guid customerId, [FromBody] NewAsset asset)
         {
@@ -109,7 +109,7 @@ namespace Asset.API.Controllers
                     asset.AssetHolderId, asset.IsActive, asset.ManagedByDepartmentId);
                 var updatedAssetView = new ViewModels.Asset(updatedAsset);
 
-                return CreatedAtAction(nameof(CreateAsset), new {id = updatedAssetView.AssetId}, updatedAssetView);
+                return CreatedAtAction(nameof(CreateAsset), new { id = updatedAssetView.AssetId }, updatedAssetView);
 
             }
             catch (AssetCategoryNotFoundException)
@@ -147,7 +147,7 @@ namespace Asset.API.Controllers
 
         [Route("{assetId:Guid}/customers/{customerId:guid}/ChangeLifecycleType/{newLifecycleType:int}")]
         [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.Asset), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.UnprocessableEntity)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -159,7 +159,7 @@ namespace Asset.API.Controllers
                 if (!Enum.IsDefined(typeof(LifecycleType), newLifecycleType))
                 {
                     Array arr = Enum.GetValues(typeof(LifecycleType));
-                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", newLifecycleType));           
+                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", newLifecycleType));
                     foreach (LifecycleType e in arr)
                     {
                         errorMessage.Append($"    -{(int)e} ({e})\n");
@@ -178,6 +178,28 @@ namespace Asset.API.Controllers
             catch (InvalidLifecycleTypeException ex)
             {
                 return UnprocessableEntity(ex.Message);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{assetId:Guid}/customers/{customerId:guid}/Update")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> UpdateAsset(Guid customerId, Guid assetId, [FromBody] UpdateAsset asset)
+        {
+            try
+            {
+                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.SerialNumber, asset.Brand, asset.Model, asset.PurchaseDate);
+                if (updatedAsset == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new ViewModels.Asset(updatedAsset));
             }
             catch (Exception)
             {

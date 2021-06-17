@@ -165,6 +165,28 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("{assetId:Guid}/customers/{customerId:guid}/Update")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> UpdateAsset(Guid customerId, Guid assetId, [FromBody] OrigoUpdateAsset asset)
+        {
+            try
+            {
+                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset);
+                if (updatedAsset == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(updatedAsset);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
         [Route("{assetId:Guid}/customers/{customerId:guid}/ChangeLifecycleType/{newLifecycleType:int}")]
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]

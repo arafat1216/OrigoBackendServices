@@ -17,5 +17,6 @@ namespace AssetServices
             bool isActive, Guid? managedByDepartmentId);
         Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, LifecycleType newLifecycleType);
         Task<Asset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive);
+        Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string serialNumber, string brand, string model, DateTime purchaseDate);
     }
 }
