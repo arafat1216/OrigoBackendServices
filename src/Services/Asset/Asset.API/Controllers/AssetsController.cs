@@ -10,6 +10,8 @@ using AssetServices.Models;
 using AssetServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Common.Exceptions;
+using System.Text;
 
 namespace Asset.API.Controllers
 {
@@ -157,12 +159,12 @@ namespace Asset.API.Controllers
                 if (!Enum.IsDefined(typeof(LifecycleType), newLifecycleType))
                 {
                     Array arr = Enum.GetValues(typeof(LifecycleType));
-                    string errorMsg = string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", newLifecycleType);
+                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", newLifecycleType));           
                     foreach (LifecycleType e in arr)
                     {
-                        errorMsg += $"    - {(int)e} ({e})\n";
+                        errorMessage.Append($"    -{(int)e} ({e})\n");
                     }
-                    throw new InvalidLifecycleTypeException(errorMsg);
+                    throw new InvalidLifecycleTypeException(errorMessage.ToString());
                 }
                 LifecycleType lifecycleType = (LifecycleType)newLifecycleType;
                 var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, assetId, lifecycleType);

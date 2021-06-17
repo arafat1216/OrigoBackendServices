@@ -9,9 +9,9 @@ using Dapr.Client;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
+using OrigoApiGateway.Exceptions;
 
 namespace OrigoApiGateway.Services
 {
