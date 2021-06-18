@@ -49,5 +49,10 @@ namespace CustomerServices.Infrastructure
             await _context.SaveChangesAsync();
             return newUser;
         }
+
+        public async Task<IList<Module>> GetModulesAsync()
+        {
+            return await _context.Modules.ToListAsync();
+        }
     }
 }

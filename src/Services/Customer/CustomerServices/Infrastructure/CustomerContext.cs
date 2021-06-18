@@ -10,6 +10,8 @@ namespace CustomerServices.Infrastructure
 
         public DbSet<User> Users { get; set; }
 
+        public DbSet<Module> Modules { get; set; }
+
         public CustomerContext(DbContextOptions<CustomerContext> options)
             : base(options)
         { }
@@ -20,6 +22,8 @@ namespace CustomerServices.Infrastructure
             modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<Customer>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<User>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            modelBuilder.Entity<Module>().ToTable("Module");
+            modelBuilder.Entity<Module>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
         }
     }
 }

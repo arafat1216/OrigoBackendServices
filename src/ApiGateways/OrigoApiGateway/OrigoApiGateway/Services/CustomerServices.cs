@@ -95,26 +95,29 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoModule> GetModuleAsync(Guid customerId) 
+        public async Task<IList<OrigoModule>> GetModulesAsync() 
         {
             try
             {
-                var customer = await HttpClient.GetFromJsonAsync<CustomerDTO>($"{_options.ApiPath}/{customerId}");
-                return customer == null ? null : new OrigoCustomer(customer);
+                var modules = await HttpClient.GetFromJsonAsync<IList<ModuleDTO>>($"{_options.ApiPath}/module");
+                if (modules == null) return null;
+                var moduleList = new List<OrigoModule>();
+                foreach (var module in modules) moduleList.Add(new OrigoModule(module));
+                return moduleList;
             }
             catch (HttpRequestException exception)
             {
-                _logger.LogError(exception, "GetCustomersAsync failed with HttpRequestException.");
+                _logger.LogError(exception, "Get modules failed with HttpRequestException.");
                 throw;
             }
             catch (NotSupportedException exception)
             {
-                _logger.LogError(exception, "GetCustomersAsync failed with content type is not valid.");
+                _logger.LogError(exception, "Get modules failed with content type is not valid.");
                 throw;
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "GetCustomersAsync unknown error.");
+                _logger.LogError(exception, "Get modules unknown error.");
                 throw;
             }
         }

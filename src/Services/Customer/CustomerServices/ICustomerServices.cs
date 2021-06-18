@@ -10,5 +10,6 @@ namespace CustomerServices
         Task<IList<Customer>> GetCustomersAsync();
         Task<Customer> AddCustomerAsync(Customer newCustomer);
         Task<Customer> GetCustomerAsync(Guid customerId);
+        Task<IList<Module>> GetModulesAsync();
     }
 }

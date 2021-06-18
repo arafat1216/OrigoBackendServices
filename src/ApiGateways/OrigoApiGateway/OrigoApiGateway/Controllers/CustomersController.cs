@@ -83,13 +83,21 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}")]
+        [Route("/module")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoModule>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IList<OrigoModule>>> GetModules(Guid customerId)
+        public async Task<ActionResult<IList<OrigoModule>>> GetModules()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var modules = await CustomerServices.GetModulesAsync();
+                return modules != null ? Ok(modules) : NotFound();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
     }
 }
