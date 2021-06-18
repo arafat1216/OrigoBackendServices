@@ -6,9 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Asset.API.ViewModels;
 using AssetServices;
+using AssetServices.Models;
 using AssetServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Common.Exceptions;
+using System.Text;
 
 namespace Asset.API.Controllers
 {
@@ -142,11 +145,51 @@ namespace Asset.API.Controllers
             }
         }
 
+        [Route("{assetId:Guid}/customers/{customerId:guid}/ChangeLifecycleType/{newLifecycleType:int}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.UnprocessableEntity)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid customerId, Guid assetId, int newLifecycleType)
+        {
+            try
+            {
+                // Check if given int is within valid range of values
+                if (!Enum.IsDefined(typeof(LifecycleType), newLifecycleType))
+                {
+                    Array arr = Enum.GetValues(typeof(LifecycleType));
+                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", newLifecycleType));
+                    foreach (LifecycleType e in arr)
+                    {
+                        errorMessage.Append($"    -{(int)e} ({e})\n");
+                    }
+                    throw new InvalidLifecycleTypeException(errorMessage.ToString());
+                }
+                LifecycleType lifecycleType = (LifecycleType)newLifecycleType;
+                var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, assetId, lifecycleType);
+                if (updatedAsset == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new ViewModels.Asset(updatedAsset));
+            }
+            catch (InvalidLifecycleTypeException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
         [Route("{assetId:Guid}/customers/{customerId:guid}/Update")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> UpdateAsset(Guid customerId,Guid assetId, [FromBody] UpdateAsset asset)
+        public async Task<ActionResult> UpdateAsset(Guid customerId, Guid assetId, [FromBody] UpdateAsset asset)
         {
             try
             {
