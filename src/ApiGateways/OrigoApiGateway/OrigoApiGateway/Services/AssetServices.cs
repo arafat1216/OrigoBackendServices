@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
+using OrigoApiGateway.Exceptions;
 
 namespace OrigoApiGateway.Services
 {
@@ -203,6 +204,39 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Unable to update asset.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, int newLifecycleType)
+        {
+            try
+            {
+                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/ChangeLifecycleType/{newLifecycleType}";
+                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                if (!response.IsSuccessStatusCode)
+                {
+                    Exception exception;
+                    if (response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+                    {
+                        exception = new InvalidLifecycleTypeException(response.ReasonPhrase);
+                        _logger.LogError(exception, "Invalid lifecycletype given for asset.");
+                    }
+                    else
+                    {
+                        exception = new BadHttpRequestException("Unable to change lifecycle type for asset", (int)response.StatusCode);
+                        _logger.LogError(exception, "Unable to change lifecycle type for asset.");
+                    }
+
+                    throw exception;
+                }
+                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                return asset == null ? null : new OrigoAsset(asset);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to change lifecycle type for asset.");
                 throw;
             }
         }

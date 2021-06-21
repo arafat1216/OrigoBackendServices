@@ -57,6 +57,19 @@ namespace AssetServices
             return await _assetRepository.AddAsync(newAsset);
         }
 
+        public async Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, LifecycleType newLifecycleType)
+        {
+            var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
+            if (asset == null)
+            {
+                return null;
+            }
+                    
+            asset.SetLifeCycleType(newLifecycleType);
+            await _assetRepository.SaveChanges();
+            return asset;
+        }
+
         public async Task<Asset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive)
         {
             var asset = await _assetRepository.GetAssetAsync(customerId, assetId);

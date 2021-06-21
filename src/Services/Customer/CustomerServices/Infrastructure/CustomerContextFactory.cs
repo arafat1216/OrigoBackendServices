@@ -9,7 +9,7 @@ namespace CustomerServices.Infrastructure
         public CustomerContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<CustomerContext>();
-            optionsBuilder.UseSqlServer("Server=SAL-9000;Database=Customers;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer("Server=localhost;Database=Customers;Trusted_Connection=True;");
 
             return new CustomerContext(optionsBuilder.Options);
         }
