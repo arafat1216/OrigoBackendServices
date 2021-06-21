@@ -16,14 +16,15 @@ namespace OrigoApiGateway.Services
 {
     public class AssetServices : IAssetServices
     {
-        public AssetServices(ILogger<AssetServices> logger, HttpClient httpClient, IOptions<AssetConfiguration> options)
+        public AssetServices(ILogger<AssetServices> logger, HttpClient httpClient, IOptions<AssetConfiguration> options, IUserServices userServices)
         {
             _logger = logger;
             _daprClient = new DaprClientBuilder().Build();
             HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _options = options.Value;
+            _userServices = userServices;
         }
-
+        private readonly IUserServices _userServices;
         private readonly ILogger<AssetServices> _logger;
         private readonly DaprClient _daprClient;
         private HttpClient HttpClient { get; }
@@ -207,17 +208,32 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid userId)
+        public async Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid? userId)
         {
             try
             {
+                if (userId != null)
+                {
+                    try
+                    {
+                        var user = _userServices.GetUserAsync(customerId, userId.Value).Result;
+                        if (user == null)
+                            throw new BadHttpRequestException("Unable to assign asset. User not found");
+                    }
+                    catch
+                    {
+                        var exception = new BadHttpRequestException("Unable to assign asset. User not found");
+                        _logger.LogError(exception, "Unable to assign asset. User not found");
+                        throw exception;
+                    }
+                }
                 var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{assetId}/customer/{customerId}/user/{userId}";
+                var requestUri = $"{_options.ApiPath}/{assetId}/customer/{customerId}/assign?userId={userId}";
                 var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
                 if (!response.IsSuccessStatusCode)
                 {
-                    var exception = new BadHttpRequestException("Unable to assing asset", (int)response.StatusCode);
-                    _logger.LogError(exception, "Unable to assing asset.");
+                    var exception = new BadHttpRequestException("Unable to assign asset", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to assign asset.");
                     throw exception;
                 }
                 var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
@@ -225,7 +241,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to assing asset.");
+                _logger.LogError(exception, "Unable to assign asset.");
                 throw;
             }
         }

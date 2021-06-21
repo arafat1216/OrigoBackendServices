@@ -71,7 +71,7 @@ namespace OrigoApiGateway.Models
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
-        public Guid AssetHolderId { get; protected set; }
+        public Guid? AssetHolderId { get; protected set; }
 
         public bool IsActive { get; set; }
 

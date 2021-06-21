@@ -187,11 +187,11 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/user/{userId:guid}")]
+        [Route("{assetId:Guid}/customers/{customerId:guid}/assign")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, Guid userId)
+        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, Guid? userId)
         {
             try
             {
