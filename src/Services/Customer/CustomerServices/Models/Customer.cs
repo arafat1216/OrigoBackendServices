@@ -20,6 +20,8 @@ namespace CustomerServices.Models
 
         public IList<User> Users { get; set; }
 
+        public IList<ProductModuleGroup> SelectedProductModuleGroups { get; set; }
+
         protected Customer()
         {
 

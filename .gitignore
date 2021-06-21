@@ -341,5 +341,8 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
-/.tye/process_store
-/.tye/docker_store
+
+# Development
+**/appsettings.Development.json
+
+.tye/
