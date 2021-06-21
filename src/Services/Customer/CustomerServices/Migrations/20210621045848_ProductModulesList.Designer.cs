@@ -4,14 +4,16 @@ using CustomerServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CustomerServices.Migrations
 {
     [DbContext(typeof(CustomerContext))]
-    partial class CustomerContextModelSnapshot : ModelSnapshot
+    [Migration("20210621045848_ProductModulesList")]
+    partial class ProductModulesList
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,7 +45,12 @@ namespace CustomerServices.Migrations
                     b.Property<string>("OrgNumber")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("SelectedProductModuleGroupsId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("SelectedProductModuleGroupsId");
 
                     b.ToTable("Customer");
                 });
@@ -84,9 +91,6 @@ namespace CustomerServices.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CustomerId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("LastUpdatedDate")
                         .HasColumnType("datetime2");
 
@@ -94,8 +98,6 @@ namespace CustomerServices.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
 
                     b.ToTable("ProductModuleGroup");
                 });
@@ -145,6 +147,10 @@ namespace CustomerServices.Migrations
 
             modelBuilder.Entity("CustomerServices.Models.Customer", b =>
                 {
+                    b.HasOne("CustomerServices.Models.ProductModuleGroup", "SelectedProductModuleGroups")
+                        .WithMany()
+                        .HasForeignKey("SelectedProductModuleGroupsId");
+
                     b.OwnsOne("CustomerServices.Models.Address", "CompanyAddress", b1 =>
                         {
                             b1.Property<int>("CustomerId")
@@ -199,6 +205,8 @@ namespace CustomerServices.Migrations
                     b.Navigation("CompanyAddress");
 
                     b.Navigation("CustomerContactPerson");
+
+                    b.Navigation("SelectedProductModuleGroups");
                 });
 
             modelBuilder.Entity("CustomerServices.Models.ProductModule", b =>
@@ -208,13 +216,6 @@ namespace CustomerServices.Migrations
                         .HasForeignKey("ProductModuleGroupId");
 
                     b.Navigation("ProductModuleGroup");
-                });
-
-            modelBuilder.Entity("CustomerServices.Models.ProductModuleGroup", b =>
-                {
-                    b.HasOne("CustomerServices.Models.Customer", null)
-                        .WithMany("SelectedProductModuleGroups")
-                        .HasForeignKey("CustomerId");
                 });
 
             modelBuilder.Entity("CustomerServices.Models.User", b =>
@@ -228,8 +229,6 @@ namespace CustomerServices.Migrations
 
             modelBuilder.Entity("CustomerServices.Models.Customer", b =>
                 {
-                    b.Navigation("SelectedProductModuleGroups");
-
                     b.Navigation("Users");
                 });
 #pragma warning restore 612, 618

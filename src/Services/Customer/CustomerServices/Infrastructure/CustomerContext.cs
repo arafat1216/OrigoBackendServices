@@ -10,6 +10,8 @@ namespace CustomerServices.Infrastructure
 
         public DbSet<User> Users { get; set; }
 
+        public DbSet<ProductModule> ProductModules { get; set; }
+
         public CustomerContext(DbContextOptions<CustomerContext> options)
             : base(options)
         { }
