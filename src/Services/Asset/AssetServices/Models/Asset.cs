@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Common.Seedwork;
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -37,17 +38,20 @@ namespace AssetServices.Models
         /// <summary>
         /// Asset is linked to this customer 
         /// </summary>
+        [Required]
         public Guid CustomerId { get; protected set; }
 
         /// <summary>
         /// The unique serial number for the asset. For mobile phones and other devices
         /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
+        [Required]
         public string SerialNumber { get; protected set; }
 
         /// <summary>
         /// The category this asset belongs to.
         /// </summary>
+        [Required]
         public int AssetCategoryId { get; protected set; }
 
         /// <summary>
@@ -58,11 +62,13 @@ namespace AssetServices.Models
         /// <summary>
         /// The asset brand (e.g. Samsung)
         /// </summary>
+        [Required]
         public string Brand { get; protected set; }
 
         /// <summary>
         /// The model or product name of this asset (e.g. Samsung Galaxy)
         /// </summary>
+        [Required]
         public string Model { get; protected set; }
 
         /// <summary>
@@ -75,6 +81,7 @@ namespace AssetServices.Models
             LifecycleType = newLifecycleType;
         }
 
+        [Required]
         public DateTime PurchaseDate { get; protected set; }
 
         /// <summary>
