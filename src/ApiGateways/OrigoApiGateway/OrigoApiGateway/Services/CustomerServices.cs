@@ -94,32 +94,5 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-
-        public async Task<IList<OrigoModule>> GetModulesAsync() 
-        {
-            try
-            {
-                var modules = await HttpClient.GetFromJsonAsync<IList<ModuleDTO>>($"{_options.ApiPath}/module");
-                if (modules == null) return null;
-                var moduleList = new List<OrigoModule>();
-                foreach (var module in modules) moduleList.Add(new OrigoModule(module));
-                return moduleList;
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "Get modules failed with HttpRequestException.");
-                throw;
-            }
-            catch (NotSupportedException exception)
-            {
-                _logger.LogError(exception, "Get modules failed with content type is not valid.");
-                throw;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "Get modules unknown error.");
-                throw;
-            }
-        }
     }
 }

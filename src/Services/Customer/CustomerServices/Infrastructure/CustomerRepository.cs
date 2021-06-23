@@ -50,9 +50,9 @@ namespace CustomerServices.Infrastructure
             return newUser;
         }
 
-        public async Task<IList<Module>> GetModulesAsync()
+        public async Task<IList<ProductModule>> GetModulesAsync()
         {
-            return await _context.Modules.ToListAsync();
+            return await _context.ProductModules.Include(p => p.ProductModuleGroup).ToListAsync();
         }
     }
 }

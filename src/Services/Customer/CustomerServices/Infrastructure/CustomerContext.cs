@@ -22,8 +22,7 @@ namespace CustomerServices.Infrastructure
             modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<Customer>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<User>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            modelBuilder.Entity<Module>().ToTable("Module");
-            modelBuilder.Entity<Module>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            modelBuilder.Entity<ProductModule>().ToTable("ProductModule");
         }
     }
 }

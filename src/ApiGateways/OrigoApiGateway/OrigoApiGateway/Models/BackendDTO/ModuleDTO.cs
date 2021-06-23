@@ -7,5 +7,8 @@ namespace OrigoApiGateway.Models.BackendDTO
 {
     public class ModuleDTO
     {
+        public string Name { get; set; }
+
+        public IList<ModuleGroupDTO> ProductModuleGroup { get; set; }
     }
 }

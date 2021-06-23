@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Models
 {
-    public class OrigoModule
+    public class OrigoProductModule
     {
-        public OrigoModule(ModuleDTO module)
-        {
-        }
+        public string Name { get; set; }
+
+        public IList<OrigoProductModuleGroup> ProductModuleGroup { get; set; }
     }
 }

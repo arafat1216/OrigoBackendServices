@@ -65,21 +65,7 @@ namespace Customer.API.Controllers
             return Ok(customerList);
         }
 
-        [Route("/module")]
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<Module>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<Module>>> GetModules()
-        {
-            var modules = await _customerServices.GetModulesAsync();
-            List<Module> modulesList = new List<Module>();
-            if (modules != null)
-                modulesList.AddRange(modules.Select(customer => new Module
-                {
-                    
-                }));
-
-            return Ok(modulesList);
-        }
+        
 
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Customer), (int) HttpStatusCode.Created)]

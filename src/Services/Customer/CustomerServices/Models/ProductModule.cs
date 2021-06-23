@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using System.Collections.Generic;
 
 namespace CustomerServices.Models
 {
@@ -6,6 +7,6 @@ namespace CustomerServices.Models
     {
         public string Name { get; set; }
 
-        public ProductModuleGroup ProductModuleGroup { get; set; }
+        public IList<ProductModuleGroup> ProductModuleGroup { get; set; }
     }
 }

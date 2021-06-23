@@ -31,10 +31,5 @@ namespace CustomerServices
         {
             return await _customerRepository.GetCustomerAsync(customerId);
         }
-
-        public async Task<IList<Module>> GetModulesAsync()
-        {
-            return await _customerRepository.GetModulesAsync();
-        }
     }
 }
