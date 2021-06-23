@@ -23,7 +23,7 @@ namespace Asset.API.ViewModels
             LifecycleType = asset.LifecycleType;
             PurchaseDate = asset.PurchaseDate;
             ManagedByDepartmentId = asset.ManagedByDepartmentId.HasValue ? asset.ManagedByDepartmentId.Value.ToString() : string.Empty;
-            AssetHolderId = asset.AssetHolderId.HasValue ? asset.AssetHolderId.Value.ToString() : "";
+            AssetHolderId = asset.AssetHolderId;
             IsActive = asset.IsActive;
         }
 
@@ -76,7 +76,7 @@ namespace Asset.API.ViewModels
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
-        public string AssetHolderId { get; protected set; }
+        public Guid? AssetHolderId { get; protected set; }
 
         public bool IsActive { get; set; }
     }

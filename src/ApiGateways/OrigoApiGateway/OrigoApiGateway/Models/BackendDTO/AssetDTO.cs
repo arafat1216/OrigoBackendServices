@@ -54,7 +54,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
-        public Guid AssetHolderId { get; set; }
+        public Guid? AssetHolderId { get; set; }
 
         public bool IsActive { get; set; }
     }

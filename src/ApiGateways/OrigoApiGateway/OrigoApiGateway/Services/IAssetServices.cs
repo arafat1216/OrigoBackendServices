@@ -15,5 +15,6 @@ namespace OrigoApiGateway.Services
         Task<OrigoAsset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive);
         Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, int lifecycleType);
         Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset);
+        Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid? userId);
     }
 }
