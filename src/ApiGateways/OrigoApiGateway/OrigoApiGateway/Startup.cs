@@ -70,7 +70,9 @@ namespace OrigoApiGateway
 
             services.AddSingleton<IAssetServices>(x => new AssetServices(x.GetRequiredService<ILogger<AssetServices>>(),
                 DaprClient.CreateInvokeHttpClient("assetservices"),
-                x.GetRequiredService<IOptions<AssetConfiguration>>()));
+                x.GetRequiredService<IOptions<AssetConfiguration>>(), new UserServices(x.GetRequiredService<ILogger<UserServices>>(),
+                DaprClient.CreateInvokeHttpClient("customerservices"),
+                x.GetRequiredService<IOptions<UserConfiguration>>())));
 
             services.AddSingleton<ICustomerServices>(x => new CustomerServices(x.GetRequiredService<ILogger<CustomerServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
