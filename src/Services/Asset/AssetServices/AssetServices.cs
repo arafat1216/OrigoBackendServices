@@ -52,8 +52,13 @@ namespace AssetServices
                 throw new AssetCategoryNotFoundException();
             }
 
-            var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory.Id, brand, model,
+            var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory, brand, model,
                 lifecycleType, purchaseDate, assetHolderId, isActive, managedByDepartmentId);
+            if (!newAsset.AssetPropertiesAreValid)
+            {
+                throw new InvalidAssetCategoryDataException("One or more asset values are invalid for the given asset category");
+            }
+
             return await _assetRepository.AddAsync(newAsset);
         }
 

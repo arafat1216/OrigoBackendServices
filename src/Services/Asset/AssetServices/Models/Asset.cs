@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Common.Seedwork;
+using AssetServices.Exceptions;
+using System.ComponentModel.DataAnnotations.Schema;
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -13,14 +15,15 @@ namespace AssetServices.Models
         {
         }
 
-        public Asset(Guid assetId, Guid customerId, string serialNumber, int assetCategoryId, string brand, string model,
+        public Asset(Guid assetId, Guid customerId, string serialNumber, AssetCategory assetCategory, string brand, string model,
             LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
             bool isActive, Guid? managedByDepartmentId = null)
         {
             AssetId = assetId;
             CustomerId = customerId;
             SerialNumber = serialNumber;
-            AssetCategoryId = assetCategoryId;
+            AssetCategoryId = assetCategory.Id;
+            AssetCategory = assetCategory;
             Brand = brand;
             Model = model;
             LifecycleType = lifecycleType;
@@ -28,6 +31,7 @@ namespace AssetServices.Models
             AssetHolderId = assetHolderId;
             IsActive = isActive;
             ManagedByDepartmentId = managedByDepartmentId;
+            AssetPropertiesAreValid = ValidateAsset(assetCategory, customerId, brand, model, purchaseDate);
         }
 
         /// <summary>
@@ -45,7 +49,6 @@ namespace AssetServices.Models
         /// The unique serial number for the asset. For mobile phones and other devices
         /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
-        [Required]
         public string SerialNumber { get; protected set; }
 
         /// <summary>
@@ -63,12 +66,14 @@ namespace AssetServices.Models
         /// The asset brand (e.g. Samsung)
         /// </summary>
         [Required]
+        [StringLength(25, ErrorMessage ="Brand max length is 25")]
         public string Brand { get; protected set; }
 
         /// <summary>
         /// The model or product name of this asset (e.g. Samsung Galaxy)
         /// </summary>
         [Required]
+        [StringLength(50, ErrorMessage = "Model max length is 50")]
         public string Model { get; protected set; }
 
         /// <summary>
@@ -99,6 +104,12 @@ namespace AssetServices.Models
         /// </summary>
         public bool IsActive { get; protected set; }
 
+        /// <summary>
+        /// Defines wether the asset made has the necessary properties set, as defined by ValidateAsset.
+        /// </summary>
+        [NotMapped]
+        public bool AssetPropertiesAreValid { get; protected set; }
+
         public void SetActiveStatus(bool isActive)
         {
             IsActive = isActive;
@@ -126,6 +137,39 @@ namespace AssetServices.Models
         public void AssignAssetToUser(Guid? userId)
         {
             AssetHolderId = userId;
+        }
+
+        /// <summary>
+        /// Validate the properties of the asset.
+        //  All assets need the following properties set (default values count as null):
+        //   - customerId
+        //   - brand
+        //   - model
+        //   - purchaseDate
+        //
+        //  Additional restrictions exist on specific assetCategories
+        /// </summary>
+        /// <param name="assetCategory">The type of asset, f.ex "Mobile Phones"</param>
+        /// <param name="customerId">The customer the asset is linked to</param>
+        /// <param name="brand">The brand of the asset (apple, samsung, etc)</param>
+        /// <param name="model">The specific model of the asset, f.ex "Galaxy P9 Lite"</param>
+        /// <param name="purchaseDate">Date of purchase</param>
+        /// <returns>Boolean value, true if asset has valid properties, false if not</returns>
+        protected bool ValidateAsset(AssetCategory assetCategory, Guid customerId, string brand, string model, DateTime purchaseDate)
+        {
+            // General (all types)
+            if (customerId == Guid.Empty || string.IsNullOrEmpty(brand) || string.IsNullOrEmpty(model) || purchaseDate == DateTime.MinValue)
+            {
+                return false;//throw new InvalidAssetCategoryDataException("One or more asset values are invalid for all asset categories.");
+            }
+
+            // Mobile Phones
+            if (assetCategory.Name == "Mobile Phones")
+            {
+                //todo: Implement specifics for Mobile Phones
+            }
+
+            return true;
         }
     }
 }
