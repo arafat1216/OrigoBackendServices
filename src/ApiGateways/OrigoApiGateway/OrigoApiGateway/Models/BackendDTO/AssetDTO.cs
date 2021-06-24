@@ -16,7 +16,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         public Guid CustomerId { get; set; }
 
         /// <summary>
-        /// External id of category this asset belongs to.
+        /// Id of category this asset belongs to.
         /// </summary>
         public int AssetCategoryId { get; set; }
 
