@@ -16,12 +16,14 @@ namespace Asset.API.ViewModels
         {
             AssetId = asset.AssetId;
             CustomerId = asset.CustomerId;
+            AssetCategoryId = asset.AssetCategoryId;
             SerialNumber = asset.SerialNumber;
             AssetCategoryName = asset.AssetCategory.Name;
             Brand = asset.Brand;
             Model = asset.Model;
             LifecycleType = asset.LifecycleType;
             PurchaseDate = asset.PurchaseDate;
+            CreatedDate = asset.CreatedDate;
             ManagedByDepartmentId = asset.ManagedByDepartmentId.HasValue ? asset.ManagedByDepartmentId.Value.ToString() : string.Empty;
             AssetHolderId = asset.AssetHolderId;
             IsActive = asset.IsActive;
@@ -36,6 +38,11 @@ namespace Asset.API.ViewModels
         /// Asset is linked to this customer 
         /// </summary>
         public Guid CustomerId { get; protected set; }
+
+        /// <summary>
+        /// Asset is linked to this category
+        /// </summary>
+        public int AssetCategoryId { get; protected set; }
 
         /// <summary>
         /// The unique serial number for the asset. For mobile phones and other devices
@@ -67,7 +74,12 @@ namespace Asset.API.ViewModels
         /// The date the asset was purchased.
         /// </summary>
         public DateTime PurchaseDate { get; protected set; }
-        
+
+        /// <summary>
+        /// The date the asset was registered/created.
+        /// </summary>
+        public DateTime CreatedDate { get; protected set; }
+
         /// <summary>
         /// The department or cost center this asset is assigned to.
         /// </summary>
