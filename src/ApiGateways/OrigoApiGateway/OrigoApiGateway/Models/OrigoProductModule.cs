@@ -8,6 +8,8 @@ namespace OrigoApiGateway.Models
 {
     public class OrigoProductModule
     {
+        public Guid ProductModuleId { get; set; }
+
         public string Name { get; set; }
 
         public IList<OrigoProductModuleGroup> ProductModuleGroup { get; set; }

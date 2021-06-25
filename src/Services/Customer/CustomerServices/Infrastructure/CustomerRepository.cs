@@ -1,9 +1,9 @@
-﻿using System;
+﻿using CustomerServices.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CustomerServices.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace CustomerServices.Infrastructure
 {
@@ -13,6 +13,11 @@ namespace CustomerServices.Infrastructure
         public CustomerRepository(CustomerContext context)
         {
             _context = context;
+        }
+
+        public async Task SaveChanges()
+        {
+            await _context.SaveChangesAsync();
         }
 
         public async Task<Customer> AddAsync(Customer customer)
@@ -29,7 +34,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<Customer> GetCustomerAsync(Guid customerId)
         {
-            return await _context.Customers.FirstOrDefaultAsync(c => c.CustomerId == customerId);
+            return await _context.Customers.Include(p => p.SelectedProductModuleGroups).FirstOrDefaultAsync(c => c.CustomerId == customerId);
         }
 
         public async Task<IList<User>> GetAllUsersAsync(Guid customerId)
@@ -53,6 +58,11 @@ namespace CustomerServices.Infrastructure
         public async Task<IList<ProductModule>> GetModulesAsync()
         {
             return await _context.ProductModules.Include(p => p.ProductModuleGroup).ToListAsync();
+        }
+
+        public async Task<ProductModuleGroup> GetProductModuleGroupAsync(Guid moduleGroupId)
+        {
+            return await _context.ProductModuleGroups.FirstOrDefaultAsync(p => p.ProductModuleGroupId == moduleGroupId);
         }
     }
 }

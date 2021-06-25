@@ -94,5 +94,53 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<OrigoProductModuleGroup> AddProductModulesAsync(Guid customerId, Guid moduleGroupId)
+        {
+            try
+            {
+                var customer = await HttpClient.GetFromJsonAsync<ModuleGroupDTO>($"{_options.ApiPath}/{customerId}/modules/{moduleGroupId}/add");
+                return customer == null ? null : new OrigoProductModuleGroup(customer);
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetCustomersAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetCustomersAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetCustomersAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoProductModuleGroup> RemoveProductModulesAsync(Guid customerId, Guid moduleGroupId)
+        {
+            try
+            {
+                var customer = await HttpClient.GetFromJsonAsync<ModuleGroupDTO>($"{_options.ApiPath}/{customerId}/modules/{moduleGroupId}/remove");
+                return customer == null ? null : new OrigoProductModuleGroup(customer);
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetCustomersAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetCustomersAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetCustomersAsync unknown error.");
+                throw;
+            }
+        }
     }
 }

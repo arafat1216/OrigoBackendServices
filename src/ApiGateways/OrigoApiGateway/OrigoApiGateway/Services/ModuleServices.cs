@@ -34,8 +34,9 @@ namespace OrigoApiGateway.Services
                 var moduleList = new List<OrigoProductModule>();
                 moduleList.AddRange(modules.Select(module => new OrigoProductModule
                 {
+                    ProductModuleId = module.ProductModuleId,
                     Name = module.Name,
-                    ProductModuleGroup = module.ProductModuleGroup.Select(moduleGroup => new OrigoProductModuleGroup { Name = moduleGroup.Name }).ToList()
+                    ProductModuleGroup = module.ProductModuleGroup.Select(moduleGroup => new OrigoProductModuleGroup(moduleGroup)).ToList()
                 }));
                 return moduleList;
             }

@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Customer.API.ViewModels;
+using CustomerServices;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Customer.API.ViewModels;
-using CustomerServices;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Customer.API.Controllers
 {
@@ -64,9 +64,7 @@ namespace Customer.API.Controllers
 
             return Ok(customerList);
         }
-
         
-
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Customer), (int) HttpStatusCode.Created)]
         public async Task<ActionResult<ViewModels.Customer>> CreateCustomer([FromBody] NewCustomer customer)
@@ -89,6 +87,38 @@ namespace Customer.API.Controllers
             };
 
             return CreatedAtAction(nameof(CreateCustomer), new {id = updatedCustomerView.Id}, updatedCustomerView);
+        }
+
+        [Route("{customerId:Guid}/modules/{moduleGroupId:Guid}/add")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(ProductModuleGroup), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<ProductModuleGroup>> AddCustomerModules(Guid customerId, Guid moduleGroupId )
+        {
+            var productGroup = await _customerServices.AddProductModulesAsync(customerId, moduleGroupId);
+            if (productGroup == null) return NotFound();
+            ProductModuleGroup moduleGroup = new ProductModuleGroup()
+            {
+                ProductModuleGroupId = productGroup.ProductModuleGroupId,
+                Name = productGroup.Name
+            };
+
+            return Ok(moduleGroup);
+        }
+
+        [Route("{customerId:Guid}/modules/{moduleGroupId:Guid}/remove")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(ProductModuleGroup), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<ProductModuleGroup>> RemoveCustomerModules(Guid customerId, Guid moduleGroupId)
+        {
+            var productGroup = await _customerServices.RemoveProductModulesAsync(customerId, moduleGroupId);
+            if (productGroup == null) return NotFound();
+            ProductModuleGroup moduleGroup = new ProductModuleGroup()
+            {
+                ProductModuleGroupId = productGroup.ProductModuleGroupId,
+                Name = productGroup.Name
+            };
+
+            return Ok(moduleGroup);
         }
     }
 }

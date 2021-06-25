@@ -12,6 +12,8 @@ namespace CustomerServices.Infrastructure
 
         public DbSet<ProductModule> ProductModules { get; set; }
 
+        public DbSet<ProductModuleGroup> ProductModuleGroups { get; set; }
+
         public CustomerContext(DbContextOptions<CustomerContext> options)
             : base(options)
         { }
