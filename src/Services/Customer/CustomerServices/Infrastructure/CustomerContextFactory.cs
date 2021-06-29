@@ -11,7 +11,7 @@ namespace CustomerServices.Infrastructure
             var optionsBuilder = new DbContextOptionsBuilder<CustomerContext>();
             optionsBuilder.UseSqlServer("Server=localhost;Database=Customers;Trusted_Connection=True;");
 
-            return new CustomerContext(optionsBuilder.Options);
+            return new CustomerContext(optionsBuilder.Options, null);
         }
     }
 }
