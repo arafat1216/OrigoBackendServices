@@ -229,5 +229,19 @@ namespace Asset.API.Controllers
                 return BadRequest();
             }
         }
+
+        [Route("assets/categories")]
+        [HttpGet]
+        [ProducesResponseType(typeof(ViewModels.AssetCategory), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.AssetCategory>>> GetAssetCategories()
+        {
+            var asset = await _assetServices.GetAssetCategoriesAsync();
+            if (asset == null)
+            {
+                return NotFound();
+            }
+            return Ok(asset);
+        }
     }
 }
