@@ -64,7 +64,10 @@ namespace OrigoApiGateway.Tests
             var optionsMock = new Mock<IOptions<AssetConfiguration>>();
             optionsMock.Setup(o => o.Value).Returns(options);
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object);
+            var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object);
+
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService);
 
             // Act
             var assetsFromUser = await assetService.GetAssetsForUserAsync(new Guid(CUSTOMER_ID), Guid.NewGuid());

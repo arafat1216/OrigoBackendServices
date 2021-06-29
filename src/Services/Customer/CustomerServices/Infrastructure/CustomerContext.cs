@@ -21,6 +21,11 @@ namespace CustomerServices.Infrastructure
         {
             _mediator = mediator;
         }
+        public DbSet<ProductModuleGroup> ProductModuleGroups { get; set; }
+
+        public CustomerContext(DbContextOptions<CustomerContext> options)
+            : base(options)
+        { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,6 +33,7 @@ namespace CustomerServices.Infrastructure
             modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<Customer>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<User>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            modelBuilder.Entity<ProductModule>().ToTable("ProductModule");
         }
 
         //public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default(CancellationToken))

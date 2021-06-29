@@ -115,5 +115,10 @@ namespace AssetServices.Models
         {
             PurchaseDate = purchaseDate;
         }
+
+        public void AssignAssetToUser(Guid? userId)
+        {
+            AssetHolderId = userId;
+        }
     }
 }

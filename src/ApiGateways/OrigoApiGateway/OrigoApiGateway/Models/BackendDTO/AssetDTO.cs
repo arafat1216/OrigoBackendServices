@@ -16,6 +16,11 @@ namespace OrigoApiGateway.Models.BackendDTO
         public Guid CustomerId { get; set; }
 
         /// <summary>
+        /// Id of category this asset belongs to.
+        /// </summary>
+        public int AssetCategoryId { get; set; }
+
+        /// <summary>
         /// The unique serial number for the asset. For mobile phones and other devices
         /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
@@ -47,6 +52,11 @@ namespace OrigoApiGateway.Models.BackendDTO
         public DateTime PurchaseDate { get; set; }
 
         /// <summary>
+        /// The date the asset was registered/created.
+        /// </summary>
+        public DateTime CreatedDate { get; set; }
+
+        /// <summary>
         /// The department or cost center this asset is assigned to.
         /// </summary>
         public string ManagedByDepartmentId { get; set; }
@@ -54,7 +64,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
-        public Guid AssetHolderId { get; set; }
+        public Guid? AssetHolderId { get; set; }
 
         public bool IsActive { get; set; }
     }

@@ -4,35 +4,22 @@ using CustomerServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CustomerServices.Migrations
 {
     [DbContext(typeof(CustomerContext))]
-    partial class CustomerContextModelSnapshot : ModelSnapshot
+    [Migration("20210623083228_modulesMigrations")]
+    partial class modulesMigrations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.6")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("CustomerProductModuleGroup", b =>
-                {
-                    b.Property<int>("CustomersId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SelectedProductModuleGroupsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CustomersId", "SelectedProductModuleGroupsId");
-
-                    b.HasIndex("SelectedProductModuleGroupsId");
-
-                    b.ToTable("CustomerProductModuleGroup");
-                });
 
             modelBuilder.Entity("CustomerServices.Models.Customer", b =>
                 {
@@ -79,9 +66,6 @@ namespace CustomerServices.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ProductModuleId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.ToTable("ProductModule");
@@ -97,23 +81,25 @@ namespace CustomerServices.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("LastUpdatedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ProductModuleGroupId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int?>("ProductModuleId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomerId");
+
                     b.HasIndex("ProductModuleId");
 
-                    b.ToTable("ProductModuleGroups");
+                    b.ToTable("ProductModuleGroup");
                 });
 
             modelBuilder.Entity("CustomerServices.Models.User", b =>
@@ -157,21 +143,6 @@ namespace CustomerServices.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("User");
-                });
-
-            modelBuilder.Entity("CustomerProductModuleGroup", b =>
-                {
-                    b.HasOne("CustomerServices.Models.Customer", null)
-                        .WithMany()
-                        .HasForeignKey("CustomersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CustomerServices.Models.ProductModuleGroup", null)
-                        .WithMany()
-                        .HasForeignKey("SelectedProductModuleGroupsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("CustomerServices.Models.Customer", b =>
@@ -234,6 +205,10 @@ namespace CustomerServices.Migrations
 
             modelBuilder.Entity("CustomerServices.Models.ProductModuleGroup", b =>
                 {
+                    b.HasOne("CustomerServices.Models.Customer", null)
+                        .WithMany("SelectedProductModuleGroups")
+                        .HasForeignKey("CustomerId");
+
                     b.HasOne("CustomerServices.Models.ProductModule", null)
                         .WithMany("ProductModuleGroup")
                         .HasForeignKey("ProductModuleId");
@@ -250,6 +225,8 @@ namespace CustomerServices.Migrations
 
             modelBuilder.Entity("CustomerServices.Models.Customer", b =>
                 {
+                    b.Navigation("SelectedProductModuleGroups");
+
                     b.Navigation("Users");
                 });
 

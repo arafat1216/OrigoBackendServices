@@ -206,5 +206,42 @@ namespace Asset.API.Controllers
                 return BadRequest();
             }
         }
+
+        [Route("{assetId:Guid}/customer/{customerId:guid}/assign")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, Guid? userId)
+        {
+            try
+            {
+                var updatedAsset = await _assetServices.AssignAsset(customerId, assetId, userId);
+                if (updatedAsset == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new ViewModels.Asset(updatedAsset));
+
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("assets/categories")]
+        [HttpGet]
+        [ProducesResponseType(typeof(ViewModels.AssetCategory), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.AssetCategory>>> GetAssetCategories()
+        {
+            var asset = await _assetServices.GetAssetCategoriesAsync();
+            if (asset == null)
+            {
+                return NotFound();
+            }
+            return Ok(asset);
+        }
     }
 }
