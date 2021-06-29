@@ -41,6 +41,7 @@ namespace Customer.API
             services.AddDbContext<CustomerContext>(options => options.UseSqlServer(Configuration.GetConnectionString("CustomerConnectionString")));
             services.AddScoped<ICustomerServices, CustomerServices.CustomerServices>();
             services.AddScoped<IUserServices, UserServices>();
+            services.AddScoped<IModuleServices, ModuleServices>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
         }
 

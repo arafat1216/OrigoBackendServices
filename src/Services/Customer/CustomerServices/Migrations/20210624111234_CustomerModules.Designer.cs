@@ -4,14 +4,16 @@ using CustomerServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CustomerServices.Migrations
 {
     [DbContext(typeof(CustomerContext))]
-    partial class CustomerContextModelSnapshot : ModelSnapshot
+    [Migration("20210624111234_CustomerModules")]
+    partial class CustomerModules
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,9 +81,6 @@ namespace CustomerServices.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ProductModuleId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.ToTable("ProductModule");
@@ -103,9 +102,6 @@ namespace CustomerServices.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ProductModuleGroupId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int?>("ProductModuleId")
                         .HasColumnType("int");
 
@@ -113,7 +109,7 @@ namespace CustomerServices.Migrations
 
                     b.HasIndex("ProductModuleId");
 
-                    b.ToTable("ProductModuleGroups");
+                    b.ToTable("ProductModuleGroup");
                 });
 
             modelBuilder.Entity("CustomerServices.Models.User", b =>
