@@ -17,7 +17,7 @@ namespace AssetServices.Models
 
         public Asset(Guid assetId, Guid customerId, string serialNumber, AssetCategory assetCategory, string brand, string model,
             LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
-            bool isActive, Guid? managedByDepartmentId = null)
+            bool isActive, string imei, string macAddress, Guid? managedByDepartmentId = null)
         {
             AssetId = assetId;
             CustomerId = customerId;
@@ -31,6 +31,8 @@ namespace AssetServices.Models
             AssetHolderId = assetHolderId;
             IsActive = isActive;
             ManagedByDepartmentId = managedByDepartmentId;
+            Imei = imei;
+            MacAddress = macAddress;
             AssetPropertiesAreValid = ValidateAsset(assetCategory, customerId, brand, model, purchaseDate);
         }
 
@@ -66,7 +68,7 @@ namespace AssetServices.Models
         /// The asset brand (e.g. Samsung)
         /// </summary>
         [Required]
-        [StringLength(25, ErrorMessage ="Brand max length is 25")]
+        [StringLength(50, ErrorMessage ="Brand max length is 50")]
         public string Brand { get; protected set; }
 
         /// <summary>
@@ -75,6 +77,37 @@ namespace AssetServices.Models
         [Required]
         [StringLength(50, ErrorMessage = "Model max length is 50")]
         public string Model { get; protected set; }
+
+        /// <summary>
+        /// Set the imei for the asset.
+        /// Erases existing imeis on asset.
+        /// 
+        /// Imei is a comma separated string, and can hold multiple imei values
+        /// </summary>
+        /// <param name="imei"></param>
+        public void SetImei(string imei)
+        {
+            Imei = imei;
+        }
+
+        /// <summary>
+        /// Appends an Imei for the device.
+        /// Imei is a comma separated string, and can hold multiple imei values
+        /// </summary>
+        /// <param name="imei"></param>
+        public void AddImei(string imei)
+        {
+            Imei += "," + imei;
+        }
+
+        /// <summary>
+        /// Sets the macaddress of the asset
+        /// </summary>
+        /// <param name="macAddress"></param>
+        public void SetMacAddress(string macAddress)
+        {
+            MacAddress = macAddress;
+        }
 
         /// <summary>
         /// The type of lifecycle for this asset.
@@ -105,10 +138,68 @@ namespace AssetServices.Models
         public bool IsActive { get; protected set; }
 
         /// <summary>
+        /// A comma seperated string holding 0->n imei numbers for this entity.
+        /// 
+        /// A mobile phone must have atleast 1 imei.
+        /// </summary>
+        public string Imei { get; protected set; }
+
+        /// <summary>
+        /// The mac-address of the asset
+        /// </summary>
+        public string MacAddress { get; protected set; }
+
+        /// <summary>
         /// Defines wether the asset made has the necessary properties set, as defined by ValidateAsset.
         /// </summary>
         [NotMapped]
         public bool AssetPropertiesAreValid { get; protected set; }
+
+        protected bool ValidateImei(string imei)
+        {
+            //validate length
+            if (imei.Length == 0)
+                return false;
+
+            int sumDigits = 0;
+            int diffValue = 0;
+            int sumRounded = 0;
+
+            // temp value
+            int d = 0;
+
+            // 1. Get validation number (last number of imei)
+            int validationDigit = int.Parse(imei[imei.Length - 1].ToString());
+
+
+            // 2. Double values in every second value of remaining imei
+            imei = imei.Substring(0, imei.Length - 1);
+            for (int i = imei.Length - 1; i >= 0; i--)
+            {
+                string currentNumber = imei.Substring(i, 1);
+
+                d = Convert.ToInt32(currentNumber);
+                if (i % 2 != 0)
+                {
+                    // Double value and add it: 9 -> 18: value to add is 1+8, not 18.
+                    d = d * 2;
+                    string dString = Convert.ToString(d);
+                    d = 0;
+                    foreach (char e in dString)
+                    {
+                        d = d + int.Parse(e.ToString());
+                    }
+                }
+                sumDigits += d;
+            }
+
+            // Round up to neares multiplicative of 10: 52 -> 60
+            sumRounded = (int)Math.Ceiling(((double)sumDigits / 10)) * 10;
+
+            diffValue = sumRounded - sumDigits;
+
+            return diffValue == validationDigit;
+        }
 
         public void SetActiveStatus(bool isActive)
         {
@@ -160,13 +251,13 @@ namespace AssetServices.Models
             // General (all types)
             if (customerId == Guid.Empty || string.IsNullOrEmpty(brand) || string.IsNullOrEmpty(model) || purchaseDate == DateTime.MinValue)
             {
-                return false;//throw new InvalidAssetCategoryDataException("One or more asset values are invalid for all asset categories.");
+                return false;
             }
 
             // Mobile Phones
             if (assetCategory.Name == "Mobile Phones")
             {
-                //todo: Implement specifics for Mobile Phones
+                return ValidateImei(Imei);
             }
 
             return true;

@@ -43,7 +43,7 @@ namespace AssetServices
         }
 
         public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId, string brand,
-            string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive,
+            string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive, string imei, string macAddress,
             Guid? managedByDepartmentId)
         {
             var assetCategory = await _assetRepository.GetAssetCategoryAsync(assetCategoryId);
@@ -53,7 +53,7 @@ namespace AssetServices
             }
 
             var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory, brand, model,
-                lifecycleType, purchaseDate, assetHolderId, isActive, managedByDepartmentId);
+                lifecycleType, purchaseDate, assetHolderId, isActive,imei, macAddress, managedByDepartmentId);
             if (!newAsset.AssetPropertiesAreValid)
             {
                 throw new InvalidAssetCategoryDataException("One or more asset values are invalid for the given asset category");

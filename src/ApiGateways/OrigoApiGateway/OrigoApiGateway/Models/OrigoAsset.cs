@@ -85,6 +85,16 @@ namespace OrigoApiGateway.Models
         /// </summary>
         public Guid? AssetHolderId { get; protected set; }
 
+        /// <summary>
+        /// The imei of the device. Applicable to devices with category Mobile device.
+        /// </summary>
+        public string Imei { get; protected set; }
+
+        /// <summary>
+        /// The mac address of the device.
+        /// </summary>
+        public string MacAddress { get; protected set; }
+
         public bool IsActive { get; set; }
 
     }

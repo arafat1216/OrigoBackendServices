@@ -66,6 +66,18 @@ namespace OrigoApiGateway.Models.BackendDTO
         /// </summary>
         public Guid? AssetHolderId { get; set; }
 
+        /// <summary>
+        /// The imei(s) of the asset.
+        /// A comma separated string, where each instance is an imei.
+        /// Applicable to assets with category type Mobile Phones.
+        /// </summary>
+        public string Imei { get; set; }
+
+        /// <summary>
+        /// The mac address of the asset
+        /// </summary>
+        public string MacAddress { get; set; }
+
         public bool IsActive { get; set; }
     }
 }
