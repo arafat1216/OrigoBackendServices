@@ -1,8 +1,8 @@
-﻿using System;
+﻿using CustomerServices.Models;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CustomerServices.Models;
-using Microsoft.Extensions.Logging;
 
 namespace CustomerServices
 {
@@ -30,6 +30,37 @@ namespace CustomerServices
         public async Task<Customer> GetCustomerAsync(Guid customerId)
         {
             return await _customerRepository.GetCustomerAsync(customerId);
+        }
+
+        public async Task<ProductModuleGroup> GetProductModuleGroup(Guid moduleGroupId)
+        {
+            return await _customerRepository.GetProductModuleGroupAsync(moduleGroupId);
+        }
+
+        public async Task<ProductModuleGroup> AddProductModulesAsync(Guid customerId, Guid moduleGroupId)
+        {
+            var customer = await GetCustomerAsync(customerId);
+            var moduleGroup = await GetProductModuleGroup(moduleGroupId);
+            if (customer == null)
+            {
+                return null;
+            }
+            customer.SelectedProductModuleGroups.Add(moduleGroup);
+            await _customerRepository.SaveChanges();
+            return moduleGroup;
+        }
+
+        public async Task<ProductModuleGroup> RemoveProductModulesAsync(Guid customerId, Guid moduleGroupId)
+        {
+            var customer = await GetCustomerAsync(customerId);
+            var moduleGroup = await GetProductModuleGroup(moduleGroupId);
+            if (customer == null)
+            {
+                return null;
+            }
+            customer.SelectedProductModuleGroups.Remove(moduleGroup);
+            await _customerRepository.SaveChanges();
+            return moduleGroup;
         }
     }
 }

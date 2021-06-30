@@ -52,6 +52,7 @@ namespace OrigoApiGateway
             services.Configure<AssetConfiguration>(Configuration.GetSection("Asset"));
             services.Configure<CustomerConfiguration>(Configuration.GetSection("Customer"));
             services.Configure<UserConfiguration>(Configuration.GetSection("User"));
+            services.Configure<ModuleConfiguration>(Configuration.GetSection("Module"));
 
             services.AddAuthentication(options =>
             {
@@ -80,6 +81,10 @@ namespace OrigoApiGateway
             services.AddSingleton<IUserServices>(x => new UserServices(x.GetRequiredService<ILogger<UserServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
                 x.GetRequiredService<IOptions<UserConfiguration>>()));
+
+            services.AddSingleton<IModuleServices>(x => new ModuleServices(x.GetRequiredService<ILogger<ModuleServices>>(),
+                DaprClient.CreateInvokeHttpClient("customerservices"),
+                x.GetRequiredService<IOptions<ModuleConfiguration>>()));
 
             services.AddSwaggerGen(c =>
             {

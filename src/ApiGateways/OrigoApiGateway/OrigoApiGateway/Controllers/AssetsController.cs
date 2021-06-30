@@ -231,5 +231,19 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
+
+        [Route("assets/categories")]
+        [HttpGet]
+        [ProducesResponseType(typeof(OrigoAssetCategory), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<OrigoAssetCategory>>> GetAssetCategories()
+        {
+            var assetCategories = await _assetServices.GetAssetCategoriesAsync();
+            if (assetCategories == null)
+            {
+                return NotFound();
+            }
+            return Ok(assetCategories);
+        }
     }
 }
