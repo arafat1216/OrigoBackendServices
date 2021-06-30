@@ -155,11 +155,22 @@ namespace AssetServices.Models
         [NotMapped]
         public bool AssetPropertiesAreValid { get; protected set; }
 
+        /// <summary>
+        /// Validate an imei using Luhn's algorithm
+        /// https://stackoverflow.com/questions/25229648/is-it-possible-to-validate-imei-number/25229800#25229800
+        /// </summary>
+        /// <param name="imei"></param>
+        /// <returns></returns>
         protected bool ValidateImei(string imei)
         {
             //validate length
-            if (imei.Length == 0)
+            if (string.IsNullOrEmpty(imei))
                 return false;
+
+            // is a number
+            if (long.TryParse(imei, out _))
+                return false;
+            
 
             int sumDigits = 0;
             int diffValue = 0;
