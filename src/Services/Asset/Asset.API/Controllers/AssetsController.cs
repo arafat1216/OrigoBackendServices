@@ -116,7 +116,7 @@ namespace Asset.API.Controllers
             {
                 return BadRequest("Unable to find Asset CategoryId");
             }
-            catch (InvalidAssetCategoryDataException ex)
+            catch (InvalidAssetDataException ex)
             {
                 return BadRequest(ex.Message);
             }

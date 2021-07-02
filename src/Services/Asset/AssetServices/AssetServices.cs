@@ -46,17 +46,27 @@ namespace AssetServices
             string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive, string imei, string macAddress,
             Guid? managedByDepartmentId)
         {
-            var assetCategory = await _assetRepository.GetAssetCategoryAsync(assetCategoryId);
-            if (assetCategory == null)
-            {
-                throw new AssetCategoryNotFoundException();
-            }
+            var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategoryId, brand, model,
+                lifecycleType, purchaseDate, assetHolderId, isActive,imei, macAddress,_assetRepository, managedByDepartmentId);
 
-            var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory, brand, model,
-                lifecycleType, purchaseDate, assetHolderId, isActive,imei, macAddress, managedByDepartmentId);
             if (!newAsset.AssetPropertiesAreValid)
             {
-                throw new InvalidAssetCategoryDataException("One or more asset values are invalid for the given asset category");
+                if (newAsset.ErrorMsgList.Contains("AssetCategoryNotValid"))
+                {
+                    throw new InvalidAssetDataException("AssetCategory id was invalid.");
+                }
+                else if (newAsset.ErrorMsgList.Contains("AssetDataNotValid"))
+                {
+                    throw new InvalidAssetDataException("Mininum asset data requirements not set: CustomerId, Brand, Model and PurchaseDate cannot be null");
+                }
+                else if (newAsset.ErrorMsgList.Contains("AssetImeiNotValid"))
+                {
+                    throw new InvalidAssetDataException(string.Format("Asset imei was not valid: {0}", newAsset.Imei));
+                }
+                else
+                {
+                    throw new InvalidAssetDataException(string.Format("Unknown error: {0}", newAsset.ErrorMsgList));
+                }
             }
 
             return await _assetRepository.AddAsync(newAsset);

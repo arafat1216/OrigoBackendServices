@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace AssetServices.Exceptions
 {
-    public class InvalidAssetCategoryDataException : Exception
+    public class InvalidAssetDataException : Exception
     {
-        public InvalidAssetCategoryDataException(string msg) : base(msg)
+        public InvalidAssetDataException(string msg) : base(msg)
         {
 
         }

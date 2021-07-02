@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using Common.Seedwork;
 using AssetServices.Exceptions;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+using AssetServices.Infrastructure;
+using System.Threading.Tasks;
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -15,15 +18,13 @@ namespace AssetServices.Models
         {
         }
 
-        public Asset(Guid assetId, Guid customerId, string serialNumber, AssetCategory assetCategory, string brand, string model,
+        public Asset(Guid assetId, Guid customerId, string serialNumber, Guid assetCategoryId, string brand, string model,
             LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
-            bool isActive, string imei, string macAddress, Guid? managedByDepartmentId = null)
+            bool isActive, string imei, string macAddress, IAssetRepository assetRepository, Guid? managedByDepartmentId = null)
         {
             AssetId = assetId;
             CustomerId = customerId;
             SerialNumber = serialNumber;
-            AssetCategoryId = assetCategory.Id;
-            AssetCategory = assetCategory;
             Brand = brand;
             Model = model;
             LifecycleType = lifecycleType;
@@ -33,7 +34,8 @@ namespace AssetServices.Models
             ManagedByDepartmentId = managedByDepartmentId;
             Imei = imei;
             MacAddress = macAddress;
-            AssetPropertiesAreValid = ValidateAsset(assetCategory, customerId, brand, model, purchaseDate);
+            ErrorMsgList = new List<string>();
+            AssetPropertiesAreValid = ValidateAsset(assetRepository, assetCategoryId).Result;
         }
 
         /// <summary>
@@ -87,6 +89,13 @@ namespace AssetServices.Models
         /// <param name="imei"></param>
         public void SetImei(string imei)
         {
+            foreach (string e in imei.Split(','))
+            {
+                if (!ValidateImei(e))
+                {
+                    throw new InvalidAssetDataException(string.Format("Invalid imei: {0}", e));
+                }
+            }
             Imei = imei;
         }
 
@@ -97,7 +106,22 @@ namespace AssetServices.Models
         /// <param name="imei"></param>
         public void AddImei(string imei)
         {
-            Imei += "," + imei;
+            foreach(string e in imei.Split(','))
+            {
+                if (!ValidateImei(e))
+                {
+                    throw new InvalidAssetDataException(string.Format("Invalid imei: {0}", e));
+                }
+            }
+
+            if (Imei == "")
+            {
+                Imei += imei;
+            }
+            else
+            {
+                Imei += "," + imei;
+            }
         }
 
         /// <summary>
@@ -156,6 +180,12 @@ namespace AssetServices.Models
         public bool AssetPropertiesAreValid { get; protected set; }
 
         /// <summary>
+        /// List of error messages set when ValidateAsset runs
+        /// </summary>
+        [NotMapped]
+        public List<string> ErrorMsgList { get; protected set; }
+
+        /// <summary>
         /// Validate an imei using Luhn's algorithm
         /// https://stackoverflow.com/questions/25229648/is-it-possible-to-validate-imei-number/25229800#25229800
         /// </summary>
@@ -167,8 +197,8 @@ namespace AssetServices.Models
             if (string.IsNullOrEmpty(imei))
                 return false;
 
-            // is a number
-            if (long.TryParse(imei, out _))
+            // is not a number
+            if (!long.TryParse(imei, out _))
                 return false;
             
 
@@ -251,24 +281,42 @@ namespace AssetServices.Models
         //
         //  Additional restrictions exist on specific assetCategories
         /// </summary>
-        /// <param name="assetCategory">The type of asset, f.ex "Mobile Phones"</param>
-        /// <param name="customerId">The customer the asset is linked to</param>
-        /// <param name="brand">The brand of the asset (apple, samsung, etc)</param>
-        /// <param name="model">The specific model of the asset, f.ex "Galaxy P9 Lite"</param>
-        /// <param name="purchaseDate">Date of purchase</param>
+
         /// <returns>Boolean value, true if asset has valid properties, false if not</returns>
-        protected bool ValidateAsset(AssetCategory assetCategory, Guid customerId, string brand, string model, DateTime purchaseDate)
+        protected async Task<bool> ValidateAsset(IAssetRepository assetRepository, Guid assetCategoryId)
         {
-            // General (all types)
-            if (customerId == Guid.Empty || string.IsNullOrEmpty(brand) || string.IsNullOrEmpty(model) || purchaseDate == DateTime.MinValue)
+            // Lookup assetcategory
+            var assetCategory = await assetRepository.GetAssetCategoryAsync(assetCategoryId);
+            if (assetCategory == null)
             {
+                ErrorMsgList.Add("AssetCategoryNotValid");
+                return false;
+            }
+            else
+            {
+                AssetCategoryId = assetCategory.Id;
+                AssetCategory = assetCategory;
+            }
+
+            // General (all types)
+            if (CustomerId == Guid.Empty || string.IsNullOrEmpty(Brand) || string.IsNullOrEmpty(Model) || PurchaseDate == DateTime.MinValue)
+            {
+                ErrorMsgList.Add("AssetDataNotValid");
                 return false;
             }
 
             // Mobile Phones
-            if (assetCategory.Name == "Mobile Phones")
+            if (AssetCategory.Name== "Mobile Phones")
             {
-                return ValidateImei(Imei);
+                foreach (string e in Imei.Split(","))
+                {
+                    if (!ValidateImei(Imei))
+                    {
+                        ErrorMsgList.Add("AssetImeiNotValid");
+                        return false;
+                    }
+                }
+                
             }
 
             return true;
