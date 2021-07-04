@@ -36,23 +36,21 @@ namespace AssetServices.UnitTests
             context.Add(assetCategory);
             context.SaveChanges();
 
-            var assetRepository = new AssetRepository(context);
-
             var assetOne = new Asset(ASSET_ONE_ID, COMPANY_ID,  "123456789012345",
-                ASSET_CATEGORY_ID, "Samsung", "Samsung Galaxy S20",
-                LifecycleType.Leasing, new DateTime(2021, 4, 1), ASSETHOLDER_ONE_ID, true, "500119468586675", "B26EDC46046B", assetRepository);
+                assetCategory, "Samsung", "Samsung Galaxy S20",
+                LifecycleType.Leasing, new DateTime(2021, 4, 1), ASSETHOLDER_ONE_ID, true, "500119468586675", "B26EDC46046B");
 
             var assetTwo = new Asset(ASSET_TWO_ID, COMPANY_ID,  "123456789012364",
-                ASSET_CATEGORY_ID, "Apple", "Apple iPhone 8",
-                LifecycleType.Leasing, new DateTime(2021, 5, 1), ASSETHOLDER_TWO_ID, true, "546366434558702", "487027C99FA1", assetRepository);
+                assetCategory, "Apple", "Apple iPhone 8",
+                LifecycleType.Leasing, new DateTime(2021, 5, 1), ASSETHOLDER_TWO_ID, true, "546366434558702", "487027C99FA1");
 
             var assetThree = new Asset(ASSET_THREE_ID, COMPANY_ID,  "123456789012399",
-                ASSET_CATEGORY_ID, "Samsung", "Samsung Galaxy S21",
-                LifecycleType.Leasing, new DateTime(2021, 6, 1), ASSETHOLDER_ONE_ID, true, "512217111821626", "840F1D0C06AD", assetRepository);
+                assetCategory, "Samsung", "Samsung Galaxy S21",
+                LifecycleType.Leasing, new DateTime(2021, 6, 1), ASSETHOLDER_ONE_ID, true, "512217111821626", "840F1D0C06AD");
 
             var assetOther = new Asset(Guid.NewGuid(), Guid.NewGuid(), "123457789012399",
-                ASSET_CATEGORY_ID, "Samsung", "Samsung Galaxy S21",
-                LifecycleType.Leasing, new DateTime(2021, 6, 1), Guid.NewGuid(), true, "308757706784653", "2E423AD72484", assetRepository);
+                assetCategory, "Samsung", "Samsung Galaxy S21",
+                LifecycleType.Leasing, new DateTime(2021, 6, 1), Guid.NewGuid(), true, "308757706784653", "2E423AD72484");
 
             context.AddRange(assetOne, assetTwo, assetThree, assetOther);
 

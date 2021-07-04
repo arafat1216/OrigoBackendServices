@@ -18,13 +18,15 @@ namespace AssetServices.Models
         {
         }
 
-        public Asset(Guid assetId, Guid customerId, string serialNumber, Guid assetCategoryId, string brand, string model,
+        public Asset(Guid assetId, Guid customerId, string serialNumber, AssetCategory assetCategory, string brand, string model,
             LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
-            bool isActive, string imei, string macAddress, IAssetRepository assetRepository, Guid? managedByDepartmentId = null)
+            bool isActive, string imei, string macAddress, Guid? managedByDepartmentId = null)
         {
             AssetId = assetId;
             CustomerId = customerId;
             SerialNumber = serialNumber;
+            AssetCategoryId = assetCategory.Id;
+            AssetCategory = assetCategory;
             Brand = brand;
             Model = model;
             LifecycleType = lifecycleType;
@@ -35,7 +37,7 @@ namespace AssetServices.Models
             Imei = imei;
             MacAddress = macAddress;
             ErrorMsgList = new List<string>();
-            AssetPropertiesAreValid = ValidateAsset(assetRepository, assetCategoryId).Result;
+            AssetPropertiesAreValid = ValidateAsset();
         }
 
         /// <summary>
@@ -283,21 +285,8 @@ namespace AssetServices.Models
         /// </summary>
 
         /// <returns>Boolean value, true if asset has valid properties, false if not</returns>
-        protected async Task<bool> ValidateAsset(IAssetRepository assetRepository, Guid assetCategoryId)
+        protected bool ValidateAsset()
         {
-            // Lookup assetcategory
-            var assetCategory = await assetRepository.GetAssetCategoryAsync(assetCategoryId);
-            if (assetCategory == null)
-            {
-                ErrorMsgList.Add("AssetCategoryNotValid");
-                return false;
-            }
-            else
-            {
-                AssetCategoryId = assetCategory.Id;
-                AssetCategory = assetCategory;
-            }
-
             // General (all types)
             if (CustomerId == Guid.Empty || string.IsNullOrEmpty(Brand) || string.IsNullOrEmpty(Model) || PurchaseDate == DateTime.MinValue)
             {
@@ -306,7 +295,7 @@ namespace AssetServices.Models
             }
 
             // Mobile Phones
-            if (AssetCategory.Name== "Mobile Phones")
+            if (AssetCategory.Name== "Mobile phones")
             {
                 foreach (string e in Imei.Split(","))
                 {
@@ -316,9 +305,7 @@ namespace AssetServices.Models
                         return false;
                     }
                 }
-                
             }
-
             return true;
         }
     }

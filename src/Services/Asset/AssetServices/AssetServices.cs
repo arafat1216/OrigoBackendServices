@@ -46,16 +46,18 @@ namespace AssetServices
             string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive, string imei, string macAddress,
             Guid? managedByDepartmentId)
         {
-            var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategoryId, brand, model,
-                lifecycleType, purchaseDate, assetHolderId, isActive,imei, macAddress,_assetRepository, managedByDepartmentId);
+            var assetCategory = await _assetRepository.GetAssetCategoryAsync(assetCategoryId);
+            if (assetCategory == null)
+            {
+                throw new AssetCategoryNotFoundException();
+            }
+
+            var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory, brand, model,
+                lifecycleType, purchaseDate, assetHolderId, isActive,imei, macAddress, managedByDepartmentId);
 
             if (!newAsset.AssetPropertiesAreValid)
             {
-                if (newAsset.ErrorMsgList.Contains("AssetCategoryNotValid"))
-                {
-                    throw new InvalidAssetDataException("AssetCategory id was invalid.");
-                }
-                else if (newAsset.ErrorMsgList.Contains("AssetDataNotValid"))
+                if (newAsset.ErrorMsgList.Contains("AssetDataNotValid"))
                 {
                     throw new InvalidAssetDataException("Mininum asset data requirements not set: CustomerId, Brand, Model and PurchaseDate cannot be null");
                 }
@@ -68,7 +70,6 @@ namespace AssetServices
                     throw new InvalidAssetDataException(string.Format("Unknown error: {0}", newAsset.ErrorMsgList));
                 }
             }
-
             return await _assetRepository.AddAsync(newAsset);
         }
 
