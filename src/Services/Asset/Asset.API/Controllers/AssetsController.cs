@@ -56,7 +56,7 @@ namespace Asset.API.Controllers
 
         [Route("customers/{customerId:guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(PagedAssetList), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(PagedAssetList), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<PagedAssetList>> Get(Guid customerId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
@@ -138,6 +138,31 @@ namespace Asset.API.Controllers
 
                 return Ok(new ViewModels.Asset(updatedAsset));
 
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("lifecycles")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.AssetLifecycle>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> GetLifecycles()
+        {
+            try
+            {
+                var lifecycles = await _assetServices.GetLifecycles();
+                if (lifecycles == null)
+                {
+                    return NotFound();
+                }
+                var lifecycleList = new List<ViewModels.AssetLifecycle>();
+                foreach (var lifecycle in lifecycles) lifecycleList.Add(new ViewModels.AssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
+
+                return Ok(lifecycleList);
             }
             catch (Exception)
             {

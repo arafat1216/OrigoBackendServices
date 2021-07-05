@@ -57,6 +57,23 @@ namespace AssetServices
             return await _assetRepository.AddAsync(newAsset);
         }
 
+        public async Task<IList<AssetLifecycle>> GetLifecycles()
+        {
+            Array arr = Enum.GetValues(typeof(LifecycleType));
+            List<AssetLifecycle> assetLifecycles = new List<AssetLifecycle>();
+
+            foreach (LifecycleType e in arr)
+            {
+                assetLifecycles.Add(new AssetLifecycle()
+                {
+                    Name = Enum.GetName(typeof(LifecycleType), e),
+                    EnumValue = (int)e
+                });
+            }
+
+            return assetLifecycles;
+        }
+
         public async Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, LifecycleType newLifecycleType)
         {
             var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
@@ -64,7 +81,7 @@ namespace AssetServices
             {
                 return null;
             }
-                    
+
             asset.SetLifeCycleType(newLifecycleType);
             await _assetRepository.SaveChanges();
             return asset;
