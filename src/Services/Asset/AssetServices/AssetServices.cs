@@ -57,18 +57,19 @@ namespace AssetServices
 
             if (!newAsset.AssetPropertiesAreValid)
             {
-                if (newAsset.ErrorMsgList.Contains("AssetDataNotValid"))
+                string exceptionMsg = "";
+                foreach (string errorMsg in newAsset.ErrorMsgList)
                 {
-                    throw new InvalidAssetDataException("Mininum asset data requirements not set: CustomerId, Brand, Model and PurchaseDate cannot be null");
+                    if (errorMsg.Contains("Imei"))
+                    {
+                        exceptionMsg += string.Format("Asset {0}", errorMsg) + " is invalid.\n";
+                    }
+                    else
+                    {
+                        exceptionMsg += string.Format("Minimum asset data requirements not set: {0}", errorMsg) + ".\n";
+                    }
                 }
-                else if (newAsset.ErrorMsgList.Contains("AssetImeiNotValid"))
-                {
-                    throw new InvalidAssetDataException(string.Format("Asset imei was not valid: {0}", newAsset.Imei));
-                }
-                else
-                {
-                    throw new InvalidAssetDataException(string.Format("Unknown error: {0}", newAsset.ErrorMsgList));
-                }
+                throw new InvalidAssetDataException(exceptionMsg);
             }
             return await _assetRepository.AddAsync(newAsset);
         }

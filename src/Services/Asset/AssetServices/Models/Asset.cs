@@ -281,17 +281,38 @@ namespace AssetServices.Models
         //   - model
         //   - purchaseDate
         //
-        //  Additional restrictions exist on specific assetCategories
+        //  Additional restrictions based on asset category:
+        /// Mobile phones:
+        ///  - Imei must be valid
         /// </summary>
 
         /// <returns>Boolean value, true if asset has valid properties, false if not</returns>
         protected bool ValidateAsset()
         {
+            bool validAsset = true;
             // General (all types)
-            if (CustomerId == Guid.Empty || string.IsNullOrEmpty(Brand) || string.IsNullOrEmpty(Model) || PurchaseDate == DateTime.MinValue)
+            if (CustomerId == Guid.Empty)
             {
-                ErrorMsgList.Add("AssetDataNotValid");
-                return false;
+                ErrorMsgList.Add("CustomerId - Cannot be Guid.Empty");
+                validAsset =  false;
+            }
+
+            if (string.IsNullOrEmpty(Brand))
+            {
+                ErrorMsgList.Add("Brand - Cannot be null or empty");
+                validAsset = false;
+            }
+
+            if (string.IsNullOrEmpty(Model))
+            {
+                ErrorMsgList.Add("Model - Cannot be null or empty");
+                validAsset = false;
+            }
+
+            if (PurchaseDate == DateTime.MinValue)
+            {
+                ErrorMsgList.Add("PurchaseDate - Cannot be DateTime.MinValue");
+                validAsset = false;
             }
 
             // Mobile Phones
@@ -299,14 +320,14 @@ namespace AssetServices.Models
             {
                 foreach (string e in Imei.Split(","))
                 {
-                    if (!ValidateImei(Imei))
+                    if (!ValidateImei(e))
                     {
-                        ErrorMsgList.Add("AssetImeiNotValid");
-                        return false;
+                        ErrorMsgList.Add("Imei : " + e);
+                        validAsset = false;
                     }
                 }
             }
-            return true;
+            return validAsset;
         }
     }
 }
