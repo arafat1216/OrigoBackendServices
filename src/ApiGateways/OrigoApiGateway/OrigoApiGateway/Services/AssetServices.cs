@@ -213,7 +213,8 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var lifecycles = await HttpClient.GetFromJsonAsync<IList<LifecycleDTO>>($"{_options.ApiPath}/lifecycles");
+                string requestUri = $"{_options.ApiPath}/lifecycles";
+                var lifecycles = await HttpClient.GetFromJsonAsync<IList<LifecycleDTO>>(requestUri);
                 if (lifecycles == null) return null;
                 var origoAssets = new List<OrigoAssetLifecycle>();
                 foreach (var lifecycle in lifecycles) origoAssets.Add(new OrigoAssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue }); 
@@ -221,16 +222,16 @@ namespace OrigoApiGateway.Services
             }
             catch (HttpRequestException exception)
             {
-                _logger.LogError(exception, "GetAssetForCustomerAsync failed with HttpRequestException.");
+                _logger.LogError(exception, "GetLifeCycles failed with HttpRequestException.");
             }
             catch (NotSupportedException exception)
             {
-                _logger.LogError(exception, "GetAssetForCustomerAsync failed with content type is not valid.");
+                _logger.LogError(exception, "GetLifeCycles failed with content type is not valid.");
             }
 
             catch (JsonException exception)
             {
-                _logger.LogError(exception, "GetAssetForCustomerAsync failed with invalid JSON.");
+                _logger.LogError(exception, "GetLifecycles failed with invalid JSON.");
             }
 
             return null;
