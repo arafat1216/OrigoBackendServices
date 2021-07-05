@@ -56,7 +56,7 @@ namespace Asset.API.Controllers
 
         [Route("customers/{customerId:guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(PagedAssetList), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(PagedAssetList), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<PagedAssetList>> Get(Guid customerId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
@@ -106,7 +106,7 @@ namespace Asset.API.Controllers
             {
                 var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.SerialNumber,
                     asset.AssetCategoryId, asset.Brand, asset.Model, asset.LifecycleType, asset.PurchaseDate,
-                    asset.AssetHolderId, asset.IsActive, asset.ManagedByDepartmentId);
+                    asset.AssetHolderId, asset.IsActive, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId);
                 var updatedAssetView = new ViewModels.Asset(updatedAsset);
 
                 return CreatedAtAction(nameof(CreateAsset), new { id = updatedAssetView.AssetId }, updatedAssetView);
@@ -116,7 +116,11 @@ namespace Asset.API.Controllers
             {
                 return BadRequest("Unable to find Asset CategoryId");
             }
-            catch (Exception)
+            catch (InvalidAssetDataException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
             {
                 return BadRequest();
             }
@@ -138,6 +142,31 @@ namespace Asset.API.Controllers
 
                 return Ok(new ViewModels.Asset(updatedAsset));
 
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("lifecycles")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.AssetLifecycle>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> GetLifecycles()
+        {
+            try
+            {
+                var lifecycles = await _assetServices.GetLifecycles();
+                if (lifecycles == null)
+                {
+                    return NotFound();
+                }
+                var lifecycleList = new List<ViewModels.AssetLifecycle>();
+                foreach (var lifecycle in lifecycles) lifecycleList.Add(new ViewModels.AssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
+
+                return Ok(lifecycleList);
             }
             catch (Exception)
             {

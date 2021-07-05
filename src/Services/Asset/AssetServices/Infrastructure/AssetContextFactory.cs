@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace AssetServices.Infrastructure
 {
@@ -8,8 +10,15 @@ namespace AssetServices.Infrastructure
     {
         public AssetsContext CreateDbContext(string[] args)
         {
-            var optionsBuilder = new DbContextOptionsBuilder<AssetsContext>();
-            optionsBuilder.UseSqlServer("Server=SAL-9000;Database=Assets;Trusted_Connection=True;");
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddEnvironmentVariables()
+                .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.Development.json"))
+                .Build();
+
+            var optionsBuilder = new DbContextOptionsBuilder<AssetsContext> ();
+            var connectionString = configuration.GetConnectionString("AssetConnectionString");
+
+            optionsBuilder.UseSqlServer(connectionString);
 
             return new AssetsContext(optionsBuilder.Options);
         }
