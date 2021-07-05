@@ -45,6 +45,10 @@ namespace OrigoApiGateway.Models
         /// </summary>
         public Guid? AssetHolderId { get; set; }
 
+        public string Imei { get; set; }
+
+        public string MacAddress { get; set; }
+
         public bool IsActive { get; set; }
 
     }

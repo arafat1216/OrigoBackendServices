@@ -1,17 +1,17 @@
-﻿using System;
+﻿using Dapr.Client;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using OrigoApiGateway.Exceptions;
+using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.BackendDTO;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Dapr.Client;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using OrigoApiGateway.Models;
-using OrigoApiGateway.Models.BackendDTO;
-using OrigoApiGateway.Exceptions;
 
 namespace OrigoApiGateway.Services
 {
@@ -207,6 +207,33 @@ namespace OrigoApiGateway.Services
                 _logger.LogError(exception, "Unable to update asset.");
                 throw;
             }
+        }
+
+        public async Task<IList<OrigoAssetLifecycle>> GetLifecycles()
+        {
+            try
+            {
+                var lifecycles = await HttpClient.GetFromJsonAsync<IList<LifecycleDTO>>($"{_options.ApiPath}/lifecycles");
+                if (lifecycles == null) return null;
+                var origoAssets = new List<OrigoAssetLifecycle>();
+                foreach (var lifecycle in lifecycles) origoAssets.Add(new OrigoAssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue }); 
+                return origoAssets;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAssetForCustomerAsync failed with HttpRequestException.");
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetAssetForCustomerAsync failed with content type is not valid.");
+            }
+
+            catch (JsonException exception)
+            {
+                _logger.LogError(exception, "GetAssetForCustomerAsync failed with invalid JSON.");
+            }
+
+            return null;
         }
 
         public async Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, int newLifecycleType)

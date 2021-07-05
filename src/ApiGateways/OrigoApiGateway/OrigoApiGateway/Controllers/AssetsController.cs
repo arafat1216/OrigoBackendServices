@@ -187,6 +187,28 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("lifecycles")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<OrigoAssetLifecycle>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> GetLifecycles()
+        {
+            try
+            {
+                var lifecycles = await _assetServices.GetLifecycles();
+                if (lifecycles == null)
+                {
+                    return NotFound();
+                }
+                return Ok(lifecycles);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
         [Route("{assetId:Guid}/customers/{customerId:guid}/ChangeLifecycleType/{newLifecycleType:int}")]
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
