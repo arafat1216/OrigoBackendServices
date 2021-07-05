@@ -46,6 +46,16 @@ namespace Asset.API.ViewModels
         /// </summary>
         public Guid AssetHolderId { get; set; }
 
+        /// <summary>
+        /// The imei of the asset. Applicable to assets with category Mobile Phone
+        /// </summary>
+        public string Imei { get; set; }
+
+        /// <summary>
+        /// The mac address of the asset.
+        /// </summary>
+        public string MacAddress { get; set; }
+
         public bool IsActive { get; set; }
 
     }

@@ -25,6 +25,8 @@ namespace Asset.API.ViewModels
             PurchaseDate = asset.PurchaseDate;
             CreatedDate = asset.CreatedDate;
             ManagedByDepartmentId = asset.ManagedByDepartmentId.HasValue ? asset.ManagedByDepartmentId.Value.ToString() : string.Empty;
+            Imei = asset.Imei;
+            MacAddress = asset.MacAddress;
             AssetHolderId = asset.AssetHolderId;
             IsActive = asset.IsActive;
         }
@@ -89,6 +91,16 @@ namespace Asset.API.ViewModels
         /// The employee holding the asset.
         /// </summary>
         public Guid? AssetHolderId { get; protected set; }
+
+        /// <summary>
+        /// The imei of the asset. Applicable to assets with category Mobile phone.
+        /// </summary>
+        public string Imei { get; protected set; }
+
+        /// <summary>
+        /// The mac address of the asset
+        /// </summary>
+        public string MacAddress { get; protected set; }
 
         public bool IsActive { get; set; }
     }

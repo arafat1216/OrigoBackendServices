@@ -43,7 +43,7 @@ namespace AssetServices
         }
 
         public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId, string brand,
-            string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive,
+            string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive, string imei, string macAddress,
             Guid? managedByDepartmentId)
         {
             var assetCategory = await _assetRepository.GetAssetCategoryAsync(assetCategoryId);
@@ -52,8 +52,25 @@ namespace AssetServices
                 throw new AssetCategoryNotFoundException();
             }
 
-            var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory.Id, brand, model,
-                lifecycleType, purchaseDate, assetHolderId, isActive, managedByDepartmentId);
+            var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory, brand, model,
+                lifecycleType, purchaseDate, assetHolderId, isActive,imei, macAddress, managedByDepartmentId);
+
+            if (!newAsset.AssetPropertiesAreValid)
+            {
+                string exceptionMsg = "";
+                foreach (string errorMsg in newAsset.ErrorMsgList)
+                {
+                    if (errorMsg.Contains("Imei"))
+                    {
+                        exceptionMsg += string.Format("Asset {0}", errorMsg) + " is invalid.\n";
+                    }
+                    else
+                    {
+                        exceptionMsg += string.Format("Minimum asset data requirements not set: {0}", errorMsg) + ".\n";
+                    }
+                }
+                throw new InvalidAssetDataException(exceptionMsg);
+            }
             return await _assetRepository.AddAsync(newAsset);
         }
 

@@ -106,7 +106,7 @@ namespace Asset.API.Controllers
             {
                 var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.SerialNumber,
                     asset.AssetCategoryId, asset.Brand, asset.Model, asset.LifecycleType, asset.PurchaseDate,
-                    asset.AssetHolderId, asset.IsActive, asset.ManagedByDepartmentId);
+                    asset.AssetHolderId, asset.IsActive, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId);
                 var updatedAssetView = new ViewModels.Asset(updatedAsset);
 
                 return CreatedAtAction(nameof(CreateAsset), new { id = updatedAssetView.AssetId }, updatedAssetView);
@@ -116,7 +116,11 @@ namespace Asset.API.Controllers
             {
                 return BadRequest("Unable to find Asset CategoryId");
             }
-            catch (Exception)
+            catch (InvalidAssetDataException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
             {
                 return BadRequest();
             }
