@@ -12,6 +12,8 @@ namespace CustomerServices.Infrastructure
 
         public DbSet<ProductModule> ProductModules { get; set; }
 
+        public DbSet<ProductModuleGroup> ProductModuleGroups { get; set; }
+
         public CustomerContext(DbContextOptions<CustomerContext> options)
             : base(options)
         { }
@@ -22,6 +24,7 @@ namespace CustomerServices.Infrastructure
             modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<Customer>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<User>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            modelBuilder.Entity<ProductModule>().ToTable("ProductModule");
         }
     }
 }

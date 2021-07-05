@@ -306,5 +306,34 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<IList<OrigoAssetCategory>> GetAssetCategoriesAsync()
+        {
+            try
+            {
+                var assetCategories =
+                      await HttpClient.GetFromJsonAsync<IList<AssetCategoryDTO>>(
+                          $"{_options.ApiPath}/assets/categories");
+                if (assetCategories == null) return null;
+                var origoAssetCategories = new List<OrigoAssetCategory>();
+                foreach (var asset in assetCategories) origoAssetCategories.Add(new OrigoAssetCategory(asset));
+                return origoAssetCategories;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAssetCategoriesAsync failed with HttpRequestException.");
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetAssetCategoriesAsync failed with content type is not valid.");
+            }
+
+            catch (JsonException exception)
+            {
+                _logger.LogError(exception, "GetAssetCategoriesAsync failed with invalid JSON.");
+            }
+
+            return null;
+        }
     }
 }

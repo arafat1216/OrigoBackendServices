@@ -1,10 +1,9 @@
-﻿using Common.Seedwork;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace CustomerServices.Models
+namespace Customer.API.ViewModels
 {
-    public class ProductModule : Entity, IAggregateRoot
+    public class ProductModule
     {
         public Guid ProductModuleId { get; set; }
 

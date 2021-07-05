@@ -82,5 +82,37 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
+
+        [Route("{customerId:Guid}/modules/{moduleGroupId:Guid}/add")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoProductModuleGroup), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<OrigoProductModuleGroup>> AddCustomerModules(Guid customerId, Guid moduleGroupId)
+        {
+            try
+            {
+                var productGroup = await CustomerServices.AddProductModulesAsync(customerId, moduleGroupId);
+                return productGroup != null ? Ok(productGroup) : NotFound();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{customerId:Guid}/modules/{moduleGroupId:Guid}/remove")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoProductModuleGroup), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<OrigoProductModuleGroup>> RemoveCustomerModules(Guid customerId, Guid moduleGroupId)
+        {
+            try
+            {
+                var productGroup = await CustomerServices.RemoveProductModulesAsync(customerId, moduleGroupId);
+                return productGroup != null ? Ok(productGroup) : NotFound();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
     }
 }

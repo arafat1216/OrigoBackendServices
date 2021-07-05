@@ -140,5 +140,10 @@ namespace AssetServices
             await _assetRepository.SaveChanges();
             return asset;
         }
+
+        public async Task<IList<AssetCategory>> GetAssetCategoriesAsync()
+        {
+            return await _assetRepository.GetAssetCategoriesAsync();
+        }
     }
 }

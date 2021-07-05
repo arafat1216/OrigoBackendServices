@@ -63,6 +63,11 @@ namespace AssetServices.Infrastructure
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<IList<AssetCategory>> GetAssetCategoriesAsync()
+        {
+            return await _context.AssetCategories.ToListAsync();
+        }
+
         public async Task SaveChanges()
         {
             await _context.SaveChangesAsync();
