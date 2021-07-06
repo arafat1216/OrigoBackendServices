@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using System;
 
-namespace AssetServices.Events
+namespace AssetServices.DomainEvents
 {
     public class AssetCreatedDomainEvent : INotification
     {
