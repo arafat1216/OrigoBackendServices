@@ -267,5 +267,15 @@ namespace OrigoApiGateway.Controllers
             }
             return Ok(assetCategories);
         }
+
+        [Route("assets/auditLog")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<string>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> GetAssetAuditLogMock(Guid assetId)
+        {
+            var assetAuditLog = await _assetServices.GetAssetAuditLog(assetId);
+            return Ok(assetAuditLog); 
+        }
     }
 }
