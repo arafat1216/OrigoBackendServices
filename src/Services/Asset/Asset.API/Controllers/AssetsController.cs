@@ -272,5 +272,22 @@ namespace Asset.API.Controllers
             }
             return Ok(asset);
         }
+
+        [Route("assets/auditlog")]
+        [HttpGet]
+        [ProducesResponseType(typeof(List<string>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IList<string>> GetAssetAuditLogMock(Guid assetId)
+         {
+            // use asset id to find asset log: Mock example just takes any id and returns dummy data
+            if (assetId == Guid.Empty)
+            {
+                return new List<string>();
+            }
+
+            var listOfJson = await _assetServices.GetAssetAuditLog();
+            return listOfJson;
+         }
+
     }
 }

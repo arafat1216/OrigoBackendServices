@@ -11,8 +11,9 @@ namespace AssetServices.Infrastructure
         public AssetsContext CreateDbContext(string[] args)
         {
             IConfiguration configuration = new ConfigurationBuilder()
-                .AddEnvironmentVariables()
-                .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.Development.json"))
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
                 .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<AssetsContext> ();

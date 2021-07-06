@@ -336,5 +336,31 @@ namespace OrigoApiGateway.Services
 
             return null;
         }
+
+        public async Task<IList<string>> GetAssetAuditLog(Guid assetId)
+        {
+            try
+            {
+                var assetLog =
+               await HttpClient.GetFromJsonAsync<IList<string>>(
+                   $"{_options.ApiPath}/assets/auditlog?assetId={assetId}");
+
+                return assetLog;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAssetAuditLogMock failed with HttpRequestException.");
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetAssetAuditLogMock failed with content type is not valid.");
+            }
+
+            catch (JsonException exception)
+            {
+                _logger.LogError(exception, "GetAssetAuditLogMock failed with invalid JSON.");
+            }
+            return null;
+        }
     }
 }

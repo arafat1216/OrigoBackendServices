@@ -3,6 +3,9 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CustomerServices.DomainEvents;
+using CustomerServices.Models;
+using Microsoft.Extensions.Logging;
 
 namespace CustomerServices
 {
@@ -24,7 +27,10 @@ namespace CustomerServices
 
         public async Task<Customer> AddCustomerAsync(Customer newCustomer)
         {
+            newCustomer.AddDomainEvent(new CustomerCreatedDomainEvent(newCustomer));
             return await _customerRepository.AddAsync(newCustomer);
+
+
         }
 
         public async Task<Customer> GetCustomerAsync(Guid customerId)
