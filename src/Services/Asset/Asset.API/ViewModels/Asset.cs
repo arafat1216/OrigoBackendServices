@@ -73,6 +73,17 @@ namespace Asset.API.ViewModels
         public LifecycleType LifecycleType { get; protected set; }
 
         /// <summary>
+        /// The name of the lifecycle for this asset.
+        /// </summary>
+        public string LifecycleName
+        { 
+            get
+            {
+                return LifecycleType.GetName<LifecycleType>(LifecycleType);
+            }
+        }
+
+        /// <summary>
         /// The date the asset was purchased.
         /// </summary>
         public DateTime PurchaseDate { get; protected set; }
