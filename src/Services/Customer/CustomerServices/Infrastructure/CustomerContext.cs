@@ -46,7 +46,7 @@ namespace CustomerServices.Infrastructure
             // B) Right AFTER committing data (EF SaveChanges) into the DB. This makes
             // multiple transactions. You will need to handle eventual consistency and
             // compensatory actions in case of failures.
-            await _mediator.DispatchDomainEventsAsync(this);
+            //await _mediator.DispatchDomainEventsAsync(this);
 
             // After this line runs, all the changes (from the Command Handler and Domain
             // event handlers) performed through the DbContext will be committed

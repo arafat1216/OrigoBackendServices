@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace CustomerServices.Infrastructure
 {
@@ -8,8 +10,15 @@ namespace CustomerServices.Infrastructure
     {
         public CustomerContext CreateDbContext(string[] args)
         {
+            IConfiguration configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
+                .Build();
+
             var optionsBuilder = new DbContextOptionsBuilder<CustomerContext>();
-            optionsBuilder.UseSqlServer("Server=localhost;Database=Customers;Trusted_Connection=True;");
+            var connectionString = configuration.GetConnectionString("CustomerConnectionString");
+            optionsBuilder.UseSqlServer(connectionString);
 
             return new CustomerContext(optionsBuilder.Options, null);
         }
