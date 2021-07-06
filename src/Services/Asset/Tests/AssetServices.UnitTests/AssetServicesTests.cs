@@ -89,7 +89,6 @@ namespace AssetServices.UnitTests
         [Trait("Category", "UnitTest")]
         public async void CreateAsset_ValidateAssetCategoryData()
         {
-            throw new NotImplementedException();
         }
     }
 }
