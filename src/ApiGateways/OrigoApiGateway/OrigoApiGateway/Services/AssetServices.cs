@@ -147,7 +147,8 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/customers/{customerId}", newAsset);
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, newAsset);
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to save asset", (int)response.StatusCode);
