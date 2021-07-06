@@ -334,6 +334,10 @@ namespace OrigoApiGateway.Services
             {
                 _logger.LogError(exception, "GetAssetCategoriesAsync failed with invalid JSON.");
             }
+            catch(Exception exception)
+            {
+                _logger.LogError(exception, "GetAssetCategoriesAsync failed with unknown exception");
+            }
 
             return null;
         }
