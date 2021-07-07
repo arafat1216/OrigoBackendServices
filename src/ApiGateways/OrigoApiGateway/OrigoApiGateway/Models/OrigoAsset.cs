@@ -78,7 +78,7 @@ namespace OrigoApiGateway.Models
         /// <summary>
         /// The department or cost center this asset is assigned to.
         /// </summary>
-        public string ManagedByDepartmentId { get; protected set; }
+        public Guid? ManagedByDepartmentId { get; protected set; }
 
         /// <summary>
         /// The employee holding the asset.
