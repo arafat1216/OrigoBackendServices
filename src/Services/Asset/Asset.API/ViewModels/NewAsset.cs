@@ -44,7 +44,7 @@ namespace Asset.API.ViewModels
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
-        public Guid AssetHolderId { get; set; }
+        public Guid? AssetHolderId { get; set; }
 
         /// <summary>
         /// The imei of the asset. Applicable to assets with category Mobile Phone
