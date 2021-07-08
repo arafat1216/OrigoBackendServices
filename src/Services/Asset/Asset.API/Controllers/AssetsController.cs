@@ -266,12 +266,19 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.AssetCategory>>> GetAssetCategories()
         {
-            var asset = await _assetServices.GetAssetCategoriesAsync();
-            if (asset == null)
+            try
             {
-                return NotFound();
+                var asset = await _assetServices.GetAssetCategoriesAsync();
+                if (asset == null)
+                {
+                    return NotFound();
+                }
+                return Ok(asset);
             }
-            return Ok(asset);
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
 
         [Route("auditlog/{assetId:Guid}")]

@@ -314,7 +314,7 @@ namespace OrigoApiGateway.Services
             {
                 var assetCategories =
                       await HttpClient.GetFromJsonAsync<IList<AssetCategoryDTO>>(
-                          $"{_options.ApiPath}/assets/categories");
+                          $"{_options.ApiPath}/categories");
                 if (assetCategories == null) return null;
                 var origoAssetCategories = new List<OrigoAssetCategory>();
                 foreach (var asset in assetCategories) origoAssetCategories.Add(new OrigoAssetCategory(asset));

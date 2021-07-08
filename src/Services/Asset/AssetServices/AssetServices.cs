@@ -162,7 +162,14 @@ namespace AssetServices
 
         public async Task<IList<AssetCategory>> GetAssetCategoriesAsync()
         {
-            return await _assetRepository.GetAssetCategoriesAsync();
+            try
+            {
+                return await _assetRepository.GetAssetCategoriesAsync();
+            }
+            catch(Exception exception)
+            {
+                throw new ReadingDataException(exception);
+            }
         }
 
         public async Task<IList<AssetAuditLog>> GetAssetAuditLog()
