@@ -59,7 +59,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         /// <summary>
         /// The department or cost center this asset is assigned to.
         /// </summary>
-        public string ManagedByDepartmentId { get; set; }
+        public Guid? ManagedByDepartmentId { get; set; }
 
         /// <summary>
         /// The employee holding the asset.

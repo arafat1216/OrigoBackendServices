@@ -260,7 +260,7 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("assets/categories")]
+        [Route("categories")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.AssetCategory), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]

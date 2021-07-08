@@ -24,7 +24,7 @@ namespace AssetServices.Models
         {
             AssetId = assetId;
             CustomerId = customerId;
-            SerialNumber = serialNumber;
+            SerialNumber = (serialNumber != null) ? serialNumber : string.Empty;
             AssetCategoryId = assetCategory.Id;
             AssetCategory = assetCategory;
             Brand = brand;
@@ -34,8 +34,8 @@ namespace AssetServices.Models
             AssetHolderId = assetHolderId;
             IsActive = isActive;
             ManagedByDepartmentId = managedByDepartmentId;
-            Imei = imei;
-            MacAddress = macAddress;
+            Imei = (imei != null) ? imei : string.Empty;
+            MacAddress = (macAddress != null) ? macAddress : string.Empty;
             ErrorMsgList = new List<string>();
             AssetPropertiesAreValid = ValidateAsset();
         }
