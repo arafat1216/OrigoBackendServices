@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AssetServices.Exceptions;
 using AssetServices.Models;
 using Common.Interfaces;
+using Common.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -164,7 +165,7 @@ namespace AssetServices
             return await _assetRepository.GetAssetCategoriesAsync();
         }
 
-        public async Task<IList<string>> GetAssetAuditLog()
+        public async Task<IList<AssetAuditLog>> GetAssetAuditLog()
         {
             // Get audit / Event log for asset
             var mockAuditData0 = new AssetAuditLog(DateTime.Now,
@@ -172,67 +173,70 @@ namespace AssetServices
                                                    "Manual Registration",
                                                    "Procurement",
                                                    "New",
-                                                   "Registered").ToJson();
+                                                   "Registered");
 
             var mockAuditData1 = new AssetAuditLog(DateTime.Now,
                                                    "Mikael",
                                                    "Attribute change - Life Cycle Type: Bring your own device",
                                                    "Change",
                                                    "Registered",
-                                                   "Active").ToJson();
+                                                   "Active");
 
             var mockAuditData2 = new AssetAuditLog(DateTime.Now,
                                                    "Mikael",
                                                    "Attribute change - Imei: 12345 12345 12345",
                                                    "Change",
                                                    "Active",
-                                                   "Active").ToJson();
+                                                   "Active");
 
             var mockAuditData3 = new AssetAuditLog(DateTime.Now,
                                                    "Mikael",
                                                    "Reassigned to department: Product",
                                                    "Reassignment",
                                                    "Active",
-                                                   "Active").ToJson();
+                                                   "Active");
             var mockAuditData4 = new AssetAuditLog(DateTime.Now,
                                                    "Mikael",
                                                    "Reassigned to user: Henrik Tveit",
                                                    "Reassignment",
                                                    "Active",
-                                                   "Active").ToJson();
+                                                   "Active");
 
             var mockAuditData5 = new AssetAuditLog(DateTime.Now,
                                                    "Mikael",
                                                    "Attribute change - Tags: Personal",
                                                    "Change",
                                                    "Active",
-                                                   "Active").ToJson();
+                                                   "Active");
 
             var mockAuditData6 = new AssetAuditLog(DateTime.Now,
                                                    "Mikael",
                                                    "Sent to repair",
                                                    "Hardware repair",
                                                    "Active",
-                                                   "On repair").ToJson();
+                                                   "On repair");
 
             var mockAuditData7 = new AssetAuditLog(DateTime.Now,
                                                    "Mikael",
                                                    "Status change",
                                                    "Hardware repair",
                                                    "On repair",
-                                                   "Active").ToJson();
+                                                   "Active");
 
-            
-            List<string> jsonList = new List<string>();
-            jsonList.Add(mockAuditData0);
-            jsonList.Add(mockAuditData2);
-            jsonList.Add(mockAuditData3);
-            jsonList.Add(mockAuditData4);
-            jsonList.Add(mockAuditData5);
-            jsonList.Add(mockAuditData6);
-            jsonList.Add(mockAuditData7);
 
-            return jsonList;
+            IList<AssetAuditLog> assetLogList = new List<AssetAuditLog>
+            {
+                mockAuditData0,
+                mockAuditData1,
+                mockAuditData2,
+                mockAuditData3,
+                mockAuditData4,
+                mockAuditData5,
+                mockAuditData6,
+                mockAuditData7
+            };
+
+            return assetLogList;
         }
     }
 }

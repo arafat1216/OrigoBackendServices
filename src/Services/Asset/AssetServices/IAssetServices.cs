@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AssetServices.Models;
 using Common.Interfaces;
+using Common.Models;
 
 namespace AssetServices
 {
@@ -20,7 +21,7 @@ namespace AssetServices
         Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string serialNumber, string brand, string model, DateTime purchaseDate);
         Task<Asset> AssignAsset(Guid customerId, Guid assetId, Guid? userId);
         Task<IList<AssetCategory>> GetAssetCategoriesAsync();
-        Task<IList<string>> GetAssetAuditLog();
+        Task<IList<AssetAuditLog>> GetAssetAuditLog();
         Task<IList<AssetLifecycle>> GetLifecycles();
     }
 }

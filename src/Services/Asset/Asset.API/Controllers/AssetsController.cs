@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Common.Exceptions;
 using System.Text;
+using Common.Models;
 
 namespace Asset.API.Controllers
 {
@@ -273,21 +274,28 @@ namespace Asset.API.Controllers
             return Ok(asset);
         }
 
-        [Route("assets/auditlog")]
+        [Route("auditlog/{assetId:Guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(List<string>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<AssetAuditLog>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IList<string>> GetAssetAuditLogMock(Guid assetId)
+        public async Task<ActionResult<IEnumerable<AssetAuditLog>>> GetAssetAuditLogMock(Guid assetId)
          {
-            // use asset id to find asset log: Mock example just takes any id and returns dummy data
-            if (assetId == Guid.Empty)
+            try
             {
-                return new List<string>();
+                // use asset id to find asset log: Mock example just takes any id and returns dummy data
+                if (assetId == Guid.Empty)
+                {
+                    return NotFound();
+                }
+
+                var assetLogList = await _assetServices.GetAssetAuditLog();
+
+                return Ok(assetLogList);
             }
-
-            var listOfJson = await _assetServices.GetAssetAuditLog();
-            return listOfJson;
+            catch(Exception)
+            {
+                return BadRequest();
+            }
          }
-
     }
 }
