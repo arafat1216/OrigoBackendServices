@@ -1,4 +1,5 @@
-﻿using Dapr.Client;
+﻿using Common.Models;
+using Dapr.Client;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -342,30 +343,32 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
-        public async Task<IList<string>> GetAssetAuditLog(Guid assetId)
+        public async Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId)
         {
             try
             {
                 var assetLog =
-               await HttpClient.GetFromJsonAsync<IList<string>>(
-                   $"{_options.ApiPath}/assets/auditlog?assetId={assetId}");
+               await HttpClient.GetFromJsonAsync<IList<AssetAuditLog>>(
+                   $"{_options.ApiPath}/auditlog/{assetId}");
 
                 return assetLog;
             }
             catch (HttpRequestException exception)
             {
                 _logger.LogError(exception, "GetAssetAuditLogMock failed with HttpRequestException.");
+                throw;
             }
             catch (NotSupportedException exception)
             {
                 _logger.LogError(exception, "GetAssetAuditLogMock failed with content type is not valid.");
+                throw;
             }
 
             catch (JsonException exception)
             {
                 _logger.LogError(exception, "GetAssetAuditLogMock failed with invalid JSON.");
+                throw;
             }
-            return null;
         }
     }
 }

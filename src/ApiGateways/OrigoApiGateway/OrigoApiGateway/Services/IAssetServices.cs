@@ -1,4 +1,5 @@
-﻿using OrigoApiGateway.Models;
+﻿using Common.Models;
+using OrigoApiGateway.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -18,6 +19,6 @@ namespace OrigoApiGateway.Services
         Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset);
         Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid? userId);
         Task<IList<OrigoAssetCategory>> GetAssetCategoriesAsync();
-        Task<IList<string>> GetAssetAuditLog(Guid assetId);
+        Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId);
     }
 }

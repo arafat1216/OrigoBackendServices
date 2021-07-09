@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Common.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Models;
@@ -268,14 +269,22 @@ namespace OrigoApiGateway.Controllers
             return Ok(assetCategories);
         }
 
-        [Route("assets/auditLog")]
+        [Route("auditLog/{assetId:Guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(IList<string>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<AssetAuditLog>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> GetAssetAuditLogMock(Guid assetId)
+        public async Task<ActionResult<IEnumerable<AssetAuditLog>>> GetAssetAuditLogMock(Guid assetId)
         {
-            var assetAuditLog = await _assetServices.GetAssetAuditLog(assetId);
-            return Ok(assetAuditLog); 
+            try
+            {
+                var assetAuditLog = await _assetServices.GetAssetAuditLog(assetId);
+                return Ok(assetAuditLog);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+           
         }
     }
 }
