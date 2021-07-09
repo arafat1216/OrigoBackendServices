@@ -21,4 +21,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="5.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\Common.csproj" />
+  </ItemGroup>
 </Project>
