@@ -40,12 +40,12 @@ namespace Asset.API.ViewModels
         /// <summary>
         /// The department or cost center this asset is assigned to.
         /// </summary>
-        public Guid ManagedByDepartmentId { get; set; }
+        public Guid? ManagedByDepartmentId { get; set; }
 
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
-        public Guid AssetHolderId { get; set; }
+        public Guid? AssetHolderId { get; set; }
 
         /// <summary>
         /// The imei of the asset. Applicable to assets with category Mobile Phone

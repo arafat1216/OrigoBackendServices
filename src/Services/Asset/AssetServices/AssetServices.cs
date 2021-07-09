@@ -6,7 +6,6 @@ using AssetServices.Exceptions;
 using AssetServices.Models;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace AssetServices
 {
