@@ -151,7 +151,7 @@ namespace Asset.API.Controllers
         }
 
         [Route("lifecycles")]
-        [HttpPost]
+        [HttpGet]
         [ProducesResponseType(typeof(IList<ViewModels.AssetLifecycle>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

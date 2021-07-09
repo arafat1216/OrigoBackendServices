@@ -47,6 +47,11 @@ namespace OrigoApiGateway.Models.BackendDTO
         public int LifecycleType { get; set; }
 
         /// <summary>
+        /// The name of the lifecycle for this asset.
+        /// </summary>
+        public string LifecycleName { get; set; }
+
+        /// <summary>
         /// The date the asset was purchased.
         /// </summary>
         public DateTime PurchaseDate { get; set; }

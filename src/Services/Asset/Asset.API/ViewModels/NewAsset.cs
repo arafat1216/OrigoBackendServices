@@ -31,6 +31,7 @@ namespace Asset.API.ViewModels
         /// </summary>
         public LifecycleType LifecycleType { get; set; }
 
+
         /// <summary>
         /// The date the asset was purchased.
         /// </summary>
