@@ -255,7 +255,7 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("assets/categories")]
+        [Route("categories")]
         [HttpGet]
         [ProducesResponseType(typeof(OrigoAssetCategory), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
