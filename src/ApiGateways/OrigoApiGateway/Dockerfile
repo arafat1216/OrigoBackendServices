@@ -15,6 +15,7 @@ COPY ["src/ApiGateways/OrigoApiGateway/OrigoApiGateway.Tests/OrigoApiGateway.Tes
 RUN dotnet restore "ApiGateways/OrigoApiGateway/OrigoApiGateway/OrigoApiGateway.csproj"
 RUN dotnet restore "ApiGateways/OrigoApiGateway/OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj"
 
+COPY /src/Core/. Core/.
 COPY /src/ApiGateways/OrigoApiGateway/. ApiGateways/OrigoApiGateway/.
 
 WORKDIR "/src/ApiGateways/OrigoApiGateway"
