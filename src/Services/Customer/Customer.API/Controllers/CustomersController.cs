@@ -64,7 +64,36 @@ namespace Customer.API.Controllers
 
             return Ok(customerList);
         }
-        
+
+        [Route("{customerId:Guid}/assetCategoryLifecycleTypes")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ViewModels.AssetCategoryLifecycleType>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.AssetCategoryLifecycleType>>> GetAllAssetCategoryLifecycleTypes(Guid customerId)
+        {
+            var assetCategoryLifecycleTypes = await _customerServices.GetAllAssetCategoryLifecycleTypesForCustomerAsync(customerId);
+            if (assetCategoryLifecycleTypes == null) return NotFound();
+            return Ok(assetCategoryLifecycleTypes);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.AssetCategoryLifecycleType), (int)HttpStatusCode.Created)]
+        public async Task<ActionResult<ViewModels.AssetCategoryLifecycleType>> CreateAssetCategoryLifecycleType([FromBody] NewAssetCategoryLifecycleType assetCategoryLifecycleType)
+        {
+            var newAssetCategoryLifecycleType = await _customerServices.AddAssetCategoryLifecycleTypeForCustomerAsync(assetCategoryLifecycleType.CustomerId, 
+                                                                                                                   assetCategoryLifecycleType.AssetCategoryId, 
+                                                                                                                   assetCategoryLifecycleType.LifecycleType);
+
+            var assetCategoryLifecycleTypeView = new ViewModels.AssetCategoryLifecycleType
+            {
+                CustomerId = newAssetCategoryLifecycleType.CustomerId,
+                AssetCategoryId = newAssetCategoryLifecycleType.AssetCategoryId,
+                LifecycleType = newAssetCategoryLifecycleType.LifecycleType
+            };
+
+            return CreatedAtAction(nameof(CreateAssetCategoryLifecycleType), assetCategoryLifecycleTypeView);
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Customer), (int) HttpStatusCode.Created)]
         public async Task<ActionResult<ViewModels.Customer>> CreateCustomer([FromBody] NewCustomer customer)

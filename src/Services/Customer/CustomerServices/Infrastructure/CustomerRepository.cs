@@ -54,6 +54,18 @@ namespace CustomerServices.Infrastructure
             await _context.SaveChangesAsync();
             return newUser;
         }
+        public async Task<IList<AssetCategoryLifecycleType>> GetAllAssetCategoryLifecycleTypesAsync(Guid customerId)
+        {
+            return await _context.AssetCategoryLifecycleTypes.Where(c => c.CustomerId == customerId)
+                .ToListAsync();
+        }
+
+        public async Task<AssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeAsync(AssetCategoryLifecycleType newAssetCategoryLifecycleType)
+        {
+            _context.AssetCategoryLifecycleTypes.Add(newAssetCategoryLifecycleType);
+            await _context.SaveChangesAsync();
+            return newAssetCategoryLifecycleType;
+        }
 
         public async Task<IList<ProductModule>> GetModulesAsync()
         {

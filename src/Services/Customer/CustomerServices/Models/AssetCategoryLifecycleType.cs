@@ -11,7 +11,7 @@ namespace CustomerServices.Models
     {
         public Guid CustomerId { get; protected set; }
         public Guid AssetCategoryId { get; protected set; }
-        public Guid LifecycleTypeId { get; protected set; }
+        public int LifecycleType { get; protected set; }
 
         /// <summary>
         /// Create a connection between a customer and the lifecycle types enabled for their asset categories.
@@ -19,12 +19,13 @@ namespace CustomerServices.Models
         /// <param name="customerId"></param>
         /// <param name="assetCategoryId"></param>
         /// <param name="lifeCycleTypeId"></param>
-        public AssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId, Guid lifeCycleTypeId)
+        public AssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId, int lifeCycleType)
         {
             CustomerId = customerId;
             AssetCategoryId = assetCategoryId;
-            LifecycleTypeId = lifeCycleTypeId;
+            LifecycleType = lifeCycleType;
         }
 
+        protected AssetCategoryLifecycleType() { }
     }
 }

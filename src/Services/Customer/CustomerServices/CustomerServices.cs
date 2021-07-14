@@ -36,6 +36,22 @@ namespace CustomerServices
         {
             return await _customerRepository.GetProductModuleGroupAsync(moduleGroupId);
         }
+        public async Task<IList<AssetCategoryLifecycleType>> GetAllAssetCategoryLifecycleTypesForCustomerAsync(Guid customerId)
+        {
+            return await _customerRepository.GetAllAssetCategoryLifecycleTypesAsync(customerId);
+        }
+        public async Task<AssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeForCustomerAsync(Guid customerId, Guid assetCategoryId, int lifecycleType)
+        {
+            var customer = await _customerRepository.GetCustomerAsync(customerId);
+            if (customer == null)
+            {
+                return null;
+            }
+
+            var newAssetCategoryLifecycleType = new AssetCategoryLifecycleType(customerId, assetCategoryId, lifecycleType);
+
+            return await _customerRepository.AddAssetCategoryLifecycleTypeAsync(newAssetCategoryLifecycleType);
+        }
 
         public async Task<ProductModuleGroup> AddProductModulesAsync(Guid customerId, Guid moduleGroupId)
         {

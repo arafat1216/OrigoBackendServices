@@ -13,6 +13,8 @@ namespace CustomerServices.Models
         Task<IList<User>> GetAllUsersAsync(Guid customerId);
         Task<User> GetUserAsync(Guid customerId, Guid userId);
         Task<User> AddUserAsync(User newUser);
+        Task<IList<AssetCategoryLifecycleType>> GetAllAssetCategoryLifecycleTypesAsync(Guid customerId);
+        Task<AssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeAsync(AssetCategoryLifecycleType newAssetCategoryLifecycleType);
         Task<IList<ProductModule>> GetModulesAsync();
         Task<ProductModuleGroup> GetProductModuleGroupAsync(Guid moduleGroupId);
     }

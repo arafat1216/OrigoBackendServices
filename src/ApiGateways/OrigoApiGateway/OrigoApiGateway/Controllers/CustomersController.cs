@@ -62,6 +62,22 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [HttpGet]
+        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<IList<OrigoAssetCategoryLifecycleType>>> GetAssetCategoryLifecycleTypesForCustomer(Guid customerId)
+        {
+            try
+            {
+                var assetCategoryLifecycleTypes = await CustomerServices.GetAssetCategoryLifecycleTypesForCustomerAsync(customerId);
+                return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();            
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(OrigoCustomer), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -82,6 +98,28 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoAssetCategoryLifecycleType>> CreateAssetCategoryLifecycleTypeForCustomer([FromBody] NewAssetCategoryLifecycleType newAssetCategoryLifecycleType)
+        {
+            try
+            {
+                var createdAssetCategoryLifecycleType = await CustomerServices.AddAssetCategoryLifecycleTypeForCustomerAsync(newAssetCategoryLifecycleType);
+                if (createdAssetCategoryLifecycleType == null)
+                {
+                    return BadRequest();
+                }
+
+                return CreatedAtAction(nameof(CreateAssetCategoryLifecycleTypeForCustomer), createdAssetCategoryLifecycleType);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
 
         [Route("{customerId:Guid}/modules/{moduleGroupId:Guid}/add")]
         [HttpPatch]
