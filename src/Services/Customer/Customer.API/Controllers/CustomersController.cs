@@ -29,8 +29,8 @@ namespace Customer.API.Controllers
 
         [Route("{customerId:Guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(ViewModels.Customer), (int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(ViewModels.Customer), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<ViewModels.Customer>> Get(Guid customerId)
         {
             var customer = await _customerServices.GetCustomerAsync(customerId);
@@ -47,7 +47,7 @@ namespace Customer.API.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<ViewModels.Customer>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<ViewModels.Customer>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<ViewModels.Customer>>> Get()
         {
             var customers = await _customerServices.GetCustomersAsync();
@@ -64,9 +64,9 @@ namespace Customer.API.Controllers
 
             return Ok(customerList);
         }
-        
+
         [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.Customer), (int) HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ViewModels.Customer), (int)HttpStatusCode.Created)]
         public async Task<ActionResult<ViewModels.Customer>> CreateCustomer([FromBody] NewCustomer customer)
         {
             var companyAddress = new CustomerServices.Models.Address(customer.CompanyAddress.Street,
@@ -86,13 +86,26 @@ namespace Customer.API.Controllers
                 CustomerContactPerson = new ContactPerson(updatedCustomer.CustomerContactPerson)
             };
 
-            return CreatedAtAction(nameof(CreateCustomer), new {id = updatedCustomerView.Id}, updatedCustomerView);
+            return CreatedAtAction(nameof(CreateCustomer), new { id = updatedCustomerView.Id }, updatedCustomerView);
+        }
+
+        [Route("{customerId:Guid}/modules")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<ProductModuleGroup>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IList<ProductModuleGroup>>> AddCustomerModules(Guid customerId)
+        {
+            var productGroup = await _customerServices.GetCustomerProductModulesAsync(customerId);
+            if (productGroup == null) return NotFound();
+            var customerProductModules = new List<ProductModuleGroup>();
+            customerProductModules.AddRange(productGroup.Select(module => new ProductModuleGroup() { ProductModuleGroupId = module.ProductModuleGroupId, Name = module.Name }));
+
+            return Ok(customerProductModules);
         }
 
         [Route("{customerId:Guid}/modules/{moduleGroupId:Guid}/add")]
-        [HttpPatch]
+        [HttpPost]
         [ProducesResponseType(typeof(ProductModuleGroup), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<ProductModuleGroup>> AddCustomerModules(Guid customerId, Guid moduleGroupId )
+        public async Task<ActionResult<ProductModuleGroup>> AddCustomerModules(Guid customerId, Guid moduleGroupId)
         {
             var productGroup = await _customerServices.AddProductModulesAsync(customerId, moduleGroupId);
             if (productGroup == null) return NotFound();
@@ -106,7 +119,7 @@ namespace Customer.API.Controllers
         }
 
         [Route("{customerId:Guid}/modules/{moduleGroupId:Guid}/remove")]
-        [HttpPatch]
+        [HttpPost]
         [ProducesResponseType(typeof(ProductModuleGroup), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<ProductModuleGroup>> RemoveCustomerModules(Guid customerId, Guid moduleGroupId)
         {

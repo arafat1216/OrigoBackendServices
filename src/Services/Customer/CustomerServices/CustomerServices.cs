@@ -43,6 +43,11 @@ namespace CustomerServices
             return await _customerRepository.GetProductModuleGroupAsync(moduleGroupId);
         }
 
+        public async Task<IList<ProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId) 
+        {
+            return await _customerRepository.GetCustomerProductModulesAsync(customerId);
+        }
+        
         public async Task<ProductModuleGroup> AddProductModulesAsync(Guid customerId, Guid moduleGroupId)
         {
             var customer = await GetCustomerAsync(customerId);

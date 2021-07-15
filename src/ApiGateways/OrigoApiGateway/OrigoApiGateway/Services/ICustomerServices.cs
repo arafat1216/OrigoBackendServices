@@ -12,6 +12,7 @@ namespace OrigoApiGateway.Services
         Task<IList<OrigoCustomer>> GetCustomersAsync();
         Task<OrigoCustomer> GetCustomerAsync(Guid customerId);
         Task<OrigoCustomer> CreateCustomerAsync(OrigoNewCustomer newCustomer);
+        Task<IList<OrigoProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId);
         Task<OrigoProductModuleGroup> AddProductModulesAsync(Guid customerId, Guid moduleGroupId);
         Task<OrigoProductModuleGroup> RemoveProductModulesAsync(Guid customerId, Guid moduleGroupId);
     }
