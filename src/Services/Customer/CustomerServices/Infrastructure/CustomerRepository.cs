@@ -60,6 +60,12 @@ namespace CustomerServices.Infrastructure
             return await _context.ProductModules.Include(p => p.ProductModuleGroup).ToListAsync();
         }
 
+        public async Task<IList<ProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId)
+        {
+            var customer = await GetCustomerAsync(customerId);
+            return customer.SelectedProductModuleGroups.ToList();
+        }
+
         public async Task<ProductModuleGroup> GetProductModuleGroupAsync(Guid moduleGroupId)
         {
             return await _context.ProductModuleGroups.FirstOrDefaultAsync(p => p.ProductModuleGroupId == moduleGroupId);

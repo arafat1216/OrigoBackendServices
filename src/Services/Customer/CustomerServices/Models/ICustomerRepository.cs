@@ -14,6 +14,7 @@ namespace CustomerServices.Models
         Task<User> GetUserAsync(Guid customerId, Guid userId);
         Task<User> AddUserAsync(User newUser);
         Task<IList<ProductModule>> GetModulesAsync();
+        Task<IList<ProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId);
         Task<ProductModuleGroup> GetProductModuleGroupAsync(Guid moduleGroupId);
     }
 }

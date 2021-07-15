@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using OrigoApiGateway.Models;
+using OrigoApiGateway.Services;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using OrigoApiGateway.Models;
-using OrigoApiGateway.Services;
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
 namespace OrigoApiGateway.Controllers
@@ -78,6 +78,22 @@ namespace OrigoApiGateway.Controllers
                 return CreatedAtAction(nameof(CreateCustomer), new { id = createdCustomer.Id }, createdCustomer);
             }
             catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{customerId:Guid}/modules")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<OrigoProductModuleGroup>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IList<OrigoProductModuleGroup>>> GetCustomerModules(Guid customerId)
+        {
+            try
+            {
+                var productGroups = await CustomerServices.GetCustomerProductModulesAsync(customerId);
+                return productGroups != null ? Ok(productGroups) : NotFound();
+            }
+            catch
             {
                 return BadRequest();
             }
