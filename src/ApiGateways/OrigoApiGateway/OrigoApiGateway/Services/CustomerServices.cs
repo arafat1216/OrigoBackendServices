@@ -161,38 +161,23 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAssetCategoryLifecycleType> UpdateAssetCategoryLifecycleTypeForCustomerAsync(NewAssetCategoryLifecycleType newAssetCategoryLifecycleType)
+        public async Task<OrigoAssetCategoryLifecycleType> RemoveAssetCategoryLifecycleTypeForCustomerAsync(NewAssetCategoryLifecycleType newAssetCategoryLifecycleType)
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{newAssetCategoryLifecycleType.CustomerId}/assetCategoryLifecycleTypes/update", newAssetCategoryLifecycleType);
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{newAssetCategoryLifecycleType.CustomerId}/assetCategoryLifecycleTypes/remove", newAssetCategoryLifecycleType);
                 if (!response.IsSuccessStatusCode)
                 {
-                    Exception exception;
-                    if (response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
-                    {
-                        exception = new InvalidLifecycleTypeException(response.ReasonPhrase);
-                        _logger.LogError(exception, "Invalid lifecycletype given for asset category.");
-                    }
-                    else
-                    {
-                        exception = new BadHttpRequestException("Unable to save asset category lifecycletype configuration", (int)response.StatusCode);
-                    }
-
+                   Exception exception = new BadHttpRequestException("Unable to remove asset category lifecycle type configuration", (int)response.StatusCode);
                     throw exception;
                 }
 
                 var assetCategoryLifecycleType = await response.Content.ReadFromJsonAsync<AssetCategoryLifecycleTypeDTO>();
                 return assetCategoryLifecycleType == null ? null : new OrigoAssetCategoryLifecycleType(assetCategoryLifecycleType);
             }
-            catch (InvalidLifecycleTypeException exception)
-            {
-                _logger.LogError(exception, "UpdateAssetCategoryLifecycleTypeForCustomerAsync invalid lifecycletype");
-                throw;
-            }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "UpdateAssetCategoryLifecycleTypeForCustomerAsync unknown error.");
+                _logger.LogError(exception, "RemoveAssetCategoryLifecycleTypeForCustomerAsync unknown error.");
                 throw;
             }
         }

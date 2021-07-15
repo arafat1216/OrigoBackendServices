@@ -121,29 +121,16 @@ namespace Customer.API.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/assetCategoryLifecycleTypes/update")]
+        [Route("{customerId:Guid}/assetCategoryLifecycleTypes/remove")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.AssetCategoryLifecycleType), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<ViewModels.AssetCategoryLifecycleType>> UpdateAssetCategoryLifecycleType([FromBody] NewAssetCategoryLifecycleType assetCategoryLifecycleType)
+        public async Task<ActionResult<ViewModels.AssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleType([FromBody] NewAssetCategoryLifecycleType assetCategoryLifecycleType)
         {
             try
             {
-                    // Check if given int is within valid range of values
-                    if (!Enum.IsDefined(typeof(LifecycleType), assetCategoryLifecycleType.LifecycleType))
-                    {
-                        Array arr = Enum.GetValues(typeof(LifecycleType));
-                        StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", assetCategoryLifecycleType.LifecycleType));
-                        foreach (LifecycleType e in arr)
-                        {
-                            errorMessage.Append($"    -{(int)e} ({e})\n");
-                        }
-                        throw new InvalidLifecycleTypeException(errorMessage.ToString());
-                    }
-            
-                 var updateAssetCategoryLifecycleType = await _customerServices.UpdateAssetCategoryLifecycleTypeForCustomerAsync(assetCategoryLifecycleType.CustomerId,
+                 var updateAssetCategoryLifecycleType = await _customerServices.RemoveAssetCategoryLifecycleTypeForCustomerAsync(assetCategoryLifecycleType.CustomerId,
                                                                                                                              assetCategoryLifecycleType.AssetCategoryId,
                                                                                                                              assetCategoryLifecycleType.LifecycleType);
-
                 var assetCategoryLifecycleTypeView = new ViewModels.AssetCategoryLifecycleType
                 {
                     CustomerId = updateAssetCategoryLifecycleType.CustomerId,
@@ -153,10 +140,6 @@ namespace Customer.API.Controllers
 
                 return Ok(assetCategoryLifecycleTypeView);
             }   
-            catch (InvalidLifecycleTypeException exception)
-            {
-                return UnprocessableEntity(exception.Message);
-            }
             catch (Exception)
             {
                 return BadRequest();

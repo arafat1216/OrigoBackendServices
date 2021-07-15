@@ -122,25 +122,25 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/AssetCategoryLifecycleType/update")]
+        [Route("{customerId:Guid}/AssetCategoryLifecycleType/remove")]
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoAssetCategoryLifecycleType>> UpdateAssetCategoryLifecycleTypeForCustomer([FromBody] NewAssetCategoryLifecycleType newAssetCategoryLifecycleType)
+        public async Task<ActionResult<OrigoAssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypeForCustomer([FromBody] NewAssetCategoryLifecycleType newAssetCategoryLifecycleType)
         {
             try
             {
-                var updatedAssetCategoryLifecycleType = await CustomerServices.AddAssetCategoryLifecycleTypeForCustomerAsync(newAssetCategoryLifecycleType);
-                if (updatedAssetCategoryLifecycleType == null)
+                var removedAssetCategoryLifecycleType = await CustomerServices.RemoveAssetCategoryLifecycleTypeForCustomerAsync(newAssetCategoryLifecycleType);
+                if (removedAssetCategoryLifecycleType == null)
                 {
-                    return BadRequest();
+                    return NotFound();
                 }
 
-                return Ok(updatedAssetCategoryLifecycleType);
+                return Ok(removedAssetCategoryLifecycleType);
             }
             catch (Exception)
             {
-                return BadRequest();
+                return NotFound();
             }
         }
 

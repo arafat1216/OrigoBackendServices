@@ -60,7 +60,7 @@ namespace CustomerServices
             return await _customerRepository.AddAssetCategoryLifecycleTypeAsync(newAssetCategoryLifecycleType);
         }
 
-        public async Task<AssetCategoryLifecycleType> UpdateAssetCategoryLifecycleTypeForCustomerAsync(Guid customerId, Guid assetCategoryId, int lifecycleType)
+        public async Task<AssetCategoryLifecycleType> RemoveAssetCategoryLifecycleTypeForCustomerAsync(Guid customerId, Guid assetCategoryId, int lifecycleType)
         {
             var assetCategoryLifecycleType = await _customerRepository.GetAssetCategoryLifecycleType(customerId, assetCategoryId);
             if (assetCategoryLifecycleType == null)
@@ -68,8 +68,7 @@ namespace CustomerServices
                 return null;
             }
 
-            assetCategoryLifecycleType.ChangeLifecycleType(lifecycleType);
-            await _customerRepository.SaveChanges();
+            await _customerRepository.RemoveAssetCategoryLifecycleType(assetCategoryLifecycleType);
             return assetCategoryLifecycleType;
         }
 
