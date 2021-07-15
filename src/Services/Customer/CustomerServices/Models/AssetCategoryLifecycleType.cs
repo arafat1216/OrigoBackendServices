@@ -27,5 +27,10 @@ namespace CustomerServices.Models
         }
 
         protected AssetCategoryLifecycleType() { }
+
+        public void ChangeLifecycleType(int lifecycleType)
+        {
+            LifecycleType = lifecycleType;
+        }
     }
 }

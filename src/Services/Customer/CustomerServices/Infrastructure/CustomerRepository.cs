@@ -67,6 +67,11 @@ namespace CustomerServices.Infrastructure
             return newAssetCategoryLifecycleType;
         }
 
+        public async Task<AssetCategoryLifecycleType> GetAssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId)
+        {
+            return await _context.AssetCategoryLifecycleTypes.Where(a => a.CustomerId == customerId && a.AssetCategoryId == assetCategoryId).FirstOrDefaultAsync();
+        }
+
         public async Task<IList<ProductModule>> GetModulesAsync()
         {
             return await _context.ProductModules.Include(p => p.ProductModuleGroup).ToListAsync();

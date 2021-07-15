@@ -122,6 +122,28 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("{customerId:Guid}/AssetCategoryLifecycleType/update")]
+        [HttpPost]
+        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoAssetCategoryLifecycleType>> UpdateAssetCategoryLifecycleTypeForCustomer([FromBody] NewAssetCategoryLifecycleType newAssetCategoryLifecycleType)
+        {
+            try
+            {
+                var updatedAssetCategoryLifecycleType = await CustomerServices.AddAssetCategoryLifecycleTypeForCustomerAsync(newAssetCategoryLifecycleType);
+                if (updatedAssetCategoryLifecycleType == null)
+                {
+                    return BadRequest();
+                }
+
+                return Ok(updatedAssetCategoryLifecycleType);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
         [Route("{customerId:Guid}/modules")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoProductModuleGroup>), (int)HttpStatusCode.OK)]
