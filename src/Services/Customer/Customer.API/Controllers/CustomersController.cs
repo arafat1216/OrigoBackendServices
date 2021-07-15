@@ -76,6 +76,7 @@ namespace Customer.API.Controllers
             return Ok(assetCategoryLifecycleTypes);
         }
 
+        [Route("{customerId:Guid}/assetCategoryLifecycleTypes")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.AssetCategoryLifecycleType), (int)HttpStatusCode.Created)]
         public async Task<ActionResult<ViewModels.AssetCategoryLifecycleType>> CreateAssetCategoryLifecycleType([FromBody] NewAssetCategoryLifecycleType assetCategoryLifecycleType)

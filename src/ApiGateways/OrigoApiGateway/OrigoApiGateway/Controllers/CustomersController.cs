@@ -62,8 +62,9 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("{customerId:Guid}/AssetCategoryLifecycleType/get")]
         [HttpGet]
-        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<IList<OrigoAssetCategoryLifecycleType>>> GetAssetCategoryLifecycleTypesForCustomer(Guid customerId)
         {
@@ -99,6 +100,7 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("{customerId:Guid}/AssetCategoryLifecycleType/add")]
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

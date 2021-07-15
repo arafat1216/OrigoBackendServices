@@ -7,5 +7,8 @@ namespace OrigoApiGateway.Models
 {
     public class NewAssetCategoryLifecycleType
     {
+        public Guid CustomerId { get; set; }
+        public Guid AssetCategoryId { get; set; }
+        public int LifecycleType { get; set; }
     }
 }

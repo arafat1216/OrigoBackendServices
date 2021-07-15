@@ -98,7 +98,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", newAssetCategoryLifecycleType);
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{newAssetCategoryLifecycleType.CustomerId}/assetCategoryLifecycleTypes", newAssetCategoryLifecycleType);
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save asset category lifecycletype configuration", (int) response.StatusCode);
 
@@ -116,7 +116,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var assetCategoryLifecycleTypes = await HttpClient.GetFromJsonAsync<IList<AssetCategoryLifecycleTypeDTO>>($"{_options.ApiPath}/AssetCategoryLifecycleTypes/{customerId}");
+                var assetCategoryLifecycleTypes = await HttpClient.GetFromJsonAsync<IList<AssetCategoryLifecycleTypeDTO>>($"{_options.ApiPath}/{customerId}/AssetCategoryLifecycleTypes");
                 if (assetCategoryLifecycleTypes == null) return null;
                 var origoAssetCategoryLifecycleTypes = new List<OrigoAssetCategoryLifecycleType>();
                 foreach (var assetCategoryLifecycleType in assetCategoryLifecycleTypes) origoAssetCategoryLifecycleTypes.Add(new OrigoAssetCategoryLifecycleType(assetCategoryLifecycleType));
