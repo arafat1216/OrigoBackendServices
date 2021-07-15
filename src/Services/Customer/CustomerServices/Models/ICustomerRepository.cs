@@ -16,6 +16,7 @@ namespace CustomerServices.Models
         Task<IList<AssetCategoryLifecycleType>> GetAllAssetCategoryLifecycleTypesAsync(Guid customerId);
         Task<AssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeAsync(AssetCategoryLifecycleType newAssetCategoryLifecycleType);
         Task<IList<ProductModule>> GetModulesAsync();
+        Task<IList<ProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId);
         Task<ProductModuleGroup> GetProductModuleGroupAsync(Guid moduleGroupId);
     }
 }

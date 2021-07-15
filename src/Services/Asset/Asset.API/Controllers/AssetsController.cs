@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Common.Exceptions;
 using System.Text;
+using Common.Models;
 
 namespace Asset.API.Controllers
 {
@@ -56,7 +57,7 @@ namespace Asset.API.Controllers
 
         [Route("customers/{customerId:guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(PagedAssetList), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(PagedAssetList), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<PagedAssetList>> Get(Guid customerId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
@@ -106,7 +107,7 @@ namespace Asset.API.Controllers
             {
                 var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.SerialNumber,
                     asset.AssetCategoryId, asset.Brand, asset.Model, asset.LifecycleType, asset.PurchaseDate,
-                    asset.AssetHolderId, asset.IsActive, asset.ManagedByDepartmentId);
+                    asset.AssetHolderId, asset.IsActive, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId);
                 var updatedAssetView = new ViewModels.Asset(updatedAsset);
 
                 return CreatedAtAction(nameof(CreateAsset), new { id = updatedAssetView.AssetId }, updatedAssetView);
@@ -116,7 +117,11 @@ namespace Asset.API.Controllers
             {
                 return BadRequest("Unable to find Asset CategoryId");
             }
-            catch (Exception)
+            catch (InvalidAssetDataException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
             {
                 return BadRequest();
             }
@@ -138,6 +143,31 @@ namespace Asset.API.Controllers
 
                 return Ok(new ViewModels.Asset(updatedAsset));
 
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("lifecycles")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<ViewModels.AssetLifecycle>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> GetLifecycles()
+        {
+            try
+            {
+                var lifecycles = await _assetServices.GetLifecycles();
+                if (lifecycles == null)
+                {
+                    return NotFound();
+                }
+                var lifecycleList = new List<ViewModels.AssetLifecycle>();
+                foreach (var lifecycle in lifecycles) lifecycleList.Add(new ViewModels.AssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
+
+                return Ok(lifecycleList);
             }
             catch (Exception)
             {
@@ -230,18 +260,49 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("assets/categories")]
+        [Route("categories")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.AssetCategory), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.AssetCategory>>> GetAssetCategories()
         {
-            var asset = await _assetServices.GetAssetCategoriesAsync();
-            if (asset == null)
+            try
             {
-                return NotFound();
+                var asset = await _assetServices.GetAssetCategoriesAsync();
+                if (asset == null)
+                {
+                    return NotFound();
+                }
+                return Ok(asset);
             }
-            return Ok(asset);
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
+
+        [Route("auditlog/{assetId:Guid}")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<AssetAuditLog>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<AssetAuditLog>>> GetAssetAuditLogMock(Guid assetId)
+         {
+            try
+            {
+                // use asset id to find asset log: Mock example just takes any id and returns dummy data
+                if (assetId == Guid.Empty)
+                {
+                    return NotFound();
+                }
+
+                var assetLogList = await _assetServices.GetAssetAuditLog();
+
+                return Ok(assetLogList);
+            }
+            catch(Exception)
+            {
+                return BadRequest();
+            }
+         }
     }
 }

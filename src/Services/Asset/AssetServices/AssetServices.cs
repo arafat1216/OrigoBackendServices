@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AssetServices.Exceptions;
 using AssetServices.Models;
 using Common.Interfaces;
+using Common.Models;
 using Microsoft.Extensions.Logging;
 
 namespace AssetServices
@@ -43,7 +44,7 @@ namespace AssetServices
         }
 
         public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId, string brand,
-            string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive,
+            string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive, string imei, string macAddress,
             Guid? managedByDepartmentId)
         {
             var assetCategory = await _assetRepository.GetAssetCategoryAsync(assetCategoryId);
@@ -52,9 +53,43 @@ namespace AssetServices
                 throw new AssetCategoryNotFoundException();
             }
 
-            var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory.Id, brand, model,
-                lifecycleType, purchaseDate, assetHolderId, isActive, managedByDepartmentId);
+            var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory, brand, model,
+                lifecycleType, purchaseDate, assetHolderId, isActive,imei, macAddress, managedByDepartmentId);
+
+            if (!newAsset.AssetPropertiesAreValid)
+            {
+                string exceptionMsg = "";
+                foreach (string errorMsg in newAsset.ErrorMsgList)
+                {
+                    if (errorMsg.Contains("Imei"))
+                    {
+                        exceptionMsg += string.Format("Asset {0}", errorMsg) + " is invalid.\n";
+                    }
+                    else
+                    {
+                        exceptionMsg += string.Format("Minimum asset data requirements not set: {0}", errorMsg) + ".\n";
+                    }
+                }
+                throw new InvalidAssetDataException(exceptionMsg);
+            }
             return await _assetRepository.AddAsync(newAsset);
+        }
+
+        public async Task<IList<AssetLifecycle>> GetLifecycles()
+        {
+            Array arr = Enum.GetValues(typeof(LifecycleType));
+            List<AssetLifecycle> assetLifecycles = new List<AssetLifecycle>();
+
+            foreach (LifecycleType e in arr)
+            {
+                assetLifecycles.Add(new AssetLifecycle()
+                {
+                    Name = Enum.GetName(typeof(LifecycleType), e),
+                    EnumValue = (int)e
+                });
+            }
+
+            return assetLifecycles;
         }
 
         public async Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, LifecycleType newLifecycleType)
@@ -64,7 +99,7 @@ namespace AssetServices
             {
                 return null;
             }
-                    
+
             asset.SetLifeCycleType(newLifecycleType);
             await _assetRepository.SaveChanges();
             return asset;
@@ -126,7 +161,88 @@ namespace AssetServices
 
         public async Task<IList<AssetCategory>> GetAssetCategoriesAsync()
         {
-            return await _assetRepository.GetAssetCategoriesAsync();
+            try
+            {
+                return await _assetRepository.GetAssetCategoriesAsync();
+            }
+            catch(Exception exception)
+            {
+                throw new ReadingDataException(exception);
+            }
+        }
+
+        public async Task<IList<AssetAuditLog>> GetAssetAuditLog()
+        {
+            // Get audit / Event log for asset
+            var mockAuditData0 = new AssetAuditLog(DateTime.Now,
+                                                   "Mikael",
+                                                   "Manual Registration",
+                                                   "Procurement",
+                                                   "New",
+                                                   "Registered");
+
+            var mockAuditData1 = new AssetAuditLog(DateTime.Now,
+                                                   "Mikael",
+                                                   "Attribute change - Life Cycle Type: Bring your own device",
+                                                   "Change",
+                                                   "Registered",
+                                                   "Active");
+
+            var mockAuditData2 = new AssetAuditLog(DateTime.Now,
+                                                   "Mikael",
+                                                   "Attribute change - Imei: 12345 12345 12345",
+                                                   "Change",
+                                                   "Active",
+                                                   "Active");
+
+            var mockAuditData3 = new AssetAuditLog(DateTime.Now,
+                                                   "Mikael",
+                                                   "Reassigned to department: Product",
+                                                   "Reassignment",
+                                                   "Active",
+                                                   "Active");
+            var mockAuditData4 = new AssetAuditLog(DateTime.Now,
+                                                   "Mikael",
+                                                   "Reassigned to user: Henrik Tveit",
+                                                   "Reassignment",
+                                                   "Active",
+                                                   "Active");
+
+            var mockAuditData5 = new AssetAuditLog(DateTime.Now,
+                                                   "Mikael",
+                                                   "Attribute change - Tags: Personal",
+                                                   "Change",
+                                                   "Active",
+                                                   "Active");
+
+            var mockAuditData6 = new AssetAuditLog(DateTime.Now,
+                                                   "Mikael",
+                                                   "Sent to repair",
+                                                   "Hardware repair",
+                                                   "Active",
+                                                   "On repair");
+
+            var mockAuditData7 = new AssetAuditLog(DateTime.Now,
+                                                   "Mikael",
+                                                   "Status change",
+                                                   "Hardware repair",
+                                                   "On repair",
+                                                   "Active");
+
+
+            IList<AssetAuditLog> assetLogList = new List<AssetAuditLog>
+            {
+                mockAuditData0,
+                mockAuditData1,
+                mockAuditData2,
+                mockAuditData3,
+                mockAuditData4,
+                mockAuditData5,
+                mockAuditData6,
+                mockAuditData7
+            };
+
+            return assetLogList;
         }
     }
 }

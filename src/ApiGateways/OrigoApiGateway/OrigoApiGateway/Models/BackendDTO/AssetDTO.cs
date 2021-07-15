@@ -47,6 +47,11 @@ namespace OrigoApiGateway.Models.BackendDTO
         public int LifecycleType { get; set; }
 
         /// <summary>
+        /// The name of the lifecycle for this asset.
+        /// </summary>
+        public string LifecycleName { get; set; }
+
+        /// <summary>
         /// The date the asset was purchased.
         /// </summary>
         public DateTime PurchaseDate { get; set; }
@@ -59,12 +64,24 @@ namespace OrigoApiGateway.Models.BackendDTO
         /// <summary>
         /// The department or cost center this asset is assigned to.
         /// </summary>
-        public string ManagedByDepartmentId { get; set; }
+        public Guid? ManagedByDepartmentId { get; set; }
 
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
         public Guid? AssetHolderId { get; set; }
+
+        /// <summary>
+        /// The imei(s) of the asset.
+        /// A comma separated string, where each instance is an imei.
+        /// Applicable to assets with category type Mobile Phones.
+        /// </summary>
+        public string Imei { get; set; }
+
+        /// <summary>
+        /// The mac address of the asset
+        /// </summary>
+        public string MacAddress { get; set; }
 
         public bool IsActive { get; set; }
     }

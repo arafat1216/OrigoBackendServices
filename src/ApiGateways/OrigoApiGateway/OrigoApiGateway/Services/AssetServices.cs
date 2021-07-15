@@ -1,17 +1,18 @@
-﻿using System;
+﻿using Common.Models;
+using Dapr.Client;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using OrigoApiGateway.Exceptions;
+using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.BackendDTO;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Dapr.Client;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using OrigoApiGateway.Models;
-using OrigoApiGateway.Models.BackendDTO;
-using OrigoApiGateway.Exceptions;
 
 namespace OrigoApiGateway.Services
 {
@@ -147,7 +148,8 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/customers/{customerId}", newAsset);
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, newAsset);
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to save asset", (int)response.StatusCode);
@@ -207,6 +209,34 @@ namespace OrigoApiGateway.Services
                 _logger.LogError(exception, "Unable to update asset.");
                 throw;
             }
+        }
+
+        public async Task<IList<OrigoAssetLifecycle>> GetLifecycles()
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/lifecycles";
+                var lifecycles = await HttpClient.GetFromJsonAsync<IList<LifecycleDTO>>(requestUri);
+                if (lifecycles == null) return null;
+                var origoAssets = new List<OrigoAssetLifecycle>();
+                foreach (var lifecycle in lifecycles) origoAssets.Add(new OrigoAssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue }); 
+                return origoAssets;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetLifeCycles failed with HttpRequestException.");
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetLifeCycles failed with content type is not valid.");
+            }
+
+            catch (JsonException exception)
+            {
+                _logger.LogError(exception, "GetLifecycles failed with invalid JSON.");
+            }
+
+            return null;
         }
 
         public async Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, int newLifecycleType)
@@ -286,7 +316,7 @@ namespace OrigoApiGateway.Services
             {
                 var assetCategories =
                       await HttpClient.GetFromJsonAsync<IList<AssetCategoryDTO>>(
-                          $"{_options.ApiPath}/assets/categories");
+                          $"{_options.ApiPath}/categories");
                 if (assetCategories == null) return null;
                 var origoAssetCategories = new List<OrigoAssetCategory>();
                 foreach (var asset in assetCategories) origoAssetCategories.Add(new OrigoAssetCategory(asset));
@@ -305,8 +335,40 @@ namespace OrigoApiGateway.Services
             {
                 _logger.LogError(exception, "GetAssetCategoriesAsync failed with invalid JSON.");
             }
+            catch(Exception exception)
+            {
+                _logger.LogError(exception, "GetAssetCategoriesAsync failed with unknown exception");
+            }
 
             return null;
+        }
+
+        public async Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId)
+        {
+            try
+            {
+                var assetLog =
+               await HttpClient.GetFromJsonAsync<IList<AssetAuditLog>>(
+                   $"{_options.ApiPath}/auditlog/{assetId}");
+
+                return assetLog;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAssetAuditLogMock failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetAssetAuditLogMock failed with content type is not valid.");
+                throw;
+            }
+
+            catch (JsonException exception)
+            {
+                _logger.LogError(exception, "GetAssetAuditLogMock failed with invalid JSON.");
+                throw;
+            }
         }
     }
 }

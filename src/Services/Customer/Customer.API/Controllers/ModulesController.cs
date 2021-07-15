@@ -37,7 +37,12 @@ namespace Customer.API.Controllers
                 modulesList.AddRange(modules.Select(module => new ProductModule
                 {
                     Name = module.Name,
-                    ProductModuleGroup = module.ProductModuleGroup.Select(moduleGroup => new ProductModuleGroup { Name = moduleGroup.Name }).ToList()
+                    ProductModuleGroup = module.ProductModuleGroup.Select(moduleGroup => new ProductModuleGroup 
+                    { 
+                        Name = moduleGroup.Name,
+                        ProductModuleGroupId = moduleGroup.ProductModuleGroupId
+                    }).ToList(),
+                    ProductModuleId = module.ProductModuleId
                 }));
 
             return Ok(modulesList);

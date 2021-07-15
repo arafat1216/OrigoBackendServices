@@ -38,12 +38,16 @@ namespace OrigoApiGateway.Models
         /// <summary>
         /// The department or cost center this asset is assigned to.
         /// </summary>
-        public Guid ManagedByDepartmentId { get; set; }
+        public Guid? ManagedByDepartmentId { get; set; }
 
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
         public Guid? AssetHolderId { get; set; }
+
+        public string Imei { get; set; }
+
+        public string MacAddress { get; set; }
 
         public bool IsActive { get; set; }
 

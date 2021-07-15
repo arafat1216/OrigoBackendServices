@@ -17,6 +17,7 @@ namespace OrigoApiGateway.Models
             Brand = asset.Brand;
             Model = asset.Model;
             LifecycleType = asset.LifecycleType;
+            LifeCycleName = asset.LifecycleName;
             PurchaseDate = asset.PurchaseDate;
             CreatedDate = asset.CreatedDate;
             ManagedByDepartmentId = asset.ManagedByDepartmentId;
@@ -66,6 +67,11 @@ namespace OrigoApiGateway.Models
         public int LifecycleType { get; protected set; }
 
         /// <summary>
+        /// The name of the lifecycle for this asset.
+        /// </summary>
+        public string LifeCycleName { get; protected set; }
+
+        /// <summary>
         /// The date the asset was purchased.
         /// </summary>
         public DateTime PurchaseDate { get; protected set; }
@@ -78,12 +84,22 @@ namespace OrigoApiGateway.Models
         /// <summary>
         /// The department or cost center this asset is assigned to.
         /// </summary>
-        public string ManagedByDepartmentId { get; protected set; }
+        public Guid? ManagedByDepartmentId { get; protected set; }
 
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
         public Guid? AssetHolderId { get; protected set; }
+
+        /// <summary>
+        /// The imei of the device. Applicable to devices with category Mobile device.
+        /// </summary>
+        public string Imei { get; protected set; }
+
+        /// <summary>
+        /// The mac address of the device.
+        /// </summary>
+        public string MacAddress { get; protected set; }
 
         public bool IsActive { get; set; }
 

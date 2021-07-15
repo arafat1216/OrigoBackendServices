@@ -1,6 +1,7 @@
 using CustomerServices;
 using CustomerServices.Infrastructure;
 using CustomerServices.Models;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -43,6 +44,7 @@ namespace Customer.API
             services.AddScoped<IUserServices, UserServices>();
             services.AddScoped<IModuleServices, ModuleServices>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddMediatR(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

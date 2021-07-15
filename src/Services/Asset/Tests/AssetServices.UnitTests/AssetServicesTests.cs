@@ -1,4 +1,5 @@
 using System;
+using AssetServices.Exceptions;
 using AssetServices.Infrastructure;
 using AssetServices.Models;
 using Microsoft.EntityFrameworkCore;
@@ -58,7 +59,7 @@ namespace AssetServices.UnitTests
 
             // Act
             var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "4543534535344", ASSET_CATEGORY_ID,
-                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), ASSETHOLDER_ONE_ID, true,
+                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), ASSETHOLDER_ONE_ID, true, "014239898330525", "5e:c4:33:df:61:70",
                 Guid.NewGuid());
             var newAssetRead = await assetService.GetAssetForCustomerAsync(COMPANY_ID, newAsset.AssetId);
 
@@ -77,11 +78,17 @@ namespace AssetServices.UnitTests
 
             // Act
             var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "4543534535344", ASSET_CATEGORY_ID,
-                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, null);
+                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "993100473611389", "a3:21:99:5d:a7:a0", null);
             var newAssetRead = await assetService.GetAssetForCustomerAsync(COMPANY_ID, newAsset.AssetId);
 
             // Assert
             Assert.NotNull(newAssetRead);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void CreateAsset_ValidateAssetCategoryData()
+        {
         }
     }
 }

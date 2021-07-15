@@ -24,7 +24,9 @@ namespace Asset.API.ViewModels
             LifecycleType = asset.LifecycleType;
             PurchaseDate = asset.PurchaseDate;
             CreatedDate = asset.CreatedDate;
-            ManagedByDepartmentId = asset.ManagedByDepartmentId.HasValue ? asset.ManagedByDepartmentId.Value.ToString() : string.Empty;
+            ManagedByDepartmentId = asset.ManagedByDepartmentId;
+            Imei = asset.Imei;
+            MacAddress = asset.MacAddress;
             AssetHolderId = asset.AssetHolderId;
             IsActive = asset.IsActive;
         }
@@ -71,6 +73,17 @@ namespace Asset.API.ViewModels
         public LifecycleType LifecycleType { get; protected set; }
 
         /// <summary>
+        /// The name of the lifecycle for this asset.
+        /// </summary>
+        public string LifecycleName
+        { 
+            get
+            {
+                return LifecycleType.GetName<LifecycleType>(LifecycleType);
+            }
+        }
+
+        /// <summary>
         /// The date the asset was purchased.
         /// </summary>
         public DateTime PurchaseDate { get; protected set; }
@@ -83,12 +96,22 @@ namespace Asset.API.ViewModels
         /// <summary>
         /// The department or cost center this asset is assigned to.
         /// </summary>
-        public string ManagedByDepartmentId { get; protected set; }
+        public Guid? ManagedByDepartmentId { get; protected set; }
 
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
         public Guid? AssetHolderId { get; protected set; }
+
+        /// <summary>
+        /// The imei of the asset. Applicable to assets with category Mobile phone.
+        /// </summary>
+        public string Imei { get; protected set; }
+
+        /// <summary>
+        /// The mac address of the asset
+        /// </summary>
+        public string MacAddress { get; protected set; }
 
         public bool IsActive { get; set; }
     }

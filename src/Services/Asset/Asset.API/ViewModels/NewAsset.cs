@@ -31,6 +31,7 @@ namespace Asset.API.ViewModels
         /// </summary>
         public LifecycleType LifecycleType { get; set; }
 
+
         /// <summary>
         /// The date the asset was purchased.
         /// </summary>
@@ -39,12 +40,22 @@ namespace Asset.API.ViewModels
         /// <summary>
         /// The department or cost center this asset is assigned to.
         /// </summary>
-        public Guid ManagedByDepartmentId { get; set; }
+        public Guid? ManagedByDepartmentId { get; set; }
 
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
-        public Guid AssetHolderId { get; set; }
+        public Guid? AssetHolderId { get; set; }
+
+        /// <summary>
+        /// The imei of the asset. Applicable to assets with category Mobile Phone
+        /// </summary>
+        public string Imei { get; set; }
+
+        /// <summary>
+        /// The mac address of the asset.
+        /// </summary>
+        public string MacAddress { get; set; }
 
         public bool IsActive { get; set; }
 
