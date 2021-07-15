@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AssetServices.Exceptions;
 using AssetServices.Models;
+using Common.Enums;
 using Common.Interfaces;
 using Common.Models;
 using Microsoft.Extensions.Logging;

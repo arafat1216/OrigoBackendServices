@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AssetServices.Models;
+using Common.Enums;
 using Common.Interfaces;
 using Common.Models;
 

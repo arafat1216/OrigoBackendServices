@@ -1,6 +1,7 @@
 using System;
 using AssetServices.Infrastructure;
 using AssetServices.Models;
+using Common.Enums;
 using Microsoft.EntityFrameworkCore;
 
 // ReSharper disable InconsistentNaming

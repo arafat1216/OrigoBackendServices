@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
 using AssetServices.Infrastructure;
 using System.Threading.Tasks;
+using Common.Enums;
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
 
