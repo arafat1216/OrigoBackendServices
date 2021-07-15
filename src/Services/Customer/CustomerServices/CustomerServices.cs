@@ -42,6 +42,35 @@ namespace CustomerServices
         {
             return await _customerRepository.GetProductModuleGroupAsync(moduleGroupId);
         }
+        public async Task<IList<AssetCategoryLifecycleType>> GetAllAssetCategoryLifecycleTypesForCustomerAsync(Guid customerId)
+        {
+            return await _customerRepository.GetAllAssetCategoryLifecycleTypesAsync(customerId);
+        }
+
+        public async Task<AssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeForCustomerAsync(Guid customerId, Guid assetCategoryId, int lifecycleType)
+        {
+            var customer = await _customerRepository.GetCustomerAsync(customerId);
+            if (customer == null)
+            {
+                return null;
+            }
+
+            var newAssetCategoryLifecycleType = new AssetCategoryLifecycleType(customerId, assetCategoryId, lifecycleType);
+
+            return await _customerRepository.AddAssetCategoryLifecycleTypeAsync(newAssetCategoryLifecycleType);
+        }
+
+        public async Task<AssetCategoryLifecycleType> RemoveAssetCategoryLifecycleTypeForCustomerAsync(Guid customerId, Guid assetCategoryId, int lifecycleType)
+        {
+            var assetCategoryLifecycleType = await _customerRepository.GetAssetCategoryLifecycleType(customerId, assetCategoryId);
+            if (assetCategoryLifecycleType == null)
+            {
+                return null;
+            }
+
+            await _customerRepository.RemoveAssetCategoryLifecycleType(assetCategoryLifecycleType);
+            return assetCategoryLifecycleType;
+        }
 
         public async Task<IList<ProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId) 
         {

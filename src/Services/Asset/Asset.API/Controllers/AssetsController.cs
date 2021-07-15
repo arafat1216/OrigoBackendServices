@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Common.Exceptions;
 using System.Text;
 using Common.Models;
+using Common.Enums;
 
 namespace Asset.API.Controllers
 {

@@ -15,6 +15,8 @@ namespace CustomerServices.Infrastructure
 
         public DbSet<User> Users { get; set; }
 
+        public DbSet<AssetCategoryLifecycleType> AssetCategoryLifecycleTypes { get; set; }
+
         public DbSet<ProductModule> ProductModules { get; set; }
 
         public CustomerContext(DbContextOptions<CustomerContext> options, IMediator mediator) : base(options)
@@ -31,6 +33,7 @@ namespace CustomerServices.Infrastructure
         {
             modelBuilder.Entity<Customer>().ToTable("Customer");
             modelBuilder.Entity<User>().ToTable("User");
+            modelBuilder.Entity<AssetCategoryLifecycleType>().ToTable("AssetCategoryLifecycleType");
             modelBuilder.Entity<Customer>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<User>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<ProductModule>().ToTable("ProductModule");

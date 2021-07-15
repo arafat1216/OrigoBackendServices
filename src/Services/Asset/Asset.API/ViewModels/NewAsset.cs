@@ -1,5 +1,6 @@
 ﻿using System;
 using AssetServices.Models;
+using Common.Enums;
 
 namespace Asset.API.ViewModels
 {

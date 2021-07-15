@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
+using Common.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -121,6 +122,89 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "GetCustomerProductModulesAsync unknown error.");
+                throw;
+            }
+        }
+        public async Task<OrigoAssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeForCustomerAsync(NewAssetCategoryLifecycleType newAssetCategoryLifecycleType)
+        {
+            try
+            {
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{newAssetCategoryLifecycleType.CustomerId}/assetCategoryLifecycleTypes/add", newAssetCategoryLifecycleType);
+                if (!response.IsSuccessStatusCode)
+                {
+                    Exception exception;
+                    if (response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+                    {
+                        exception = new InvalidLifecycleTypeException(response.ReasonPhrase);
+                        _logger.LogError(exception, "Invalid lifecycletype given for asset.");
+                    }
+                    else
+                    {
+                        exception = new BadHttpRequestException("Unable to save asset category lifecycletype configuration", (int)response.StatusCode);
+                    }
+
+                    throw exception;
+                }
+
+                var assetCategoryLifecycleType = await response.Content.ReadFromJsonAsync<AssetCategoryLifecycleTypeDTO>();
+                return assetCategoryLifecycleType == null ? null : new OrigoAssetCategoryLifecycleType(assetCategoryLifecycleType);
+            }
+            catch (InvalidLifecycleTypeException exception)
+            {
+                _logger.LogError(exception, "AddAssetCategoryLifecycleTypeForCustomerAsync invalid lifecycletype");
+                throw;
+            }
+            catch(Exception exception)
+            {
+                _logger.LogError(exception, "AddAssetCategoryLifecycleTypeForCustomerAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoAssetCategoryLifecycleType> RemoveAssetCategoryLifecycleTypeForCustomerAsync(NewAssetCategoryLifecycleType newAssetCategoryLifecycleType)
+        {
+            try
+            {
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{newAssetCategoryLifecycleType.CustomerId}/assetCategoryLifecycleTypes/remove", newAssetCategoryLifecycleType);
+                if (!response.IsSuccessStatusCode)
+                {
+                   Exception exception = new BadHttpRequestException("Unable to remove asset category lifecycle type configuration", (int)response.StatusCode);
+                    throw exception;
+                }
+
+                var assetCategoryLifecycleType = await response.Content.ReadFromJsonAsync<AssetCategoryLifecycleTypeDTO>();
+                return assetCategoryLifecycleType == null ? null : new OrigoAssetCategoryLifecycleType(assetCategoryLifecycleType);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "RemoveAssetCategoryLifecycleTypeForCustomerAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<IList<OrigoAssetCategoryLifecycleType>> GetAssetCategoryLifecycleTypesForCustomerAsync(Guid customerId)
+        {
+            try
+            {
+                var assetCategoryLifecycleTypes = await HttpClient.GetFromJsonAsync<IList<AssetCategoryLifecycleTypeDTO>>($"{_options.ApiPath}/{customerId}/AssetCategoryLifecycleTypes");
+                if (assetCategoryLifecycleTypes == null) return null;
+                var origoAssetCategoryLifecycleTypes = new List<OrigoAssetCategoryLifecycleType>();
+                foreach (var assetCategoryLifecycleType in assetCategoryLifecycleTypes) origoAssetCategoryLifecycleTypes.Add(new OrigoAssetCategoryLifecycleType(assetCategoryLifecycleType));
+                return origoAssetCategoryLifecycleTypes;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAssetCategoryLifecycleTypesForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetAssetCategoryLifecycleTypesForCustomerAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetAssetCategoryLifecycleTypesForCustomerAsync unknown error.");
                 throw;
             }
         }

@@ -2,6 +2,7 @@ using System;
 using AssetServices.Exceptions;
 using AssetServices.Infrastructure;
 using AssetServices.Models;
+using Common.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
