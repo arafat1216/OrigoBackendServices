@@ -23,12 +23,20 @@ namespace Common.Models
             LifecycleStatusBefore = lifecycleStatusBefore;
             LifecycleStatusAfter = lifecycleStatusAfter;
         }
+
+        /// <summary>
+        /// External Id of this AssetAuditLog
+        /// </summary>
         public Guid AssetAuditLogId { get; set; }
 
         /// <summary>
         /// External Id of the Asset this AssetAuditLog pertains to.
         /// </summary>
         public Guid AssetId { get; set; }
+
+        /// <summary>
+        /// The date the change on the asset occured.
+        /// </summary>
         public DateTime CreatedDate { get; set; }
 
         /// <summary>
