@@ -174,56 +174,73 @@ namespace AssetServices
 
         public async Task<IList<AssetAuditLog>> GetAssetAuditLog()
         {
+            Guid assetId = Guid.NewGuid();
             // Get audit / Event log for asset
-            var mockAuditData0 = new AssetAuditLog(DateTime.Now,
+            var mockAuditData0 = new AssetAuditLog(Guid.NewGuid(),
+                                                    assetId,
+                                                    DateTime.Now,
                                                    "Mikael",
                                                    "Manual Registration",
                                                    "Procurement",
                                                    "New",
                                                    "Registered");
 
-            var mockAuditData1 = new AssetAuditLog(DateTime.Now,
+            var mockAuditData1 = new AssetAuditLog(Guid.NewGuid(),
+                                                    assetId, 
+                                                    DateTime.Now,
                                                    "Mikael",
                                                    "Attribute change - Life Cycle Type: Bring your own device",
                                                    "Change",
                                                    "Registered",
                                                    "Active");
 
-            var mockAuditData2 = new AssetAuditLog(DateTime.Now,
+            var mockAuditData2 = new AssetAuditLog(Guid.NewGuid(),
+                                                    assetId, 
+                                                    DateTime.Now,
                                                    "Mikael",
                                                    "Attribute change - Imei: 12345 12345 12345",
                                                    "Change",
                                                    "Active",
                                                    "Active");
 
-            var mockAuditData3 = new AssetAuditLog(DateTime.Now,
+            var mockAuditData3 = new AssetAuditLog(Guid.NewGuid(),
+                                                    assetId, 
+                                                    DateTime.Now,
                                                    "Mikael",
                                                    "Reassigned to department: Product",
                                                    "Reassignment",
                                                    "Active",
                                                    "Active");
-            var mockAuditData4 = new AssetAuditLog(DateTime.Now,
+            var mockAuditData4 = new AssetAuditLog(Guid.NewGuid(),
+                                                    assetId, 
+                                                    DateTime.Now,
                                                    "Mikael",
                                                    "Reassigned to user: Henrik Tveit",
                                                    "Reassignment",
                                                    "Active",
                                                    "Active");
 
-            var mockAuditData5 = new AssetAuditLog(DateTime.Now,
+            var mockAuditData5 = new AssetAuditLog(Guid.NewGuid(),
+                                                    assetId, 
+                                                    DateTime.Now,
                                                    "Mikael",
                                                    "Attribute change - Tags: Personal",
                                                    "Change",
                                                    "Active",
                                                    "Active");
 
-            var mockAuditData6 = new AssetAuditLog(DateTime.Now,
+            var mockAuditData6 = new AssetAuditLog(Guid.NewGuid(),
+                                                    assetId, 
+                                                    DateTime.Now,
                                                    "Mikael",
                                                    "Sent to repair",
                                                    "Hardware repair",
                                                    "Active",
                                                    "On repair");
 
-            var mockAuditData7 = new AssetAuditLog(DateTime.Now,
+            var mockAuditData7 = new AssetAuditLog(Guid.NewGuid(),
+                                                    assetId, 
+                                                    DateTime.Now,
                                                    "Mikael",
                                                    "Status change",
                                                    "Hardware repair",
