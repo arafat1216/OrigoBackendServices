@@ -14,30 +14,42 @@ namespace OrigoApiGateway.Services
     public class ModuleServices : IModuleServices
     {
         public ModuleServices(ILogger<ModuleServices> logger, HttpClient httpClient,
-           IOptions<ModuleConfiguration> options)
+           IOptions<ModuleConfiguration> options, ICustomerServices customerServices)
         {
             _logger = logger;
             HttpClient = httpClient;
             _options = options.Value;
+            _customerServices = customerServices;
         }
 
         private readonly ILogger<ModuleServices> _logger;
         private HttpClient HttpClient { get; }
         private readonly ModuleConfiguration _options;
+        private readonly ICustomerServices _customerServices;
 
-        public async Task<IList<OrigoProductModule>> GetModulesAsync()
+        public async Task<IList<OrigoProductModule>> GetModulesAsync(Guid? customerId)
         {
             try
             {
                 var modules = await HttpClient.GetFromJsonAsync<IList<ModuleDTO>>($"{_options.ApiPath}");
                 if (modules == null) return null;
                 var moduleList = new List<OrigoProductModule>();
-                moduleList.AddRange(modules.Select(module => new OrigoProductModule
+                IList<OrigoProductModuleGroup> activeModules = new List<OrigoProductModuleGroup>();
+                if (customerId != null)
                 {
-                    ProductModuleId = module.ProductModuleId,
-                    Name = module.Name,
-                    ProductModuleGroup = module.ProductModuleGroup.Select(moduleGroup => new OrigoProductModuleGroup(moduleGroup)).ToList()
-                }));
+                    activeModules = await _customerServices.GetCustomerProductModulesAsync(customerId.Value);
+                }
+                foreach (var module in modules)
+                {
+                    OrigoProductModule origoProduct = new OrigoProductModule()
+                    {
+                        ProductModuleId = module.ProductModuleId,
+                        Name = module.Name,
+                        ProductModuleGroup = module.ProductModuleGroup.Select(moduleGroup => new OrigoProductModuleGroup(moduleGroup, activeModules)).ToList()
+                    };
+                    origoProduct.IsChecked = origoProduct?.ProductModuleGroup?.FirstOrDefault(p => p.IsChecked) != null;
+                    moduleList.Add(origoProduct);
+                }
                 return moduleList;
             }
             catch (HttpRequestException exception)

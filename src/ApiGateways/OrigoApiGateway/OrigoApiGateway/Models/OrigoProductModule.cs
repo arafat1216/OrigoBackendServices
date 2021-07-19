@@ -12,6 +12,13 @@ namespace OrigoApiGateway.Models
 
         public string Name { get; set; }
 
+        /// <summary>
+        /// When using the GetModules endpoint in the ModuleController and a customer id is provided, 
+        /// this bool will indicate if the module should be checked or not.
+        /// For other endpoints this will be set to false regardless.
+        /// </summary>
+        public bool IsChecked { get; set; }
+
         public IList<OrigoProductModuleGroup> ProductModuleGroup { get; set; }
     }
 }
