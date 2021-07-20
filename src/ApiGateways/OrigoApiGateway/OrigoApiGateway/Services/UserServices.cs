@@ -88,7 +88,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "GetCustomersAsync unknown error.");
+                _logger.LogError(exception, "AddUserForCustomerAsync unknown error.");
                 throw;
             }
         }

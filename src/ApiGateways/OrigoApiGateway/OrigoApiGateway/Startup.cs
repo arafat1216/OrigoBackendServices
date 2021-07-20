@@ -45,7 +45,7 @@ namespace OrigoApiGateway
             });
 
             services.AddHealthChecks()
-                .AddCheck("self", () => HealthCheckResult.Healthy("Gateway is ok"), tags: new[]{"Origo API Gateway"});
+                .AddCheck("self", () => HealthCheckResult.Healthy("Gateway is ok"), tags: new[] { "Origo API Gateway" });
 
             services.AddHealthChecksUI().AddInMemoryStorage();
 
@@ -84,7 +84,10 @@ namespace OrigoApiGateway
 
             services.AddSingleton<IModuleServices>(x => new ModuleServices(x.GetRequiredService<ILogger<ModuleServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<ModuleConfiguration>>()));
+                x.GetRequiredService<IOptions<ModuleConfiguration>>(),
+                new CustomerServices(x.GetRequiredService<ILogger<CustomerServices>>(),
+                DaprClient.CreateInvokeHttpClient("customerservices"),
+                x.GetRequiredService<IOptions<CustomerConfiguration>>())));
 
             services.AddSwaggerGen(c =>
             {
