@@ -189,7 +189,7 @@ namespace OrigoApiGateway.Controllers
         }
 
         [Route("lifecycles")]
-        [HttpPost]
+        [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoAssetLifecycle>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

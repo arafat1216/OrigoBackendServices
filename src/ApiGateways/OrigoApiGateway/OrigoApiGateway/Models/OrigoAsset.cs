@@ -18,6 +18,8 @@ namespace OrigoApiGateway.Models
             Model = asset.Model;
             LifecycleType = asset.LifecycleType;
             LifeCycleName = asset.LifecycleName;
+            Imei = asset.Imei;
+            MacAddress = asset.MacAddress;
             PurchaseDate = asset.PurchaseDate;
             CreatedDate = asset.CreatedDate;
             ManagedByDepartmentId = asset.ManagedByDepartmentId;

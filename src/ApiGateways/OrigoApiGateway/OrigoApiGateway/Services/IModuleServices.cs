@@ -8,6 +8,6 @@ namespace OrigoApiGateway.Services
 {
     public interface IModuleServices
     {
-        Task<IList<OrigoProductModule>> GetModulesAsync();
+        Task<IList<OrigoProductModule>> GetModulesAsync(Guid? customerId);
     }
 }
