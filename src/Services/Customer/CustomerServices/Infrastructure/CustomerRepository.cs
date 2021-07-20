@@ -56,8 +56,13 @@ namespace CustomerServices.Infrastructure
         }
         public async Task<IList<AssetCategoryLifecycleType>> GetAllAssetCategoryLifecycleTypesAsync(Guid customerId)
         {
-            return await _context.AssetCategoryLifecycleTypes.Where(c => c.CustomerId == customerId)
-                .ToListAsync();
+            var customer = await GetCustomerAsync(customerId);
+            return customer.SelectedAssetCategoryLifecycles.ToList();
+        }
+
+        public async Task<AssetCategoryLifecycleType> GetAssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId)
+        {
+            return await _context.AssetCategoryLifecycleTypes.Where(a => a.AssetCategoryLifecycleId == assetCategoryId).FirstOrDefaultAsync();
         }
 
         public async Task<AssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeAsync(AssetCategoryLifecycleType newAssetCategoryLifecycleType)
@@ -67,16 +72,26 @@ namespace CustomerServices.Infrastructure
             return newAssetCategoryLifecycleType;
         }
 
-        public async Task<AssetCategoryLifecycleType> GetAssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId)
-        {
-            return await _context.AssetCategoryLifecycleTypes.Where(a => a.CustomerId == customerId && a.AssetCategoryId == assetCategoryId).FirstOrDefaultAsync();
-        }
-
         public async Task RemoveAssetCategoryLifecycleType(AssetCategoryLifecycleType deleteAssetCategoryLifecycleType)
         {
             _context.AssetCategoryLifecycleTypes.Remove(deleteAssetCategoryLifecycleType);
             await _context.SaveChangesAsync();
-            return;
+        }
+
+        public async Task<IList<AssetCategoryType>> GetAssetCategoriesAsync()
+        {
+            return await _context.AssetCategoryTypes.Include(p => p.LifecycleTypes).ToListAsync();
+        }
+
+        public async Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId)
+        {
+            var customer = await GetCustomerAsync(customerId);
+            return customer.SelectedAssetCategories.ToList();
+        }
+
+        public async Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid assetCategoryId)
+        {
+            return await _context.AssetCategoryTypes.FirstOrDefaultAsync(p => p.AssetCategoryId == assetCategoryId);
         }
 
         public async Task<IList<ProductModule>> GetModulesAsync()

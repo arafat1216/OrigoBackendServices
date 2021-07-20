@@ -97,34 +97,34 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-
-        public async Task<IList<OrigoProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId)
+        
+        public async Task<IList<OrigoAssetCategoryLifecycleType>> GetAssetCategoryLifecycleTypesForCustomerAsync(Guid customerId)
         {
             try
             {
-                var customerModules = await HttpClient.GetFromJsonAsync<IList<ModuleGroupDTO>>($"{_options.ApiPath}/{customerId}/modules");
-                var customerModulesList = new List<OrigoProductModuleGroup>();
-
-                if (customerModules == null) return null;
-                customerModulesList.AddRange(customerModules.Select(module => new OrigoProductModuleGroup(module)));
-                return customerModulesList;
+                var assetCategoryLifecycleTypes = await HttpClient.GetFromJsonAsync<IList<AssetCategoryLifecycleTypeDTO>>($"{_options.ApiPath}/{customerId}/AssetCategoryLifecycleTypes");
+                if (assetCategoryLifecycleTypes == null) return null;
+                var origoAssetCategoryLifecycleTypes = new List<OrigoAssetCategoryLifecycleType>();
+                foreach (var assetCategoryLifecycleType in assetCategoryLifecycleTypes) origoAssetCategoryLifecycleTypes.Add(new OrigoAssetCategoryLifecycleType(assetCategoryLifecycleType));
+                return origoAssetCategoryLifecycleTypes;
             }
             catch (HttpRequestException exception)
             {
-                _logger.LogError(exception, "GetCustomerProductModulesAsync failed with HttpRequestException.");
+                _logger.LogError(exception, "GetAssetCategoryLifecycleTypesForCustomerAsync failed with HttpRequestException.");
                 throw;
             }
             catch (NotSupportedException exception)
             {
-                _logger.LogError(exception, "GetCustomerProductModulesAsync failed with content type is not valid.");
+                _logger.LogError(exception, "GetAssetCategoryLifecycleTypesForCustomerAsync failed with content type is not valid.");
                 throw;
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "GetCustomerProductModulesAsync unknown error.");
+                _logger.LogError(exception, "GetAssetCategoryLifecycleTypesForCustomerAsync unknown error.");
                 throw;
             }
         }
+
         public async Task<OrigoAssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeForCustomerAsync(NewAssetCategoryLifecycleType newAssetCategoryLifecycleType)
         {
             try
@@ -154,7 +154,7 @@ namespace OrigoApiGateway.Services
                 _logger.LogError(exception, "AddAssetCategoryLifecycleTypeForCustomerAsync invalid lifecycletype");
                 throw;
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 _logger.LogError(exception, "AddAssetCategoryLifecycleTypeForCustomerAsync unknown error.");
                 throw;
@@ -168,7 +168,7 @@ namespace OrigoApiGateway.Services
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{newAssetCategoryLifecycleType.CustomerId}/assetCategoryLifecycleTypes/remove", newAssetCategoryLifecycleType);
                 if (!response.IsSuccessStatusCode)
                 {
-                   Exception exception = new BadHttpRequestException("Unable to remove asset category lifecycle type configuration", (int)response.StatusCode);
+                    Exception exception = new BadHttpRequestException("Unable to remove asset category lifecycle type configuration", (int)response.StatusCode);
                     throw exception;
                 }
 
@@ -182,29 +182,30 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<OrigoAssetCategoryLifecycleType>> GetAssetCategoryLifecycleTypesForCustomerAsync(Guid customerId)
+        public async Task<IList<OrigoProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId)
         {
             try
             {
-                var assetCategoryLifecycleTypes = await HttpClient.GetFromJsonAsync<IList<AssetCategoryLifecycleTypeDTO>>($"{_options.ApiPath}/{customerId}/AssetCategoryLifecycleTypes");
-                if (assetCategoryLifecycleTypes == null) return null;
-                var origoAssetCategoryLifecycleTypes = new List<OrigoAssetCategoryLifecycleType>();
-                foreach (var assetCategoryLifecycleType in assetCategoryLifecycleTypes) origoAssetCategoryLifecycleTypes.Add(new OrigoAssetCategoryLifecycleType(assetCategoryLifecycleType));
-                return origoAssetCategoryLifecycleTypes;
+                var customerModules = await HttpClient.GetFromJsonAsync<IList<ModuleGroupDTO>>($"{_options.ApiPath}/{customerId}/modules");
+                var customerModulesList = new List<OrigoProductModuleGroup>();
+
+                if (customerModules == null) return null;
+                customerModulesList.AddRange(customerModules.Select(module => new OrigoProductModuleGroup(module)));
+                return customerModulesList;
             }
             catch (HttpRequestException exception)
             {
-                _logger.LogError(exception, "GetAssetCategoryLifecycleTypesForCustomerAsync failed with HttpRequestException.");
+                _logger.LogError(exception, "GetCustomerProductModulesAsync failed with HttpRequestException.");
                 throw;
             }
             catch (NotSupportedException exception)
             {
-                _logger.LogError(exception, "GetAssetCategoryLifecycleTypesForCustomerAsync failed with content type is not valid.");
+                _logger.LogError(exception, "GetCustomerProductModulesAsync failed with content type is not valid.");
                 throw;
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "GetAssetCategoryLifecycleTypesForCustomerAsync unknown error.");
+                _logger.LogError(exception, "GetCustomerProductModulesAsync unknown error.");
                 throw;
             }
         }

@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 
 namespace Customer.API.ViewModels
 {
-    public class AssetCategoryLifecycleType
+    public class AssetCategoryType
     {
         public Guid AssetCategoryId { get; set; }
-        public string LifecycleType { get; set; }
+
+        public string Name { get; set; }
+
+        public IList<AssetCategoryLifecycleType> LifecycleTypes { get; set; }
     }
 }

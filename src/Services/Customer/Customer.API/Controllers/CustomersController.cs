@@ -68,6 +68,30 @@ namespace Customer.API.Controllers
             return Ok(customerList);
         }
 
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Customer), (int)HttpStatusCode.Created)]
+        public async Task<ActionResult<ViewModels.Customer>> CreateCustomer([FromBody] NewCustomer customer)
+        {
+            var companyAddress = new CustomerServices.Models.Address(customer.CompanyAddress.Street,
+                customer.CompanyAddress.PostCode, customer.CompanyAddress.City, customer.CompanyAddress.Country);
+            var contactPerson = new CustomerServices.Models.ContactPerson(customer.CustomerContactPerson.FullName,
+                customer.CustomerContactPerson.Email, customer.CustomerContactPerson.PhoneNumber);
+            var newCustomer = new CustomerServices.Models.Customer(Guid.NewGuid(), customer.CompanyName,
+                customer.OrgNumber, companyAddress, contactPerson);
+
+            var updatedCustomer = await _customerServices.AddCustomerAsync(newCustomer);
+            var updatedCustomerView = new ViewModels.Customer
+            {
+                Id = updatedCustomer.CustomerId,
+                CompanyName = updatedCustomer.CompanyName,
+                OrgNumber = updatedCustomer.OrgNumber,
+                CompanyAddress = new Address(updatedCustomer.CompanyAddress),
+                CustomerContactPerson = new ContactPerson(updatedCustomer.CustomerContactPerson)
+            };
+
+            return CreatedAtAction(nameof(CreateCustomer), new { id = updatedCustomerView.Id }, updatedCustomerView);
+        }
+
         [Route("{customerId:Guid}/assetCategoryLifecycleTypes")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ViewModels.AssetCategoryLifecycleType>), (int)HttpStatusCode.OK)]
@@ -87,16 +111,7 @@ namespace Customer.API.Controllers
             try
             {
             // Check if given int is within valid range of values
-            if (!Enum.IsDefined(typeof(LifecycleType), assetCategoryLifecycleType.LifecycleType))
-            {
-                Array arr = Enum.GetValues(typeof(LifecycleType));
-                StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", assetCategoryLifecycleType.LifecycleType));
-                foreach (LifecycleType e in arr)
-                {
-                    errorMessage.Append($"    -{(int)e} ({e})\n");
-                }
-                throw new InvalidLifecycleTypeException(errorMessage.ToString());
-            }
+          
 
             var newAssetCategoryLifecycleType = await _customerServices.AddAssetCategoryLifecycleTypeForCustomerAsync(assetCategoryLifecycleType.CustomerId, 
                                                                                                                    assetCategoryLifecycleType.AssetCategoryId, 
@@ -104,9 +119,8 @@ namespace Customer.API.Controllers
 
             var assetCategoryLifecycleTypeView = new ViewModels.AssetCategoryLifecycleType
             {
-                CustomerId = newAssetCategoryLifecycleType.CustomerId,
-                AssetCategoryId = newAssetCategoryLifecycleType.AssetCategoryId,
-                LifecycleType = newAssetCategoryLifecycleType.LifecycleType
+                AssetCategoryId = newAssetCategoryLifecycleType.AssetCategoryLifecycleId,
+                LifecycleType = newAssetCategoryLifecycleType.Name
             };
 
             return CreatedAtAction(nameof(CreateAssetCategoryLifecycleType), assetCategoryLifecycleTypeView);
@@ -133,9 +147,8 @@ namespace Customer.API.Controllers
                                                                                                                              assetCategoryLifecycleType.LifecycleType);
                 var assetCategoryLifecycleTypeView = new ViewModels.AssetCategoryLifecycleType
                 {
-                    CustomerId = updateAssetCategoryLifecycleType.CustomerId,
-                    AssetCategoryId = updateAssetCategoryLifecycleType.AssetCategoryId,
-                    LifecycleType = updateAssetCategoryLifecycleType.LifecycleType
+                    AssetCategoryId = updateAssetCategoryLifecycleType.AssetCategoryLifecycleId,
+                    LifecycleType = updateAssetCategoryLifecycleType.Name
                 };
 
                 return Ok(assetCategoryLifecycleTypeView);
@@ -146,35 +159,10 @@ namespace Customer.API.Controllers
             }
         }
 
-
-        [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.Customer), (int)HttpStatusCode.Created)]
-        public async Task<ActionResult<ViewModels.Customer>> CreateCustomer([FromBody] NewCustomer customer)
-        {
-            var companyAddress = new CustomerServices.Models.Address(customer.CompanyAddress.Street,
-                customer.CompanyAddress.PostCode, customer.CompanyAddress.City, customer.CompanyAddress.Country);
-            var contactPerson = new CustomerServices.Models.ContactPerson(customer.CustomerContactPerson.FullName,
-                customer.CustomerContactPerson.Email, customer.CustomerContactPerson.PhoneNumber);
-            var newCustomer = new CustomerServices.Models.Customer(Guid.NewGuid(), customer.CompanyName,
-                customer.OrgNumber, companyAddress, contactPerson);
-
-            var updatedCustomer = await _customerServices.AddCustomerAsync(newCustomer);
-            var updatedCustomerView = new ViewModels.Customer
-            {
-                Id = updatedCustomer.CustomerId,
-                CompanyName = updatedCustomer.CompanyName,
-                OrgNumber = updatedCustomer.OrgNumber,
-                CompanyAddress = new Address(updatedCustomer.CompanyAddress),
-                CustomerContactPerson = new ContactPerson(updatedCustomer.CustomerContactPerson)
-            };
-
-            return CreatedAtAction(nameof(CreateCustomer), new { id = updatedCustomerView.Id }, updatedCustomerView);
-        }
-
         [Route("{customerId:Guid}/modules")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<ProductModuleGroup>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IList<ProductModuleGroup>>> AddCustomerModules(Guid customerId)
+        public async Task<ActionResult<IList<ProductModuleGroup>>> GetCustomerModules(Guid customerId)
         {
             var productGroup = await _customerServices.GetCustomerProductModulesAsync(customerId);
             if (productGroup == null) return NotFound();

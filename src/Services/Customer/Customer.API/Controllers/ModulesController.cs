@@ -28,6 +28,15 @@ namespace Customer.API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<AssetCategoryType>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IEnumerable<AssetCategoryType>>> GetAssetCategories(Guid? customerId)
+        {
+            var modules = await _moduleServices.GetAllAssetCategoryLifecycleTypesAsync(customerId);
+            List<AssetCategoryType> modulesList = new List<AssetCategoryType>();
+            return Ok(modulesList);
+        }
+
+        [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ProductModule>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<ProductModule>>> GetModules()
         {

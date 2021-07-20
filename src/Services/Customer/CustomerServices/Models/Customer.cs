@@ -22,6 +22,10 @@ namespace CustomerServices.Models
 
         public ICollection<ProductModuleGroup> SelectedProductModuleGroups { get; set; }
 
+        public ICollection<AssetCategoryType> SelectedAssetCategories { get; set; }
+
+        public ICollection<AssetCategoryLifecycleType> SelectedAssetCategoryLifecycles { get; set; }
+
         protected Customer()
         {
 

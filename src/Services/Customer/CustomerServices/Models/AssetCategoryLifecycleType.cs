@@ -9,28 +9,24 @@ namespace CustomerServices.Models
 {
     public class AssetCategoryLifecycleType : Entity
     {
-        public Guid CustomerId { get; protected set; }
-        public Guid AssetCategoryId { get; protected set; }
-        public int LifecycleType { get; protected set; }
-
         /// <summary>
         /// Create a connection between a customer and the lifecycle types enabled for their asset categories.
         /// </summary>
         /// <param name="customerId"></param>
         /// <param name="assetCategoryId"></param>
         /// <param name="lifeCycleTypeId"></param>
-        public AssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId, int lifeCycleType)
+        public AssetCategoryLifecycleType(Guid assetCategoryId, string name)
         {
-            CustomerId = customerId;
-            AssetCategoryId = assetCategoryId;
-            LifecycleType = lifeCycleType;
+            AssetCategoryLifecycleId = assetCategoryId;
+            Name = name;
         }
 
         protected AssetCategoryLifecycleType() { }
+        
+        public Guid AssetCategoryLifecycleId { get; protected set; }
 
-        public void ChangeLifecycleType(int lifecycleType)
-        {
-            LifecycleType = lifecycleType;
-        }
+        public string Name { get; protected set; }
+
+        public ICollection<Customer> Customers { get; set; }
     }
 }

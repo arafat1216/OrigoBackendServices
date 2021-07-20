@@ -9,6 +9,7 @@ namespace CustomerServices
 {
     public interface IModuleServices
     {
+        Task<IList<AssetCategoryType>> GetAllAssetCategoriesAsync(Guid? customerId);
         Task<IList<ProductModule>> GetModulesAsync();
     }
 }
