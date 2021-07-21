@@ -34,11 +34,11 @@ namespace CustomerServices.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Customer>().ToTable("Customer");
-            modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<AssetCategoryLifecycleType>().ToTable("AssetCategoryLifecycleType");
             modelBuilder.Entity<AssetCategoryType>().ToTable("AssetCategory");
+            modelBuilder.Entity<Customer>().ToTable("Customer");
             modelBuilder.Entity<Customer>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<User>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<ProductModule>().ToTable("ProductModule");
         }

@@ -27,6 +27,59 @@ namespace OrigoApiGateway.Services
         private readonly ModuleConfiguration _options;
         private readonly ICustomerServices _customerServices;
 
+        public async Task<IList<OrigoAssetCategoryType>> GetAssetCategories(Guid? customerId)
+        {
+            try
+            {
+                var assetCategories = await HttpClient.GetFromJsonAsync<IList<AssetCategoryTypeDTO>>($"{_options.ApiPath}/assetCategories");
+                if (assetCategories == null) return null;
+                var origoAssetCategories = new List<OrigoAssetCategoryType>();
+                origoAssetCategories.AddRange(assetCategories.Select(category => new OrigoAssetCategoryType
+                {
+                    AssetCategoryId = category.AssetCategoryId,
+                    Name = category.Name,
+                    LifecycleTypes = category.LifecycleTypes.Select(l => new OrigoAssetCategoryLifecycleType(l)).ToList()
+                }));
+                IList<OrigoAssetCategoryType> activeModules = new List<OrigoAssetCategoryType>();
+                if (customerId != null)
+                {
+                    activeModules = await _customerServices.GetAssetCategoryForCustomerAsync(customerId.Value);
+                }
+                foreach (var assetCategory in activeModules)
+                {
+                    var category = origoAssetCategories.FirstOrDefault(a => a.AssetCategoryId == assetCategory.AssetCategoryId);
+                    if (category == null)
+                        continue;
+                    category.IsChecked = true;
+                    foreach(var assetLifecycle in assetCategory.LifecycleTypes)
+                    {
+                        var lifecycle = category.LifecycleTypes.FirstOrDefault(l=>l.AssetCategoryLifecycleId == assetLifecycle.AssetCategoryLifecycleId);
+                        if (lifecycle == null)
+                            continue;
+                        lifecycle.IsChecked = true;
+                    }
+                }
+
+                return origoAssetCategories;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAssetCategoryForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetAssetCategoryForCustomerAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetAssetCategoryForCustomerAsync unknown error.");
+                throw;
+            }
+        }
+
+
         public async Task<IList<OrigoProductModule>> GetModulesAsync(Guid? customerId)
         {
             try

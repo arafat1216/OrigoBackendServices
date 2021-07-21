@@ -34,7 +34,12 @@ namespace CustomerServices.Infrastructure
 
         public async Task<Customer> GetCustomerAsync(Guid customerId)
         {
-            return await _context.Customers.Include(p => p.SelectedProductModuleGroups).FirstOrDefaultAsync(c => c.CustomerId == customerId);
+            return await _context.Customers
+                .Include(p => p.SelectedProductModuleGroups)
+                .Include(p => p.SelectedAssetCategories)
+                .ThenInclude(p => p.LifecycleTypes)
+                .Include(p => p.SelectedAssetCategoryLifecycles)
+                .FirstOrDefaultAsync(c => c.CustomerId == customerId);
         }
 
         public async Task<IList<User>> GetAllUsersAsync(Guid customerId)
@@ -54,28 +59,27 @@ namespace CustomerServices.Infrastructure
             await _context.SaveChangesAsync();
             return newUser;
         }
+
+
+        public async Task<AssetCategoryLifecycleType> GetAssetCategoryLifecycleType(Guid assetCategoryLifecycleId)
+        {
+            return await _context.AssetCategoryLifecycleTypes.FirstOrDefaultAsync(p => p.AssetCategoryLifecycleId == assetCategoryLifecycleId);
+        }
+
         public async Task<IList<AssetCategoryLifecycleType>> GetAllAssetCategoryLifecycleTypesAsync(Guid customerId)
         {
             var customer = await GetCustomerAsync(customerId);
             return customer.SelectedAssetCategoryLifecycles.ToList();
         }
 
-        public async Task<AssetCategoryLifecycleType> GetAssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId)
+        /// <summary>
+        /// Helper method for add and remove functionality
+        /// </summary>
+        /// <param name="assetCategoryId">Id of one specicfic AssetCategory</param>
+        /// <returns></returns>
+        public async Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid assetCategoryId)
         {
-            return await _context.AssetCategoryLifecycleTypes.Where(a => a.AssetCategoryLifecycleId == assetCategoryId).FirstOrDefaultAsync();
-        }
-
-        public async Task<AssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeAsync(AssetCategoryLifecycleType newAssetCategoryLifecycleType)
-        {
-            _context.AssetCategoryLifecycleTypes.Add(newAssetCategoryLifecycleType);
-            await _context.SaveChangesAsync();
-            return newAssetCategoryLifecycleType;
-        }
-
-        public async Task RemoveAssetCategoryLifecycleType(AssetCategoryLifecycleType deleteAssetCategoryLifecycleType)
-        {
-            _context.AssetCategoryLifecycleTypes.Remove(deleteAssetCategoryLifecycleType);
-            await _context.SaveChangesAsync();
+            return await _context.AssetCategoryTypes.Include(p => p.LifecycleTypes).FirstOrDefaultAsync(p => p.AssetCategoryId == assetCategoryId);
         }
 
         public async Task<IList<AssetCategoryType>> GetAssetCategoriesAsync()
@@ -89,10 +93,6 @@ namespace CustomerServices.Infrastructure
             return customer.SelectedAssetCategories.ToList();
         }
 
-        public async Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid assetCategoryId)
-        {
-            return await _context.AssetCategoryTypes.FirstOrDefaultAsync(p => p.AssetCategoryId == assetCategoryId);
-        }
 
         public async Task<IList<ProductModule>> GetModulesAsync()
         {

@@ -12,9 +12,12 @@ namespace OrigoApiGateway.Services
         Task<IList<OrigoCustomer>> GetCustomersAsync();
         Task<OrigoCustomer> GetCustomerAsync(Guid customerId);
         Task<OrigoCustomer> CreateCustomerAsync(OrigoNewCustomer newCustomer);
-        Task<OrigoAssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeForCustomerAsync(NewAssetCategoryLifecycleType newAssetCategoryLifecycleType);
-        Task<OrigoAssetCategoryLifecycleType> RemoveAssetCategoryLifecycleTypeForCustomerAsync(NewAssetCategoryLifecycleType newAssetCategoryLifecycleType);
         Task<IList<OrigoAssetCategoryLifecycleType>> GetAssetCategoryLifecycleTypesForCustomerAsync(Guid customerId);
+        Task<OrigoAssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeForCustomerAsync(Guid customerId, Guid assetCategoryLifecycleId);
+        Task<OrigoAssetCategoryLifecycleType> RemoveAssetCategoryLifecycleTypeForCustomerAsync(Guid customerId, Guid assetCategoryLifecycleId);
+        Task<IList<OrigoAssetCategoryType>> GetAssetCategoryForCustomerAsync(Guid customerId);
+        Task<OrigoAssetCategoryType> AddAssetCategoryForCustomerAsync(Guid customerId, Guid assetCategoryId);
+        Task<OrigoAssetCategoryType> RemoveAssetCategoryForCustomerAsync(Guid customerId, Guid assetCategoryId);
         Task<IList<OrigoProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId);
         Task<OrigoProductModuleGroup> AddProductModulesAsync(Guid customerId, Guid moduleGroupId);
         Task<OrigoProductModuleGroup> RemoveProductModulesAsync(Guid customerId, Guid moduleGroupId);

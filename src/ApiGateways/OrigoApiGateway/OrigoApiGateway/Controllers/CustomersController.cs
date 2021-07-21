@@ -62,23 +62,6 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/AssetCategoryLifecycleType/get")]
-        [HttpGet]
-        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<IList<OrigoAssetCategoryLifecycleType>>> GetAssetCategoryLifecycleTypesForCustomer(Guid customerId)
-        {
-            try
-            {
-                var assetCategoryLifecycleTypes = await CustomerServices.GetAssetCategoryLifecycleTypesForCustomerAsync(customerId);
-                return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();            
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
         [HttpPost]
         [ProducesResponseType(typeof(OrigoCustomer), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -100,21 +83,16 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/AssetCategoryLifecycleType/add")]
-        [HttpPost]
-        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.Created)]
+        [Route("{customerId:Guid}/AssetCategoryLifecycleType/get")]
+        [HttpGet]
+        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoAssetCategoryLifecycleType>> CreateAssetCategoryLifecycleTypeForCustomer([FromBody] NewAssetCategoryLifecycleType newAssetCategoryLifecycleType)
+        public async Task<ActionResult<IList<OrigoAssetCategoryLifecycleType>>> GetAssetCategoryLifecycleTypesForCustomer(Guid customerId)
         {
             try
             {
-                var createdAssetCategoryLifecycleType = await CustomerServices.AddAssetCategoryLifecycleTypeForCustomerAsync(newAssetCategoryLifecycleType);
-                if (createdAssetCategoryLifecycleType == null)
-                {
-                    return BadRequest();
-                }
-
-                return CreatedAtAction(nameof(CreateAssetCategoryLifecycleTypeForCustomer), createdAssetCategoryLifecycleType);
+                var assetCategoryLifecycleTypes = await CustomerServices.GetAssetCategoryLifecycleTypesForCustomerAsync(customerId);
+                return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();
             }
             catch (Exception)
             {
@@ -122,21 +100,104 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/AssetCategoryLifecycleType/remove")]
+        [Route("{customerId:Guid}/assetCategoryLifecycleTypes/{assetCategoryLifecycleId:Guid}/add")]
         [HttpPost]
-        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoAssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypeForCustomer([FromBody] NewAssetCategoryLifecycleType newAssetCategoryLifecycleType)
+        public async Task<ActionResult<OrigoAssetCategoryLifecycleType>> AddAssetCategoryLifecycleTypeForCustomer(Guid customerId, Guid assetCategoryLifecycleId)
         {
             try
             {
-                var removedAssetCategoryLifecycleType = await CustomerServices.RemoveAssetCategoryLifecycleTypeForCustomerAsync(newAssetCategoryLifecycleType);
+                var addedAssetCategoryLifecycleType = await CustomerServices.AddAssetCategoryLifecycleTypeForCustomerAsync(customerId, assetCategoryLifecycleId);
+                if (addedAssetCategoryLifecycleType == null)
+                {
+                    return BadRequest();
+                }
+
+                return Ok(addedAssetCategoryLifecycleType);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{customerId:Guid}/assetCategoryLifecycleTypes/{assetCategoryLifecycleId:Guid}/remove")]
+        [HttpPost]
+        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoAssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypeForCustomer(Guid customerId, Guid assetCategoryLifecycleId)
+        {
+            try
+            {
+                var removedAssetCategoryLifecycleType = await CustomerServices.RemoveAssetCategoryLifecycleTypeForCustomerAsync(customerId, assetCategoryLifecycleId);
                 if (removedAssetCategoryLifecycleType == null)
                 {
                     return NotFound();
                 }
 
                 return Ok(removedAssetCategoryLifecycleType);
+            }
+            catch (Exception)
+            {
+                return NotFound();
+            }
+        }
+
+        [Route("{customerId:Guid}/assetCategory")]
+        [HttpGet]
+        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<IList<OrigoAssetCategoryType>>> GetAssetCategoriesForCustomer(Guid customerId)
+        {
+            try
+            {
+                var assetCategoryLifecycleTypes = await CustomerServices.GetAssetCategoryForCustomerAsync(customerId);
+                return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{customerId:Guid}/assetCategory/{assetCategoryId:Guid}/add")]
+        [HttpPost]
+        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoAssetCategoryType>> AddAssetCategoriesForCustomer(Guid customerId, Guid assetCategoryId)
+        {
+            try
+            {
+                var addedAssetCategory = await CustomerServices.AddAssetCategoryForCustomerAsync(customerId, assetCategoryId);
+                if (addedAssetCategory == null)
+                {
+                    return BadRequest();
+                }
+
+                return Ok(addedAssetCategory);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{customerId:Guid}/assetCategory/{assetCategoryId:Guid}/remove")]
+        [HttpPost]
+        [ProducesResponseType(typeof(OrigoAssetCategoryType), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoAssetCategoryLifecycleType>> RemoveAssetCategoriesForCustomer(Guid customerId, Guid assetCategoryId)
+        {
+            try
+            {
+                var removedAssetCategory = await CustomerServices.RemoveAssetCategoryForCustomerAsync(customerId, assetCategoryId);
+                if (removedAssetCategory == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(removedAssetCategory);
             }
             catch (Exception)
             {

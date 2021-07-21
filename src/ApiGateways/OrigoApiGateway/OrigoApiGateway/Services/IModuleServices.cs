@@ -8,6 +8,7 @@ namespace OrigoApiGateway.Services
 {
     public interface IModuleServices
     {
+        Task<IList<OrigoAssetCategoryType>> GetAssetCategories(Guid? customerId);
         Task<IList<OrigoProductModule>> GetModulesAsync(Guid? customerId);
     }
 }

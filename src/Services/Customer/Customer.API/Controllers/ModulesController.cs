@@ -27,13 +27,27 @@ namespace Customer.API.Controllers
             _moduleServices = userServices;
         }
 
+
+        [Route("assetCategories")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<AssetCategoryType>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<AssetCategoryType>>> GetAssetCategories(Guid? customerId)
+        public async Task<ActionResult<IEnumerable<AssetCategoryType>>> GetAssetCategories()
         {
-            var modules = await _moduleServices.GetAllAssetCategoryLifecycleTypesAsync(customerId);
-            List<AssetCategoryType> modulesList = new List<AssetCategoryType>();
-            return Ok(modulesList);
+            var assetCategories = await _moduleServices.GetAllAssetCategoriesAsync();
+            List<AssetCategoryType> categoryList = new List<AssetCategoryType>();
+            if (assetCategories != null)
+                categoryList.AddRange(assetCategories.Select(category => new AssetCategoryType
+                {
+                    AssetCategoryId = category.AssetCategoryId,
+                    Name = category.Name,
+                    LifecycleTypes = category.LifecycleTypes.Select(lifecycle => new AssetCategoryLifecycleType
+                    {
+                        AssetCategoryLifecycleId = lifecycle.AssetCategoryLifecycleId,
+                        Name = lifecycle.Name
+                    }).ToList()
+                }));
+
+            return Ok(categoryList);
         }
 
         [HttpGet]
@@ -46,8 +60,8 @@ namespace Customer.API.Controllers
                 modulesList.AddRange(modules.Select(module => new ProductModule
                 {
                     Name = module.Name,
-                    ProductModuleGroup = module.ProductModuleGroup.Select(moduleGroup => new ProductModuleGroup 
-                    { 
+                    ProductModuleGroup = module.ProductModuleGroup.Select(moduleGroup => new ProductModuleGroup
+                    {
                         Name = moduleGroup.Name,
                         ProductModuleGroupId = moduleGroup.ProductModuleGroupId
                     }).ToList(),

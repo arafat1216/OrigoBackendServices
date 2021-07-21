@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Models.BackendDTO
 {
-    public class AssetCategoryLifecycleTypeDTO
+    public class AssetCategoryTypeDTO
     {
-        public Guid AssetCategoryLifecycleId { get; set; }
+        public Guid AssetCategoryId { get; set; }
+
         public string Name { get; set; }
+
+        public IList<AssetCategoryLifecycleTypeDTO> LifecycleTypes { get; set; }
     }
 }

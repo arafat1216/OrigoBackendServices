@@ -7,7 +7,7 @@ namespace Customer.API.ViewModels
 {
     public class AssetCategoryLifecycleType
     {
-        public Guid AssetCategoryId { get; set; }
-        public string LifecycleType { get; set; }
+        public Guid AssetCategoryLifecycleId { get; set; }
+        public string Name { get; set; }
     }
 }

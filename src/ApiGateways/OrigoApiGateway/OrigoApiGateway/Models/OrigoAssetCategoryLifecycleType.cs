@@ -8,15 +8,23 @@ namespace OrigoApiGateway.Models
 {
     public class OrigoAssetCategoryLifecycleType
     {
-        public Guid CustomerId { get; protected set; }
-        public Guid AssetCategoryId { get; protected set; }
-        public int LifecycleType { get; protected set; }
+        public Guid AssetCategoryLifecycleId { get; set; }
+
+        public string Name { get; set; }
+
+        public bool IsChecked { get; set; }
 
         public OrigoAssetCategoryLifecycleType(AssetCategoryLifecycleTypeDTO assetCategoryLifecycleType)
         {
-            CustomerId = assetCategoryLifecycleType.CustomerId;
-            AssetCategoryId = assetCategoryLifecycleType.AssetCategoryId;
-            LifecycleType = assetCategoryLifecycleType.LifecycleType;
+            AssetCategoryLifecycleId = assetCategoryLifecycleType.AssetCategoryLifecycleId;
+            Name = assetCategoryLifecycleType.Name;
+        }
+
+        public OrigoAssetCategoryLifecycleType(AssetCategoryLifecycleTypeDTO assetCategoryLifecycleType, IList<OrigoAssetCategoryLifecycleType> selctedModules)
+        {
+            AssetCategoryLifecycleId = assetCategoryLifecycleType.AssetCategoryLifecycleId;
+            Name = assetCategoryLifecycleType.Name;
+            IsChecked = selctedModules?.FirstOrDefault(p => p.AssetCategoryLifecycleId == AssetCategoryLifecycleId) != null;
         }
     }
 }
