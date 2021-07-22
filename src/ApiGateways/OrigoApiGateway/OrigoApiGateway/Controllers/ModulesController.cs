@@ -32,7 +32,7 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoAssetCategoryType>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IList<OrigoProductModule>>> GetAssetCategories(Guid? customerId = null)
+        public async Task<ActionResult<IList<OrigoAssetCategoryType>>> GetAssetCategories(Guid? customerId = null)
         {
             try
             {

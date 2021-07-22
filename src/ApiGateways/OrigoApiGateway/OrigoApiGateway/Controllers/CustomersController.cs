@@ -146,7 +146,7 @@ namespace OrigoApiGateway.Controllers
 
         [Route("{customerId:Guid}/assetCategory")]
         [HttpGet]
-        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(OrigoAssetCategoryType), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<IList<OrigoAssetCategoryType>>> GetAssetCategoriesForCustomer(Guid customerId)
         {
@@ -163,7 +163,7 @@ namespace OrigoApiGateway.Controllers
 
         [Route("{customerId:Guid}/assetCategory/{assetCategoryId:Guid}/add")]
         [HttpPost]
-        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(OrigoAssetCategoryType), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<OrigoAssetCategoryType>> AddAssetCategoriesForCustomer(Guid customerId, Guid assetCategoryId)
         {
@@ -187,7 +187,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAssetCategoryType), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoAssetCategoryLifecycleType>> RemoveAssetCategoriesForCustomer(Guid customerId, Guid assetCategoryId)
+        public async Task<ActionResult<OrigoAssetCategoryType>> RemoveAssetCategoriesForCustomer(Guid customerId, Guid assetCategoryId)
         {
             try
             {
