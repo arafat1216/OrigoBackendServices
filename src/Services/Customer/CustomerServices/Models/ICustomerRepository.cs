@@ -16,11 +16,12 @@ namespace CustomerServices.Models
         Task<User> AddUserAsync(User newUser);
 
         Task<IList<AssetCategoryLifecycleType>> GetAllAssetCategoryLifecycleTypesAsync(Guid customerId);
-        Task<AssetCategoryLifecycleType> GetAssetCategoryLifecycleType(Guid assetCategoryLifecycleId);
+        Task<IList<AssetCategoryLifecycleType>> GetAssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId);
+        Task<AssetCategoryLifecycleType> DeleteAssetCategoryLifecycleTypeAsync(AssetCategoryLifecycleType assetCategoryLifecycleType);
 
-        Task<IList<AssetCategoryType>> GetAssetCategoriesAsync();
         Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId);
-        Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid assetCategoryId);
+        Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, Guid assetCategoryId);
+        Task<AssetCategoryType> DeleteAssetCategoryTypeAsync(AssetCategoryType assetCategoryType);
 
         Task<IList<ProductModule>> GetModulesAsync();
         Task<IList<ProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId);

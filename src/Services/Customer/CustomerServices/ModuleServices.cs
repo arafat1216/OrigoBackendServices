@@ -18,11 +18,6 @@ namespace CustomerServices
             _customerRepository = customerRepository;
         }
 
-        public async Task<IList<AssetCategoryType>> GetAllAssetCategoriesAsync()
-        {
-            return await _customerRepository.GetAssetCategoriesAsync();
-        }
-
         public async Task<IList<ProductModule>> GetModulesAsync()
         {
             return await _customerRepository.GetModulesAsync();

@@ -11,9 +11,7 @@ namespace CustomerServices.Models
     {
         public Guid AssetCategoryId { get; set; }
 
-        public ICollection<Customer> Customers { get; set; }
-
-        public string Name { get; set; }
+        public Guid ExternalCustomerId { get; set; }
 
         public IList<AssetCategoryLifecycleType> LifecycleTypes { get; set; }
     }

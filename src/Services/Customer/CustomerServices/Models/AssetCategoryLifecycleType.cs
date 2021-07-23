@@ -1,4 +1,5 @@
-﻿using Common.Seedwork;
+﻿using Common.Enums;
+using Common.Seedwork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,18 +16,20 @@ namespace CustomerServices.Models
         /// <param name="customerId"></param>
         /// <param name="assetCategoryId"></param>
         /// <param name="lifeCycleTypeId"></param>
-        public AssetCategoryLifecycleType(Guid assetCategoryId, string name)
+        public AssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId, int lifecycle)
         {
-            AssetCategoryLifecycleId = assetCategoryId;
-            Name = name;
+            AssetCategoryId = assetCategoryId;
+            CustomerId = customerId;
+            bool checkEnumValue = Enum.TryParse(lifecycle.ToString(), out LifecycleType lifecycleType);
+            LifecycleType = checkEnumValue ? lifecycleType : LifecycleType.NoLifecycle;
         }
 
         protected AssetCategoryLifecycleType() { }
-        
-        public Guid AssetCategoryLifecycleId { get; protected set; }
 
-        public string Name { get; protected set; }
+        public Guid CustomerId { get; set; }
 
-        public ICollection<Customer> Customers { get; set; }
+        public Guid AssetCategoryId { get; set; }
+
+        public LifecycleType LifecycleType { get; set; }
     }
 }

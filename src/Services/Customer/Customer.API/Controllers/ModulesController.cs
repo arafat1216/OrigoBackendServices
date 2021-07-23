@@ -27,29 +27,6 @@ namespace Customer.API.Controllers
             _moduleServices = userServices;
         }
 
-
-        [Route("assetCategories")]
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<AssetCategoryType>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<AssetCategoryType>>> GetAssetCategories()
-        {
-            var assetCategories = await _moduleServices.GetAllAssetCategoriesAsync();
-            List<AssetCategoryType> categoryList = new List<AssetCategoryType>();
-            if (assetCategories != null)
-                categoryList.AddRange(assetCategories.Select(category => new AssetCategoryType
-                {
-                    AssetCategoryId = category.AssetCategoryId,
-                    Name = category.Name,
-                    LifecycleTypes = category.LifecycleTypes.Select(lifecycle => new AssetCategoryLifecycleType
-                    {
-                        AssetCategoryLifecycleId = lifecycle.AssetCategoryLifecycleId,
-                        Name = lifecycle.Name
-                    }).ToList()
-                }));
-
-            return Ok(categoryList);
-        }
-
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ProductModule>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<ProductModule>>> GetModules()

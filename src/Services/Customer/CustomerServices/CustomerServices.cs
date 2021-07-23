@@ -1,4 +1,5 @@
-﻿using CustomerServices.DomainEvents;
+﻿using Common.Enums;
+using CustomerServices.DomainEvents;
 using CustomerServices.Models;
 using Microsoft.Extensions.Logging;
 using System;
@@ -35,9 +36,9 @@ namespace CustomerServices
             return await _customerRepository.GetCustomerAsync(customerId);
         }
 
-        public async Task<AssetCategoryLifecycleType> GetAssetCategoryLifecycleType(Guid assetCategoryId)
+        public async Task<IList<AssetCategoryLifecycleType>> GetAssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId)
         {
-            return await _customerRepository.GetAssetCategoryLifecycleType(assetCategoryId);
+            return await _customerRepository.GetAssetCategoryLifecycleType(customerId, assetCategoryId);
         }
 
         public async Task<IList<AssetCategoryLifecycleType>> GetAllAssetCategoryLifecycleTypesForCustomerAsync(Guid customerId)
@@ -45,36 +46,41 @@ namespace CustomerServices
             return await _customerRepository.GetAllAssetCategoryLifecycleTypesAsync(customerId);
         }
 
-        public async Task<AssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeForCustomerAsync(Guid customerId, Guid assetCategoryLifecycleId)
+        public async Task<AssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeForCustomerAsync(Guid customerId, Guid assetCategoryId, int lifecycle)
         {
             var customer = await GetCustomerAsync(customerId);
-            var assetCategoryLifecycle = await GetAssetCategoryLifecycleType(assetCategoryLifecycleId);
-            if (customer == null)
+            var assetCategory = await GetAssetCategoryType(customerId, assetCategoryId);
+            var assetCategoryLifecycles = await GetAllAssetCategoryLifecycleTypesForCustomerAsync(customerId);
+            var assetLifecycle = assetCategoryLifecycles.FirstOrDefault(l => l.CustomerId == customerId && l.AssetCategoryId == assetCategoryId && l.LifecycleType == (LifecycleType)lifecycle);
+            if (customer == null || assetCategory == null)
             {
                 return null;
             }
-
+            if (assetLifecycle != null)
+                return assetLifecycle;
+            var assetCategoryLifecycle = new AssetCategoryLifecycleType(customerId, assetCategoryId, lifecycle);
+            assetCategory.LifecycleTypes.Add(assetCategoryLifecycle);
             customer.SelectedAssetCategoryLifecycles.Add(assetCategoryLifecycle);
             await _customerRepository.SaveChanges();
             return assetCategoryLifecycle;
         }
 
-        public async Task<AssetCategoryLifecycleType> RemoveAssetCategoryLifecycleTypeForCustomerAsync(Guid customerId, Guid assetCategoryLifecycleId)
+        public async Task<AssetCategoryLifecycleType> RemoveAssetCategoryLifecycleTypeForCustomerAsync(Guid customerId, Guid assetCategoryId, int lifecycle)
         {
             var customer = await GetCustomerAsync(customerId);
-            var assetCategoryLifecycle = await GetAssetCategoryLifecycleType(assetCategoryLifecycleId);
+            var assetCategoryLifecycle = await GetAssetCategoryLifecycleType(customerId, assetCategoryId);
             if (customer == null)
             {
                 return null;
             }
-            customer.SelectedAssetCategoryLifecycles.Remove(assetCategoryLifecycle);
-            await _customerRepository.SaveChanges();
-            return assetCategoryLifecycle;
+            var deleteAssetLifecycle = assetCategoryLifecycle.FirstOrDefault(l => (int)l.LifecycleType == lifecycle);
+
+            return await _customerRepository.DeleteAssetCategoryLifecycleTypeAsync(deleteAssetLifecycle);
         }
 
-        public async Task<AssetCategoryType> GetAssetCategoryType(Guid assetCategoryId)
+        public async Task<AssetCategoryType> GetAssetCategoryType(Guid customerId, Guid assetCategoryId)
         {
-            return await _customerRepository.GetAssetCategoryTypeAsync(assetCategoryId);
+            return await _customerRepository.GetAssetCategoryTypeAsync(customerId, assetCategoryId);
         }
 
         public async Task<IList<AssetCategoryType>> GetAssetCategoryTypes(Guid customerId)
@@ -92,11 +98,20 @@ namespace CustomerServices
         public async Task<AssetCategoryType> AddAssetCategoryType(Guid customerId, Guid assetCategoryId)
         {
             var customer = await GetCustomerAsync(customerId);
-            var assetCategory = await GetAssetCategoryType(assetCategoryId);
+            var assetCategory = await GetAssetCategoryType(customerId, assetCategoryId);
             if (customer == null)
             {
                 return null;
             }
+            // If it exist don't create a new one :)
+            if (assetCategory != null)
+                return assetCategory;
+            assetCategory = new AssetCategoryType
+            {
+                ExternalCustomerId = customerId,
+                AssetCategoryId = assetCategoryId,
+                LifecycleTypes = new List<AssetCategoryLifecycleType>()
+            };
             customer.SelectedAssetCategories.Add(assetCategory);
             await _customerRepository.SaveChanges();
             return assetCategory;
@@ -105,21 +120,19 @@ namespace CustomerServices
         public async Task<AssetCategoryType> RemoveAssetCategoryType(Guid customerId, Guid assetCategoryId)
         {
             var customer = await GetCustomerAsync(customerId);
-            var assetCategory = await GetAssetCategoryType(assetCategoryId);
-            var activeLifecycles = await GetAllAssetCategoryLifecycleTypesForCustomerAsync(customerId);
-            // Also remove lifecycles for this category when this category is removed  
-            foreach (var lifecycle in assetCategory.LifecycleTypes)
-            {
-                if (activeLifecycles.Contains(lifecycle))
-                    await RemoveAssetCategoryLifecycleTypeForCustomerAsync(customerId, lifecycle.AssetCategoryLifecycleId);
-            }
-            if (customer == null)
+            var assetCategory = await GetAssetCategoryType(customerId, assetCategoryId);
+            if (customer == null || assetCategory == null)
             {
                 return null;
             }
-            customer.SelectedAssetCategories.Remove(assetCategory);
-            await _customerRepository.SaveChanges();
-            return assetCategory;
+            var activeLifecycles = await GetAllAssetCategoryLifecycleTypesForCustomerAsync(customerId);
+            // Also remove lifecycles for this category when this category is removed  
+            var lifecycles = activeLifecycles.Where(l => l.AssetCategoryId == assetCategory.AssetCategoryId);
+            foreach (var lifecycle in lifecycles)
+            {
+                await RemoveAssetCategoryLifecycleTypeForCustomerAsync(customerId, lifecycle.AssetCategoryId, (int)lifecycle.LifecycleType);
+            }
+            return await _customerRepository.DeleteAssetCategoryTypeAsync(assetCategory);
         }
 
         public async Task<ProductModuleGroup> GetProductModuleGroup(Guid moduleGroupId)

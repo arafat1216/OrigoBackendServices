@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Models
 {
-    public class OrigoAssetCategoryType
+    public class OrigoCustomerAssetCategoryType
     {
-        public Guid AssetCategoryId { get; set; }
-
         public string Name { get; set; }
+
+        public Guid AssetCategoryId { get; set; }
 
         public bool IsChecked { get; set; }
 

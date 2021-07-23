@@ -9,7 +9,7 @@ namespace Customer.API.ViewModels
     {
         public Guid AssetCategoryId { get; set; }
 
-        public string Name { get; set; }
+        public Guid CustomerId { get; set; }
 
         public IList<AssetCategoryLifecycleType> LifecycleTypes { get; set; }
     }

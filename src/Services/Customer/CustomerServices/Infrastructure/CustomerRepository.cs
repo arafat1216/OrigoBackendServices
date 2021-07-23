@@ -61,9 +61,9 @@ namespace CustomerServices.Infrastructure
         }
 
 
-        public async Task<AssetCategoryLifecycleType> GetAssetCategoryLifecycleType(Guid assetCategoryLifecycleId)
+        public async Task<IList<AssetCategoryLifecycleType>> GetAssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId)
         {
-            return await _context.AssetCategoryLifecycleTypes.FirstOrDefaultAsync(p => p.AssetCategoryLifecycleId == assetCategoryLifecycleId);
+            return await _context.AssetCategoryLifecycleTypes.Where(p => p.AssetCategoryId == assetCategoryId && p.CustomerId == customerId).ToListAsync();
         }
 
         public async Task<IList<AssetCategoryLifecycleType>> GetAllAssetCategoryLifecycleTypesAsync(Guid customerId)
@@ -72,19 +72,16 @@ namespace CustomerServices.Infrastructure
             return customer.SelectedAssetCategoryLifecycles.ToList();
         }
 
-        /// <summary>
-        /// Helper method for add and remove functionality
-        /// </summary>
-        /// <param name="assetCategoryId">Id of one specicfic AssetCategory</param>
-        /// <returns></returns>
-        public async Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid assetCategoryId)
+        public async Task<AssetCategoryLifecycleType> DeleteAssetCategoryLifecycleTypeAsync(AssetCategoryLifecycleType assetCategoryLifecycleType)
         {
-            return await _context.AssetCategoryTypes.Include(p => p.LifecycleTypes).FirstOrDefaultAsync(p => p.AssetCategoryId == assetCategoryId);
+            _context.AssetCategoryLifecycleTypes.Remove(assetCategoryLifecycleType);
+            await _context.SaveChangesAsync();
+            return assetCategoryLifecycleType;
         }
 
-        public async Task<IList<AssetCategoryType>> GetAssetCategoriesAsync()
+        public async Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, Guid assetCategoryId)
         {
-            return await _context.AssetCategoryTypes.Include(p => p.LifecycleTypes).ToListAsync();
+            return await _context.AssetCategoryTypes.Include(p => p.LifecycleTypes).FirstOrDefaultAsync(p => p.AssetCategoryId == assetCategoryId && p.ExternalCustomerId == customerId);
         }
 
         public async Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId)
@@ -93,6 +90,12 @@ namespace CustomerServices.Infrastructure
             return customer.SelectedAssetCategories.ToList();
         }
 
+        public async Task<AssetCategoryType> DeleteAssetCategoryTypeAsync(AssetCategoryType assetCategoryType)
+        {
+            _context.AssetCategoryTypes.Remove(assetCategoryType);
+            await _context.SaveChangesAsync();
+            return assetCategoryType;
+        }
 
         public async Task<IList<ProductModule>> GetModulesAsync()
         {
