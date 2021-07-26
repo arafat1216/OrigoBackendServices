@@ -346,3 +346,4 @@ healthchecksdb
 **/appsettings.Development.json
 
 .tye/
+/src/Services/Customer/CustomerServices/Migrations/20210723095653_AssetCategoryCustomerId.Designer.cs

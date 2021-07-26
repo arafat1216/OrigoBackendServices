@@ -1,4 +1,5 @@
-﻿using OrigoApiGateway.Models.BackendDTO;
+﻿using Common.Enums;
+using OrigoApiGateway.Models.BackendDTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,14 +9,20 @@ namespace OrigoApiGateway.Models
 {
     public class OrigoAssetCategoryLifecycleType
     {
-        public Guid CustomerId { get; protected set; }
-        public Guid AssetCategoryId { get; protected set; }
-        public int LifecycleType { get; protected set; }
+        public string Name { get; set; }
+
+        public Guid AssetCategoryId { get; set; }
+
+        public LifecycleType LifecycleType { get; set; }
+
+        public bool IsChecked { get; set; }
+
+        public OrigoAssetCategoryLifecycleType() { }
 
         public OrigoAssetCategoryLifecycleType(AssetCategoryLifecycleTypeDTO assetCategoryLifecycleType)
         {
-            CustomerId = assetCategoryLifecycleType.CustomerId;
             AssetCategoryId = assetCategoryLifecycleType.AssetCategoryId;
+            Name = assetCategoryLifecycleType.Name;
             LifecycleType = assetCategoryLifecycleType.LifecycleType;
         }
     }

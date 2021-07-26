@@ -10,13 +10,19 @@ namespace CustomerServices.Models
         Task<Customer> AddAsync(Customer customer);
         Task<IList<Customer>> GetCustomersAsync();
         Task<Customer> GetCustomerAsync(Guid customerId);
+
         Task<IList<User>> GetAllUsersAsync(Guid customerId);
         Task<User> GetUserAsync(Guid customerId, Guid userId);
         Task<User> AddUserAsync(User newUser);
+
         Task<IList<AssetCategoryLifecycleType>> GetAllAssetCategoryLifecycleTypesAsync(Guid customerId);
-        Task<AssetCategoryLifecycleType> GetAssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId);
-        Task RemoveAssetCategoryLifecycleType(AssetCategoryLifecycleType deleteAssetCategoryLifecycleType);
-        Task<AssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeAsync(AssetCategoryLifecycleType newAssetCategoryLifecycleType);
+        Task<IList<AssetCategoryLifecycleType>> GetAssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId);
+        Task<AssetCategoryLifecycleType> DeleteAssetCategoryLifecycleTypeAsync(AssetCategoryLifecycleType assetCategoryLifecycleType);
+
+        Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId);
+        Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, Guid assetCategoryId);
+        Task<AssetCategoryType> DeleteAssetCategoryTypeAsync(AssetCategoryType assetCategoryType);
+
         Task<IList<ProductModule>> GetModulesAsync();
         Task<IList<ProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId);
         Task<ProductModuleGroup> GetProductModuleGroupAsync(Guid moduleGroupId);

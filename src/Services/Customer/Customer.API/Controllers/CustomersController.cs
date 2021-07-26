@@ -68,85 +68,6 @@ namespace Customer.API.Controllers
             return Ok(customerList);
         }
 
-        [Route("{customerId:Guid}/assetCategoryLifecycleTypes")]
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<ViewModels.AssetCategoryLifecycleType>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.AssetCategoryLifecycleType>>> GetAllAssetCategoryLifecycleTypes(Guid customerId)
-        {
-            var assetCategoryLifecycleTypes = await _customerServices.GetAllAssetCategoryLifecycleTypesForCustomerAsync(customerId);
-            if (assetCategoryLifecycleTypes == null) return NotFound();
-            return Ok(assetCategoryLifecycleTypes);
-        }
-
-        [Route("{customerId:Guid}/assetCategoryLifecycleTypes/add")]
-        [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.AssetCategoryLifecycleType), (int)HttpStatusCode.Created)]
-        public async Task<ActionResult<ViewModels.AssetCategoryLifecycleType>> CreateAssetCategoryLifecycleType([FromBody] NewAssetCategoryLifecycleType assetCategoryLifecycleType)
-        {
-            try
-            {
-            // Check if given int is within valid range of values
-            if (!Enum.IsDefined(typeof(LifecycleType), assetCategoryLifecycleType.LifecycleType))
-            {
-                Array arr = Enum.GetValues(typeof(LifecycleType));
-                StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", assetCategoryLifecycleType.LifecycleType));
-                foreach (LifecycleType e in arr)
-                {
-                    errorMessage.Append($"    -{(int)e} ({e})\n");
-                }
-                throw new InvalidLifecycleTypeException(errorMessage.ToString());
-            }
-
-            var newAssetCategoryLifecycleType = await _customerServices.AddAssetCategoryLifecycleTypeForCustomerAsync(assetCategoryLifecycleType.CustomerId, 
-                                                                                                                   assetCategoryLifecycleType.AssetCategoryId, 
-                                                                                                                   assetCategoryLifecycleType.LifecycleType);
-
-            var assetCategoryLifecycleTypeView = new ViewModels.AssetCategoryLifecycleType
-            {
-                CustomerId = newAssetCategoryLifecycleType.CustomerId,
-                AssetCategoryId = newAssetCategoryLifecycleType.AssetCategoryId,
-                LifecycleType = newAssetCategoryLifecycleType.LifecycleType
-            };
-
-            return CreatedAtAction(nameof(CreateAssetCategoryLifecycleType), assetCategoryLifecycleTypeView);
-            }
-            catch (InvalidLifecycleTypeException exception)
-            {
-                return UnprocessableEntity(exception.Message);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
-        [Route("{customerId:Guid}/assetCategoryLifecycleTypes/remove")]
-        [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.AssetCategoryLifecycleType), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<ViewModels.AssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleType([FromBody] NewAssetCategoryLifecycleType assetCategoryLifecycleType)
-        {
-            try
-            {
-                 var updateAssetCategoryLifecycleType = await _customerServices.RemoveAssetCategoryLifecycleTypeForCustomerAsync(assetCategoryLifecycleType.CustomerId,
-                                                                                                                             assetCategoryLifecycleType.AssetCategoryId,
-                                                                                                                             assetCategoryLifecycleType.LifecycleType);
-                var assetCategoryLifecycleTypeView = new ViewModels.AssetCategoryLifecycleType
-                {
-                    CustomerId = updateAssetCategoryLifecycleType.CustomerId,
-                    AssetCategoryId = updateAssetCategoryLifecycleType.AssetCategoryId,
-                    LifecycleType = updateAssetCategoryLifecycleType.LifecycleType
-                };
-
-                return Ok(assetCategoryLifecycleTypeView);
-            }   
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
-
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Customer), (int)HttpStatusCode.Created)]
         public async Task<ActionResult<ViewModels.Customer>> CreateCustomer([FromBody] NewCustomer customer)
@@ -171,10 +92,173 @@ namespace Customer.API.Controllers
             return CreatedAtAction(nameof(CreateCustomer), new { id = updatedCustomerView.Id }, updatedCustomerView);
         }
 
+        [Route("{customerId:Guid}/assetCategoryLifecycleTypes")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<AssetCategoryLifecycleType>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<AssetCategoryLifecycleType>>> GetAllCustomerAssetCategoryLifecycleTypes(Guid customerId)
+        {
+            var assetCategoryLifecycleTypes = await _customerServices.GetAllAssetCategoryLifecycleTypesForCustomerAsync(customerId);
+            if (assetCategoryLifecycleTypes == null) return NotFound();
+            var customerAssetCategories = new List<AssetCategoryLifecycleType>();
+            customerAssetCategories.AddRange(assetCategoryLifecycleTypes.Select(lifecycle => new AssetCategoryLifecycleType
+            {
+                CustomerId = lifecycle.CustomerId,
+                AssetCategoryId = lifecycle.AssetCategoryId,
+                LifecycleType = lifecycle.LifecycleType,
+                Name = Enum.GetName(typeof(LifecycleType), lifecycle.LifecycleType)
+            }));
+            return Ok(customerAssetCategories);
+        }
+
+        [Route("{customerId:Guid}/assetCategoryLifecycleTypes/{assetCategoryId:Guid}/add/{lifecycle:int}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(AssetCategoryLifecycleType), (int)HttpStatusCode.Created)]
+        public async Task<ActionResult<AssetCategoryLifecycleType>> AddCustomerAssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId, int lifecycle)
+        {
+            try
+            {
+                // Check if given int is within valid range of values
+                if (!Enum.IsDefined(typeof(LifecycleType), lifecycle))
+                {
+                    Array arr = Enum.GetValues(typeof(LifecycleType));
+                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", lifecycle));
+                    foreach (LifecycleType e in arr)
+                    {
+                        errorMessage.Append($"    -{(int)e} ({e})\n");
+                    }
+                    throw new InvalidLifecycleTypeException(errorMessage.ToString());
+                }
+
+                var newAssetCategoryLifecycleType = await _customerServices.AddAssetCategoryLifecycleTypeForCustomerAsync(customerId, assetCategoryId, lifecycle);
+                var assetCategoryLifecycleTypeView = new ViewModels.AssetCategoryLifecycleType
+                {
+                    CustomerId = newAssetCategoryLifecycleType.CustomerId,
+                    AssetCategoryId = newAssetCategoryLifecycleType.AssetCategoryId,
+                    LifecycleType = newAssetCategoryLifecycleType.LifecycleType,
+                    Name = Enum.GetName(typeof(LifecycleType), lifecycle)
+                };
+
+                return CreatedAtAction(nameof(AddCustomerAssetCategoryLifecycleType), assetCategoryLifecycleTypeView);
+            }
+            catch (InvalidLifecycleTypeException exception)
+            {
+                return UnprocessableEntity(exception.Message);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{customerId:Guid}/assetCategoryLifecycleTypes/{assetCategoryId:Guid}/remove/{lifecycle:int}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(AssetCategoryLifecycleType), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<AssetCategoryLifecycleType>> RemoveCustomerAssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId, int lifecycle)
+        {
+            try
+            {
+                // Check if given int is within valid range of values
+                if (!Enum.IsDefined(typeof(LifecycleType), lifecycle))
+                {
+                    Array arr = Enum.GetValues(typeof(LifecycleType));
+                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", lifecycle));
+                    foreach (LifecycleType e in arr)
+                    {
+                        errorMessage.Append($"    -{(int)e} ({e})\n");
+                    }
+                    throw new InvalidLifecycleTypeException(errorMessage.ToString());
+                }
+
+                var deletedAssetCategoryLifecycle = await _customerServices.RemoveAssetCategoryLifecycleTypeForCustomerAsync(customerId, assetCategoryId, lifecycle);
+                var assetCategoryLifecycleTypeView = new AssetCategoryLifecycleType
+                {
+                    CustomerId = deletedAssetCategoryLifecycle.CustomerId,
+                    AssetCategoryId = deletedAssetCategoryLifecycle.AssetCategoryId,
+                    Name = Enum.GetName(typeof(LifecycleType), deletedAssetCategoryLifecycle.LifecycleType),
+                    LifecycleType = deletedAssetCategoryLifecycle.LifecycleType
+                };
+
+                return Ok(assetCategoryLifecycleTypeView);
+            }
+            catch (InvalidLifecycleTypeException exception)
+            {
+                return UnprocessableEntity(exception.Message);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{customerId:Guid}/assetCategories")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<AssetCategoryType>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<AssetCategoryType>>> GetAllCustomerAssetCategory(Guid customerId)
+        {
+            var assetCategoryLifecycleTypes = await _customerServices.GetAssetCategoryTypes(customerId);
+            if (assetCategoryLifecycleTypes == null) return NotFound();
+            var customerAssetCategories = new List<AssetCategoryType>();
+            customerAssetCategories.AddRange(assetCategoryLifecycleTypes.Select(category => new AssetCategoryType
+            {
+                CustomerId = category.ExternalCustomerId,
+                AssetCategoryId = category.AssetCategoryId,
+                LifecycleTypes = new List<AssetCategoryLifecycleType>()
+            }));
+            return Ok(customerAssetCategories);
+        }
+
+        [Route("{customerId:Guid}/assetCategory/{assetCategoryId:Guid}/add")]
+        [HttpPost]
+        [ProducesResponseType(typeof(AssetCategoryType), (int)HttpStatusCode.Created)]
+        public async Task<ActionResult<AssetCategoryType>> AddCustomerAssetCategory(Guid customerId, Guid assetCategoryId)
+        {
+            try
+            {
+                var assetCategories = await _customerServices.AddAssetCategoryType(customerId, assetCategoryId);
+                var assetCategory = new AssetCategoryType
+                {
+                    CustomerId = assetCategories.ExternalCustomerId,
+                    AssetCategoryId = assetCategories.AssetCategoryId,
+                    LifecycleTypes = new List<AssetCategoryLifecycleType>()
+                };
+
+                return Ok(assetCategory);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{customerId:Guid}/assetCategory/{assetCategoryId:Guid}/remove")]
+        [HttpPost]
+        [ProducesResponseType(typeof(AssetCategoryType), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<AssetCategoryType>> RemoveCustomerAssetCategory(Guid customerId, Guid assetCategoryId)
+        {
+            try
+            {
+                var assetCategories = await _customerServices.RemoveAssetCategoryType(customerId, assetCategoryId);
+                var assetCategory = new AssetCategoryType
+                {
+                    CustomerId = assetCategories.ExternalCustomerId,
+                    AssetCategoryId = assetCategories.AssetCategoryId,
+                    LifecycleTypes = new List<AssetCategoryLifecycleType>()
+                };
+
+                return Ok(assetCategory);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
         [Route("{customerId:Guid}/modules")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<ProductModuleGroup>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IList<ProductModuleGroup>>> AddCustomerModules(Guid customerId)
+        public async Task<ActionResult<IList<ProductModuleGroup>>> GetCustomerModules(Guid customerId)
         {
             var productGroup = await _customerServices.GetCustomerProductModulesAsync(customerId);
             if (productGroup == null) return NotFound();
