@@ -76,7 +76,11 @@ namespace OrigoApiGateway
 
             services.AddSingleton<ICustomerServices>(x => new CustomerServices(x.GetRequiredService<ILogger<CustomerServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<CustomerConfiguration>>()));
+                x.GetRequiredService<IOptions<CustomerConfiguration>>(), new AssetServices(x.GetRequiredService<ILogger<AssetServices>>(),
+                DaprClient.CreateInvokeHttpClient("assetservices"),
+                x.GetRequiredService<IOptions<AssetConfiguration>>(), new UserServices(x.GetRequiredService<ILogger<UserServices>>(),
+                DaprClient.CreateInvokeHttpClient("customerservices"),
+                x.GetRequiredService<IOptions<UserConfiguration>>()))));
 
             services.AddSingleton<IUserServices>(x => new UserServices(x.GetRequiredService<ILogger<UserServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
@@ -87,7 +91,11 @@ namespace OrigoApiGateway
                 x.GetRequiredService<IOptions<ModuleConfiguration>>(),
                 new CustomerServices(x.GetRequiredService<ILogger<CustomerServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<CustomerConfiguration>>())));
+                x.GetRequiredService<IOptions<CustomerConfiguration>>(), new AssetServices(x.GetRequiredService<ILogger<AssetServices>>(),
+                DaprClient.CreateInvokeHttpClient("assetservices"),
+                x.GetRequiredService<IOptions<AssetConfiguration>>(), new UserServices(x.GetRequiredService<ILogger<UserServices>>(),
+                DaprClient.CreateInvokeHttpClient("customerservices"),
+                x.GetRequiredService<IOptions<UserConfiguration>>())))));
 
             services.AddSwaggerGen(c =>
             {

@@ -4,20 +4,52 @@ using CustomerServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CustomerServices.Migrations
 {
     [DbContext(typeof(CustomerContext))]
-    partial class CustomerContextModelSnapshot : ModelSnapshot
+    [Migration("20210720102015_AssetCategory")]
+    partial class AssetCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.7")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("AssetCategoryLifecycleTypeCustomer", b =>
+                {
+                    b.Property<int>("CustomersId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SelectedAssetCategoryLifecyclesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CustomersId", "SelectedAssetCategoryLifecyclesId");
+
+                    b.HasIndex("SelectedAssetCategoryLifecyclesId");
+
+                    b.ToTable("AssetCategoryLifecycleTypeCustomer");
+                });
+
+            modelBuilder.Entity("AssetCategoryTypeCustomer", b =>
+                {
+                    b.Property<int>("CustomersId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SelectedAssetCategoriesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CustomersId", "SelectedAssetCategoriesId");
+
+                    b.HasIndex("SelectedAssetCategoriesId");
+
+                    b.ToTable("AssetCategoryTypeCustomer");
+                });
 
             modelBuilder.Entity("CustomerProductModuleGroup", b =>
                 {
@@ -41,7 +73,7 @@ namespace CustomerServices.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<Guid>("AssetCategoryId")
+                    b.Property<Guid>("AssetCategoryLifecycleId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int?>("AssetCategoryTypeId")
@@ -50,23 +82,15 @@ namespace CustomerServices.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("CustomerId1")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("LastUpdatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("LifecycleType")
-                        .HasColumnType("int");
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AssetCategoryTypeId");
-
-                    b.HasIndex("CustomerId1");
 
                     b.ToTable("AssetCategoryLifecycleType");
                 });
@@ -84,18 +108,13 @@ namespace CustomerServices.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("ExternalCustomerId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("LastUpdatedDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("CustomerId");
+                    b.HasKey("Id");
 
                     b.ToTable("AssetCategory");
                 });
@@ -225,6 +244,36 @@ namespace CustomerServices.Migrations
                     b.ToTable("User");
                 });
 
+            modelBuilder.Entity("AssetCategoryLifecycleTypeCustomer", b =>
+                {
+                    b.HasOne("CustomerServices.Models.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CustomerServices.Models.AssetCategoryLifecycleType", null)
+                        .WithMany()
+                        .HasForeignKey("SelectedAssetCategoryLifecyclesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AssetCategoryTypeCustomer", b =>
+                {
+                    b.HasOne("CustomerServices.Models.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CustomerServices.Models.AssetCategoryType", null)
+                        .WithMany()
+                        .HasForeignKey("SelectedAssetCategoriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("CustomerProductModuleGroup", b =>
                 {
                     b.HasOne("CustomerServices.Models.Customer", null)
@@ -245,17 +294,6 @@ namespace CustomerServices.Migrations
                     b.HasOne("CustomerServices.Models.AssetCategoryType", null)
                         .WithMany("LifecycleTypes")
                         .HasForeignKey("AssetCategoryTypeId");
-
-                    b.HasOne("CustomerServices.Models.Customer", null)
-                        .WithMany("SelectedAssetCategoryLifecycles")
-                        .HasForeignKey("CustomerId1");
-                });
-
-            modelBuilder.Entity("CustomerServices.Models.AssetCategoryType", b =>
-                {
-                    b.HasOne("CustomerServices.Models.Customer", null)
-                        .WithMany("SelectedAssetCategories")
-                        .HasForeignKey("CustomerId");
                 });
 
             modelBuilder.Entity("CustomerServices.Models.Customer", b =>
@@ -339,10 +377,6 @@ namespace CustomerServices.Migrations
 
             modelBuilder.Entity("CustomerServices.Models.Customer", b =>
                 {
-                    b.Navigation("SelectedAssetCategories");
-
-                    b.Navigation("SelectedAssetCategoryLifecycles");
-
                     b.Navigation("Users");
                 });
 
