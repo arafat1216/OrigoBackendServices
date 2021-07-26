@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.Contracts;
+﻿using Common.Extensions;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerServices.Models;
@@ -41,19 +41,9 @@ namespace CustomerServices.Infrastructure
 
         public async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            // Dispatch Domain Events collection.
-            // Choices:
-            // A) Right BEFORE committing data (EF SaveChanges) into the DB. This makes
-            // a single transaction including side effects from the domain event
-            // handlers that are using the same DbContext with Scope lifetime
-            // B) Right AFTER committing data (EF SaveChanges) into the DB. This makes
-            // multiple transactions. You will need to handle eventual consistency and
-            // compensatory actions in case of failures.
-            //await _mediator.DispatchDomainEventsAsync(this);
-
-            // After this line runs, all the changes (from the Command Handler and Domain
-            // event handlers) performed through the DbContext will be committed
-            return await SaveChangesAsync();
+            var numberOfRecordsSaved = await SaveChangesAsync();
+            await _mediator.DispatchDomainEventsAsync(this);
+            return numberOfRecordsSaved;
         }
     }
 }
