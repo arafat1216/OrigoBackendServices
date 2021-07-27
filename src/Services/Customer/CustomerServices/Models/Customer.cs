@@ -20,6 +20,8 @@ namespace CustomerServices.Models
 
         public IList<User> Users { get; set; }
 
+        public ICollection<ProductModule> SelectedProductModules { get; set; }
+
         public ICollection<ProductModuleGroup> SelectedProductModuleGroups { get; set; }
 
         public ICollection<AssetCategoryType> SelectedAssetCategories { get; set; }
