@@ -276,11 +276,22 @@ namespace OrigoApiGateway.Services
                     _logger.LogError(exception, "Unable to add the asset category to the customer.");
                     throw exception;
                 }
-                var assetCategory = await response.Content.ReadFromJsonAsync<CustomerAssetCategoryDTO>();
-                return assetCategory == null ? null : new OrigoCustomerAssetCategoryType
+                var assetCategories = await _assetServices.GetAssetCategoriesAsync();
+                var assetCategory = assetCategories.FirstOrDefault(a => a.AssetCategoryId == assetCategoryId);
+                var assetLifecycles = await _assetServices.GetLifecycles();
+                var category = await response.Content.ReadFromJsonAsync<CustomerAssetCategoryDTO>();
+                return category == null ? null : new OrigoCustomerAssetCategoryType
                 {
-                    AssetCategoryId = assetCategory.AssetCategoryId,
-                    IsChecked = true
+                    AssetCategoryId = category.AssetCategoryId,
+                    Name = assetCategory?.Name,
+                    IsChecked = true,
+                    LifecycleTypes = assetLifecycles.Select(l => new OrigoAssetCategoryLifecycleType()
+                    {
+                        AssetCategoryId = category.AssetCategoryId,
+                        LifecycleType = (LifecycleType)l.EnumValue,
+                        Name = l.Name,
+                        IsChecked = false
+                    }).ToList()
                 };
             }
             catch (InvalidLifecycleTypeException exception)
@@ -308,11 +319,22 @@ namespace OrigoApiGateway.Services
                     _logger.LogError(exception, "Unable to remove the asset category to the customer.");
                     throw exception;
                 }
-                var assetCategory = await response.Content.ReadFromJsonAsync<CustomerAssetCategoryDTO>();
-                return assetCategory == null ? null : new OrigoCustomerAssetCategoryType
+                var assetCategories = await _assetServices.GetAssetCategoriesAsync();
+                var assetCategory = assetCategories.FirstOrDefault(a => a.AssetCategoryId == assetCategoryId);
+                var assetLifecycles = await _assetServices.GetLifecycles();
+                var category = await response.Content.ReadFromJsonAsync<CustomerAssetCategoryDTO>();
+                return category == null ? null : new OrigoCustomerAssetCategoryType
                 {
-                    AssetCategoryId = assetCategory.AssetCategoryId,
-                    IsChecked = false
+                    AssetCategoryId = category.AssetCategoryId,
+                    Name = assetCategory?.Name,
+                    IsChecked = false,
+                    LifecycleTypes = assetLifecycles.Select(l => new OrigoAssetCategoryLifecycleType()
+                    {
+                        AssetCategoryId = category.AssetCategoryId,
+                        LifecycleType = (LifecycleType)l.EnumValue,
+                        Name = l.Name,
+                        IsChecked = false
+                    }).ToList()
                 };
             }
             catch (InvalidLifecycleTypeException exception)
