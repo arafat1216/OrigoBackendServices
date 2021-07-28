@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AssetServices.Exceptions;
@@ -46,7 +47,7 @@ namespace AssetServices
 
         public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId, string brand,
             string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive, string imei, string macAddress,
-            Guid? managedByDepartmentId)
+            Guid? managedByDepartmentId, AssetStatus status)
         {
             var assetCategory = await _assetRepository.GetAssetCategoryAsync(assetCategoryId);
             if (assetCategory == null)
@@ -55,23 +56,23 @@ namespace AssetServices
             }
 
             var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory, brand, model,
-                lifecycleType, purchaseDate, assetHolderId, isActive,imei, macAddress, managedByDepartmentId);
+                lifecycleType, purchaseDate, assetHolderId, isActive, imei, macAddress, status, managedByDepartmentId);
 
             if (!newAsset.AssetPropertiesAreValid)
             {
-                string exceptionMsg = "";
+                StringBuilder exceptionMsg = new StringBuilder();
                 foreach (string errorMsg in newAsset.ErrorMsgList)
                 {
                     if (errorMsg.Contains("Imei"))
                     {
-                        exceptionMsg += string.Format("Asset {0}", errorMsg) + " is invalid.\n";
+                        exceptionMsg.Append(string.Format("Asset {0}", errorMsg) + " is invalid.\n");
                     }
                     else
                     {
-                        exceptionMsg += string.Format("Minimum asset data requirements not set: {0}", errorMsg) + ".\n";
+                        exceptionMsg.Append(string.Format("Minimum asset data requirements not set: {0}", errorMsg) + ".\n");
                     }
                 }
-                throw new InvalidAssetDataException(exceptionMsg);
+                throw new InvalidAssetDataException(exceptionMsg.ToString());
             }
             return await _assetRepository.AddAsync(newAsset);
         }
@@ -102,6 +103,19 @@ namespace AssetServices
             }
 
             asset.SetLifeCycleType(newLifecycleType);
+            await _assetRepository.SaveChanges();
+            return asset;
+        }
+
+        public async Task<Asset> UpdateAssetStatus(Guid customerId, Guid assetId, AssetStatus status)
+        {
+            var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
+            if (asset == null)
+            {
+                return null;
+            }
+
+            asset.UpdateAssetStatus(status);
             await _assetRepository.SaveChanges();
             return asset;
         }
@@ -166,7 +180,7 @@ namespace AssetServices
             {
                 return await _assetRepository.GetAssetCategoriesAsync();
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 throw new ReadingDataException(exception);
             }
@@ -186,7 +200,7 @@ namespace AssetServices
                                                    "Registered");
 
             var mockAuditData1 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId, 
+                                                    assetId,
                                                     DateTime.Now,
                                                    "Mikael",
                                                    "Attribute change - Life Cycle Type: Bring your own device",
@@ -195,7 +209,7 @@ namespace AssetServices
                                                    "Active");
 
             var mockAuditData2 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId, 
+                                                    assetId,
                                                     DateTime.Now,
                                                    "Mikael",
                                                    "Attribute change - Imei: 12345 12345 12345",
@@ -204,7 +218,7 @@ namespace AssetServices
                                                    "Active");
 
             var mockAuditData3 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId, 
+                                                    assetId,
                                                     DateTime.Now,
                                                    "Mikael",
                                                    "Reassigned to department: Product",
@@ -212,7 +226,7 @@ namespace AssetServices
                                                    "Active",
                                                    "Active");
             var mockAuditData4 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId, 
+                                                    assetId,
                                                     DateTime.Now,
                                                    "Mikael",
                                                    "Reassigned to user: Henrik Tveit",
@@ -221,7 +235,7 @@ namespace AssetServices
                                                    "Active");
 
             var mockAuditData5 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId, 
+                                                    assetId,
                                                     DateTime.Now,
                                                    "Mikael",
                                                    "Attribute change - Tags: Personal",
@@ -230,7 +244,7 @@ namespace AssetServices
                                                    "Active");
 
             var mockAuditData6 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId, 
+                                                    assetId,
                                                     DateTime.Now,
                                                    "Mikael",
                                                    "Sent to repair",
@@ -239,7 +253,7 @@ namespace AssetServices
                                                    "On repair");
 
             var mockAuditData7 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId, 
+                                                    assetId,
                                                     DateTime.Now,
                                                    "Mikael",
                                                    "Status change",

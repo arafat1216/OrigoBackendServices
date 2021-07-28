@@ -16,8 +16,11 @@ namespace OrigoApiGateway.Services
         Task<IList<OrigoCustomerAssetCategoryType>> GetAssetCategoryForCustomerAsync(Guid customerId);
         Task<OrigoCustomerAssetCategoryType> AddAssetCategoryForCustomerAsync(Guid customerId, Guid assetCategoryId);
         Task<OrigoCustomerAssetCategoryType> RemoveAssetCategoryForCustomerAsync(Guid customerId, Guid assetCategoryId);
-        Task<IList<OrigoProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId);
-        Task<OrigoProductModuleGroup> AddProductModulesAsync(Guid customerId, Guid moduleGroupId);
-        Task<OrigoProductModuleGroup> RemoveProductModulesAsync(Guid customerId, Guid moduleGroupId);
+        Task<IList<OrigoProductModuleGroup>> GetCustomerProductModuleGroupsAsync(Guid customerId);
+        Task<OrigoProductModuleGroup> AddProductModuleGroupsAsync(Guid customerId, Guid moduleGroupId);
+        Task<OrigoProductModuleGroup> RemoveProductModuleGroupsAsync(Guid customerId, Guid moduleGroupId);
+        Task<IList<OrigoProductModule>> GetCustomerProductModulesAsync(Guid customerId);
+        Task<OrigoProductModule> AddProductModulesAsync(Guid customerId, Guid moduleId);
+        Task<OrigoProductModule> RemoveProductModulesAsync(Guid customerId, Guid moduleId);
     }
 }

@@ -140,12 +140,12 @@ namespace CustomerServices
             return await _customerRepository.GetProductModuleGroupAsync(moduleGroupId);
         }
 
-        public async Task<IList<ProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId)
+        public async Task<IList<ProductModuleGroup>> GetCustomerProductModuleGroupsAsync(Guid customerId)
         {
-            return await _customerRepository.GetCustomerProductModulesAsync(customerId);
+            return await _customerRepository.GetCustomerProductModuleGroupsAsync(customerId);
         }
 
-        public async Task<ProductModuleGroup> AddProductModulesAsync(Guid customerId, Guid moduleGroupId)
+        public async Task<ProductModuleGroup> AddProductModuleGroupsAsync(Guid customerId, Guid moduleGroupId)
         {
             var customer = await GetCustomerAsync(customerId);
             var moduleGroup = await GetProductModuleGroup(moduleGroupId);
@@ -158,7 +158,7 @@ namespace CustomerServices
             return moduleGroup;
         }
 
-        public async Task<ProductModuleGroup> RemoveProductModulesAsync(Guid customerId, Guid moduleGroupId)
+        public async Task<ProductModuleGroup> RemoveProductModuleGroupsAsync(Guid customerId, Guid moduleGroupId)
         {
             var customer = await GetCustomerAsync(customerId);
             var moduleGroup = await GetProductModuleGroup(moduleGroupId);
@@ -169,6 +169,46 @@ namespace CustomerServices
             customer.SelectedProductModuleGroups.Remove(moduleGroup);
             await _customerRepository.SaveChanges();
             return moduleGroup;
+        }
+
+        public async Task<ProductModule> GetProductModule(Guid moduleId)
+        {
+            return await _customerRepository.GetProductModuleAsync(moduleId);
+        }
+
+        public async Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId)
+        {
+            return await _customerRepository.GetCustomerProductModulesAsync(customerId);
+        }
+
+        public async Task<ProductModule> AddProductModulesAsync(Guid customerId, Guid moduleId)
+        {
+            var customer = await GetCustomerAsync(customerId);
+            var moduleGroup = await GetProductModule(moduleId);
+            if (customer == null)
+            {
+                return null;
+            }
+            customer.SelectedProductModules.Add(moduleGroup);
+            await _customerRepository.SaveChanges();
+            return moduleGroup;
+        }
+
+        public async Task<ProductModule> RemoveProductModulesAsync(Guid customerId, Guid moduleId)
+        {
+            var customer = await GetCustomerAsync(customerId);
+            var module = await GetProductModule(moduleId);
+            foreach (var moduleGroup in module.ProductModuleGroup)
+            {
+                await RemoveProductModuleGroupsAsync(customerId, moduleGroup.ProductModuleGroupId);
+            }
+            if (customer == null)
+            {
+                return null;
+            }
+            customer.SelectedProductModules.Remove(module);
+            await _customerRepository.SaveChanges();
+            return module;
         }
     }
 }
