@@ -1,15 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Common.Logging
 {
-    public class FunctionalEventLogContext : DbContext
+    public class LoggingDbContext : DbContext
     {
-        public FunctionalEventLogContext(DbContextOptions<FunctionalEventLogContext> options) : base(options)
+        public LoggingDbContext(DbContextOptions options) : base(options)
         {
         }
 
-        public DbSet<FunctionalEventLogEntry> FunctionalEventLogs { get; set; }
+        public DbSet<FunctionalEventLogEntry> LogEntries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

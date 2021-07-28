@@ -1,16 +1,17 @@
 using System;
+using MediatR;
 
 namespace Common.Logging
 {
-    public class BaseEvent
+    public class BaseEvent : INotification, IEvent
     {
-        public BaseEvent()
+        protected BaseEvent()
         {
             Id = Guid.NewGuid();
             CreationDate = DateTime.UtcNow;
         }
 
-        public Guid Id { get; private set; }
-        public DateTime CreationDate { get; private set; }
+        public Guid Id { get; }
+        public DateTime CreationDate { get; }
     }
 }

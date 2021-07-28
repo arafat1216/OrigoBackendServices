@@ -1,10 +1,11 @@
 ﻿using CustomerServices.Models;
 using MediatR;
 using System;
+using Common.Logging;
 
 namespace CustomerServices.DomainEvents
 {
-    public class CustomerCreatedDomainEvent : INotification
+    public class CustomerCreatedDomainEvent : BaseEvent
     {
 
         public CustomerCreatedDomainEvent(Customer newCustomer)

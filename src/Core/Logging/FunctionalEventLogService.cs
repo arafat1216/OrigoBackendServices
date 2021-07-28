@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -12,22 +12,22 @@ namespace Common.Logging
     /// <summary>
     /// Handles functional log entries. Taken from https://github.com/dotnet-architecture/eShopOnContainers
     /// </summary>
-    public class FunctionalEventLogService : IFunctionalEventLogService, IDisposable
+    public sealed class FunctionalEventLogService : IFunctionalEventLogService, IDisposable
     {
-        private readonly FunctionalEventLogContext _functionalEventLogContext;
-        private readonly DbConnection _dbConnection;
+        private readonly LoggingDbContext _functionalEventLogContext;
         private readonly List<Type> _eventTypes;
-        private volatile bool disposedValue;
+        private volatile bool _disposedValue;
 
-        public FunctionalEventLogService(DbConnection dbConnection)
+        public FunctionalEventLogService(LoggingDbContext functionalEventLogContext)
         {
-            _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
-            _functionalEventLogContext = new FunctionalEventLogContext(
-                new DbContextOptionsBuilder<FunctionalEventLogContext>()
-                    .UseSqlServer(_dbConnection)
-                    .Options);
+            if (functionalEventLogContext == null)
+            {
+                throw new ArgumentNullException(nameof(functionalEventLogContext));
+            }
 
-            _eventTypes = Assembly.Load(Assembly.GetEntryAssembly()?.FullName)
+            _functionalEventLogContext = functionalEventLogContext;
+
+            _eventTypes = Assembly.Load(Assembly.GetEntryAssembly()?.FullName ?? string.Empty)
                 .GetTypes()
                 .Where(t => t.Name.EndsWith(nameof(BaseEvent)))
                 .ToList();
@@ -37,7 +37,7 @@ namespace Common.Logging
         {
             var tid = transactionId.ToString();
 
-            var result = await _functionalEventLogContext.FunctionalEventLogs
+            var result = await _functionalEventLogContext.LogEntries
                 .Where(e => e.TransactionId == tid && e.State == EventStateEnum.NotPublished).ToListAsync();
 
             if (result != null && result.Any())
@@ -49,14 +49,13 @@ namespace Common.Logging
             return new List<FunctionalEventLogEntry>();
         }
 
-        public Task SaveEventAsync(BaseEvent @event, IDbContextTransaction transaction)
+        public Task SaveEventAsync(INotification @event, IDbContextTransaction transaction)
         {
             if (transaction == null) throw new ArgumentNullException(nameof(transaction));
 
-            var eventLogEntry = new FunctionalEventLogEntry(@event, transaction.TransactionId);
-
-            _functionalEventLogContext.Database.UseTransaction(transaction.GetDbTransaction());
-            _functionalEventLogContext.FunctionalEventLogs.Add(eventLogEntry);
+            var eventLogEntry = new FunctionalEventLogEntry(@event as IEvent, transaction.TransactionId);
+            //_functionalEventLogContext.Database.UseTransaction(transaction.GetDbTransaction());
+            _functionalEventLogContext.LogEntries.Add(eventLogEntry);
 
             return _functionalEventLogContext.SaveChangesAsync();
         }
@@ -78,20 +77,20 @@ namespace Common.Logging
 
         private Task UpdateEventStatus(Guid eventId, EventStateEnum status)
         {
-            var eventLogEntry = _functionalEventLogContext.FunctionalEventLogs.Single(ie => ie.EventId == eventId);
+            var eventLogEntry = _functionalEventLogContext.LogEntries.Single(ie => ie.EventId == eventId);
             eventLogEntry.State = status;
 
             if (status == EventStateEnum.InProgress)
                 eventLogEntry.TimesSent++;
 
-            _functionalEventLogContext.FunctionalEventLogs.Update(eventLogEntry);
+            _functionalEventLogContext.LogEntries.Update(eventLogEntry);
 
             return _functionalEventLogContext.SaveChangesAsync();
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                 {
@@ -99,7 +98,7 @@ namespace Common.Logging
                 }
 
 
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
 

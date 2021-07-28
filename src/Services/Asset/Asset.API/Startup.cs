@@ -46,7 +46,7 @@ namespace Asset.API
             services.AddDbContext<AssetsContext>(
                 options => options.UseSqlServer(Configuration.GetConnectionString("AssetConnectionString")),
                 ServiceLifetime.Transient);
-            services.AddDbContext<FunctionalEventLogContext>(options =>
+            services.AddDbContext<LoggingDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("AssetConnectionString"),
                     sqlServerOptionsAction: sqlOptions =>
