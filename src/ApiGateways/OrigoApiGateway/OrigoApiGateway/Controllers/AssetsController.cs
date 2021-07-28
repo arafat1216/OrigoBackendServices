@@ -29,6 +29,28 @@ namespace OrigoApiGateway.Controllers
             _assetServices = assetServices;
         }
 
+        [Route("customers/{customerId:guid}/search")]
+        [HttpGet]
+        [ProducesResponseType(typeof(OrigoPagedAssets), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoPagedAssets>> SearchForAsset(Guid customerId, string search, int page = 1, int limit = 50)
+        {
+            try
+            {
+                var origoPagedAssets = await _assetServices.SearchForAssetsForCustomerAsync(customerId, search, page, limit);
+                if (origoPagedAssets == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(origoPagedAssets);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
 
         [Route("customers/{customerId:guid}/{userId:Guid}")]
         [HttpGet]
@@ -46,29 +68,6 @@ namespace OrigoApiGateway.Controllers
                 }
 
                 return Ok(assets);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
-        [Route("customers/{customerId:guid}/search")]
-        [HttpGet]
-        [ProducesResponseType(typeof(OrigoPagedAssets), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoPagedAssets>> SearchForAsset(Guid customerId, string search, int page = 1, int limit = 50)
-        {
-            try
-            {
-                var origoPagedAssets = await _assetServices.SearchForAssetsForCustomerAsync(customerId, search, page, limit);
-                if (origoPagedAssets == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(origoPagedAssets);
             }
             catch (Exception)
             {
@@ -136,6 +135,28 @@ namespace OrigoApiGateway.Controllers
                     return CreatedAtAction(nameof(CreateAsset), new { id = createdAsset.Id }, createdAsset);
                 }
                 return BadRequest();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{assetId:Guid}/customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> SetAssetStatusOnAsset(Guid customerId, Guid assetId, int assetStatus)
+        {
+            try
+            {
+                var updatedAsset = await _assetServices.UpdateAssetStatus(customerId, assetId, assetStatus);
+                if (updatedAsset == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(updatedAsset);
             }
             catch (Exception)
             {
@@ -284,7 +305,7 @@ namespace OrigoApiGateway.Controllers
             {
                 return BadRequest();
             }
-           
+
         }
     }
 }

@@ -21,7 +21,7 @@ namespace AssetServices.Models
 
         public Asset(Guid assetId, Guid customerId, string serialNumber, AssetCategory assetCategory, string brand, string model,
             LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
-            bool isActive, string imei, string macAddress, Guid? managedByDepartmentId = null)
+            bool isActive, string imei, string macAddress, AssetStatus status, Guid? managedByDepartmentId = null)
         {
             AssetId = assetId;
             CustomerId = customerId;
@@ -39,6 +39,7 @@ namespace AssetServices.Models
             MacAddress = (macAddress != null) ? macAddress : string.Empty;
             ErrorMsgList = new List<string>();
             AssetPropertiesAreValid = ValidateAsset();
+            Status = status;
         }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace AssetServices.Models
         /// The asset brand (e.g. Samsung)
         /// </summary>
         [Required]
-        [StringLength(50, ErrorMessage ="Brand max length is 50")]
+        [StringLength(50, ErrorMessage = "Brand max length is 50")]
         public string Brand { get; protected set; }
 
         /// <summary>
@@ -109,7 +110,7 @@ namespace AssetServices.Models
         /// <param name="imei"></param>
         public void AddImei(string imei)
         {
-            foreach(string e in imei.Split(','))
+            foreach (string e in imei.Split(','))
             {
                 if (!ValidateImei(e))
                 {
@@ -165,6 +166,12 @@ namespace AssetServices.Models
         public bool IsActive { get; protected set; }
 
         /// <summary>
+        /// The status of the asset.
+        /// <see cref="AssetStatus">AssetStatus</see>
+        /// </summary>
+        public AssetStatus Status { get; protected set; }
+
+        /// <summary>
         /// A comma seperated string holding 0->n imei numbers for this entity.
         /// 
         /// A mobile phone must have atleast 1 imei.
@@ -203,7 +210,7 @@ namespace AssetServices.Models
             // is not a number
             if (!long.TryParse(imei, out _))
                 return false;
-            
+
 
             int sumDigits = 0;
             int diffValue = 0;
@@ -249,6 +256,12 @@ namespace AssetServices.Models
         {
             IsActive = isActive;
         }
+
+        public void UpdateAssetStatus(AssetStatus status)
+        {
+            Status = status;
+        }
+
         public void UpdateBrand(string brand)
         {
             Brand = brand;
@@ -286,7 +299,6 @@ namespace AssetServices.Models
         /// Mobile phones:
         ///  - Imei must be valid
         /// </summary>
-
         /// <returns>Boolean value, true if asset has valid properties, false if not</returns>
         protected bool ValidateAsset()
         {
@@ -295,7 +307,7 @@ namespace AssetServices.Models
             if (CustomerId == Guid.Empty)
             {
                 ErrorMsgList.Add("CustomerId - Cannot be Guid.Empty");
-                validAsset =  false;
+                validAsset = false;
             }
 
             if (string.IsNullOrEmpty(Brand))
@@ -317,7 +329,7 @@ namespace AssetServices.Models
             }
 
             // Mobile Phones
-            if (AssetCategory.Name== "Mobile phones")
+            if (AssetCategory.Name == "Mobile phones")
             {
                 foreach (string e in Imei.Split(","))
                 {

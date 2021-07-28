@@ -1,4 +1,5 @@
 using System;
+using Common.Enums;
 using OrigoApiGateway.Models.BackendDTO;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -25,6 +26,8 @@ namespace OrigoApiGateway.Models
             ManagedByDepartmentId = asset.ManagedByDepartmentId;
             AssetHolderId = asset.AssetHolderId;
             IsActive = asset.IsActive;
+            AssetStatus = asset.AssetStatus;
+            AssetStatusName = asset.AssetStatusName;
         }
 
         /// <summary>
@@ -105,5 +108,12 @@ namespace OrigoApiGateway.Models
 
         public bool IsActive { get; set; }
 
+        /// <summary>
+        /// The status of the asset.
+        /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
+        /// </summary>
+        public AssetStatus AssetStatus { get; protected set; }
+
+        public string AssetStatusName { get; protected set; }
     }
 }
