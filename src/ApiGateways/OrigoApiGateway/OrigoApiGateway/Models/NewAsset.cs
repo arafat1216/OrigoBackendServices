@@ -51,5 +51,15 @@ namespace OrigoApiGateway.Models
 
         public bool IsActive { get; set; }
 
+        /// <summary>
+        /// The status of the asset.
+        /// It can have these values:
+        /// - NoStatus,
+        /// - Active,
+        /// - Inactive,
+        /// - OnRepair,
+        /// - InputRequired
+        /// </summary>
+        public int AssetStatus { get; set; }
     }
 }

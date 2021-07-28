@@ -30,6 +30,7 @@ namespace Asset.API.ViewModels
             MacAddress = asset.MacAddress;
             AssetHolderId = asset.AssetHolderId;
             IsActive = asset.IsActive;
+            AssetStatus = asset.Status;
         }
 
         /// <summary>
@@ -115,5 +116,24 @@ namespace Asset.API.ViewModels
         public string MacAddress { get; protected set; }
 
         public bool IsActive { get; set; }
+
+        /// <summary>
+        /// The status of the asset.
+        /// It can have these values:
+        /// - NoStatus,
+        /// - Active,
+        /// - Inactive,
+        /// - OnRepair,
+        /// - InputRequired
+        /// </summary>
+        public AssetStatus AssetStatus { get; protected set; }
+
+        public string AssetStatusName 
+        { 
+            get 
+            {
+                return AssetStatus.GetName<AssetStatus>(AssetStatus);
+            } 
+        }
     }
 }
