@@ -234,7 +234,7 @@ namespace OrigoApiGateway.Services
                     {
                         category.IsChecked = true;
                     }
-                    foreach(var lifecycle in category.LifecycleTypes)
+                    foreach (var lifecycle in category.LifecycleTypes)
                     {
                         var customerLifecycle = lifecycles.FirstOrDefault(c => c.AssetCategoryId == category.AssetCategoryId && c.LifecycleType == lifecycle.LifecycleType);
                         if (customerLifecycle != null)
@@ -349,15 +349,15 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<OrigoProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId)
+        public async Task<IList<OrigoProductModuleGroup>> GetCustomerProductModuleGroupsAsync(Guid customerId)
         {
             try
             {
-                var customerModules = await HttpClient.GetFromJsonAsync<IList<ModuleGroupDTO>>($"{_options.ApiPath}/{customerId}/modules");
+                var customerModules = await HttpClient.GetFromJsonAsync<IList<ModuleGroupDTO>>($"{_options.ApiPath}/{customerId}/modules/groups");
                 var customerModulesList = new List<OrigoProductModuleGroup>();
 
                 if (customerModules == null) return null;
-                customerModulesList.AddRange(customerModules.Select(module => new OrigoProductModuleGroup(module)));
+                customerModulesList.AddRange(customerModules.Select(module => new OrigoProductModuleGroup(module) { IsChecked = true }));
                 return customerModulesList;
             }
             catch (HttpRequestException exception)
@@ -377,12 +377,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoProductModuleGroup> AddProductModulesAsync(Guid customerId, Guid moduleGroupId)
+        public async Task<OrigoProductModuleGroup> AddProductModuleGroupsAsync(Guid customerId, Guid moduleGroupId)
         {
             try
             {
                 var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{customerId}/modules/{moduleGroupId}/add";
+                var requestUri = $"{_options.ApiPath}/{customerId}/modules/groups/{moduleGroupId}/add";
                 var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
                 if (!response.IsSuccessStatusCode)
                 {
@@ -391,7 +391,7 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var customerModules = await response.Content.ReadFromJsonAsync<ModuleGroupDTO>();
-                return customerModules == null ? null : new OrigoProductModuleGroup(customerModules);
+                return customerModules == null ? null : new OrigoProductModuleGroup(customerModules) { IsChecked = true };
             }
             catch (HttpRequestException exception)
             {
@@ -410,12 +410,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoProductModuleGroup> RemoveProductModulesAsync(Guid customerId, Guid moduleGroupId)
+        public async Task<OrigoProductModuleGroup> RemoveProductModuleGroupsAsync(Guid customerId, Guid moduleGroupId)
         {
             try
             {
                 var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{customerId}/modules/{moduleGroupId}/remove";
+                var requestUri = $"{_options.ApiPath}/{customerId}/modules/groups/{moduleGroupId}/remove";
                 var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
                 if (!response.IsSuccessStatusCode)
                 {
@@ -425,6 +425,117 @@ namespace OrigoApiGateway.Services
                 }
                 var customerModules = await response.Content.ReadFromJsonAsync<ModuleGroupDTO>();
                 return customerModules == null ? null : new OrigoProductModuleGroup(customerModules);
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "RemoveProductModulesAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "RemoveProductModulesAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "RemoveProductModulesAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<IList<OrigoProductModule>> GetCustomerProductModulesAsync(Guid customerId)
+        {
+            try
+            {
+                var customerModules = await HttpClient.GetFromJsonAsync<IList<ModuleDTO>>($"{_options.ApiPath}/{customerId}/modules");
+                var customerModulesList = new List<OrigoProductModule>();
+
+                if (customerModules == null) return null;
+                var activeModuleGroups = await GetCustomerProductModuleGroupsAsync(customerId);
+                customerModulesList.AddRange(customerModules.Select(module => new OrigoProductModule()
+                {
+                    ProductModuleId = module.ProductModuleId,
+                    Name = module.Name,
+                    IsChecked = true,
+                    ProductModuleGroup = module.ProductModuleGroup.Select(s => new OrigoProductModuleGroup(s, activeModuleGroups)).ToList()
+                })); ;
+                return customerModulesList;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetCustomerProductModulesAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetCustomerProductModulesAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetCustomerProductModulesAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoProductModule> AddProductModulesAsync(Guid customerId, Guid moduleId)
+        {
+            try
+            {
+                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                var requestUri = $"{_options.ApiPath}/{customerId}/modules/{moduleId}/add";
+                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var exception = new BadHttpRequestException("Unable to add the module to the customer.", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to add the module to the customer.");
+                    throw exception;
+                }
+                var customerModules = await response.Content.ReadFromJsonAsync<ModuleDTO>();
+                return customerModules == null ? null : new OrigoProductModule()
+                {
+                    ProductModuleId = customerModules.ProductModuleId,
+                    Name = customerModules.Name,
+                    ProductModuleGroup = customerModules.ProductModuleGroup.Select(s => new OrigoProductModuleGroup(s)).ToList()
+                };
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "AddProductModulesAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "AddProductModulesAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "AddProductModulesAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoProductModule> RemoveProductModulesAsync(Guid customerId, Guid moduleId)
+        {
+            try
+            {
+                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                var requestUri = $"{_options.ApiPath}/{customerId}/modules/{moduleId}/remove";
+                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var exception = new BadHttpRequestException("Unable to remove the module  to the customer.", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to remove the module to the customer.");
+                    throw exception;
+                }
+                var customerModules = await response.Content.ReadFromJsonAsync<ModuleDTO>();
+                return customerModules == null ? null : new OrigoProductModule()
+                {
+                    ProductModuleId = customerModules.ProductModuleId,
+                    Name = customerModules.Name,
+                    ProductModuleGroup = customerModules.ProductModuleGroup.Select(s => new OrigoProductModuleGroup(s)).ToList()
+                };
             }
             catch (HttpRequestException exception)
             {

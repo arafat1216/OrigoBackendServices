@@ -255,25 +255,29 @@ namespace Customer.API.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/modules")]
+        [Route("{customerId:Guid}/modules/groups")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<ProductModuleGroup>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IList<ProductModuleGroup>>> GetCustomerModules(Guid customerId)
+        public async Task<ActionResult<IList<ProductModuleGroup>>> GetCustomerProductModuleGroups(Guid customerId)
         {
-            var productGroup = await _customerServices.GetCustomerProductModulesAsync(customerId);
+            var productGroup = await _customerServices.GetCustomerProductModuleGroupsAsync(customerId);
             if (productGroup == null) return NotFound();
             var customerProductModules = new List<ProductModuleGroup>();
-            customerProductModules.AddRange(productGroup.Select(module => new ProductModuleGroup() { ProductModuleGroupId = module.ProductModuleGroupId, Name = module.Name }));
+            customerProductModules.AddRange(productGroup.Select(module => new ProductModuleGroup()
+            {
+                ProductModuleGroupId = module.ProductModuleGroupId,
+                Name = module.Name
+            }));
 
             return Ok(customerProductModules);
         }
 
-        [Route("{customerId:Guid}/modules/{moduleGroupId:Guid}/add")]
+        [Route("{customerId:Guid}/modules/groups/{moduleGroupId:Guid}/add")]
         [HttpPost]
         [ProducesResponseType(typeof(ProductModuleGroup), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<ProductModuleGroup>> AddCustomerModules(Guid customerId, Guid moduleGroupId)
+        public async Task<ActionResult<ProductModuleGroup>> AddCustomerProductModuleGroups(Guid customerId, Guid moduleGroupId)
         {
-            var productGroup = await _customerServices.AddProductModulesAsync(customerId, moduleGroupId);
+            var productGroup = await _customerServices.AddProductModuleGroupsAsync(customerId, moduleGroupId);
             if (productGroup == null) return NotFound();
             ProductModuleGroup moduleGroup = new ProductModuleGroup()
             {
@@ -284,17 +288,81 @@ namespace Customer.API.Controllers
             return Ok(moduleGroup);
         }
 
-        [Route("{customerId:Guid}/modules/{moduleGroupId:Guid}/remove")]
+        [Route("{customerId:Guid}/modules/groups/{moduleGroupId:Guid}/remove")]
         [HttpPost]
         [ProducesResponseType(typeof(ProductModuleGroup), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<ProductModuleGroup>> RemoveCustomerModules(Guid customerId, Guid moduleGroupId)
+        public async Task<ActionResult<ProductModuleGroup>> RemoveCustomerProductModuleGroups(Guid customerId, Guid moduleGroupId)
         {
-            var productGroup = await _customerServices.RemoveProductModulesAsync(customerId, moduleGroupId);
+            var productGroup = await _customerServices.RemoveProductModuleGroupsAsync(customerId, moduleGroupId);
             if (productGroup == null) return NotFound();
             ProductModuleGroup moduleGroup = new ProductModuleGroup()
             {
                 ProductModuleGroupId = productGroup.ProductModuleGroupId,
                 Name = productGroup.Name
+            };
+
+            return Ok(moduleGroup);
+        }
+
+        [Route("{customerId:Guid}/modules")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<ProductModule>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IList<ProductModule>>> GetCustomerProductModules(Guid customerId)
+        {
+            var productGroup = await _customerServices.GetCustomerProductModulesAsync(customerId);
+            if (productGroup == null) return NotFound();
+            var customerProductModules = new List<ProductModule>();
+            customerProductModules.AddRange(productGroup.Select(module => new ProductModule()
+            {
+                ProductModuleId = module.ProductModuleId,
+                Name = module.Name,
+                ProductModuleGroup = module.ProductModuleGroup.Select(groups => new ProductModuleGroup()
+                {
+                    Name = groups.Name,
+                    ProductModuleGroupId = groups.ProductModuleGroupId
+                }).ToList()
+            }));
+
+            return Ok(customerProductModules);
+        }
+
+        [Route("{customerId:Guid}/modules/{moduleId:Guid}/add")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ProductModule), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<ProductModule>> AddCustomerProductModules(Guid customerId, Guid moduleId)
+        {
+            var productGroup = await _customerServices.AddProductModulesAsync(customerId, moduleId);
+            if (productGroup == null) return NotFound();
+            ProductModule moduleGroup = new ProductModule()
+            {
+                ProductModuleId = productGroup.ProductModuleId,
+                Name = productGroup.Name,
+                ProductModuleGroup = productGroup.ProductModuleGroup.Select(groups => new ProductModuleGroup()
+                {
+                    Name = groups.Name,
+                    ProductModuleGroupId = groups.ProductModuleGroupId
+                }).ToList()
+            };
+
+            return Ok(moduleGroup);
+        }
+
+        [Route("{customerId:Guid}/modules/{moduleId:Guid}/remove")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ProductModule), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<ProductModule>> RemoveCustomerModules(Guid customerId, Guid moduleId)
+        {
+            var productGroup = await _customerServices.RemoveProductModulesAsync(customerId, moduleId);
+            if (productGroup == null) return NotFound();
+            ProductModule moduleGroup = new ProductModule()
+            {
+                ProductModuleId = productGroup.ProductModuleId,
+                Name = productGroup.Name,
+                ProductModuleGroup = productGroup.ProductModuleGroup.Select(groups => new ProductModuleGroup()
+                {
+                    Name = groups.Name,
+                    ProductModuleGroupId = groups.ProductModuleGroupId
+                }).ToList()
             };
 
             return Ok(moduleGroup);

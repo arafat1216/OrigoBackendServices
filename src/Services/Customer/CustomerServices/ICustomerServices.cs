@@ -22,8 +22,13 @@ namespace CustomerServices
         Task<AssetCategoryType> RemoveAssetCategoryType(Guid customerId, Guid assetCategoryId);
 
         Task<ProductModuleGroup> GetProductModuleGroup(Guid moduleGroupId);
-        Task<IList<ProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId);
-        Task<ProductModuleGroup> AddProductModulesAsync(Guid customerId, Guid moduleGroupId);
-        Task<ProductModuleGroup> RemoveProductModulesAsync(Guid customerId, Guid moduleGroupId);
+        Task<IList<ProductModuleGroup>> GetCustomerProductModuleGroupsAsync(Guid customerId);
+        Task<ProductModuleGroup> AddProductModuleGroupsAsync(Guid customerId, Guid moduleGroupId);
+        Task<ProductModuleGroup> RemoveProductModuleGroupsAsync(Guid customerId, Guid moduleGroupId);
+
+        Task<ProductModule> GetProductModule(Guid moduleId);
+        Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId);
+        Task<ProductModule> AddProductModulesAsync(Guid customerId, Guid moduleId);
+        Task<ProductModule> RemoveProductModulesAsync(Guid customerId, Guid moduleId);
     }
 }

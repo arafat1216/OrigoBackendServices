@@ -205,14 +205,14 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/modules")]
+        [Route("{customerId:Guid}/modules/groups")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoProductModuleGroup>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IList<OrigoProductModuleGroup>>> GetCustomerModules(Guid customerId)
+        public async Task<ActionResult<IList<OrigoProductModuleGroup>>> GetCustomerProductModuleGroups(Guid customerId)
         {
             try
             {
-                var productGroups = await CustomerServices.GetCustomerProductModulesAsync(customerId);
+                var productGroups = await CustomerServices.GetCustomerProductModuleGroupsAsync(customerId);
                 return productGroups != null ? Ok(productGroups) : NotFound();
             }
             catch
@@ -221,14 +221,14 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/modules/{moduleGroupId:Guid}/add")]
+        [Route("{customerId:Guid}/modules/groups/{moduleGroupId:Guid}/add")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoProductModuleGroup), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrigoProductModuleGroup>> AddCustomerModules(Guid customerId, Guid moduleGroupId)
+        public async Task<ActionResult<OrigoProductModuleGroup>> AddCustomerProductModuleGroups(Guid customerId, Guid moduleGroupId)
         {
             try
             {
-                var productGroup = await CustomerServices.AddProductModulesAsync(customerId, moduleGroupId);
+                var productGroup = await CustomerServices.AddProductModuleGroupsAsync(customerId, moduleGroupId);
                 return productGroup != null ? Ok(productGroup) : NotFound();
             }
             catch
@@ -237,15 +237,63 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/modules/{moduleGroupId:Guid}/remove")]
+        [Route("{customerId:Guid}/modules/groups/{moduleGroupId:Guid}/remove")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoProductModuleGroup), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrigoProductModuleGroup>> RemoveCustomerModules(Guid customerId, Guid moduleGroupId)
+        public async Task<ActionResult<OrigoProductModuleGroup>> RemoveCustomerProductModuleGroups(Guid customerId, Guid moduleGroupId)
         {
             try
             {
-                var productGroup = await CustomerServices.RemoveProductModulesAsync(customerId, moduleGroupId);
+                var productGroup = await CustomerServices.RemoveProductModuleGroupsAsync(customerId, moduleGroupId);
                 return productGroup != null ? Ok(productGroup) : NotFound();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{customerId:Guid}/modules")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<OrigoProductModule>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IList<OrigoProductModule>>> GetCustomerProductModule(Guid customerId)
+        {
+            try
+            {
+                var productModules = await CustomerServices.GetCustomerProductModulesAsync(customerId);
+                return productModules != null ? Ok(productModules) : NotFound();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{customerId:Guid}/modules/{moduleId:Guid}/add")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoProductModule), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<OrigoProductModule>> AddCustomerProductModule(Guid customerId, Guid moduleId)
+        {
+            try
+            {
+                var productModules = await CustomerServices.AddProductModulesAsync(customerId, moduleId);
+                return productModules != null ? Ok(productModules) : NotFound();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{customerId:Guid}/modules/{moduleId:Guid}/remove")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoProductModule), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<OrigoProductModule>> RemoveCustomerProductModule(Guid customerId, Guid moduleId)
+        {
+            try
+            {
+                var productModules = await CustomerServices.RemoveProductModulesAsync(customerId, moduleId);
+                return productModules != null ? Ok(productModules) : NotFound();
             }
             catch
             {

@@ -11,5 +11,7 @@ namespace CustomerServices.Models
         public string Name { get; set; }
 
         public IList<ProductModuleGroup> ProductModuleGroup { get; set; }
+
+        public ICollection<Customer> Customers { get; set; }
     }
 }
