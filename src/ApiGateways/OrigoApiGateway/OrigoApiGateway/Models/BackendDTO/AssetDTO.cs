@@ -88,12 +88,7 @@ namespace OrigoApiGateway.Models.BackendDTO
 
         /// <summary>
         /// The status of the asset.
-        /// It can have these values:
-        /// - NoStatus,
-        /// - Active,
-        /// - Inactive,
-        /// - OnRepair,
-        /// - InputRequired
+        /// <see cref="AssetStatus">AssetStatus</see>
         /// </summary>
         public AssetStatus AssetStatus { get; set; }
 
