@@ -34,20 +34,23 @@ namespace OrigoApiGateway.Services
                 var modules = await HttpClient.GetFromJsonAsync<IList<ModuleDTO>>($"{_options.ApiPath}");
                 if (modules == null) return null;
                 var moduleList = new List<OrigoProductModule>();
-                IList<OrigoProductModuleGroup> activeModules = new List<OrigoProductModuleGroup>();
+                IList<OrigoProductModuleGroup> activeModuleGroups = new List<OrigoProductModuleGroup>();
+                IList<OrigoProductModule> activeModules = new List<OrigoProductModule>();
                 if (customerId != null)
                 {
+                    activeModuleGroups = await _customerServices.GetCustomerProductModuleGroupsAsync(customerId.Value);
                     activeModules = await _customerServices.GetCustomerProductModulesAsync(customerId.Value);
                 }
                 foreach (var module in modules)
                 {
+                    var tempModule = activeModules.FirstOrDefault(m => m.ProductModuleId == module.ProductModuleId);
                     OrigoProductModule origoProduct = new OrigoProductModule()
                     {
                         ProductModuleId = module.ProductModuleId,
                         Name = module.Name,
-                        ProductModuleGroup = module.ProductModuleGroup.Select(moduleGroup => new OrigoProductModuleGroup(moduleGroup, activeModules)).ToList()
+                        IsChecked= tempModule != null,
+                        ProductModuleGroup = module.ProductModuleGroup.Select(moduleGroup => new OrigoProductModuleGroup(moduleGroup, activeModuleGroups)).ToList()
                     };
-                    origoProduct.IsChecked = origoProduct?.ProductModuleGroup?.FirstOrDefault(p => p.IsChecked) != null;
                     moduleList.Add(origoProduct);
                 }
                 return moduleList;

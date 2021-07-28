@@ -10,5 +10,6 @@ namespace CustomerServices
     public interface IModuleServices
     {
         Task<IList<ProductModule>> GetModulesAsync();
+        Task<IList<ProductModuleGroup>> GetModuleGroupsAsync();
     }
 }

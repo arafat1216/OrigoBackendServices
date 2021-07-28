@@ -20,7 +20,12 @@ namespace CustomerServices
 
         public async Task<IList<ProductModule>> GetModulesAsync()
         {
-            return await _customerRepository.GetModulesAsync();
+            return await _customerRepository.GetProductModulesAsync();
+        }
+
+        public async Task<IList<ProductModuleGroup>> GetModuleGroupsAsync()
+        {
+            return await _customerRepository.GetProductModuleGroupsAsync();
         }
     }
 }

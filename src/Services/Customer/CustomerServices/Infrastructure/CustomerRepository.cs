@@ -35,6 +35,8 @@ namespace CustomerServices.Infrastructure
         public async Task<Customer> GetCustomerAsync(Guid customerId)
         {
             return await _context.Customers
+                .Include(p => p.SelectedProductModules)
+                .ThenInclude(p => p.ProductModuleGroup)
                 .Include(p => p.SelectedProductModuleGroups)
                 .Include(p => p.SelectedAssetCategories)
                 .ThenInclude(p => p.LifecycleTypes)
@@ -97,12 +99,12 @@ namespace CustomerServices.Infrastructure
             return assetCategoryType;
         }
 
-        public async Task<IList<ProductModule>> GetModulesAsync()
+        public async Task<IList<ProductModuleGroup>> GetProductModuleGroupsAsync()
         {
-            return await _context.ProductModules.Include(p => p.ProductModuleGroup).ToListAsync();
+            return await _context.ProductModuleGroups.ToListAsync();
         }
 
-        public async Task<IList<ProductModuleGroup>> GetCustomerProductModulesAsync(Guid customerId)
+        public async Task<IList<ProductModuleGroup>> GetCustomerProductModuleGroupsAsync(Guid customerId)
         {
             var customer = await GetCustomerAsync(customerId);
             return customer.SelectedProductModuleGroups.ToList();
@@ -111,6 +113,22 @@ namespace CustomerServices.Infrastructure
         public async Task<ProductModuleGroup> GetProductModuleGroupAsync(Guid moduleGroupId)
         {
             return await _context.ProductModuleGroups.FirstOrDefaultAsync(p => p.ProductModuleGroupId == moduleGroupId);
+        }
+
+        public async Task<IList<ProductModule>> GetProductModulesAsync()
+        {
+            return await _context.ProductModules.Include(p => p.ProductModuleGroup).ToListAsync();
+        }
+
+        public async Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId)
+        {
+            var customer = await GetCustomerAsync(customerId);
+            return customer.SelectedProductModules.ToList();
+        }
+
+        public async Task<ProductModule> GetProductModuleAsync(Guid moduleId)
+        {
+            return await _context.ProductModules.Include(m => m.ProductModuleGroup).FirstOrDefaultAsync(p => p.ProductModuleId == moduleId);
         }
     }
 }

@@ -4,35 +4,22 @@ using CustomerServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CustomerServices.Migrations
 {
     [DbContext(typeof(CustomerContext))]
-    partial class CustomerContextModelSnapshot : ModelSnapshot
+    [Migration("20210727093831_ProductModuleGroups")]
+    partial class ProductModuleGroups
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.8")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("CustomerProductModule", b =>
-                {
-                    b.Property<int>("CustomersId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SelectedProductModulesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CustomersId", "SelectedProductModulesId");
-
-                    b.HasIndex("SelectedProductModulesId");
-
-                    b.ToTable("CustomerProductModule");
-                });
 
             modelBuilder.Entity("CustomerProductModuleGroup", b =>
                 {
@@ -154,6 +141,9 @@ namespace CustomerServices.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("LastUpdatedDate")
                         .HasColumnType("datetime2");
 
@@ -164,6 +154,8 @@ namespace CustomerServices.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("ProductModule");
                 });
@@ -238,21 +230,6 @@ namespace CustomerServices.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("User");
-                });
-
-            modelBuilder.Entity("CustomerProductModule", b =>
-                {
-                    b.HasOne("CustomerServices.Models.Customer", null)
-                        .WithMany()
-                        .HasForeignKey("CustomersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CustomerServices.Models.ProductModule", null)
-                        .WithMany()
-                        .HasForeignKey("SelectedProductModulesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("CustomerProductModuleGroup", b =>
@@ -346,6 +323,13 @@ namespace CustomerServices.Migrations
                     b.Navigation("CustomerContactPerson");
                 });
 
+            modelBuilder.Entity("CustomerServices.Models.ProductModule", b =>
+                {
+                    b.HasOne("CustomerServices.Models.Customer", null)
+                        .WithMany("SelectedProductModules")
+                        .HasForeignKey("CustomerId");
+                });
+
             modelBuilder.Entity("CustomerServices.Models.ProductModuleGroup", b =>
                 {
                     b.HasOne("CustomerServices.Models.ProductModule", null)
@@ -372,6 +356,8 @@ namespace CustomerServices.Migrations
                     b.Navigation("SelectedAssetCategories");
 
                     b.Navigation("SelectedAssetCategoryLifecycles");
+
+                    b.Navigation("SelectedProductModules");
 
                     b.Navigation("Users");
                 });
