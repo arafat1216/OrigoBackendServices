@@ -110,7 +110,7 @@ namespace OrigoApiGateway.Models
 
         /// <summary>
         /// The status of the asset.
-        /// <see cref="AssetStatus">AssetStatus</see>
+        /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
         /// </summary>
         public AssetStatus AssetStatus { get; protected set; }
 
