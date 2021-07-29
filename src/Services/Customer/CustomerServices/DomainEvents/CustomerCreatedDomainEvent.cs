@@ -1,5 +1,6 @@
 ﻿using CustomerServices.Models;
 using Common.Logging;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace CustomerServices.DomainEvents
 {

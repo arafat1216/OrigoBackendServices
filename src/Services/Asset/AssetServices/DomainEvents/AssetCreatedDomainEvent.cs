@@ -1,8 +1,9 @@
-﻿using MediatR;
-using System;
-using AssetServices.Models;
+﻿using AssetServices.Models;
 using Common.Logging;
 
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 namespace AssetServices.DomainEvents
 {
     public class AssetCreatedDomainEvent : BaseEvent
@@ -14,5 +15,9 @@ namespace AssetServices.DomainEvents
 
         public Asset NewAsset { get; protected set; }
 
+        public override string EventMessage(string languageCode = "nb-NO")
+        {
+            return $"Asset {Id} created.";
+        }
     }
 }

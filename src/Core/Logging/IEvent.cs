@@ -6,5 +6,7 @@ namespace Common.Logging
     {
         public Guid Id { get;  }
         public DateTime CreationDate { get;  }
+
+        public string EventMessage(string languageCode = "nb-NO");
     }
 }

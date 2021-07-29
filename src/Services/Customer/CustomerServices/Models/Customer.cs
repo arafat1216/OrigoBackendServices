@@ -1,9 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Common.Seedwork;
-// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+using CustomerServices.DomainEvents;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 namespace CustomerServices.Models
 {
     public class Customer : Entity, IAggregateRoot
@@ -18,15 +20,15 @@ namespace CustomerServices.Models
 
         public ContactPerson CustomerContactPerson { get; protected set; }
 
-        public IList<User> Users { get; set; }
+        public IList<User> Users { get; protected set; }
 
-        public ICollection<ProductModule> SelectedProductModules { get; set; }
+        public ICollection<ProductModule> SelectedProductModules { get; protected set; }
 
-        public ICollection<ProductModuleGroup> SelectedProductModuleGroups { get; set; }
+        public ICollection<ProductModuleGroup> SelectedProductModuleGroups { get; protected set; }
 
-        public ICollection<AssetCategoryType> SelectedAssetCategories { get; set; }
+        public ICollection<AssetCategoryType> SelectedAssetCategories { get; protected set; }
 
-        public ICollection<AssetCategoryLifecycleType> SelectedAssetCategoryLifecycles { get; set; }
+        public ICollection<AssetCategoryLifecycleType> SelectedAssetCategoryLifecycles { get; protected set; }
 
         protected Customer()
         {
@@ -41,6 +43,7 @@ namespace CustomerServices.Models
             CompanyAddress = companyAddress;
             CustomerContactPerson = customerContactPerson;
             CustomerId = customerId;
+            AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
     }
 }

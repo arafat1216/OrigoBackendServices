@@ -25,9 +25,14 @@ namespace CustomerServices
             return await _customerRepository.GetCustomersAsync();
         }
 
-        public async Task<Customer> AddCustomerAsync(Customer newCustomer)
+
+        public async Task<Customer> AddCustomerAsync(string companyName, string orgNumber, string contactPersonFullName, string contactPersonEmail,
+            string contactPersonPhoneNumber, string companyAddressStreet, string companyAddressPostCode,
+            string companyAddressCity, string companyAddressCountry)
         {
-            newCustomer.AddDomainEvent(new CustomerCreatedDomainEvent(newCustomer));
+            var companyAddress = new Address(companyAddressStreet, companyAddressPostCode, companyAddressCity, companyAddressCountry);
+            var contactPerson = new ContactPerson(contactPersonFullName, contactPersonEmail, contactPersonPhoneNumber);
+            var newCustomer = new Customer(Guid.NewGuid(), companyName, orgNumber, companyAddress, contactPerson);
             return await _customerRepository.AddAsync(newCustomer);
         }
 

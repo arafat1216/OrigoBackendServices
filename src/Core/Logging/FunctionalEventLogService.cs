@@ -33,20 +33,10 @@ namespace Common.Logging
                 .ToList();
         }
 
-        public async Task<IEnumerable<FunctionalEventLogEntry>> RetrieveEventLogsPendingToPublishAsync(Guid transactionId)
+        public async Task<IList<FunctionalEventLogEntry>> RetrieveEventLogsAsync(Guid entityId)
         {
-            var tid = transactionId.ToString();
-
-            var result = await _functionalEventLogContext.LogEntries
-                .Where(e => e.TransactionId == tid && e.State == EventStateEnum.NotPublished).ToListAsync();
-
-            if (result != null && result.Any())
-            {
-                return result.OrderBy(o => o.CreationTime)
-                    .Select(e => e.DeserializeJsonContent(_eventTypes.Find(t => t.Name == e.EventTypeShortName)));
-            }
-
-            return new List<FunctionalEventLogEntry>();
+            return await _functionalEventLogContext.LogEntries
+                .Where(e => e.EventId == entityId).ToListAsync();
         }
 
         public Task SaveEventAsync(INotification @event, IDbContextTransaction transaction)

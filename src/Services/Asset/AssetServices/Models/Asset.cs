@@ -4,7 +4,10 @@ using Common.Seedwork;
 using AssetServices.Exceptions;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
+using AssetServices.DomainEvents;
 using Common.Enums;
+using MediatR;
+
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -39,6 +42,7 @@ namespace AssetServices.Models
             ErrorMsgList = new List<string>();
             AssetPropertiesAreValid = ValidateAsset();
             Status = status;
+            AddDomainEvent(new AssetCreatedDomainEvent(this));
         }
 
         /// <summary>
@@ -143,6 +147,8 @@ namespace AssetServices.Models
 
         public void SetLifeCycleType(LifecycleType newLifecycleType)
         {
+            var previousLifecycleType = LifecycleType;
+            AddDomainEvent(new SetLifeCycleTypeDomainEvent(this, previousLifecycleType));
             LifecycleType = newLifecycleType;
         }
 
@@ -256,32 +262,44 @@ namespace AssetServices.Models
 
         public void UpdateAssetStatus(AssetStatus status)
         {
+            var previousStatus = Status;
             Status = status;
+            AddDomainEvent(new UpdateAssetStatusDomainEvent(this, previousStatus));
         }
 
         public void UpdateBrand(string brand)
         {
+            var previousBrand = Brand;
             Brand = brand;
+            AddDomainEvent(new BrandChangedDomainEvent(this, previousBrand));
         }
 
         public void UpdateModel(string model)
         {
+            var previousModel = Model;
             Model = model;
+            AddDomainEvent(new ModelChangedDomainEvent(this, previousModel));
         }
 
         public void ChangeSerialNumber(string serialNumber)
         {
+            var previousSerialNumber = SerialNumber;
             SerialNumber = serialNumber;
+            AddDomainEvent(new SerialNumberChangedDomainEvent(this, previousSerialNumber));
         }
 
         public void ChangePurchaseDate(DateTime purchaseDate)
         {
+            var previousPurchaseDate = PurchaseDate;
             PurchaseDate = purchaseDate;
+            AddDomainEvent(new PurchaseDateChangedDomainEvent(this, previousPurchaseDate));
         }
 
         public void AssignAssetToUser(Guid? userId)
         {
+            var oldUserId = AssetHolderId;
             AssetHolderId = userId;
+            AddDomainEvent(new AssignAssetToUserDomainEvent(this, oldUserId));
         }
 
         /// <summary>

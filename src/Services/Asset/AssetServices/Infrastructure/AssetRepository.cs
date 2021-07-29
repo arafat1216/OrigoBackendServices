@@ -81,7 +81,7 @@ namespace AssetServices.Infrastructure
             await _assetContext.SaveChangesAsync();
         }
 
-        private async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
+        public async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
         {
             int numberOfRecordsSaved = 0;
             //Use of an EF Core resiliency strategy when using multiple DbContexts within an explicit BeginTransaction():
@@ -98,6 +98,11 @@ namespace AssetServices.Infrastructure
                 await _mediator.DispatchDomainEventsAsync(_assetContext);
             });
             return numberOfRecordsSaved;
+        }
+
+        public async Task<IList<FunctionalEventLogEntry>> GetAuditLog(Guid assetId)
+        {
+            return await _functionalEventLogService.RetrieveEventLogsAsync(assetId);
         }
     }
 }
