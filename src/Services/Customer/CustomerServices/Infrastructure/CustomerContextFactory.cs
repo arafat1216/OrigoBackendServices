@@ -20,7 +20,7 @@ namespace CustomerServices.Infrastructure
             var connectionString = configuration.GetConnectionString("CustomerConnectionString");
             optionsBuilder.UseSqlServer(connectionString);
 
-            return new CustomerContext(optionsBuilder.Options, null);
+            return new CustomerContext(optionsBuilder.Options);
         }
     }
 }

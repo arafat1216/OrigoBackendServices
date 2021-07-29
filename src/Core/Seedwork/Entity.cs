@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using MediatR;
 
 // ReSharper disable NonReadonlyMemberInGetHashCode
@@ -15,6 +17,8 @@ namespace Common.Seedwork
         public DateTime LastUpdatedDate { get; protected set; }
 
         private List<INotification> _domainEvents;
+        
+        [JsonIgnore]
         public IReadOnlyCollection<INotification> DomainEvents => _domainEvents?.AsReadOnly();
 
         public void AddDomainEvent(INotification eventItem)

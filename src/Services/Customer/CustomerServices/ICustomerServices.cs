@@ -8,7 +8,6 @@ namespace CustomerServices
     public interface ICustomerServices
     {
         Task<IList<Customer>> GetCustomersAsync();
-        Task<Customer> AddCustomerAsync(Customer newCustomer);
         Task<Customer> GetCustomerAsync(Guid customerId);
 
         Task<IList<AssetCategoryLifecycleType>> GetAllAssetCategoryLifecycleTypesForCustomerAsync(Guid customerId);
@@ -30,5 +29,6 @@ namespace CustomerServices
         Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId);
         Task<ProductModule> AddProductModulesAsync(Guid customerId, Guid moduleId);
         Task<ProductModule> RemoveProductModulesAsync(Guid customerId, Guid moduleId);
+        Task<Customer> AddCustomerAsync(string companyName, string orgNumber, string contactPersonFullName, string contactPersonEmail, string contactPersonPhoneNumber, string companyAddressStreet, string companyAddressPostCode, string companyAddressCity, string companyAddressCountry);
     }
 }

@@ -23,4 +23,8 @@
     <ProjectReference Include="..\..\..\Core\Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\LoggingDb\" />
+  </ItemGroup>
+
 </Project>

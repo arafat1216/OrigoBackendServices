@@ -23,7 +23,7 @@ namespace AssetServices
         Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string serialNumber, string brand, string model, DateTime purchaseDate);
         Task<Asset> AssignAsset(Guid customerId, Guid assetId, Guid? userId);
         Task<IList<AssetCategory>> GetAssetCategoriesAsync();
-        Task<IList<AssetAuditLog>> GetAssetAuditLog();
-        Task<IList<AssetLifecycle>> GetLifecycles();
+        Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId);
+        IList<AssetLifecycle> GetLifecycles();
     }
 }

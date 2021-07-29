@@ -44,8 +44,11 @@ stages:
     - script: 'dotnet tool install --global dotnet-ef'
       displayName: Install EF Core
 
-    - script: 'dotnet ef migrations script --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/Customer/CustomerServices/CustomerServices.csproj'
-      displayName: Create migration scripts
+    - script: 'dotnet ef migrations script --context CustomerContext --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/Customer/CustomerServices/CustomerServices.csproj'
+      displayName: Create customer migration scripts
+
+    - script: 'dotnet ef migrations script --context LoggingDbContext --idempotent --output $(build.artifactstagingdirectory)/migrations/logging_migrations.sql --project src/Services/Customer/CustomerServices/CustomerServices.csproj'
+      displayName: Create customer logging migration scripts
 
     - task: PublishPipelineArtifact@1
       displayName: 'Publish migrations'
@@ -133,6 +136,15 @@ stages:
               connectionString: $(CustomerDbConnection)
               deployType: SqlTask
               sqlFile: $(System.ArtifactsDirectory)/migrations/migrations.sql
+          - task: SqlAzureDacpacDeployment@1
+            displayName: Run sql migrations
+            inputs:
+              azureConnectionType: ConnectedServiceNameARM
+              azureSubscription: OrigoV2ServiceConnection
+              authenticationType: connectionString
+              connectionString: $(CustomerDbConnection)
+              deployType: SqlTask
+              sqlFile: $(System.ArtifactsDirectory)/migrations/logging_migrations.sql
 
   - deployment: Deploy
     condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
