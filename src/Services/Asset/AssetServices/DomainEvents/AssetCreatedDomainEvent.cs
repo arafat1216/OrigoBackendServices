@@ -1,17 +1,18 @@
 ﻿using MediatR;
 using System;
 using AssetServices.Models;
+using Common.Logging;
 
 namespace AssetServices.DomainEvents
 {
-    public class AssetCreatedDomainEvent : INotification
+    public class AssetCreatedDomainEvent : BaseEvent
     {
-        public AssetCreatedDomainEvent(Asset newAsset)
+        public AssetCreatedDomainEvent(Asset newAsset) : base(newAsset.AssetId)
         {
             NewAsset = newAsset;
         }
 
-        public Asset NewAsset { get; set; }
+        public Asset NewAsset { get; protected set; }
 
     }
 }

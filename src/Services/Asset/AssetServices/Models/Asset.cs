@@ -4,8 +4,6 @@ using Common.Seedwork;
 using AssetServices.Exceptions;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
-using AssetServices.Infrastructure;
-using System.Threading.Tasks;
 using Common.Enums;
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -14,7 +12,8 @@ namespace AssetServices.Models
 {
     public class Asset : Entity, IAggregateRoot
     {
-        // TODO: Set to protected as DDD best practice
+        // Set to protected as DDD best practice
+        // ReSharper disable once UnusedMember.Global
         protected Asset()
         {
         }
@@ -25,7 +24,7 @@ namespace AssetServices.Models
         {
             AssetId = assetId;
             CustomerId = customerId;
-            SerialNumber = (serialNumber != null) ? serialNumber : string.Empty;
+            SerialNumber = serialNumber ?? string.Empty;
             AssetCategoryId = assetCategory.Id;
             AssetCategory = assetCategory;
             Brand = brand;
@@ -35,8 +34,8 @@ namespace AssetServices.Models
             AssetHolderId = assetHolderId;
             IsActive = isActive;
             ManagedByDepartmentId = managedByDepartmentId;
-            Imei = (imei != null) ? imei : string.Empty;
-            MacAddress = (macAddress != null) ? macAddress : string.Empty;
+            Imei = imei ?? string.Empty;
+            MacAddress = macAddress ?? string.Empty;
             ErrorMsgList = new List<string>();
             AssetPropertiesAreValid = ValidateAsset();
             Status = status;
@@ -97,7 +96,7 @@ namespace AssetServices.Models
             {
                 if (!ValidateImei(e))
                 {
-                    throw new InvalidAssetDataException(string.Format("Invalid imei: {0}", e));
+                    throw new InvalidAssetDataException($"Invalid imei: {e}");
                 }
             }
             Imei = imei;
@@ -114,7 +113,7 @@ namespace AssetServices.Models
             {
                 if (!ValidateImei(e))
                 {
-                    throw new InvalidAssetDataException(string.Format("Invalid imei: {0}", e));
+                    throw new InvalidAssetDataException($"Invalid imei: {e}");
                 }
             }
 
@@ -172,9 +171,9 @@ namespace AssetServices.Models
         public AssetStatus Status { get; protected set; }
 
         /// <summary>
-        /// A comma seperated string holding 0->n imei numbers for this entity.
+        /// A comma separated string holding 0->n imei numbers for this entity.
         /// 
-        /// A mobile phone must have atleast 1 imei.
+        /// A mobile phone must have at least 1 imei.
         /// </summary>
         public string Imei { get; protected set; }
 
@@ -184,7 +183,7 @@ namespace AssetServices.Models
         public string MacAddress { get; protected set; }
 
         /// <summary>
-        /// Defines wether the asset made has the necessary properties set, as defined by ValidateAsset.
+        /// Defines whether the asset made has the necessary properties set, as defined by ValidateAsset.
         /// </summary>
         [NotMapped]
         public bool AssetPropertiesAreValid { get; protected set; }
@@ -213,8 +212,6 @@ namespace AssetServices.Models
 
 
             int sumDigits = 0;
-            int diffValue = 0;
-            int sumRounded = 0;
 
             // temp value
             int d = 0;
@@ -244,10 +241,10 @@ namespace AssetServices.Models
                 sumDigits += d;
             }
 
-            // Round up to neares multiplicative of 10: 52 -> 60
-            sumRounded = (int)Math.Ceiling(((double)sumDigits / 10)) * 10;
+            // Round up to nearest multiplicative of 10: 52 -> 60
+            var sumRounded = (int)Math.Ceiling(((double)sumDigits / 10)) * 10;
 
-            diffValue = sumRounded - sumDigits;
+            var diffValue = sumRounded - sumDigits;
 
             return diffValue == validationDigit;
         }
@@ -289,13 +286,13 @@ namespace AssetServices.Models
 
         /// <summary>
         /// Validate the properties of the asset.
-        //  All assets need the following properties set (default values count as null):
-        //   - customerId
-        //   - brand
-        //   - model
-        //   - purchaseDate
-        //
-        //  Additional restrictions based on asset category:
+        ///  All assets need the following properties set (default values count as null):
+        ///   - customerId
+        ///   - brand
+        ///   - model
+        ///   - purchaseDate
+        ///
+        ///  Additional restrictions based on asset category:
         /// Mobile phones:
         ///  - Imei must be valid
         /// </summary>
