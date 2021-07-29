@@ -6,6 +6,7 @@ namespace CustomerServices.Models
 {
     public interface ICustomerRepository
     {
+        // TODO: Should be removed. All saving should happen in the repository class and not in the service class.
         Task SaveChanges();
         Task<Customer> AddAsync(Customer customer);
         Task<IList<Customer>> GetCustomersAsync();

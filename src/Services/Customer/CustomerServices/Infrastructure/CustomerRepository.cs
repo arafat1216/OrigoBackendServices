@@ -25,6 +25,7 @@ namespace CustomerServices.Infrastructure
             _mediator = mediator;
         }
 
+        // TODO: Should be removed and all reference replaced with SaveEntitiesAsync.
         public async Task SaveChanges()
         {
             await _customerContext.SaveChangesAsync();
@@ -44,7 +45,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<Customer> GetCustomerAsync(Guid customerId)
         {
-            return await _context.Customers
+            return await _customerContext.Customers
                 .Include(p => p.SelectedProductModules)
                 .ThenInclude(p => p.ProductModuleGroup)
                 .Include(p => p.SelectedProductModuleGroups)
@@ -111,7 +112,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<IList<ProductModuleGroup>> GetProductModuleGroupsAsync()
         {
-            return await _context.ProductModuleGroups.ToListAsync();
+            return await _customerContext.ProductModuleGroups.ToListAsync();
         }
 
         public async Task<IList<ProductModuleGroup>> GetCustomerProductModuleGroupsAsync(Guid customerId)
@@ -146,7 +147,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<IList<ProductModule>> GetProductModulesAsync()
         {
-            return await _context.ProductModules.Include(p => p.ProductModuleGroup).ToListAsync();
+            return await _customerContext.ProductModules.Include(p => p.ProductModuleGroup).ToListAsync();
         }
 
         public async Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId)
@@ -157,7 +158,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<ProductModule> GetProductModuleAsync(Guid moduleId)
         {
-            return await _context.ProductModules.Include(m => m.ProductModuleGroup).FirstOrDefaultAsync(p => p.ProductModuleId == moduleId);
+            return await _customerContext.ProductModules.Include(m => m.ProductModuleGroup).FirstOrDefaultAsync(p => p.ProductModuleId == moduleId);
         }
     }
 }

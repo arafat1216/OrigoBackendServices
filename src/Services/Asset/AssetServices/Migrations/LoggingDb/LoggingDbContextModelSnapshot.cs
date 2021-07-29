@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace CustomerServices.Migrations.LoggingDb
+namespace AssetServices.Migrations.LoggingDb
 {
     [DbContext(typeof(LoggingDbContext))]
     partial class LoggingDbContextModelSnapshot : ModelSnapshot

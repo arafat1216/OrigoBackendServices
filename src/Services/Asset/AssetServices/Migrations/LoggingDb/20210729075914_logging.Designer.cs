@@ -4,14 +4,16 @@ using Common.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace CustomerServices.Migrations.LoggingDb
+namespace AssetServices.Migrations.LoggingDb
 {
     [DbContext(typeof(LoggingDbContext))]
-    partial class LoggingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210729075914_logging")]
+    partial class logging
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

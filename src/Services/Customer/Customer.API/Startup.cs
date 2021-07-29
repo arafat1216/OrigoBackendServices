@@ -42,24 +42,20 @@ namespace Customer.API
                     new OpenApiInfo {Title = "Customer Management", Version = $"v{_apiVersion.MajorVersion}"});
             });
             services.AddApplicationInsightsTelemetry();
-            services.AddDbContext<CustomerContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("CustomerConnectionString"),
-                    sqlOptions =>
-                    {
-                        sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
-                        //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
-                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                    })
-                );
-            services.AddDbContext<LoggingDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("CustomerConnectionString"),
-                    sqlOptions =>
-                    {
-                        sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
-                        //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
-                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                    })
-            );
+            services.AddDbContext<CustomerContext>(options => options.UseSqlServer(
+                Configuration.GetConnectionString("CustomerConnectionString"), sqlOptions =>
+                {
+                    sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
+                    //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
+                    sqlOptions.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
+                }));
+            services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(
+                Configuration.GetConnectionString("CustomerConnectionString"), sqlOptions =>
+                {
+                    sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
+                    //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
+                    sqlOptions.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
+                }));
             services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
             services.AddScoped<ICustomerServices, CustomerServices.CustomerServices>();
             services.AddScoped<IUserServices, UserServices>();

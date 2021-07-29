@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AssetServices.DomainEvents;
 using AssetServices.Exceptions;
 using AssetServices.Models;
 using Common.Enums;
@@ -74,6 +75,7 @@ namespace AssetServices
                 }
                 throw new InvalidAssetDataException(exceptionMsg.ToString());
             }
+            newAsset.AddDomainEvent(new AssetCreatedDomainEvent(newAsset));
             return await _assetRepository.AddAsync(newAsset);
         }
 

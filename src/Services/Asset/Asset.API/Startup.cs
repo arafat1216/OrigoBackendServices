@@ -4,6 +4,7 @@ using AssetServices;
 using AssetServices.Infrastructure;
 using AssetServices.Models;
 using Common.Logging;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -43,21 +44,26 @@ namespace Asset.API
             });
             services.AddApplicationInsightsTelemetry();
 
-            services.AddDbContext<AssetsContext>(
-                options => options.UseSqlServer(Configuration.GetConnectionString("AssetConnectionString")),
-                ServiceLifetime.Transient);
+            services.AddDbContext<AssetsContext>(options => options.UseSqlServer(
+                Configuration.GetConnectionString("AssetConnectionString"), sqlOptions =>
+                {
+                    sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
+                    //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
+                    sqlOptions.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
+                }));
             services.AddDbContext<LoggingDbContext>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("AssetConnectionString"),
-                    sqlServerOptionsAction: sqlOptions =>
-                    {
-                        sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
-                        //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
-                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                    });
+                options.UseSqlServer(Configuration.GetConnectionString("AssetConnectionString"), sqlOptions =>
+                {
+                    sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
+                    //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
+                    sqlOptions.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
+                });
             });
+            services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
             services.AddScoped<IAssetServices, AssetServices.AssetServices>();
             services.AddScoped<IAssetRepository, AssetRepository>();
+            services.AddMediatR(typeof(Startup));
 
             //services.AddHealthChecks()
             //    .AddCheck("self", () => HealthCheckResult.Healthy("Gateway is ok"), tags: new[]{"Origo API Gateway"})

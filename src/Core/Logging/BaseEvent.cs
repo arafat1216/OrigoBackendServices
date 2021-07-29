@@ -5,9 +5,9 @@ namespace Common.Logging
 {
     public class BaseEvent : INotification, IEvent
     {
-        protected BaseEvent()
+        protected BaseEvent(Guid id)
         {
-            Id = Guid.NewGuid();
+            Id = id;
             CreationDate = DateTime.UtcNow;
         }
 
