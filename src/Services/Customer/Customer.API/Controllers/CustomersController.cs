@@ -32,8 +32,8 @@ namespace Customer.API.Controllers
 
         [Route("{customerId:Guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(ViewModels.Customer), (int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(ViewModels.Customer), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<ViewModels.Customer>> Get(Guid customerId)
         {
             var customer = await _customerServices.GetCustomerAsync(customerId);
@@ -50,7 +50,7 @@ namespace Customer.API.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<ViewModels.Customer>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<ViewModels.Customer>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<ViewModels.Customer>>> Get()
         {
             var customers = await _customerServices.GetCustomersAsync();
@@ -69,7 +69,7 @@ namespace Customer.API.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.Customer), (int) HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ViewModels.Customer), (int)HttpStatusCode.Created)]
         public async Task<ActionResult<ViewModels.Customer>> CreateCustomer([FromBody] NewCustomer customer)
         {
             var updatedCustomer = await _customerServices.AddCustomerAsync(customer.CompanyName, customer.OrgNumber,
@@ -85,7 +85,7 @@ namespace Customer.API.Controllers
                 CustomerContactPerson = new ContactPerson(updatedCustomer.CustomerContactPerson)
             };
 
-            return CreatedAtAction(nameof(CreateCustomer), new {id = updatedCustomerView.Id}, updatedCustomerView);
+            return CreatedAtAction(nameof(CreateCustomer), new { id = updatedCustomerView.Id }, updatedCustomerView);
         }
 
         [Route("{customerId:Guid}/assetCategory")]
@@ -114,25 +114,30 @@ namespace Customer.API.Controllers
 
         [Route("{customerId:Guid}/assetCategory")]
         [HttpPost]
-        [ProducesResponseType(typeof(AssetCategoryLifecycleType), (int)HttpStatusCode.Created)]
-        public async Task<ActionResult<AssetCategoryLifecycleType>> AddCustomerAssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId, int lifecycle)
+        [ProducesResponseType(typeof(AssetCategoryType), (int)HttpStatusCode.Created)]
+        public async Task<ActionResult<AssetCategoryType>> AddCustomerAssetCategory(Guid customerId, UpdateAssetCategoryType addedAssetCategory)
         {
             try
             {
-                // Check if given int is within valid range of values
-                if (!Enum.IsDefined(typeof(LifecycleType), lifecycle))
+                var assetCategory = new CustomerServices.Models.AssetCategoryType(addedAssetCategory.AssetCategoryId, addedAssetCategory.CustomerId, new List<CustomerServices.Models.AssetCategoryLifecycleType>());
+                foreach (int lifecycle in addedAssetCategory.LifecycleTypes)
                 {
-                    Array arr = Enum.GetValues(typeof(LifecycleType));
-                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", lifecycle));
-                    foreach (LifecycleType e in arr)
+                    // Check if given int is within valid range of values
+                    if (!Enum.IsDefined(typeof(LifecycleType), lifecycle))
                     {
-                        errorMessage.Append($"    -{(int)e} ({e})\n");
+                        Array arr = Enum.GetValues(typeof(LifecycleType));
+                        StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", lifecycle));
+                        foreach (LifecycleType e in arr)
+                        {
+                            errorMessage.Append($"    -{(int)e} ({e})\n");
+                        }
+                        throw new InvalidLifecycleTypeException(errorMessage.ToString());
                     }
-                    throw new InvalidLifecycleTypeException(errorMessage.ToString());
+                    var lifecycleType = new CustomerServices.Models.AssetCategoryLifecycleType(addedAssetCategory.CustomerId, addedAssetCategory.AssetCategoryId, lifecycle);
+                    assetCategory.LifecycleTypes.Add(lifecycleType);
                 }
-
-                var newAssetCategoryLifecycleType = await _customerServices.AddAssetCategoryLifecycleTypeForCustomerAsync(customerId, assetCategoryId, lifecycle);
-                var assetCategoryLifecycleTypeView = new ViewModels.AssetCategoryLifecycleType
+                var assetCategories = await _customerServices.AddAssetCategoryType(customerId, assetCategory);
+                var assetCategoryView = new AssetCategoryType
                 {
                     CustomerId = assetCategories.ExternalCustomerId,
                     AssetCategoryId = assetCategories.AssetCategoryId,
@@ -201,7 +206,7 @@ namespace Customer.API.Controllers
 
         [Route("{customerId:Guid}/modules/groups")]
         [HttpGet]
-        [ProducesResponseType(typeof(IList<ProductModuleGroup>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<ProductModuleGroup>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IList<ProductModuleGroup>>> GetCustomerProductModuleGroups(Guid customerId)
         {
             var productGroup = await _customerServices.GetCustomerProductModuleGroupsAsync(customerId);
@@ -209,7 +214,8 @@ namespace Customer.API.Controllers
             var customerProductModules = new List<ProductModuleGroup>();
             customerProductModules.AddRange(productGroup.Select(module => new ProductModuleGroup
             {
-                ProductModuleGroupId = module.ProductModuleGroupId, Name = module.Name
+                ProductModuleGroupId = module.ProductModuleGroupId,
+                Name = module.Name
             }));
 
             return Ok(customerProductModules);
@@ -217,7 +223,7 @@ namespace Customer.API.Controllers
 
         [Route("{customerId:Guid}/modules/groups/{moduleGroupId:Guid}/add")]
         [HttpPost]
-        [ProducesResponseType(typeof(ProductModuleGroup), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProductModuleGroup), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<ProductModuleGroup>> AddCustomerProductModuleGroups(Guid customerId,
             Guid moduleGroupId)
         {
@@ -225,7 +231,8 @@ namespace Customer.API.Controllers
             if (productGroup == null) return NotFound();
             var moduleGroup = new ProductModuleGroup
             {
-                ProductModuleGroupId = productGroup.ProductModuleGroupId, Name = productGroup.Name
+                ProductModuleGroupId = productGroup.ProductModuleGroupId,
+                Name = productGroup.Name
             };
 
             return Ok(moduleGroup);
@@ -233,7 +240,7 @@ namespace Customer.API.Controllers
 
         [Route("{customerId:Guid}/modules/groups/{moduleGroupId:Guid}/remove")]
         [HttpPost]
-        [ProducesResponseType(typeof(ProductModuleGroup), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProductModuleGroup), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<ProductModuleGroup>> RemoveCustomerProductModuleGroups(Guid customerId,
             Guid moduleGroupId)
         {
@@ -241,7 +248,8 @@ namespace Customer.API.Controllers
             if (productGroup == null) return NotFound();
             var moduleGroup = new ProductModuleGroup
             {
-                ProductModuleGroupId = productGroup.ProductModuleGroupId, Name = productGroup.Name
+                ProductModuleGroupId = productGroup.ProductModuleGroupId,
+                Name = productGroup.Name
             };
 
             return Ok(moduleGroup);
@@ -249,7 +257,7 @@ namespace Customer.API.Controllers
 
         [Route("{customerId:Guid}/modules")]
         [HttpGet]
-        [ProducesResponseType(typeof(IList<ProductModule>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<ProductModule>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IList<ProductModule>>> GetCustomerProductModules(Guid customerId)
         {
             var productGroup = await _customerServices.GetCustomerProductModulesAsync(customerId);
@@ -261,7 +269,8 @@ namespace Customer.API.Controllers
                 Name = module.Name,
                 ProductModuleGroup = module.ProductModuleGroup.Select(groups => new ProductModuleGroup
                 {
-                    Name = groups.Name, ProductModuleGroupId = groups.ProductModuleGroupId
+                    Name = groups.Name,
+                    ProductModuleGroupId = groups.ProductModuleGroupId
                 }).ToList()
             }));
 
@@ -270,7 +279,7 @@ namespace Customer.API.Controllers
 
         [Route("{customerId:Guid}/modules/{moduleId:Guid}/add")]
         [HttpPost]
-        [ProducesResponseType(typeof(ProductModule), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProductModule), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<ProductModule>> AddCustomerProductModules(Guid customerId, Guid moduleId)
         {
             var productGroup = await _customerServices.AddProductModulesAsync(customerId, moduleId);
@@ -281,7 +290,8 @@ namespace Customer.API.Controllers
                 Name = productGroup.Name,
                 ProductModuleGroup = productGroup.ProductModuleGroup.Select(groups => new ProductModuleGroup
                 {
-                    Name = groups.Name, ProductModuleGroupId = groups.ProductModuleGroupId
+                    Name = groups.Name,
+                    ProductModuleGroupId = groups.ProductModuleGroupId
                 }).ToList()
             };
 
@@ -290,7 +300,7 @@ namespace Customer.API.Controllers
 
         [Route("{customerId:Guid}/modules/{moduleId:Guid}/remove")]
         [HttpPost]
-        [ProducesResponseType(typeof(ProductModule), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProductModule), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<ProductModule>> RemoveCustomerModules(Guid customerId, Guid moduleId)
         {
             var productGroup = await _customerServices.RemoveProductModulesAsync(customerId, moduleId);
@@ -301,7 +311,8 @@ namespace Customer.API.Controllers
                 Name = productGroup.Name,
                 ProductModuleGroup = productGroup.ProductModuleGroup.Select(groups => new ProductModuleGroup
                 {
-                    Name = groups.Name, ProductModuleGroupId = groups.ProductModuleGroupId
+                    Name = groups.Name,
+                    ProductModuleGroupId = groups.ProductModuleGroupId
                 }).ToList()
             };
 

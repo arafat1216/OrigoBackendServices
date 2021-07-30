@@ -83,7 +83,7 @@ namespace CustomerServices.Infrastructure
             {
                 // item is already removed or did not exsit
             }
-            await _customerContext.SaveEntitiesAsync();
+            await SaveEntitiesAsync();
             return assetCategoryLifecycleTypes;
         }
 
@@ -108,7 +108,7 @@ namespace CustomerServices.Infrastructure
             {
                 // item is already removed or did not exsit
             }
-            await _customerContext.SaveEntitiesAsync();
+            await SaveEntitiesAsync();
             return assetCategoryType;
         }
 
