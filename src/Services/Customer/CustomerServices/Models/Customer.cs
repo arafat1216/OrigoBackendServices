@@ -26,8 +26,6 @@ namespace CustomerServices.Models
 
         public ICollection<AssetCategoryType> SelectedAssetCategories { get; set; }
 
-        public ICollection<AssetCategoryLifecycleType> SelectedAssetCategoryLifecycles { get; set; }
-
         protected Customer()
         {
 

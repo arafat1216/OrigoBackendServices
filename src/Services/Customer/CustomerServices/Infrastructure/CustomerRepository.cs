@@ -40,7 +40,6 @@ namespace CustomerServices.Infrastructure
                 .Include(p => p.SelectedProductModuleGroups)
                 .Include(p => p.SelectedAssetCategories)
                 .ThenInclude(p => p.LifecycleTypes)
-                .Include(p => p.SelectedAssetCategoryLifecycles)
                 .FirstOrDefaultAsync(c => c.CustomerId == customerId);
         }
 
@@ -62,23 +61,18 @@ namespace CustomerServices.Infrastructure
             return newUser;
         }
 
-
-        public async Task<IList<AssetCategoryLifecycleType>> GetAssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId)
+        public async Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes)
         {
-            return await _context.AssetCategoryLifecycleTypes.Where(p => p.AssetCategoryId == assetCategoryId && p.CustomerId == customerId).ToListAsync();
-        }
-
-        public async Task<IList<AssetCategoryLifecycleType>> GetAllAssetCategoryLifecycleTypesAsync(Guid customerId)
-        {
-            var customer = await GetCustomerAsync(customerId);
-            return customer.SelectedAssetCategoryLifecycles.ToList();
-        }
-
-        public async Task<AssetCategoryLifecycleType> DeleteAssetCategoryLifecycleTypeAsync(AssetCategoryLifecycleType assetCategoryLifecycleType)
-        {
-            _context.AssetCategoryLifecycleTypes.Remove(assetCategoryLifecycleType);
+            try
+            {
+                _context.AssetCategoryLifecycleTypes.RemoveRange(assetCategoryLifecycleTypes);
+            }
+            catch
+            {
+                // item is already removed or did not exsit
+            }
             await _context.SaveChangesAsync();
-            return assetCategoryLifecycleType;
+            return assetCategoryLifecycleTypes;
         }
 
         public async Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, Guid assetCategoryId)
@@ -94,7 +88,14 @@ namespace CustomerServices.Infrastructure
 
         public async Task<AssetCategoryType> DeleteAssetCategoryTypeAsync(AssetCategoryType assetCategoryType)
         {
-            _context.AssetCategoryTypes.Remove(assetCategoryType);
+            try
+            {
+                _context.AssetCategoryTypes.Remove(assetCategoryType);
+            }
+            catch
+            {
+                // item is already removed or did not exsit
+            }
             await _context.SaveChangesAsync();
             return assetCategoryType;
         }
