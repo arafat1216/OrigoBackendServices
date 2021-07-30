@@ -192,11 +192,11 @@ namespace Asset.API.Controllers
         [ProducesResponseType(typeof(IList<ViewModels.AssetLifecycle>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> GetLifecycles()
+        public ActionResult GetLifecycles()
         {
             try
             {
-                var lifecycles = await _assetServices.GetLifecycles();
+                var lifecycles = _assetServices.GetLifecycles();
                 if (lifecycles == null)
                 {
                     return NotFound();
@@ -332,7 +332,7 @@ namespace Asset.API.Controllers
                     return NotFound();
                 }
 
-                var assetLogList = await _assetServices.GetAssetAuditLog();
+                var assetLogList = await _assetServices.GetAssetAuditLog(assetId);
 
                 return Ok(assetLogList);
             }
