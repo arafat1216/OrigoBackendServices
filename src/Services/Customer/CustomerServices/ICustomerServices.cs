@@ -16,15 +16,10 @@ namespace CustomerServices
         Task<AssetCategoryType> AddAssetCategoryType(Guid customerId, AssetCategoryType addedAssetCategory);
         Task<AssetCategoryType> RemoveAssetCategoryType(Guid customerId, AssetCategoryType deletedAssetCategory);
 
-        Task<ProductModuleGroup> GetProductModuleGroup(Guid moduleGroupId);
-        Task<IList<ProductModuleGroup>> GetCustomerProductModuleGroupsAsync(Guid customerId);
-        Task<ProductModuleGroup> AddProductModuleGroupsAsync(Guid customerId, Guid moduleGroupId);
-        Task<ProductModuleGroup> RemoveProductModuleGroupsAsync(Guid customerId, Guid moduleGroupId);
-
-        Task<ProductModule> GetProductModule(Guid moduleId);
         Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId);
-        Task<ProductModule> AddProductModulesAsync(Guid customerId, Guid moduleId);
-        Task<ProductModule> RemoveProductModulesAsync(Guid customerId, Guid moduleId);
+        Task<ProductModule> AddProductModulesAsync(Guid customerId, Guid moduleId, IList<Guid> productModuleGroupIds);
+        Task<ProductModule> RemoveProductModulesAsync(Guid customerId, Guid moduleId, IList<Guid> productModuleGroupIds);
+
         Task<Customer> AddCustomerAsync(string companyName, string orgNumber, string contactPersonFullName, string contactPersonEmail, string contactPersonPhoneNumber, string companyAddressStreet, string companyAddressPostCode, string companyAddressCity, string companyAddressCountry);
     }
 }

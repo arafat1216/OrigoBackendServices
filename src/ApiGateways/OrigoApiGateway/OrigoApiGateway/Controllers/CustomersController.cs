@@ -139,54 +139,6 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/modules/groups")]
-        [HttpGet]
-        [ProducesResponseType(typeof(IList<OrigoProductModuleGroup>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IList<OrigoProductModuleGroup>>> GetCustomerProductModuleGroups(Guid customerId)
-        {
-            try
-            {
-                var productGroups = await CustomerServices.GetCustomerProductModuleGroupsAsync(customerId);
-                return productGroups != null ? Ok(productGroups) : NotFound();
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
-
-        [Route("{customerId:Guid}/modules/groups/{moduleGroupId:Guid}/add")]
-        [HttpPatch]
-        [ProducesResponseType(typeof(OrigoProductModuleGroup), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrigoProductModuleGroup>> AddCustomerProductModuleGroups(Guid customerId, Guid moduleGroupId)
-        {
-            try
-            {
-                var productGroup = await CustomerServices.AddProductModuleGroupsAsync(customerId, moduleGroupId);
-                return productGroup != null ? Ok(productGroup) : NotFound();
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
-
-        [Route("{customerId:Guid}/modules/groups/{moduleGroupId:Guid}/remove")]
-        [HttpPatch]
-        [ProducesResponseType(typeof(OrigoProductModuleGroup), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrigoProductModuleGroup>> RemoveCustomerProductModuleGroups(Guid customerId, Guid moduleGroupId)
-        {
-            try
-            {
-                var productGroup = await CustomerServices.RemoveProductModuleGroupsAsync(customerId, moduleGroupId);
-                return productGroup != null ? Ok(productGroup) : NotFound();
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
-
         [Route("{customerId:Guid}/modules")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoProductModule>), (int)HttpStatusCode.OK)]
@@ -203,14 +155,14 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/modules/{moduleId:Guid}/add")]
+        [Route("{customerId:Guid}/modules")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoProductModule), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrigoProductModule>> AddCustomerProductModule(Guid customerId, Guid moduleId)
+        public async Task<ActionResult<OrigoProductModule>> AddCustomerProductModule(Guid customerId, NewCustomerProductModule productModule)
         {
             try
             {
-                var productModules = await CustomerServices.AddProductModulesAsync(customerId, moduleId);
+                var productModules = await CustomerServices.AddProductModulesAsync(customerId, productModule);
                 return productModules != null ? Ok(productModules) : NotFound();
             }
             catch
@@ -219,15 +171,15 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/modules/{moduleId:Guid}/remove")]
-        [HttpPatch]
+        [Route("{customerId:Guid}/modules")]
+        [HttpDelete]
         [ProducesResponseType(typeof(OrigoProductModule), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrigoProductModule>> RemoveCustomerProductModule(Guid customerId, Guid moduleId)
+        public async Task<ActionResult<OrigoProductModule>> DeleteCustomerProductModule(Guid customerId, NewCustomerProductModule productModule)
         {
             try
             {
-                var productModules = await CustomerServices.RemoveProductModulesAsync(customerId, moduleId);
-                return productModules != null ? Ok(productModules) : NotFound();
+                var productModules = await CustomerServices.RemoveProductModulesAsync(customerId, productModule);
+                return productModules != null ? Ok(productModules) : NoContent();
             }
             catch
             {

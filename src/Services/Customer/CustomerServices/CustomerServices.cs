@@ -79,7 +79,7 @@ namespace CustomerServices
             {
                 customer.SelectedAssetCategories.Add(addedAssetCategory);
             }
-            await _customerRepository.SaveChanges();
+            await _customerRepository.SaveEntitiesAsync();
             // return updated object
             return await GetAssetCategoryType(customerId, addedAssetCategory.AssetCategoryId);
         }
@@ -106,80 +106,46 @@ namespace CustomerServices
             return await GetAssetCategoryType(customerId, deletedAssetCategory.AssetCategoryId);
         }
 
-        public async Task<ProductModuleGroup> GetProductModuleGroup(Guid moduleGroupId)
-        {
-            return await _customerRepository.GetProductModuleGroupAsync(moduleGroupId);
-        }
-
-        public async Task<IList<ProductModuleGroup>> GetCustomerProductModuleGroupsAsync(Guid customerId)
-        {
-            return await _customerRepository.GetCustomerProductModuleGroupsAsync(customerId);
-        }
-
-        public async Task<ProductModuleGroup> AddProductModuleGroupsAsync(Guid customerId, Guid moduleGroupId)
-        {
-            var customer = await GetCustomerAsync(customerId);
-            var moduleGroup = await GetProductModuleGroup(moduleGroupId);
-            if (customer == null)
-            {
-                return null;
-            }
-            customer.SelectedProductModuleGroups.Add(moduleGroup);
-            await _customerRepository.SaveChanges();
-            return moduleGroup;
-        }
-
-        public async Task<ProductModuleGroup> RemoveProductModuleGroupsAsync(Guid customerId, Guid moduleGroupId)
-        {
-            var customer = await GetCustomerAsync(customerId);
-            var moduleGroup = await GetProductModuleGroup(moduleGroupId);
-            if (customer == null)
-            {
-                return null;
-            }
-            customer.SelectedProductModuleGroups.Remove(moduleGroup);
-            await _customerRepository.SaveChanges();
-            return moduleGroup;
-        }
-
-        public async Task<ProductModule> GetProductModule(Guid moduleId)
-        {
-            return await _customerRepository.GetProductModuleAsync(moduleId);
-        }
-
         public async Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId)
         {
             return await _customerRepository.GetCustomerProductModulesAsync(customerId);
         }
 
-        public async Task<ProductModule> AddProductModulesAsync(Guid customerId, Guid moduleId)
+        public async Task<ProductModule> AddProductModulesAsync(Guid customerId, Guid moduleId, IList<Guid> productModuleGroupIds)
         {
-            var customer = await GetCustomerAsync(customerId);
-            var moduleGroup = await GetProductModule(moduleId);
-            if (customer == null)
+            var productModule = await _customerRepository.AddProductModuleAsync(customerId, moduleId);
+            if (productModule != null)
             {
-                return null;
+                foreach (var moduleGroupId in productModuleGroupIds)
+                {
+                    await _customerRepository.AddProductModuleGroupAsync(customerId, moduleGroupId);
+                }
             }
-            customer.SelectedProductModules.Add(moduleGroup);
-            await _customerRepository.SaveChanges();
-            return moduleGroup;
+            return GetCustomerProductModulesAsync(customerId).Result.FirstOrDefault(m => m.ProductModuleId == moduleId);
         }
 
-        public async Task<ProductModule> RemoveProductModulesAsync(Guid customerId, Guid moduleId)
+        public async Task<ProductModule> RemoveProductModulesAsync(Guid customerId, Guid moduleId, IList<Guid> productModuleGroupIds)
         {
-            var customer = await GetCustomerAsync(customerId);
-            var module = await GetProductModule(moduleId);
-            foreach (var moduleGroup in module.ProductModuleGroup)
-            {
-                await RemoveProductModuleGroupsAsync(customerId, moduleGroup.ProductModuleGroupId);
-            }
-            if (customer == null)
+            var customerModules = await GetCustomerProductModulesAsync(customerId);
+            var module = customerModules.FirstOrDefault(m => m.ProductModuleId == moduleId);
+            if (module == null)
             {
                 return null;
             }
-            customer.SelectedProductModules.Remove(module);
-            await _customerRepository.SaveChanges();
-            return module;
+            if (!productModuleGroupIds.Any()) // remove module and module groups
+            {
+                foreach (var moduleGroup in module.ProductModuleGroup)
+                {
+                    await _customerRepository.RemoveProductModuleGroupAsync(customerId, moduleGroup.ProductModuleGroupId);
+                }
+                await _customerRepository.RemoveProductModuleAsync(customerId, moduleId);
+                return GetCustomerProductModulesAsync(customerId).Result.FirstOrDefault(m => m.ProductModuleId == moduleId);
+            }
+            foreach (var groupId in productModuleGroupIds) // remove module groups
+            {
+                await _customerRepository.RemoveProductModuleGroupAsync(customerId, groupId);
+            }
+            return GetCustomerProductModulesAsync(customerId).Result.FirstOrDefault(m => m.ProductModuleId == moduleId);
         }
     }
 }
