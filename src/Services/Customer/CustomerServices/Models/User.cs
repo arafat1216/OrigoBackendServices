@@ -1,5 +1,6 @@
 ﻿using System;
 using Common.Seedwork;
+using CustomerServices.DomainEvents;
 
 namespace CustomerServices.Models
 {
@@ -14,6 +15,7 @@ namespace CustomerServices.Models
             Email = email;
             MobileNumber = mobileNumber;
             EmployeeId = employeeId;
+            AddDomainEvent(new UserCreatedDomainEvent(this));
         }
 
         protected User(){}

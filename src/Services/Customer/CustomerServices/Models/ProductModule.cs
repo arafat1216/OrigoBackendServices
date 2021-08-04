@@ -6,12 +6,12 @@ namespace CustomerServices.Models
 {
     public class ProductModule : Entity, IAggregateRoot
     {
-        public Guid ProductModuleId { get; set; }
+        public Guid ProductModuleId { get; protected set; }
 
-        public string Name { get; set; }
+        public string Name { get; protected set; }
 
-        public IList<ProductModuleGroup> ProductModuleGroup { get; set; }
+        public IList<ProductModuleGroup> ProductModuleGroup { get; protected set; }
 
-        public ICollection<Customer> Customers { get; set; }
+        public ICollection<Customer> Customers { get; protected set; }
     }
 }
