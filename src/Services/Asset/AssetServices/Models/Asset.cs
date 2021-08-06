@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using AssetServices.Infrastructure;
 using System.Threading.Tasks;
 using Common.Enums;
+using AssetServices.Attributes;
+using AssetServices.Utility;
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -56,6 +58,7 @@ namespace AssetServices.Models
         /// The unique serial number for the asset. For mobile phones and other devices
         /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
+        [Required]
         public string SerialNumber { get; protected set; }
 
         /// <summary>
@@ -94,7 +97,7 @@ namespace AssetServices.Models
         {
             foreach (string e in imei.Split(','))
             {
-                if (!ValidateImei(e))
+                if (!AssetValidatorUtility.ValidateImei(e))
                 {
                     throw new InvalidAssetDataException(string.Format("Invalid imei: {0}", e));
                 }
@@ -111,7 +114,7 @@ namespace AssetServices.Models
         {
             foreach(string e in imei.Split(','))
             {
-                if (!ValidateImei(e))
+                if (!AssetValidatorUtility.ValidateImei(e))
                 {
                     throw new InvalidAssetDataException(string.Format("Invalid imei: {0}", e));
                 }
@@ -169,6 +172,7 @@ namespace AssetServices.Models
         /// 
         /// A mobile phone must have atleast 1 imei.
         /// </summary>
+        [ImeiValidation(ErrorMessage = "Invalid imei value.")]
         public string Imei { get; protected set; }
 
         /// <summary>
@@ -188,6 +192,7 @@ namespace AssetServices.Models
         [NotMapped]
         public List<string> ErrorMsgList { get; protected set; }
 
+        /*
         /// <summary>
         /// Validate an imei using Luhn's algorithm
         /// https://stackoverflow.com/questions/25229648/is-it-possible-to-validate-imei-number/25229800#25229800
@@ -244,6 +249,7 @@ namespace AssetServices.Models
 
             return diffValue == validationDigit;
         }
+        */
 
         public void SetActiveStatus(bool isActive)
         {
@@ -321,7 +327,7 @@ namespace AssetServices.Models
             {
                 foreach (string e in Imei.Split(","))
                 {
-                    if (!ValidateImei(e))
+                    if (!AssetValidatorUtility.ValidateImei(e))
                     {
                         ErrorMsgList.Add("Imei : " + e);
                         validAsset = false;
