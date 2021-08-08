@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using Common.Seedwork;
 
 namespace AssetServices.Models
 {
     public class AssetCategory : Entity
     {
+        // ReSharper disable once UnusedMember.Global
         protected AssetCategory()
         {
         }
@@ -20,12 +20,10 @@ namespace AssetServices.Models
         /// <summary>
         /// External id of the AssetCategory
         /// </summary>
-        public Guid AssetCategoryId { get; set; }
+        public Guid AssetCategoryId { get; protected set; }
 
-        public string Name { get; set; }
+        public string Name { get; protected set; }
 
-        public bool UsesImei { get; set; }
-
-        public List<Asset> Assets { get; set; }
+        public bool UsesImei { get; protected set; }
     }
 }

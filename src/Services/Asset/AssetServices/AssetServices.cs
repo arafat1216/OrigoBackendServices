@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using AssetServices.Exceptions;
 using AssetServices.Models;
 using Common.Enums;
 using Common.Interfaces;
+using Common.Logging;
 using Common.Models;
 using Microsoft.Extensions.Logging;
 
@@ -46,7 +50,7 @@ namespace AssetServices
 
         public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId, string brand,
             string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive, string imei, string macAddress,
-            Guid? managedByDepartmentId)
+            Guid? managedByDepartmentId, AssetStatus status)
         {
             var assetCategory = await _assetRepository.GetAssetCategoryAsync(assetCategoryId);
             if (assetCategory == null)
@@ -55,28 +59,28 @@ namespace AssetServices
             }
 
             var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory, brand, model,
-                lifecycleType, purchaseDate, assetHolderId, isActive,imei, macAddress, managedByDepartmentId);
+                lifecycleType, purchaseDate, assetHolderId, isActive, imei, macAddress, status, managedByDepartmentId);
 
             if (!newAsset.AssetPropertiesAreValid)
             {
-                string exceptionMsg = "";
+                StringBuilder exceptionMsg = new StringBuilder();
                 foreach (string errorMsg in newAsset.ErrorMsgList)
                 {
                     if (errorMsg.Contains("Imei"))
                     {
-                        exceptionMsg += string.Format("Asset {0}", errorMsg) + " is invalid.\n";
+                        exceptionMsg.Append($"Asset {errorMsg}" + " is invalid.\n");
                     }
                     else
                     {
-                        exceptionMsg += string.Format("Minimum asset data requirements not set: {0}", errorMsg) + ".\n";
+                        exceptionMsg.Append($"Minimum asset data requirements not set: {errorMsg}" + ".\n");
                     }
                 }
-                throw new InvalidAssetDataException(exceptionMsg);
+                throw new InvalidAssetDataException(exceptionMsg.ToString());
             }
             return await _assetRepository.AddAsync(newAsset);
         }
 
-        public async Task<IList<AssetLifecycle>> GetLifecycles()
+        public IList<AssetLifecycle> GetLifecycles()
         {
             Array arr = Enum.GetValues(typeof(LifecycleType));
             List<AssetLifecycle> assetLifecycles = new List<AssetLifecycle>();
@@ -102,10 +106,24 @@ namespace AssetServices
             }
 
             asset.SetLifeCycleType(newLifecycleType);
-            await _assetRepository.SaveChanges();
+            await _assetRepository.SaveEntitiesAsync();
             return asset;
         }
 
+        public async Task<Asset> UpdateAssetStatus(Guid customerId, Guid assetId, AssetStatus status)
+        {
+            var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
+            if (asset == null)
+            {
+                return null;
+            }
+
+            asset.UpdateAssetStatus(status);
+            await _assetRepository.SaveEntitiesAsync();
+            return asset;
+        }
+
+        // TODO: REMOVE is handled by AssetStatus
         public async Task<Asset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive)
         {
             var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
@@ -127,24 +145,24 @@ namespace AssetServices
             {
                 return null;
             }
-            if (!string.IsNullOrWhiteSpace(serialNumber))
+            if (!string.IsNullOrWhiteSpace(serialNumber) && asset.SerialNumber != serialNumber)
             {
                 asset.ChangeSerialNumber(serialNumber);
             }
-            if (!string.IsNullOrWhiteSpace(brand))
+            if (!string.IsNullOrWhiteSpace(brand) && asset.Brand != brand)
             {
                 asset.UpdateBrand(brand);
             }
-            if (!string.IsNullOrWhiteSpace(model))
+            if (!string.IsNullOrWhiteSpace(model) && asset.Model != model)
             {
                 asset.UpdateModel(model);
             }
-            if (purchaseDate != default)
+            if (purchaseDate != default && asset.PurchaseDate != purchaseDate)
             {
                 asset.ChangePurchaseDate(purchaseDate);
             }
 
-            await _assetRepository.SaveChanges();
+            await _assetRepository.SaveEntitiesAsync();
             return asset;
         }
 
@@ -156,7 +174,7 @@ namespace AssetServices
                 return null;
             }
             asset.AssignAssetToUser(userId);
-            await _assetRepository.SaveChanges();
+            await _assetRepository.SaveEntitiesAsync();
             return asset;
         }
 
@@ -166,101 +184,57 @@ namespace AssetServices
             {
                 return await _assetRepository.GetAssetCategoriesAsync();
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 throw new ReadingDataException(exception);
             }
         }
 
-        public async Task<IList<AssetAuditLog>> GetAssetAuditLog()
+        public async Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId)
         {
-            Guid assetId = Guid.NewGuid();
-            // Get audit / Event log for asset
-            var mockAuditData0 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId,
-                                                    DateTime.Now,
-                                                   "Mikael",
-                                                   "Manual Registration",
-                                                   "Procurement",
-                                                   "New",
-                                                   "Registered");
 
-            var mockAuditData1 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId, 
-                                                    DateTime.Now,
-                                                   "Mikael",
-                                                   "Attribute change - Life Cycle Type: Bring your own device",
-                                                   "Change",
-                                                   "Registered",
-                                                   "Active");
+            var logEventEntries = await _assetRepository.GetAuditLog(assetId);
+            var assetLogList = new List<AssetAuditLog>();
 
-            var mockAuditData2 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId, 
-                                                    DateTime.Now,
-                                                   "Mikael",
-                                                   "Attribute change - Imei: 12345 12345 12345",
-                                                   "Change",
-                                                   "Active",
-                                                   "Active");
-
-            var mockAuditData3 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId, 
-                                                    DateTime.Now,
-                                                   "Mikael",
-                                                   "Reassigned to department: Product",
-                                                   "Reassignment",
-                                                   "Active",
-                                                   "Active");
-            var mockAuditData4 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId, 
-                                                    DateTime.Now,
-                                                   "Mikael",
-                                                   "Reassigned to user: Henrik Tveit",
-                                                   "Reassignment",
-                                                   "Active",
-                                                   "Active");
-
-            var mockAuditData5 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId, 
-                                                    DateTime.Now,
-                                                   "Mikael",
-                                                   "Attribute change - Tags: Personal",
-                                                   "Change",
-                                                   "Active",
-                                                   "Active");
-
-            var mockAuditData6 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId, 
-                                                    DateTime.Now,
-                                                   "Mikael",
-                                                   "Sent to repair",
-                                                   "Hardware repair",
-                                                   "Active",
-                                                   "On repair");
-
-            var mockAuditData7 = new AssetAuditLog(Guid.NewGuid(),
-                                                    assetId, 
-                                                    DateTime.Now,
-                                                   "Mikael",
-                                                   "Status change",
-                                                   "Hardware repair",
-                                                   "On repair",
-                                                   "Active");
-
-
-            IList<AssetAuditLog> assetLogList = new List<AssetAuditLog>
+            foreach (var logEventEntry in logEventEntries)
             {
-                mockAuditData0,
-                mockAuditData1,
-                mockAuditData2,
-                mockAuditData3,
-                mockAuditData4,
-                mockAuditData5,
-                mockAuditData6,
-                mockAuditData7
-            };
+                if (string.IsNullOrEmpty(logEventEntry.Content) || string.IsNullOrEmpty(logEventEntry.EventTypeName))
+                {
+                    continue;
+                }
+                var eventType = Type.GetType(logEventEntry.EventTypeName);
+                if (eventType == null)
+                {
+                    continue;
+                }
+                dynamic @event = JsonSerializer.Deserialize(logEventEntry.Content, eventType) as IEvent;
+                if (@event == null)
+                {
+                    continue;
+                }
 
+                if (!Guid.TryParse(logEventEntry.TransactionId, out var transactionGuid))
+                {
+                    continue;
+                }
+
+                var previousStatus = PropertyExist(@event, "PreviousStatus")
+                    ? @event.PreviousStatus.ToString()
+                    : @event.Asset.Status.ToString();
+                var auditLog = new AssetAuditLog(transactionGuid, @event.Id, logEventEntry.CreationTime, "N/A",
+                    ((IEvent) @event).EventMessage(), logEventEntry.EventTypeShortName, previousStatus, @event.Asset.Status.ToString());
+                assetLogList.Add(auditLog);
+            }
             return assetLogList;
+        }
+
+        // From https://stackoverflow.com/a/9956981
+        private static bool PropertyExist(dynamic dynamicObject, string name)
+        {
+            if (dynamicObject is ExpandoObject)
+                return ((IDictionary<string, object>)dynamicObject).ContainsKey(name);
+
+            return dynamicObject.GetType().GetProperty(name) != null;
         }
     }
 }

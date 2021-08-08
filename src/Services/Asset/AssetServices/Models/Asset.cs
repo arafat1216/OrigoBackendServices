@@ -4,11 +4,12 @@ using Common.Seedwork;
 using AssetServices.Exceptions;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
-using AssetServices.Infrastructure;
-using System.Threading.Tasks;
+using AssetServices.DomainEvents;
 using Common.Enums;
 using AssetServices.Attributes;
 using AssetServices.Utility;
+using MediatR;
+
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -16,18 +17,19 @@ namespace AssetServices.Models
 {
     public class Asset : Entity, IAggregateRoot
     {
-        // TODO: Set to protected as DDD best practice
+        // Set to protected as DDD best practice
+        // ReSharper disable once UnusedMember.Global
         protected Asset()
         {
         }
 
         public Asset(Guid assetId, Guid customerId, string serialNumber, AssetCategory assetCategory, string brand, string model,
             LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
-            bool isActive, string imei, string macAddress, Guid? managedByDepartmentId = null)
+            bool isActive, string imei, string macAddress, AssetStatus status, Guid? managedByDepartmentId = null)
         {
             AssetId = assetId;
             CustomerId = customerId;
-            SerialNumber = (serialNumber != null) ? serialNumber : string.Empty;
+            SerialNumber = serialNumber ?? string.Empty;
             AssetCategoryId = assetCategory.Id;
             AssetCategory = assetCategory;
             Brand = brand;
@@ -37,10 +39,12 @@ namespace AssetServices.Models
             AssetHolderId = assetHolderId;
             IsActive = isActive;
             ManagedByDepartmentId = managedByDepartmentId;
-            Imei = (imei != null) ? imei : string.Empty;
-            MacAddress = (macAddress != null) ? macAddress : string.Empty;
+            Imei = imei ?? string.Empty;
+            MacAddress = macAddress ?? string.Empty;
             ErrorMsgList = new List<string>();
             AssetPropertiesAreValid = ValidateAsset();
+            Status = status;
+            AddDomainEvent(new AssetCreatedDomainEvent(this));
         }
 
         /// <summary>
@@ -76,7 +80,7 @@ namespace AssetServices.Models
         /// The asset brand (e.g. Samsung)
         /// </summary>
         [Required]
-        [StringLength(50, ErrorMessage ="Brand max length is 50")]
+        [StringLength(50, ErrorMessage = "Brand max length is 50")]
         public string Brand { get; protected set; }
 
         /// <summary>
@@ -99,7 +103,7 @@ namespace AssetServices.Models
             {
                 if (!AssetValidatorUtility.ValidateImei(e))
                 {
-                    throw new InvalidAssetDataException(string.Format("Invalid imei: {0}", e));
+                    throw new InvalidAssetDataException($"Invalid imei: {e}");
                 }
             }
             Imei = imei;
@@ -112,11 +116,11 @@ namespace AssetServices.Models
         /// <param name="imei"></param>
         public void AddImei(string imei)
         {
-            foreach(string e in imei.Split(','))
+            foreach (string e in imei.Split(','))
             {
                 if (!AssetValidatorUtility.ValidateImei(e))
                 {
-                    throw new InvalidAssetDataException(string.Format("Invalid imei: {0}", e));
+                    throw new InvalidAssetDataException($"Invalid imei: {e}");
                 }
             }
 
@@ -146,6 +150,8 @@ namespace AssetServices.Models
 
         public void SetLifeCycleType(LifecycleType newLifecycleType)
         {
+            var previousLifecycleType = LifecycleType;
+            AddDomainEvent(new SetLifeCycleTypeDomainEvent(this, previousLifecycleType));
             LifecycleType = newLifecycleType;
         }
 
@@ -168,9 +174,15 @@ namespace AssetServices.Models
         public bool IsActive { get; protected set; }
 
         /// <summary>
-        /// A comma seperated string holding 0->n imei numbers for this entity.
+        /// The status of the asset.
+        /// <see cref="AssetStatus">AssetStatus</see>
+        /// </summary>
+        public AssetStatus Status { get; protected set; }
+
+        /// <summary>
+        /// A comma separated string holding 0->n imei numbers for this entity.
         /// 
-        /// A mobile phone must have atleast 1 imei.
+        /// A mobile phone must have at least 1 imei.
         /// </summary>
         [ImeiValidation(ErrorMessage = "Invalid imei value.")]
         public string Imei { get; protected set; }
@@ -181,7 +193,7 @@ namespace AssetServices.Models
         public string MacAddress { get; protected set; }
 
         /// <summary>
-        /// Defines wether the asset made has the necessary properties set, as defined by ValidateAsset.
+        /// Defines whether the asset made has the necessary properties set, as defined by ValidateAsset.
         /// </summary>
         [NotMapped]
         public bool AssetPropertiesAreValid { get; protected set; }
@@ -196,44 +208,61 @@ namespace AssetServices.Models
         {
             IsActive = isActive;
         }
+
+        public void UpdateAssetStatus(AssetStatus status)
+        {
+            var previousStatus = Status;
+            Status = status;
+            AddDomainEvent(new UpdateAssetStatusDomainEvent(this, previousStatus));
+        }
+
         public void UpdateBrand(string brand)
         {
+            var previousBrand = Brand;
             Brand = brand;
+            AddDomainEvent(new BrandChangedDomainEvent(this, previousBrand));
         }
 
         public void UpdateModel(string model)
         {
+            var previousModel = Model;
             Model = model;
+            AddDomainEvent(new ModelChangedDomainEvent(this, previousModel));
         }
 
         public void ChangeSerialNumber(string serialNumber)
         {
+            var previousSerialNumber = SerialNumber;
             SerialNumber = serialNumber;
+            AddDomainEvent(new SerialNumberChangedDomainEvent(this, previousSerialNumber));
         }
 
         public void ChangePurchaseDate(DateTime purchaseDate)
         {
+            var previousPurchaseDate = PurchaseDate;
             PurchaseDate = purchaseDate;
+            AddDomainEvent(new PurchaseDateChangedDomainEvent(this, previousPurchaseDate));
         }
 
         public void AssignAssetToUser(Guid? userId)
         {
+            var oldUserId = AssetHolderId;
             AssetHolderId = userId;
+            AddDomainEvent(new AssignAssetToUserDomainEvent(this, oldUserId));
         }
 
         /// <summary>
         /// Validate the properties of the asset.
-        //  All assets need the following properties set (default values count as null):
-        //   - customerId
-        //   - brand
-        //   - model
-        //   - purchaseDate
-        //
-        //  Additional restrictions based on asset category:
+        ///  All assets need the following properties set (default values count as null):
+        ///   - customerId
+        ///   - brand
+        ///   - model
+        ///   - purchaseDate
+        ///
+        ///  Additional restrictions based on asset category:
         /// Mobile phones:
         ///  - Imei must be valid
         /// </summary>
-
         /// <returns>Boolean value, true if asset has valid properties, false if not</returns>
         protected bool ValidateAsset()
         {
@@ -242,7 +271,7 @@ namespace AssetServices.Models
             if (CustomerId == Guid.Empty)
             {
                 ErrorMsgList.Add("CustomerId - Cannot be Guid.Empty");
-                validAsset =  false;
+                validAsset = false;
             }
 
             if (string.IsNullOrEmpty(Brand))
@@ -264,7 +293,7 @@ namespace AssetServices.Models
             }
 
             // Mobile Phones
-            if (AssetCategory.Name== "Mobile phones")
+            if (AssetCategory.Name == "Mobile phones")
             {
                 foreach (string e in Imei.Split(","))
                 {

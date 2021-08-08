@@ -1,4 +1,6 @@
-﻿using CustomerServices.Infrastructure;
+﻿using Common.Logging;
+using CustomerServices.Infrastructure;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -25,7 +27,7 @@ namespace CustomerServices.UnitTests
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
-            var customerRepository = new CustomerRepository(context);
+            var customerRepository = new CustomerRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), customerRepository);
 
             // Act

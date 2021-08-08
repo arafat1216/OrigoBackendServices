@@ -1,6 +1,10 @@
+using System;
+using System.Reflection;
 using AssetServices;
 using AssetServices.Infrastructure;
 using AssetServices.Models;
+using Common.Logging;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -35,13 +39,31 @@ namespace Asset.API
             });
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc($"v{_apiVersion.MajorVersion}", new OpenApiInfo { Title = "Asset Management", Version = $"v{_apiVersion.MajorVersion}" });
+                c.SwaggerDoc($"v{_apiVersion.MajorVersion}",
+                    new OpenApiInfo {Title = "Asset Management", Version = $"v{_apiVersion.MajorVersion}"});
             });
             services.AddApplicationInsightsTelemetry();
 
-            services.AddDbContext<AssetsContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AssetConnectionString")), ServiceLifetime.Transient);
+            services.AddDbContext<AssetsContext>(options => options.UseSqlServer(
+                Configuration.GetConnectionString("AssetConnectionString"), sqlOptions =>
+                {
+                    sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
+                    //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
+                    sqlOptions.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
+                }));
+            services.AddDbContext<LoggingDbContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("AssetConnectionString"), sqlOptions =>
+                {
+                    sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
+                    //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
+                    sqlOptions.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
+                });
+            });
+            services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
             services.AddScoped<IAssetServices, AssetServices.AssetServices>();
             services.AddScoped<IAssetRepository, AssetRepository>();
+            services.AddMediatR(typeof(Startup));
 
             //services.AddHealthChecks()
             //    .AddCheck("self", () => HealthCheckResult.Healthy("Gateway is ok"), tags: new[]{"Origo API Gateway"})
@@ -54,28 +76,22 @@ namespace Asset.API
             //    );
 
             //services.AddHealthChecksUI().AddInMemoryStorage();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint($"/swagger/v{_apiVersion.MajorVersion}/swagger.json", $"Customer Asset Services v{_apiVersion.MajorVersion}"));
+            app.UseSwaggerUI(c => c.SwaggerEndpoint($"/swagger/v{_apiVersion.MajorVersion}/swagger.json",
+                $"Customer Asset Services v{_apiVersion.MajorVersion}"));
 
             app.UseRouting();
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }
 }

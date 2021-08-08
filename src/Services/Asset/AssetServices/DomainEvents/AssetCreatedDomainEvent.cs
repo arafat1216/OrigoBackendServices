@@ -1,20 +1,23 @@
-﻿using MediatR;
-using System;
+﻿using AssetServices.Models;
+using Common.Logging;
 
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 namespace AssetServices.DomainEvents
 {
-    public class AssetCreatedDomainEvent : INotification
+    public class AssetCreatedDomainEvent : BaseEvent
     {
-        public Guid AssetId { get; }
-        public Guid CustomerId { get; }
-        public string SerialNumber { get; }
-        public Guid AssetCategoryId { get; }
-        public string Brand { get; }
-        public string Model { get; }
-        public string LifecycleType { get; }
-        public DateTime PurchaseDate { get; }
-        public Guid? ManagedByDepartmentId { get; }
-        public Guid? AssetHolderId { get; }
-        public bool IsActive { get; }
+        public AssetCreatedDomainEvent(Asset newAsset) : base(newAsset.AssetId)
+        {
+            NewAsset = newAsset;
+        }
+
+        public Asset NewAsset { get; protected set; }
+
+        public override string EventMessage(string languageCode = "nb-NO")
+        {
+            return $"Asset {Id} created.";
+        }
     }
 }

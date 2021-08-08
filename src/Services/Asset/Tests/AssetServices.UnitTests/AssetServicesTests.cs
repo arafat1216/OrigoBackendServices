@@ -5,6 +5,8 @@ using AssetServices.Infrastructure;
 using AssetServices.Models;
 using AssetServices.Utility;
 using Common.Enums;
+using Common.Logging;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -25,7 +27,7 @@ namespace AssetServices.UnitTests
         {
             // Arrange
             await using var context = new AssetsContext(ContextOptions);
-            var assetRepository = new AssetRepository(context);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
 
             // Act
@@ -41,7 +43,7 @@ namespace AssetServices.UnitTests
         {
             // Arrange
             await using var context = new AssetsContext(ContextOptions);
-            var assetRepository = new AssetRepository(context);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
 
             // Act
@@ -57,13 +59,13 @@ namespace AssetServices.UnitTests
         {
             // Arrange
             await using var context = new AssetsContext(ContextOptions);
-            var assetRepository = new AssetRepository(context);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
 
             // Act
             var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "4543534535344", ASSET_CATEGORY_ID,
                 "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), ASSETHOLDER_ONE_ID, true, "014239898330525", "5e:c4:33:df:61:70",
-                Guid.NewGuid());
+                Guid.NewGuid(), AssetStatus.Active);
             var newAssetRead = await assetService.GetAssetForCustomerAsync(COMPANY_ID, newAsset.AssetId);
 
             // Assert
@@ -76,12 +78,12 @@ namespace AssetServices.UnitTests
         {
             // Arrange
             await using var context = new AssetsContext(ContextOptions);
-            var assetRepository = new AssetRepository(context);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
 
             // Act
             var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "4543534535344", ASSET_CATEGORY_ID,
-                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "993100473611389", "a3:21:99:5d:a7:a0", null);
+                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "993100473611389", "a3:21:99:5d:a7:a0", null, AssetStatus.Active);
             var newAssetRead = await assetService.GetAssetForCustomerAsync(COMPANY_ID, newAsset.AssetId);
 
             // Assert
@@ -90,7 +92,7 @@ namespace AssetServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void CreateAsset_ValidateAssetCategoryData()
+        public void CreateAsset_ValidateAssetCategoryData()
         {
         }
 

@@ -166,6 +166,30 @@ namespace OrigoApiGateway.Services
             }
         }
 
+        public async Task<OrigoAsset> UpdateAssetStatus(Guid customerId, Guid assetId, int assetStatus)
+        {
+            try
+            {
+                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/assetStatus/{assetStatus.ToString().ToLower()}";
+                //TODO: Why isn't Patch supported? Dapr translates it to POST.
+                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var exception = new BadHttpRequestException("Unable to set status for asset", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to set status for asset.");
+                    throw exception;
+                }
+                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                return asset == null ? null : new OrigoAsset(asset);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to set status for asset.");
+                throw;
+            }
+        }
+
         public async Task<OrigoAsset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive)
         {
             try

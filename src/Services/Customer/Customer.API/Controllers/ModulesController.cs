@@ -37,13 +37,30 @@ namespace Customer.API.Controllers
                 modulesList.AddRange(modules.Select(module => new ProductModule
                 {
                     Name = module.Name,
-                    ProductModuleGroup = module.ProductModuleGroup.Select(moduleGroup => new ProductModuleGroup 
-                    { 
+                    ProductModuleGroup = module.ProductModuleGroup.Select(moduleGroup => new ProductModuleGroup
+                    {
                         Name = moduleGroup.Name,
                         ProductModuleGroupId = moduleGroup.ProductModuleGroupId
                     }).ToList(),
                     ProductModuleId = module.ProductModuleId
                 }));
+
+            return Ok(modulesList);
+        }
+
+        [Route("/groups")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ProductModuleGroup>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IEnumerable<ProductModuleGroup>>> GetModulesGroups()
+        {
+            var modules = await _moduleServices.GetModuleGroupsAsync();
+            List<ProductModuleGroup> modulesList = new List<ProductModuleGroup>();
+            if (modules != null)
+                modulesList.AddRange(modules.Select(module => new ProductModuleGroup
+                {
+                    Name = module.Name,
+                    ProductModuleGroupId = module.ProductModuleGroupId
+                }).ToList());
 
             return Ok(modulesList);
         }
