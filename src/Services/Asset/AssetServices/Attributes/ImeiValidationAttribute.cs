@@ -1,4 +1,5 @@
-﻿using AssetServices.Utility;
+﻿using AssetServices.Models;
+using AssetServices.Utility;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -12,10 +13,10 @@ namespace AssetServices.Attributes
     {
         public override bool IsValid(object value)
         {
-            var inputValue = value as string;
+            var inputValue = value as Asset;
             var isValid = false;
 
-            if (AssetValidatorUtility.ValidateImeis(inputValue))
+            if (AssetValidatorUtility.ValidateImeis(inputValue.Imei))
             {
                 isValid = true;
             }
