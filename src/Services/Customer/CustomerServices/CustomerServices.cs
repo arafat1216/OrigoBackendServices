@@ -74,12 +74,14 @@ namespace CustomerServices
         {
             var customer = await GetCustomerAsync(customerId);
             var assetCategoryLifecycle = await GetAssetCategoryLifecycleType(customerId, assetCategoryId);
-            if (customer == null)
+            if (customer == null || !assetCategoryLifecycle.Any())
             {
                 return null;
             }
             var deleteAssetLifecycle = assetCategoryLifecycle.FirstOrDefault(l => (int)l.LifecycleType == lifecycle);
-
+            if (deleteAssetLifecycle == null)
+                return null;
+            deleteAssetLifecycle.LogDelete();
             return await _customerRepository.DeleteAssetCategoryLifecycleTypeAsync(deleteAssetLifecycle);
         }
 
@@ -94,7 +96,7 @@ namespace CustomerServices
             var categoryLifecycles = await GetAllAssetCategoryLifecycleTypesForCustomerAsync(customerId);
             foreach (var category in customerCategories)
             {
-                category.LifecycleTypes = categoryLifecycles.Where(l => category.LifecycleTypes.Contains(l)).ToList();
+                category.SetLifecycleTypes(categoryLifecycles.Where(l => category.LifecycleTypes.Contains(l)).ToList());
             }
 
             return customerCategories;
@@ -111,12 +113,8 @@ namespace CustomerServices
             // If it exist don't create a new one :)
             if (assetCategory != null)
                 return assetCategory;
-            assetCategory = new AssetCategoryType
-            {
-                ExternalCustomerId = customerId,
-                AssetCategoryId = assetCategoryId,
-                LifecycleTypes = new List<AssetCategoryLifecycleType>()
-            };
+            assetCategory = new AssetCategoryType(assetCategoryId, customerId, new List<AssetCategoryLifecycleType>()
+            );
             customer.SelectedAssetCategories.Add(assetCategory);
             await _customerRepository.SaveChanges();
             return assetCategory;
@@ -137,6 +135,7 @@ namespace CustomerServices
             {
                 await RemoveAssetCategoryLifecycleTypeForCustomerAsync(customerId, lifecycle.AssetCategoryId, (int)lifecycle.LifecycleType);
             }
+            assetCategory.LogDelete();
             return await _customerRepository.DeleteAssetCategoryTypeAsync(assetCategory);
         }
 
@@ -159,6 +158,7 @@ namespace CustomerServices
                 return null;
             }
             customer.SelectedProductModuleGroups.Add(moduleGroup);
+            moduleGroup.LogAddModuleGroup();
             await _customerRepository.SaveChanges();
             return moduleGroup;
         }
@@ -172,6 +172,7 @@ namespace CustomerServices
                 return null;
             }
             customer.SelectedProductModuleGroups.Remove(moduleGroup);
+            moduleGroup.LogRemoveModuleGroup();
             await _customerRepository.SaveChanges();
             return moduleGroup;
         }
@@ -189,14 +190,15 @@ namespace CustomerServices
         public async Task<ProductModule> AddProductModulesAsync(Guid customerId, Guid moduleId)
         {
             var customer = await GetCustomerAsync(customerId);
-            var moduleGroup = await GetProductModule(moduleId);
+            var module = await GetProductModule(moduleId);
             if (customer == null)
             {
                 return null;
             }
-            customer.SelectedProductModules.Add(moduleGroup);
+            customer.SelectedProductModules.Add(module);
+            module.LogAddProductModule();
             await _customerRepository.SaveChanges();
-            return moduleGroup;
+            return module;
         }
 
         public async Task<ProductModule> RemoveProductModulesAsync(Guid customerId, Guid moduleId)
@@ -212,6 +214,7 @@ namespace CustomerServices
                 return null;
             }
             customer.SelectedProductModules.Remove(module);
+            module.LogRemoveProductModule();
             await _customerRepository.SaveChanges();
             return module;
         }

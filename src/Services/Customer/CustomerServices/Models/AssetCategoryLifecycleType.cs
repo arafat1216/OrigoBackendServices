@@ -1,5 +1,6 @@
 ﻿using Common.Enums;
 using Common.Seedwork;
+using CustomerServices.DomainEvents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace CustomerServices.Models
             CustomerId = customerId;
             bool checkEnumValue = Enum.TryParse(lifecycle.ToString(), out LifecycleType lifecycleType);
             LifecycleType = checkEnumValue ? lifecycleType : LifecycleType.NoLifecycle;
+            AddDomainEvent(new AssetLifecycleSettingAddedDomainEvent(this));
         }
 
         protected AssetCategoryLifecycleType() { }
@@ -31,5 +33,10 @@ namespace CustomerServices.Models
         public Guid AssetCategoryId { get; protected set; }
 
         public LifecycleType LifecycleType { get; protected set; }
+
+        public void LogDelete()
+        {
+            AddDomainEvent(new AssetLifecycleSettingRemovedDomainEvent(this));
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using CustomerServices.DomainEvents;
 using System;
 using System.Collections.Generic;
 
@@ -6,6 +7,14 @@ namespace CustomerServices.Models
 {
     public class ProductModule : Entity, IAggregateRoot
     {
+        protected ProductModule() { }
+
+        public ProductModule(Guid productModuleId, string name, IList<ProductModuleGroup> productModuleGroups)
+        {
+            ProductModuleId = productModuleId;
+            Name = name;
+            ProductModuleGroup = productModuleGroups;
+        }
         public Guid ProductModuleId { get; protected set; }
 
         public string Name { get; protected set; }
@@ -13,5 +22,15 @@ namespace CustomerServices.Models
         public IList<ProductModuleGroup> ProductModuleGroup { get; protected set; }
 
         public ICollection<Customer> Customers { get; protected set; }
+
+        public void LogAddProductModule()
+        {
+            AddDomainEvent(new ProductModuleAddedDomainEvent(this));
+        }
+
+        public void LogRemoveProductModule()
+        {
+            AddDomainEvent(new ProductModuleRemovedDomainEvent(this));
+        }
     }
 }
