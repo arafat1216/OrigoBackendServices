@@ -184,7 +184,6 @@ namespace AssetServices.Models
         /// 
         /// A mobile phone must have at least 1 imei.
         /// </summary>
-        [ImeiValidation(ErrorMessage = "Invalid imei value.")]
         public string Imei { get; protected set; }
 
         /// <summary>
@@ -304,6 +303,7 @@ namespace AssetServices.Models
                     }
                 }
             }
+
             return validAsset;
         }
     }
