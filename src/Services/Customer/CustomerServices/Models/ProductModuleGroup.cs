@@ -6,10 +6,21 @@ namespace CustomerServices.Models
 {
     public class ProductModuleGroup : Entity
     {
-        public Guid ProductModuleGroupId { get; set; }
+        protected ProductModuleGroup() { }
 
-        public string Name { get; set; }
+        public ProductModuleGroup(Guid productModuleGroupId, Guid productModuleId, string name)
+        {
+            ProductModuleGroupId = productModuleGroupId;
+            ProductModuleExternalId = productModuleId;
+            Name = name;
+        }
 
-        public ICollection<Customer> Customers { get; set; }
+        public Guid ProductModuleGroupId { get; protected set; }
+
+        public Guid ProductModuleExternalId { get; protected set; }
+
+        public string Name { get; protected set; }
+
+        public ICollection<Customer> Customers { get; protected set; }
     }
 }

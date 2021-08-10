@@ -22,10 +22,5 @@ namespace CustomerServices
         {
             return await _customerRepository.GetProductModulesAsync();
         }
-
-        public async Task<IList<ProductModuleGroup>> GetModuleGroupsAsync()
-        {
-            return await _customerRepository.GetProductModuleGroupsAsync();
-        }
     }
 }

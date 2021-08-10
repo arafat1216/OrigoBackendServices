@@ -1,10 +1,6 @@
 ﻿using Common.Enums;
 using Common.Seedwork;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomerServices.Models
 {
@@ -26,10 +22,10 @@ namespace CustomerServices.Models
 
         protected AssetCategoryLifecycleType() { }
 
-        public Guid CustomerId { get; set; }
+        public Guid CustomerId { get; protected set; }
 
-        public Guid AssetCategoryId { get; set; }
+        public Guid AssetCategoryId { get; protected set; }
 
-        public LifecycleType LifecycleType { get; set; }
+        public LifecycleType LifecycleType { get; protected set; }
     }
 }
