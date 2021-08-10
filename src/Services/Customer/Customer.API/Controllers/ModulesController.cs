@@ -47,22 +47,5 @@ namespace Customer.API.Controllers
 
             return Ok(modulesList);
         }
-
-        [Route("/groups")]
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<ProductModuleGroup>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<ProductModuleGroup>>> GetModulesGroups()
-        {
-            var modules = await _moduleServices.GetModuleGroupsAsync();
-            List<ProductModuleGroup> modulesList = new List<ProductModuleGroup>();
-            if (modules != null)
-                modulesList.AddRange(modules.Select(module => new ProductModuleGroup
-                {
-                    Name = module.Name,
-                    ProductModuleGroupId = module.ProductModuleGroupId
-                }).ToList());
-
-            return Ok(modulesList);
-        }
     }
 }

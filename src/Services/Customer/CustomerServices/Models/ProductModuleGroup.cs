@@ -9,13 +9,16 @@ namespace CustomerServices.Models
     {
         protected ProductModuleGroup() { }
 
-        public ProductModuleGroup(Guid productModuleGroupId, string name)
+        public ProductModuleGroup(Guid productModuleGroupId, Guid productModuleId, string name)
         {
             ProductModuleGroupId = productModuleGroupId;
+            ProductModuleExternalId = productModuleId;
             Name = name;
         }
 
         public Guid ProductModuleGroupId { get; protected set; }
+
+        public Guid ProductModuleExternalId { get; protected set; }
 
         public string Name { get; protected set; }
 
@@ -24,13 +27,11 @@ namespace CustomerServices.Models
         public void LogAddModuleGroup()
         {
             AddDomainEvent(new ProductModuleGroupAddedDomainEvent(this));
-
         }
 
         public void LogRemoveModuleGroup()
         {
             AddDomainEvent(new ProductModuleGroupRemovedDomainEvent(this));
-
         }
     }
 }

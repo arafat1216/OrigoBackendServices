@@ -31,6 +31,16 @@ namespace CustomerServices.Models
             AddDomainEvent(new AssetCategoryRemovedDomainEvent(this));
         }
 
+        public void UpdateCustomerId(Guid customerId)
+        {
+            ExternalCustomerId = customerId;
+        }
+
+        public void SetAssetCategoryId(Guid assetCategoryId)
+        {
+            AssetCategoryId = assetCategoryId;
+        }
+
         public void SetLifecycleTypes(IList<AssetCategoryLifecycleType> lifecycleTypes)
         {
             LifecycleTypes = lifecycleTypes;
