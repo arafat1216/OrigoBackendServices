@@ -5,7 +5,7 @@ namespace CustomerServices.DomainEvents
 {
     class AssetLifecycleSettingAddedDomainEvent : BaseEvent
     {
-        public AssetLifecycleSettingAddedDomainEvent(AssetCategoryLifecycleType newLifecycle) : base(newLifecycle.AssetCategoryId)
+        public AssetLifecycleSettingAddedDomainEvent(AssetCategoryLifecycleType newLifecycle) : base(newLifecycle.CustomerId)
         {
             LifecycleType = newLifecycle;
         }

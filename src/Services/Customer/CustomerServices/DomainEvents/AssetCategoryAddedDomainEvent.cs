@@ -6,7 +6,7 @@ namespace CustomerServices.DomainEvents
     class AssetCategoryAddedDomainEvent : BaseEvent
     {
 
-        public AssetCategoryAddedDomainEvent(AssetCategoryType addedCategory) : base(addedCategory.AssetCategoryId)
+        public AssetCategoryAddedDomainEvent(AssetCategoryType addedCategory) : base(addedCategory.ExternalCustomerId)
         {
             AssetCategory = addedCategory;
         }

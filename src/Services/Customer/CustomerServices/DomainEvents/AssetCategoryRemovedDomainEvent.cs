@@ -1,16 +1,11 @@
 ﻿using Common.Logging;
 using CustomerServices.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomerServices.DomainEvents
 {
     class AssetCategoryRemovedDomainEvent : BaseEvent
     {
-        public AssetCategoryRemovedDomainEvent(AssetCategoryType removedCategory) : base(removedCategory.AssetCategoryId)
+        public AssetCategoryRemovedDomainEvent(AssetCategoryType removedCategory) : base(removedCategory.ExternalCustomerId)
         {
             AssetCategory = removedCategory;
         }

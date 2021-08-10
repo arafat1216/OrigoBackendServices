@@ -6,7 +6,7 @@ namespace CustomerServices.DomainEvents
 
     class AssetLifecycleSettingRemovedDomainEvent : BaseEvent
     {
-        public AssetLifecycleSettingRemovedDomainEvent(AssetCategoryLifecycleType removedLifecycle) : base(removedLifecycle.AssetCategoryId)
+        public AssetLifecycleSettingRemovedDomainEvent(AssetCategoryLifecycleType removedLifecycle) : base(removedLifecycle.CustomerId)
         {
             LifecycleType = removedLifecycle;
         }
