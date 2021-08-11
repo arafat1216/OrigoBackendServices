@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Common.Seedwork;
 using CustomerServices.DomainEvents;
 
@@ -20,12 +21,16 @@ namespace CustomerServices.Models
 
         public ContactPerson CustomerContactPerson { get; protected set; }
 
+        [JsonIgnore]
         public IList<User> Users { get; protected set; }
 
+        [JsonIgnore]
         public ICollection<ProductModule> SelectedProductModules { get; protected set; }
 
+        [JsonIgnore]
         public ICollection<ProductModuleGroup> SelectedProductModuleGroups { get; protected set; }
 
+        [JsonIgnore]
         public ICollection<AssetCategoryType> SelectedAssetCategories { get; protected set; }
 
         protected Customer()

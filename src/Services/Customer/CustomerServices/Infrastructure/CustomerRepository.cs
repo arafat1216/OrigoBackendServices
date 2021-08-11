@@ -83,6 +83,10 @@ namespace CustomerServices.Infrastructure
         {
             try
             {
+                foreach(var assetLifecycle in assetCategoryLifecycleTypes)
+                {
+                    assetLifecycle.LogDelete();
+                }
                 _customerContext.AssetCategoryLifecycleTypes.RemoveRange(assetCategoryLifecycleTypes);
             }
             catch
@@ -108,6 +112,7 @@ namespace CustomerServices.Infrastructure
         {
             try
             {
+                assetCategoryType.LogDelete();
                 _customerContext.AssetCategoryTypes.Remove(assetCategoryType);
             }
             catch
@@ -126,11 +131,11 @@ namespace CustomerServices.Infrastructure
             await ResilientTransaction.New(_customerContext).ExecuteAsync(async () =>
             {
                 // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
-                await _customerContext.SaveChangesAsync(cancellationToken);
                 foreach (var @event in _customerContext.GetDomainEventsAsync())
                 {
                     await _functionalEventLogService.SaveEventAsync(@event, _customerContext.Database.CurrentTransaction);
                 }
+                await _customerContext.SaveChangesAsync(cancellationToken);
                 numberOfRecordsSaved = await _customerContext.SaveChangesAsync(cancellationToken);
                 await _mediator.DispatchDomainEventsAsync(_customerContext);
             });
@@ -174,6 +179,7 @@ namespace CustomerServices.Infrastructure
             }
             if (!customer.SelectedProductModules.Contains(module))
             {
+                module.LogAddProductModule();
                 customer.SelectedProductModules.Add(module);
             }
             await SaveEntitiesAsync();
@@ -190,6 +196,7 @@ namespace CustomerServices.Infrastructure
             }
             try
             {
+                module.LogRemoveProductModule();
                 customer.SelectedProductModules.Remove(module);
             }
             catch
@@ -215,6 +222,7 @@ namespace CustomerServices.Infrastructure
             }
             if (!customer.SelectedProductModuleGroups.Contains(moduleGroup))
             {
+                moduleGroup.LogAddModuleGroup();
                 customer.SelectedProductModuleGroups.Add(moduleGroup);
             }
             await SaveEntitiesAsync();
@@ -231,6 +239,7 @@ namespace CustomerServices.Infrastructure
             }
             try
             {
+                moduleGroup.LogRemoveModuleGroup();
                 customer.SelectedProductModuleGroups.Remove(moduleGroup);
             }
             catch

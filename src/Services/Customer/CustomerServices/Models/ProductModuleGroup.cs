@@ -2,6 +2,7 @@
 using CustomerServices.DomainEvents;
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace CustomerServices.Models
 {
@@ -22,6 +23,7 @@ namespace CustomerServices.Models
 
         public string Name { get; protected set; }
 
+        [JsonIgnore]
         public ICollection<Customer> Customers { get; protected set; }
 
         public void LogAddModuleGroup()
