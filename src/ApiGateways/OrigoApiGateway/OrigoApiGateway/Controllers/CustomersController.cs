@@ -83,72 +83,11 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/AssetCategoryLifecycleType/get")]
-        [HttpGet]
-        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<IList<OrigoAssetCategoryLifecycleType>>> GetAssetCategoryLifecycleTypesForCustomer(Guid customerId)
-        {
-            try
-            {
-                var assetCategoryLifecycleTypes = await CustomerServices.GetAssetCategoryLifecycleTypesForCustomerAsync(customerId);
-                return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
-        [Route("{customerId:Guid}/assetCategoryLifecycleTypes/{assetCategoryId:Guid}/add/{lifecycle:int}")]
-        [HttpPost]
-        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.Created)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoAssetCategoryLifecycleType>> AddAssetCategoryLifecycleTypeForCustomer(Guid customerId, Guid assetCategoryId, int lifecycle)
-        {
-            try
-            {
-                var addedAssetCategoryLifecycleType = await CustomerServices.AddAssetCategoryLifecycleTypeForCustomerAsync(customerId, assetCategoryId, lifecycle);
-                if (addedAssetCategoryLifecycleType == null)
-                {
-                    return BadRequest();
-                }
-
-                return Ok(addedAssetCategoryLifecycleType);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
-        [Route("{customerId:Guid}/assetCategoryLifecycleTypes/{assetCategoryId:Guid}/remove/{lifecycle:int}")]
-        [HttpPost]
-        [ProducesResponseType(typeof(OrigoAssetCategoryLifecycleType), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoAssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypeForCustomer(Guid customerId, Guid assetCategoryId, int lifecycle)
-        {
-            try
-            {
-                var removedAssetCategoryLifecycleType = await CustomerServices.RemoveAssetCategoryLifecycleTypeForCustomerAsync(customerId, assetCategoryId, lifecycle);
-                if (removedAssetCategoryLifecycleType == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(removedAssetCategoryLifecycleType);
-            }
-            catch (Exception)
-            {
-                return NotFound();
-            }
-        }
-
         [Route("{customerId:Guid}/assetCategory")]
         [HttpGet]
         [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<IList<OrigoCustomerAssetCategoryType>>> GetAssetCategoriesForCustomer(Guid customerId)
+        public async Task<ActionResult<IList<OrigoCustomerAssetCategoryType>>> GetAssetCategoryForCustomer(Guid customerId)
         {
             try
             {
@@ -161,37 +100,15 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/assetCategory/{assetCategoryId:Guid}/add")]
-        [HttpPost]
-        [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.Created)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoCustomerAssetCategoryType>> AddAssetCategoriesForCustomer(Guid customerId, Guid assetCategoryId)
-        {
-            try
-            {
-                var addedAssetCategory = await CustomerServices.AddAssetCategoryForCustomerAsync(customerId, assetCategoryId);
-                if (addedAssetCategory == null)
-                {
-                    return BadRequest();
-                }
-
-                return Ok(addedAssetCategory);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
-        [Route("{customerId:Guid}/assetCategory/{assetCategoryId:Guid}/remove")]
-        [HttpPost]
+        [Route("{customerId:Guid}/assetCategory")]
+        [HttpPatch]
         [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoCustomerAssetCategoryType>> RemoveAssetCategoriesForCustomer(Guid customerId, Guid assetCategoryId)
+        public async Task<ActionResult<OrigoCustomerAssetCategoryType>> AddAssetCategoryForCustomer(Guid customerId, NewCustomerAssetCategoryType customerAssetCategoryType)
         {
             try
             {
-                var removedAssetCategory = await CustomerServices.RemoveAssetCategoryForCustomerAsync(customerId, assetCategoryId);
+                var removedAssetCategory = await CustomerServices.AddAssetCategoryForCustomerAsync(customerId, customerAssetCategoryType);
                 if (removedAssetCategory == null)
                 {
                     return NotFound();
@@ -205,49 +122,18 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/modules/groups")]
-        [HttpGet]
-        [ProducesResponseType(typeof(IList<OrigoProductModuleGroup>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IList<OrigoProductModuleGroup>>> GetCustomerProductModuleGroups(Guid customerId)
+        [Route("{customerId:Guid}/assetCategory")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<IList<OrigoCustomerAssetCategoryType>>> DeleteAssetCategoryForCustomer(Guid customerId, NewCustomerAssetCategoryType customerAssetCategoryType)
         {
             try
             {
-                var productGroups = await CustomerServices.GetCustomerProductModuleGroupsAsync(customerId);
-                return productGroups != null ? Ok(productGroups) : NotFound();
+                var assetCategoryLifecycleTypes = await CustomerServices.RemoveAssetCategoryForCustomerAsync(customerId, customerAssetCategoryType);
+                return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();
             }
-            catch
-            {
-                return BadRequest();
-            }
-        }
-
-        [Route("{customerId:Guid}/modules/groups/{moduleGroupId:Guid}/add")]
-        [HttpPatch]
-        [ProducesResponseType(typeof(OrigoProductModuleGroup), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrigoProductModuleGroup>> AddCustomerProductModuleGroups(Guid customerId, Guid moduleGroupId)
-        {
-            try
-            {
-                var productGroup = await CustomerServices.AddProductModuleGroupsAsync(customerId, moduleGroupId);
-                return productGroup != null ? Ok(productGroup) : NotFound();
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
-
-        [Route("{customerId:Guid}/modules/groups/{moduleGroupId:Guid}/remove")]
-        [HttpPatch]
-        [ProducesResponseType(typeof(OrigoProductModuleGroup), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrigoProductModuleGroup>> RemoveCustomerProductModuleGroups(Guid customerId, Guid moduleGroupId)
-        {
-            try
-            {
-                var productGroup = await CustomerServices.RemoveProductModuleGroupsAsync(customerId, moduleGroupId);
-                return productGroup != null ? Ok(productGroup) : NotFound();
-            }
-            catch
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -269,14 +155,14 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/modules/{moduleId:Guid}/add")]
+        [Route("{customerId:Guid}/modules")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoProductModule), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrigoProductModule>> AddCustomerProductModule(Guid customerId, Guid moduleId)
+        public async Task<ActionResult<OrigoProductModule>> AddCustomerProductModule(Guid customerId, NewCustomerProductModule productModule)
         {
             try
             {
-                var productModules = await CustomerServices.AddProductModulesAsync(customerId, moduleId);
+                var productModules = await CustomerServices.AddProductModulesAsync(customerId, productModule);
                 return productModules != null ? Ok(productModules) : NotFound();
             }
             catch
@@ -285,15 +171,15 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/modules/{moduleId:Guid}/remove")]
-        [HttpPatch]
+        [Route("{customerId:Guid}/modules")]
+        [HttpDelete]
         [ProducesResponseType(typeof(OrigoProductModule), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrigoProductModule>> RemoveCustomerProductModule(Guid customerId, Guid moduleId)
+        public async Task<ActionResult<OrigoProductModule>> DeleteCustomerProductModule(Guid customerId, NewCustomerProductModule productModule)
         {
             try
             {
-                var productModules = await CustomerServices.RemoveProductModulesAsync(customerId, moduleId);
-                return productModules != null ? Ok(productModules) : NotFound();
+                var productModules = await CustomerServices.RemoveProductModulesAsync(customerId, productModule);
+                return productModules != null ? Ok(productModules) : NoContent();
             }
             catch
             {

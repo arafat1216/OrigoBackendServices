@@ -13,13 +13,9 @@ namespace Customer.API
 
         private static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-             .ConfigureAppConfiguration((_, config) =>
-             {
-                 config.AddJsonFile("secrets/appsettings.secrets.json", optional: true);
-             })
-                .ConfigureWebHostDefaults(webBuilder =>
+                .ConfigureAppConfiguration((_, config) =>
                 {
-                    webBuilder.UseStartup<Startup>();
-                });
+                    config.AddJsonFile("secrets/appsettings.secrets.json", optional: true);
+                }).ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
     }
 }

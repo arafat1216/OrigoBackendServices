@@ -101,118 +101,14 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<OrigoAssetCategoryLifecycleType>> GetAssetCategoryLifecycleTypesForCustomerAsync(Guid customerId)
-        {
-            try
-            {
-                var assetCategoryLifecycleTypes = await HttpClient.GetFromJsonAsync<IList<AssetCategoryLifecycleTypeDTO>>($"{_options.ApiPath}/{customerId}/AssetCategoryLifecycleTypes");
-                if (assetCategoryLifecycleTypes == null) return null;
-                var origoAssetCategoryLifecycleTypes = new List<OrigoAssetCategoryLifecycleType>();
-                foreach (var assetCategoryLifecycleType in assetCategoryLifecycleTypes) origoAssetCategoryLifecycleTypes.Add(new OrigoAssetCategoryLifecycleType(assetCategoryLifecycleType) { IsChecked = true });
-                return origoAssetCategoryLifecycleTypes;
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "GetAssetCategoryLifecycleTypesForCustomerAsync failed with HttpRequestException.");
-                throw;
-            }
-            catch (NotSupportedException exception)
-            {
-                _logger.LogError(exception, "GetAssetCategoryLifecycleTypesForCustomerAsync failed with content type is not valid.");
-                throw;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "GetAssetCategoryLifecycleTypesForCustomerAsync unknown error.");
-                throw;
-            }
-        }
-
-        public async Task<OrigoAssetCategoryLifecycleType> AddAssetCategoryLifecycleTypeForCustomerAsync(Guid customerId, Guid assetCategoryId, int lifecycle)
-        {
-            try
-            {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{customerId}/assetCategoryLifecycleTypes/{assetCategoryId}/add/{lifecycle}";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, emptyStringBodyContent);
-                if (!response.IsSuccessStatusCode)
-                {
-                    Exception exception;
-                    if (response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
-                    {
-                        exception = new InvalidLifecycleTypeException(response.ReasonPhrase);
-                        _logger.LogError(exception, "Invalid lifecycletype given for asset.");
-                    }
-                    else
-                    {
-                        exception = new BadHttpRequestException("Unable to save asset category lifecycletype configuration", (int)response.StatusCode);
-                        _logger.LogError(exception, "Unable to add asset category lifecycle type configuration");
-                    }
-                    throw exception;
-                }
-
-                var assetCategoryLifecycleType = await response.Content.ReadFromJsonAsync<AssetCategoryLifecycleTypeDTO>();
-                return assetCategoryLifecycleType == null ? null : new OrigoAssetCategoryLifecycleType(assetCategoryLifecycleType) { IsChecked = true };
-            }
-            catch (InvalidLifecycleTypeException exception)
-            {
-                _logger.LogError(exception, "AddAssetCategoryLifecycleTypeForCustomerAsync invalid lifecycletype");
-                throw;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "AddAssetCategoryLifecycleTypeForCustomerAsync unknown error.");
-                throw;
-            }
-        }
-
-        public async Task<OrigoAssetCategoryLifecycleType> RemoveAssetCategoryLifecycleTypeForCustomerAsync(Guid customerId, Guid assetCategoryId, int lifecycle)
-        {
-            try
-            {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{customerId}/assetCategoryLifecycleTypes/{assetCategoryId}/remove/{lifecycle}";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, emptyStringBodyContent);
-                if (!response.IsSuccessStatusCode)
-                {
-                    Exception exception;
-                    if (response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
-                    {
-                        exception = new InvalidLifecycleTypeException(response.ReasonPhrase);
-                        _logger.LogError(exception, "Invalid lifecycletype given for asset.");
-                    }
-                    else
-                    {
-                        exception = new BadHttpRequestException("Unable to save asset category lifecycletype configuration", (int)response.StatusCode);
-                        _logger.LogError(exception, "Unable to remove asset category lifecycle type configuration");
-                    }
-                    throw exception;
-                }
-
-                var assetCategoryLifecycleType = await response.Content.ReadFromJsonAsync<AssetCategoryLifecycleTypeDTO>();
-                return assetCategoryLifecycleType == null ? null : new OrigoAssetCategoryLifecycleType(assetCategoryLifecycleType);
-            }
-            catch (InvalidLifecycleTypeException exception)
-            {
-                _logger.LogError(exception, "AddAssetCategoryLifecycleTypeForCustomerAsync invalid lifecycletype");
-                throw;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "RemoveAssetCategoryLifecycleTypeForCustomerAsync unknown error.");
-                throw;
-            }
-        }
-
         public async Task<IList<OrigoCustomerAssetCategoryType>> GetAssetCategoryForCustomerAsync(Guid customerId)
         {
             try
             {
-                var categories = await HttpClient.GetFromJsonAsync<IList<CustomerAssetCategoryDTO>>($"{_options.ApiPath}/{customerId}/assetCategories");
+                var categories = await HttpClient.GetFromJsonAsync<IList<CustomerAssetCategoryDTO>>($"{_options.ApiPath}/{customerId}/assetCategory");
                 if (categories == null) return null;
                 var assetCategories = await _assetServices.GetAssetCategoriesAsync();
                 var assetLifecycles = await _assetServices.GetLifecycles();
-                var lifecycles = await GetAssetCategoryLifecycleTypesForCustomerAsync(customerId);
                 var origoAssetCategories = new List<OrigoCustomerAssetCategoryType>();
                 origoAssetCategories.AddRange(assetCategories.Select(category => new OrigoCustomerAssetCategoryType
                 {
@@ -233,13 +129,14 @@ namespace OrigoApiGateway.Services
                     if (customerCategory != null)
                     {
                         category.IsChecked = true;
-                    }
-                    foreach (var lifecycle in category.LifecycleTypes)
-                    {
-                        var customerLifecycle = lifecycles.FirstOrDefault(c => c.AssetCategoryId == category.AssetCategoryId && c.LifecycleType == lifecycle.LifecycleType);
-                        if (customerLifecycle != null)
+
+                        foreach (var lifecycle in category.LifecycleTypes)
                         {
-                            lifecycle.IsChecked = true;
+                            var customerLifecycle = customerCategory.LifecycleTypes.FirstOrDefault(c => c.AssetCategoryId == category.AssetCategoryId && c.LifecycleType == lifecycle.LifecycleType);
+                            if (customerLifecycle != null)
+                            {
+                                lifecycle.IsChecked = true;
+                            }
                         }
                     }
                 }
@@ -263,24 +160,25 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoCustomerAssetCategoryType> AddAssetCategoryForCustomerAsync(Guid customerId, Guid assetCategoryId)
+        public async Task<OrigoCustomerAssetCategoryType> AddAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryType customerAssetCategoryType)
         {
             try
             {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{customerId}/assetCategory/{assetCategoryId}/add";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, emptyStringBodyContent);
+                var assetCategories = await _assetServices.GetAssetCategoriesAsync();
+                var assetCategory = assetCategories.FirstOrDefault(a => a.AssetCategoryId == customerAssetCategoryType.AssetCategoryId);
+                if (assetCategory == null)
+                    return null;
+                var requestUri = $"{_options.ApiPath}/{customerId}/assetCategory";
+                var response = await HttpClient.PatchAsync(requestUri, JsonContent.Create(customerAssetCategoryType));
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to add the asset category to the customer.", (int)response.StatusCode);
                     _logger.LogError(exception, "Unable to add the asset category to the customer.");
                     throw exception;
                 }
-                var assetCategories = await _assetServices.GetAssetCategoriesAsync();
-                var assetCategory = assetCategories.FirstOrDefault(a => a.AssetCategoryId == assetCategoryId);
                 var assetLifecycles = await _assetServices.GetLifecycles();
                 var category = await response.Content.ReadFromJsonAsync<CustomerAssetCategoryDTO>();
-                return category == null ? null : new OrigoCustomerAssetCategoryType
+                var tempAssetCategory = category == null ? null : new OrigoCustomerAssetCategoryType
                 {
                     AssetCategoryId = category.AssetCategoryId,
                     Name = assetCategory?.Name,
@@ -290,9 +188,20 @@ namespace OrigoApiGateway.Services
                         AssetCategoryId = category.AssetCategoryId,
                         LifecycleType = (LifecycleType)l.EnumValue,
                         Name = l.Name,
-                        IsChecked = false
                     }).ToList()
                 };
+                if (tempAssetCategory != null)
+                {
+                    foreach (var lifecycle in tempAssetCategory.LifecycleTypes)
+                    {
+                        var customerLifecycle = category.LifecycleTypes.FirstOrDefault(c => c.LifecycleType == lifecycle.LifecycleType);
+                        if (customerLifecycle != null)
+                        {
+                            lifecycle.IsChecked = true;
+                        }
+                    }
+                }
+                return tempAssetCategory;
             }
             catch (InvalidLifecycleTypeException exception)
             {
@@ -306,13 +215,18 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoCustomerAssetCategoryType> RemoveAssetCategoryForCustomerAsync(Guid customerId, Guid assetCategoryId)
+        public async Task<OrigoCustomerAssetCategoryType> RemoveAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryType customerAssetCategoryType)
         {
             try
             {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{customerId}/assetCategory/{assetCategoryId}/remove";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, emptyStringBodyContent);
+                var requestUri = $"{_options.ApiPath}/{customerId}/assetCategory";
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Content = JsonContent.Create(customerAssetCategoryType),
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(requestUri, UriKind.Relative)
+                };
+                var response = await HttpClient.SendAsync(request);
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to remove the asset category to the customer.", (int)response.StatusCode);
@@ -320,14 +234,14 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var assetCategories = await _assetServices.GetAssetCategoriesAsync();
-                var assetCategory = assetCategories.FirstOrDefault(a => a.AssetCategoryId == assetCategoryId);
+                var assetCategory = assetCategories.FirstOrDefault(a => a.AssetCategoryId == customerAssetCategoryType.AssetCategoryId);
                 var assetLifecycles = await _assetServices.GetLifecycles();
                 var category = await response.Content.ReadFromJsonAsync<CustomerAssetCategoryDTO>();
-                return category == null ? null : new OrigoCustomerAssetCategoryType
+                var tempAssetCategory = category == null ? null : new OrigoCustomerAssetCategoryType
                 {
                     AssetCategoryId = category.AssetCategoryId,
                     Name = assetCategory?.Name,
-                    IsChecked = false,
+                    IsChecked = customerAssetCategoryType.LifecycleTypes.Any(),
                     LifecycleTypes = assetLifecycles.Select(l => new OrigoAssetCategoryLifecycleType()
                     {
                         AssetCategoryId = category.AssetCategoryId,
@@ -336,6 +250,18 @@ namespace OrigoApiGateway.Services
                         IsChecked = false
                     }).ToList()
                 };
+                if (tempAssetCategory != null)
+                {
+                    foreach (var lifecycle in tempAssetCategory.LifecycleTypes)
+                    {
+                        var customerLifecycle = category.LifecycleTypes.FirstOrDefault(c => c.LifecycleType == lifecycle.LifecycleType);
+                        if (customerLifecycle != null)
+                        {
+                            lifecycle.IsChecked = true;
+                        }
+                    }
+                }
+                return tempAssetCategory;
             }
             catch (InvalidLifecycleTypeException exception)
             {
@@ -349,100 +275,6 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<OrigoProductModuleGroup>> GetCustomerProductModuleGroupsAsync(Guid customerId)
-        {
-            try
-            {
-                var customerModules = await HttpClient.GetFromJsonAsync<IList<ModuleGroupDTO>>($"{_options.ApiPath}/{customerId}/modules/groups");
-                var customerModulesList = new List<OrigoProductModuleGroup>();
-
-                if (customerModules == null) return null;
-                customerModulesList.AddRange(customerModules.Select(module => new OrigoProductModuleGroup(module) { IsChecked = true }));
-                return customerModulesList;
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "GetCustomerProductModulesAsync failed with HttpRequestException.");
-                throw;
-            }
-            catch (NotSupportedException exception)
-            {
-                _logger.LogError(exception, "GetCustomerProductModulesAsync failed with content type is not valid.");
-                throw;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "GetCustomerProductModulesAsync unknown error.");
-                throw;
-            }
-        }
-
-        public async Task<OrigoProductModuleGroup> AddProductModuleGroupsAsync(Guid customerId, Guid moduleGroupId)
-        {
-            try
-            {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{customerId}/modules/groups/{moduleGroupId}/add";
-                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
-                if (!response.IsSuccessStatusCode)
-                {
-                    var exception = new BadHttpRequestException("Unable to add the module to the customer.", (int)response.StatusCode);
-                    _logger.LogError(exception, "Unable to add the module to the customer.");
-                    throw exception;
-                }
-                var customerModules = await response.Content.ReadFromJsonAsync<ModuleGroupDTO>();
-                return customerModules == null ? null : new OrigoProductModuleGroup(customerModules) { IsChecked = true };
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "AddProductModulesAsync failed with HttpRequestException.");
-                throw;
-            }
-            catch (NotSupportedException exception)
-            {
-                _logger.LogError(exception, "AddProductModulesAsync failed with content type is not valid.");
-                throw;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "AddProductModulesAsync unknown error.");
-                throw;
-            }
-        }
-
-        public async Task<OrigoProductModuleGroup> RemoveProductModuleGroupsAsync(Guid customerId, Guid moduleGroupId)
-        {
-            try
-            {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{customerId}/modules/groups/{moduleGroupId}/remove";
-                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
-                if (!response.IsSuccessStatusCode)
-                {
-                    var exception = new BadHttpRequestException("Unable to remove the module  to the customer.", (int)response.StatusCode);
-                    _logger.LogError(exception, "Unable to remove the module to the customer.");
-                    throw exception;
-                }
-                var customerModules = await response.Content.ReadFromJsonAsync<ModuleGroupDTO>();
-                return customerModules == null ? null : new OrigoProductModuleGroup(customerModules);
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "RemoveProductModulesAsync failed with HttpRequestException.");
-                throw;
-            }
-            catch (NotSupportedException exception)
-            {
-                _logger.LogError(exception, "RemoveProductModulesAsync failed with content type is not valid.");
-                throw;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "RemoveProductModulesAsync unknown error.");
-                throw;
-            }
-        }
-
         public async Task<IList<OrigoProductModule>> GetCustomerProductModulesAsync(Guid customerId)
         {
             try
@@ -451,14 +283,13 @@ namespace OrigoApiGateway.Services
                 var customerModulesList = new List<OrigoProductModule>();
 
                 if (customerModules == null) return null;
-                var activeModuleGroups = await GetCustomerProductModuleGroupsAsync(customerId);
                 customerModulesList.AddRange(customerModules.Select(module => new OrigoProductModule()
                 {
                     ProductModuleId = module.ProductModuleId,
                     Name = module.Name,
                     IsChecked = true,
-                    ProductModuleGroup = module.ProductModuleGroup.Select(s => new OrigoProductModuleGroup(s, activeModuleGroups)).ToList()
-                })); ;
+                    ProductModuleGroup = module.ProductModuleGroup.Select(s => new OrigoProductModuleGroup(s) { IsChecked = true }).ToList()
+                }));
                 return customerModulesList;
             }
             catch (HttpRequestException exception)
@@ -478,13 +309,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoProductModule> AddProductModulesAsync(Guid customerId, Guid moduleId)
+        public async Task<OrigoProductModule> AddProductModulesAsync(Guid customerId, NewCustomerProductModule productModule)
         {
             try
             {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{customerId}/modules/{moduleId}/add";
-                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                var requestUri = $"{_options.ApiPath}/{customerId}/modules";
+                var response = await HttpClient.PatchAsync(requestUri, JsonContent.Create(productModule));
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to add the module to the customer.", (int)response.StatusCode);
@@ -496,7 +326,8 @@ namespace OrigoApiGateway.Services
                 {
                     ProductModuleId = customerModules.ProductModuleId,
                     Name = customerModules.Name,
-                    ProductModuleGroup = customerModules.ProductModuleGroup.Select(s => new OrigoProductModuleGroup(s)).ToList()
+                    IsChecked = true,
+                    ProductModuleGroup = customerModules.ProductModuleGroup.Select(s => new OrigoProductModuleGroup(s) { IsChecked = true }).ToList()
                 };
             }
             catch (HttpRequestException exception)
@@ -516,25 +347,33 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoProductModule> RemoveProductModulesAsync(Guid customerId, Guid moduleId)
+        public async Task<OrigoProductModule> RemoveProductModulesAsync(Guid customerId, NewCustomerProductModule productModule)
         {
             try
             {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{customerId}/modules/{moduleId}/remove";
-                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                var requestUri = $"{_options.ApiPath}/{customerId}/modules";
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Content = JsonContent.Create(productModule),
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(requestUri, UriKind.Relative)
+                };
+                var response = await HttpClient.SendAsync(request);
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to remove the module  to the customer.", (int)response.StatusCode);
                     _logger.LogError(exception, "Unable to remove the module to the customer.");
                     throw exception;
                 }
+                if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                    return null;
                 var customerModules = await response.Content.ReadFromJsonAsync<ModuleDTO>();
                 return customerModules == null ? null : new OrigoProductModule()
                 {
                     ProductModuleId = customerModules.ProductModuleId,
                     Name = customerModules.Name,
-                    ProductModuleGroup = customerModules.ProductModuleGroup.Select(s => new OrigoProductModuleGroup(s)).ToList()
+                    IsChecked = true,
+                    ProductModuleGroup = customerModules.ProductModuleGroup.Select(s => new OrigoProductModuleGroup(s) { IsChecked = true }).ToList()
                 };
             }
             catch (HttpRequestException exception)

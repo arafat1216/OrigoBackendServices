@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Enums;
+using System;
 
 namespace OrigoApiGateway.Models.BackendDTO
 {
@@ -84,5 +85,13 @@ namespace OrigoApiGateway.Models.BackendDTO
         public string MacAddress { get; set; }
 
         public bool IsActive { get; set; }
+
+        /// <summary>
+        /// The status of the asset.
+        /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
+        /// </summary>
+        public AssetStatus AssetStatus { get; set; }
+
+        public string AssetStatusName { get; set; }
     }
 }

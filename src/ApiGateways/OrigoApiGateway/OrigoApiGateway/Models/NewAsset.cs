@@ -51,5 +51,10 @@ namespace OrigoApiGateway.Models
 
         public bool IsActive { get; set; }
 
+        /// <summary>
+        /// The status of the asset.
+        /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
+        /// </summary>
+        public int AssetStatus { get; set; }
     }
 }

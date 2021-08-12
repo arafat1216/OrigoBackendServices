@@ -68,9 +68,6 @@ namespace CustomerServices.Migrations
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("CustomerId1")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("LastUpdatedDate")
                         .HasColumnType("datetime2");
 
@@ -80,8 +77,6 @@ namespace CustomerServices.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AssetCategoryTypeId");
-
-                    b.HasIndex("CustomerId1");
 
                     b.ToTable("AssetCategoryLifecycleType");
                 });
@@ -184,6 +179,9 @@ namespace CustomerServices.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("ProductModuleExternalId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("ProductModuleGroupId")
                         .HasColumnType("uniqueidentifier");
 
@@ -275,10 +273,6 @@ namespace CustomerServices.Migrations
                     b.HasOne("CustomerServices.Models.AssetCategoryType", null)
                         .WithMany("LifecycleTypes")
                         .HasForeignKey("AssetCategoryTypeId");
-
-                    b.HasOne("CustomerServices.Models.Customer", null)
-                        .WithMany("SelectedAssetCategoryLifecycles")
-                        .HasForeignKey("CustomerId1");
                 });
 
             modelBuilder.Entity("CustomerServices.Models.AssetCategoryType", b =>
@@ -370,8 +364,6 @@ namespace CustomerServices.Migrations
             modelBuilder.Entity("CustomerServices.Models.Customer", b =>
                 {
                     b.Navigation("SelectedAssetCategories");
-
-                    b.Navigation("SelectedAssetCategoryLifecycles");
 
                     b.Navigation("Users");
                 });

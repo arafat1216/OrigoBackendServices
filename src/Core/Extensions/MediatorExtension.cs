@@ -1,31 +1,34 @@
-﻿using Common.Seedwork;
+﻿using System.Collections.Generic;
+using Common.Seedwork;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Common.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace Common.Extensions
 {
-    static class MediatorExtension
+    public static class MediatorExtension
     {
         public static async Task DispatchDomainEventsAsync(this IMediator mediator, DbContext ctx)
         {
-            var domainEntities = ctx.ChangeTracker
-                .Entries<Entity>()
+            var domainEntities = ctx.ChangeTracker.Entries<Entity>()
                 .Where(x => x.Entity.DomainEvents != null && x.Entity.DomainEvents.Any());
 
-            var domainEvents = domainEntities
-                .SelectMany(x => x.Entity.DomainEvents)
-                .ToList();
+            var domainEntitiesList = domainEntities.ToList();
+            var domainEvents = domainEntitiesList.SelectMany(x => x.Entity.DomainEvents).ToList();
+            domainEntitiesList.ToList().ForEach(entity => entity.Entity.ClearDomainEvents());
 
-            domainEntities.ToList()
-                .ForEach(entity => entity.Entity.ClearDomainEvents());
+            foreach (var domainEvent in domainEvents) await mediator.Publish(domainEvent);
+        }
 
-            foreach (var domainEvent in domainEvents)
-                await mediator.Publish(domainEvent);
+        public static IList<INotification> GetDomainEventsAsync(this DbContext ctx)
+        {
+            var domainEntities = ctx.ChangeTracker.Entries<Entity>()
+                .Where(x => x.Entity.DomainEvents != null && x.Entity.DomainEvents.Any());
+
+            var domainEntitiesList = domainEntities.ToList();
+            return domainEntitiesList.SelectMany(x => x.Entity.DomainEvents).ToList();
         }
     }
 }

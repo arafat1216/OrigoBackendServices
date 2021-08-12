@@ -7,11 +7,10 @@ namespace OrigoApiGateway.Models
 {
     public class OrigoProductModuleGroup
     {
-        public OrigoProductModuleGroup(ModuleGroupDTO moduleGroup, IList<OrigoProductModuleGroup> selctedModules = null)
+        public OrigoProductModuleGroup(ModuleGroupDTO moduleGroup)
         {
             ProductModuleGroupId = moduleGroup.ProductModuleGroupId;
             Name = moduleGroup.Name;
-            IsChecked = selctedModules?.FirstOrDefault(p => p.ProductModuleGroupId == ProductModuleGroupId) != null;
         }
         public Guid ProductModuleGroupId { get; set; }
 

@@ -44,8 +44,11 @@ stages:
     - script: 'dotnet tool install --global dotnet-ef'
       displayName: Install EF Core
 
-    - script: 'dotnet ef migrations script --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/Asset/AssetServices/AssetServices.csproj'
-      displayName: Create migration scripts
+    - script: 'dotnet ef migrations script --context AssetsContext --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/Asset/AssetServices/AssetServices.csproj'
+      displayName: Create assets migration scripts
+
+    - script: 'dotnet ef migrations script --context LoggingDbContext --idempotent --output $(build.artifactstagingdirectory)/migrations/logging_migrations.sql --project src/Services/Asset/AssetServices/AssetServices.csproj'
+      displayName: Create asset logging migration scripts
 
     - task: PublishPipelineArtifact@1
       displayName: 'Publish migrations'
@@ -125,7 +128,7 @@ stages:
               artifactName: 'migrations'
               downloadPath: '$(System.ArtifactsDirectory)/migrations'
           - task: SqlAzureDacpacDeployment@1
-            displayName: Run sql migrations
+            displayName: Run asset sql migrations
             inputs:
               azureConnectionType: ConnectedServiceNameARM
               azureSubscription: OrigoV2ServiceConnection
@@ -133,6 +136,15 @@ stages:
               connectionString: $(AssetsDbConnection)
               deployType: SqlTask
               sqlFile: $(System.ArtifactsDirectory)/migrations/migrations.sql
+          - task: SqlAzureDacpacDeployment@1
+            displayName: Run asset logging sql migrations
+            inputs:
+              azureConnectionType: ConnectedServiceNameARM
+              azureSubscription: OrigoV2ServiceConnection
+              authenticationType: connectionString
+              connectionString: $(AssetsDbConnection)
+              deployType: SqlTask
+              sqlFile: $(System.ArtifactsDirectory)/migrations/logging_migrations.sql
 
   - deployment: Deploy
     condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))

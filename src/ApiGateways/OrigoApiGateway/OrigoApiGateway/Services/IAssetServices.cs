@@ -13,6 +13,7 @@ namespace OrigoApiGateway.Services
         Task<OrigoPagedAssets> SearchForAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 50);
         Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId);
         Task<OrigoAsset> AddAssetForCustomerAsync(Guid customerId, NewAsset newAsset);
+        Task<OrigoAsset> UpdateAssetStatus(Guid customerId, Guid assetId, int assetStatus);
         Task<OrigoAsset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive);
         Task<IList<OrigoAssetLifecycle>> GetLifecycles();
         Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, int lifecycleType);

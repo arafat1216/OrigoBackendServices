@@ -106,9 +106,20 @@ namespace Asset.API.Controllers
         {
             try
             {
+                if (!Enum.IsDefined(typeof(AssetStatus), asset.AssetStatus))
+                {
+                    Array arr = Enum.GetValues(typeof(AssetStatus));
+                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for asset status: {0} is out of bounds.\nValid options for asset statuses are:\n", asset.AssetStatus));
+                    foreach (AssetStatus e in arr)
+                    {
+                        errorMessage.Append($"    -{(int)e} ({e})\n");
+                    }
+                    throw new InvalidAssetDataException(errorMessage.ToString());
+                }
+
                 var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.SerialNumber,
                     asset.AssetCategoryId, asset.Brand, asset.Model, asset.LifecycleType, asset.PurchaseDate,
-                    asset.AssetHolderId, asset.IsActive, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId);
+                    asset.AssetHolderId, asset.IsActive, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, (AssetStatus)asset.AssetStatus);
                 var updatedAssetView = new ViewModels.Asset(updatedAsset);
 
                 return CreatedAtAction(nameof(CreateAsset), new { id = updatedAssetView.AssetId }, updatedAssetView);
@@ -123,6 +134,31 @@ namespace Asset.API.Controllers
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{assetId:Guid}/customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> SetAssetStatusOnAsset(Guid customerId, Guid assetId, int assetStatus)
+        {
+            try
+            {
+                if (!Enum.IsDefined(typeof(AssetStatus), assetStatus))
+                    return BadRequest("Invalid AssetStatus");
+                var updatedAsset = await _assetServices.UpdateAssetStatus(customerId, assetId, (AssetStatus)assetStatus);
+                if (updatedAsset == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new ViewModels.Asset(updatedAsset));
+
+            }
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -156,11 +192,11 @@ namespace Asset.API.Controllers
         [ProducesResponseType(typeof(IList<ViewModels.AssetLifecycle>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> GetLifecycles()
+        public ActionResult GetLifecycles()
         {
             try
             {
-                var lifecycles = await _assetServices.GetLifecycles();
+                var lifecycles = _assetServices.GetLifecycles();
                 if (lifecycles == null)
                 {
                     return NotFound();
@@ -287,7 +323,7 @@ namespace Asset.API.Controllers
         [ProducesResponseType(typeof(IList<AssetAuditLog>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<AssetAuditLog>>> GetAssetAuditLogMock(Guid assetId)
-         {
+        {
             try
             {
                 // use asset id to find asset log: Mock example just takes any id and returns dummy data
@@ -296,14 +332,14 @@ namespace Asset.API.Controllers
                     return NotFound();
                 }
 
-                var assetLogList = await _assetServices.GetAssetAuditLog();
+                var assetLogList = await _assetServices.GetAssetAuditLog(assetId);
 
                 return Ok(assetLogList);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return BadRequest();
             }
-         }
+        }
     }
 }
