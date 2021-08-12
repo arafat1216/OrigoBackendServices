@@ -1,7 +1,9 @@
 using System;
+using AssetServices.Attributes;
 using AssetServices.Exceptions;
 using AssetServices.Infrastructure;
 using AssetServices.Models;
+using AssetServices.Utility;
 using Common.Enums;
 using Common.Logging;
 using MediatR;
@@ -92,6 +94,114 @@ namespace AssetServices.UnitTests
         [Trait("Category", "UnitTest")]
         public void CreateAsset_ValidateAssetCategoryData()
         {
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void ValidateImei_invalid_empty_single()
+        {
+            // Arrange
+            string imei = "";
+
+            // Act
+            bool valid = AssetValidatorUtility.ValidateImei(imei);
+
+            // Asset
+            Assert.True(!valid);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void ValidateImei_invalid_single()
+        {
+            // Arrange
+            string imei = "111111111111111";
+
+            // Act
+            bool valid = AssetValidatorUtility.ValidateImei(imei);
+
+            // Asset
+            Assert.False(valid);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void ValidateImei_valid_single()
+        {
+            // Arrange
+            string imei = "532618333994628";
+
+            // Act
+            bool valid = AssetValidatorUtility.ValidateImei(imei);
+
+            // Asset
+            Assert.True(valid);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void ValidateImei_valid__multiple()
+        {
+            // Arrange
+            string imeis = "337047052140527,548668589912669,010708141304465";
+
+            // Act
+            bool valid = AssetValidatorUtility.ValidateImeis(imeis);
+
+            // Asset
+            Assert.True(valid);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void ValidateImei_invalid__multiple()
+        {
+            // Arrange
+            string imeis = "33704705214052,548668589912669,0107081413044651";
+
+            // Act
+            bool valid = AssetValidatorUtility.ValidateImeis(imeis);
+
+            // Asset
+            Assert.False(valid);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void ImeiValidationAttribute_Invalid()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetCategory = await assetRepository.GetAssetCategoryAsync(ASSET_CATEGORY_ID);
+            Asset asset = new Asset(Guid.NewGuid(), COMPANY_ID, "4543534535344", assetCategory,
+                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "", "a3:21:99:5d:a7:a0", AssetStatus.Active, null);
+            var attribute = new ImeiValidationAttribute();
+
+            // Act
+            bool valid = attribute.IsValid(asset);
+
+            // Asset
+            Assert.False(valid);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void ImeiValidationAttribute_Valid()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetCategory = await assetRepository.GetAssetCategoryAsync(ASSET_CATEGORY_ID);
+            Asset asset = new Asset(Guid.NewGuid(), COMPANY_ID, "4543534535344", assetCategory,
+                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "993100473611389", "a3:21:99:5d:a7:a0", AssetStatus.Active, null);
+            var attribute = new ImeiValidationAttribute();
+
+            // Act
+            bool valid = attribute.IsValid(asset);
+
+            // Asset
+            Assert.True(valid);
         }
     }
 }
