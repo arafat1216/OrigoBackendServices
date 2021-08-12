@@ -121,7 +121,7 @@ namespace AssetServices.UnitTests
             bool valid = AssetValidatorUtility.ValidateImei(imei);
 
             // Asset
-            Assert.True(!valid);
+            Assert.False(valid);
         }
 
         [Fact]
@@ -163,7 +163,7 @@ namespace AssetServices.UnitTests
             bool valid = AssetValidatorUtility.ValidateImeis(imeis);
 
             // Asset
-            Assert.True(!valid);
+            Assert.False(valid);
         }
 
         [Fact]
@@ -172,17 +172,17 @@ namespace AssetServices.UnitTests
         {
             // Arrange
             await using var context = new AssetsContext(ContextOptions);
-            var assetRepository = new AssetRepository(context);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetCategory = await assetRepository.GetAssetCategoryAsync(ASSET_CATEGORY_ID);
             Asset asset = new Asset(Guid.NewGuid(), COMPANY_ID, "4543534535344", assetCategory,
-                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "", "a3:21:99:5d:a7:a0", null);
+                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "", "a3:21:99:5d:a7:a0", AssetStatus.Active, null);
             var attribute = new ImeiValidationAttribute();
 
             // Act
             bool valid = attribute.IsValid(asset);
 
             // Asset
-            Assert.True(!valid);
+            Assert.False(valid);
         }
 
         [Fact]
@@ -191,10 +191,10 @@ namespace AssetServices.UnitTests
         {
             // Arrange
             await using var context = new AssetsContext(ContextOptions);
-            var assetRepository = new AssetRepository(context);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetCategory = await assetRepository.GetAssetCategoryAsync(ASSET_CATEGORY_ID);
             Asset asset = new Asset(Guid.NewGuid(), COMPANY_ID, "4543534535344", assetCategory,
-                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "993100473611389", "a3:21:99:5d:a7:a0", null);
+                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "993100473611389", "a3:21:99:5d:a7:a0", AssetStatus.Active, null);
             var attribute = new ImeiValidationAttribute();
 
             // Act
