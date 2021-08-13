@@ -72,12 +72,12 @@ namespace CustomerServices
                 {
                     var exist = assetCategory.LifecycleTypes.FirstOrDefault(a => a.LifecycleType == (LifecycleType)lifecycle);
                     if (exist == null)
-                        assetCategory.LifecycleTypes.Add(new AssetCategoryLifecycleType(customerId, addedAssetCategoryId, lifecycle));
+                        assetCategory.AddLifecyle(new AssetCategoryLifecycleType(customerId, addedAssetCategoryId, lifecycle));
                 }
             }
             else
             {
-                customer.SelectedAssetCategories.Add(new AssetCategoryType(addedAssetCategoryId, customerId, lifecycleTypes.Select(s => new AssetCategoryLifecycleType(customerId, addedAssetCategoryId, s)).ToList()));
+                customer.AddAssetCategory(new AssetCategoryType(addedAssetCategoryId, customerId, lifecycleTypes.Select(s => new AssetCategoryLifecycleType(customerId, addedAssetCategoryId, s)).ToList()));
             }
             await _customerRepository.SaveEntitiesAsync();
             // return updated object
@@ -95,7 +95,8 @@ namespace CustomerServices
             // If no lifecycles are selected delete the asset category as well
             if (!lifecycleTypes.Any())
             {
-                await RemoveAssetCategoryLifecycleTypesForCustomerAsync(assetCategory.LifecycleTypes);
+                await RemoveAssetCategoryLifecycleTypesForCustomerAsync(assetCategory.LifecycleTypes.ToList());
+                customer.RemoveAssetCategory(assetCategory);
                 return await _customerRepository.DeleteAssetCategoryTypeAsync(assetCategory);
             }
             var lifecycles = assetCategory.LifecycleTypes.Where(a => lifecycleTypes.Contains((int)a.LifecycleType)).Select(a => a).ToList();

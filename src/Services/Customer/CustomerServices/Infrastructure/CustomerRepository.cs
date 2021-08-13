@@ -112,7 +112,6 @@ namespace CustomerServices.Infrastructure
         {
             try
             {
-                assetCategoryType.LogDelete();
                 _customerContext.AssetCategoryTypes.Remove(assetCategoryType);
             }
             catch
@@ -158,7 +157,7 @@ namespace CustomerServices.Infrastructure
                 module.ProductModuleGroup.Clear();
                 foreach (var moduleGroup in tempModuleGroup)
                 {
-                    module.ProductModuleGroup.Add(moduleGroup);
+                    module.AddProductModuleGroup(moduleGroup);
                 }
             }
             return customerModules;
@@ -179,8 +178,7 @@ namespace CustomerServices.Infrastructure
             }
             if (!customer.SelectedProductModules.Contains(module))
             {
-                module.LogAddProductModule();
-                customer.SelectedProductModules.Add(module);
+                customer.AddProductModule(module);
             }
             await SaveEntitiesAsync();
             return await _customerContext.ProductModules.Include(m => m.ProductModuleGroup).FirstOrDefaultAsync(p => p.ProductModuleId == moduleId);
@@ -196,8 +194,7 @@ namespace CustomerServices.Infrastructure
             }
             try
             {
-                module.LogRemoveProductModule();
-                customer.SelectedProductModules.Remove(module);
+                customer.RemoveProductModule(module);
             }
             catch
             {
@@ -222,8 +219,7 @@ namespace CustomerServices.Infrastructure
             }
             if (!customer.SelectedProductModuleGroups.Contains(moduleGroup))
             {
-                moduleGroup.LogAddModuleGroup();
-                customer.SelectedProductModuleGroups.Add(moduleGroup);
+                customer.AddProductModuleGroup(moduleGroup);
             }
             await SaveEntitiesAsync();
             return moduleGroup;
@@ -239,8 +235,7 @@ namespace CustomerServices.Infrastructure
             }
             try
             {
-                moduleGroup.LogRemoveModuleGroup();
-                customer.SelectedProductModuleGroups.Remove(moduleGroup);
+                customer.RemoveProductModuleGroup(moduleGroup);
             }
             catch
             {
