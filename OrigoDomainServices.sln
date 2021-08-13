@@ -111,6 +111,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 		charts\origoapigateway\templates\service.yaml = charts\origoapigateway\templates\service.yaml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Email", "Email", "{315A279F-D0FF-429D-8F33-C39751D83AB2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Email.API", "src\Services\Email\Email.API\Email.API.csproj", "{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -153,6 +157,10 @@ Global
 		{78DB531E-0B8E-4C52-A233-35488E436D4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78DB531E-0B8E-4C52-A233-35488E436D4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78DB531E-0B8E-4C52-A233-35488E436D4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -182,6 +190,8 @@ Global
 		{78DB531E-0B8E-4C52-A233-35488E436D4C} = {1D6FE7EF-D120-4993-BD84-39701AB88B5B}
 		{23F495F5-BB43-4A62-B3F5-096174995E42} = {8D5A9903-F29E-457C-A27C-199EF34B1933}
 		{DE0A244E-6997-43B7-B187-E97D4847AAC1} = {23F495F5-BB43-4A62-B3F5-096174995E42}
+		{315A279F-D0FF-429D-8F33-C39751D83AB2} = {7618C1FC-2AFA-468A-92C5-74DC94CCCA8E}
+		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38} = {315A279F-D0FF-429D-8F33-C39751D83AB2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DAEDEBBF-933A-4FFE-B734-B9E748AF86E1}
