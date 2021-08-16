@@ -10,7 +10,7 @@ namespace CustomerServices
         Task<IList<Customer>> GetCustomersAsync();
         Task<Customer> GetCustomerAsync(Guid customerId);
 
-        Task<IList<AssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypesForCustomerAsync(IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes);
+        Task<IList<AssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypesForCustomerAsync(AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes);
         Task<AssetCategoryType> GetAssetCategoryType(Guid customerId, Guid assetCategoryId);
         Task<IList<AssetCategoryType>> GetAssetCategoryTypes(Guid customerId);
         Task<AssetCategoryType> AddAssetCategoryType(Guid customerId, Guid addedAssetCategoryId, IList<int> lifecycleTypes);

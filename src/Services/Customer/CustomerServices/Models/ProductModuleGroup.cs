@@ -25,15 +25,5 @@ namespace CustomerServices.Models
 
         [JsonIgnore]
         public ICollection<Customer> Customers { get; protected set; }
-
-        public void LogAddModuleGroup()
-        {
-            AddDomainEvent(new ProductModuleGroupAddedDomainEvent(this));
-        }
-
-        public void LogRemoveModuleGroup()
-        {
-            AddDomainEvent(new ProductModuleGroupRemovedDomainEvent(this));
-        }
     }
 }

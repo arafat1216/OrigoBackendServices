@@ -1,11 +1,12 @@
 ﻿using Common.Logging;
 using CustomerServices.Models;
+using System;
 
 namespace CustomerServices.DomainEvents
 {
     class ProductModuleAddedDomainEvent : BaseEvent
     {
-        public ProductModuleAddedDomainEvent(ProductModule addedProductModule) : base(addedProductModule.ProductModuleId)
+        public ProductModuleAddedDomainEvent(Guid customerId, ProductModule addedProductModule) : base(customerId)
         {
             ProductModule = addedProductModule;
         }

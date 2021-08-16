@@ -36,9 +36,17 @@ namespace CustomerServices.Models
             lifecycleTypes.Add(lifecycleType);
         }
 
-        public void LogDelete()
+        public void RemoveLifecyle(AssetCategoryLifecycleType lifecycleType)
         {
-            AddDomainEvent(new AssetCategoryRemovedDomainEvent(this));
+            try
+            {
+                AddDomainEvent(new AssetLifecycleSettingRemovedDomainEvent(lifecycleType));
+                lifecycleTypes.Remove(lifecycleType);
+            }
+            catch
+            {
+                // Item may already be removed
+            }
         }
 
         public void UpdateCustomerId(Guid customerId)

@@ -49,7 +49,8 @@ namespace CustomerServices.Models
         }
 
         [JsonIgnore]
-        public ICollection<AssetCategoryType> SelectedAssetCategories {
+        public ICollection<AssetCategoryType> SelectedAssetCategories
+        {
             get { return selectedAssetCategories?.ToImmutableList(); }
             protected set { selectedAssetCategories = value.ToList(); }
         }
@@ -77,30 +78,30 @@ namespace CustomerServices.Models
 
         public void RemoveAssetCategory(AssetCategoryType assetCategory)
         {
-            assetCategory.LogDelete();
+            AddDomainEvent(new AssetCategoryRemovedDomainEvent(assetCategory));
             selectedAssetCategories.Remove(assetCategory);
         }
 
         public void AddProductModule(ProductModule productModule)
         {
-            productModule.LogAddProductModule();
+            AddDomainEvent(new ProductModuleAddedDomainEvent(CustomerId, productModule));
             selectedProductModules.Add(productModule);
         }
         public void RemoveProductModule(ProductModule productModule)
         {
-            productModule.LogRemoveProductModule();
+            AddDomainEvent(new ProductModuleRemovedDomainEvent(CustomerId, productModule));
             selectedProductModules.Remove(productModule);
         }
 
         public void AddProductModuleGroup(ProductModuleGroup productModuleGroup)
         {
-            productModuleGroup.LogAddModuleGroup();
+            AddDomainEvent(new ProductModuleGroupAddedDomainEvent(CustomerId, productModuleGroup));
             selectedProductModuleGroups.Add(productModuleGroup);
         }
 
         public void RemoveProductModuleGroup(ProductModuleGroup productModuleGroup)
         {
-            productModuleGroup.LogRemoveModuleGroup();
+            AddDomainEvent(new ProductModuleGroupRemovedDomainEvent(CustomerId, productModuleGroup));
             selectedProductModuleGroups.Remove(productModuleGroup);
         }
     }

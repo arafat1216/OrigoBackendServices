@@ -29,10 +29,5 @@ namespace CustomerServices.Models
         public Guid AssetCategoryId { get; protected set; }
 
         public LifecycleType LifecycleType { get; protected set; }
-
-        public void LogDelete()
-        {
-            AddDomainEvent(new AssetLifecycleSettingRemovedDomainEvent(this));
-        }
     }
 }

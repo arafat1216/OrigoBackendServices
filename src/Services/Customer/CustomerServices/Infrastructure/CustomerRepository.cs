@@ -79,13 +79,13 @@ namespace CustomerServices.Infrastructure
             return newUser;
         }
 
-        public async Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes)
+        public async Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes)
         {
             try
             {
-                foreach(var assetLifecycle in assetCategoryLifecycleTypes)
+                foreach (var assetLifecycle in assetCategoryLifecycleTypes)
                 {
-                    assetLifecycle.LogDelete();
+                    assetCategory.RemoveLifecyle(assetLifecycle);
                 }
                 _customerContext.AssetCategoryLifecycleTypes.RemoveRange(assetCategoryLifecycleTypes);
             }
@@ -157,7 +157,7 @@ namespace CustomerServices.Infrastructure
                 module.ProductModuleGroup.Clear();
                 foreach (var moduleGroup in tempModuleGroup)
                 {
-                    module.AddProductModuleGroup(moduleGroup);
+                    module.AddProductModuleGroup(customerId, moduleGroup);
                 }
             }
             return customerModules;

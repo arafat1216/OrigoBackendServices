@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace CustomerServices.Models
 {
-    public class ProductModule : Entity, IAggregateRoot
+    public class ProductModule : Entity
     {
         private IList<ProductModuleGroup> productModuleGroups;
 
@@ -33,20 +33,10 @@ namespace CustomerServices.Models
         [JsonIgnore]
         public ICollection<Customer> Customers { get; protected set; }
 
-        public void AddProductModuleGroup(ProductModuleGroup productModuleGroup)
+        public void AddProductModuleGroup(Guid customerId, ProductModuleGroup productModuleGroup)
         {
             productModuleGroups.Add(productModuleGroup);
-            productModuleGroup.LogAddModuleGroup();
-        }
-
-        public void LogAddProductModule()
-        {
-            AddDomainEvent(new ProductModuleAddedDomainEvent(this));
-        }
-
-        public void LogRemoveProductModule()
-        {
-            AddDomainEvent(new ProductModuleRemovedDomainEvent(this));
+            AddDomainEvent(new ProductModuleGroupAddedDomainEvent(customerId, productModuleGroup));
         }
     }
 }
