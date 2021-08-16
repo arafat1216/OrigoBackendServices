@@ -45,7 +45,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void EncryptDecrypt_message()
+        public async void EncryptDecryptMessage_Valid()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -72,6 +72,39 @@ namespace CustomerServices.UnitTests
 
             // Assert
             Assert.Equal(message, decryptedMessage);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void EncryptDecryptMessage_Invalid()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new CustomerRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), customerRepository);
+
+            byte[] pepper, iv, keyValid, keyInvalid;
+            string message = "Super secret data";
+            string encryptPassword = "123Password";
+            string decryptPassword = "faultypassword";
+            keyValid = SymmetricEncryption.ComputeHash(encryptPassword);
+            keyInvalid =  SymmetricEncryption.ComputeHash(decryptPassword);
+
+            using (Aes aesAlg = Aes.Create())
+            {
+                iv = aesAlg.IV;
+            }
+
+            pepper = new byte[16];
+            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider(); // fill pepper with strong random bytes
+            rng.GetBytes(pepper);
+
+            // Act
+            var encryptedMessage = await customerService.EncryptDataForCustomer(CUSTOMER_ONE_ID, message, keyValid, pepper, iv);
+            var decryptedMessage = await customerService.DecryptDataForCustomer(CUSTOMER_ONE_ID, encryptedMessage, keyInvalid, pepper, iv);
+
+            // Assert
+            Assert.NotEqual(message, decryptedMessage);
         }
     }
 }
