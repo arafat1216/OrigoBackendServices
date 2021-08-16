@@ -82,6 +82,19 @@ namespace CustomerServices.Models
             selectedAssetCategories.Remove(assetCategory);
         }
 
+        public void RemoveLifecyle(AssetCategoryType assetCategory, AssetCategoryLifecycleType lifecycleType)
+        {
+            try
+            {
+                AddDomainEvent(new AssetLifecycleSettingRemovedDomainEvent(lifecycleType));
+                assetCategory.LifecycleTypes.Remove(lifecycleType);
+            }
+            catch
+            {
+                // Item may already be removed
+            }
+        }
+
         public void AddProductModule(ProductModule productModule)
         {
             AddDomainEvent(new ProductModuleAddedDomainEvent(CustomerId, productModule));

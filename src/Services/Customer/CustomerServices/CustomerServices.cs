@@ -41,9 +41,9 @@ namespace CustomerServices
             return await _customerRepository.GetCustomerAsync(customerId);
         }
 
-        public async Task<IList<AssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypesForCustomerAsync(AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes)
+        public async Task<IList<AssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypesForCustomerAsync(Customer customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes)
         {
-            return await _customerRepository.DeleteAssetCategoryLifecycleTypeAsync(assetCategory, assetCategoryLifecycleTypes);
+            return await _customerRepository.DeleteAssetCategoryLifecycleTypeAsync(customer, assetCategory, assetCategoryLifecycleTypes);
         }
 
         public async Task<AssetCategoryType> GetAssetCategoryType(Guid customerId, Guid assetCategoryId)
@@ -95,13 +95,13 @@ namespace CustomerServices
             // If no lifecycles are selected delete the asset category as well
             if (!lifecycleTypes.Any())
             {
-                await RemoveAssetCategoryLifecycleTypesForCustomerAsync(assetCategory, assetCategory.LifecycleTypes.ToList());
+                await RemoveAssetCategoryLifecycleTypesForCustomerAsync(customer, assetCategory, assetCategory.LifecycleTypes.ToList());
                 customer.RemoveAssetCategory(assetCategory);
                 return await _customerRepository.DeleteAssetCategoryTypeAsync(assetCategory);
             }
             var lifecycles = assetCategory.LifecycleTypes.Where(a => lifecycleTypes.Contains((int)a.LifecycleType)).Select(a => a).ToList();
             // Delete lifecycles of this asset category
-            await RemoveAssetCategoryLifecycleTypesForCustomerAsync(assetCategory, lifecycles);
+            await RemoveAssetCategoryLifecycleTypesForCustomerAsync(customer, assetCategory, lifecycles);
             // return updated object
             return await GetAssetCategoryType(customerId, deletedAssetCategoryId);
         }

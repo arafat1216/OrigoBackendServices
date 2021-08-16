@@ -79,13 +79,13 @@ namespace CustomerServices.Infrastructure
             return newUser;
         }
 
-        public async Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes)
+        public async Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Customer customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes)
         {
             try
             {
                 foreach (var assetLifecycle in assetCategoryLifecycleTypes)
                 {
-                    assetCategory.RemoveLifecyle(assetLifecycle);
+                    customer.RemoveLifecyle(assetCategory, assetLifecycle);
                 }
                 _customerContext.AssetCategoryLifecycleTypes.RemoveRange(assetCategoryLifecycleTypes);
             }
