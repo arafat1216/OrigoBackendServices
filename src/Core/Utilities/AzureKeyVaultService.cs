@@ -3,6 +3,7 @@ using Azure.Security.KeyVault.Keys;
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Configuration;
 using System.Threading.Tasks;
 
 namespace Common.Utilities
@@ -17,15 +18,25 @@ namespace Common.Utilities
 
         private readonly SecretClient SecretClient;
 
-        public AzureKeyVaultService(IConfiguration configuration)
+        private readonly string tenantId = "f48f3686-91a4-4a60-8216-0c3a5f878b40";
+
+        private readonly string clientId = "f1f1664c-9206-47e4-a378-e522adea3a7f";
+
+        private readonly string clientSecret = "CX.cW0oiv7fplEdqoRrrCub58iemrHWt.r";
+
+        public AzureKeyVaultService(Configuration configuration = new Configuration(this))
         {
             Configuration = configuration;
+            // TODO: put these values in secrets.json
+            Environment.SetEnvironmentVariable("AZURE_TENANT_ID", tenantId);
+            Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", clientId);
+            Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", clientSecret);
             // Create a new key client using the default credential from Azure.Identity using environment variables previously set,
             // including AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, and AZURE_TENANT_ID.
             KeyClient = new KeyClient(vaultUri: new Uri(keyVaultUrl), credential: new DefaultAzureCredential());
             // Create a new secret client using the default credential from Azure.Identity using environment variables previously set,
             // including AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, and AZURE_TENANT_ID.
-            SecretClient = new SecretClient(vaultUri: new Uri(keyVaultUrl), credential: new DefaultAzureCredential(new DefaultAzureCredentialOptions() { ManagedIdentityClientId = "", }));
+            SecretClient = new SecretClient(vaultUri: new Uri(keyVaultUrl), credential: new DefaultAzureCredential());
         }
 
         /// <summary>
