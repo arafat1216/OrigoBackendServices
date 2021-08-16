@@ -17,10 +17,11 @@ namespace Common.Cryptography
     /// </summary>
     public static class SymmetricEncryption
     {
-        public static byte[] Encrypt(string message, string salt, byte[] key, byte[] iv)
+        public static byte[] Encrypt(string message, string salt, string passwordAndSalt, byte[] iv)
         {
             using var aesAlg = Aes.Create();
-            aesAlg.Key = key;
+            
+            aesAlg.Key = ComputeHash(passwordAndSalt);
             aesAlg.IV = iv;
 
             var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
@@ -29,15 +30,15 @@ namespace Common.Cryptography
             using var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write);
             using (var sw = new StreamWriter(cs))
             {
-                sw.Write(message + salt); // Write all data to the stream.
+                sw.Write(message); // Write all data to the stream.
             }
             return ms.ToArray();
         }
 
-        public static string Decrypt(byte[] cipherText, byte[] key, byte[] iv)
+        public static string Decrypt(byte[] cipherText, string passwordAndSalt, byte[] iv)
         {
             using var aesAlg = Aes.Create();
-            aesAlg.Key = key;
+            aesAlg.Key = ComputeHash(passwordAndSalt);
             aesAlg.IV = iv;
 
             var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);

@@ -60,12 +60,12 @@ namespace CustomerServices.UnitTests
                 //key = aesAlg.Key;
                 iv = aesAlg.IV;
             }
-            key = SymmetricEncryption.ComputeHash(password);
+            //key = SymmetricEncryption.ComputeHash(password);
 
 
             // Act
-            var encryptedMessage = await customerService.EncryptDataForCustomer(CUSTOMER_ONE_ID, message, key, iv);
-            var decryptedMessage = await customerService.DecryptDataForCustomer(CUSTOMER_ONE_ID, encryptedMessage, key, iv);
+            var encryptedMessage = await customerService.EncryptDataForCustomer(CUSTOMER_ONE_ID, message, password, iv);
+            var decryptedMessage = await customerService.DecryptDataForCustomer(CUSTOMER_ONE_ID, encryptedMessage, password, iv);
 
             // Assert
             Assert.Equal(message, decryptedMessage);
