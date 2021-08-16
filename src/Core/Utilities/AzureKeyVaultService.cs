@@ -5,9 +5,9 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
 
-namespace Common
+namespace Common.Utilities
 {
-    class AzureKeyVaultService
+    public class AzureKeyVaultService
     {
         private readonly IConfiguration Configuration;
 

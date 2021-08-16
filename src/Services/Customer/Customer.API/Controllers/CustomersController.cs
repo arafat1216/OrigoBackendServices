@@ -11,6 +11,7 @@ using Customer.API.ViewModels;
 using CustomerServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Common.Utilities;
 
 namespace Customer.API.Controllers
 {
@@ -266,6 +267,32 @@ namespace Customer.API.Controllers
             };
 
             return Ok(moduleGroup);
+        }
+
+        [Route("{customerId:Guid}/keys")]
+        [HttpGet]
+        [ProducesResponseType(typeof(ProductModule), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<ProductModule>> GetKey(string keyName)
+        {
+            AzureKeyVaultService keyVaultService = new AzureKeyVaultService(null);
+            var key = await keyVaultService.GetKeyAsync(keyName);
+            if (key == null) return NoContent();
+
+
+            return Ok(key);
+        }
+
+        [Route("{customerId:Guid}/keys")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ProductModule), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<ProductModule>> PutKey(string keyName)
+        {
+            AzureKeyVaultService keyVaultService = new AzureKeyVaultService(null);
+            var key = await keyVaultService.CreateKeyAsync(keyName);
+            if (key == null) return NoContent();
+
+
+            return Ok(key);
         }
     }
 }
