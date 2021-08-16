@@ -154,11 +154,11 @@ namespace CustomerServices
         /// </summary>
         /// <param name="customerId"></param>
         /// <param name="message"></param>
-        /// <param name="password">Temporary parameter, until value can be fetched from vault or elsewhere</param>
+        /// <param name="secretKey">Temporary parameter, until value can be fetched from vault or elsewhere</param>
         /// <param name="pepper">Temporary parameter, until value can be fetched from vault or elsewhere</param>
         /// <param name="iv">Temporary parameter, until value can be fetched from vault or elsewhere</param>
         /// <returns></returns>
-        public async Task<string> EncryptDataForCustomer(Guid customerId, string message, string password, byte[] pepper, byte[] iv)
+        public async Task<string> EncryptDataForCustomer(Guid customerId, string message, byte[] secretKey, byte[] pepper, byte[] iv)
         {
            var customer =  await _customerRepository.GetCustomerAsync(customerId);
 
@@ -167,7 +167,7 @@ namespace CustomerServices
 
             string salt = customer.CustomerId.ToString(); // improvement phase: temp salt - need to lookup best practices
 
-            var encryptedMessage = SymmetricEncryption.Encrypt(message, password + salt + BitConverter.ToString(pepper), iv);
+            var encryptedMessage = SymmetricEncryption.Encrypt(message, secretKey, salt, BitConverter.ToString(pepper), iv);
 
             return BitConverter.ToString(encryptedMessage);
         }
@@ -177,11 +177,11 @@ namespace CustomerServices
         /// </summary>
         /// <param name="customerId">The id of the customer for whom we decrypt data</param>
         /// <param name="encryptedData">Ciphertext to be decrypted</param>
-        /// <param name="password">Secret value used to compute key (along with customer salt value)</param>
+        /// <param name="secretKey">Secret value used as key </param>
         /// <param name="pepper">Temporary parameter, until value can be fetched from vault or elsewhere</param>
         /// <param name="iv">Initialization vector for encryption algorithm: should be moved elsewhere</param>
         /// <returns></returns>
-        public async Task<string> DecryptDataForCustomer(Guid customerId, string encryptedData, string password, byte[] pepper, byte[] iv)
+        public async Task<string> DecryptDataForCustomer(Guid customerId, string encryptedData, byte[] secretKey, byte[] pepper, byte[] iv)
         {
             var customer = await _customerRepository.GetCustomerAsync(customerId);
             if (customer == null)
@@ -189,7 +189,7 @@ namespace CustomerServices
 
             string salt = customer.CustomerId.ToString(); // temp salt: need to lookup best practices
             byte[] data = encryptedData.Split('-').Select(b => Convert.ToByte(b, 16)).ToArray();
-            var decryptedMessage = SymmetricEncryption.Decrypt(data, password+salt + BitConverter.ToString(pepper), iv);
+            var decryptedMessage = SymmetricEncryption.Decrypt(data, secretKey, salt,BitConverter.ToString(pepper), iv);
 
             return decryptedMessage;
         }

@@ -51,10 +51,11 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new CustomerRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), customerRepository);
-            var customer = await customerService.GetCustomerAsync(CUSTOMER_ONE_ID);
-            byte[] pepper, iv;
+
+            byte[] pepper, iv, key;
             string message = "Super secret data";
             string password = "123Password";
+            key = SymmetricEncryption.ComputeHash(password);
             
             using (Aes aesAlg = Aes.Create())
             {
@@ -66,8 +67,8 @@ namespace CustomerServices.UnitTests
             rng.GetBytes(pepper);
 
             // Act
-            var encryptedMessage = await customerService.EncryptDataForCustomer(CUSTOMER_ONE_ID, message, password, pepper, iv);
-            var decryptedMessage = await customerService.DecryptDataForCustomer(CUSTOMER_ONE_ID, encryptedMessage, password, pepper, iv);
+            var encryptedMessage = await customerService.EncryptDataForCustomer(CUSTOMER_ONE_ID, message, key, pepper, iv);
+            var decryptedMessage = await customerService.DecryptDataForCustomer(CUSTOMER_ONE_ID, encryptedMessage, key, pepper, iv);
 
             // Assert
             Assert.Equal(message, decryptedMessage);
