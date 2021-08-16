@@ -17,43 +17,43 @@ namespace Common.Cryptography
     /// </summary>
     public static class SymmetricEncryption
     {
-        public static byte[] Encrypt(string message, string salt, string passwordAndSalt, byte[] iv)
+        public static byte[] Encrypt(string message, string passwordSaltPepper, byte[] iv)
         {
             using var aesAlg = Aes.Create();
             
-            aesAlg.Key = ComputeHash(passwordAndSalt);
+            aesAlg.Key = ComputeHash(passwordSaltPepper);
             aesAlg.IV = iv;
 
             var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
-            using var ms = new MemoryStream();
-            using var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write);
-            using (var sw = new StreamWriter(cs))
+            using var memoryStream = new MemoryStream();
+            using var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
+            using (var streamWriter = new StreamWriter(cryptoStream))
             {
-                sw.Write(message); // Write all data to the stream.
+                streamWriter.Write(message);
             }
-            return ms.ToArray();
+            return memoryStream.ToArray();
         }
 
-        public static string Decrypt(byte[] cipherText, string passwordAndSalt, byte[] iv)
+        public static string Decrypt(byte[] cipherText, string passwordSaltPepper, byte[] iv)
         {
             using var aesAlg = Aes.Create();
-            aesAlg.Key = ComputeHash(passwordAndSalt);
+            aesAlg.Key = ComputeHash(passwordSaltPepper);
             aesAlg.IV = iv;
 
             var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
-            using var ms = new MemoryStream(cipherText);
-            using var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read);
-            using var sr = new StreamReader(cs);
-            return sr.ReadToEnd();
+            using var memoryStream = new MemoryStream(cipherText);
+            using var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
+            using var streamReader = new StreamReader(cryptoStream);
+            return streamReader.ReadToEnd();
         }
 
         public static byte[] ComputeHash(string message)
         {
             using var sha256 = SHA256.Create();
             var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(message));
-            return hashedBytes;//BitConverter.ToString(hashedBytes);
+            return hashedBytes;
         }
     }
 }

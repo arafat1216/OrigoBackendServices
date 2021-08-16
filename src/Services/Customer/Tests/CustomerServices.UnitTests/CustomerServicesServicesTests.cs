@@ -52,20 +52,22 @@ namespace CustomerServices.UnitTests
             var customerRepository = new CustomerRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), customerRepository);
             var customer = await customerService.GetCustomerAsync(CUSTOMER_ONE_ID);
-            byte[] key, iv;
+            byte[] pepper, iv;
             string message = "Super secret data";
             string password = "123Password";
+            
             using (Aes aesAlg = Aes.Create())
             {
-                //key = aesAlg.Key;
                 iv = aesAlg.IV;
             }
-            //key = SymmetricEncryption.ComputeHash(password);
 
+            pepper = new byte[16];
+            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider(); // fill pepper with strong random bytes
+            rng.GetBytes(pepper);
 
             // Act
-            var encryptedMessage = await customerService.EncryptDataForCustomer(CUSTOMER_ONE_ID, message, password, iv);
-            var decryptedMessage = await customerService.DecryptDataForCustomer(CUSTOMER_ONE_ID, encryptedMessage, password, iv);
+            var encryptedMessage = await customerService.EncryptDataForCustomer(CUSTOMER_ONE_ID, message, password, pepper, iv);
+            var decryptedMessage = await customerService.DecryptDataForCustomer(CUSTOMER_ONE_ID, encryptedMessage, password, pepper, iv);
 
             // Assert
             Assert.Equal(message, decryptedMessage);
