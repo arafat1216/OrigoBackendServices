@@ -1,5 +1,8 @@
+using System.Security.Claims;
 using Dapr.Client;
 using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -12,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Helpers;
 using OrigoApiGateway.Services;
 
@@ -64,6 +68,21 @@ namespace OrigoApiGateway
                 options.Authority = Configuration["Authentication:AuthConfig:Authority"];
                 options.Audience = Configuration["Authentication:AuthConfig:Audience"];
                 options.RequireHttpsMetadata = !WebHostEnvironment.IsDevelopment();
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async ctx =>
+                    {
+                        var claimsPrincipal = await new UserInfoClaims().TransformAsync(ctx.Principal);
+                        ctx.Principal.AddIdentity((ClaimsIdentity)claimsPrincipal.Identity);
+                    }
+                };
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
             });
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
