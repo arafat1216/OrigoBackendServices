@@ -1,14 +1,16 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Keys;
 using Azure.Security.KeyVault.Secrets;
+using Common.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Configuration;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Common.Utilities
 {
-    public class AzureKeyVaultService
+    public class AzureKeyVaultService : IKeyVaultService
     {
         private readonly IConfiguration Configuration;
 
@@ -44,9 +46,15 @@ namespace Common.Utilities
         /// </summary>
         /// <param name="keyName"></param>
         /// <returns></returns>
-        public async Task<KeyVaultKey> GetKeyAsync(string keyName)
+        public async Task<KeyVaultKey> GetKeyAsync(string keyName, CancellationToken cancellationToken = default)
         {
-            KeyVaultKey key = await KeyClient.GetKeyAsync(keyName);
+            var key = await KeyClient.GetKeyAsync(keyName, cancellationToken: cancellationToken);
+            return key;
+        }
+
+        public async Task<DeletedKey> GetDeletedKeyAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var key = await KeyClient.GetDeletedKeyAsync(name, cancellationToken);
             return key;
         }
 
@@ -55,10 +63,28 @@ namespace Common.Utilities
         /// </summary>
         /// <param name="keyName"></param>
         /// <returns></returns>
-        public async Task<KeyVaultKey> CreateKeyAsync(string keyName)
+        public async Task<KeyVaultKey> CreateKeyAsync(string keyName, CancellationToken cancellationToken = default)
         {
             // Create a key of any type
-            KeyVaultKey key = await KeyClient.CreateKeyAsync(keyName, KeyType.Rsa);
+            KeyVaultKey key = await KeyClient.CreateKeyAsync(keyName, KeyType.Rsa, cancellationToken: cancellationToken);
+            return key;
+        }
+
+        public async Task<KeyVaultKey> ImportKeyAsync(string name, JsonWebKey keyMaterial, CancellationToken cancellationToken = default)
+        {
+            var key = await KeyClient.ImportKeyAsync(name, keyMaterial, cancellationToken);
+            return key;
+        }
+
+        public async Task<DeleteKeyOperation> DeleteKeyAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var key = await KeyClient.StartDeleteKeyAsync(name, cancellationToken);
+            return key;
+        }
+
+        public async Task<RecoverDeletedKeyOperation> RecoverDeletedKeyAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var key = await KeyClient.StartRecoverDeletedKeyAsync(name, cancellationToken);
             return key;
         }
 
@@ -67,10 +93,18 @@ namespace Common.Utilities
         /// </summary>
         /// <param name="secretName"></param>
         /// <returns></returns>
-        public async Task<KeyVaultSecret> GetSecretAsync(string secretName)
+        public async Task<KeyVaultSecret> GetSecretAsync(string secretName, CancellationToken cancellationToken = default)
         {
             // Retrieve a secret using the secret client.
-            return await SecretClient.GetSecretAsync(secretName);
+            var key = await SecretClient.GetSecretAsync(secretName, cancellationToken: cancellationToken);
+            return key;
+        }
+
+        public async Task<DeletedSecret> GetDeletedSecretAsync(string name, CancellationToken cancellationToken = default)
+        {
+            // Retrieve a secret that has been deleted using the secret client.
+            var secret = await SecretClient.GetDeletedSecretAsync(name, cancellationToken);
+            return secret;
         }
 
         /// <summary>
@@ -79,10 +113,22 @@ namespace Common.Utilities
         /// <param name="secretName"></param>
         /// <param name="secretValue"></param>
         /// <returns></returns>
-        public async Task<KeyVaultSecret> SetSecretAsync(string secretName, string secretValue)
+        public async Task<KeyVaultSecret> SetSecretAsync(string secretName, string secretValue, CancellationToken cancellationToken = default)
         {
             // Create a new secret using the secret client.
-            KeyVaultSecret secret = await SecretClient.SetSecretAsync(secretName, secretValue);
+            var secret = await SecretClient.SetSecretAsync(secretName, secretValue, cancellationToken);
+            return secret;
+        }
+
+        public async Task<DeleteSecretOperation> DeleteSecretAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var secret = await SecretClient.StartDeleteSecretAsync(name, cancellationToken);
+            return secret;
+        }
+
+        public async Task<RecoverDeletedSecretOperation> RecoverDeletedSecretAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var secret = await SecretClient.StartRecoverDeletedSecretAsync(name, cancellationToken);
             return secret;
         }
     }
