@@ -1,9 +1,9 @@
 ﻿using Common.Seedwork;
+using CustomerServices.DomainEvents;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomerServices.Models
 {
@@ -22,7 +22,7 @@ namespace CustomerServices.Models
 
         public Guid ExternalCustomerId { get; protected set; }
 
-        public IList<AssetCategoryLifecycleType> LifecycleTypes { get; protected set; }
+        public ICollection<AssetCategoryLifecycleType> LifecycleTypes { get; protected set; }
 
         public void UpdateCustomerId(Guid customerId)
         {

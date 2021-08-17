@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using Common.Seedwork;
+using CustomerServices.DomainEvents;
 
 namespace CustomerServices.Models
 {
@@ -14,6 +16,7 @@ namespace CustomerServices.Models
             Email = email;
             MobileNumber = mobileNumber;
             EmployeeId = employeeId;
+            AddDomainEvent(new UserCreatedDomainEvent(this));
         }
 
         protected User(){}
@@ -24,6 +27,7 @@ namespace CustomerServices.Models
         public string Email { get; protected set; }
         public string MobileNumber { get; protected set; }
         public string EmployeeId { get; protected set; }
+        [JsonIgnore]
         public Customer Customer { get; set; }
     }
 }
