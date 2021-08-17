@@ -1,18 +1,21 @@
 ﻿using Common.Seedwork;
+using CustomerServices.DomainEvents;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 
 namespace CustomerServices.Models
 {
-    public class ProductModule : Entity, IAggregateRoot
+    public class ProductModule : Entity
     {
         protected ProductModule() { }
 
-        public ProductModule(Guid productModuleId, string name, IList<ProductModuleGroup> productModuleGroup)
+        public ProductModule(Guid productModuleId, string name, IList<ProductModuleGroup> productModuleGroups)
         {
             ProductModuleId = productModuleId;
             Name = name;
-            ProductModuleGroup = productModuleGroup;
+            ProductModuleGroup = productModuleGroups;
         }
 
         public Guid ProductModuleId { get; protected set; }
@@ -21,6 +24,7 @@ namespace CustomerServices.Models
 
         public IList<ProductModuleGroup> ProductModuleGroup { get; protected set; }
 
+        [JsonIgnore]
         public ICollection<Customer> Customers { get; protected set; }
     }
 }

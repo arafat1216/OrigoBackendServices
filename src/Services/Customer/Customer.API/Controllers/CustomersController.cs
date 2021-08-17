@@ -119,7 +119,6 @@ namespace Customer.API.Controllers
         {
             try
             {
-                var assetCategory = new CustomerServices.Models.AssetCategoryType(addedAssetCategory.AssetCategoryId, addedAssetCategory.CustomerId, new List<CustomerServices.Models.AssetCategoryLifecycleType>());
                 foreach (int lifecycle in addedAssetCategory.LifecycleTypes)
                 {
                     // Check if given int is within valid range of values
@@ -133,10 +132,8 @@ namespace Customer.API.Controllers
                         }
                         throw new InvalidLifecycleTypeException(errorMessage.ToString());
                     }
-                    var lifecycleType = new CustomerServices.Models.AssetCategoryLifecycleType(addedAssetCategory.CustomerId, addedAssetCategory.AssetCategoryId, lifecycle);
-                    assetCategory.LifecycleTypes.Add(lifecycleType);
                 }
-                var assetCategories = await _customerServices.AddAssetCategoryType(customerId, assetCategory);
+                var assetCategories = await _customerServices.AddAssetCategoryType(customerId, addedAssetCategory.AssetCategoryId, addedAssetCategory.LifecycleTypes);
                 var assetCategoryView = new AssetCategoryType
                 {
                     CustomerId = assetCategories.ExternalCustomerId,
@@ -164,7 +161,6 @@ namespace Customer.API.Controllers
         {
             try
             {
-                var assetCategory = new CustomerServices.Models.AssetCategoryType(deleteAssetCategory.AssetCategoryId, deleteAssetCategory.CustomerId, new List<CustomerServices.Models.AssetCategoryLifecycleType>());
                 foreach (int lifecycle in deleteAssetCategory.LifecycleTypes)
                 {
                     // Check if given int is within valid range of values
@@ -178,10 +174,8 @@ namespace Customer.API.Controllers
                         }
                         throw new InvalidLifecycleTypeException(errorMessage.ToString());
                     }
-                    var lifecycleType = new CustomerServices.Models.AssetCategoryLifecycleType(deleteAssetCategory.CustomerId, deleteAssetCategory.AssetCategoryId, lifecycle);
-                    assetCategory.LifecycleTypes.Add(lifecycleType);
                 }
-                var assetCategories = await _customerServices.RemoveAssetCategoryType(customerId, assetCategory);
+                var assetCategories = await _customerServices.RemoveAssetCategoryType(customerId, deleteAssetCategory.AssetCategoryId, deleteAssetCategory.LifecycleTypes);
                 if (assetCategories == null)
                     return NotFound();
                 var assetCategoryView = new AssetCategoryType
