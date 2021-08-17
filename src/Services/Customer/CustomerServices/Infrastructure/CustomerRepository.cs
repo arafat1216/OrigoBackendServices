@@ -157,7 +157,7 @@ namespace CustomerServices.Infrastructure
                 module.ProductModuleGroup.Clear();
                 foreach (var moduleGroup in tempModuleGroup)
                 {
-                    module.AddProductModuleGroup(customerId, moduleGroup);
+                    module.ProductModuleGroup.Add(moduleGroup);
                 }
             }
             return customerModules;

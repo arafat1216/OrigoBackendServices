@@ -73,6 +73,7 @@ namespace CustomerServices.Models
 
         public void AddAssetCategory(AssetCategoryType assetCategory)
         {
+            AddDomainEvent(new AssetCategoryAddedDomainEvent(assetCategory));
             selectedAssetCategories.Add(assetCategory);
         }
 
@@ -80,6 +81,12 @@ namespace CustomerServices.Models
         {
             AddDomainEvent(new AssetCategoryRemovedDomainEvent(assetCategory));
             selectedAssetCategories.Remove(assetCategory);
+        }
+
+        public void AddLifecyle(AssetCategoryType assetCategory, AssetCategoryLifecycleType lifecycleType)
+        {
+            AddDomainEvent(new AssetLifecycleSettingAddedDomainEvent(lifecycleType));
+            assetCategory.LifecycleTypes.Add(lifecycleType);
         }
 
         public void RemoveLifecyle(AssetCategoryType assetCategory, AssetCategoryLifecycleType lifecycleType)
@@ -100,6 +107,7 @@ namespace CustomerServices.Models
             AddDomainEvent(new ProductModuleAddedDomainEvent(CustomerId, productModule));
             selectedProductModules.Add(productModule);
         }
+
         public void RemoveProductModule(ProductModule productModule)
         {
             AddDomainEvent(new ProductModuleRemovedDomainEvent(CustomerId, productModule));

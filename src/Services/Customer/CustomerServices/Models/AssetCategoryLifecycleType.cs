@@ -19,7 +19,6 @@ namespace CustomerServices.Models
             CustomerId = customerId;
             bool checkEnumValue = Enum.TryParse(lifecycle.ToString(), out LifecycleType lifecycleType);
             LifecycleType = checkEnumValue ? lifecycleType : LifecycleType.NoLifecycle;
-            AddDomainEvent(new AssetLifecycleSettingAddedDomainEvent(this));
         }
 
         protected AssetCategoryLifecycleType() { }

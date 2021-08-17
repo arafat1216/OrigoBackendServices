@@ -9,8 +9,6 @@ namespace CustomerServices.Models
 {
     public class ProductModule : Entity
     {
-        private IList<ProductModuleGroup> productModuleGroups;
-
         protected ProductModule() { }
 
         public ProductModule(Guid productModuleId, string name, IList<ProductModuleGroup> productModuleGroups)
@@ -24,19 +22,9 @@ namespace CustomerServices.Models
 
         public string Name { get; protected set; }
 
-        public IList<ProductModuleGroup> ProductModuleGroup
-        {
-            get { return productModuleGroups; }
-            protected set { productModuleGroups = value; }
-        }
+        public IList<ProductModuleGroup> ProductModuleGroup { get; protected set; }
 
         [JsonIgnore]
         public ICollection<Customer> Customers { get; protected set; }
-
-        public void AddProductModuleGroup(Guid customerId, ProductModuleGroup productModuleGroup)
-        {
-            productModuleGroups.Add(productModuleGroup);
-            AddDomainEvent(new ProductModuleGroupAddedDomainEvent(customerId, productModuleGroup));
-        }
     }
 }

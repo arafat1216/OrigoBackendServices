@@ -72,12 +72,17 @@ namespace CustomerServices
                 {
                     var exist = assetCategory.LifecycleTypes.FirstOrDefault(a => a.LifecycleType == (LifecycleType)lifecycle);
                     if (exist == null)
-                        assetCategory.AddLifecyle(new AssetCategoryLifecycleType(customerId, addedAssetCategoryId, lifecycle));
+                        customer.AddLifecyle(assetCategory, new AssetCategoryLifecycleType(customerId, addedAssetCategoryId, lifecycle));
                 }
             }
             else
             {
-                customer.AddAssetCategory(new AssetCategoryType(addedAssetCategoryId, customerId, lifecycleTypes.Select(s => new AssetCategoryLifecycleType(customerId, addedAssetCategoryId, s)).ToList()));
+                assetCategory = new AssetCategoryType(addedAssetCategoryId, customerId, new List<AssetCategoryLifecycleType>());
+                customer.AddAssetCategory(assetCategory);
+                foreach (int lifecycle in lifecycleTypes)
+                {
+                    customer.AddLifecyle(assetCategory, new AssetCategoryLifecycleType(customerId, addedAssetCategoryId, lifecycle));
+                }
             }
             await _customerRepository.SaveEntitiesAsync();
             // return updated object
