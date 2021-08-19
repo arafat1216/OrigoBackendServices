@@ -274,7 +274,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(ProductModule), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<ProductModule>> GetKey(string keyName)
         {
-            AzureKeyVaultService keyVaultService = new AzureKeyVaultService(null);
+            AzureKeyVaultService keyVaultService = new AzureKeyVaultService();
             var key = await keyVaultService.GetKeyAsync(keyName);
             if (key == null) return NoContent();
 
