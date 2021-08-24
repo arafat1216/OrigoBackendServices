@@ -17,6 +17,11 @@ namespace OrigoApiGateway.Models.BackendDTO
         public Guid CustomerId { get; set; }
 
         /// <summary>
+        /// A note containing additional information or comments for the asset.
+        /// </summary>
+        public string Note { get; set; }
+
+        /// <summary>
         /// Id of category this asset belongs to.
         /// </summary>
         public int AssetCategoryId { get; set; }

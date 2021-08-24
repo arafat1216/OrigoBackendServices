@@ -25,5 +25,9 @@ namespace Asset.API.ViewModels
         /// </summary>
         public DateTime PurchaseDate { get; set; }
 
+        /// <summary>
+        /// A note containing additional information or comments for the asset.
+        /// </summary>
+        public string Note { get; set; }
     }
 }
