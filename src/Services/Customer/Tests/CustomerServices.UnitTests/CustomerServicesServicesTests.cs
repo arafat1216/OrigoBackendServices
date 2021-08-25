@@ -8,6 +8,7 @@ using Xunit;
 using System.Security.Cryptography;
 using Common.Cryptography;
 using System.Text;
+using System;
 
 namespace CustomerServices.UnitTests
 {
@@ -174,6 +175,27 @@ namespace CustomerServices.UnitTests
 
             var encryptedMessage = Encryption.EncryptData(plaintext, salt, key, iv);
             var decryptedMessage = Encryption.DecryptData(encryptedMessage, salt, key, iv);
+            Assert.Equal(plaintext, decryptedMessage);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void TestEncryptDecryptKeyDerivation()
+        {
+            byte[] iv, key, salt;
+            string plaintext = "Super secret data";
+            string password = "123Password";
+            salt = Encryption.GenerateSalt(32);
+
+            key = Encryption.HashPassword(Encoding.UTF8.GetBytes(plaintext), salt);
+
+            using (Aes aesAlg = Aes.Create())
+            {
+                iv = aesAlg.IV;
+            }
+
+            var encryptedMessage = Encryption.EncryptData(plaintext, Convert.ToBase64String(salt), key, iv);
+            var decryptedMessage = Encryption.DecryptData(encryptedMessage, Convert.ToBase64String(salt), key, iv);
             Assert.Equal(plaintext, decryptedMessage);
         }
     }
