@@ -16,6 +16,11 @@ namespace OrigoApiGateway.Models
         public Guid AssetCategoryId { get; set; }
 
         /// <summary>
+        /// A note containing additional information or comments for the asset.
+        /// </summary>
+        public string Note { get; set; }
+
+        /// <summary>
         /// The asset brand (e.g. Samsung)
         /// </summary>
         public string Brand { get; set; }

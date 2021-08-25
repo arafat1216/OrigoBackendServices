@@ -12,8 +12,9 @@ namespace OrigoApiGateway.Models
         {
             Id = asset.AssetId;
             CustomerId = asset.CustomerId;
-            AssetCategoryId = asset.AssetCategoryId;
+            Note = asset.Note;
             SerialNumber = asset.SerialNumber;
+            AssetCategoryId = asset.AssetCategoryId;
             AssetCategoryName = asset.AssetCategoryName;
             Brand = asset.Brand;
             Model = asset.Model;
@@ -41,15 +42,20 @@ namespace OrigoApiGateway.Models
         public Guid CustomerId { get; protected set; }
 
         /// <summary>
-        /// Asset is linked to this category
+        /// A note containing additional information or comments for the asset.
         /// </summary>
-        public int AssetCategoryId { get; protected set; }
+        public string Note { get; protected set; }
 
         /// <summary>
         /// The unique serial number for the asset. For mobile phones and other devices
         /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
         public string SerialNumber { get; protected set; }
+
+        /// <summary>
+        /// Asset is linked to this category
+        /// </summary>
+        public int AssetCategoryId { get; protected set; }
 
         /// <summary>
         /// The category this asset belongs to.

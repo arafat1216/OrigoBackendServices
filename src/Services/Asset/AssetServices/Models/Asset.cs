@@ -25,7 +25,7 @@ namespace AssetServices.Models
 
         public Asset(Guid assetId, Guid customerId, string serialNumber, AssetCategory assetCategory, string brand, string model,
             LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
-            bool isActive, string imei, string macAddress, AssetStatus status, Guid? managedByDepartmentId = null)
+            bool isActive, string imei, string macAddress, AssetStatus status,string note, Guid? managedByDepartmentId = null)
         {
             AssetId = assetId;
             CustomerId = customerId;
@@ -44,6 +44,7 @@ namespace AssetServices.Models
             ErrorMsgList = new List<string>();
             AssetPropertiesAreValid = ValidateAsset();
             Status = status;
+            Note = note;
             AddDomainEvent(new AssetCreatedDomainEvent(this));
         }
 
@@ -57,6 +58,11 @@ namespace AssetServices.Models
         /// </summary>
         [Required]
         public Guid CustomerId { get; protected set; }
+
+        /// <summary>
+        /// A note containing additional information or comments for the asset.
+        /// </summary>
+        public string Note { get; protected set; }
 
         /// <summary>
         /// The unique serial number for the asset. For mobile phones and other devices
@@ -248,6 +254,13 @@ namespace AssetServices.Models
             var oldUserId = AssetHolderId;
             AssetHolderId = userId;
             AddDomainEvent(new AssignAssetToUserDomainEvent(this, oldUserId));
+        }
+
+        public void UpdateNote(string note)
+        {
+            var previousNote = Note;
+            Note = note;
+            AddDomainEvent(new NoteChangedDomainEvent(this, previousNote));
         }
 
         /// <summary>
