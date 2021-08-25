@@ -203,29 +203,43 @@ namespace CustomerServices
 
         public async Task<string> EncryptDataForCustomer2(Guid customerId, string message, byte[] secretKey, byte[] iv)
         {
-            var customer = await _customerRepository.GetCustomerAsync(customerId);
+            try
+            {
+                var customer = await _customerRepository.GetCustomerAsync(customerId);
 
-            if (customer == null)
+                if (customer == null)
+                    return null;
+
+                string salt = customer.CustomerId.ToString();
+
+
+                var encryptedMessage = Encryption.EncryptData(message, salt, secretKey, iv);
+
+                return encryptedMessage;
+            }
+            catch (Exception ex)
+            {
                 return null;
-
-            string salt = customer.CustomerId.ToString();
-
-
-            var encryptedMessage = Encryption.EncryptData(message, salt, secretKey, iv);
-
-            return encryptedMessage;
+            }
         }
 
         public async Task<string> DecryptDataForCustomer2(Guid customerId, string encryptedData, byte[] secretKey, byte[] iv)
         {
-            var customer = await _customerRepository.GetCustomerAsync(customerId);
-            if (customer == null)
+            try
+            {
+                var customer = await _customerRepository.GetCustomerAsync(customerId);
+                if (customer == null)
+                    return null;
+
+                string salt = customer.CustomerId.ToString();
+                var decryptedMessage = Encryption.DecryptData(encryptedData, salt, secretKey, iv);
+
+                return decryptedMessage;
+            }
+            catch (Exception ex)
+            {
                 return null;
-
-            string salt = customer.CustomerId.ToString();
-            var decryptedMessage = Encryption.DecryptData(encryptedData, salt, secretKey, iv);
-
-            return decryptedMessage;
+            }
         }
     }
 }
