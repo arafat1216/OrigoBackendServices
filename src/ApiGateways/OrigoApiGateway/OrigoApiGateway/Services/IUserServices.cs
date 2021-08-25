@@ -11,6 +11,6 @@ namespace OrigoApiGateway.Services
         Task<OrigoUser> GetUserAsync(Guid customerId, Guid userId);
         Task<IEnumerable<OrigoUser>> GetAllUsersAsync(Guid customerId);
         Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser);
-
+        Task<OrigoUser> UpdateUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser);
     }
 }

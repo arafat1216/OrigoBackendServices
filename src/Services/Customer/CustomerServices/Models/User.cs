@@ -19,7 +19,7 @@ namespace CustomerServices.Models
             AddDomainEvent(new UserCreatedDomainEvent(this));
         }
 
-        protected User(){}
+        protected User() { }
 
         public Guid UserId { get; set; }
         public string FirstName { get; protected set; }
@@ -29,5 +29,33 @@ namespace CustomerServices.Models
         public string EmployeeId { get; protected set; }
         [JsonIgnore]
         public Customer Customer { get; set; }
+
+        internal void ChangeFirstName(string firstName)
+        {
+            var oldNameValue = FirstName;
+            FirstName = firstName;
+            // TODO add domain event
+        }
+
+        internal void ChangeLastName(string lastName)
+        {
+            var oldNameValue = LastName;
+            LastName = lastName;
+            // TODO add domain event
+        }
+
+        internal void ChangeEmailAddress(string email)
+        {
+            var oldEmailAddress = Email;
+            Email = email;
+            // TODO add domain event
+        }
+
+        internal void ChangeEmployeeId(string employeeId)
+        {
+            var oldEmployeeId = EmployeeId;
+            EmployeeId = employeeId;
+            // TODO add domain event
+        }
     }
 }

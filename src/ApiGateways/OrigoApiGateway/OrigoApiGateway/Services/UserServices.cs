@@ -75,7 +75,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser)
+        public async Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, Guid userId, NewUser newUser)
         {
             try
             {
@@ -89,6 +89,24 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "AddUserForCustomerAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoUser> UpdateUserAsync(Guid customerId, OrigoUpdateUser updateUser)
+        {
+            try
+            {
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users", updateUser);
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to save user changes", (int)response.StatusCode);
+
+                var user = await response.Content.ReadFromJsonAsync<UserDTO>();
+                return user == null ? null : new OrigoUser(user);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "UpdateUserAsync unknown error.");
                 throw;
             }
         }

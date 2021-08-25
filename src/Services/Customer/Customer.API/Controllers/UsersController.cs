@@ -66,7 +66,7 @@ namespace Customer.API.Controllers
                     newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId);
                 var updatedUserView = new User(updatedUser);
 
-                return CreatedAtAction(nameof(CreateUserForCustomer), new {id = updatedUserView.Id}, updatedUserView);
+                return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUserView.Id }, updatedUserView);
             }
             catch (CustomerNotFoundException)
             {
@@ -78,5 +78,30 @@ namespace Customer.API.Controllers
             }
         }
 
+        [Route("{userId:Guid}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<User>> UpdateUser(Guid customerId, Guid userId, [FromBody] UpdateUser updateUser)
+        {
+            try
+            {
+                var updatedUser = await _userServices.UpdateUserAsync(customerId, userId, updateUser.FirstName,
+                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId);
+                if (updatedUser == null)
+                    return NotFound();
+
+                var updatedUserView = new User(updatedUser);
+                return Ok(updatedUserView);
+            }
+            catch (CustomerNotFoundException)
+            {
+                return BadRequest("Customer not found");
+            }
+            catch
+            {
+                return BadRequest("Unable to save user");
+            }
+        }
     }
 }

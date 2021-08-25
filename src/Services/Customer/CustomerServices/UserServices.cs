@@ -40,5 +40,33 @@ namespace CustomerServices
 
             return await _customerRepository.AddUserAsync(newUser);
         }
+
+        public async Task<User> UpdateUserAsync(Guid customerId, Guid userId, string firstName, string lastName, string email, string employeeId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            if (user == null)
+            {
+                return null;
+            }
+            if (firstName != default && user.FirstName != firstName)
+            {
+                user.ChangeFirstName(firstName);
+            }
+            if (lastName != default && user.LastName != lastName)
+            {
+                user.ChangeLastName(lastName);
+            }
+            if (email != default && user.Email != email)
+            {
+                user.ChangeEmailAddress(email);
+            }
+            if (employeeId != default && user.EmployeeId != employeeId)
+            {
+                user.ChangeEmployeeId(employeeId);
+            }
+
+            await _customerRepository.SaveEntitiesAsync();
+            return user;
+        }
     }
 }

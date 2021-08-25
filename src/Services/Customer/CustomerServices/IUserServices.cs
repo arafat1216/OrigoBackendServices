@@ -11,5 +11,7 @@ namespace CustomerServices
         Task<User> GetUserAsync(Guid customerId, Guid userId);
         Task<User> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
             string email, string mobileNumber, string employeeId);
+        Task<User> UpdateUserAsync(Guid customerId, Guid userId, string firstName, string lastName,
+            string email, string employeeId);
     }
 }
