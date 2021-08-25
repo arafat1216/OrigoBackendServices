@@ -1,7 +1,5 @@
-﻿using System;
-using AssetServices.Attributes;
-using AssetServices.Models;
-using Common.Enums;
+﻿using Common.Enums;
+using System;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
@@ -32,6 +30,7 @@ namespace Asset.API.ViewModels
             AssetHolderId = asset.AssetHolderId;
             IsActive = asset.IsActive;
             AssetStatus = asset.Status;
+            Note = asset.Note;
         }
 
         /// <summary>
@@ -43,6 +42,11 @@ namespace Asset.API.ViewModels
         /// Asset is linked to this customer 
         /// </summary>
         public Guid CustomerId { get; protected set; }
+
+        /// <summary>
+        /// A note containing additional information or comments for the asset.
+        /// </summary>
+        public string Note { get; protected set; }
 
         /// <summary>
         /// Asset is linked to this category
@@ -58,7 +62,7 @@ namespace Asset.API.ViewModels
         /// <summary>
         /// The category this asset belongs to.
         /// </summary>
-        public string AssetCategoryName { get; protected set;  }
+        public string AssetCategoryName { get; protected set; }
 
         /// <summary>
         /// The asset brand (e.g. Samsung)
@@ -79,7 +83,7 @@ namespace Asset.API.ViewModels
         /// The name of the lifecycle for this asset.
         /// </summary>
         public string LifecycleName
-        { 
+        {
             get
             {
                 return LifecycleType.GetName<LifecycleType>(LifecycleType);
@@ -124,12 +128,12 @@ namespace Asset.API.ViewModels
         /// </summary>
         public AssetStatus AssetStatus { get; protected set; }
 
-        public string AssetStatusName 
-        { 
-            get 
+        public string AssetStatusName
+        {
+            get
             {
                 return AssetStatus.GetName<AssetStatus>(AssetStatus);
-            } 
+            }
         }
     }
 }
