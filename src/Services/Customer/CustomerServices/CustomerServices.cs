@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace CustomerServices
@@ -156,52 +157,7 @@ namespace CustomerServices
             return result.FirstOrDefault(m => m.ProductModuleId == moduleId);
         }
 
-        /// <summary>
-        /// Given data in string format, encrypt the data using the Cryptography utility class. The encryption salt is based on customer.
-        /// </summary>
-        /// <param name="customerId"></param>
-        /// <param name="message"></param>
-        /// <param name="secretKey">Temporary parameter, until value can be fetched from vault or elsewhere</param>
-        /// <param name="pepper">Temporary parameter, until value can be fetched from vault or elsewhere</param>
-        /// <param name="iv">Temporary parameter, until value can be fetched from vault or elsewhere</param>
-        /// <returns></returns>
-        public async Task<string> EncryptDataForCustomer(Guid customerId, string message, byte[] secretKey, byte[] pepper, byte[] iv)
-        {
-           var customer =  await _customerRepository.GetCustomerAsync(customerId);
-
-            if (customer == null)
-                return null;
-
-            string salt = customer.CustomerId.ToString(); // improvement phase: temp salt - need to lookup best practices
-
-            var encryptedMessage = SymmetricEncryption.Encrypt(message, secretKey, salt, BitConverter.ToString(pepper), iv);
-
-            return BitConverter.ToString(encryptedMessage);
-        }
-
-        /// <summary>
-        /// Given encrypted data in string format, decrypt the data using the Cryptography utility class. The encryption salt is based on customer.
-        /// </summary>
-        /// <param name="customerId">The id of the customer for whom we decrypt data</param>
-        /// <param name="encryptedData">Ciphertext to be decrypted</param>
-        /// <param name="secretKey">Secret value used as key </param>
-        /// <param name="pepper">Temporary parameter, until value can be fetched from vault or elsewhere</param>
-        /// <param name="iv">Initialization vector for encryption algorithm: should be moved elsewhere</param>
-        /// <returns></returns>
-        public async Task<string> DecryptDataForCustomer(Guid customerId, string encryptedData, byte[] secretKey, byte[] pepper, byte[] iv)
-        {
-            var customer = await _customerRepository.GetCustomerAsync(customerId);
-            if (customer == null)
-                return null;
-
-            string salt = customer.CustomerId.ToString(); // temp salt: need to lookup best practices
-            byte[] data = encryptedData.Split('-').Select(b => Convert.ToByte(b, 16)).ToArray();
-            var decryptedMessage = SymmetricEncryption.Decrypt(data, secretKey, salt,BitConverter.ToString(pepper), iv);
-
-            return decryptedMessage;
-        }
-
-        public async Task<string> EncryptDataForCustomer2(Guid customerId, string message, byte[] secretKey, byte[] iv)
+        public async Task<string> EncryptDataForCustomer(Guid customerId, string message, byte[] secretKey, byte[] iv)
         {
             try
             {
@@ -217,13 +173,19 @@ namespace CustomerServices
 
                 return encryptedMessage;
             }
+            catch (CryptographicException ex)
+            {
+                _logger.LogError("EncryptDataForCustomer failed with CryptographicException error: " + ex.Message);
+                throw;
+            }
             catch (Exception ex)
             {
-                return null;
+                _logger.LogError("EncryptDataForCustomer failed with unknown error: " + ex.Message);
+                throw;
             }
         }
 
-        public async Task<string> DecryptDataForCustomer2(Guid customerId, string encryptedData, byte[] secretKey, byte[] iv)
+        public async Task<string> DecryptDataForCustomer(Guid customerId, string encryptedData, byte[] secretKey, byte[] iv)
         {
             try
             {
@@ -236,9 +198,15 @@ namespace CustomerServices
 
                 return decryptedMessage;
             }
+            catch (CryptographicException ex)
+            {
+                _logger.LogError("DecryptDataForCustomer failed with CryptographicException error: " + ex.Message);
+                throw;
+            }
             catch (Exception ex)
             {
-                return null;
+                _logger.LogError("DecryptDataForCustomer failed with unknown error: " + ex.Message);
+                throw;
             }
         }
     }

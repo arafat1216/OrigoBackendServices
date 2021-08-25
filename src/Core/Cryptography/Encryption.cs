@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Common.Cryptography
 {
@@ -12,48 +9,22 @@ namespace Common.Cryptography
     {
         public static string EncryptData(string plainText, string salt, byte[] key, byte[] iv)
         {
-            try
-            {
-                var dataToEncrypt = Encoding.UTF8.GetBytes(plainText+salt);
-                var cipherText =  Encrypt(dataToEncrypt, key, iv);
+            var dataToEncrypt = Encoding.UTF8.GetBytes(plainText + salt);
+            var cipherText = Encrypt(dataToEncrypt, key, iv);
 
-                return Convert.ToBase64String(cipherText);
-            }
-            catch (CryptographicException ex)
-            {
-                // log error
-                return string.Empty;
-            }
-            catch (Exception ex)
-            {
-                // log error
-                return string.Empty;
-            }
+            return Convert.ToBase64String(cipherText);
         }
 
         public static string DecryptData(string cipherText, string salt, byte[] key, byte[] iv)
         {
-            try
-            {
-                byte[] data = Convert.FromBase64String(cipherText);
+            byte[] data = Convert.FromBase64String(cipherText);
 
-                string decryptedData = Encoding.UTF8.GetString(Decrypt(data, key, iv));
+            string decryptedData = Encoding.UTF8.GetString(Decrypt(data, key, iv));
 
-                if (!decryptedData.EndsWith(salt))
-                    throw new CryptographicException("Decrypted message should end with salt");
+            if (!decryptedData.EndsWith(salt))
+                throw new CryptographicException("Decrypted message should end with salt");
 
-                return decryptedData.Substring(0, decryptedData.Length - salt.Length);
-            }
-            catch (CryptographicException ex)
-            {
-                // log error - how?
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
+            return decryptedData.Substring(0, decryptedData.Length - salt.Length);
         }
 
         /// <summary>
@@ -63,16 +34,9 @@ namespace Common.Cryptography
         /// <returns>new byte[32] hash value generated from given string</returns>
         public static byte[] ComputeHashSha256(string message)
         {
-            try
-            {
-                using var sha256 = SHA256.Create();
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(message));
-                return hashedBytes;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            using var sha256 = SHA256.Create();
+            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(message));
+            return hashedBytes;
         }
 
         /// <summary>
@@ -82,33 +46,12 @@ namespace Common.Cryptography
         /// <returns>A new byte[32] datatype filled with random values</returns>
         public static byte[] GenerateSalt(int length)
         {
-            try
+            using (var randomNumberGenerator = new RNGCryptoServiceProvider())
             {
-                using (var randomNumberGenerator = new RNGCryptoServiceProvider())
-                {
-                    var randomNumber = new byte[length];
-                    randomNumberGenerator.GetBytes(randomNumber);
+                var randomNumber = new byte[length];
+                randomNumberGenerator.GetBytes(randomNumber);
 
-                    return randomNumber;
-                }
-            }
-            catch (CryptographicException ex)
-            {
-                // Cryptographic service provider failed somehow
-                // log error - how?
-                throw;
-            }
-            catch (ArgumentNullException ex)
-            {
-                // data cannot be null
-                // log error - how?
-                throw;
-            }
-            catch (Exception ex)
-            {
-                // unknown error
-                // log error - how?
-                throw;
+                return randomNumber;
             }
         }
 
@@ -120,58 +63,39 @@ namespace Common.Cryptography
         /// <returns>A new byte[32] generated from given passphrase and salt value hashed over numberOfRounds times</returns>
         public static byte[] HashPassword(byte[] toBeHashed, byte[] salt)
         {
-            try
-            {
-                int numberOfRounds = 1000; // If a value x is hashed twice with different number of rounds, their hash will differ
+            int numberOfRounds = 1000; // If a value x is hashed twice with different number of rounds, their hash will differ
 
-                using (var rfc2898 = new Rfc2898DeriveBytes(toBeHashed, salt, numberOfRounds, HashAlgorithmName.SHA256))
-                {
-                    return rfc2898.GetBytes(32);
-                }
-            }
-            catch (ArgumentException ex)
+            using (var rfc2898 = new Rfc2898DeriveBytes(toBeHashed, salt, numberOfRounds, HashAlgorithmName.SHA256))
             {
-                // algorithm name cannot be null or empty
-                // log error - how?
-                throw;
-            }
-            catch (CryptographicException ex)
-            {
-                // invalid algorithm name
-                throw;
-            }
-            catch (Exception ex)
-            {
-                // unknown error
-                throw;
+                return rfc2898.GetBytes(32);
             }
         }
- 
 
-        public static byte[] Encrypt(byte[] dataToEncrypt, byte[] key, byte[] iv)
+
+        private static byte[] Encrypt(byte[] dataToEncrypt, byte[] key, byte[] iv)
         {
-                using (var aes = new AesCryptoServiceProvider())
+            using (var aes = new AesCryptoServiceProvider())
+            {
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+
+                aes.Key = key;
+                aes.IV = iv;
+
+                using (var memoryStream = new MemoryStream())
                 {
-                    aes.Mode = CipherMode.CBC;
-                    aes.Padding = PaddingMode.PKCS7;
+                    var cryptoStream = new CryptoStream(memoryStream, aes.CreateEncryptor(),
+                        CryptoStreamMode.Write);
 
-                    aes.Key = key;
-                    aes.IV = iv;
+                    cryptoStream.Write(dataToEncrypt, 0, dataToEncrypt.Length);
+                    cryptoStream.FlushFinalBlock();
 
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        var cryptoStream = new CryptoStream(memoryStream, aes.CreateEncryptor(),
-                            CryptoStreamMode.Write);
-
-                        cryptoStream.Write(dataToEncrypt, 0, dataToEncrypt.Length);
-                        cryptoStream.FlushFinalBlock();
-
-                        return memoryStream.ToArray();
-                    }
+                    return memoryStream.ToArray();
                 }
+            }
         }
 
-        public static byte[] Decrypt(byte[] cipherText, byte[] key, byte[] iv)
+        private static byte[] Decrypt(byte[] cipherText, byte[] key, byte[] iv)
         {
             using (var aes = new AesCryptoServiceProvider())
             {
