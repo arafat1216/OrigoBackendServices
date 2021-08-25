@@ -103,7 +103,7 @@ namespace CustomerServices.UnitTests
             string password = "123Password";
             salt = Encryption.GenerateSalt(32);
 
-            key = Encryption.HashPassword(Encoding.UTF8.GetBytes(plaintext), salt);
+            key = Encryption.HashPassword(Encoding.UTF8.GetBytes(password), salt);
 
             using (Aes aesAlg = Aes.Create())
             {
