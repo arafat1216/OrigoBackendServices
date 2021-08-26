@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Models;
 
 namespace OrigoApiGateway.Services

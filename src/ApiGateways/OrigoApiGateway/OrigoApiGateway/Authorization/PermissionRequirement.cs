@@ -1,13 +1,29 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OrigoApiGateway.Authorization
 {
+    /// <summary>
+    /// Taken from https://blog.joaograssi.com/posts/2021/asp-net-core-protecting-api-endpoints-with-dynamic-policies/
+    /// </summary>
     public class PermissionRequirement : IAuthorizationRequirement
     {
-        public string Permission { get; private set; }
-        public PermissionRequirement(string permission)
+        public static string ClaimType => AppClaimTypes.Permissions;
+
+        // 1 - The operator
+        public PermissionOperator PermissionOperator { get; }
+
+        // 2 - The list of permissions passed
+        public string[] Permissions { get; }
+
+        public PermissionRequirement(
+            PermissionOperator permissionOperator, string[] permissions)
         {
-            Permission = permission;
+            if (permissions.Length == 0)
+                throw new ArgumentException("At least one permission is required.", nameof(permissions));
+
+            PermissionOperator = permissionOperator;
+            Permissions = permissions;
         }
     }
 }

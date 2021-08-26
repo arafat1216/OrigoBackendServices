@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Asset.API.ViewModels;
 using AssetServices;
-using AssetServices.Models;
 using AssetServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

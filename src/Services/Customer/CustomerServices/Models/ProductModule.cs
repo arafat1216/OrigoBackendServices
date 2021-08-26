@@ -1,8 +1,6 @@
 ﻿using Common.Seedwork;
-using CustomerServices.DomainEvents;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace CustomerServices.Models

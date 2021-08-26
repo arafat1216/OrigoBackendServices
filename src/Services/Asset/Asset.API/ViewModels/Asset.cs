@@ -1,6 +1,4 @@
 ﻿using System;
-using AssetServices.Attributes;
-using AssetServices.Models;
 using Common.Enums;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global

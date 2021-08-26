@@ -1,6 +1,5 @@
 using System;
 using MediatR;
-using Newtonsoft.Json;
 
 namespace Common.Logging
 {

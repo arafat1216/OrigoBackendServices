@@ -1,6 +1,5 @@
 using System;
 using AssetServices.Attributes;
-using AssetServices.Exceptions;
 using AssetServices.Infrastructure;
 using AssetServices.Models;
 using AssetServices.Utility;

@@ -1,12 +1,5 @@
-﻿using Common.Extensions;
-using System.Threading;
-using System.Threading.Tasks;
-using Common.Logging;
-using Common.Utilities;
-using CustomerServices.Models;
-using MediatR;
+﻿using CustomerServices.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace CustomerServices.Infrastructure
 {
