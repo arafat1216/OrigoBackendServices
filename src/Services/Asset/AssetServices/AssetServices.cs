@@ -182,18 +182,6 @@ namespace AssetServices
             return asset;
         }
 
-        public async Task<Asset> UpdateNote(Guid customerId, Guid assetId, string note)
-        {
-            var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
-            if (asset == null)
-            {
-                return null;
-            }
-            asset.UpdateNote(note);
-            await _assetRepository.SaveEntitiesAsync();
-            return asset;
-        }
-
         public async Task<IList<AssetCategory>> GetAssetCategoriesAsync()
         {
             try

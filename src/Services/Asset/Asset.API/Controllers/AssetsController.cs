@@ -297,28 +297,6 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/note")]
-        [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> UpdateNoteOnAsset(Guid customerId, Guid assetId, string note)
-        {
-            try
-            {
-                var updatedAsset = await _assetServices.UpdateNote(customerId, assetId, note);
-                if (updatedAsset == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(new ViewModels.Asset(updatedAsset));
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
         [Route("categories")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.AssetCategory), (int)HttpStatusCode.OK)]
