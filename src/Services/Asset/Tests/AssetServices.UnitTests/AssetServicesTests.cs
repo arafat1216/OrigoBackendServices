@@ -1,4 +1,3 @@
-using System;
 using AssetServices.Attributes;
 using AssetServices.Infrastructure;
 using AssetServices.Models;
@@ -9,6 +8,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System;
 using Xunit;
 
 namespace AssetServices.UnitTests
@@ -64,7 +64,7 @@ namespace AssetServices.UnitTests
             // Act
             var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "4543534535344", ASSET_CATEGORY_ID,
                 "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), ASSETHOLDER_ONE_ID, true, "014239898330525", "5e:c4:33:df:61:70",
-                Guid.NewGuid(), AssetStatus.Active);
+                Guid.NewGuid(), AssetStatus.Active, "Test note");
             var newAssetRead = await assetService.GetAssetForCustomerAsync(COMPANY_ID, newAsset.AssetId);
 
             // Assert
@@ -82,7 +82,7 @@ namespace AssetServices.UnitTests
 
             // Act
             var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "4543534535344", ASSET_CATEGORY_ID,
-                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "993100473611389", "a3:21:99:5d:a7:a0", null, AssetStatus.Active);
+                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "993100473611389", "a3:21:99:5d:a7:a0", null, AssetStatus.Active, "Unassigned asset");
             var newAssetRead = await assetService.GetAssetForCustomerAsync(COMPANY_ID, newAsset.AssetId);
 
             // Assert
@@ -174,7 +174,7 @@ namespace AssetServices.UnitTests
             var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetCategory = await assetRepository.GetAssetCategoryAsync(ASSET_CATEGORY_ID);
             Asset asset = new Asset(Guid.NewGuid(), COMPANY_ID, "4543534535344", assetCategory,
-                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "", "a3:21:99:5d:a7:a0", AssetStatus.Active, null);
+                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "", "a3:21:99:5d:a7:a0", AssetStatus.Active, null, null);
             var attribute = new ImeiValidationAttribute();
 
             // Act
@@ -193,7 +193,7 @@ namespace AssetServices.UnitTests
             var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetCategory = await assetRepository.GetAssetCategoryAsync(ASSET_CATEGORY_ID);
             Asset asset = new Asset(Guid.NewGuid(), COMPANY_ID, "4543534535344", assetCategory,
-                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "993100473611389", "a3:21:99:5d:a7:a0", AssetStatus.Active, null);
+                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, "993100473611389", "a3:21:99:5d:a7:a0", AssetStatus.Active, null, null);
             var attribute = new ImeiValidationAttribute();
 
             // Act

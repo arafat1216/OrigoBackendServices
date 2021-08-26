@@ -50,7 +50,7 @@ namespace AssetServices
 
         public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId, string brand,
             string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive, string imei, string macAddress,
-            Guid? managedByDepartmentId, AssetStatus status)
+            Guid? managedByDepartmentId, AssetStatus status, string note)
         {
             var assetCategory = await _assetRepository.GetAssetCategoryAsync(assetCategoryId);
             if (assetCategory == null)
@@ -59,7 +59,7 @@ namespace AssetServices
             }
 
             var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory, brand, model,
-                lifecycleType, purchaseDate, assetHolderId, isActive, imei, macAddress, status, managedByDepartmentId);
+                lifecycleType, purchaseDate, assetHolderId, isActive, imei, macAddress, status, note, managedByDepartmentId);
 
             if (!newAsset.AssetPropertiesAreValid)
             {
@@ -137,7 +137,7 @@ namespace AssetServices
             return asset;
         }
 
-        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string serialNumber, string brand, string model, DateTime purchaseDate)
+        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string serialNumber, string brand, string model, DateTime purchaseDate, string note)
         {
             var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
 
@@ -160,6 +160,10 @@ namespace AssetServices
             if (purchaseDate != default && asset.PurchaseDate != purchaseDate)
             {
                 asset.ChangePurchaseDate(purchaseDate);
+            }
+            if (note != default && asset.Note != note)
+            {
+                asset.UpdateNote(note);
             }
 
             await _assetRepository.SaveEntitiesAsync();
@@ -222,7 +226,7 @@ namespace AssetServices
                     ? @event.PreviousStatus.ToString()
                     : @event.Asset.Status.ToString();
                 var auditLog = new AssetAuditLog(transactionGuid, @event.Id, logEventEntry.CreationTime, "N/A",
-                    ((IEvent) @event).EventMessage(), logEventEntry.EventTypeShortName, previousStatus, @event.Asset.Status.ToString());
+                    ((IEvent)@event).EventMessage(), logEventEntry.EventTypeShortName, previousStatus, @event.Asset.Status.ToString());
                 assetLogList.Add(auditLog);
             }
             return assetLogList;

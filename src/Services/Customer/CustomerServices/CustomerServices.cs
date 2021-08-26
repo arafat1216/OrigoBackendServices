@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace CustomerServices
@@ -155,49 +156,57 @@ namespace CustomerServices
             return result.FirstOrDefault(m => m.ProductModuleId == moduleId);
         }
 
-        /// <summary>
-        /// Given data in string format, encrypt the data using the Cryptography utility class. The encryption salt is based on customer.
-        /// </summary>
-        /// <param name="customerId"></param>
-        /// <param name="message"></param>
-        /// <param name="secretKey">Temporary parameter, until value can be fetched from vault or elsewhere</param>
-        /// <param name="pepper">Temporary parameter, until value can be fetched from vault or elsewhere</param>
-        /// <param name="iv">Temporary parameter, until value can be fetched from vault or elsewhere</param>
-        /// <returns></returns>
-        public async Task<string> EncryptDataForCustomer(Guid customerId, string message, byte[] secretKey, byte[] pepper, byte[] iv)
+        public async Task<string> EncryptDataForCustomer(Guid customerId, string message, byte[] secretKey, byte[] iv)
         {
-           var customer =  await _customerRepository.GetCustomerAsync(customerId);
+            try
+            {
+                var customer = await _customerRepository.GetCustomerAsync(customerId);
 
-            if (customer == null)
-                return null;
+                if (customer == null)
+                    return null;
 
-            string salt = customer.CustomerId.ToString(); // improvement phase: temp salt - need to lookup best practices
+                string salt = customer.CustomerId.ToString();
 
-            var encryptedMessage = SymmetricEncryption.Encrypt(message, secretKey, salt, BitConverter.ToString(pepper), iv);
 
-            return BitConverter.ToString(encryptedMessage);
+                var encryptedMessage = Encryption.EncryptData(message, salt, secretKey, iv);
+
+                return encryptedMessage;
+            }
+            catch (CryptographicException ex)
+            {
+                _logger.LogError("EncryptDataForCustomer failed with CryptographicException error: " + ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("EncryptDataForCustomer failed with unknown error: " + ex.Message);
+                throw;
+            }
         }
 
-        /// <summary>
-        /// Given encrypted data in string format, decrypt the data using the Cryptography utility class. The encryption salt is based on customer.
-        /// </summary>
-        /// <param name="customerId">The id of the customer for whom we decrypt data</param>
-        /// <param name="encryptedData">Ciphertext to be decrypted</param>
-        /// <param name="secretKey">Secret value used as key </param>
-        /// <param name="pepper">Temporary parameter, until value can be fetched from vault or elsewhere</param>
-        /// <param name="iv">Initialization vector for encryption algorithm: should be moved elsewhere</param>
-        /// <returns></returns>
-        public async Task<string> DecryptDataForCustomer(Guid customerId, string encryptedData, byte[] secretKey, byte[] pepper, byte[] iv)
+        public async Task<string> DecryptDataForCustomer(Guid customerId, string encryptedData, byte[] secretKey, byte[] iv)
         {
-            var customer = await _customerRepository.GetCustomerAsync(customerId);
-            if (customer == null)
-                return null;
+            try
+            {
+                var customer = await _customerRepository.GetCustomerAsync(customerId);
+                if (customer == null)
+                    return null;
 
-            string salt = customer.CustomerId.ToString(); // temp salt: need to lookup best practices
-            byte[] data = encryptedData.Split('-').Select(b => Convert.ToByte(b, 16)).ToArray();
-            var decryptedMessage = SymmetricEncryption.Decrypt(data, secretKey, salt,BitConverter.ToString(pepper), iv);
+                string salt = customer.CustomerId.ToString();
+                var decryptedMessage = Encryption.DecryptData(encryptedData, salt, secretKey, iv);
 
-            return decryptedMessage;
+                return decryptedMessage;
+            }
+            catch (CryptographicException ex)
+            {
+                _logger.LogError("DecryptDataForCustomer failed with CryptographicException error: " + ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("DecryptDataForCustomer failed with unknown error: " + ex.Message);
+                throw;
+            }
         }
     }
 }
