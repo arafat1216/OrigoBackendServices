@@ -22,7 +22,6 @@ namespace AssetServices
         Task<Asset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive);
         Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string serialNumber, string brand, string model, DateTime purchaseDate, string note);
         Task<Asset> AssignAsset(Guid customerId, Guid assetId, Guid? userId);
-        Task<Asset> UpdateNote(Guid customerId, Guid assetId, string note);
         Task<IList<AssetCategory>> GetAssetCategoriesAsync();
         Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId);
         IList<AssetLifecycle> GetLifecycles();

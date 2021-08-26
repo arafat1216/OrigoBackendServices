@@ -214,29 +214,6 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAsset> UpdateAssetNote(Guid customerId, Guid assetId, string note)
-        {
-            try
-            {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/note?note={note}";
-                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
-                if (!response.IsSuccessStatusCode)
-                {
-                    var exception = new BadHttpRequestException("Unable to update note for asset", (int)response.StatusCode);
-                    _logger.LogError(exception, "Unable to update note for asset.");
-                    throw exception;
-                }
-                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
-                return asset == null ? null : new OrigoAsset(asset);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "Unable to update note for asset.");
-                throw;
-            }
-        }
-
         public async Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset)
         {
             try
