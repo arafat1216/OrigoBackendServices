@@ -63,7 +63,7 @@ namespace Common.Cryptography
         /// <returns>A new byte[32] generated from given passphrase and salt value hashed over numberOfRounds times</returns>
         public static byte[] HashPassword(byte[] toBeHashed, byte[] salt)
         {
-            int numberOfRounds = 1000; // If a value x is hashed twice with different number of rounds, their hash will differ
+            int numberOfRounds = 10000; // If a value x is hashed twice with different number of rounds, their hash will differ
 
             using (var rfc2898 = new Rfc2898DeriveBytes(toBeHashed, salt, numberOfRounds, HashAlgorithmName.SHA256))
             {
