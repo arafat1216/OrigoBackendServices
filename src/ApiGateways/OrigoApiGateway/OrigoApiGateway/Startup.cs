@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
+using System.Threading;
 using Dapr.Client;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication;
@@ -143,7 +146,7 @@ namespace OrigoApiGateway
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger, HttpClient httpCustomerClient, IOptions<UserConfiguration> userConfigurationOptions)
         {
             app.UseExceptionHandler(err => err.UseCustomErrors(env));
 
@@ -156,13 +159,14 @@ namespace OrigoApiGateway
                 var authenticateResult = await context.AuthenticateAsync();
                 if (authenticateResult.Succeeded && authenticateResult.Principal != null)
                 {
-                    var claims = new List<Claim>
+                    var userEmail = context.User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+                    var userSub = context.User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+                    if (!string.IsNullOrEmpty(userEmail) && !string.IsNullOrEmpty(userSub))
                     {
-                        new Claim("Permissions", "CanReadCustomerfdffd")
-                    };
-                    var appIdentity = new ClaimsIdentity(claims);
-
-                    context.User.AddIdentity(appIdentity);
+                        var userPermissionService = new UserPermissionService(httpCustomerClient, userConfigurationOptions);
+                        var userPermissionIdentity = await userPermissionService.GetUserPermissionsIdentityAsync(userSub, userEmail, CancellationToken.None);
+                        context.User.AddIdentity(userPermissionIdentity);
+                    }
                 }
 
                 await next();
