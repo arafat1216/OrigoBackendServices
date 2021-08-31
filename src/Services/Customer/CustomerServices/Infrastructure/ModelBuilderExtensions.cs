@@ -13,8 +13,18 @@ namespace CustomerServices.Infrastructure
                 new Permission(3, "CanUpdateCustomer"),
                 new Permission(4, "CanDeleteCustomer")
             );
+            
             modelBuilder.Entity<PermissionSet>().HasData(
                 new PermissionSet(1, "FullCustomerAccess")
+            );
+
+            modelBuilder.Entity<Role>().HasData(
+                new Role("EndUser"),
+                new Role("DepartmentManager"),
+                new Role("CustomerAdmin"),
+                new Role("GroupAdmin"),
+                new Role("PartnerAdmin"),
+                new Role("SystemAdmin")
             );
         }
     }
