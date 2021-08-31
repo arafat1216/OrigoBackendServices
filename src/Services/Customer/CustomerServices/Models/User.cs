@@ -25,10 +25,25 @@ namespace CustomerServices.Models
         public string FirstName { get; protected set; }
         public string LastName { get; protected set; }
         public string Email { get; protected set; }
+        /// <summary>
+        /// NB! This Will be removed in a later version
+        /// </summary>
         public string MobileNumber { get; protected set; }
+        /// <summary>
+        /// NB! This Will be removed in a later version
+        /// </summary>
         public string EmployeeId { get; protected set; }
+
+        public UserPreference UserPreference { get; protected set; }
+
         [JsonIgnore]
         public Customer Customer { get; set; }
+
+        internal void SetDeleteStatus(bool isDeleted)
+        {
+            AddDomainEvent(new UserDeletedDomainEvent(this));
+            IsDeleted = isDeleted;
+        }
 
         internal void ChangeFirstName(string firstName)
         {

@@ -1,15 +1,14 @@
-﻿using CustomerServices.Models;
+﻿using Common.Extensions;
+using Common.Logging;
+using Common.Utilities;
+using CustomerServices.Models;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Extensions;
-using Common.Logging;
-using Common.Utilities;
-using CustomerServices.DomainEvents;
-using MediatR;
 
 namespace CustomerServices.Infrastructure
 {
@@ -72,11 +71,23 @@ namespace CustomerServices.Infrastructure
             return await _customerContext.Users.Include(u => u.Customer).Where(u => u.Customer.CustomerId == customerId && u.UserId == userId).FirstOrDefaultAsync();
         }
 
+        public async Task<User> GetUserAsync(Guid userId)
+        {
+            return await _customerContext.Users.Include(u => u.Customer).Where(u => u.UserId == userId).FirstOrDefaultAsync();
+        }
+
         public async Task<User> AddUserAsync(User newUser)
         {
             _customerContext.Users.Add(newUser);
             await SaveEntitiesAsync();
             return newUser;
+        }
+
+        public async Task<User> DeleteUserAsync(User user)
+        {
+            _customerContext.Users.Remove(user);
+            await SaveEntitiesAsync();
+            return user;
         }
 
         public async Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Customer customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes)

@@ -14,7 +14,10 @@ namespace CustomerServices.Models
 
         Task<IList<User>> GetAllUsersAsync(Guid customerId);
         Task<User> GetUserAsync(Guid customerId, Guid userId);
+        Task<User> GetUserAsync(Guid userId);
         Task<User> AddUserAsync(User newUser);
+        Task<User> DeleteUserAsync(User user);
+
 
         Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Customer customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes);
         Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId);

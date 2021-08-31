@@ -41,7 +41,7 @@ namespace CustomerServices
             return await _customerRepository.AddUserAsync(newUser);
         }
 
-        public async Task<User> UpdateUserAsync(Guid customerId, Guid userId, string firstName, string lastName, string email, string employeeId)
+        public async Task<User> UpdateUserPostAsync(Guid customerId, Guid userId, string firstName, string lastName, string email, string employeeId)
         {
             var user = await GetUserAsync(customerId, userId);
             if (user == null)
@@ -66,6 +66,39 @@ namespace CustomerServices
             }
 
             await _customerRepository.SaveEntitiesAsync();
+            return user;
+        }
+
+        public async Task<User> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName, string email, string employeeId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            if (user == null)
+            {
+                return null;
+            }
+
+            user.ChangeFirstName(firstName);
+            user.ChangeLastName(lastName);
+            user.ChangeEmailAddress(email);
+            user.ChangeEmployeeId(employeeId);
+
+            await _customerRepository.SaveEntitiesAsync();
+            return user;
+        }
+
+        public async Task<User> DeleteUserAsync(Guid userId, bool softDelete = true)
+        {
+            var user = await _customerRepository.GetUserAsync(userId);
+            if (user == null)
+            {
+                return null;
+            }
+            if (user.IsDeleted && !softDelete)
+                await _customerRepository.DeleteUserAsync(user);
+            if (user.IsDeleted && softDelete)
+                throw new UserDeletedException();
+            user.IsDeleted = true;
+            _customerRepository.SaveEntitiesAsync();
             return user;
         }
     }

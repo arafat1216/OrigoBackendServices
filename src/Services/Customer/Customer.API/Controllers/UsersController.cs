@@ -79,14 +79,14 @@ namespace Customer.API.Controllers
         }
 
         [Route("{userId:Guid}")]
-        [HttpPost]
+        [HttpPut]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<User>> UpdateUser(Guid customerId, Guid userId, [FromBody] UpdateUser updateUser)
+        public async Task<ActionResult<User>> UpdateUserPut(Guid customerId, Guid userId, [FromBody] UpdateUser updateUser)
         {
             try
             {
-                var updatedUser = await _userServices.UpdateUserAsync(customerId, userId, updateUser.FirstName,
+                var updatedUser = await _userServices.UpdateUserPostAsync(customerId, userId, updateUser.FirstName,
                     updateUser.LastName, updateUser.Email, updateUser.EmployeeId);
                 if (updatedUser == null)
                     return NotFound();
@@ -101,6 +101,61 @@ namespace Customer.API.Controllers
             catch
             {
                 return BadRequest("Unable to save user");
+            }
+        }
+
+        [Route("{userId:Guid}")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<User>> UpdateUserPatch(Guid customerId, Guid userId, [FromBody] UpdateUser updateUser)
+        {
+            try
+            {
+                var updatedUser = await _userServices.UpdateUserPostAsync(customerId, userId, updateUser.FirstName,
+                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId);
+                if (updatedUser == null)
+                    return NotFound();
+
+                var updatedUserView = new User(updatedUser);
+                return Ok(updatedUserView);
+            }
+            catch (CustomerNotFoundException)
+            {
+                return BadRequest("Customer not found");
+            }
+            catch
+            {
+                return BadRequest("Unable to save user");
+            }
+        }
+
+        [Route("{userId:Guid}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<User>> DeleteUser(Guid userId, bool softDelete = true)
+        {
+            try
+            {
+                var deletedUser = await _userServices.DeleteUserAsync(userId, softDelete);
+                if (deletedUser == null)
+                    return NotFound("No user found with this id.");
+                // TODO: ask about this status code. Does this make sense??
+                return NoContent();
+            }
+            catch (CustomerNotFoundException)
+            {
+                return BadRequest("Customer not found");
+            }
+            catch (UserDeletedException)
+            {
+                // TODO: 410 result?
+                return NotFound("User already deleted.");
+            }
+            catch
+            {
+                return BadRequest("Unable to delete user");
             }
         }
     }
