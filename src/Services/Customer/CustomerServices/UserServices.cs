@@ -97,8 +97,9 @@ namespace CustomerServices
                 await _customerRepository.DeleteUserAsync(user);
             if (user.IsDeleted && softDelete)
                 throw new UserDeletedException();
-            user.IsDeleted = true;
-            _customerRepository.SaveEntitiesAsync();
+
+            user.SetDeleteStatus(true);
+            await _customerRepository.SaveEntitiesAsync();
             return user;
         }
     }

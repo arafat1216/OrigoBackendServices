@@ -7,10 +7,10 @@ namespace CustomerServices.DomainEvents
     {
         public UserDeletedDomainEvent(User deletedUser) : base(deletedUser.UserId)
         {
-            NewUser = deletedUser;
+            User = deletedUser;
         }
 
-        public User NewUser { get; protected set; }
+        public User User { get; protected set; }
 
         public override string EventMessage(string languageCode = "nb-NO")
         {

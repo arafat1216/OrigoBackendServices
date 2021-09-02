@@ -25,12 +25,14 @@ namespace CustomerServices.Models
         public string FirstName { get; protected set; }
         public string LastName { get; protected set; }
         public string Email { get; protected set; }
+
         /// <summary>
-        /// NB! This Will be removed in a later version
+        /// TODO: this will be remove in a later version
         /// </summary>
         public string MobileNumber { get; protected set; }
+
         /// <summary>
-        /// NB! This Will be removed in a later version
+        /// TODO: this will be remove in a later version
         /// </summary>
         public string EmployeeId { get; protected set; }
 
@@ -48,29 +50,27 @@ namespace CustomerServices.Models
         internal void ChangeFirstName(string firstName)
         {
             var oldNameValue = FirstName;
+            AddDomainEvent(new UserUpdateFirstNameDomainEvent(this, oldNameValue));
             FirstName = firstName;
-            // TODO add domain event
         }
 
         internal void ChangeLastName(string lastName)
         {
             var oldNameValue = LastName;
+            AddDomainEvent(new UserUpdateLastNameDomainEvent(this, oldNameValue));
             LastName = lastName;
-            // TODO add domain event
         }
 
+        // TODO: this will be remove in a later version
         internal void ChangeEmailAddress(string email)
         {
-            var oldEmailAddress = Email;
             Email = email;
-            // TODO add domain event
         }
 
+        // TODO: this will be remove in a later version
         internal void ChangeEmployeeId(string employeeId)
         {
-            var oldEmployeeId = EmployeeId;
             EmployeeId = employeeId;
-            // TODO add domain event
         }
     }
 }

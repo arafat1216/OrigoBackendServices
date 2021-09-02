@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Net;
-using System.Threading.Tasks;
-using Customer.API.ViewModels;
+﻿using Customer.API.ViewModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace Customer.API.Controllers
 {
@@ -130,6 +130,16 @@ namespace Customer.API.Controllers
             }
         }
 
+        /// <summary>
+        /// If this is true then the entity will only be soft-deleted (isDeleted or any equivalent value). This is the default handling that is used by all user-initiated calls.
+        /// When it is false, the entry is permanently deleted from the system.This should only be run under very spesific circumstances by the automated cleanup tools, and only on assets that is already soft-deleted.
+        /// Default value : true
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="softDelete"></param>
+        /// <returns cref="HttpStatusCode.NoContent"></returns
+        /// <returns cref="HttpStatusCode.BadRequest"></returns>
+        /// <returns cref="HttpStatusCode.NotFound"></returns>
         [Route("{userId:Guid}")]
         [HttpDelete]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
@@ -140,8 +150,9 @@ namespace Customer.API.Controllers
             {
                 var deletedUser = await _userServices.DeleteUserAsync(userId, softDelete);
                 if (deletedUser == null)
-                    return NotFound("No user found with this id.");
-                // TODO: ask about this status code. Does this make sense??
+                    return NotFound("The requested resource don't exist.");
+                // TODO: Ask about this status code 302. Does this make sense??
+                // The resource was deleted successfully.
                 return NoContent();
             }
             catch (CustomerNotFoundException)
@@ -151,7 +162,7 @@ namespace Customer.API.Controllers
             catch (UserDeletedException)
             {
                 // TODO: 410 result?
-                return NotFound("User already deleted.");
+                return NotFound("The requested resource have already been deleted (soft-delete).");
             }
             catch
             {
