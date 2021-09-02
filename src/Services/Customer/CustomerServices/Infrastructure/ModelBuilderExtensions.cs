@@ -19,12 +19,12 @@ namespace CustomerServices.Infrastructure
             );
 
             modelBuilder.Entity<Role>().HasData(
-                new Role("EndUser"),
-                new Role("DepartmentManager"),
-                new Role("CustomerAdmin"),
-                new Role("GroupAdmin"),
-                new Role("PartnerAdmin"),
-                new Role("SystemAdmin")
+                new Role(1, "EndUser"),
+                new Role(2, "DepartmentManager"),
+                new Role(3, "CustomerAdmin"),
+                new Role(4, "GroupAdmin"),
+                new Role(5, "PartnerAdmin"),
+                new Role(6, "SystemAdmin")
             );
         }
     }

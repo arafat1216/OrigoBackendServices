@@ -5,6 +5,13 @@ namespace CustomerServices.Models
 {
     public class Role : Entity
     {
+        protected Role() { }
+        public Role(int id, string name)
+        {
+            Id = id;
+            Name = name;
+        }
+
         public Role(string name)
         {
             Name = name;
