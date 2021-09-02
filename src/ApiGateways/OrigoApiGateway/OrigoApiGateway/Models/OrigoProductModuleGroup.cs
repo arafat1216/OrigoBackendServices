@@ -1,7 +1,5 @@
 ﻿using OrigoApiGateway.Models.BackendDTO;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace OrigoApiGateway.Models
 {

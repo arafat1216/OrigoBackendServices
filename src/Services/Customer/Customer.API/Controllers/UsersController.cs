@@ -77,6 +77,5 @@ namespace Customer.API.Controllers
                 return BadRequest("Unable to save user");
             }
         }
-
     }
 }

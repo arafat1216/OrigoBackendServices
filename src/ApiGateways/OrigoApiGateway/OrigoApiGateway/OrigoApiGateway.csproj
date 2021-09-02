@@ -19,6 +19,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="5.0.1" />
+		<PackageReference Include="Okta.AspNetCore" Version="3.5.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
 	</ItemGroup>
 	<ItemGroup>

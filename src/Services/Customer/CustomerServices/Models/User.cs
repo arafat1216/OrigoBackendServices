@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Common.Seedwork;
 using CustomerServices.DomainEvents;
@@ -29,5 +30,7 @@ namespace CustomerServices.Models
         public string EmployeeId { get; protected set; }
         [JsonIgnore]
         public Customer Customer { get; set; }
+
+        public IReadOnlyCollection<Department> Users { get; set; }
     }
 }

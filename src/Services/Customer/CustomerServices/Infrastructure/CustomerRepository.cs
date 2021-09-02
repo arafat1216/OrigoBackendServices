@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Common.Extensions;
 using Common.Logging;
 using Common.Utilities;
-using CustomerServices.DomainEvents;
 using MediatR;
 
 namespace CustomerServices.Infrastructure

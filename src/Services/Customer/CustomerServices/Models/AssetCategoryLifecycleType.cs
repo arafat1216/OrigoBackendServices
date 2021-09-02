@@ -1,6 +1,5 @@
 ﻿using Common.Enums;
 using Common.Seedwork;
-using CustomerServices.DomainEvents;
 using System;
 
 namespace CustomerServices.Models

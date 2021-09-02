@@ -1,6 +1,5 @@
 ﻿using Common.Cryptography;
 using Common.Enums;
-using CustomerServices.DomainEvents;
 using CustomerServices.Models;
 using Microsoft.Extensions.Logging;
 using System;

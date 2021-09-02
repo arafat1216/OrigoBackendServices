@@ -7,20 +7,24 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Okta.AspNetCore;
+using OrigoApiGateway.Authorization;
+
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
 namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    //[Authorize]
+    [Authorize(AuthenticationSchemes = OktaDefaults.ApiAuthenticationScheme)]
     [Route("origoapi/v{version:apiVersion}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
     public class CustomersController : ControllerBase
     {
         private ILogger<CustomersController> Logger { get; }
-        public ICustomerServices CustomerServices { get; }
+        private ICustomerServices CustomerServices { get; }
 
         public CustomersController(ILogger<CustomersController> logger, ICustomerServices customerServices)
         {
@@ -32,6 +36,8 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoCustomer>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize("CanReadCustomer")]
+        [PermissionAuthorize(PermissionOperator.And, "CanReadCustomer", "CanUpdateCustomer")]
         public async Task<ActionResult<IList<OrigoCustomer>>> Get()
         {
             try

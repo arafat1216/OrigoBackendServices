@@ -1,10 +1,7 @@
 using System;
-using System.Runtime.InteropServices;
 using CustomerServices.Infrastructure;
 using CustomerServices.Models;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 
 // ReSharper disable InconsistentNaming
 

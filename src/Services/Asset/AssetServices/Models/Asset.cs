@@ -6,9 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
 using AssetServices.DomainEvents;
 using Common.Enums;
-using AssetServices.Attributes;
 using AssetServices.Utility;
-using MediatR;
 
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
