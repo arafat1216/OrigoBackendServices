@@ -11,6 +11,7 @@ using Customer.API.ViewModels;
 using CustomerServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Common.Utilities;
 
 namespace Customer.API.Controllers
 {
