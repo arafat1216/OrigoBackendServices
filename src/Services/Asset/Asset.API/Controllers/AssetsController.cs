@@ -259,7 +259,7 @@ namespace Asset.API.Controllers
         {
             try
             {
-                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.SerialNumber, asset.Brand, asset.Model, asset.PurchaseDate, asset.Note);
+                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.SerialNumber, asset.Brand, asset.Model, asset.PurchaseDate, asset.Note, asset.Imei);
                 if (updatedAsset == null)
                 {
                     return NotFound();

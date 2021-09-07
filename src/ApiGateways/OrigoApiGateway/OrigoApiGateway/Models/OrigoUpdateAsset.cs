@@ -29,5 +29,10 @@ namespace OrigoApiGateway.Models
         /// A note containing additional information or comments for the asset.
         /// </summary>
         public string Note { get; set; }
+
+        /// <summary>
+        /// The imei value of the asset
+        /// </summary>
+        public string Imei { get; set; }
     }
 }
