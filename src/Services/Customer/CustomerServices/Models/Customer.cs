@@ -35,6 +35,9 @@ namespace CustomerServices.Models
         }
 
         [JsonIgnore]
+        public ICollection<Department> Departments { get; protected set; }
+
+        [JsonIgnore]
         public ICollection<ProductModule> SelectedProductModules
         {
             get { return selectedProductModules?.ToImmutableList(); }
@@ -124,6 +127,18 @@ namespace CustomerServices.Models
         {
             AddDomainEvent(new ProductModuleGroupRemovedDomainEvent(CustomerId, productModuleGroup));
             selectedProductModuleGroups.Remove(productModuleGroup);
+        }
+
+        public void AddDepartment(Department department)
+        {
+            AddDomainEvent(new DepartmentAddedDomainEvent(department));
+            Departments.Add(department);
+        }
+
+        public void RemoveDepartment(Department department)
+        {
+            AddDomainEvent(new DepartmentRemovedDomainEvent(department));
+            Departments.Remove(department);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace OrigoApiGateway.Services
 {
-    public class UserConfiguration : IBaseGatewayOptions
+    public class DepartmentConfiguration : IBaseGatewayOptions
     {
         public string ApiBaseUrl { get; set; }
         public string ApiPort { get; set; }

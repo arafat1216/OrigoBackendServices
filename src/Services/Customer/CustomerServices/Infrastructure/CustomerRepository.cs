@@ -1,14 +1,14 @@
-﻿using CustomerServices.Models;
+﻿using Common.Extensions;
+using Common.Logging;
+using Common.Utilities;
+using CustomerServices.Models;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Extensions;
-using Common.Logging;
-using Common.Utilities;
-using MediatR;
 
 namespace CustomerServices.Infrastructure
 {
@@ -45,6 +45,7 @@ namespace CustomerServices.Infrastructure
                 .Include(p => p.SelectedProductModuleGroups)
                 .Include(p => p.SelectedAssetCategories)
                 .ThenInclude(p => p.LifecycleTypes)
+                .Include(p => p.Departments)
                 .FirstOrDefaultAsync(c => c.CustomerId == customerId);
         }
 
@@ -56,6 +57,7 @@ namespace CustomerServices.Infrastructure
                 .Include(p => p.SelectedProductModuleGroups)
                 .Include(p => p.SelectedAssetCategories)
                 .ThenInclude(p => p.LifecycleTypes)
+                .Include(p => p.Departments)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.CustomerId == customerId);
         }
@@ -242,6 +244,16 @@ namespace CustomerServices.Infrastructure
             }
             await SaveEntitiesAsync();
             return moduleGroup;
+        }
+
+        public async Task<IList<Department>> GetDepartmentsAsync(Guid customerId)
+        {
+            return await _customerContext.Departments.Where(p => p.Customer.CustomerId == customerId).ToListAsync();
+        }
+
+        public async Task<Department> GetDepartmentAsync(Guid customerId, Guid departmentId)
+        {
+            return await _customerContext.Departments.Include(d => d.ParentDepartment).FirstOrDefaultAsync(p => p.Customer.CustomerId == customerId && p.ExternalDepartmentId == departmentId);
         }
     }
 }

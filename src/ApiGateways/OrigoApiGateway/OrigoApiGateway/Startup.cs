@@ -63,7 +63,7 @@ namespace OrigoApiGateway
             services.Configure<CustomerConfiguration>(Configuration.GetSection("Customer"));
             services.Configure<UserConfiguration>(Configuration.GetSection("User"));
             services.Configure<ModuleConfiguration>(Configuration.GetSection("Module"));
-
+            services.Configure<DepartmentConfiguration>(Configuration.GetSection("Department"));
             //services.AddAuthentication(options =>
             //{
             //    options.DefaultAuthenticateScheme = OktaDefaults.ApiAuthenticationScheme;
@@ -117,6 +117,10 @@ namespace OrigoApiGateway
                 x.GetRequiredService<IOptions<AssetConfiguration>>(), new UserServices(x.GetRequiredService<ILogger<UserServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
                 x.GetRequiredService<IOptions<UserConfiguration>>())))));
+
+            services.AddSingleton<IDepartmentsServices>(x => new DepartmentsServices(x.GetRequiredService<ILogger<DepartmentsServices>>(),
+                DaprClient.CreateInvokeHttpClient("customerservices"), 
+                x.GetRequiredService<IOptions<DepartmentConfiguration>>()));
 
             services.AddSwaggerGen(c =>
             {
