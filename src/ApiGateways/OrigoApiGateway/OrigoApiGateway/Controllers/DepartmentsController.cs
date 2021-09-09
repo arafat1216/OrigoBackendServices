@@ -78,5 +78,41 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
+
+        [Route("{departmentId:Guid}")]
+        [HttpPut]
+        [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoDepartment>> PutDepartmentForCustomer(Guid customerId, Guid departmentId, [FromBody] OrigoDepartment updateDepartment)
+        {
+            try
+            {
+                var updatedDepartment = await _departmentServices.UpdateDepartmentPutAsync(customerId, departmentId, updateDepartment);
+
+                return Ok(updatedDepartment);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{departmentId:Guid}")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoDepartment>> PatchDepartmentForCustomer(Guid customerId, Guid departmentId, [FromBody] OrigoDepartment updateDepartment)
+        {
+            try
+            {
+                var updatedDepartment = await _departmentServices.UpdateDepartmentPatchAsync(customerId, departmentId, updateDepartment);
+
+                return Ok(updatedDepartment);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
     }
 }

@@ -61,5 +61,27 @@ namespace Customer.API.Controllers
 
             return CreatedAtAction(nameof(CreateDepartment), new { id = departmentView.DepartmentId }, departmentView);
         }
+
+        [Route("{departmentId:Guid}")]
+        [HttpPut]
+        [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<Department>> UpdateDepartmentPut(Guid customerId, Guid departmentId, [FromBody] Department department)
+        {
+            var updatedDepartment = await _departmentServices.UpdateDepartmentPutAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description);
+            var departmentView = new Department(updatedDepartment);
+
+            return Ok(departmentView);
+        }
+
+        [Route("{departmentId:Guid}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<Department>> UpdateDepartmentPatch(Guid customerId, Guid departmentId, [FromBody] Department department)
+        {
+            var updatedDepartment = await _departmentServices.UpdateDepartmentPatchAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description);
+            var departmentView = new Department(updatedDepartment);
+
+            return Ok(departmentView);
+        }
     }
 }

@@ -28,24 +28,6 @@ namespace OrigoApiGateway.Services
             _options = options.Value;
         }
 
-        public async Task<OrigoDepartment> AddDepartmentAsync(Guid customerId, NewDepartment department)
-        {
-            try
-            {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/departments", department);
-                if (!response.IsSuccessStatusCode)
-                    throw new BadHttpRequestException("Unable to save user", (int)response.StatusCode);
-
-                var user = await response.Content.ReadFromJsonAsync<DepartmentDTO>();
-                return user == null ? null : new OrigoDepartment(user);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "AddDepartmentAsync unknown error.");
-                throw;
-            }
-        }
-
         public async Task<OrigoDepartment> GetDepartment(Guid customerId, Guid departmentId)
         {
             try
@@ -90,6 +72,60 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "GetDepartments unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoDepartment> AddDepartmentAsync(Guid customerId, NewDepartment department)
+        {
+            try
+            {
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/departments", department);
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to save department", (int)response.StatusCode);
+
+                var user = await response.Content.ReadFromJsonAsync<DepartmentDTO>();
+                return user == null ? null : new OrigoDepartment(user);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "AddDepartmentAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoDepartment> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, OrigoDepartment department)
+        {
+            try
+            {
+                var response = await HttpClient.PutAsJsonAsync($"{_options.ApiPath}/{customerId}/departments/{departmentId}", department);
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to save department", (int)response.StatusCode);
+
+                var user = await response.Content.ReadFromJsonAsync<DepartmentDTO>();
+                return user == null ? null : new OrigoDepartment(user);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "UpdateDepartmentPutAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoDepartment> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, OrigoDepartment department)
+        {
+            try
+            {
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/departments/{departmentId}", department);
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to save department", (int)response.StatusCode);
+
+                var user = await response.Content.ReadFromJsonAsync<DepartmentDTO>();
+                return user == null ? null : new OrigoDepartment(user);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "UpdateDepartmentPatchAsync unknown error.");
                 throw;
             }
         }

@@ -47,5 +47,93 @@ namespace CustomerServices
             await _customerRepository.SaveEntitiesAsync();
             return department;
         }
+
+        public async Task<Department> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description)
+        {
+            var customer = await _customerRepository.GetCustomerAsync(customerId);
+            if (customer == null)
+            {
+                throw new CustomerNotFoundException();
+            }
+            var allDepartments = await _customerRepository.GetDepartmentsAsync(customerId);
+            var parentDepartment = allDepartments.FirstOrDefault(dept => dept.ExternalDepartmentId == parentDepartmentId);
+            if (parentDepartment == null && allDepartments.FirstOrDefault(dept => dept.ParentDepartment == null) != null)
+            {
+                throw new RootDepartmentAlreadyExistException();
+            }
+            var departmentToUpdate = allDepartments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
+            if (departmentToUpdate == null)
+            {
+                return null;
+            }
+
+            customer.ChangeDepartmentName(departmentToUpdate, name);
+            customer.ChangeDepartmentCostCenterId(departmentToUpdate, costCenterId);
+            customer.ChangeDepartmentDescription(departmentToUpdate, description);
+
+            if (parentDepartmentId != null && // can't make this a root department
+                departmentToUpdate.ParentDepartment != null && // can't move the root department
+                !IsSubdepartment(departmentToUpdate, parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
+            {
+                customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment);
+            }
+
+            await _customerRepository.SaveEntitiesAsync();
+            return departmentToUpdate;
+        }
+
+        public async Task<Department> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description)
+        {
+            var customer = await _customerRepository.GetCustomerAsync(customerId);
+            if (customer == null)
+            {
+                throw new CustomerNotFoundException();
+            }
+            var allDepartments = await _customerRepository.GetDepartmentsAsync(customerId);
+            var parentDepartment = allDepartments.FirstOrDefault(dept => dept.ExternalDepartmentId == parentDepartmentId);
+            if (parentDepartment == null && allDepartments.FirstOrDefault(dept => dept.ParentDepartment == null) != null)
+            {
+                throw new RootDepartmentAlreadyExistException();
+            }
+            var departmentToUpdate = allDepartments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
+            if (departmentToUpdate == null)
+            {
+                return null;
+            }
+            if (name != null && name != departmentToUpdate.Name)
+            {
+                customer.ChangeDepartmentName(departmentToUpdate, name);
+            }
+            if (costCenterId != null && costCenterId != departmentToUpdate.CostCenterId)
+            {
+                customer.ChangeDepartmentCostCenterId(departmentToUpdate, costCenterId);
+            }
+            if (description != null && description != departmentToUpdate.Description)
+            {
+                customer.ChangeDepartmentDescription(departmentToUpdate, description);
+            }
+            if (parentDepartmentId != null && // can't make this a root department
+                departmentToUpdate.ParentDepartment != null && // can't move the root department
+                parentDepartmentId != departmentToUpdate.ParentDepartment?.ExternalDepartmentId && // won't move this department if it already is a subdepartment of the target department
+                !IsSubdepartment(departmentToUpdate, parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
+            {
+                customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment);
+            }
+            await _customerRepository.SaveEntitiesAsync();
+            return departmentToUpdate;
+        }
+
+        private bool IsSubdepartment(Department departmentToBeMoved, Department newParentDepartment)
+        {
+            var tempDepartment = newParentDepartment;
+            do
+            {
+                if (departmentToBeMoved.ExternalDepartmentId == tempDepartment.ExternalDepartmentId)
+                    return true;
+                if (tempDepartment.ParentDepartment != null)
+                    tempDepartment = tempDepartment.ParentDepartment;
+                else return false;
+            } while (true);
+        }
     }
 }
