@@ -21,14 +21,16 @@ namespace CustomerServices.Models
 
         public Guid ExternalDepartmentId { get; protected set; }
 
-        public string Name { get; protected set; }
+        public string Name { get; set; }
 
         public string CostCenterId { get; set; }
+
+        public string Description { get; set; }
 
         /// <summary>
         /// Can link back to another structur to create a branching tree-structure
         /// </summary>
-        public Department ParentDepartment { get; protected set; }
+        public Department ParentDepartment { get; set; }
 
         /// <summary>
         /// The organization that this structure belongs to
@@ -36,8 +38,7 @@ namespace CustomerServices.Models
         [JsonIgnore]
         public Customer Customer { get; set; }
 
-        public string Description { get; set; }
-
+        [JsonIgnore]
         public IReadOnlyCollection<User> Users { get; set; }
     }
 }

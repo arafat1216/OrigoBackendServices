@@ -140,5 +140,33 @@ namespace CustomerServices.Models
             AddDomainEvent(new DepartmentRemovedDomainEvent(department));
             Departments.Remove(department);
         }
+
+        public void ChangeDepartmentName(Department department, string name)
+        {
+            var oldDepartmentName = department.Name;
+            department.Name = name;
+            AddDomainEvent(new DepartmentNameChangedDomainEvent(department, oldDepartmentName));
+        }
+
+        public void ChangeDepartmentDescription(Department department, string description)
+        {
+            var oldDepartmentDescription = department.Description;
+            department.Description = description;
+            AddDomainEvent(new DepartmentDescriptionChangedDomainEvent(department, oldDepartmentDescription));
+        }
+
+        public void ChangeDepartmentCostCenterId(Department department, string costCenterId)
+        {
+            var oldDepartmentCostCenterId = department.CostCenterId;
+            department.CostCenterId = costCenterId;
+            AddDomainEvent(new DepartmentCostCenterIdChangedDomainEvent(department, oldDepartmentCostCenterId));
+        }
+
+        public void ChangeDepartmentsParentDepartment(Department department, Department parentDepartment)
+        {
+            var oldParentDepartmentId = department.ParentDepartment?.ExternalDepartmentId;
+            department.ParentDepartment = parentDepartment;
+            AddDomainEvent(new DepartmentParentDepartmentChangedDomainEvent(department, oldParentDepartmentId));
+        }
     }
 }
