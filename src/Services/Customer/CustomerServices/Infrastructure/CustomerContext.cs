@@ -10,6 +10,8 @@ namespace CustomerServices.Infrastructure
     {
         public DbSet<Customer> Customers { get; set; }
 
+        public DbSet<Department> Departments { get; set; }
+
         public DbSet<User> Users { get; set; }
 
         public DbSet<AssetCategoryType> AssetCategoryTypes { get; set; }
@@ -41,7 +43,6 @@ namespace CustomerServices.Infrastructure
             modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<User>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<ProductModule>().ToTable("ProductModule");
-
             modelBuilder.Entity<UserPermissions>().Property(userPermissions => userPermissions.AccessList)
                 .HasConversion(convertTo => JsonSerializer.Serialize(convertTo, new JsonSerializerOptions{IgnoreNullValues = true}),
                     convertFrom => JsonSerializer.Deserialize<IReadOnlyCollection<Guid>>(convertFrom, new JsonSerializerOptions{ IgnoreNullValues = true }));
