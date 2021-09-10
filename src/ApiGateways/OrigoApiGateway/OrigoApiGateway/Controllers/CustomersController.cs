@@ -8,8 +8,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Okta.AspNetCore;
 using OrigoApiGateway.Authorization;
+using System.Linq;
+using System.Security.Claims;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -36,8 +37,9 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoCustomer>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        //[PermissionAuthorize("CanReadCustomer")]
-        //[PermissionAuthorize(PermissionOperator.And, "CanReadCustomer", "CanUpdateCustomer")]
+        //[PermissionAuthorize(Permission.CanReadCustomer)]
+        //[Authorize(Roles = "GroupAdmin,PartnerAdmin")]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<IList<OrigoCustomer>>> Get()
         {
             try
@@ -55,10 +57,21 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(OrigoCustomer), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<IList<OrigoCustomer>>> Get(Guid customerId)
         {
             try
             {
+                //var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                //if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString())
+                //{
+                //    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                //    if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+                //    {
+                //        return Forbid();
+                //    }
+                //}
+
                 var customer = await CustomerServices.GetCustomerAsync(customerId);
                 return customer != null ? Ok(customer) : NotFound();
             }

@@ -59,6 +59,7 @@ namespace Customer.API
             services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
             services.AddScoped<ICustomerServices, CustomerServices.CustomerServices>();
             services.AddScoped<IUserServices, UserServices>();
+            services.AddScoped<IUserPermissionServices, UserPermissionServices>();
             services.AddScoped<IModuleServices, ModuleServices>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddMediatR(typeof(Startup));
