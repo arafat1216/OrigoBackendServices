@@ -12,7 +12,7 @@ namespace Customer.API.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/users/{userName:length(6,255)}/permissions")]
+    [Route("api/v{version:apiVersion}/customers/users/{userName:length(6,255)}/permissions")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
     public class UserPermissionsController : ControllerBase

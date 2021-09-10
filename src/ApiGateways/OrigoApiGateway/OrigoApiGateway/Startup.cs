@@ -103,6 +103,8 @@ namespace OrigoApiGateway
                 DaprClient.CreateInvokeHttpClient("customerservices"),
                 x.GetRequiredService<IOptions<UserConfiguration>>()))));
 
+            services.AddSingleton<IUserPermissionService>(x => new UserPermissionService(DaprClient.CreateInvokeHttpClient("customerservices"), x.GetRequiredService<IOptions<UserConfiguration>>()));
+
             services.AddSingleton<IUserServices>(x => new UserServices(x.GetRequiredService<ILogger<UserServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
                 x.GetRequiredService<IOptions<UserConfiguration>>()));
@@ -150,7 +152,7 @@ namespace OrigoApiGateway
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger, HttpClient httpCustomerClient, IOptions<UserConfiguration> userConfigurationOptions)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger, IUserPermissionService userPermissionService)
         {
             app.UseExceptionHandler(err => err.UseCustomErrors(env));
 
@@ -163,11 +165,10 @@ namespace OrigoApiGateway
             //    var authenticateResult = await context.AuthenticateAsync();
             //    if (authenticateResult.Succeeded && authenticateResult.Principal != null)
             //    {
-            //        var userEmail = context.User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
-            //        var userSub = context.User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+            //        var userEmail = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            //        var userSub = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             //        if (!string.IsNullOrEmpty(userEmail) && !string.IsNullOrEmpty(userSub))
             //        {
-            //            var userPermissionService = new UserPermissionService(httpCustomerClient, userConfigurationOptions);
             //            var userPermissionIdentity = await userPermissionService.GetUserPermissionsIdentityAsync(userSub, userEmail, CancellationToken.None);
             //            context.User.AddIdentity(userPermissionIdentity);
             //        }

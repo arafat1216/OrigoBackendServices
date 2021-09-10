@@ -19,7 +19,7 @@ namespace CustomerServices
         public async Task<IEnumerable<UserPermissions>> GetUserPermissionsAsync(string userName)
         {
             return await _customerContext.UserPermissions
-                .Include(up => up.Role).ThenInclude(r => r.GrantedPermissions)
+                .Include(up => up.Role).ThenInclude(r => r.GrantedPermissions).ThenInclude(p => p.Permissions)
                 .Include(up => up.User)
                 .Where(up => up.User.Email == userName).ToListAsync();
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Authorization;
+using OrigoApiGateway.Models;
 
 namespace OrigoApiGateway.Authorization
 {
@@ -13,17 +14,17 @@ namespace OrigoApiGateway.Authorization
         /// </summary>
         /// <param name="permissionOperator">The operator to use when verifying the permissions provided</param>
         /// <param name="permissions">The list of permissions</param>
-        public PermissionAuthorizeAttribute(PermissionOperator permissionOperator, params string[] permissions)
+        public PermissionAuthorizeAttribute(PermissionOperator permissionOperator, params Permission[] permissions)
         {
             // E.g: PERMISSION_1_Create_Update..
-            Policy = $"{PolicyPrefix}{(int)permissionOperator}{Separator}{string.Join(Separator, permissions)}";
+            Policy = $"{PolicyPrefix}{(int)permissionOperator}{Separator}{string.Join(Separator, permissions.ToString())}";
         }
 
         /// <summary>
         /// Initializes the attribute with a single permission
         /// </summary>
         /// <param name="permission">The permission</param>
-        public PermissionAuthorizeAttribute(string permission)
+        public PermissionAuthorizeAttribute(Permission permission)
         {
             // E.g: PERMISSION_1_Create..
             Policy = $"{PolicyPrefix}{(int)PermissionOperator.And}{Separator}{permission}";
