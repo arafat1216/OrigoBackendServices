@@ -4,14 +4,16 @@ using CustomerServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CustomerServices.Migrations
 {
     [DbContext(typeof(CustomerContext))]
-    partial class CustomerContextModelSnapshot : ModelSnapshot
+    [Migration("20210907062755_seedRoleData")]
+    partial class seedRoleData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -192,7 +194,7 @@ namespace CustomerServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2021, 9, 6, 6, 59, 22, 711, DateTimeKind.Utc).AddTicks(528),
+                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 582, DateTimeKind.Utc).AddTicks(3358),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanCreateCustomer"
                         },
@@ -446,15 +448,15 @@ namespace CustomerServices.Migrations
 
             modelBuilder.Entity("DepartmentUser", b =>
                 {
-                    b.Property<int>("DepartmentsId")
-                        .HasColumnType("int");
-
                     b.Property<int>("UsersId")
                         .HasColumnType("int");
 
-                    b.HasKey("DepartmentsId", "UsersId");
+                    b.Property<int>("UsersId1")
+                        .HasColumnType("int");
 
-                    b.HasIndex("UsersId");
+                    b.HasKey("UsersId", "UsersId1");
+
+                    b.HasIndex("UsersId1");
 
                     b.ToTable("DepartmentUser");
                 });
@@ -635,13 +637,13 @@ namespace CustomerServices.Migrations
                 {
                     b.HasOne("CustomerServices.Models.User", null)
                         .WithMany()
-                        .HasForeignKey("DepartmentsId")
+                        .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CustomerServices.Models.Department", null)
                         .WithMany()
-                        .HasForeignKey("UsersId")
+                        .HasForeignKey("UsersId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

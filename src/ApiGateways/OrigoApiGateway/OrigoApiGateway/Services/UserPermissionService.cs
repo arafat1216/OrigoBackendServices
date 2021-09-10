@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Security.Claims;
@@ -24,9 +25,10 @@ namespace OrigoApiGateway.Services
         public async Task<ClaimsIdentity> GetUserPermissionsIdentityAsync(string sub, string userName,
             CancellationToken cancellationToken)
         {
+            var encodedUserName = WebUtility.UrlEncode(userName);
             var userPermissions =
                 await _httpClient.GetFromJsonAsync<IList<UserPermissionsDTO>>(
-                    $"{_options.ApiPath}/users/{userName}/permissions", cancellationToken);
+                    $"{_options.ApiPath}/users/{encodedUserName}/permissions", cancellationToken);
             if (userPermissions == null || !userPermissions.Any())
             {
                 return new ClaimsIdentity();
@@ -40,7 +42,7 @@ namespace OrigoApiGateway.Services
             var permissionsIdentity = new ClaimsIdentity(claimPermissions);
             permissionsIdentity.AddClaims(claimPermissions);
             permissionsIdentity.AddClaims(claimAccessList);
-            permissionsIdentity.AddClaim(new Claim("Role", userPermissions.First().Role));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, userPermissions.First().Role));
 
             return permissionsIdentity;
         }
