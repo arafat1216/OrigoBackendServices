@@ -41,19 +41,6 @@ namespace CustomerServices.Migrations
                 keyValue: 4,
                 column: "CreatedDate",
                 value: new DateTime(2021, 9, 7, 6, 27, 55, 582, DateTimeKind.Utc).AddTicks(3868));
-
-            migrationBuilder.InsertData(
-                table: "Roles",
-                columns: new[] { "Id", "CreatedDate", "LastUpdatedDate", "Name" },
-                values: new object[,]
-                {
-                    { 1, new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1173), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "EndUser" },
-                    { 2, new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1386), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "DepartmentManager" },
-                    { 3, new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1388), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "CustomerAdmin" },
-                    { 4, new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1388), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "GroupAdmin" },
-                    { 5, new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1389), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "PartnerAdmin" },
-                    { 6, new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1390), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "SystemAdmin" }
-                });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
