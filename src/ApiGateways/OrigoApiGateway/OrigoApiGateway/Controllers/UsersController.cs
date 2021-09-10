@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using OrigoApiGateway.Models;
+using OrigoApiGateway.Services;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using OrigoApiGateway.Models;
-using OrigoApiGateway.Services;
 
 namespace OrigoApiGateway.Controllers
 {
@@ -28,8 +28,8 @@ namespace OrigoApiGateway.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(List<OrigoUser>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(List<OrigoUser>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<List<OrigoUser>>> GetAllUsers(Guid customerId)
         {
             var users = await _customerServices.GetAllUsersAsync(customerId);
@@ -39,8 +39,8 @@ namespace OrigoApiGateway.Controllers
 
         [Route("{userId:Guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(OrigoUser), (int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<OrigoUser>> GetUser(Guid customerId, Guid userId)
         {
             var user = await _customerServices.GetUserAsync(customerId, userId);
@@ -49,15 +49,51 @@ namespace OrigoApiGateway.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(OrigoUser), (int) HttpStatusCode.Created)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<OrigoUser>> CreateUserForCustomer(Guid customerId, [FromBody] NewUser newUser)
         {
             try
             {
                 var updatedUser = await _customerServices.AddUserForCustomerAsync(customerId, newUser);
 
-                return CreatedAtAction(nameof(CreateUserForCustomer), new {id = updatedUser.Id}, updatedUser);
+                return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUser.Id }, updatedUser);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{userId:Guid}/department/{departmentId:Guid}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoUser>> AssignDepartmentForCustomer(Guid customerId, Guid userId, Guid departmentId)
+        {
+            try
+            {
+                var updatedUser = await _customerServices.AssignUserToDepartment(customerId, userId, departmentId);
+
+                return Ok(updatedUser);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{userId:Guid}/department/{departmentId:Guid}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoUser>> RemoveAssignedDepartmentForCustomer(Guid customerId, Guid userId, Guid departmentId)
+        {
+            try
+            {
+                var updatedUser = await _customerServices.UnassignUserFromDepartment(customerId, userId, departmentId);
+
+                return Ok(updatedUser);
             }
             catch
             {

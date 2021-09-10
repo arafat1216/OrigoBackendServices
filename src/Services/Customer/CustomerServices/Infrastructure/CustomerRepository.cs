@@ -70,7 +70,11 @@ namespace CustomerServices.Infrastructure
 
         public async Task<User> GetUserAsync(Guid customerId, Guid userId)
         {
-            return await _customerContext.Users.Include(u => u.Customer).Where(u => u.Customer.CustomerId == customerId && u.UserId == userId).FirstOrDefaultAsync();
+            return await _customerContext.Users
+                .Include(u => u.Customer)
+                .Include(u=> u.Departments)
+                .Where(u => u.Customer.CustomerId == customerId && u.UserId == userId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<User> AddUserAsync(User newUser)

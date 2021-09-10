@@ -1,7 +1,7 @@
-﻿using System;
+﻿using CustomerServices.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CustomerServices.Models;
 
 namespace CustomerServices
 {
@@ -11,5 +11,7 @@ namespace CustomerServices
         Task<User> GetUserAsync(Guid customerId, Guid userId);
         Task<User> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
             string email, string mobileNumber, string employeeId);
+        Task<User> AssignDepartment(Guid customerId, Guid userId, Guid departmentId);
+        Task<User> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId);
     }
 }

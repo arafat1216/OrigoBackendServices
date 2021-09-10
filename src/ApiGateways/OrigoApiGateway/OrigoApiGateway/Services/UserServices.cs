@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {
@@ -88,6 +89,51 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "AddUserForCustomerAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoUser> AssignUserToDepartment(Guid customerId, Guid userId, Guid departmentId)
+        {
+            try
+            {
+                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                var requestUri = $"{_options.ApiPath}/{customerId}/users/{userId}/department/{departmentId}";
+                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var exception = new BadHttpRequestException("Unable to assign department.", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to assign department.");
+                    throw exception;
+                }
+                var user = await response.Content.ReadFromJsonAsync<UserDTO>();
+                return user == null ? null : new OrigoUser(user);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to assign department.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoUser> UnassignUserFromDepartment(Guid customerId, Guid userId, Guid departmentId)
+        {
+            try
+            {
+                var requestUri = $"{_options.ApiPath}/{customerId}/users/{userId}/department/{departmentId}";
+                var response = await HttpClient.DeleteAsync(requestUri);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var exception = new BadHttpRequestException("Unable to remove assigned department.", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to remove assigned department.");
+                    throw exception;
+                }
+                var user = await response.Content.ReadFromJsonAsync<UserDTO>();
+                return user == null ? null : new OrigoUser(user);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to remove assigned department.");
                 throw;
             }
         }
