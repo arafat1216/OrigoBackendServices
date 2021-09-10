@@ -7,53 +7,6 @@ namespace CustomerServices.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Department",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CostCenterId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ParentDepartmentId = table.Column<int>(type: "int", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Department", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Department_Department_ParentDepartmentId",
-                        column: x => x.ParentDepartmentId,
-                        principalTable: "Department",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DepartmentUser",
-                columns: table => new
-                {
-                    UsersId = table.Column<int>(type: "int", nullable: false),
-                    UsersId1 = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DepartmentUser", x => new { x.UsersId, x.UsersId1 });
-                    table.ForeignKey(
-                        name: "FK_DepartmentUser_Department_UsersId1",
-                        column: x => x.UsersId1,
-                        principalTable: "Department",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_DepartmentUser_User_UsersId",
-                        column: x => x.UsersId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.UpdateData(
                 table: "PermissionSets",
                 keyColumn: "Id",
@@ -101,16 +54,6 @@ namespace CustomerServices.Migrations
                     { 5, new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1389), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "PartnerAdmin" },
                     { 6, new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1390), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "SystemAdmin" }
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Department_ParentDepartmentId",
-                table: "Department",
-                column: "ParentDepartmentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DepartmentUser_UsersId1",
-                table: "DepartmentUser",
-                column: "UsersId1");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
