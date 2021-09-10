@@ -32,5 +32,6 @@ namespace CustomerServices.Models
 
         Task<IList<Department>> GetDepartmentsAsync(Guid customerId);
         Task<Department> GetDepartmentAsync(Guid customerId, Guid departmentId);
+        Task<IList<Department>> DeleteDepartmentsAsync(IList<Department> department);
     }
 }

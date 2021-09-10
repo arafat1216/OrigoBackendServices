@@ -255,5 +255,19 @@ namespace CustomerServices.Infrastructure
         {
             return await _customerContext.Departments.Include(d => d.ParentDepartment).FirstOrDefaultAsync(p => p.Customer.CustomerId == customerId && p.ExternalDepartmentId == departmentId);
         }
+
+        public async Task<IList<Department>> DeleteDepartmentsAsync(IList<Department> department)
+        {
+            try
+            {
+                _customerContext.Departments.RemoveRange(department);
+            }
+            catch
+            {
+                // item is already removed or did not exsit
+            }
+            await SaveEntitiesAsync();
+            return department;
+        }
     }
 }

@@ -114,5 +114,23 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
+
+        [Route("{departmentId:Guid}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoDepartment>> DeleteDepartmentForCustomer(Guid customerId, Guid departmentId)
+        {
+            try
+            {
+                var updatedDepartment = await _departmentServices.DeleteDepartmentPatchAsync(customerId, departmentId);
+
+                return Ok(updatedDepartment);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
     }
 }

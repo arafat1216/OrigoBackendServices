@@ -12,5 +12,6 @@ namespace OrigoApiGateway.Services
         Task<OrigoDepartment> AddDepartmentAsync(Guid customerId, NewDepartment department);
         Task<OrigoDepartment> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, OrigoDepartment department);
         Task<OrigoDepartment> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, OrigoDepartment department);
+        Task<OrigoDepartment> DeleteDepartmentPatchAsync(Guid customerId, Guid departmentId);
     }
 }

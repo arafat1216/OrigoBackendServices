@@ -40,5 +40,38 @@ namespace CustomerServices.Models
 
         [JsonIgnore]
         public IReadOnlyCollection<User> Users { get; set; }
+
+        /// <summary>
+        /// Checks if the input department is a subdepartment of this department or if the input department is this department.
+        /// </summary>
+        /// <param name="department"></param>
+        /// <returns></returns>
+        public bool HasSubdepartment(Department department)
+        {
+            var tempDepartment = department;
+            do
+            {
+                if (ExternalDepartmentId == tempDepartment.ExternalDepartmentId)
+                    return true;
+                if (tempDepartment.ParentDepartment != null)
+                    tempDepartment = tempDepartment.ParentDepartment;
+                else return false;
+            } while (true);
+        }
+
+        /// <summary>
+        /// Returns a list of all subdepartments of this department
+        /// </summary>
+        /// <returns></returns>
+        public IList<Department> Subdepartments(IList<Department> departments)
+        {
+            List<Department> subdepartments = new List<Department>();
+            foreach(var department in departments)
+            {
+                if (HasSubdepartment(department))
+                    subdepartments.Add(department);
+            }
+            return subdepartments;
+        }
     }
 }
