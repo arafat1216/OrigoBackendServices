@@ -111,6 +111,14 @@ namespace CustomerServices.Models
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
 
+        public void UpdateOrganization(Guid parentId, Guid primaryLocation, string companyName, string organizationNumber)
+        {
+            ParentId = parentId;
+            PrimaryLocation = primaryLocation;
+            CompanyName = companyName;
+            OrganizationNumber = organizationNumber;
+        }
+
         public void AddAssetCategory(AssetCategoryType assetCategory)
         {
             AddDomainEvent(new AssetCategoryAddedDomainEvent(assetCategory));

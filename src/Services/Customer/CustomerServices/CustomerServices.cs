@@ -76,7 +76,7 @@ namespace CustomerServices
             {
                 var organization = await _customerRepository.GetOrganizationAsync(updateOrganization.OrganizationId);
                 organization.UpdateOrganization((Guid)organization.ParentId, (Guid)organization.PrimaryLocation,
-                                                organization.OrganizationName, organization.OrganizationNumber);
+                                                organization.CompanyName, organization.OrganizationNumber);
 
                 await _customerRepository.SaveEntitiesAsync();
 
@@ -89,21 +89,56 @@ namespace CustomerServices
             }
         }
 
-        /*
-        public async Task<IList<Organization>> GetOrganizationsAsync()
+        /// <summary>
+        /// Add the given Organization to the database.
+        /// </summary>
+        /// <param name="newOrganization">An Organization entity, to be added to the database</param>
+        /// <returns></returns>
+        public async Task<Organization> AddOrganizationAsync(Organization newOrganization)
         {
-            return await _customerRepository.GetOrganizationsAsync();
-        }*/
+            return await _customerRepository.AddAsync(newOrganization);
+        }
 
-
-        public async Task<Organization> AddCustomerAsync(string companyName, string orgNumber, string contactPersonFullName, string contactPersonEmail,
-            string contactPersonPhoneNumber, string companyAddressStreet, string companyAddressPostCode,
-            string companyAddressCity, string companyAddressCountry)
+        public async Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences)
         {
-            var companyAddress = new Address(companyAddressStreet, companyAddressPostCode, companyAddressCity, companyAddressCountry);
-            var contactPerson = new ContactPerson(contactPersonFullName, contactPersonEmail, contactPersonPhoneNumber);
-            var newCustomer = new Organization(Guid.NewGuid(), companyName, orgNumber, companyAddress, contactPerson);
-            return await _customerRepository.AddAsync(newCustomer);
+            return await _customerRepository.AddOrganizationPreferencesAsync(organizationPreferences);
+        }
+
+        public async Task<Location> AddOrganizationLocationAsync(Location location)
+        {
+            return await _customerRepository.AddOrganizationLocationAsync(location);
+        }
+
+        /// <summary>
+        /// Get the organization with the given Id. Optional: Return the OrganizationPreferences and OrganizationLocation object of the organization along with the organization itself.
+        /// </summary>
+        /// <param name="customerId">The id of the organization queried</param>
+        /// <param name="includePreferences">Include OrganizationPreferences object of the organization if set to true</param>
+        /// <param name="includeLocation">Include OrganizationLocation object of the organization if set to true</param>
+        /// <returns>Organization</returns>
+        public async Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false)
+        {
+            var organization = await _customerRepository.GetOrganizationAsync(customerId);
+
+            if (organization != null)
+            {
+                if (includePreferences)
+                {
+                    organization.OrganizationPreferences = await _customerRepository.GetOrganizationPreferencesAsync(customerId);
+                }
+                if (includeLocation)
+                {
+                    organization.OrganizationLocation = await _customerRepository.GetOrganizationLocationAsync(organization.PrimaryLocation);
+                }
+            }
+
+            return organization;
+        }
+
+        public async Task<OrganizationPreferences> RemoveOrganizationPreferencesAsync(Guid organizationId)
+        {
+            var organizationPreferences = await _customerRepository.GetOrganizationPreferencesAsync(organizationId);
+            return await _customerRepository.DeleteOrganizationPreferencesAsync(organizationPreferences);
         }
 
         public async Task<Organization> GetOrganizationAsync(Guid customerId)

@@ -12,7 +12,8 @@ namespace CustomerServices.Models
         Task<IList<Organization>> GetOrganizationsAsync();
         Task<IList<Organization>> GetOrganizationsAsync(Guid? parentId);
         Task<Organization> GetOrganizationAsync(Guid customerId);
-
+        Task<OrganizationPreferences> GetOrganizationPreferencesAsync(Guid organizationId);
+        Task<Location> GetOrganizationLocationAsync(Guid? locationId);
         Task<IList<User>> GetAllUsersAsync(Guid customerId);
         Task<User> GetUserAsync(Guid customerId, Guid userId);
         Task<User> AddUserAsync(User newUser);
