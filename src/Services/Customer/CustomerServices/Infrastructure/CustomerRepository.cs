@@ -27,19 +27,19 @@ namespace CustomerServices.Infrastructure
 
         public async Task<Organization> AddAsync(Organization customer)
         {
-            _customerContext.Customers.Add(customer);
+            _customerContext.Organizations.Add(customer);
             await SaveEntitiesAsync();
             return customer;
         }
 
         public async Task<IList<Organization>> GetCustomersAsync()
         {
-            return await _customerContext.Customers.ToListAsync();
+            return await _customerContext.Organizations.ToListAsync();
         }
 
         public async Task<Organization> GetCustomerAsync(Guid customerId)
         {
-            return await _customerContext.Customers
+            return await _customerContext.Organizations
                 .Include(p => p.SelectedProductModules)
                 .ThenInclude(p => p.ProductModuleGroup)
                 .Include(p => p.SelectedProductModuleGroups)
@@ -51,7 +51,7 @@ namespace CustomerServices.Infrastructure
 
         private async Task<Organization> GetCustomerReadOnlyAsync(Guid customerId)
         {
-            return await _customerContext.Customers
+            return await _customerContext.Organizations
                 .Include(p => p.SelectedProductModules)
                 .ThenInclude(p => p.ProductModuleGroup)
                 .Include(p => p.SelectedProductModuleGroups)

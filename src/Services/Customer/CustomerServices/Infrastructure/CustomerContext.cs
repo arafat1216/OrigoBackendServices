@@ -8,7 +8,7 @@ namespace CustomerServices.Infrastructure
 {
     public class CustomerContext : DbContext
     {
-        public DbSet<Organization> Customers { get; set; }
+        public DbSet<Organization> Organizations { get; set; }
 
         public DbSet<Department> Departments { get; set; }
 
@@ -29,6 +29,9 @@ namespace CustomerServices.Infrastructure
         public DbSet<Role> Roles { get; set; }
 
         public DbSet<UserPermissions> UserPermissions { get; set; }
+        public DbSet<OrganizationPreferences> OrganizationPreferences { get; set; }
+        public DbSet<Location> Locations { get; set; }
+
 
         public CustomerContext(DbContextOptions<CustomerContext> options) : base(options)
         {
