@@ -44,7 +44,7 @@ namespace Customer.API.Controllers
                 CompanyName = customer.CompanyName,
                 OrgNumber = customer.OrganizationNumber,
                 CompanyAddress = new Address(customer.CompanyAddress),
-                CustomerContactPerson = new ContactPerson(customer.CustomerContactPerson)
+                CustomerContactPerson = new ContactPerson(customer.OrganizationContactPerson)
             };
             return Ok(foundCustomer);
         }
@@ -62,7 +62,7 @@ namespace Customer.API.Controllers
                     CompanyName = customer.CompanyName,
                     OrgNumber = customer.OrganizationNumber,
                     CompanyAddress = new Address(customer.CompanyAddress),
-                    CustomerContactPerson = new ContactPerson(customer.CustomerContactPerson)
+                    CustomerContactPerson = new ContactPerson(customer.OrganizationContactPerson)
                 }));
 
             return Ok(customerList);
@@ -82,7 +82,7 @@ namespace Customer.API.Controllers
                 CompanyName = updatedCustomer.CompanyName,
                 OrgNumber = updatedCustomer.OrganizationNumber,
                 CompanyAddress = new Address(updatedCustomer.CompanyAddress),
-                CustomerContactPerson = new ContactPerson(updatedCustomer.CustomerContactPerson)
+                CustomerContactPerson = new ContactPerson(updatedCustomer.OrganizationContactPerson)
             };
 
             return CreatedAtAction(nameof(CreateCustomer), new { id = updatedCustomerView.Id }, updatedCustomerView);

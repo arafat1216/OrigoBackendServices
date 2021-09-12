@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using System.Linq;
+using System.ComponentModel.DataAnnotations.Schema;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -20,6 +21,11 @@ namespace CustomerServices.Models
         public Guid OrganizationId { get; protected set; }
         public Guid? ParentId { get; protected set; }
         public Guid? PrimaryLocation { get; protected set; }
+        public Guid CreatedBy { get; protected set; }
+        public Guid UpdatedBy { get; protected set; }
+        public DateTime CreatedAt { get; protected set; }
+        public DateTime UpdatedAt { get; protected set; }
+
 
         public string CompanyName { get; protected set; }
 
@@ -27,7 +33,16 @@ namespace CustomerServices.Models
 
         public Address CompanyAddress { get; protected set; }
 
-        public ContactPerson CustomerContactPerson { get; protected set; }
+        public ContactPerson OrganizationContactPerson { get; protected set; }
+
+        [NotMapped]
+        public ICollection<Organization> ChildOrganizations { get; set; }
+        [NotMapped]
+        public OrganizationPreferences OrganizationPreferences { get; set; }
+
+        [NotMapped]
+        public Location OrganizationLocation { get; set; }
+
 
         [JsonIgnore]
         public IList<User> Users
@@ -65,13 +80,33 @@ namespace CustomerServices.Models
 
         }
 
+        public Organization(Guid organizationId, Guid? parentId, string companyName, string orgNumber, Address companyAddress,
+            ContactPerson organizationContactPerson, OrganizationPreferences organizationPreferences, Location organizationLocation)
+        {
+            CompanyName = companyName;
+            ParentId = parentId;
+            OrganizationNumber = orgNumber;
+            CompanyAddress = companyAddress;
+            OrganizationContactPerson = organizationContactPerson;
+            OrganizationId = organizationId;
+            OrganizationPreferences = organizationPreferences;
+            OrganizationLocation = organizationLocation;
+            PrimaryLocation = organizationLocation.LocationId;
+            CreatedAt = DateTime.Now;
+            UpdatedAt = DateTime.Now;
+            CreatedBy = Guid.NewGuid();  // todo: set these to user modifying the entity next us.
+            UpdatedBy = Guid.NewGuid();
+            AddDomainEvent(new CustomerCreatedDomainEvent(this));
+        }
+
+
         public Organization(Guid customerId, string companyName, string orgNumber, Address companyAddress,
             ContactPerson customerContactPerson)
         {
             CompanyName = companyName;
             OrganizationNumber = orgNumber;
             CompanyAddress = companyAddress;
-            CustomerContactPerson = customerContactPerson;
+            OrganizationContactPerson = customerContactPerson;
             OrganizationId = customerId;
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
