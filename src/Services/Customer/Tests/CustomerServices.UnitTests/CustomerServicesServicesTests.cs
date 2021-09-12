@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using Common.Cryptography;
 using System.Text;
 using System;
+using System.Linq;
 
 namespace CustomerServices.UnitTests
 {
@@ -35,7 +36,7 @@ namespace CustomerServices.UnitTests
             var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository);
 
             // Act
-            var customer = await customerService.GetOrganizationAsync(CUSTOMER_ONE_ID);
+            var customer = await customerService.GetOrganizationAsync(CUSTOMER_ONE_ID, true, true);
 
             // Assert
             Assert.Equal("COMPANY ONE", customer.OrganizationName);
@@ -43,7 +44,62 @@ namespace CustomerServices.UnitTests
             Assert.Equal("1111", customer.OrganizationAddress.PostCode);
             Assert.Equal("My City", customer.OrganizationAddress.City);
             Assert.Equal("NO", customer.OrganizationAddress.Country);
-        } 
+
+            // - Location
+            Assert.Equal("COMPANY ONE", customer.OrganizationLocation.Name);
+            Assert.Equal("Location of COMPANY ONE", customer.OrganizationLocation.Description);
+            Assert.Equal("My Way 1A", customer.OrganizationLocation.Address1);
+            Assert.Equal("My Way 1B", customer.OrganizationLocation.Address2);
+            Assert.Equal("0585", customer.OrganizationLocation.PostalCode);
+            Assert.Equal("Oslo", customer.OrganizationLocation.City);
+            Assert.Equal("Norway", customer.OrganizationLocation.Country);
+
+            // - preferences
+            Assert.Equal("webPage 1", customer.OrganizationPreferences.WebPage);
+            Assert.Equal("logoUrl 1", customer.OrganizationPreferences.LogoUrl);
+            Assert.Equal("organizationNotes 1", customer.OrganizationPreferences.OrganizationNotes);
+            Assert.True(customer.OrganizationPreferences.EnforceTwoFactorAuth);
+            Assert.Equal("NO", customer.OrganizationPreferences.PrimaryLanguage);
+            Assert.Equal(0, customer.OrganizationPreferences.DefaultDepartmentClassification);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void GetAllOrganizations()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository);
+
+            // Act
+            var organizations = await customerService.GetOrganizationsAsync(false);
+
+            // Assert
+            Assert.Equal("COMPANY ONE", organizations[0].OrganizationName);
+            Assert.Equal("COMPANY TWO", organizations[1].OrganizationName);
+            Assert.Equal("COMPANY THREE", organizations[2].OrganizationName);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void GetAllOrganizationsHierarchical()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository);
+
+            // Act
+            var organizations = await customerService.GetOrganizationsAsync(true);
+            var childOrganizations = organizations[0].ChildOrganizations.ToList();
+
+            // Assert
+            Assert.Equal(2, organizations.Count);
+            Assert.Null(organizations[0].ParentId);
+            Assert.Null(organizations[1].ParentId);
+            Assert.Equal(childOrganizations[0].ParentId, organizations[0].OrganizationId);  // organization one is parent of organization 3
+        }
 
         [Fact]
         [Trait("Category", "UnitTest")]
