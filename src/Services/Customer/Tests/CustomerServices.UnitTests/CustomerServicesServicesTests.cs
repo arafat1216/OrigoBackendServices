@@ -32,7 +32,7 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), customerRepository);
+            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository);
 
             // Act
             var customer = await customerService.GetOrganizationAsync(CUSTOMER_ONE_ID);
@@ -52,7 +52,7 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), customerRepository);
+            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository);
 
             byte[] iv, key;
             string message = "Super secret data";

@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace CustomerServices
 {
-    public class CustomerServices : IOrganizationServices
+    public class OrganizationServices : IOrganizationServices
     {
-        private readonly ILogger<CustomerServices> _logger;
+        private readonly ILogger<OrganizationServices> _logger;
         private readonly IOrganizationRepository _customerRepository;
 
-        public CustomerServices(ILogger<CustomerServices> logger, IOrganizationRepository customerRepository)
+        public OrganizationServices(ILogger<OrganizationServices> logger, IOrganizationRepository customerRepository)
         {
             _logger = logger;
             _customerRepository = customerRepository;
