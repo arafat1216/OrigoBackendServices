@@ -27,11 +27,11 @@ namespace CustomerServices.Models
         public DateTime UpdatedAt { get; protected set; }
 
 
-        public string CompanyName { get; protected set; }
+        public string OrganizationName { get; protected set; }
 
         public string OrganizationNumber { get; protected set; }
 
-        public Address CompanyAddress { get; protected set; }
+        public Address OrganizationAddress { get; protected set; }
 
         public ContactPerson OrganizationContactPerson { get; protected set; }
 
@@ -83,10 +83,10 @@ namespace CustomerServices.Models
         public Organization(Guid organizationId, Guid? parentId, string companyName, string orgNumber, Address companyAddress,
             ContactPerson organizationContactPerson, OrganizationPreferences organizationPreferences, Location organizationLocation)
         {
-            CompanyName = companyName;
+            OrganizationName = companyName;
             ParentId = parentId;
             OrganizationNumber = orgNumber;
-            CompanyAddress = companyAddress;
+            OrganizationAddress = companyAddress;
             OrganizationContactPerson = organizationContactPerson;
             OrganizationId = organizationId;
             OrganizationPreferences = organizationPreferences;
@@ -103,9 +103,9 @@ namespace CustomerServices.Models
         public Organization(Guid customerId, string companyName, string orgNumber, Address companyAddress,
             ContactPerson customerContactPerson)
         {
-            CompanyName = companyName;
+            OrganizationName = companyName;
             OrganizationNumber = orgNumber;
-            CompanyAddress = companyAddress;
+            OrganizationAddress = companyAddress;
             OrganizationContactPerson = customerContactPerson;
             OrganizationId = customerId;
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
@@ -115,7 +115,7 @@ namespace CustomerServices.Models
         {
             ParentId = parentId;
             PrimaryLocation = primaryLocation;
-            CompanyName = companyName;
+            OrganizationName = companyName;
             OrganizationNumber = organizationNumber;
         }
 

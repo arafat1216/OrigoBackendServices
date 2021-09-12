@@ -38,11 +38,11 @@ namespace CustomerServices.UnitTests
             var customer = await customerService.GetOrganizationAsync(CUSTOMER_ONE_ID);
 
             // Assert
-            Assert.Equal("COMPANY ONE", customer.CompanyName);
-            Assert.Equal("My Way 1", customer.CompanyAddress.Street);
-            Assert.Equal("1111", customer.CompanyAddress.PostCode);
-            Assert.Equal("My City", customer.CompanyAddress.City);
-            Assert.Equal("NO", customer.CompanyAddress.Country);
+            Assert.Equal("COMPANY ONE", customer.OrganizationName);
+            Assert.Equal("My Way 1", customer.OrganizationAddress.Street);
+            Assert.Equal("1111", customer.OrganizationAddress.PostCode);
+            Assert.Equal("My City", customer.OrganizationAddress.City);
+            Assert.Equal("NO", customer.OrganizationAddress.Country);
         } 
 
         [Fact]

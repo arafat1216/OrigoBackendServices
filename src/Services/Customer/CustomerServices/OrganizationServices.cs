@@ -76,7 +76,7 @@ namespace CustomerServices
             {
                 var organization = await _customerRepository.GetOrganizationAsync(updateOrganization.OrganizationId);
                 organization.UpdateOrganization((Guid)organization.ParentId, (Guid)organization.PrimaryLocation,
-                                                organization.CompanyName, organization.OrganizationNumber);
+                                                organization.OrganizationName, organization.OrganizationNumber);
 
                 await _customerRepository.SaveEntitiesAsync();
 
