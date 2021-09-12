@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace CustomerServices
 {
-    public class CustomerServices : ICustomerServices
+    public class CustomerServices : IOrganizationServices
     {
         private readonly ILogger<CustomerServices> _logger;
         private readonly IOrganizationRepository _customerRepository;
@@ -21,10 +21,79 @@ namespace CustomerServices
             _customerRepository = customerRepository;
         }
 
-        public async Task<IList<Organization>> GetCustomersAsync()
+        /// <summary>
+        /// Returns all organizations. If hierarchical is true, return the organizations with no parent organization, these organizations will have their child organizations appended to them as a list.
+        /// </summary>
+        /// <param name="hierarchical"></param>
+        /// <returns></returns>
+        public async Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false)
+        {
+            if (!hierarchical)
+            {
+
+                var orgs = await _customerRepository.GetOrganizationsAsync();
+                foreach (Organization o in orgs)
+                {
+                    o.OrganizationPreferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
+                    o.OrganizationLocation = await _customerRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
+                }
+                return orgs;
+            }
+            else
+            {
+                Guid? p = null;
+                var organizations = await _customerRepository.GetOrganizationsAsync(p);
+                foreach (Organization o in organizations)
+                {
+                    o.ChildOrganizations = await _customerRepository.GetOrganizationsAsync(o.OrganizationId);
+                }
+                return organizations;
+            }
+        }
+
+        /// <summary>
+        /// Returns all Organization entities with the given ParentId. If the ParentId is null, return all Organizations that do not have parent entities.
+        /// </summary>
+        /// <param name="parentId">Guid value that points to the ExternalId of an Organization</param>
+        /// <returns>A list of Organizations</returns>
+        public async Task<IList<Organization>> GetOrganizationsByParentId(Guid? parentId)
+        {
+            return await _customerRepository.GetOrganizationsAsync(parentId);
+        }
+
+        /// <summary>
+        /// Get the location object with the given Id
+        /// </summary>
+        /// <param name="locationId"></param>
+        /// <returns>Null or Location</returns>
+        public async Task<Location> GetLocationAsync(Guid locationId)
+        {
+            return await _customerRepository.GetOrganizationLocationAsync(locationId);
+        }
+        public async Task<Organization> UpdateOrganizationAsync(Organization updateOrganization)
+        {
+            try
+            {
+                var organization = await _customerRepository.GetOrganizationAsync(updateOrganization.OrganizationId);
+                organization.UpdateOrganization((Guid)organization.ParentId, (Guid)organization.PrimaryLocation,
+                                                organization.OrganizationName, organization.OrganizationNumber);
+
+                await _customerRepository.SaveEntitiesAsync();
+
+                return organization;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("OrganizationServices - UpdateOrganizationAsync failed to update: " + ex.Message);
+                throw;
+            }
+        }
+
+        /*
+        public async Task<IList<Organization>> GetOrganizationsAsync()
         {
             return await _customerRepository.GetOrganizationsAsync();
-        }
+        }*/
 
 
         public async Task<Organization> AddCustomerAsync(string companyName, string orgNumber, string contactPersonFullName, string contactPersonEmail,
@@ -37,7 +106,7 @@ namespace CustomerServices
             return await _customerRepository.AddAsync(newCustomer);
         }
 
-        public async Task<Organization> GetCustomerAsync(Guid customerId)
+        public async Task<Organization> GetOrganizationAsync(Guid customerId)
         {
             return await _customerRepository.GetOrganizationAsync(customerId);
         }
@@ -60,7 +129,7 @@ namespace CustomerServices
 
         public async Task<AssetCategoryType> AddAssetCategoryType(Guid customerId, Guid addedAssetCategoryId, IList<int> lifecycleTypes)
         {
-            var customer = await GetCustomerAsync(customerId);
+            var customer = await GetOrganizationAsync(customerId);
             var assetCategory = await GetAssetCategoryType(customerId, addedAssetCategoryId);
             if (customer == null)
             {
@@ -92,7 +161,7 @@ namespace CustomerServices
 
         public async Task<AssetCategoryType> RemoveAssetCategoryType(Guid customerId, Guid deletedAssetCategoryId, IList<int> lifecycleTypes)
         {
-            var customer = await GetCustomerAsync(customerId);
+            var customer = await GetOrganizationAsync(customerId);
             var assetCategory = await GetAssetCategoryType(customerId, deletedAssetCategoryId);
             if (customer == null || assetCategory == null)
             {

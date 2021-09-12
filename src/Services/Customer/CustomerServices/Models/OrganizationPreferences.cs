@@ -36,5 +36,4 @@ namespace CustomerServices.Models
             UpdatedBy = Guid.NewGuid();
         }
     }
-
 }

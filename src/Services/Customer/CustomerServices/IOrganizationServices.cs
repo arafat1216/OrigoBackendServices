@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 
 namespace CustomerServices
 {
-    public interface ICustomerServices
+    public interface IOrganizationServices
     {
-        Task<IList<Organization>> GetCustomersAsync();
-        Task<Organization> GetCustomerAsync(Guid customerId);
-
+        Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical);
+        Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences, bool includeLocation);
+        Task<Location> GetLocationAsync(Guid locationId);
+        Task<OrganizationPreferences> RemoveOrganizationPreferencesAsync(Guid organizationId);
+        Task<Organization> UpdateOrganizationAsync(Organization updateOrganization);
         Task<IList<AssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypesForCustomerAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes);
         Task<AssetCategoryType> GetAssetCategoryType(Guid customerId, Guid assetCategoryId);
         Task<IList<AssetCategoryType>> GetAssetCategoryTypes(Guid customerId);
@@ -19,7 +21,8 @@ namespace CustomerServices
         Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId);
         Task<ProductModule> AddProductModulesAsync(Guid customerId, Guid moduleId, IList<Guid> productModuleGroupIds);
         Task<ProductModule> RemoveProductModulesAsync(Guid customerId, Guid moduleId, IList<Guid> productModuleGroupIds);
-
-        Task<Organization> AddCustomerAsync(string companyName, string orgNumber, string contactPersonFullName, string contactPersonEmail, string contactPersonPhoneNumber, string companyAddressStreet, string companyAddressPostCode, string companyAddressCity, string companyAddressCountry);
+        Task<Organization> AddOrganizationAsync(Organization newOrganization);
+        Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
+        Task<Location> AddOrganizationLocationAsync(Location location);
     }
 }

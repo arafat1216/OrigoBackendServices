@@ -35,7 +35,7 @@ namespace CustomerServices.UnitTests
             var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), customerRepository);
 
             // Act
-            var customer = await customerService.GetCustomerAsync(CUSTOMER_ONE_ID);
+            var customer = await customerService.GetOrganizationAsync(CUSTOMER_ONE_ID);
 
             // Assert
             Assert.Equal("COMPANY ONE", customer.CompanyName);

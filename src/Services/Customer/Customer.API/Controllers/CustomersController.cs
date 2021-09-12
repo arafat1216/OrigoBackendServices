@@ -21,10 +21,10 @@ namespace Customer.API.Controllers
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
     public class CustomersController : ControllerBase
     {
-        private readonly ICustomerServices _customerServices;
+        private readonly IOrganizationServices _customerServices;
         private readonly ILogger<CustomersController> _logger;
 
-        public CustomersController(ILogger<CustomersController> logger, ICustomerServices customerServices)
+        public CustomersController(ILogger<CustomersController> logger, IOrganizationServices customerServices)
         {
             _logger = logger;
             _customerServices = customerServices;
@@ -36,7 +36,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<ViewModels.Customer>> Get(Guid customerId)
         {
-            var customer = await _customerServices.GetCustomerAsync(customerId);
+            var customer = await _customerServices.GetOrganizationAsync(customerId);
             if (customer == null) return NotFound();
             var foundCustomer = new ViewModels.Customer
             {
@@ -53,7 +53,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<ViewModels.Customer>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<ViewModels.Customer>>> Get()
         {
-            var customers = await _customerServices.GetCustomersAsync();
+            var customers = await _customerServices.GetOrganizationsAsync();
             var customerList = new List<ViewModels.Customer>();
             if (customers != null)
                 customerList.AddRange(customers.Select(customer => new ViewModels.Customer
