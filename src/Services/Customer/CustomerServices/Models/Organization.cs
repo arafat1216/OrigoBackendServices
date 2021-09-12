@@ -18,10 +18,12 @@ namespace CustomerServices.Models
         private ICollection<ProductModuleGroup> selectedProductModuleGroups;
         private IList<User> users;
         public Guid OrganizationId { get; protected set; }
+        public Guid? ParentId { get; protected set; }
+        public Guid? PrimaryLocation { get; protected set; }
 
         public string CompanyName { get; protected set; }
 
-        public string OrgNumber { get; protected set; }
+        public string OrganizationNumber { get; protected set; }
 
         public Address CompanyAddress { get; protected set; }
 
@@ -67,7 +69,7 @@ namespace CustomerServices.Models
             ContactPerson customerContactPerson)
         {
             CompanyName = companyName;
-            OrgNumber = orgNumber;
+            OrganizationNumber = orgNumber;
             CompanyAddress = companyAddress;
             CustomerContactPerson = customerContactPerson;
             OrganizationId = customerId;

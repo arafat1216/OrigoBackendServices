@@ -42,7 +42,7 @@ namespace Customer.API.Controllers
             {
                 Id = customer.OrganizationId,
                 CompanyName = customer.CompanyName,
-                OrgNumber = customer.OrgNumber,
+                OrgNumber = customer.OrganizationNumber,
                 CompanyAddress = new Address(customer.CompanyAddress),
                 CustomerContactPerson = new ContactPerson(customer.CustomerContactPerson)
             };
@@ -60,7 +60,7 @@ namespace Customer.API.Controllers
                 {
                     Id = customer.OrganizationId,
                     CompanyName = customer.CompanyName,
-                    OrgNumber = customer.OrgNumber,
+                    OrgNumber = customer.OrganizationNumber,
                     CompanyAddress = new Address(customer.CompanyAddress),
                     CustomerContactPerson = new ContactPerson(customer.CustomerContactPerson)
                 }));
@@ -80,7 +80,7 @@ namespace Customer.API.Controllers
             {
                 Id = updatedCustomer.OrganizationId,
                 CompanyName = updatedCustomer.CompanyName,
-                OrgNumber = updatedCustomer.OrgNumber,
+                OrgNumber = updatedCustomer.OrganizationNumber,
                 CompanyAddress = new Address(updatedCustomer.CompanyAddress),
                 CustomerContactPerson = new ContactPerson(updatedCustomer.CustomerContactPerson)
             };
