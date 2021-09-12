@@ -13,9 +13,9 @@ namespace CustomerServices
     public class CustomerServices : ICustomerServices
     {
         private readonly ILogger<CustomerServices> _logger;
-        private readonly ICustomerRepository _customerRepository;
+        private readonly IOrganizationRepository _customerRepository;
 
-        public CustomerServices(ILogger<CustomerServices> logger, ICustomerRepository customerRepository)
+        public CustomerServices(ILogger<CustomerServices> logger, IOrganizationRepository customerRepository)
         {
             _logger = logger;
             _customerRepository = customerRepository;
@@ -23,7 +23,7 @@ namespace CustomerServices
 
         public async Task<IList<Organization>> GetCustomersAsync()
         {
-            return await _customerRepository.GetCustomersAsync();
+            return await _customerRepository.GetOrganizationsAsync();
         }
 
 
@@ -39,7 +39,7 @@ namespace CustomerServices
 
         public async Task<Organization> GetCustomerAsync(Guid customerId)
         {
-            return await _customerRepository.GetCustomerAsync(customerId);
+            return await _customerRepository.GetOrganizationAsync(customerId);
         }
 
         public async Task<IList<AssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypesForCustomerAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes)
@@ -160,7 +160,7 @@ namespace CustomerServices
         {
             try
             {
-                var customer = await _customerRepository.GetCustomerAsync(customerId);
+                var customer = await _customerRepository.GetOrganizationAsync(customerId);
 
                 if (customer == null)
                     return null;
@@ -188,7 +188,7 @@ namespace CustomerServices
         {
             try
             {
-                var customer = await _customerRepository.GetCustomerAsync(customerId);
+                var customer = await _customerRepository.GetOrganizationAsync(customerId);
                 if (customer == null)
                     return null;
 

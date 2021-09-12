@@ -11,8 +11,8 @@ namespace CustomerServices
     public class DepartmentsServices : IDepartmentsServices
     {
         private readonly ILogger<DepartmentsServices> _logger;
-        private readonly ICustomerRepository _customerRepository;
-        public DepartmentsServices(ILogger<DepartmentsServices> logger, ICustomerRepository customerRepository)
+        private readonly IOrganizationRepository _customerRepository;
+        public DepartmentsServices(ILogger<DepartmentsServices> logger, IOrganizationRepository customerRepository)
         {
             _logger = logger;
             _customerRepository = customerRepository;
@@ -30,7 +30,7 @@ namespace CustomerServices
 
         public async Task<Department> AddDepartmentAsync(Guid customerId, Guid newDepartmentId, Guid? parentDepartmentId, string name, string costCenterId, string description)
         {
-            var customer = await _customerRepository.GetCustomerAsync(customerId);
+            var customer = await _customerRepository.GetOrganizationAsync(customerId);
             if (customer == null)
             {
                 throw new CustomerNotFoundException();
@@ -50,7 +50,7 @@ namespace CustomerServices
 
         public async Task<Department> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description)
         {
-            var customer = await _customerRepository.GetCustomerAsync(customerId);
+            var customer = await _customerRepository.GetOrganizationAsync(customerId);
             if (customer == null)
             {
                 throw new CustomerNotFoundException();
@@ -84,7 +84,7 @@ namespace CustomerServices
 
         public async Task<Department> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description)
         {
-            var customer = await _customerRepository.GetCustomerAsync(customerId);
+            var customer = await _customerRepository.GetOrganizationAsync(customerId);
             if (customer == null)
             {
                 throw new CustomerNotFoundException();

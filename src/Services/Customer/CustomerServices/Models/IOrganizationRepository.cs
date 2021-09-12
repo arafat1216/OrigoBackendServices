@@ -5,16 +5,22 @@ using System.Threading.Tasks;
 
 namespace CustomerServices.Models
 {
-    public interface ICustomerRepository
+    public interface IOrganizationRepository
     {
         Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default);
         Task<Organization> AddAsync(Organization customer);
-        Task<IList<Organization>> GetCustomersAsync();
-        Task<Organization> GetCustomerAsync(Guid customerId);
+        Task<IList<Organization>> GetOrganizationsAsync();
+        Task<IList<Organization>> GetOrganizationsAsync(Guid? parentId);
+        Task<Organization> GetOrganizationAsync(Guid customerId);
 
         Task<IList<User>> GetAllUsersAsync(Guid customerId);
         Task<User> GetUserAsync(Guid customerId, Guid userId);
         Task<User> AddUserAsync(User newUser);
+
+        Task<Location> AddOrganizationLocationAsync(Location location);
+        Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
+        Task<OrganizationPreferences> DeleteOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
+
 
         Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes);
         Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId);

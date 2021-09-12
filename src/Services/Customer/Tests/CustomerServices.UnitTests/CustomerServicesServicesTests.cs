@@ -31,7 +31,7 @@ namespace CustomerServices.UnitTests
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
-            var customerRepository = new CustomerRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), customerRepository);
 
             // Act
@@ -51,7 +51,7 @@ namespace CustomerServices.UnitTests
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
-            var customerRepository = new CustomerRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), customerRepository);
 
             byte[] iv, key;

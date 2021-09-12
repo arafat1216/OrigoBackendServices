@@ -62,7 +62,7 @@ namespace Customer.API
             services.AddScoped<IUserPermissionServices, UserPermissionServices>();
             services.AddScoped<IModuleServices, ModuleServices>();
             services.AddScoped<IDepartmentsServices, DepartmentsServices>();
-            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<IOrganizationRepository, OrganizationRepository>();
             services.AddMediatR(typeof(Startup));
         }
 

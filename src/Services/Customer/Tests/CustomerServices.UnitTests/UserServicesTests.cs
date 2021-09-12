@@ -22,7 +22,7 @@ namespace CustomerServices.UnitTests
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
-            var customerRepository = new CustomerRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository);
 
             // Act

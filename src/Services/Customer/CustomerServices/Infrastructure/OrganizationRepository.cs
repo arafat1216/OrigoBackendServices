@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace CustomerServices.Infrastructure
 {
-    public class CustomerRepository : ICustomerRepository
+    public class OrganizationRepository : IOrganizationRepository
     {
         private readonly CustomerContext _customerContext;
         private readonly IFunctionalEventLogService _functionalEventLogService;
         private readonly IMediator _mediator;
 
-        public CustomerRepository(CustomerContext customerContext, IFunctionalEventLogService functionalEventLogService, IMediator mediator)
+        public OrganizationRepository(CustomerContext customerContext, IFunctionalEventLogService functionalEventLogService, IMediator mediator)
         {
             _customerContext = customerContext;
             _functionalEventLogService = functionalEventLogService;
@@ -32,12 +32,34 @@ namespace CustomerServices.Infrastructure
             return customer;
         }
 
-        public async Task<IList<Organization>> GetCustomersAsync()
+        public async Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences)
+        {
+            _customerContext.OrganizationPreferences.Add(organizationPreferences);
+            await SaveEntitiesAsync();
+            return organizationPreferences;
+        }
+
+        public async Task<Location> AddOrganizationLocationAsync(Location location)
+        {
+            _customerContext.Locations.Add(location);
+            await SaveEntitiesAsync();
+            return location;
+        }
+
+
+
+        public async Task<IList<Organization>> GetOrganizationsAsync()
         {
             return await _customerContext.Organizations.ToListAsync();
         }
 
-        public async Task<Organization> GetCustomerAsync(Guid customerId)
+        public async Task<IList<Organization>> GetOrganizationsAsync(Guid? parentId)
+        {
+            return await _customerContext.Organizations.Where(p => p.ParentId == parentId).ToListAsync();
+        }
+
+
+        public async Task<Organization> GetOrganizationAsync(Guid customerId)
         {
             return await _customerContext.Organizations
                 .Include(p => p.SelectedProductModules)
@@ -48,6 +70,34 @@ namespace CustomerServices.Infrastructure
                 .Include(p => p.Departments)
                 .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
         }
+
+        public async Task<OrganizationPreferences> GetOrganizationPreferencesAsync(Guid organizationId)
+        {
+            return await _customerContext.OrganizationPreferences
+                .FirstOrDefaultAsync(c => c.OrganizationId == organizationId);
+        }
+
+        public async Task<Location> GetOrganizationLocationAsync(Guid? locationId)
+        {
+            return await _customerContext.Locations
+                .FirstOrDefaultAsync(c => c.LocationId == locationId);
+        }
+
+        public async Task<OrganizationPreferences> DeleteOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences)
+        {
+            try
+            {
+                _customerContext.OrganizationPreferences.Remove(organizationPreferences);
+            }
+            catch
+            {
+                // item is already removed or did not exist
+            }
+
+            await SaveEntitiesAsync();
+            return organizationPreferences;
+        }
+
 
         private async Task<Organization> GetCustomerReadOnlyAsync(Guid customerId)
         {
@@ -105,7 +155,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId)
         {
-            var customer = await GetCustomerAsync(customerId);
+            var customer = await GetOrganizationAsync(customerId);
             return customer.SelectedAssetCategories.ToList();
         }
 
@@ -171,7 +221,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<ProductModule> AddProductModuleAsync(Guid customerId, Guid moduleId)
         {
-            var customer = await GetCustomerAsync(customerId);
+            var customer = await GetOrganizationAsync(customerId);
             var module = await GetProductModuleAsync(moduleId);
             if (customer == null || module == null)
             {
@@ -187,7 +237,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<ProductModule> RemoveProductModuleAsync(Guid customerId, Guid moduleId)
         {
-            var customer = await GetCustomerAsync(customerId);
+            var customer = await GetOrganizationAsync(customerId);
             var module = await GetProductModuleAsync(moduleId);
             if (customer == null || module == null)
             {
@@ -212,7 +262,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<ProductModuleGroup> AddProductModuleGroupAsync(Guid customerId, Guid moduleGroupId)
         {
-            var customer = await GetCustomerAsync(customerId);
+            var customer = await GetOrganizationAsync(customerId);
             var moduleGroup = await GetProductModuleGroupAsync(moduleGroupId);
             if (customer == null || moduleGroup == null)
             {
@@ -228,7 +278,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<ProductModuleGroup> RemoveProductModuleGroupAsync(Guid customerId, Guid moduleGroupId)
         {
-            var customer = await GetCustomerAsync(customerId);
+            var customer = await GetOrganizationAsync(customerId);
             var moduleGroup = await GetProductModuleGroupAsync(moduleGroupId);
             if (customer == null || moduleGroup == null)
             {
