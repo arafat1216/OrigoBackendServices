@@ -8,7 +8,7 @@ namespace CustomerServices.Infrastructure
 {
     public class CustomerContext : DbContext
     {
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Organization> Customers { get; set; }
 
         public DbSet<Department> Departments { get; set; }
 

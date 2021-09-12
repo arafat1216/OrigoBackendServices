@@ -11,13 +11,13 @@ using System.Linq;
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 namespace CustomerServices.Models
 {
-    public class Customer : Entity, IAggregateRoot
+    public class Organization : Entity, IAggregateRoot
     {
         private IList<AssetCategoryType> selectedAssetCategories;
         private ICollection<ProductModule> selectedProductModules;
         private ICollection<ProductModuleGroup> selectedProductModuleGroups;
         private IList<User> users;
-        public Guid CustomerId { get; protected set; }
+        public Guid OrganizationId { get; protected set; }
 
         public string CompanyName { get; protected set; }
 
@@ -58,19 +58,19 @@ namespace CustomerServices.Models
             protected set { selectedAssetCategories = value.ToList(); }
         }
 
-        protected Customer()
+        protected Organization()
         {
 
         }
 
-        public Customer(Guid customerId, string companyName, string orgNumber, Address companyAddress,
+        public Organization(Guid customerId, string companyName, string orgNumber, Address companyAddress,
             ContactPerson customerContactPerson)
         {
             CompanyName = companyName;
             OrgNumber = orgNumber;
             CompanyAddress = companyAddress;
             CustomerContactPerson = customerContactPerson;
-            CustomerId = customerId;
+            OrganizationId = customerId;
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
 
@@ -107,25 +107,25 @@ namespace CustomerServices.Models
 
         public void AddProductModule(ProductModule productModule)
         {
-            AddDomainEvent(new ProductModuleAddedDomainEvent(CustomerId, productModule));
+            AddDomainEvent(new ProductModuleAddedDomainEvent(OrganizationId, productModule));
             selectedProductModules.Add(productModule);
         }
 
         public void RemoveProductModule(ProductModule productModule)
         {
-            AddDomainEvent(new ProductModuleRemovedDomainEvent(CustomerId, productModule));
+            AddDomainEvent(new ProductModuleRemovedDomainEvent(OrganizationId, productModule));
             selectedProductModules.Remove(productModule);
         }
 
         public void AddProductModuleGroup(ProductModuleGroup productModuleGroup)
         {
-            AddDomainEvent(new ProductModuleGroupAddedDomainEvent(CustomerId, productModuleGroup));
+            AddDomainEvent(new ProductModuleGroupAddedDomainEvent(OrganizationId, productModuleGroup));
             selectedProductModuleGroups.Add(productModuleGroup);
         }
 
         public void RemoveProductModuleGroup(ProductModuleGroup productModuleGroup)
         {
-            AddDomainEvent(new ProductModuleGroupRemovedDomainEvent(CustomerId, productModuleGroup));
+            AddDomainEvent(new ProductModuleGroupRemovedDomainEvent(OrganizationId, productModuleGroup));
             selectedProductModuleGroups.Remove(productModuleGroup);
         }
 

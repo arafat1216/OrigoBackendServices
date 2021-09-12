@@ -21,28 +21,28 @@ namespace CustomerServices
             _customerRepository = customerRepository;
         }
 
-        public async Task<IList<Customer>> GetCustomersAsync()
+        public async Task<IList<Organization>> GetCustomersAsync()
         {
             return await _customerRepository.GetCustomersAsync();
         }
 
 
-        public async Task<Customer> AddCustomerAsync(string companyName, string orgNumber, string contactPersonFullName, string contactPersonEmail,
+        public async Task<Organization> AddCustomerAsync(string companyName, string orgNumber, string contactPersonFullName, string contactPersonEmail,
             string contactPersonPhoneNumber, string companyAddressStreet, string companyAddressPostCode,
             string companyAddressCity, string companyAddressCountry)
         {
             var companyAddress = new Address(companyAddressStreet, companyAddressPostCode, companyAddressCity, companyAddressCountry);
             var contactPerson = new ContactPerson(contactPersonFullName, contactPersonEmail, contactPersonPhoneNumber);
-            var newCustomer = new Customer(Guid.NewGuid(), companyName, orgNumber, companyAddress, contactPerson);
+            var newCustomer = new Organization(Guid.NewGuid(), companyName, orgNumber, companyAddress, contactPerson);
             return await _customerRepository.AddAsync(newCustomer);
         }
 
-        public async Task<Customer> GetCustomerAsync(Guid customerId)
+        public async Task<Organization> GetCustomerAsync(Guid customerId)
         {
             return await _customerRepository.GetCustomerAsync(customerId);
         }
 
-        public async Task<IList<AssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypesForCustomerAsync(Customer customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes)
+        public async Task<IList<AssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypesForCustomerAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes)
         {
             return await _customerRepository.DeleteAssetCategoryLifecycleTypeAsync(customer, assetCategory, assetCategoryLifecycleTypes);
         }
@@ -165,7 +165,7 @@ namespace CustomerServices
                 if (customer == null)
                     return null;
 
-                string salt = customer.CustomerId.ToString();
+                string salt = customer.OrganizationId.ToString();
 
 
                 var encryptedMessage = Encryption.EncryptData(message, salt, secretKey, iv);
@@ -192,7 +192,7 @@ namespace CustomerServices
                 if (customer == null)
                     return null;
 
-                string salt = customer.CustomerId.ToString();
+                string salt = customer.OrganizationId.ToString();
                 var decryptedMessage = Encryption.DecryptData(encryptedData, salt, secretKey, iv);
 
                 return decryptedMessage;

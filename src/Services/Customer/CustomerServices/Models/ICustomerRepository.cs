@@ -8,15 +8,15 @@ namespace CustomerServices.Models
     public interface ICustomerRepository
     {
         Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default);
-        Task<Customer> AddAsync(Customer customer);
-        Task<IList<Customer>> GetCustomersAsync();
-        Task<Customer> GetCustomerAsync(Guid customerId);
+        Task<Organization> AddAsync(Organization customer);
+        Task<IList<Organization>> GetCustomersAsync();
+        Task<Organization> GetCustomerAsync(Guid customerId);
 
         Task<IList<User>> GetAllUsersAsync(Guid customerId);
         Task<User> GetUserAsync(Guid customerId, Guid userId);
         Task<User> AddUserAsync(User newUser);
 
-        Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Customer customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes);
+        Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes);
         Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId);
         Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, Guid assetCategoryId);
         Task<AssetCategoryType> DeleteAssetCategoryTypeAsync(AssetCategoryType assetCategoryType);

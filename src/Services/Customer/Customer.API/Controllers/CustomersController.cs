@@ -40,7 +40,7 @@ namespace Customer.API.Controllers
             if (customer == null) return NotFound();
             var foundCustomer = new ViewModels.Customer
             {
-                Id = customer.CustomerId,
+                Id = customer.OrganizationId,
                 CompanyName = customer.CompanyName,
                 OrgNumber = customer.OrgNumber,
                 CompanyAddress = new Address(customer.CompanyAddress),
@@ -58,7 +58,7 @@ namespace Customer.API.Controllers
             if (customers != null)
                 customerList.AddRange(customers.Select(customer => new ViewModels.Customer
                 {
-                    Id = customer.CustomerId,
+                    Id = customer.OrganizationId,
                     CompanyName = customer.CompanyName,
                     OrgNumber = customer.OrgNumber,
                     CompanyAddress = new Address(customer.CompanyAddress),
@@ -78,7 +78,7 @@ namespace Customer.API.Controllers
                 customer.CompanyAddress?.PostCode, customer.CompanyAddress?.City, customer.CompanyAddress?.Country);
             var updatedCustomerView = new ViewModels.Customer
             {
-                Id = updatedCustomer.CustomerId,
+                Id = updatedCustomer.OrganizationId,
                 CompanyName = updatedCustomer.CompanyName,
                 OrgNumber = updatedCustomer.OrgNumber,
                 CompanyAddress = new Address(updatedCustomer.CompanyAddress),

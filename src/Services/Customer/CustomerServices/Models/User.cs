@@ -8,7 +8,7 @@ namespace CustomerServices.Models
 {
     public class User : Entity, IAggregateRoot
     {
-        public User(Customer customer, Guid userId, string firstName, string lastName, string email, string mobileNumber, string employeeId)
+        public User(Organization customer, Guid userId, string firstName, string lastName, string email, string mobileNumber, string employeeId)
         {
             Customer = customer;
             UserId = userId;
@@ -29,7 +29,7 @@ namespace CustomerServices.Models
         public string MobileNumber { get; protected set; }
         public string EmployeeId { get; protected set; }
         [JsonIgnore]
-        public Customer Customer { get; set; }
+        public Organization Customer { get; set; }
 
         public IReadOnlyCollection<Department> Users { get; set; }
     }

@@ -30,15 +30,15 @@ namespace CustomerServices.UnitTests
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
-            var customerOne = new Customer(CUSTOMER_ONE_ID, "COMPANY ONE", "999888777",
+            var customerOne = new Organization(CUSTOMER_ONE_ID, "COMPANY ONE", "999888777",
                 new Address("My Way 1", "1111", "My City", "NO"),
                 new ContactPerson("JOHN DOE", "john.doe@example.com", "99999999"));
 
-            var customerTwo = new Customer(CUSTOMER_TWO_ID, "COMPANY TWO", "999777666",
+            var customerTwo = new Organization(CUSTOMER_TWO_ID, "COMPANY TWO", "999777666",
                 new Address("My Way 2", "1111", "My City", "NO"),
                 new ContactPerson("Ola Nordmann", "ola.nordmann@example.com", "99999998"));
 
-            var customerThree = new Customer(CUSTOMER_THREE_ID, "COMPANY THREE", "999666555",
+            var customerThree = new Organization(CUSTOMER_THREE_ID, "COMPANY THREE", "999666555",
                 new Address("My Way 3", "1111", "My Other City", "NO"),
                 new ContactPerson("Kari Nordmann", "kari.nordmann@example.com", "99999997"));
 
