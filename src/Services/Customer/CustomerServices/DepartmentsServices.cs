@@ -125,7 +125,7 @@ namespace CustomerServices
 
         public async Task<Department> DeleteDepartmentAsync(Guid customerId, Guid departmentId)
         {
-            var customer = await _customerRepository.GetCustomerAsync(customerId);
+            var customer = await _customerRepository.GetOrganizationAsync(customerId);
             if (customer == null)
             {
                 throw new CustomerNotFoundException();
