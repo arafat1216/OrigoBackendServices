@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CustomerServices.Migrations
 {
     [DbContext(typeof(CustomerContext))]
-    [Migration("20210912213916_PreferencesAndLocationEntity")]
-    partial class PreferencesAndLocationEntity
+    [Migration("20210913101004_AddLocationAndPreferencesEntity")]
+    partial class AddLocationAndPreferencesEntity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -298,28 +298,28 @@ namespace CustomerServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2021, 9, 12, 21, 39, 15, 795, DateTimeKind.Utc).AddTicks(5524),
+                            CreatedDate = new DateTime(2021, 9, 13, 10, 10, 3, 948, DateTimeKind.Utc).AddTicks(5989),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanCreateCustomer"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedDate = new DateTime(2021, 9, 12, 21, 39, 15, 795, DateTimeKind.Utc).AddTicks(6425),
+                            CreatedDate = new DateTime(2021, 9, 13, 10, 10, 3, 948, DateTimeKind.Utc).AddTicks(7498),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanReadCustomer"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedDate = new DateTime(2021, 9, 12, 21, 39, 15, 795, DateTimeKind.Utc).AddTicks(6429),
+                            CreatedDate = new DateTime(2021, 9, 13, 10, 10, 3, 948, DateTimeKind.Utc).AddTicks(7504),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanUpdateCustomer"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedDate = new DateTime(2021, 9, 12, 21, 39, 15, 795, DateTimeKind.Utc).AddTicks(6431),
+                            CreatedDate = new DateTime(2021, 9, 13, 10, 10, 3, 948, DateTimeKind.Utc).AddTicks(7506),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanDeleteCustomer"
                         });
@@ -349,7 +349,7 @@ namespace CustomerServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2021, 9, 12, 21, 39, 15, 796, DateTimeKind.Utc).AddTicks(6708),
+                            CreatedDate = new DateTime(2021, 9, 13, 10, 10, 3, 950, DateTimeKind.Utc).AddTicks(3362),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "FullCustomerAccess"
                         });
@@ -435,42 +435,42 @@ namespace CustomerServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2021, 9, 12, 21, 39, 15, 796, DateTimeKind.Utc).AddTicks(7985),
+                            CreatedDate = new DateTime(2021, 9, 13, 10, 10, 3, 950, DateTimeKind.Utc).AddTicks(5299),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "EndUser"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedDate = new DateTime(2021, 9, 12, 21, 39, 15, 796, DateTimeKind.Utc).AddTicks(8480),
+                            CreatedDate = new DateTime(2021, 9, 13, 10, 10, 3, 950, DateTimeKind.Utc).AddTicks(5961),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "DepartmentManager"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedDate = new DateTime(2021, 9, 12, 21, 39, 15, 796, DateTimeKind.Utc).AddTicks(8483),
+                            CreatedDate = new DateTime(2021, 9, 13, 10, 10, 3, 950, DateTimeKind.Utc).AddTicks(5966),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CustomerAdmin"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedDate = new DateTime(2021, 9, 12, 21, 39, 15, 796, DateTimeKind.Utc).AddTicks(8484),
+                            CreatedDate = new DateTime(2021, 9, 13, 10, 10, 3, 950, DateTimeKind.Utc).AddTicks(5967),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "GroupAdmin"
                         },
                         new
                         {
                             Id = 5,
-                            CreatedDate = new DateTime(2021, 9, 12, 21, 39, 15, 796, DateTimeKind.Utc).AddTicks(8485),
+                            CreatedDate = new DateTime(2021, 9, 13, 10, 10, 3, 950, DateTimeKind.Utc).AddTicks(5969),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "PartnerAdmin"
                         },
                         new
                         {
                             Id = 6,
-                            CreatedDate = new DateTime(2021, 9, 12, 21, 39, 15, 796, DateTimeKind.Utc).AddTicks(8487),
+                            CreatedDate = new DateTime(2021, 9, 13, 10, 10, 3, 950, DateTimeKind.Utc).AddTicks(5971),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "SystemAdmin"
                         });
@@ -552,15 +552,15 @@ namespace CustomerServices.Migrations
 
             modelBuilder.Entity("DepartmentUser", b =>
                 {
+                    b.Property<int>("DepartmentsId")
+                        .HasColumnType("int");
+
                     b.Property<int>("UsersId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UsersId1")
-                        .HasColumnType("int");
+                    b.HasKey("DepartmentsId", "UsersId");
 
-                    b.HasKey("UsersId", "UsersId1");
-
-                    b.HasIndex("UsersId1");
+                    b.HasIndex("UsersId");
 
                     b.ToTable("DepartmentUser");
                 });
@@ -747,13 +747,13 @@ namespace CustomerServices.Migrations
                 {
                     b.HasOne("CustomerServices.Models.Department", null)
                         .WithMany()
-                        .HasForeignKey("UsersId")
+                        .HasForeignKey("DepartmentsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CustomerServices.Models.User", null)
                         .WithMany()
-                        .HasForeignKey("UsersId1")
+                        .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
