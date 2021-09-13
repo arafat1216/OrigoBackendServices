@@ -4,14 +4,16 @@ using CustomerServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CustomerServices.Migrations
 {
     [DbContext(typeof(CustomerContext))]
-    partial class CustomerContextModelSnapshot : ModelSnapshot
+    [Migration("20210910132809_Update")]
+    partial class Update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,6 +154,15 @@ namespace CustomerServices.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ExternalDepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("LastUpdatedDate")
                         .HasColumnType("datetime2");
 
@@ -163,9 +174,11 @@ namespace CustomerServices.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomerId");
+
                     b.HasIndex("ParentDepartmentId");
 
-                    b.ToTable("Department");
+                    b.ToTable("Departments");
                 });
 
             modelBuilder.Entity("CustomerServices.Models.Permission", b =>
@@ -192,28 +205,28 @@ namespace CustomerServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2021, 9, 6, 6, 59, 22, 711, DateTimeKind.Utc).AddTicks(528),
+                            CreatedDate = new DateTime(2021, 9, 10, 13, 28, 8, 240, DateTimeKind.Utc).AddTicks(9937),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanCreateCustomer"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 582, DateTimeKind.Utc).AddTicks(3864),
+                            CreatedDate = new DateTime(2021, 9, 10, 13, 28, 8, 241, DateTimeKind.Utc).AddTicks(1487),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanReadCustomer"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 582, DateTimeKind.Utc).AddTicks(3867),
+                            CreatedDate = new DateTime(2021, 9, 10, 13, 28, 8, 241, DateTimeKind.Utc).AddTicks(1496),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanUpdateCustomer"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 582, DateTimeKind.Utc).AddTicks(3868),
+                            CreatedDate = new DateTime(2021, 9, 10, 13, 28, 8, 241, DateTimeKind.Utc).AddTicks(1498),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanDeleteCustomer"
                         });
@@ -243,7 +256,7 @@ namespace CustomerServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(366),
+                            CreatedDate = new DateTime(2021, 9, 10, 13, 28, 8, 243, DateTimeKind.Utc).AddTicks(2910),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "FullCustomerAccess"
                         });
@@ -329,42 +342,42 @@ namespace CustomerServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1173),
+                            CreatedDate = new DateTime(2021, 9, 10, 13, 28, 8, 243, DateTimeKind.Utc).AddTicks(5908),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "EndUser"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1386),
+                            CreatedDate = new DateTime(2021, 9, 10, 13, 28, 8, 243, DateTimeKind.Utc).AddTicks(6975),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "DepartmentManager"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1388),
+                            CreatedDate = new DateTime(2021, 9, 10, 13, 28, 8, 243, DateTimeKind.Utc).AddTicks(6982),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CustomerAdmin"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1388),
+                            CreatedDate = new DateTime(2021, 9, 10, 13, 28, 8, 243, DateTimeKind.Utc).AddTicks(6984),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "GroupAdmin"
                         },
                         new
                         {
                             Id = 5,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1389),
+                            CreatedDate = new DateTime(2021, 9, 10, 13, 28, 8, 243, DateTimeKind.Utc).AddTicks(6986),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "PartnerAdmin"
                         },
                         new
                         {
                             Id = 6,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1390),
+                            CreatedDate = new DateTime(2021, 9, 10, 13, 28, 8, 243, DateTimeKind.Utc).AddTicks(6988),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "SystemAdmin"
                         });
@@ -593,9 +606,15 @@ namespace CustomerServices.Migrations
 
             modelBuilder.Entity("CustomerServices.Models.Department", b =>
                 {
+                    b.HasOne("CustomerServices.Models.Customer", "Customer")
+                        .WithMany("Departments")
+                        .HasForeignKey("CustomerId");
+
                     b.HasOne("CustomerServices.Models.Department", "ParentDepartment")
                         .WithMany()
                         .HasForeignKey("ParentDepartmentId");
+
+                    b.Navigation("Customer");
 
                     b.Navigation("ParentDepartment");
                 });
@@ -633,13 +652,13 @@ namespace CustomerServices.Migrations
 
             modelBuilder.Entity("DepartmentUser", b =>
                 {
-                    b.HasOne("CustomerServices.Models.User", null)
+                    b.HasOne("CustomerServices.Models.Department", null)
                         .WithMany()
                         .HasForeignKey("DepartmentsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CustomerServices.Models.Department", null)
+                    b.HasOne("CustomerServices.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -683,6 +702,8 @@ namespace CustomerServices.Migrations
 
             modelBuilder.Entity("CustomerServices.Models.Customer", b =>
                 {
+                    b.Navigation("Departments");
+
                     b.Navigation("SelectedAssetCategories");
 
                     b.Navigation("Users");

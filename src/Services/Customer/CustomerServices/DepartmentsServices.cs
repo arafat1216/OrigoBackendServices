@@ -73,7 +73,7 @@ namespace CustomerServices
 
             if (parentDepartmentId != null && // can't make this a root department
                 departmentToUpdate.ParentDepartment != null && // can't move the root department
-                !IsSubdepartment(departmentToUpdate, parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
+               !departmentToUpdate.HasSubdepartment(parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
             {
                 customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment);
             }
@@ -115,7 +115,7 @@ namespace CustomerServices
             if (parentDepartmentId != null && // can't make this a root department
                 departmentToUpdate.ParentDepartment != null && // can't move the root department
                 parentDepartmentId != departmentToUpdate.ParentDepartment?.ExternalDepartmentId && // won't move this department if it already is a subdepartment of the target department
-                !IsSubdepartment(departmentToUpdate, parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
+                !departmentToUpdate.HasSubdepartment(parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
             {
                 customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment);
             }
@@ -123,17 +123,24 @@ namespace CustomerServices
             return departmentToUpdate;
         }
 
-        private bool IsSubdepartment(Department departmentToBeMoved, Department newParentDepartment)
+        public async Task<Department> DeleteDepartmentAsync(Guid customerId, Guid departmentId)
         {
-            var tempDepartment = newParentDepartment;
-            do
+            var customer = await _customerRepository.GetCustomerAsync(customerId);
+            if (customer == null)
             {
-                if (departmentToBeMoved.ExternalDepartmentId == tempDepartment.ExternalDepartmentId)
-                    return true;
-                if (tempDepartment.ParentDepartment != null)
-                    tempDepartment = tempDepartment.ParentDepartment;
-                else return false;
-            } while (true);
+                throw new CustomerNotFoundException();
+            }
+            var departments = await _customerRepository.GetDepartmentsAsync(customerId);
+            var department = departments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
+            if (department == null)
+                return null;
+            var departmentsToDelete = department.Subdepartments(departments);
+            foreach (var deleteDepartment in departmentsToDelete)
+            {
+                customer.RemoveDepartment(deleteDepartment);
+            }
+            await _customerRepository.DeleteDepartmentsAsync(departmentsToDelete);
+            return department;
         }
     }
 }

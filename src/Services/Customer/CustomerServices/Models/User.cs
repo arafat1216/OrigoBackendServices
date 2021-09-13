@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
 using Common.Seedwork;
 using CustomerServices.DomainEvents;
@@ -8,6 +9,8 @@ namespace CustomerServices.Models
 {
     public class User : Entity, IAggregateRoot
     {
+        protected IList<Department> departments;
+
         public User(Customer customer, Guid userId, string firstName, string lastName, string email, string mobileNumber, string employeeId)
         {
             Customer = customer;
@@ -20,7 +23,7 @@ namespace CustomerServices.Models
             AddDomainEvent(new UserCreatedDomainEvent(this));
         }
 
-        protected User(){}
+        protected User() { }
 
         public Guid UserId { get; set; }
         public string FirstName { get; protected set; }
@@ -30,7 +33,18 @@ namespace CustomerServices.Models
         public string EmployeeId { get; protected set; }
         [JsonIgnore]
         public Customer Customer { get; set; }
+        public IReadOnlyCollection<Department> Departments { get { return new ReadOnlyCollection<Department>(departments); } protected set { departments = new List<Department>(value); } }
 
-        public IReadOnlyCollection<Department> Users { get; set; }
+        public void AssignDepartment(Department department)
+        {
+            AddDomainEvent(new UserAssignedToDepartmentDomainEvent(this, department.ExternalDepartmentId));
+            departments.Add(department);
+        }
+
+        public void UnassignDepartment(Department department)
+        {
+            AddDomainEvent(new UserUnassignedFromDepartmentDomainEvent(this, department.ExternalDepartmentId));
+            departments.Remove(department);
+        }
     }
 }

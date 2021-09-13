@@ -1,7 +1,7 @@
-﻿using System;
+﻿using OrigoApiGateway.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using OrigoApiGateway.Models;
 
 namespace OrigoApiGateway.Services
 {
@@ -10,6 +10,7 @@ namespace OrigoApiGateway.Services
         Task<OrigoUser> GetUserAsync(Guid customerId, Guid userId);
         Task<IEnumerable<OrigoUser>> GetAllUsersAsync(Guid customerId);
         Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser);
-
+        Task<OrigoUser> AssignUserToDepartment(Guid customerId, Guid userId, Guid departmentId);
+        Task<OrigoUser> UnassignUserFromDepartment(Guid customerId, Guid userId, Guid departmentId);
     }
 }
