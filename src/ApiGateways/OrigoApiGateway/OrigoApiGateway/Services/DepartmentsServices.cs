@@ -129,5 +129,23 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<OrigoDepartment> DeleteDepartmentPatchAsync(Guid customerId, Guid departmentId)
+        {
+            try
+            {
+                var response = await HttpClient.DeleteAsync($"{_options.ApiPath}/{customerId}/departments/{departmentId}");
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to save department", (int)response.StatusCode);
+
+                var user = await response.Content.ReadFromJsonAsync<DepartmentDTO>();
+                return user == null ? null : new OrigoDepartment(user);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "DeleteDepartmentPatchAsync unknown error.");
+                throw;
+            }
+        }
     }
 }

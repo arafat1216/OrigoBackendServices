@@ -83,5 +83,16 @@ namespace Customer.API.Controllers
 
             return Ok(departmentView);
         }
+
+        [Route("{departmentId:Guid}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<Department>> DeleteDepartment(Guid customerId, Guid departmentId)
+        {
+            var updatedDepartment = await _departmentServices.DeleteDepartmentAsync(customerId, departmentId);
+            var departmentView = new Department(updatedDepartment);
+
+            return Ok(departmentView);
+        }
     }
 }
