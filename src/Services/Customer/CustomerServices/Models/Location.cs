@@ -24,6 +24,12 @@ namespace CustomerServices.Models
         public DateTime CreatedAt{ get; protected set; }
         public DateTime UpdatedAt { get; protected set; }
 
+        /// <summary>
+        /// Added to prevent Entity framework No suitable constructor found exception.
+        /// </summary>
+        protected Location()
+        { }
+
         public Location(Guid callerId, string name, string description, string address1, string address2, string postalCode, string city, string country)
         {
             LocationId = Guid.NewGuid();

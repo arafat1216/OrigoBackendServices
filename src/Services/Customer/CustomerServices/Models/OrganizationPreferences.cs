@@ -22,6 +22,12 @@ namespace CustomerServices.Models
         public DateTime CreatedAt { get; protected set; }
         public DateTime UpdatedAt { get; protected set; }
 
+        /// <summary>
+        /// Added to prevent entity framework No suitable constructor found exception.
+        /// </summary>
+        protected OrganizationPreferences()
+        { }
+
         public OrganizationPreferences(Guid organizationId, Guid callerId, string webPage, string logoUrl, string organizationNotes, bool enforceTwoFactorAuth, string primaryLanguage, short defaultDepartmentClassification)
         {
             OrganizationId = organizationId;
