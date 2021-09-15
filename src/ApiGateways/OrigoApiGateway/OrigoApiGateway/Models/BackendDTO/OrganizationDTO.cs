@@ -5,7 +5,7 @@ namespace OrigoApiGateway.Models.BackendDTO
     /// <summary>
     /// Customer object received from the customer backend services.
     /// </summary>
-    public class CustomerDTO
+    public class OrganizationDTO
     {
         public Guid Id { get; set; }
 
