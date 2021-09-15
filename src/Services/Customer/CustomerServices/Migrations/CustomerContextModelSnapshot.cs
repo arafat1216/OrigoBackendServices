@@ -302,28 +302,28 @@ namespace CustomerServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2021, 9, 15, 10, 33, 33, 383, DateTimeKind.Utc).AddTicks(2311),
+                            CreatedDate = new DateTime(2021, 9, 15, 10, 39, 12, 831, DateTimeKind.Utc).AddTicks(7164),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanCreateCustomer"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedDate = new DateTime(2021, 9, 15, 10, 33, 33, 383, DateTimeKind.Utc).AddTicks(3678),
+                            CreatedDate = new DateTime(2021, 9, 15, 10, 39, 12, 831, DateTimeKind.Utc).AddTicks(8488),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanReadCustomer"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedDate = new DateTime(2021, 9, 15, 10, 33, 33, 383, DateTimeKind.Utc).AddTicks(3683),
+                            CreatedDate = new DateTime(2021, 9, 15, 10, 39, 12, 831, DateTimeKind.Utc).AddTicks(8497),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanUpdateCustomer"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedDate = new DateTime(2021, 9, 15, 10, 33, 33, 383, DateTimeKind.Utc).AddTicks(3685),
+                            CreatedDate = new DateTime(2021, 9, 15, 10, 39, 12, 831, DateTimeKind.Utc).AddTicks(8499),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanDeleteCustomer"
                         });
@@ -353,7 +353,7 @@ namespace CustomerServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2021, 9, 15, 10, 33, 33, 385, DateTimeKind.Utc).AddTicks(606),
+                            CreatedDate = new DateTime(2021, 9, 15, 10, 39, 12, 833, DateTimeKind.Utc).AddTicks(973),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "FullCustomerAccess"
                         });
@@ -439,42 +439,42 @@ namespace CustomerServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2021, 9, 15, 10, 33, 33, 385, DateTimeKind.Utc).AddTicks(2666),
+                            CreatedDate = new DateTime(2021, 9, 15, 10, 39, 12, 833, DateTimeKind.Utc).AddTicks(2359),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "EndUser"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedDate = new DateTime(2021, 9, 15, 10, 33, 33, 385, DateTimeKind.Utc).AddTicks(3464),
+                            CreatedDate = new DateTime(2021, 9, 15, 10, 39, 12, 833, DateTimeKind.Utc).AddTicks(2808),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "DepartmentManager"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedDate = new DateTime(2021, 9, 15, 10, 33, 33, 385, DateTimeKind.Utc).AddTicks(3470),
+                            CreatedDate = new DateTime(2021, 9, 15, 10, 39, 12, 833, DateTimeKind.Utc).AddTicks(2811),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CustomerAdmin"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedDate = new DateTime(2021, 9, 15, 10, 33, 33, 385, DateTimeKind.Utc).AddTicks(3472),
+                            CreatedDate = new DateTime(2021, 9, 15, 10, 39, 12, 833, DateTimeKind.Utc).AddTicks(2813),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "GroupAdmin"
                         },
                         new
                         {
                             Id = 5,
-                            CreatedDate = new DateTime(2021, 9, 15, 10, 33, 33, 385, DateTimeKind.Utc).AddTicks(3474),
+                            CreatedDate = new DateTime(2021, 9, 15, 10, 39, 12, 833, DateTimeKind.Utc).AddTicks(2814),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "PartnerAdmin"
                         },
                         new
                         {
                             Id = 6,
-                            CreatedDate = new DateTime(2021, 9, 15, 10, 33, 33, 385, DateTimeKind.Utc).AddTicks(3476),
+                            CreatedDate = new DateTime(2021, 9, 15, 10, 39, 12, 833, DateTimeKind.Utc).AddTicks(2815),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "SystemAdmin"
                         });
