@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using CustomerServices.Exceptions;
+﻿using CustomerServices.Exceptions;
 using CustomerServices.Models;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CustomerServices
 {
@@ -99,6 +99,28 @@ namespace CustomerServices
                 throw new UserDeletedException();
 
             user.SetDeleteStatus(true);
+            await _customerRepository.SaveEntitiesAsync();
+            return user;
+        }
+
+        public async Task<User> AssignDepartment(Guid customerId, Guid userId, Guid departmentId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
+            if (user == null || department == null)
+                return null;
+            user.AssignDepartment(department);
+            await _customerRepository.SaveEntitiesAsync();
+            return user;
+        }
+
+        public async Task<User> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
+            if (user == null || department == null)
+                return null;
+            user.UnassignDepartment(department);
             await _customerRepository.SaveEntitiesAsync();
             return user;
         }

@@ -7,20 +7,25 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using OrigoApiGateway.Authorization;
+using System.Linq;
+using System.Security.Claims;
+
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
 namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    //[Authorize]
+    //[Authorize(AuthenticationSchemes = OktaDefaults.ApiAuthenticationScheme)]
     [Route("origoapi/v{version:apiVersion}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
     public class CustomersController : ControllerBase
     {
         private ILogger<CustomersController> Logger { get; }
-        public ICustomerServices CustomerServices { get; }
+        private ICustomerServices CustomerServices { get; }
 
         public CustomersController(ILogger<CustomersController> logger, ICustomerServices customerServices)
         {
@@ -32,6 +37,9 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoCustomer>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        //[PermissionAuthorize(Permission.CanReadCustomer)]
+        //[Authorize(Roles = "GroupAdmin,PartnerAdmin")]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<IList<OrigoCustomer>>> Get()
         {
             try
@@ -49,10 +57,21 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(OrigoCustomer), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<IList<OrigoCustomer>>> Get(Guid customerId)
         {
             try
             {
+                //var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                //if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString())
+                //{
+                //    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                //    if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+                //    {
+                //        return Forbid();
+                //    }
+                //}
+
                 var customer = await CustomerServices.GetCustomerAsync(customerId);
                 return customer != null ? Ok(customer) : NotFound();
             }

@@ -1,11 +1,9 @@
 ﻿using Common.Interfaces;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AssetServices.Models
 {

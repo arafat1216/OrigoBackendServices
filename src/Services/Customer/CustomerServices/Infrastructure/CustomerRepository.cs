@@ -45,6 +45,7 @@ namespace CustomerServices.Infrastructure
                 .Include(p => p.SelectedProductModuleGroups)
                 .Include(p => p.SelectedAssetCategories)
                 .ThenInclude(p => p.LifecycleTypes)
+                .Include(p => p.Departments)
                 .FirstOrDefaultAsync(c => c.CustomerId == customerId);
         }
 
@@ -56,6 +57,7 @@ namespace CustomerServices.Infrastructure
                 .Include(p => p.SelectedProductModuleGroups)
                 .Include(p => p.SelectedAssetCategories)
                 .ThenInclude(p => p.LifecycleTypes)
+                .Include(p => p.Departments)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.CustomerId == customerId);
         }
@@ -68,7 +70,11 @@ namespace CustomerServices.Infrastructure
 
         public async Task<User> GetUserAsync(Guid customerId, Guid userId)
         {
-            return await _customerContext.Users.Include(u => u.Customer).Where(u => u.Customer.CustomerId == customerId && u.UserId == userId).FirstOrDefaultAsync();
+            return await _customerContext.Users
+                .Include(u => u.Customer)
+                .Include(u=> u.Departments)
+                .Where(u => u.Customer.CustomerId == customerId && u.UserId == userId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<User> GetUserAsync(Guid userId)
@@ -254,6 +260,30 @@ namespace CustomerServices.Infrastructure
             }
             await SaveEntitiesAsync();
             return moduleGroup;
+        }
+
+        public async Task<IList<Department>> GetDepartmentsAsync(Guid customerId)
+        {
+            return await _customerContext.Departments.Where(p => p.Customer.CustomerId == customerId).ToListAsync();
+        }
+
+        public async Task<Department> GetDepartmentAsync(Guid customerId, Guid departmentId)
+        {
+            return await _customerContext.Departments.Include(d => d.ParentDepartment).FirstOrDefaultAsync(p => p.Customer.CustomerId == customerId && p.ExternalDepartmentId == departmentId);
+        }
+
+        public async Task<IList<Department>> DeleteDepartmentsAsync(IList<Department> department)
+        {
+            try
+            {
+                _customerContext.Departments.RemoveRange(department);
+            }
+            catch
+            {
+                // item is already removed or did not exsit
+            }
+            await SaveEntitiesAsync();
+            return department;
         }
     }
 }

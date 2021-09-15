@@ -3,7 +3,6 @@ using Common.Seedwork;
 using MediatR;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Logging;
 using Microsoft.EntityFrameworkCore;
 
 namespace Common.Extensions

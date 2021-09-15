@@ -169,5 +169,26 @@ namespace Customer.API.Controllers
                 return BadRequest("Unable to delete user");
             }
         }
+        [Route("{userId:Guid}/department/{departmentId:Guid}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<User>> AssingDepartment(Guid customerId, Guid userId, Guid departmentId)
+        {
+            var user = await _userServices.AssignDepartment(customerId, userId, departmentId);
+            if (user == null) return NotFound();
+            return Ok(new User(user));
+        }
+
+        [Route("{userId:Guid}/department/{departmentId:Guid}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<User>> RemoveAssignedDepartment(Guid customerId, Guid userId, Guid departmentId)
+        {
+            var user = await _userServices.UnassignDepartment(customerId, userId, departmentId);
+            if (user == null) return NotFound();
+            return Ok(new User(user));
+        }
     }
 }

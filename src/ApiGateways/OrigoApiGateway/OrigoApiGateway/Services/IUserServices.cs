@@ -12,5 +12,7 @@ namespace OrigoApiGateway.Services
         Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser);
         Task<OrigoUser> UpdateUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser);
         Task<OrigoUser> DeleteUserAsync(Guid customerId, Guid userId);
+        Task<OrigoUser> AssignUserToDepartment(Guid customerId, Guid userId, Guid departmentId);
+        Task<OrigoUser> UnassignUserFromDepartment(Guid customerId, Guid userId, Guid departmentId);
     }
 }

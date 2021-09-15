@@ -1,16 +1,16 @@
-﻿using System;
+﻿using Common.Enums;
+using Common.Exceptions;
+using Customer.API.ViewModels;
+using CustomerServices;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using Common.Enums;
-using Common.Exceptions;
-using Customer.API.ViewModels;
-using CustomerServices;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Customer.API.Controllers
 {

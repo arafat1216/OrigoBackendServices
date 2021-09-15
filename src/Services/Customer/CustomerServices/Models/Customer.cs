@@ -35,6 +35,9 @@ namespace CustomerServices.Models
         }
 
         [JsonIgnore]
+        public ICollection<Department> Departments { get; protected set; }
+
+        [JsonIgnore]
         public ICollection<ProductModule> SelectedProductModules
         {
             get { return selectedProductModules?.ToImmutableList(); }
@@ -124,6 +127,46 @@ namespace CustomerServices.Models
         {
             AddDomainEvent(new ProductModuleGroupRemovedDomainEvent(CustomerId, productModuleGroup));
             selectedProductModuleGroups.Remove(productModuleGroup);
+        }
+
+        public void AddDepartment(Department department)
+        {
+            AddDomainEvent(new DepartmentAddedDomainEvent(department));
+            Departments.Add(department);
+        }
+
+        public void RemoveDepartment(Department department)
+        {
+            AddDomainEvent(new DepartmentRemovedDomainEvent(department));
+            Departments.Remove(department);
+        }
+
+        public void ChangeDepartmentName(Department department, string name)
+        {
+            var oldDepartmentName = department.Name;
+            department.Name = name;
+            AddDomainEvent(new DepartmentNameChangedDomainEvent(department, oldDepartmentName));
+        }
+
+        public void ChangeDepartmentDescription(Department department, string description)
+        {
+            var oldDepartmentDescription = department.Description;
+            department.Description = description;
+            AddDomainEvent(new DepartmentDescriptionChangedDomainEvent(department, oldDepartmentDescription));
+        }
+
+        public void ChangeDepartmentCostCenterId(Department department, string costCenterId)
+        {
+            var oldDepartmentCostCenterId = department.CostCenterId;
+            department.CostCenterId = costCenterId;
+            AddDomainEvent(new DepartmentCostCenterIdChangedDomainEvent(department, oldDepartmentCostCenterId));
+        }
+
+        public void ChangeDepartmentsParentDepartment(Department department, Department parentDepartment)
+        {
+            var oldParentDepartmentId = department.ParentDepartment?.ExternalDepartmentId;
+            department.ParentDepartment = parentDepartment;
+            AddDomainEvent(new DepartmentParentDepartmentChangedDomainEvent(department, oldParentDepartmentId));
         }
     }
 }

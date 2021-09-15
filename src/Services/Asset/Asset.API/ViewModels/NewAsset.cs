@@ -1,6 +1,5 @@
-﻿using System;
-using AssetServices.Models;
-using Common.Enums;
+﻿using Common.Enums;
+using System;
 
 namespace Asset.API.ViewModels
 {
@@ -16,6 +15,11 @@ namespace Asset.API.ViewModels
         /// The category this asset belongs to.
         /// </summary>
         public Guid AssetCategoryId { get; set; }
+
+        /// <summary>
+        /// A note containing additional information or comments for the asset.
+        /// </summary>
+        public string Note { get; set; }
 
         /// <summary>
         /// The asset brand (e.g. Samsung)

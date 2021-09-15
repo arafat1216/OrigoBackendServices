@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace OrigoApiGateway.Models.BackendDTO
+﻿namespace OrigoApiGateway.Models.BackendDTO
 {
     public class LifecycleDTO
     {

@@ -32,5 +32,9 @@ namespace CustomerServices.Models
         Task<ProductModule> GetProductModuleAsync(Guid moduleId);
         Task<ProductModule> AddProductModuleAsync(Guid customerId, Guid moduleId);
         Task<ProductModule> RemoveProductModuleAsync(Guid customerId, Guid moduleId);
+
+        Task<IList<Department>> GetDepartmentsAsync(Guid customerId);
+        Task<Department> GetDepartmentAsync(Guid customerId, Guid departmentId);
+        Task<IList<Department>> DeleteDepartmentsAsync(IList<Department> department);
     }
 }

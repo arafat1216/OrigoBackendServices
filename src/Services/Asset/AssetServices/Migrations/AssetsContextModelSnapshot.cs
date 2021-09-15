@@ -71,10 +71,14 @@ namespace AssetServices.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SerialNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
@@ -117,17 +121,12 @@ namespace AssetServices.Migrations
             modelBuilder.Entity("AssetServices.Models.Asset", b =>
                 {
                     b.HasOne("AssetServices.Models.AssetCategory", "AssetCategory")
-                        .WithMany("Assets")
+                        .WithMany()
                         .HasForeignKey("AssetCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("AssetCategory");
-                });
-
-            modelBuilder.Entity("AssetServices.Models.AssetCategory", b =>
-                {
-                    b.Navigation("Assets");
                 });
 #pragma warning restore 612, 618
         }

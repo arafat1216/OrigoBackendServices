@@ -1,7 +1,7 @@
-﻿using System;
+﻿using CustomerServices.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CustomerServices.Models;
 
 namespace CustomerServices
 {
@@ -16,5 +16,7 @@ namespace CustomerServices
         Task<User> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId);
         Task<User> DeleteUserAsync(Guid userId, bool softDelete = true);
+        Task<User> AssignDepartment(Guid customerId, Guid userId, Guid departmentId);
+        Task<User> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId);
     }
 }

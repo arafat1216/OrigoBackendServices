@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Asset.API.ViewModels;
 using AssetServices;
-using AssetServices.Models;
 using AssetServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -119,7 +118,7 @@ namespace Asset.API.Controllers
 
                 var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.SerialNumber,
                     asset.AssetCategoryId, asset.Brand, asset.Model, asset.LifecycleType, asset.PurchaseDate,
-                    asset.AssetHolderId, asset.IsActive, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, (AssetStatus)asset.AssetStatus);
+                    asset.AssetHolderId, asset.IsActive, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, (AssetStatus)asset.AssetStatus, asset.Note);
                 var updatedAssetView = new ViewModels.Asset(updatedAsset);
 
                 return CreatedAtAction(nameof(CreateAsset), new { id = updatedAssetView.AssetId }, updatedAssetView);
@@ -260,7 +259,7 @@ namespace Asset.API.Controllers
         {
             try
             {
-                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.SerialNumber, asset.Brand, asset.Model, asset.PurchaseDate);
+                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.SerialNumber, asset.Brand, asset.Model, asset.PurchaseDate, asset.Note, asset.Imei);
                 if (updatedAsset == null)
                 {
                     return NotFound();
