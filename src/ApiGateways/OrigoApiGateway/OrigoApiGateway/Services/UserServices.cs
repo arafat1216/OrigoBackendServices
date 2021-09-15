@@ -75,7 +75,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, Guid userId, NewUser newUser)
+        public async Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser)
         {
             try
             {
@@ -93,7 +93,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUser> UpdateUserAsync(Guid customerId, OrigoUpdateUser updateUser)
+        public async Task<OrigoUser> UpdateUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser)
         {
             try
             {
@@ -107,6 +107,24 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "UpdateUserAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoUser> DeleteUserAsync(Guid customerId, Guid userId)
+        {
+            try
+            {
+                var response = await HttpClient.DeleteAsync($"{_options.ApiPath}/{customerId}/users/{userId}");
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to delete user", (int)response.StatusCode);
+
+                var user = await response.Content.ReadFromJsonAsync<UserDTO>();
+                return user == null ? null : new OrigoUser(user);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "DeleteUserAsync unknown error.");
                 throw;
             }
         }

@@ -84,5 +84,25 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
+
+        [Route("{userId:Guid}")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoUser>> DeleteUserForCustomer(Guid customerId, Guid userId)
+        {
+            try
+            {
+                var deletedUser = await _customerServices.DeleteUserAsync(customerId, userId);
+                if (deletedUser == null)
+                    return NotFound();
+
+                return Ok(deletedUser);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
     }
 }
