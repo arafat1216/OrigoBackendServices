@@ -16,5 +16,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         public AddressDTO CompanyAddress { get; set; }
 
         public ContactPersonDTO CustomerContactPerson { get; set; }
+        public OrganizationPreferences OrganizationPreferences { get; set; }
+        public Location OrganizationLocation { get; set; }
     }
 }
