@@ -16,12 +16,13 @@ namespace CustomerServices.Models
         public string LogoUrl { get; protected set; }
         public string OrganizationNotes { get; protected set; }
         public bool EnforceTwoFactorAuth { get; protected set; }
+        public bool IsDeleted { get; protected set; }
         public string PrimaryLanguage { get; protected set; }
         public short DefaultDepartmentClassification { get; protected set; }
         public DateTime CreatedAt { get; protected set; }
         public DateTime UpdatedAt { get; protected set; }
 
-        public OrganizationPreferences(Guid organizationId, string webPage, string logoUrl, string organizationNotes, bool enforceTwoFactorAuth, string primaryLanguage, short defaultDepartmentClassification)
+        public OrganizationPreferences(Guid organizationId, Guid callerId, string webPage, string logoUrl, string organizationNotes, bool enforceTwoFactorAuth, string primaryLanguage, short defaultDepartmentClassification)
         {
             OrganizationId = organizationId;
             WebPage = webPage;
@@ -32,8 +33,8 @@ namespace CustomerServices.Models
             DefaultDepartmentClassification = defaultDepartmentClassification;
             CreatedAt = DateTime.Now;
             UpdatedAt = DateTime.Now;
-            CreatedBy = Guid.NewGuid();  // todo: set these to user modifying the entity next us.
-            UpdatedBy = Guid.NewGuid();
+            CreatedBy = callerId;
+            UpdatedBy = callerId;
         }
     }
 }

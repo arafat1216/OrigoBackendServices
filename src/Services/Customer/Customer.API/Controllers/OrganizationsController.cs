@@ -126,7 +126,7 @@ namespace Customer.API.Controllers
                 }
                 else
                 {
-                    organizationLocation = new CustomerServices.Models.Location(organization.OrganizationLocation.Name, organization.OrganizationLocation.Description,
+                    organizationLocation = new CustomerServices.Models.Location(organization.CallerId, organization.OrganizationLocation.Name, organization.OrganizationLocation.Description,
                                                                                 organization.OrganizationLocation.Address1, organization.OrganizationLocation.Address2,
                                                                                 organization.OrganizationLocation.PostalCode, organization.OrganizationLocation.City,
                                                                                 organization.OrganizationLocation.Country);
@@ -142,13 +142,13 @@ namespace Customer.API.Controllers
                 var organizationAddress = new CustomerServices.Models.Address(organization.OrganizationAddress?.Street, organization.OrganizationAddress?.PostCode,
                                                                               organization.OrganizationAddress?.City, organization.OrganizationAddress?.Country);
 
-                var newOrganization = new CustomerServices.Models.Organization(Guid.NewGuid(), organization.ParentId,
+                var newOrganization = new CustomerServices.Models.Organization(Guid.NewGuid(), organization.CallerId, organization.ParentId,
                                                                                organization.OrganizationName, organization.OrganizationNumber,
                                                                                organizationAddress, organizationContactPerson,
                                                                                null, organizationLocation);
 
                 // organizationPreferences needs the OrganizationId from newOrganization, and is therefore made last
-                var organizationPreferences = new CustomerServices.Models.OrganizationPreferences(newOrganization.OrganizationId, organization.OrganizationPreferences?.WebPage,
+                var organizationPreferences = new CustomerServices.Models.OrganizationPreferences(newOrganization.OrganizationId, newOrganization.CreatedBy, organization.OrganizationPreferences?.WebPage,
                                                                                                   organization.OrganizationPreferences?.LogoUrl, organization.OrganizationPreferences?.OrganizationNotes,
                                                                                                   organization.OrganizationPreferences.EnforceTwoFactorAuth, organization.OrganizationPreferences?.PrimaryLanguage,
                                                                                                   organization.OrganizationPreferences.DefaultDepartmentClassification);
@@ -231,7 +231,7 @@ namespace Customer.API.Controllers
                     }
                     else
                     {
-                        newLocation = new CustomerServices.Models.Location(organization.OrganizationLocation.Name, organization.OrganizationLocation.Description,
+                        newLocation = new CustomerServices.Models.Location(organization.CallerId, organization.OrganizationLocation.Name, organization.OrganizationLocation.Description,
                                                                            organization.OrganizationLocation.Address1, organization.OrganizationLocation.Address2,
                                                                            organization.OrganizationLocation.PostalCode, organization.OrganizationLocation.City,
                                                                            organization.OrganizationLocation.Country);
@@ -265,11 +265,11 @@ namespace Customer.API.Controllers
                 CustomerServices.Models.OrganizationPreferences newOrganizationPreferences;
                 if (organization.OrganizationPreferences == null)
                 {
-                    newOrganizationPreferences = new CustomerServices.Models.OrganizationPreferences(organization.OrganizationId, "", "", "", false, "", 0);
+                    newOrganizationPreferences = new CustomerServices.Models.OrganizationPreferences(organization.OrganizationId, organization.CallerId, "", "", "", false, "", 0);
                 }
                 else
                 {
-                    newOrganizationPreferences = new CustomerServices.Models.OrganizationPreferences(organization.OrganizationId, organization.OrganizationPreferences.WebPage,
+                    newOrganizationPreferences = new CustomerServices.Models.OrganizationPreferences(organization.OrganizationId, organization.CallerId, organization.OrganizationPreferences.WebPage,
                                                                                                      organization.OrganizationPreferences.LogoUrl, organization.OrganizationPreferences.OrganizationNotes,
                                                                                                      organization.OrganizationPreferences.EnforceTwoFactorAuth, organization.OrganizationPreferences.PrimaryLanguage,
                                                                                                      organization.OrganizationPreferences.DefaultDepartmentClassification);
@@ -278,7 +278,7 @@ namespace Customer.API.Controllers
                 await _organizationServices.RemoveOrganizationPreferencesAsync(organization.OrganizationId); // we only want one OrganizationPreferences object per organization
                 await _organizationServices.AddOrganizationPreferencesAsync(newOrganizationPreferences);
 
-                CustomerServices.Models.Organization newOrganization = new CustomerServices.Models.Organization(organization.OrganizationId, organization.ParentId,
+                CustomerServices.Models.Organization newOrganization = new CustomerServices.Models.Organization(organization.OrganizationId, organization.CallerId, organization.ParentId,
                                                                                         organization.OrganizationName, organization.OrganizationNumber,
                                                                                         newAddress, newContactPerson,
                                                                                         newOrganizationPreferences, newLocation);

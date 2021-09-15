@@ -25,6 +25,7 @@ namespace CustomerServices.Models
         public Guid UpdatedBy { get; protected set; }
         public DateTime CreatedAt { get; protected set; }
         public DateTime UpdatedAt { get; protected set; }
+        public bool IsDeleted { get; protected set; }
 
 
         public string OrganizationName { get; protected set; }
@@ -80,7 +81,7 @@ namespace CustomerServices.Models
 
         }
 
-        public Organization(Guid organizationId, Guid? parentId, string companyName, string orgNumber, Address companyAddress,
+        public Organization(Guid organizationId, Guid callerId, Guid? parentId, string companyName, string orgNumber, Address companyAddress,
             ContactPerson organizationContactPerson, OrganizationPreferences organizationPreferences, Location organizationLocation)
         {
             OrganizationName = companyName;
@@ -92,10 +93,11 @@ namespace CustomerServices.Models
             OrganizationPreferences = organizationPreferences;
             OrganizationLocation = organizationLocation;
             PrimaryLocation = organizationLocation.LocationId;
-            CreatedAt = DateTime.Now;
-            UpdatedAt = DateTime.Now;
-            CreatedBy = Guid.NewGuid();  // todo: set these to user modifying the entity next us.
-            UpdatedBy = Guid.NewGuid();
+            CreatedBy = callerId;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+            UpdatedBy = callerId;
+            IsDeleted = false;
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
 

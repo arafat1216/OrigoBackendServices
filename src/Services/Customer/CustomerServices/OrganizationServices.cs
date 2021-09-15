@@ -70,6 +70,7 @@ namespace CustomerServices
         {
             return await _customerRepository.GetOrganizationLocationAsync(locationId);
         }
+
         public async Task<Organization> UpdateOrganizationAsync(Organization updateOrganization)
         {
             try

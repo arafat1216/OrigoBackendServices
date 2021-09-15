@@ -24,7 +24,7 @@ namespace CustomerServices.Models
         public DateTime CreatedAt{ get; protected set; }
         public DateTime UpdatedAt { get; protected set; }
 
-        public Location(string name, string description, string address1, string address2, string postalCode, string city, string country)
+        public Location(Guid callerId, string name, string description, string address1, string address2, string postalCode, string city, string country)
         {
             LocationId = Guid.NewGuid();
             Name = name;
@@ -36,8 +36,8 @@ namespace CustomerServices.Models
             Country = country;
             CreatedAt = DateTime.Now;
             UpdatedAt = DateTime.Now;
-            CreatedBy = Guid.NewGuid();  // todo: set these to user modifying the entity next us.
-            UpdatedBy = Guid.NewGuid();
+            CreatedBy = callerId;
+            UpdatedBy = callerId;
         }
     }
 
