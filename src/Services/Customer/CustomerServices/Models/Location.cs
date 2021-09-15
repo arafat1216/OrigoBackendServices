@@ -9,7 +9,6 @@ namespace CustomerServices.Models
 {
     public class Location : Entity
     {
-        // Todo: Set attributes and access modifiers
         public Guid LocationId { get; protected set; }
         public Guid CreatedBy { get; protected set; }
         public Guid UpdatedBy { get; protected set; }
@@ -21,7 +20,7 @@ namespace CustomerServices.Models
         public string? PostalCode { get; protected set; }
         public string? City { get; protected set; }
         public string? Country { get; protected set; }
-        public DateTime CreatedAt{ get; protected set; }
+        public DateTime CreatedAt { get; protected set; }
         public DateTime UpdatedAt { get; protected set; }
 
         /// <summary>

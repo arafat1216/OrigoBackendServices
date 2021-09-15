@@ -18,6 +18,7 @@ namespace CustomerServices.Models
         private ICollection<ProductModule> selectedProductModules;
         private ICollection<ProductModuleGroup> selectedProductModuleGroups;
         private IList<User> users;
+
         public Guid OrganizationId { get; protected set; }
         public Guid? ParentId { get; protected set; }
         public Guid? PrimaryLocation { get; protected set; }

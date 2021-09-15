@@ -22,6 +22,7 @@ namespace CustomerServices.Models
         public DateTime CreatedAt { get; protected set; }
         public DateTime UpdatedAt { get; protected set; }
 
+
         /// <summary>
         /// Added to prevent entity framework No suitable constructor found exception.
         /// </summary>
