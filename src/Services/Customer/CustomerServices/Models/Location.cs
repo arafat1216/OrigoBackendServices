@@ -30,22 +30,6 @@ namespace CustomerServices.Models
         protected Location()
         { }
 
-        /*
-        public Location(Guid callerId, string name, string description, string address1, string address2, string postalCode, string city, string country)
-        {
-            LocationId = Guid.NewGuid();
-            Name = name;
-            Description = description;
-            Address1 = address1;
-            Address2 = address2;
-            PostalCode = postalCode;
-            City = city;
-            Country = country;
-            CreatedAt = DateTime.Now;
-            UpdatedAt = DateTime.Now;
-            CreatedBy = callerId;
-            UpdatedBy = callerId;
-        }*/
         public Location(Guid locationId, Guid callerId, string name, string description, string address1, string address2, string postalCode, string city, string country)
         {
             LocationId = locationId;

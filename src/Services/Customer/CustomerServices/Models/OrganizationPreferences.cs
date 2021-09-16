@@ -38,8 +38,8 @@ namespace CustomerServices.Models
             EnforceTwoFactorAuth = enforceTwoFactorAuth;
             PrimaryLanguage = primaryLanguage;
             DefaultDepartmentClassification = defaultDepartmentClassification;
-            CreatedAt = DateTime.Now;
-            UpdatedAt = DateTime.Now;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
             CreatedBy = callerId;
             UpdatedBy = callerId;
         }
@@ -54,6 +54,13 @@ namespace CustomerServices.Models
             DefaultDepartmentClassification = newPreferences.DefaultDepartmentClassification;
             UpdatedAt = DateTime.UtcNow;
             UpdatedBy = newPreferences.UpdatedBy;
+        }
+
+        public void Delete(Guid callerId)
+        {
+            IsDeleted = true;
+            UpdatedAt = DateTime.UtcNow;
+            UpdatedBy = callerId;
         }
     }
 }

@@ -2,6 +2,7 @@
 using Common.Exceptions;
 using Customer.API.ViewModels;
 using CustomerServices;
+using CustomerServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -77,8 +78,8 @@ namespace Customer.API.Controllers
                         OrganizationNumber = org.OrganizationNumber,
                         OrganizationAddress = new Address(org.OrganizationAddress),
                         OrganizationContactPerson = new ContactPerson(org.OrganizationContactPerson),
-                        OrganizationPreferences = new OrganizationPreferences(org.OrganizationPreferences),
-                        OrganizationLocation = new Location(org.OrganizationLocation)
+                        OrganizationPreferences = (org.OrganizationPreferences == null) ? null : new OrganizationPreferences(org.OrganizationPreferences),
+                        OrganizationLocation = (org.OrganizationLocation == null) ? null : new Location(org.OrganizationLocation)
                     };
                     list.Add(organizationView);
                 }
@@ -88,6 +89,32 @@ namespace Customer.API.Controllers
             catch (Exception ex)
             {
                 return BadRequest("Unknown error (OrganizationsController - Get Organizations (multiple): " + ex.Message);
+            }
+        }
+
+        [Route("{organizationId:Guid}")]
+        [HttpDelete]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<ViewModels.Organization>> DeleteOrganization(Guid organizationId, Guid callerId, bool hardDelete = false)
+        {
+            try
+            {
+                //var organization = await  _organizationServices.GetOrganizationAsync(organizationId, true, true);
+                //if (organization == null)
+                 //   return NotFound();
+                var removedOrganization = await _organizationServices.DeleteOrganizationAsync(organizationId, callerId, hardDelete);
+
+                return Ok();
+
+            }
+            catch(CustomerNotFoundException ex)
+            {
+                return BadRequest("The organization with the given id was not found.");
+            }
+            catch(Exception ex)
+            {
+                return BadRequest("Unknown error (OrganizationsController - Delete Organization: " + ex.Message);
             }
         }
 
@@ -181,38 +208,10 @@ namespace Customer.API.Controllers
             }
         }
 
+        [Route("location")]
         [HttpPut]
-        [ProducesResponseType(typeof(ViewModels.OrganizationPreferences), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Organization>> UpdateOrganizationPreferences([FromBody] UpdateOrganizationPreferences preferences)
-        {
-            try
-            {
-                if (preferences.OrganizationId == Guid.Empty)
-                    return BadRequest("Organization Id cannot be empty");
-
-                CustomerServices.Models.OrganizationPreferences newPreference = new CustomerServices.Models.OrganizationPreferences(preferences.OrganizationId,
-                                                                                                                                    preferences.CallerId,
-                                                                                                                                    preferences.WebPage,
-                                                                                                                                    preferences.LogoUrl,
-                                                                                                                                    preferences.OrganizationNotes,
-                                                                                                                                    preferences.EnforceTwoFactorAuth,
-                                                                                                                                    preferences.PrimaryLanguage,
-                                                                                                                                    preferences.DefaultDepartmentClassification);
-                var updatedPreferences = await _organizationServices.UpdateOrganizationPreferencesAsync(newPreference);
-
-                var updatedPreferencesView = new ViewModels.OrganizationPreferences(updatedPreferences);
-
-                return Ok(updatedPreferencesView);
-            }
-            catch(Exception ex)
-            {
-                return BadRequest("Unknown error: " + ex.Message);
-            }
-        }
-
-        [HttpPut]
-        [ProducesResponseType(typeof(ViewModels.OrganizationPreferences), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Organization>> UpdateOrganizationLocation([FromBody] UpdateLocation location)
+        [ProducesResponseType(typeof(ViewModels.Location), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<Location>> UpdateOrganizationLocation([FromBody] UpdateLocation location)
         {
             try
             {
@@ -228,10 +227,44 @@ namespace Customer.API.Controllers
                                                                                                     location.City,
                                                                                                     location.Country);
                 var updatedLocation = await _organizationServices.UpdateOrganizationLocationAsync(newLocation);
+                if (updatedLocation == null)
+                    return NotFound();
 
                 var updatedLocationView = new ViewModels.Location(updatedLocation);
 
-                return Ok(updatedLocationView);  
+                return Ok(updatedLocationView);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Unknown error: " + ex.Message);
+            }
+        }
+
+        [Route("preferences")]
+        [HttpPut]
+        [ProducesResponseType(typeof(ViewModels.OrganizationPreferences), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<OrganizationPreferences>> UpdateOrganizationPreferences([FromBody] UpdateOrganizationPreferences preferences)
+        {
+            try
+            {
+                if (preferences.OrganizationId == Guid.Empty)
+                    return BadRequest("Organization Id cannot be empty");
+
+                CustomerServices.Models.OrganizationPreferences newPreference = new CustomerServices.Models.OrganizationPreferences(preferences.OrganizationId,
+                                                                                                                                    preferences.CallerId,
+                                                                                                                                    preferences.WebPage,
+                                                                                                                                    preferences.LogoUrl,
+                                                                                                                                    preferences.OrganizationNotes,
+                                                                                                                                    preferences.EnforceTwoFactorAuth,
+                                                                                                                                    preferences.PrimaryLanguage,
+                                                                                                                                    preferences.DefaultDepartmentClassification);
+                var updatedPreferences = await _organizationServices.UpdateOrganizationPreferencesAsync(newPreference);
+                if (updatedPreferences == null)
+                    return NotFound();
+
+                var updatedPreferencesView = new ViewModels.OrganizationPreferences(updatedPreferences);
+
+                return Ok(updatedPreferencesView);
             }
             catch(Exception ex)
             {
@@ -239,9 +272,12 @@ namespace Customer.API.Controllers
             }
         }
 
+        
+
+        [Route("{locationId:Guid}/location")]
         [HttpDelete]
         [ProducesResponseType(typeof(ViewModels.Location), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<ViewModels.Location>> DeleteLocationSoft(Guid locationId, Guid callerId)
+        public async Task<ActionResult<ViewModels.Location>> DeleteLocation(Guid locationId, Guid callerId, bool hardDelete = false)
         {
             if (locationId == Guid.Empty)
                 return BadRequest("Location id cannot be empty");
@@ -249,16 +285,16 @@ namespace Customer.API.Controllers
             var location = await _organizationServices.GetLocationAsync(locationId);
 
             if (location == null)
-                return BadRequest("Location with the given id was not found.");
+                return NotFound();
 
-            await _organizationServices.DeleteOrganizationLocationAsync(locationId, callerId, false);
+            await _organizationServices.DeleteOrganizationLocationAsync(locationId, callerId, hardDelete);
 
             var deletedLocationView = new ViewModels.Location(location);
 
             return Ok(deletedLocationView);
         }
 
-
+        [Route("{organizationId:Guid}/organization")]
         [HttpPut]
         [ProducesResponseType(typeof(ViewModels.Organization), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<Organization>> UpdateOrganization([FromBody] UpdateOrganization organization)
@@ -312,7 +348,6 @@ namespace Customer.API.Controllers
                                                                            organization.OrganizationLocation.Address1, organization.OrganizationLocation.Address2,
                                                                            organization.OrganizationLocation.PostalCode, organization.OrganizationLocation.City,
                                                                            organization.OrganizationLocation.Country);
-                        await _organizationServices.AddOrganizationLocationAsync(newLocation);
                     }
                 }
 
@@ -352,8 +387,8 @@ namespace Customer.API.Controllers
                                                                                                      organization.OrganizationPreferences.DefaultDepartmentClassification);
                 }
 
-                await _organizationServices.RemoveOrganizationPreferencesAsync(organization.OrganizationId); // we only want one OrganizationPreferences object per organization
-                await _organizationServices.AddOrganizationPreferencesAsync(newOrganizationPreferences);
+                await _organizationServices.UpdateOrganizationPreferencesAsync(newOrganizationPreferences);
+                await _organizationServices.UpdateOrganizationLocationAsync(newLocation);
 
                 CustomerServices.Models.Organization newOrganization = new CustomerServices.Models.Organization(organization.OrganizationId, organization.CallerId, organization.ParentId,
                                                                                         organization.OrganizationName, organization.OrganizationNumber,
@@ -369,8 +404,8 @@ namespace Customer.API.Controllers
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
                     OrganizationAddress = new Address(updatedOrganization.OrganizationAddress),
                     OrganizationContactPerson = new ContactPerson(updatedOrganization.OrganizationContactPerson),
-                    OrganizationPreferences = new OrganizationPreferences(updatedOrganization.OrganizationPreferences),
-                    OrganizationLocation = new Location(updatedOrganization.OrganizationLocation)
+                    OrganizationPreferences = new OrganizationPreferences(newOrganization.OrganizationPreferences),
+                    OrganizationLocation = new Location(newOrganization.OrganizationLocation)
                 };
 
                 return updatedOrganizationView;

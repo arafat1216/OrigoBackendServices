@@ -1,5 +1,6 @@
 ﻿using Common.Cryptography;
 using Common.Enums;
+using CustomerServices.Exceptions;
 using CustomerServices.Models;
 using Microsoft.Extensions.Logging;
 using System;
@@ -92,11 +93,52 @@ namespace CustomerServices
             }
         }
 
+        public async Task<Organization> DeleteOrganizationAsync(Guid organizationId, Guid callerId, bool hardDelete = false)
+        {
+            try
+            {
+                var organization = await _customerRepository.GetOrganizationAsync(organizationId);
+
+                if (organization == null)
+                    throw new CustomerNotFoundException();
+
+                if (organization.PrimaryLocation != null)
+                {
+                   await DeleteOrganizationLocationAsync((Guid) organization.PrimaryLocation, callerId, hardDelete);
+                }
+                    
+
+                
+                await DeleteOrganizationPreferencesAsync(organizationId, callerId, hardDelete);
+                
+                
+
+                // set IsDelete, caller and date of change
+                organization.Delete(callerId);
+                await _customerRepository.SaveEntitiesAsync();
+
+                // Complete delete, removed from database
+                if (hardDelete)
+                {
+                    return await _customerRepository.DeleteOrganizationAsync(organization);
+                }
+
+                return organization;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("OrganizationServices -DeleteOrganizationAsync failed to delete: " + ex.Message);
+                throw;
+            }
+        }
+
         public async Task<OrganizationPreferences> UpdateOrganizationPreferencesAsync(OrganizationPreferences preferences)
         {
             try
             {
                 var currentPreferences = await _customerRepository.GetOrganizationPreferencesAsync(preferences.OrganizationId);
+                if (currentPreferences == null)
+                    return null;
                 currentPreferences.UpdatePreferences(preferences);
                 await _customerRepository.SaveEntitiesAsync();
 
@@ -109,11 +151,39 @@ namespace CustomerServices
             }
         }
 
+        public async Task<OrganizationPreferences> DeleteOrganizationPreferencesAsync(Guid organizationId, Guid callerId, bool hardDelete = false)
+        {
+            try
+            {
+                var preferences = await _customerRepository.GetOrganizationPreferencesAsync(organizationId);
+                if (preferences == null) // object is already deleted
+                    return null;
+                preferences.Delete(callerId);
+                await _customerRepository.SaveEntitiesAsync();
+
+                if (hardDelete)
+                {
+                    return await _customerRepository.DeleteOrganizationPreferencesAsync(preferences);
+                }
+
+                return preferences;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("OrganizationServices - DeleteOrganizationPreferencesAsync failed to delete: " + ex.Message);
+                throw;
+            }
+        }
+
         public async Task<Location> UpdateOrganizationLocationAsync(Location updateLocation)
         {
             try
             {
                 var currentLocation = await _customerRepository.GetOrganizationLocationAsync(updateLocation.LocationId);
+                if (currentLocation == null)
+                {
+                    return null;
+                }
                 currentLocation.UpdateLocation(updateLocation);
                 await _customerRepository.SaveEntitiesAsync();
 
@@ -132,6 +202,8 @@ namespace CustomerServices
             try
             {
                 var location = await _customerRepository.GetOrganizationLocationAsync(locationId);
+                if (location == null) // object is already deleted
+                    return null;
                 location.Delete(callerId);
                 await _customerRepository.SaveEntitiesAsync();
 

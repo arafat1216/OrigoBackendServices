@@ -122,6 +122,13 @@ namespace CustomerServices.Models
             OrganizationNumber = organizationNumber;
         }
 
+        public void Delete(Guid callerId)
+        {
+            IsDeleted = true;
+            UpdatedAt = DateTime.UtcNow;
+            UpdatedBy = callerId;
+        }
+
         public void AddAssetCategory(AssetCategoryType assetCategory)
         {
             AddDomainEvent(new AssetCategoryAddedDomainEvent(assetCategory));
