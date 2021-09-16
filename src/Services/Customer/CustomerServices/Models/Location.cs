@@ -20,6 +20,7 @@ namespace CustomerServices.Models
         public string? PostalCode { get; protected set; }
         public string? City { get; protected set; }
         public string? Country { get; protected set; }
+        public bool IsDeleted { get; protected set; }
         public DateTime CreatedAt { get; protected set; }
         public DateTime UpdatedAt { get; protected set; }
 
