@@ -37,10 +37,6 @@ namespace CustomerServices
             }
             var departments = await _customerRepository.GetDepartmentsAsync(customerId);
             var parentDepartment = departments.FirstOrDefault(dept => dept.ExternalDepartmentId == parentDepartmentId);
-            if (parentDepartment == null && departments.FirstOrDefault(dept => dept.ParentDepartment == null) != null)
-            {
-                throw new RootDepartmentAlreadyExistException();
-            }
             var department = new Department(name, costCenterId, description, customer, newDepartmentId, parentDepartment: parentDepartment);
             customer.AddDepartment(department);
 
@@ -57,10 +53,6 @@ namespace CustomerServices
             }
             var allDepartments = await _customerRepository.GetDepartmentsAsync(customerId);
             var parentDepartment = allDepartments.FirstOrDefault(dept => dept.ExternalDepartmentId == parentDepartmentId);
-            if (parentDepartment == null && allDepartments.FirstOrDefault(dept => dept.ParentDepartment == null) != null)
-            {
-                throw new RootDepartmentAlreadyExistException();
-            }
             var departmentToUpdate = allDepartments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
             if (departmentToUpdate == null)
             {
@@ -71,9 +63,7 @@ namespace CustomerServices
             customer.ChangeDepartmentCostCenterId(departmentToUpdate, costCenterId);
             customer.ChangeDepartmentDescription(departmentToUpdate, description);
 
-            if (parentDepartmentId != null && // can't make this a root department
-                departmentToUpdate.ParentDepartment != null && // can't move the root department
-               !departmentToUpdate.HasSubdepartment(parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
+            if (!departmentToUpdate.HasSubdepartment(parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
             {
                 customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment);
             }
@@ -91,10 +81,6 @@ namespace CustomerServices
             }
             var allDepartments = await _customerRepository.GetDepartmentsAsync(customerId);
             var parentDepartment = allDepartments.FirstOrDefault(dept => dept.ExternalDepartmentId == parentDepartmentId);
-            if (parentDepartment == null && allDepartments.FirstOrDefault(dept => dept.ParentDepartment == null) != null)
-            {
-                throw new RootDepartmentAlreadyExistException();
-            }
             var departmentToUpdate = allDepartments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
             if (departmentToUpdate == null)
             {
@@ -112,9 +98,7 @@ namespace CustomerServices
             {
                 customer.ChangeDepartmentDescription(departmentToUpdate, description);
             }
-            if (parentDepartmentId != null && // can't make this a root department
-                departmentToUpdate.ParentDepartment != null && // can't move the root department
-                parentDepartmentId != departmentToUpdate.ParentDepartment?.ExternalDepartmentId && // won't move this department if it already is a subdepartment of the target department
+            if (parentDepartmentId != departmentToUpdate.ParentDepartment?.ExternalDepartmentId && // won't move this department if it already is a subdepartment of the target department
                 !departmentToUpdate.HasSubdepartment(parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
             {
                 customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment);
