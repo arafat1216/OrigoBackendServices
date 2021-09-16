@@ -50,18 +50,18 @@ namespace CustomerServices.Infrastructure
 
         public async Task<IList<Organization>> GetOrganizationsAsync()
         {
-            return await _customerContext.Organizations.ToListAsync();
+            return await _customerContext.Organizations.Where(o => o.IsDeleted == false).ToListAsync();
         }
 
         public async Task<IList<Organization>> GetOrganizationsAsync(Guid? parentId)
         {
-            return await _customerContext.Organizations.Where(p => p.ParentId == parentId).ToListAsync();
+            return await _customerContext.Organizations.Where(p => p.ParentId == parentId && !p.IsDeleted).ToListAsync();
         }
 
 
         public async Task<Organization> GetOrganizationAsync(Guid customerId)
         {
-            return await _customerContext.Organizations
+                return await _customerContext.Organizations
                 .Include(p => p.SelectedProductModules)
                 .ThenInclude(p => p.ProductModuleGroup)
                 .Include(p => p.SelectedProductModuleGroups)
