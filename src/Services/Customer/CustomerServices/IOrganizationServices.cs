@@ -12,6 +12,9 @@ namespace CustomerServices
         Task<Location> GetLocationAsync(Guid locationId);
         Task<OrganizationPreferences> RemoveOrganizationPreferencesAsync(Guid organizationId);
         Task<Organization> UpdateOrganizationAsync(Organization updateOrganization);
+        Task<OrganizationPreferences> UpdateOrganizationPreferencesAsync(OrganizationPreferences preferences);
+        Task<Location> UpdateOrganizationLocationAsync(Location updateLocation);
+        Task<Location> DeleteOrganizationLocationAsync(Guid locationId, Guid callerId, bool hardDelete = false);
         Task<IList<AssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypesForCustomerAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes);
         Task<AssetCategoryType> GetAssetCategoryType(Guid customerId, Guid assetCategoryId);
         Task<IList<AssetCategoryType>> GetAssetCategoryTypes(Guid customerId);

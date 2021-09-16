@@ -126,7 +126,7 @@ namespace Customer.API.Controllers
                 }
                 else
                 {
-                    organizationLocation = new CustomerServices.Models.Location(organization.CallerId, organization.OrganizationLocation.Name, organization.OrganizationLocation.Description,
+                    organizationLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.OrganizationLocation.Name, organization.OrganizationLocation.Description,
                                                                                 organization.OrganizationLocation.Address1, organization.OrganizationLocation.Address2,
                                                                                 organization.OrganizationLocation.PostalCode, organization.OrganizationLocation.City,
                                                                                 organization.OrganizationLocation.Country);
@@ -179,8 +179,85 @@ namespace Customer.API.Controllers
             {
                 return BadRequest("Unknown error: " + ex.Message);
             }
-
         }
+
+        [HttpPut]
+        [ProducesResponseType(typeof(ViewModels.OrganizationPreferences), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<Organization>> UpdateOrganizationPreferences([FromBody] UpdateOrganizationPreferences preferences)
+        {
+            try
+            {
+                if (preferences.OrganizationId == Guid.Empty)
+                    return BadRequest("Organization Id cannot be empty");
+
+                CustomerServices.Models.OrganizationPreferences newPreference = new CustomerServices.Models.OrganizationPreferences(preferences.OrganizationId,
+                                                                                                                                    preferences.CallerId,
+                                                                                                                                    preferences.WebPage,
+                                                                                                                                    preferences.LogoUrl,
+                                                                                                                                    preferences.OrganizationNotes,
+                                                                                                                                    preferences.EnforceTwoFactorAuth,
+                                                                                                                                    preferences.PrimaryLanguage,
+                                                                                                                                    preferences.DefaultDepartmentClassification);
+                var updatedPreferences = await _organizationServices.UpdateOrganizationPreferencesAsync(newPreference);
+
+                var updatedPreferencesView = new ViewModels.OrganizationPreferences(updatedPreferences);
+
+                return Ok(updatedPreferencesView);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest("Unknown error: " + ex.Message);
+            }
+        }
+
+        [HttpPut]
+        [ProducesResponseType(typeof(ViewModels.OrganizationPreferences), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<Organization>> UpdateOrganizationLocation([FromBody] UpdateLocation location)
+        {
+            try
+            {
+                if (location.LocationId == Guid.Empty)
+                    return BadRequest("Location id cannot be empty.");
+                CustomerServices.Models.Location newLocation = new CustomerServices.Models.Location(location.LocationId,
+                                                                                                    location.CallerId,
+                                                                                                    location.Name,
+                                                                                                    location.Description,
+                                                                                                    location.Address1,
+                                                                                                    location.Address2,
+                                                                                                    location.PostalCode,
+                                                                                                    location.City,
+                                                                                                    location.Country);
+                var updatedLocation = await _organizationServices.UpdateOrganizationLocationAsync(newLocation);
+
+                var updatedLocationView = new ViewModels.Location(updatedLocation);
+
+                return Ok(updatedLocationView);  
+            }
+            catch(Exception ex)
+            {
+                return BadRequest("Unknown error: " + ex.Message);
+            }
+        }
+
+        [HttpDelete]
+        [ProducesResponseType(typeof(ViewModels.Location), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<ViewModels.Location>> DeleteLocationSoft(Guid locationId, Guid callerId)
+        {
+            if (locationId == Guid.Empty)
+                return BadRequest("Location id cannot be empty");
+
+            var location = await _organizationServices.GetLocationAsync(locationId);
+
+            if (location == null)
+                return BadRequest("Location with the given id was not found.");
+
+            await _organizationServices.DeleteOrganizationLocationAsync(locationId, callerId, false);
+
+            var deletedLocationView = new ViewModels.Location(location);
+
+            return Ok(deletedLocationView);
+        }
+
 
         [HttpPut]
         [ProducesResponseType(typeof(ViewModels.Organization), (int)HttpStatusCode.OK)]
@@ -231,7 +308,7 @@ namespace Customer.API.Controllers
                     }
                     else
                     {
-                        newLocation = new CustomerServices.Models.Location(organization.CallerId, organization.OrganizationLocation.Name, organization.OrganizationLocation.Description,
+                        newLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.OrganizationLocation.Name, organization.OrganizationLocation.Description,
                                                                            organization.OrganizationLocation.Address1, organization.OrganizationLocation.Address2,
                                                                            organization.OrganizationLocation.PostalCode, organization.OrganizationLocation.City,
                                                                            organization.OrganizationLocation.Country);

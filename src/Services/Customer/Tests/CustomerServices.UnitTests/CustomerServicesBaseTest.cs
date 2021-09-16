@@ -34,19 +34,19 @@ namespace CustomerServices.UnitTests
                 new Address("My Way 1", "1111", "My City", "NO"),
                 new ContactPerson("JOHN DOE", "john.doe@example.com", "99999999"),
                 new OrganizationPreferences(CUSTOMER_ONE_ID, USER_ONE_ID, "webPage 1", "logoUrl 1", "organizationNotes 1", true, "NO", 0),
-                new Location(USER_ONE_ID, "COMPANY ONE", "Location of COMPANY ONE", "My Way 1A", "My Way 1B", "0585", "Oslo", "Norway"));
+                new Location(Guid.NewGuid(), USER_ONE_ID, "COMPANY ONE", "Location of COMPANY ONE", "My Way 1A", "My Way 1B", "0585", "Oslo", "Norway"));
 
             var customerTwo = new Organization(CUSTOMER_TWO_ID, USER_ONE_ID, null, "COMPANY TWO", "999777666",
                 new Address("My Way 2", "1111", "My City", "NO"),
                 new ContactPerson("Ola Nordmann", "ola.nordmann@example.com", "99999998"),
                 new OrganizationPreferences(CUSTOMER_ONE_ID, USER_ONE_ID, "webPage 2", "logoUrl 2", "organizationNotes 2", true, "NO", 0),
-                new Location(USER_ONE_ID, "name", "description", "My Way 2A", "My Way 2B", "0585", "Oslo", "Norway"));
+                new Location(Guid.NewGuid(), USER_ONE_ID, "name", "description", "My Way 2A", "My Way 2B", "0585", "Oslo", "Norway"));
 
             var customerThree = new Organization(CUSTOMER_THREE_ID, USER_ONE_ID, CUSTOMER_ONE_ID, "COMPANY THREE", "999666555",
                 new Address("My Way 3", "1111", "My Other City", "NO"),
                 new ContactPerson("Kari Nordmann", "kari.nordmann@example.com", "99999997"),
                 new OrganizationPreferences(CUSTOMER_ONE_ID, USER_ONE_ID, "webPage 3", "logoUrl 3", "organizationNotes 3", true, "NO", 0),
-                new Location(USER_ONE_ID, "name", "description", "My Way 3A", "My Way 3B", "0585", "Oslo", "Norway"));
+                new Location(Guid.NewGuid(), USER_ONE_ID, "name", "description", "My Way 3A", "My Way 3B", "0585", "Oslo", "Norway"));
 
 
             context.AddRange(customerOne, customerTwo, customerThree);

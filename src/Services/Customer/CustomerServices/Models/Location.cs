@@ -30,6 +30,7 @@ namespace CustomerServices.Models
         protected Location()
         { }
 
+        /*
         public Location(Guid callerId, string name, string description, string address1, string address2, string postalCode, string city, string country)
         {
             LocationId = Guid.NewGuid();
@@ -43,6 +44,41 @@ namespace CustomerServices.Models
             CreatedAt = DateTime.Now;
             UpdatedAt = DateTime.Now;
             CreatedBy = callerId;
+            UpdatedBy = callerId;
+        }*/
+        public Location(Guid locationId, Guid callerId, string name, string description, string address1, string address2, string postalCode, string city, string country)
+        {
+            LocationId = locationId;
+            Name = name;
+            Description = description;
+            Address1 = address1;
+            Address2 = address2;
+            PostalCode = postalCode;
+            City = city;
+            Country = country;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+            CreatedBy = callerId;
+            UpdatedBy = callerId;
+        }
+
+        public void UpdateLocation(Location updateLocation)
+        {
+            Name = updateLocation.Name;
+            Description = updateLocation.Description;
+            Address1 = updateLocation.Address1;
+            Address2 = updateLocation.Address2;
+            PostalCode = updateLocation.PostalCode;
+            City = updateLocation.City;
+            Country = updateLocation.Country;
+            UpdatedAt = DateTime.UtcNow;
+            UpdatedBy = updateLocation.CreatedBy;
+        }
+
+        public void Delete(Guid callerId)
+        {
+            IsDeleted = true;
+            UpdatedAt = DateTime.UtcNow;
             UpdatedBy = callerId;
         }
     }

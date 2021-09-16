@@ -98,6 +98,21 @@ namespace CustomerServices.Infrastructure
             return organizationPreferences;
         }
 
+        public async Task<Location> DeleteOrganizationLocationAsync(Location organizationLocation)
+        {
+            try
+            {
+                _customerContext.Locations.Remove(organizationLocation);
+            }
+            catch
+            {
+                // item is already removed or did not exist
+            }
+
+            await SaveEntitiesAsync();
+            return organizationLocation;
+        }
+
 
         private async Task<Organization> GetCustomerReadOnlyAsync(Guid customerId)
         {

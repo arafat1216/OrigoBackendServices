@@ -43,5 +43,17 @@ namespace CustomerServices.Models
             CreatedBy = callerId;
             UpdatedBy = callerId;
         }
+
+        public void UpdatePreferences(OrganizationPreferences newPreferences)
+        {
+            WebPage = newPreferences.WebPage;
+            LogoUrl = newPreferences.LogoUrl;
+            OrganizationNotes = newPreferences.OrganizationNotes;
+            EnforceTwoFactorAuth = newPreferences.EnforceTwoFactorAuth;
+            PrimaryLanguage = newPreferences.PrimaryLanguage;
+            DefaultDepartmentClassification = newPreferences.DefaultDepartmentClassification;
+            UpdatedAt = DateTime.UtcNow;
+            UpdatedBy = newPreferences.UpdatedBy;
+        }
     }
 }

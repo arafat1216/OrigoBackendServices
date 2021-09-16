@@ -41,11 +41,13 @@ namespace CustomerServices
             }
             else
             {
-                Guid? p = null;
+                Guid? p = Guid.Empty;
                 var organizations = await _customerRepository.GetOrganizationsAsync(p);
                 foreach (Organization o in organizations)
                 {
                     o.ChildOrganizations = await _customerRepository.GetOrganizationsAsync(o.OrganizationId);
+                    o.OrganizationPreferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
+                    o.OrganizationLocation = await _customerRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
                 }
                 return organizations;
             }
@@ -86,6 +88,63 @@ namespace CustomerServices
             catch (Exception ex)
             {
                 _logger.LogError("OrganizationServices - UpdateOrganizationAsync failed to update: " + ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<OrganizationPreferences> UpdateOrganizationPreferencesAsync(OrganizationPreferences preferences)
+        {
+            try
+            {
+                var currentPreferences = await _customerRepository.GetOrganizationPreferencesAsync(preferences.OrganizationId);
+                currentPreferences.UpdatePreferences(preferences);
+                await _customerRepository.SaveEntitiesAsync();
+
+                return currentPreferences;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError("OrganizationServices - UpdateOrganizationPreferencesAsync failed to update: " + ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<Location> UpdateOrganizationLocationAsync(Location updateLocation)
+        {
+            try
+            {
+                var currentLocation = await _customerRepository.GetOrganizationLocationAsync(updateLocation.LocationId);
+                currentLocation.UpdateLocation(updateLocation);
+                await _customerRepository.SaveEntitiesAsync();
+
+                return currentLocation;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("OrganizationServices - UpdateOrganizationLocationAsync failed to update: " + ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<Location> DeleteOrganizationLocationAsync(Guid locationId, Guid callerId, bool hardDelete = false)
+        {
+            try
+            {
+                var location = await _customerRepository.GetOrganizationLocationAsync(locationId);
+                location.Delete(callerId);
+                await _customerRepository.SaveEntitiesAsync();
+
+                if (hardDelete)
+                {
+                   return await _customerRepository.DeleteOrganizationLocationAsync(location);
+                }
+               
+                return location;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError("OrganizationServices - DeleteOrganizationLocationAsync failed to delete: " + ex.Message);
                 throw;
             }
         }
