@@ -10,6 +10,7 @@ namespace CustomerServices
         Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical);
         Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences, bool includeLocation);
         Task<Location> GetLocationAsync(Guid locationId);
+        Task<OrganizationPreferences> GetOrganizationPreferencesAsync(Guid organizationId);
         Task<OrganizationPreferences> RemoveOrganizationPreferencesAsync(Guid organizationId);
         Task<Organization> UpdateOrganizationAsync(Organization updateOrganization);
         Task<Organization> DeleteOrganizationAsync(Guid organizationId, Guid callerId, bool hardDelete = false);

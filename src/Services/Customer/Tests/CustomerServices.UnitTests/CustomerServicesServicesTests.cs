@@ -79,6 +79,7 @@ namespace CustomerServices.UnitTests
             Assert.Equal("COMPANY ONE", organizations[0].OrganizationName);
             Assert.Equal("COMPANY TWO", organizations[1].OrganizationName);
             Assert.Equal("COMPANY THREE", organizations[2].OrganizationName);
+            Assert.Equal("COMPANY FOUR", organizations[3].OrganizationName);
         }
 
         [Fact]
@@ -95,10 +96,32 @@ namespace CustomerServices.UnitTests
             var childOrganizations = organizations[0].ChildOrganizations.ToList();
 
             // Assert
-            Assert.Equal(2, organizations.Count);
+            Assert.Equal(3, organizations.Count); // only 3, because one organization is a child organization
             Assert.Null(organizations[0].ParentId);
             Assert.Null(organizations[1].ParentId);
+            Assert.Null(organizations[2].ParentId);
             Assert.Equal(childOrganizations[0].ParentId, organizations[0].OrganizationId);  // organization one is parent of organization 3
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void DeleteOrganization()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository);
+
+            // Act
+            Guid customerFourId  = new("2C005777-ED56-43D9-9B1E-2B8112E67D10");
+            await customerService.DeleteOrganizationAsync(customerFourId, Guid.Empty, false);
+            var deletedOrganization = await customerService.GetOrganizationAsync(customerFourId);
+            var organizations = await customerService.GetOrganizationsAsync(true);
+
+            // Assert
+            Assert.Equal(3, organizations.Count); // four organizations, but one is soft deleted
+            Assert.Equal(customerFourId, deletedOrganization.OrganizationId);
+            Assert.True(deletedOrganization.IsDeleted);
         }
 
         [Fact]

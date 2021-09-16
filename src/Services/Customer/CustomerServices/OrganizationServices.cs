@@ -132,6 +132,29 @@ namespace CustomerServices
             }
         }
 
+        public async Task<OrganizationPreferences> GetOrganizationPreferencesAsync(Guid organizationId)
+        {
+            try
+            {
+                var preferences = await _customerRepository.GetOrganizationPreferencesAsync(organizationId);
+                if (preferences == null)
+                    return null;
+
+                if (preferences.IsDeleted)
+                    throw new EntityIsDeletedException();
+                return preferences;
+            }
+            catch(EntityIsDeletedException ex)
+            {
+                throw;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError("OrganizationServices -GetOrganizationPreferences failed to be retrieved: " + ex.Message);
+                throw;
+            }
+        }
+
         public async Task<OrganizationPreferences> UpdateOrganizationPreferencesAsync(OrganizationPreferences preferences)
         {
             try

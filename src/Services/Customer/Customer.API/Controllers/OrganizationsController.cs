@@ -35,6 +35,7 @@ namespace Customer.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Organization), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.Gone)]
         public async Task<ActionResult<ViewModels.Organization>> Get(Guid organizationId, bool includeOrganizationPreferences = true, bool includeLocation = true)
         {
             try
@@ -54,9 +55,40 @@ namespace Customer.API.Controllers
                 };
                 return Ok(foundCustomer);
             }
+            catch(EntityIsDeletedException ex)
+            {
+                return StatusCode((int)HttpStatusCode.Gone);
+            }
             catch (Exception ex)
             {
                 return BadRequest("Unknown error - Get Organization (single): " + ex.Message);
+            }
+        }
+
+        [Route("{organizationId:Guid}/preferences")]
+        [HttpGet]
+        [ProducesResponseType(typeof(ViewModels.OrganizationPreferences), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.Gone)]
+        public async Task<ActionResult<ViewModels.OrganizationPreferences>> Get(Guid organizationId)
+        {
+            try
+            {
+                var preferences = await _organizationServices.GetOrganizationPreferencesAsync(organizationId);
+                if (preferences == null)
+                    return NotFound();
+
+                var preferencesView = new ViewModels.OrganizationPreferences(preferences);
+
+                return Ok(preferencesView);
+            }
+            catch(EntityIsDeletedException ex)
+            {
+                return StatusCode((int)HttpStatusCode.Gone);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest("Unknown error - Get Organizationpreferences: " + ex.Message);
             }
         }
 
