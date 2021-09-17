@@ -86,7 +86,7 @@ namespace CustomerServices.Models
             ContactPerson organizationContactPerson, OrganizationPreferences organizationPreferences, Location organizationLocation)
         {
             OrganizationName = companyName;
-            ParentId = parentId;
+            ParentId = (parentId == Guid.Empty) ? null : parentId;
             OrganizationNumber = orgNumber;
             OrganizationAddress = companyAddress;
             OrganizationContactPerson = organizationContactPerson;

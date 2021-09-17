@@ -55,6 +55,8 @@ namespace CustomerServices.Infrastructure
 
         public async Task<IList<Organization>> GetOrganizationsAsync(Guid? parentId)
         {
+            if (parentId == Guid.Empty)
+                parentId = null;
             return await _customerContext.Organizations.Where(p => p.ParentId == parentId && !p.IsDeleted).ToListAsync();
         }
 

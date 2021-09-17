@@ -119,7 +119,7 @@ namespace CustomerServices.UnitTests
             var organizations = await customerService.GetOrganizationsAsync(true);
 
             // Assert
-            Assert.Equal(3, organizations.Count); // four organizations, but one is soft deleted
+            Assert.Equal(2, organizations.Count); // four organizations, but one is soft deleted
             Assert.Equal(customerFourId, deletedOrganization.OrganizationId);
             Assert.True(deletedOrganization.IsDeleted);
         }
