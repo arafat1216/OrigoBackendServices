@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Models
 {
-    public record NewOrganization
+    public record UpdateOrganization
     {
+        public Guid OrganizationId { get; set; }
         public string OrganizationName { get; set; }
 
         public string OrganizationNumber { get; set; }
@@ -12,11 +16,16 @@ namespace OrigoApiGateway.Models
 
         public ContactPerson OrganizationContactPerson { get; set; }
 
-        public Guid ParentId { get; set; }
-        public Guid PrimaryLocation { get; set; }
-        public string ContactEmail { get; set; }
-        public string InternalNotes { get; set; }
         public NewLocation OrganizationLocation { get; set; }
+
+        public Guid PrimaryLocation { get; set; }
+        public Guid ParentId { get; set; }
+        public Guid CallerId { get; set; }
+
+        public string ContactEmail { get; set; }
+
+        public string InternalNotes { get; set; }
+
         public NewOrganizationPreferences OrganizationPreferences { get; set; }
     }
 }

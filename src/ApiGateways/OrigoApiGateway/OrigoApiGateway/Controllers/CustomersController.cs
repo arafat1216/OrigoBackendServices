@@ -57,7 +57,7 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
+        //[PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<IList<Organization>>> Get(Guid customerId)
         {
             try
@@ -97,6 +97,27 @@ namespace OrigoApiGateway.Controllers
                 return CreatedAtAction(nameof(CreateCustomer), new { id = createdCustomer.Id }, createdCustomer);
             }
             catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPut]
+        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<Organization>> UpdateOrganization([FromBody] UpdateOrganization organizationToChange)
+        {
+            try
+            {
+                var updateOrganization = await CustomerServices.UpdateOrganizationAsync(organizationToChange);
+                if (updateOrganization == null)
+                {
+                    return BadRequest();
+                }
+
+                return Ok(updateOrganization);
+            }
+            catch(Exception ex)
             {
                 return BadRequest();
             }

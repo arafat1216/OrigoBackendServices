@@ -1,7 +1,7 @@
 ﻿
 namespace OrigoApiGateway.Models
 {
-    public class Location
+    public class NewLocation
     {
         public string Name { get; set; }
         public string Description { get; set; }

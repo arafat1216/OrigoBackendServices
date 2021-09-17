@@ -1,7 +1,7 @@
 ﻿
 namespace OrigoApiGateway.Models
 {
-    public class OrganizationPreferences
+    public class NewOrganizationPreferences
     {
         public string WebPage { get; set; }
         public string LogoUrl { get; set; }
