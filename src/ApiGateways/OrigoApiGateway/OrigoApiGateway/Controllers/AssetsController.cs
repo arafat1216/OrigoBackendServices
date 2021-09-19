@@ -126,7 +126,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [Authorize(Policy = "CanCreateAssetPermission")]
+        // TODO: implement roles and permissions before using this decorator [Authorize(Policy = "CanCreateAssetPermission")]
         public async Task<ActionResult> CreateAsset(Guid customerId, [FromBody] NewAsset asset)
         {
             try
