@@ -48,6 +48,8 @@ namespace CustomerServices.Models
         /// <returns></returns>
         public bool HasSubdepartment(Department department)
         {
+            if (department == null)
+                return false;
             var tempDepartment = department;
             do
             {
@@ -66,7 +68,7 @@ namespace CustomerServices.Models
         public IList<Department> Subdepartments(IList<Department> departments)
         {
             List<Department> subdepartments = new List<Department>();
-            foreach(var department in departments)
+            foreach (var department in departments)
             {
                 if (HasSubdepartment(department))
                     subdepartments.Add(department);
