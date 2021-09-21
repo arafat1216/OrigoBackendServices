@@ -4,9 +4,9 @@ using System;
 
 namespace CustomerServices.DomainEvents
 {
-    public class UserUnassignedFromDepartmentDomainEvent : BaseEvent
+    public class UserUnassignedAsManagerFromDepartmentDomainEvent : BaseEvent
     {
-        public UserUnassignedFromDepartmentDomainEvent(User user, Guid departmentId) : base(user.UserId)
+        public UserUnassignedAsManagerFromDepartmentDomainEvent(User user, Guid departmentId) : base(user.UserId)
         {
             User = user;
             DepartmentId = departmentId;
@@ -18,7 +18,9 @@ namespace CustomerServices.DomainEvents
 
         public override string EventMessage(string languageCode = "nb-NO")
         {
-            return $"Removed assigned department {DepartmentId}.";
+            return $"User unassigned as manager for department {DepartmentId}.";
         }
+
     }
+
 }

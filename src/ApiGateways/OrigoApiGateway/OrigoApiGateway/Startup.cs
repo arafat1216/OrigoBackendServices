@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using Dapr.Client;
@@ -64,25 +61,25 @@ namespace OrigoApiGateway
             services.Configure<UserConfiguration>(Configuration.GetSection("User"));
             services.Configure<ModuleConfiguration>(Configuration.GetSection("Module"));
             services.Configure<DepartmentConfiguration>(Configuration.GetSection("Department"));
-            //services.AddAuthentication(options =>
-            //{
-            //    options.DefaultAuthenticateScheme = OktaDefaults.ApiAuthenticationScheme;
-            //    options.DefaultChallengeScheme = OktaDefaults.ApiAuthenticationScheme;
-            //    options.DefaultSignInScheme = OktaDefaults.ApiAuthenticationScheme;
-            //}).AddOktaWebApi(new OktaWebApiOptions
-            //{
-            //    OktaDomain = "https://techstepportal.okta-emea.com",// "https://origoidp.mytos.no", // Configuration["Authentication:Okta:OktaDomain"],
-            //    //AuthorizationServerId = "aus4hxjo6b4FH7i3s0i7",// Configuration["Authentication:Okta:AuthorizationServerId"],
-            //    Audience = "0oa4fetdd1BkZ0PcW0i7"
-            //});
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = OktaDefaults.ApiAuthenticationScheme;
+                options.DefaultChallengeScheme = OktaDefaults.ApiAuthenticationScheme;
+                options.DefaultSignInScheme = OktaDefaults.ApiAuthenticationScheme;
+            }).AddOktaWebApi(new OktaWebApiOptions
+            {
+                OktaDomain = "https://techstepportal.okta-emea.com",// "https://origoidp.mytos.no", // Configuration["Authentication:Okta:OktaDomain"],
+                //AuthorizationServerId = "aus4hxjo6b4FH7i3s0i7",// Configuration["Authentication:Okta:AuthorizationServerId"],
+                Audience = "0oa4fetdd1BkZ0PcW0i7"
+            });
 
-            //services.AddAuthorization(options =>
-            //{
-            //    // One static policy - All users must be authenticated
-            //    options.DefaultPolicy = new AuthorizationPolicyBuilder(OktaDefaults.ApiAuthenticationScheme)
-            //        .RequireAuthenticatedUser()
-            //        .Build();
-            //});
+            services.AddAuthorization(options =>
+            {
+                // One static policy - All users must be authenticated
+                options.DefaultPolicy = new AuthorizationPolicyBuilder(OktaDefaults.ApiAuthenticationScheme)
+                    .RequireAuthenticatedUser()
+                    .Build();
+            });
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -160,24 +157,24 @@ namespace OrigoApiGateway
 
             app.UseRouting();
 
-            //app.UseAuthentication().Use(async (context, next) =>
-            //{
-            //    var authenticateResult = await context.AuthenticateAsync();
-            //    if (authenticateResult.Succeeded && authenticateResult.Principal != null)
-            //    {
-            //        var userEmail = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-            //        var userSub = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            //        if (!string.IsNullOrEmpty(userEmail) && !string.IsNullOrEmpty(userSub))
-            //        {
-            //            var userPermissionIdentity = await userPermissionService.GetUserPermissionsIdentityAsync(userSub, userEmail, CancellationToken.None);
-            //            context.User.AddIdentity(userPermissionIdentity);
-            //        }
-            //    }
+            app.UseAuthentication().Use(async (context, next) =>
+            {
+                var authenticateResult = await context.AuthenticateAsync();
+                if (authenticateResult.Succeeded && authenticateResult.Principal != null)
+                {
+                    var userEmail = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+                    var userSub = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                    if (!string.IsNullOrEmpty(userEmail) && !string.IsNullOrEmpty(userSub))
+                    {
+                        var userPermissionIdentity = await userPermissionService.GetUserPermissionsIdentityAsync(userSub, userEmail, CancellationToken.None);
+                        context.User.AddIdentity(userPermissionIdentity);
+                    }
+                }
 
-            //    await next();
-            //});
+                await next();
+            });
 
-            //app.UseAuthorization();
+            app.UseAuthorization();
 
             app.UseSwagger(c =>
             {

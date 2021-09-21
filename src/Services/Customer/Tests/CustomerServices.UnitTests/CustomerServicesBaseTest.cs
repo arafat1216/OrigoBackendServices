@@ -1,7 +1,7 @@
-using System;
 using CustomerServices.Infrastructure;
 using CustomerServices.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 // ReSharper disable InconsistentNaming
 
@@ -10,6 +10,7 @@ namespace CustomerServices.UnitTests
     public class CustomerServicesBaseTest
     {
         protected readonly Guid CUSTOMER_ONE_ID = new("661b01e0-481b-4e7d-8076-a0e7b6496ae3");
+        protected readonly Guid DEPARTMENT_ONE_ID = new("f0680388-145a-11ec-a469-00155d98690f");
         private readonly Guid CUSTOMER_TWO_ID = new("f1530515-fe2e-4e2f-84c2-c60da5875e22");
         private readonly Guid CUSTOMER_THREE_ID = new("6fb371c9-da3e-4ce4-b4e4-bc7f020eebf9");
 
@@ -42,11 +43,13 @@ namespace CustomerServices.UnitTests
                 new Address("My Way 3", "1111", "My Other City", "NO"),
                 new ContactPerson("Kari Nordmann", "kari.nordmann@example.com", "99999997"));
 
-
             context.AddRange(customerOne, customerTwo, customerThree);
 
+            var departmentOneForCustomerOne = new Department("Cust1Dept1", "1123", "Department one for customer one", customerOne, DEPARTMENT_ONE_ID);
+            context.Add(departmentOneForCustomerOne);
+
             var userOne = new User(customerOne, USER_ONE_ID, "Jane", "Doe", "jane@doe.com", "+4799999999", "007");
-            var userTwo = new User(customerTwo,  USER_TWO_ID, "John", "Doe", "john@doe.com", "+4791111111", "X");
+            var userTwo = new User(customerTwo, USER_TWO_ID, "John", "Doe", "john@doe.com", "+4791111111", "X");
 
             context.AddRange(userOne, userTwo);
 

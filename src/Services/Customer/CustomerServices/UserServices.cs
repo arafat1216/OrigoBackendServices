@@ -52,6 +52,41 @@ namespace CustomerServices
             return user;
         }
 
+        public async Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
+            if (user == null) {
+                throw new UserNotFoundException($"Unable to find {userId}");
+            }
+            if(department == null)
+            {
+                throw new DepartmentNotFoundException($"Unable to find {departmentId}"); ;
+            }
+                
+            user.AssignManagerToDepartment(department);
+            await _customerRepository.SaveEntitiesAsync();
+            return;
+        }
+
+        public async Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
+            if (user == null)
+            {
+                throw new UserNotFoundException($"Unable to find {userId}");
+            }
+            if (department == null)
+            {
+                throw new DepartmentNotFoundException($"Unable to find {departmentId}"); ;
+            }
+
+            user.UnassignManagerFromDepartment(department);
+            await _customerRepository.SaveEntitiesAsync();
+            return;
+        }
+
         public async Task<User> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId)
         {
             var user = await GetUserAsync(customerId, userId);

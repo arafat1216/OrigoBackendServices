@@ -10,6 +10,7 @@ namespace CustomerServices.Models
     public class User : Entity, IAggregateRoot
     {
         protected IList<Department> departments;
+        protected IList<Department> managesDepartments;
 
         public User(Customer customer, Guid userId, string firstName, string lastName, string email, string mobileNumber, string employeeId)
         {
@@ -35,6 +36,8 @@ namespace CustomerServices.Models
         public Customer Customer { get; set; }
         public IReadOnlyCollection<Department> Departments { get { return new ReadOnlyCollection<Department>(departments); } protected set { departments = new List<Department>(value); } }
 
+        public IReadOnlyCollection<Department> ManagesDepartments { get { return new ReadOnlyCollection<Department>(managesDepartments); } protected set { managesDepartments = new List<Department>(value); } }
+
         public void AssignDepartment(Department department)
         {
             AddDomainEvent(new UserAssignedToDepartmentDomainEvent(this, department.ExternalDepartmentId));
@@ -45,6 +48,26 @@ namespace CustomerServices.Models
         {
             AddDomainEvent(new UserUnassignedFromDepartmentDomainEvent(this, department.ExternalDepartmentId));
             departments.Remove(department);
+        }
+
+        public void AssignManagerToDepartment(Department department)
+        {
+            if (managesDepartments == null)
+            {
+                managesDepartments = new List<Department>();
+            }
+            AddDomainEvent(new UserAssignedAsManagerToDepartmentDomainEvent(this, department.ExternalDepartmentId));
+            managesDepartments.Add(department);
+        }
+
+        public void UnassignManagerFromDepartment(Department department)
+        {
+            if (managesDepartments == null)
+            {
+                managesDepartments = new List<Department>();
+            }
+            AddDomainEvent(new UserAssignedAsManagerToDepartmentDomainEvent(this, department.ExternalDepartmentId));
+            managesDepartments.Remove(department);
         }
     }
 }

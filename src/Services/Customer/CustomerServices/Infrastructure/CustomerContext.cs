@@ -37,11 +37,11 @@ namespace CustomerServices.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new CustomerConfiguration());
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
 
+            modelBuilder.Entity<Department>().ToTable("Department");
             modelBuilder.Entity<AssetCategoryLifecycleType>().ToTable("AssetCategoryLifecycleType");
             modelBuilder.Entity<AssetCategoryType>().ToTable("AssetCategory");
-            modelBuilder.Entity<User>().ToTable("User");
-            modelBuilder.Entity<User>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<ProductModule>().ToTable("ProductModule");
             modelBuilder.Entity<UserPermissions>().Property(userPermissions => userPermissions.AccessList)
                 .HasConversion(convertTo => JsonSerializer.Serialize(convertTo, new JsonSerializerOptions{IgnoreNullValues = true}),
