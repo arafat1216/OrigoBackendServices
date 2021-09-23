@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Services;
+using OrigoApiGateway.Authorization;
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 // ReSharper disable RouteTemplates.ControllerRouteParameterIsNotPassedToMethods
 
@@ -35,6 +36,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoPagedAssets), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadAsset)]
         public async Task<ActionResult<OrigoPagedAssets>> SearchForAsset(Guid customerId, string search, int page = 1, int limit = 50)
         {
             try
@@ -58,6 +60,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadAsset)]
         public async Task<ActionResult<IList<OrigoAsset>>> Get(Guid customerId, Guid userId)
         {
             try
@@ -81,6 +84,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadAsset)]
         public async Task<ActionResult<IList<OrigoAsset>>> Get(Guid customerId)
         {
             try
@@ -104,6 +108,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadAsset)]
         public async Task<ActionResult<OrigoAsset>> GetAsset(Guid customerId, Guid assetId)
         {
             try
@@ -127,6 +132,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         // TODO: implement roles and permissions before using this decorator [Authorize(Policy = "CanCreateAssetPermission")]
+        [PermissionAuthorize(Permission.CanCreateAsset)]
         public async Task<ActionResult> CreateAsset(Guid customerId, [FromBody] NewAsset asset)
         {
             try
@@ -148,6 +154,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanUpdateAsset)]
         public async Task<ActionResult> SetAssetStatusOnAsset(Guid customerId, Guid assetId, int assetStatus)
         {
             try
@@ -170,6 +177,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanUpdateAsset)]
         public async Task<ActionResult> SetActiveStatusOnAsset(Guid customerId, Guid assetId, bool isActive)
         {
             try
@@ -193,6 +201,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanUpdateAsset)]
         public async Task<ActionResult> UpdateAsset(Guid customerId, Guid assetId, [FromBody] OrigoUpdateAsset asset)
         {
             try
@@ -216,6 +225,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoAssetLifecycle>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadAsset)]
         public async Task<ActionResult> GetLifecycles()
         {
             try
@@ -238,10 +248,21 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanUpdateAsset)]
         public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid customerId, Guid assetId, int newLifecycleType)
         {
             try
             {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                if (role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString() || PredefinedRole.DepartmentManager.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var updatedAsset = await _assetServices.ChangeLifecycleType(customerId, assetId, newLifecycleType);
                 if (updatedAsset == null)
                 {
@@ -259,10 +280,21 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanUpdateAsset)]
         public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, Guid? userId)
         {
             try
             {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                if (role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString() || PredefinedRole.DepartmentManager.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var assignedAsset = await _assetServices.AssignAsset(customerId, assetId, userId);
                 if (assignedAsset == null)
                 {
