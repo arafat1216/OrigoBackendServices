@@ -45,7 +45,7 @@ namespace CustomerServices.Infrastructure
             modelBuilder.Entity<ProductModule>().ToTable("ProductModule");
             modelBuilder.Entity<UserPermissions>().Property(userPermissions => userPermissions.AccessList)
                 .HasConversion(convertTo => JsonSerializer.Serialize(convertTo, new JsonSerializerOptions{IgnoreNullValues = true}),
-                    convertFrom => JsonSerializer.Deserialize<IReadOnlyCollection<Guid>>(convertFrom, new JsonSerializerOptions{ IgnoreNullValues = true }));
+                    convertFrom => JsonSerializer.Deserialize<IList<Guid>>(convertFrom, new JsonSerializerOptions{ IgnoreNullValues = true }));
 
             modelBuilder.Seed();
         }
