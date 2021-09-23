@@ -66,7 +66,7 @@ namespace Customer.API.Controllers
                     newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId);
                 var updatedUserView = new User(updatedUser);
 
-                return CreatedAtAction(nameof(CreateUserForCustomer), new {id = updatedUserView.Id}, updatedUserView);
+                return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUserView.Id }, updatedUserView);
             }
             catch (CustomerNotFoundException)
             {
@@ -87,6 +87,60 @@ namespace Customer.API.Controllers
             var user = await _userServices.AssignDepartment(customerId, userId, departmentId);
             if (user == null) return NotFound();
             return Ok(new User(user));
+        }
+
+        [Route("{userId:Guid}/department/{departmentId:Guid}/manager")]
+        [HttpPost]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId)
+        {
+            try
+            {
+                await _userServices.AssignManagerToDepartment(customerId, userId, departmentId);
+                return Ok();
+            }
+            catch (DepartmentNotFoundException exception)
+            {
+
+                return BadRequest(exception.Message);
+            }
+            catch (UserNotFoundException exception)
+            {
+
+                return BadRequest(exception.Message);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{userId:Guid}/department/{departmentId:Guid}/manager")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId)
+        {
+            try
+            {
+                await _userServices.UnassignManagerFromDepartment(customerId, userId, departmentId);
+                return Ok();
+            }
+            catch (DepartmentNotFoundException exception)
+            {
+
+                return BadRequest(exception.Message);
+            }
+            catch (UserNotFoundException exception)
+            {
+
+                return BadRequest(exception.Message);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
 
         [Route("{userId:Guid}/department/{departmentId:Guid}")]
