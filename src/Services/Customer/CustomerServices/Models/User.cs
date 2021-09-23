@@ -10,8 +10,7 @@ namespace CustomerServices.Models
     public class User : Entity, IAggregateRoot
     {
         protected IList<Department> departments;
-
-        public User(Customer customer, Guid userId, string firstName, string lastName, string email, string mobileNumber, string employeeId)
+        public User(Organization customer, Guid userId, string firstName, string lastName, string email, string mobileNumber, string employeeId)
         {
             Customer = customer;
             UserId = userId;
@@ -32,7 +31,7 @@ namespace CustomerServices.Models
         public string MobileNumber { get; protected set; }
         public string EmployeeId { get; protected set; }
         [JsonIgnore]
-        public Customer Customer { get; set; }
+        public Organization Customer { get; set; }
         public IReadOnlyCollection<Department> Departments { get { return new ReadOnlyCollection<Department>(departments); } protected set { departments = new List<Department>(value); } }
 
         public void AssignDepartment(Department department)
@@ -40,6 +39,7 @@ namespace CustomerServices.Models
             AddDomainEvent(new UserAssignedToDepartmentDomainEvent(this, department.ExternalDepartmentId));
             departments.Add(department);
         }
+        
 
         public void UnassignDepartment(Department department)
         {

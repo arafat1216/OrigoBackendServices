@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using Common.Cryptography;
 using System.Text;
 using System;
+using System.Linq;
 
 namespace CustomerServices.UnitTests
 {
@@ -31,19 +32,97 @@ namespace CustomerServices.UnitTests
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
-            var customerRepository = new CustomerRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), customerRepository);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository);
 
             // Act
-            var customer = await customerService.GetCustomerAsync(CUSTOMER_ONE_ID);
+            var customer = await customerService.GetOrganizationAsync(CUSTOMER_ONE_ID, true, true);
 
             // Assert
-            Assert.Equal("COMPANY ONE", customer.CompanyName);
-            Assert.Equal("My Way 1", customer.CompanyAddress.Street);
-            Assert.Equal("1111", customer.CompanyAddress.PostCode);
-            Assert.Equal("My City", customer.CompanyAddress.City);
-            Assert.Equal("NO", customer.CompanyAddress.Country);
-        } 
+            Assert.Equal("COMPANY ONE", customer.OrganizationName);
+            Assert.Equal("My Way 1", customer.OrganizationAddress.Street);
+            Assert.Equal("1111", customer.OrganizationAddress.PostCode);
+            Assert.Equal("My City", customer.OrganizationAddress.City);
+            Assert.Equal("NO", customer.OrganizationAddress.Country);
+
+            // - Location
+            Assert.Equal("COMPANY ONE", customer.OrganizationLocation.Name);
+            Assert.Equal("Location of COMPANY ONE", customer.OrganizationLocation.Description);
+            Assert.Equal("My Way 1A", customer.OrganizationLocation.Address1);
+            Assert.Equal("My Way 1B", customer.OrganizationLocation.Address2);
+            Assert.Equal("0585", customer.OrganizationLocation.PostalCode);
+            Assert.Equal("Oslo", customer.OrganizationLocation.City);
+            Assert.Equal("Norway", customer.OrganizationLocation.Country);
+
+            // - preferences
+            Assert.Equal("webPage 1", customer.OrganizationPreferences.WebPage);
+            Assert.Equal("logoUrl 1", customer.OrganizationPreferences.LogoUrl);
+            Assert.Equal("organizationNotes 1", customer.OrganizationPreferences.OrganizationNotes);
+            Assert.True(customer.OrganizationPreferences.EnforceTwoFactorAuth);
+            Assert.Equal("NO", customer.OrganizationPreferences.PrimaryLanguage);
+            Assert.Equal(0, customer.OrganizationPreferences.DefaultDepartmentClassification);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void GetAllOrganizations()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository);
+
+            // Act
+            var organizations = await customerService.GetOrganizationsAsync(false);
+
+            // Assert
+            Assert.Equal("COMPANY ONE", organizations[0].OrganizationName);
+            Assert.Equal("COMPANY TWO", organizations[1].OrganizationName);
+            Assert.Equal("COMPANY THREE", organizations[2].OrganizationName);
+            Assert.Equal("COMPANY FOUR", organizations[3].OrganizationName);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void GetAllOrganizationsHierarchical()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository);
+
+            // Act
+            var organizations = await customerService.GetOrganizationsAsync(true);
+            var childOrganizations = organizations[0].ChildOrganizations.ToList();
+
+            // Assert
+            Assert.Equal(3, organizations.Count); // only 3, because one organization is a child organization
+            Assert.Null(organizations[0].ParentId);
+            Assert.Null(organizations[1].ParentId);
+            Assert.Null(organizations[2].ParentId);
+            Assert.Equal(childOrganizations[0].ParentId, organizations[0].OrganizationId);  // organization one is parent of organization 3
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void DeleteOrganization()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository);
+
+            // Act
+            Guid customerFourId  = new("2C005777-ED56-43D9-9B1E-2B8112E67D10");
+            await customerService.DeleteOrganizationAsync(customerFourId, Guid.Empty, false);
+            var deletedOrganization = await customerService.GetOrganizationAsync(customerFourId);
+            var organizations = await customerService.GetOrganizationsAsync(true);
+
+            // Assert
+            Assert.Equal(2, organizations.Count); // four organizations, but one is soft deleted
+            Assert.Equal(customerFourId, deletedOrganization.OrganizationId);
+            Assert.True(deletedOrganization.IsDeleted);
+        }
 
         [Fact]
         [Trait("Category", "UnitTest")]
@@ -51,8 +130,8 @@ namespace CustomerServices.UnitTests
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
-            var customerRepository = new CustomerRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), customerRepository);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository);
 
             byte[] iv, key;
             string message = "Super secret data";
