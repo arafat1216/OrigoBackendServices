@@ -8,7 +8,7 @@ using Xunit;
 
 namespace CustomerServices.UnitTests
 {
-    public class UserServicesTests : CustomerServicesBaseTest
+    public class UserServicesTests : OrganizationServicesBaseTest
     {
         public UserServicesTests() : base(new DbContextOptionsBuilder<CustomerContext>()
             // ReSharper disable once StringLiteralTypo
@@ -38,8 +38,8 @@ namespace CustomerServices.UnitTests
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
-            var customerRepository = new CustomerRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository);
 
             // Act
             const string EMAIL_TEST_TEST = "email@test.test";
@@ -56,8 +56,8 @@ namespace CustomerServices.UnitTests
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
-            var customerRepository = new CustomerRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository);
 
             // Act
             await userServices.AssignManagerToDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, DEPARTMENT_ONE_ID);

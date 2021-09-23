@@ -12,7 +12,7 @@ namespace CustomerServices.Models
         private IList<Department> _departments = new List<Department>();
         private IList<Department> _managesDepartments = new List<Department>();
 
-        public User(Customer customer, Guid userId, string firstName, string lastName, string email, string mobileNumber, string employeeId)
+        public User(Organization customer, Guid userId, string firstName, string lastName, string email, string mobileNumber, string employeeId)
         {
             Customer = customer;
             UserId = userId;
@@ -34,7 +34,9 @@ namespace CustomerServices.Models
         public string EmployeeId { get; protected set; }
         [JsonIgnore]
         public Organization Customer { get; set; }
-        public IReadOnlyCollection<Department> Departments { get { return new ReadOnlyCollection<Department>(departments); } protected set { departments = new List<Department>(value); } }
+        public IReadOnlyCollection<Department> Departments { get => new ReadOnlyCollection<Department>(_departments);
+            protected set => _departments = new List<Department>(value);
+        }
 
         public IReadOnlyCollection<Department> ManagesDepartments { get => new ReadOnlyCollection<Department>(_managesDepartments);
             protected set => _managesDepartments = value != null ? new List<Department>(value) : new List<Department>();

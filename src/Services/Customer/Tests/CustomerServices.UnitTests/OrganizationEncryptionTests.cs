@@ -12,9 +12,9 @@ using Xunit;
 
 namespace CustomerServices.UnitTests
 {
-    public class CustomerEncryptionTests : CustomerServicesBaseTest
+    public class OrganizationEncryptionTests : OrganizationServicesBaseTest
     {
-        public CustomerEncryptionTests() : base(
+        public OrganizationEncryptionTests() : base(
         new DbContextOptionsBuilder<CustomerContext>()
         // ReSharper disable once StringLiteralTypo
         .UseSqlite("Data Source=sqlitecustomerencryptionunittests.db")
@@ -29,8 +29,8 @@ namespace CustomerServices.UnitTests
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
-            var customerRepository = new CustomerRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), customerRepository);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository);
 
             byte[] iv, key;
             var message = "Super secret data";

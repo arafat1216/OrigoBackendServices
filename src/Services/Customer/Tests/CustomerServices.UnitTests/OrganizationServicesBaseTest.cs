@@ -7,7 +7,7 @@ using System;
 
 namespace CustomerServices.UnitTests
 {
-    public class CustomerServicesBaseTest
+    public class OrganizationServicesBaseTest
     {
         protected readonly Guid CUSTOMER_ONE_ID = new("661b01e0-481b-4e7d-8076-a0e7b6496ae3");
         protected readonly Guid DEPARTMENT_ONE_ID = new("f0680388-145a-11ec-a469-00155d98690f");
@@ -18,7 +18,7 @@ namespace CustomerServices.UnitTests
         protected readonly Guid USER_ONE_ID = new Guid("42803f8e-5608-4beb-a3e6-029b8e229d91");
         private readonly Guid USER_TWO_ID = new Guid("39349c24-6e47-4a5e-9bab-7b65f438fac5");
 
-        protected CustomerServicesBaseTest(DbContextOptions<CustomerContext> contextOptions)
+        protected OrganizationServicesBaseTest(DbContextOptions<CustomerContext> contextOptions)
         {
             ContextOptions = contextOptions;
             Seed();
