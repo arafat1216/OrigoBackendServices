@@ -16,7 +16,7 @@ namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Authorize]
+    //[Authorize]
     [Route("origoapi/v{version:apiVersion}/Customers/{customerId:guid}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]

@@ -57,7 +57,7 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(OrigoCustomer), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
+        //[PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<IList<OrigoCustomer>>> Get(Guid customerId)
         {
             try
