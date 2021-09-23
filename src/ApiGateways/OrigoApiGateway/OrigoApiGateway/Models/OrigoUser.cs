@@ -1,5 +1,6 @@
 ﻿using OrigoApiGateway.Models.BackendDTO;
 using System;
+using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models
 {
@@ -13,6 +14,7 @@ namespace OrigoApiGateway.Models
             MobileNumber = user.MobileNumber;
             EmployeeId = user.EmployeeId;
             CustomerName = user.CustomerName;
+            AssignedToDepartments = user.AssignedToDepartments;
         }
 
         public Guid Id { get; set; }
@@ -21,5 +23,6 @@ namespace OrigoApiGateway.Models
         public string MobileNumber { get; set; }
         public string EmployeeId { get; set; }
         public string CustomerName { get; set; }
+        public List<Guid> AssignedToDepartments { get; set; }
     }
 }

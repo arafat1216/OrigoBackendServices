@@ -8,7 +8,7 @@ using Xunit;
 
 namespace CustomerServices.UnitTests
 {
-    public class UserServicesTests : CustomerServicesBaseTest
+    public class UserServicesTests : OrganizationServicesBaseTest
     {
         public UserServicesTests() : base(new DbContextOptionsBuilder<CustomerContext>()
             // ReSharper disable once StringLiteralTypo
@@ -30,6 +30,41 @@ namespace CustomerServices.UnitTests
 
             // Assert
             Assert.Equal("Jane", user.FirstName);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void AddUserWithoutDepartment_CheckSavedExists()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository);
+
+            // Act
+            const string EMAIL_TEST_TEST = "email@test.test";
+            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4799999999", "43435435");
+
+            // Assert
+            var newUserRead = await userServices.GetUserAsync(CUSTOMER_ONE_ID, newUser.UserId);
+            Assert.NotNull(newUserRead);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void AddUserAsManager_CheckManagedDepartmentCount()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository);
+
+            // Act
+            await userServices.AssignManagerToDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, DEPARTMENT_ONE_ID);
+
+            // Assert
+            var user = await context.Users.FirstOrDefaultAsync(u => u.UserId == USER_ONE_ID);
+            Assert.Equal(1, user.ManagesDepartments.Count);
         }
     }
 }

@@ -38,8 +38,17 @@ namespace CustomerServices.Models
         [JsonIgnore]
         public Organization Customer { get; set; }
 
+        /// <summary>
+        /// The associated users for this department.
+        /// </summary>
         [JsonIgnore]
         public IReadOnlyCollection<User> Users { get; set; }
+
+        /// <summary>
+        /// The users allowed to manage this department.
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyCollection<User> Managers { get; set; }
 
         /// <summary>
         /// Checks if the input department is a subdepartment of this department or if the input department is this department.
