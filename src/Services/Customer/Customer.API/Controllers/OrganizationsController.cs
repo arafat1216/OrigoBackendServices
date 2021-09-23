@@ -111,8 +111,26 @@ namespace Customer.API.Controllers
                         OrganizationAddress = new Address(org.OrganizationAddress),
                         OrganizationContactPerson = new ContactPerson(org.OrganizationContactPerson),
                         OrganizationPreferences = (org.OrganizationPreferences == null) ? null : new OrganizationPreferences(org.OrganizationPreferences),
-                        OrganizationLocation = (org.OrganizationLocation == null) ? null : new Location(org.OrganizationLocation)
+                        OrganizationLocation = (org.OrganizationLocation == null) ? null : new Location(org.OrganizationLocation),
+                        ChildOrganizations = new List<ViewModels.Organization>()
                     };
+                    if (org.ChildOrganizations != null)
+                    {
+                        foreach (CustomerServices.Models.Organization childOrg in org.ChildOrganizations)
+                        {
+                            var childOrgView = new ViewModels.Organization
+                            {
+                                Id = childOrg.OrganizationId,
+                                OrganizationName = childOrg.OrganizationName,
+                                OrganizationNumber = childOrg.OrganizationNumber,
+                                OrganizationAddress = new Address(childOrg.OrganizationAddress),
+                                OrganizationContactPerson = new ContactPerson(childOrg.OrganizationContactPerson),
+                                OrganizationPreferences = (childOrg.OrganizationPreferences == null) ? null : new OrganizationPreferences(childOrg.OrganizationPreferences),
+                                OrganizationLocation = (childOrg.OrganizationLocation == null) ? null : new Location(childOrg.OrganizationLocation)
+                            };
+                            organizationView.ChildOrganizations.Add(childOrgView);
+                        }
+                    }
                     list.Add(organizationView);
                 }
 

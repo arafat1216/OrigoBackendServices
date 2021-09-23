@@ -66,6 +66,12 @@ namespace OrigoApiGateway.Services
             }
             catch (HttpRequestException exception)
             {
+                // Not found
+                if ((int)exception.StatusCode == 404)
+                {
+                    return null;
+                }
+               
                 _logger.LogError(exception, "GetCustomerAsync failed with HttpRequestException.");
                 throw;
             }
