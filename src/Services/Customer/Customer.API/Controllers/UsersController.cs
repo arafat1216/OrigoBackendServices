@@ -13,7 +13,7 @@ namespace Customer.API.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/customers/{customerId:Guid}/[controller]")]
+    [Route("api/v{version:apiVersion}/organizations/{customerId:Guid}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
     public class UsersController : ControllerBase
