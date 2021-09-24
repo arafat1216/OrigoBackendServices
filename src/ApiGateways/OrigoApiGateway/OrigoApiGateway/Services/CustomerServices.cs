@@ -66,6 +66,12 @@ namespace OrigoApiGateway.Services
             }
             catch (HttpRequestException exception)
             {
+                // Not found
+                if ((int)exception.StatusCode == 404)
+                {
+                    return null;
+                }
+               
                 _logger.LogError(exception, "GetCustomerAsync failed with HttpRequestException.");
                 throw;
             }
@@ -95,6 +101,47 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "CreateCustomerAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<Organization> DeleteOrganizationAsync(Guid organizationId)
+        {
+            try
+            {
+                DeleteOrganization delOrg = new DeleteOrganization
+                {
+                    OrganizationId = organizationId,
+                    CallerId = Guid.Empty,  // change to caller of endpoint once this is implemented
+                    hardDelete = false
+                };
+
+                var requestUri = $"{_options.ApiPath}/{organizationId}";
+
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Content = JsonContent.Create(delOrg),
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(requestUri, UriKind.Relative)
+                };
+
+                var response = await HttpClient.SendAsync(request);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    if ((int)response.StatusCode == 404)
+                        return null;
+                    var exception = new BadHttpRequestException("Unable to remove organization.", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to remove organization.");
+                    throw exception;
+                }
+
+                var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+                return organization == null ? null : new Organization(organization);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UpdateOrganizationAsync unknown error.");
                 throw;
             }
         }

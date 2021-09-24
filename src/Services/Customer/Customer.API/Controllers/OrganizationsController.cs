@@ -111,8 +111,26 @@ namespace Customer.API.Controllers
                         OrganizationAddress = new Address(org.OrganizationAddress),
                         OrganizationContactPerson = new ContactPerson(org.OrganizationContactPerson),
                         OrganizationPreferences = (org.OrganizationPreferences == null) ? null : new OrganizationPreferences(org.OrganizationPreferences),
-                        OrganizationLocation = (org.OrganizationLocation == null) ? null : new Location(org.OrganizationLocation)
+                        OrganizationLocation = (org.OrganizationLocation == null) ? null : new Location(org.OrganizationLocation),
+                        ChildOrganizations = new List<ViewModels.Organization>()
                     };
+                    if (org.ChildOrganizations != null)
+                    {
+                        foreach (CustomerServices.Models.Organization childOrg in org.ChildOrganizations)
+                        {
+                            var childOrgView = new ViewModels.Organization
+                            {
+                                Id = childOrg.OrganizationId,
+                                OrganizationName = childOrg.OrganizationName,
+                                OrganizationNumber = childOrg.OrganizationNumber,
+                                OrganizationAddress = new Address(childOrg.OrganizationAddress),
+                                OrganizationContactPerson = new ContactPerson(childOrg.OrganizationContactPerson),
+                                OrganizationPreferences = (childOrg.OrganizationPreferences == null) ? null : new OrganizationPreferences(childOrg.OrganizationPreferences),
+                                OrganizationLocation = (childOrg.OrganizationLocation == null) ? null : new Location(childOrg.OrganizationLocation)
+                            };
+                            organizationView.ChildOrganizations.Add(childOrgView);
+                        }
+                    }
                     list.Add(organizationView);
                 }
 
@@ -128,21 +146,31 @@ namespace Customer.API.Controllers
         [HttpDelete]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<ViewModels.Organization>> DeleteOrganization(Guid organizationId, Guid callerId, bool hardDelete = false)
+        public async Task<ActionResult<ViewModels.Organization>> DeleteOrganization([FromBody] DeleteOrganization deleteOrganization)
         {
             try
             {
-                //var organization = await  _organizationServices.GetOrganizationAsync(organizationId, true, true);
-                //if (organization == null)
-                 //   return NotFound();
-                var removedOrganization = await _organizationServices.DeleteOrganizationAsync(organizationId, callerId, hardDelete);
+                if (deleteOrganization.OrganizationId == Guid.Empty)
+                    return BadRequest("Invalid given for organization");
 
-                return Ok();
+                var removedOrganization = await _organizationServices.DeleteOrganizationAsync(deleteOrganization.OrganizationId, deleteOrganization.CallerId, deleteOrganization.HardDelete);
+
+                var removedOrganizationView = new ViewModels.Organization
+                {
+                    Id = removedOrganization.OrganizationId,
+                    OrganizationName = removedOrganization.OrganizationName,
+                    OrganizationNumber = removedOrganization.OrganizationNumber,
+                    OrganizationAddress = new Address(removedOrganization.OrganizationAddress),
+                    OrganizationContactPerson = new ContactPerson(removedOrganization.OrganizationContactPerson),
+                    OrganizationPreferences = (removedOrganization.OrganizationPreferences == null) ? null : new OrganizationPreferences(removedOrganization.OrganizationPreferences),
+                    OrganizationLocation = (removedOrganization.OrganizationLocation == null) ? null : new Location(removedOrganization.OrganizationLocation)
+                };
+                return Ok(removedOrganizationView);
 
             }
             catch(CustomerNotFoundException ex)
             {
-                return BadRequest("The organization with the given id was not found.");
+                return NotFound("The organization with the given id was not found.");
             }
             catch(Exception ex)
             {
@@ -168,7 +196,6 @@ namespace Customer.API.Controllers
                     }
                 }
 
-                // If primary location is set, set that location object as the 
                 CustomerServices.Models.Location organizationLocation;
                 if (!(organization.PrimaryLocation == null || organization.PrimaryLocation == Guid.Empty))
                 {
@@ -182,6 +209,16 @@ namespace Customer.API.Controllers
                     {
                         organizationLocation = loc;
                     }
+                }
+
+                // Allow creation of organization without a given Location object. Create a new location object from data in OrganizationAddress.
+                else if (organization.OrganizationLocation == null)
+                {
+                    organizationLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.OrganizationName, organization.InternalNotes,
+                                                                                organization.OrganizationAddress.Street, organization.OrganizationAddress.Street,
+                                                                                organization.OrganizationAddress.PostCode, organization.OrganizationAddress.City,
+                                                                                organization.OrganizationAddress.Country);
+                    await _organizationServices.AddOrganizationLocationAsync(organizationLocation);
                 }
                 else
                 {
@@ -207,16 +244,26 @@ namespace Customer.API.Controllers
                                                                                null, organizationLocation);
 
                 // organizationPreferences needs the OrganizationId from newOrganization, and is therefore made last
-                var organizationPreferences = new CustomerServices.Models.OrganizationPreferences(newOrganization.OrganizationId, newOrganization.CreatedBy, organization.OrganizationPreferences?.WebPage,
-                                                                                                  organization.OrganizationPreferences?.LogoUrl, organization.OrganizationPreferences?.OrganizationNotes,
-                                                                                                  organization.OrganizationPreferences.EnforceTwoFactorAuth, organization.OrganizationPreferences?.PrimaryLanguage,
-                                                                                                  organization.OrganizationPreferences.DefaultDepartmentClassification);
+                if (organization.OrganizationPreferences != null)
+                {
+                    var organizationPreferences = new CustomerServices.Models.OrganizationPreferences(newOrganization.OrganizationId, newOrganization.CreatedBy, organization.OrganizationPreferences?.WebPage,
+                                                                                                 organization.OrganizationPreferences?.LogoUrl, organization.OrganizationPreferences?.OrganizationNotes,
+                                                                                                 organization.OrganizationPreferences.EnforceTwoFactorAuth, organization.OrganizationPreferences?.PrimaryLanguage,
+                                                                                                 organization.OrganizationPreferences.DefaultDepartmentClassification);
 
-                // save the organization preferences
-                await _organizationServices.AddOrganizationPreferencesAsync(organizationPreferences);
+                    // save the organization preferences
+                    await _organizationServices.AddOrganizationPreferencesAsync(organizationPreferences);
+                    newOrganization.OrganizationPreferences = organizationPreferences;
+                }
+                else // Create an empty "default" variant of organization preferences
+                {
+                    var organizationPreferences = new CustomerServices.Models.OrganizationPreferences(newOrganization.OrganizationId, newOrganization.CreatedBy, "",
+                                                                                                 "", "", false, "EN", 0);
 
-
-                newOrganization.OrganizationPreferences = organizationPreferences;
+                    // save the organization preferences
+                    await _organizationServices.AddOrganizationPreferencesAsync(organizationPreferences);
+                    newOrganization.OrganizationPreferences = organizationPreferences;
+                }
 
                 // Save new organization
                 var updatedOrganization = await _organizationServices.AddOrganizationAsync(newOrganization);
@@ -228,8 +275,8 @@ namespace Customer.API.Controllers
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
                     OrganizationAddress = new Address(updatedOrganization.OrganizationAddress),
                     OrganizationContactPerson = new ContactPerson(updatedOrganization.OrganizationContactPerson),
-                    OrganizationPreferences = new OrganizationPreferences(updatedOrganization.OrganizationPreferences),
-                    OrganizationLocation = new Location(updatedOrganization.OrganizationLocation)
+                    OrganizationPreferences = (updatedOrganization.OrganizationPreferences == null) ? null : new OrganizationPreferences(updatedOrganization.OrganizationPreferences),
+                    OrganizationLocation = (updatedOrganization.OrganizationLocation == null) ? null :  new Location(updatedOrganization.OrganizationLocation)
                 };
 
                 return CreatedAtAction(nameof(CreateOrganization), new { id = updatedOrganizationView.Id }, updatedOrganizationView);

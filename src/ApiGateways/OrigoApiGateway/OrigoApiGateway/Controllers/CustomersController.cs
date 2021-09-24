@@ -123,6 +123,29 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("{organizationId:Guid}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(Organization), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<Organization>> DeleteOrganization(Guid organizationId)
+        {
+            try
+            {
+                var deletedOrganization = await CustomerServices.DeleteOrganizationAsync(organizationId);
+                if (deletedOrganization == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(deletedOrganization);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
         [Route("{customerId:Guid}/assetCategory")]
         [HttpGet]
         [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
