@@ -87,7 +87,7 @@ namespace CustomerServices.Models
         {
             OrganizationName = companyName;
             ParentId = (parentId == Guid.Empty) ? null : parentId;
-            OrganizationNumber = orgNumber;
+            OrganizationNumber = orgNumber; 
             OrganizationAddress = companyAddress;
             OrganizationContactPerson = organizationContactPerson;
             OrganizationId = organizationId;

@@ -102,6 +102,9 @@ namespace CustomerServices
                 if (organization == null)
                     throw new CustomerNotFoundException();
 
+                if (organization.IsDeleted == true && hardDelete == false)
+                    throw new CustomerNotFoundException();
+
                 if (organization.PrimaryLocation != null)
                 {
                    await DeleteOrganizationLocationAsync((Guid) organization.PrimaryLocation, callerId, hardDelete);
