@@ -30,14 +30,14 @@ namespace OrigoApiGateway.Services
         private readonly CustomerConfiguration _options;
         private readonly IAssetServices _assetServices;
 
-        public async Task<IList<OrigoCustomer>> GetCustomersAsync()
+        public async Task<IList<Organization>> GetCustomersAsync()
         {
             try
             {
-                var customers = await HttpClient.GetFromJsonAsync<IList<CustomerDTO>>($"{_options.ApiPath}");
+                var customers = await HttpClient.GetFromJsonAsync<IList<OrganizationDTO>>($"{_options.ApiPath}");
                 if (customers == null) return null;
-                var origoCustomers = new List<OrigoCustomer>();
-                foreach (var customer in customers) origoCustomers.Add(new OrigoCustomer(customer));
+                var origoCustomers = new List<Organization>();
+                foreach (var customer in customers) origoCustomers.Add(new Organization(customer));
                 return origoCustomers;
             }
             catch (HttpRequestException exception)
@@ -57,15 +57,21 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoCustomer> GetCustomerAsync(Guid customerId)
+        public async Task<Organization> GetCustomerAsync(Guid customerId)
         {
             try
             {
-                var customer = await HttpClient.GetFromJsonAsync<CustomerDTO>($"{_options.ApiPath}/{customerId}");
-                return customer == null ? null : new OrigoCustomer(customer);
+                var customer = await HttpClient.GetFromJsonAsync<OrganizationDTO>($"{_options.ApiPath}/{customerId}");
+                return customer == null ? null : new Organization(customer);
             }
             catch (HttpRequestException exception)
             {
+                // Not found
+                if ((int)exception.StatusCode == 404)
+                {
+                    return null;
+                }
+               
                 _logger.LogError(exception, "GetCustomerAsync failed with HttpRequestException.");
                 throw;
             }
@@ -81,7 +87,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoCustomer> CreateCustomerAsync(OrigoNewCustomer newCustomer)
+        public async Task<Organization> CreateCustomerAsync(NewOrganization newCustomer)
         {
             try
             {
@@ -89,12 +95,71 @@ namespace OrigoApiGateway.Services
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save customer", (int)response.StatusCode);
 
-                var customer = await response.Content.ReadFromJsonAsync<CustomerDTO>();
-                return customer == null ? null : new OrigoCustomer(customer);
+                var customer = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+                return customer == null ? null : new Organization(customer);
             }
             catch (Exception exception)
             {
                 _logger.LogError(exception, "CreateCustomerAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<Organization> DeleteOrganizationAsync(Guid organizationId)
+        {
+            try
+            {
+                DeleteOrganization delOrg = new DeleteOrganization
+                {
+                    OrganizationId = organizationId,
+                    CallerId = Guid.Empty,  // change to caller of endpoint once this is implemented
+                    hardDelete = false
+                };
+
+                var requestUri = $"{_options.ApiPath}/{organizationId}";
+
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Content = JsonContent.Create(delOrg),
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(requestUri, UriKind.Relative)
+                };
+
+                var response = await HttpClient.SendAsync(request);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    if ((int)response.StatusCode == 404)
+                        return null;
+                    var exception = new BadHttpRequestException("Unable to remove organization.", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to remove organization.");
+                    throw exception;
+                }
+
+                var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+                return organization == null ? null : new Organization(organization);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UpdateOrganizationAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<Organization> UpdateOrganizationAsync(UpdateOrganization organizationToChange)
+        {
+            try
+            {
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", organizationToChange);
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to update organization", (int) response.StatusCode);
+
+                var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+                return organization == null ? null : new Organization(organization);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "UpdateOrganizationAsync unknown error.");
                 throw;
             }
         }

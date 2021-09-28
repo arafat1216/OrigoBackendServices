@@ -5,27 +5,46 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using System.Linq;
+using System.ComponentModel.DataAnnotations.Schema;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 namespace CustomerServices.Models
 {
-    public class Customer : Entity, IAggregateRoot
+    public class Organization : Entity, IAggregateRoot
     {
         private IList<AssetCategoryType> selectedAssetCategories;
         private ICollection<ProductModule> selectedProductModules;
         private ICollection<ProductModuleGroup> selectedProductModuleGroups;
         private IList<User> users;
-        public Guid CustomerId { get; protected set; }
 
-        public string CompanyName { get; protected set; }
+        public Guid OrganizationId { get; protected set; }
+        public Guid? ParentId { get; protected set; }
+        public Guid? PrimaryLocation { get; protected set; }
+        public Guid CreatedBy { get; protected set; }
+        public Guid UpdatedBy { get; protected set; }
+        public DateTime CreatedAt { get; protected set; }
+        public DateTime UpdatedAt { get; protected set; }
+        public bool IsDeleted { get; protected set; }
 
-        public string OrgNumber { get; protected set; }
 
-        public Address CompanyAddress { get; protected set; }
+        public string OrganizationName { get; protected set; }
 
-        public ContactPerson CustomerContactPerson { get; protected set; }
+        public string OrganizationNumber { get; protected set; }
+
+        public Address OrganizationAddress { get; protected set; }
+
+        public ContactPerson OrganizationContactPerson { get; protected set; }
+
+        [NotMapped]
+        public ICollection<Organization> ChildOrganizations { get; set; }
+        [NotMapped]
+        public OrganizationPreferences OrganizationPreferences { get; set; }
+
+        [NotMapped]
+        public Location OrganizationLocation { get; set; }
+
 
         [JsonIgnore]
         public IList<User> Users
@@ -58,20 +77,56 @@ namespace CustomerServices.Models
             protected set { selectedAssetCategories = value.ToList(); }
         }
 
-        protected Customer()
+        protected Organization()
         {
 
         }
 
-        public Customer(Guid customerId, string companyName, string orgNumber, Address companyAddress,
+        public Organization(Guid organizationId, Guid callerId, Guid? parentId, string companyName, string orgNumber, Address companyAddress,
+            ContactPerson organizationContactPerson, OrganizationPreferences organizationPreferences, Location organizationLocation)
+        {
+            OrganizationName = companyName;
+            ParentId = (parentId == Guid.Empty) ? null : parentId;
+            OrganizationNumber = orgNumber; 
+            OrganizationAddress = companyAddress;
+            OrganizationContactPerson = organizationContactPerson;
+            OrganizationId = organizationId;
+            OrganizationPreferences = organizationPreferences;
+            OrganizationLocation = organizationLocation;
+            PrimaryLocation = organizationLocation.LocationId;
+            CreatedBy = callerId;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+            UpdatedBy = callerId;
+            IsDeleted = false;
+            AddDomainEvent(new CustomerCreatedDomainEvent(this));
+        }
+
+
+        public Organization(Guid customerId, string companyName, string orgNumber, Address companyAddress,
             ContactPerson customerContactPerson)
         {
-            CompanyName = companyName;
-            OrgNumber = orgNumber;
-            CompanyAddress = companyAddress;
-            CustomerContactPerson = customerContactPerson;
-            CustomerId = customerId;
+            OrganizationName = companyName;
+            OrganizationNumber = orgNumber;
+            OrganizationAddress = companyAddress;
+            OrganizationContactPerson = customerContactPerson;
+            OrganizationId = customerId;
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
+        }
+
+        public void UpdateOrganization(Guid parentId, Guid primaryLocation, string companyName, string organizationNumber)
+        {
+            ParentId = parentId;
+            PrimaryLocation = primaryLocation;
+            OrganizationName = companyName;
+            OrganizationNumber = organizationNumber;
+        }
+
+        public void Delete(Guid callerId)
+        {
+            IsDeleted = true;
+            UpdatedAt = DateTime.UtcNow;
+            UpdatedBy = callerId;
         }
 
         public void AddAssetCategory(AssetCategoryType assetCategory)
@@ -107,25 +162,25 @@ namespace CustomerServices.Models
 
         public void AddProductModule(ProductModule productModule)
         {
-            AddDomainEvent(new ProductModuleAddedDomainEvent(CustomerId, productModule));
+            AddDomainEvent(new ProductModuleAddedDomainEvent(OrganizationId, productModule));
             selectedProductModules.Add(productModule);
         }
 
         public void RemoveProductModule(ProductModule productModule)
         {
-            AddDomainEvent(new ProductModuleRemovedDomainEvent(CustomerId, productModule));
+            AddDomainEvent(new ProductModuleRemovedDomainEvent(OrganizationId, productModule));
             selectedProductModules.Remove(productModule);
         }
 
         public void AddProductModuleGroup(ProductModuleGroup productModuleGroup)
         {
-            AddDomainEvent(new ProductModuleGroupAddedDomainEvent(CustomerId, productModuleGroup));
+            AddDomainEvent(new ProductModuleGroupAddedDomainEvent(OrganizationId, productModuleGroup));
             selectedProductModuleGroups.Add(productModuleGroup);
         }
 
         public void RemoveProductModuleGroup(ProductModuleGroup productModuleGroup)
         {
-            AddDomainEvent(new ProductModuleGroupRemovedDomainEvent(CustomerId, productModuleGroup));
+            AddDomainEvent(new ProductModuleGroupRemovedDomainEvent(OrganizationId, productModuleGroup));
             selectedProductModuleGroups.Remove(productModuleGroup);
         }
 

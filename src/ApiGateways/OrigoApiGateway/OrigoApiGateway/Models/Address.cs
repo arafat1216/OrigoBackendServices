@@ -2,9 +2,9 @@
 
 namespace OrigoApiGateway.Models
 {
-    public class OrigoAddress
+    public class Address
     {
-        public OrigoAddress(AddressDTO companyAddress)
+        public Address(AddressDTO companyAddress)
         {
             Street = companyAddress.Street;
             Postcode = companyAddress.Postcode;
@@ -12,7 +12,7 @@ namespace OrigoApiGateway.Models
             Country = companyAddress.Country;
         }
 
-        public OrigoAddress(){}
+        public Address(){}
 
         public string Street { get; set; }
 

@@ -9,9 +9,10 @@ namespace CustomerServices.Models
 {
     public class User : Entity, IAggregateRoot
     {
-        protected IList<Department> departments;
+        private IList<Department> _departments = new List<Department>();
+        private IList<Department> _managesDepartments = new List<Department>();
 
-        public User(Customer customer, Guid userId, string firstName, string lastName, string email, string mobileNumber, string employeeId)
+        public User(Organization customer, Guid userId, string firstName, string lastName, string email, string mobileNumber, string employeeId)
         {
             Customer = customer;
             UserId = userId;
@@ -32,29 +33,46 @@ namespace CustomerServices.Models
         public string MobileNumber { get; protected set; }
         public string EmployeeId { get; protected set; }
         [JsonIgnore]
-        public Customer Customer { get; set; }
-        public IReadOnlyCollection<Department> Departments
-        {
-            get
-            {
-                return departments == null ? new ReadOnlyCollection<Department>(new List<Department>()) : new ReadOnlyCollection<Department>(departments);
-            }
-            protected set
-            {
-                departments = new List<Department>(value);
-            }
+        public Organization Customer { get; set; }
+        public IReadOnlyCollection<Department> Departments { get => new ReadOnlyCollection<Department>(_departments);
+            protected set => _departments = new List<Department>(value);
+        }
+
+        public IReadOnlyCollection<Department> ManagesDepartments { get => new ReadOnlyCollection<Department>(_managesDepartments);
+            protected set => _managesDepartments = value != null ? new List<Department>(value) : new List<Department>();
         }
 
         public void AssignDepartment(Department department)
         {
             AddDomainEvent(new UserAssignedToDepartmentDomainEvent(this, department.ExternalDepartmentId));
-            departments.Add(department);
+            _departments.Add(department);
         }
+        
 
         public void UnassignDepartment(Department department)
         {
             AddDomainEvent(new UserUnassignedFromDepartmentDomainEvent(this, department.ExternalDepartmentId));
-            departments.Remove(department);
+            _departments.Remove(department);
+        }
+
+        public void AssignManagerToDepartment(Department department)
+        {
+            if (_managesDepartments == null)
+            {
+                _managesDepartments = new List<Department>();
+            }
+            AddDomainEvent(new UserAssignedAsManagerToDepartmentDomainEvent(this, department.ExternalDepartmentId));
+            _managesDepartments.Add(department);
+        }
+
+        public void UnassignManagerFromDepartment(Department department)
+        {
+            if (_managesDepartments == null)
+            {
+                _managesDepartments = new List<Department>();
+            }
+            AddDomainEvent(new UserAssignedAsManagerToDepartmentDomainEvent(this, department.ExternalDepartmentId));
+            _managesDepartments.Remove(department);
         }
     }
 }
