@@ -68,13 +68,42 @@ namespace CustomerServices
             var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.Email == userName);
             if (user == null)
                 return null;
-            var role = await GetRole(predefinedRole);
-            if (predefinedRole == PredefinedRole.DepartmentManager && !accessList.Any())
+            var userPermissions = await GetUserPermissionsAsync(userName);
+            var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)predefinedRole);
+            var departments = await _customerContext.Departments.Where(d => d.Customer == user.Customer).ToListAsync();
+            if (predefinedRole == PredefinedRole.DepartmentManager && !accessList.Any()) // Can't be department manager without access to a department.
             {
                 return null;
             }
-            var userPermission = new UserPermissions(user, role, accessList);
-            _customerContext.UserPermissions.Add(userPermission);
+            else if (predefinedRole == PredefinedRole.DepartmentManager &&
+                (departments.Any(d => accessList.Contains(d.ExternalDepartmentId)) ||
+                departments.Any(d => userPermission.AccessList.Contains(d.ExternalDepartmentId)))) // Check if the lists contains at least one department id.
+            {
+                return null;
+            }
+
+            bool addNew = false; // Check if we need to add this permission or update it.
+            if (userPermission == null)
+            {
+                addNew = true;
+                var role = await GetRole(predefinedRole);
+                userPermission = new UserPermissions(user, role, accessList);
+            }
+            if (addNew)
+            {
+                _customerContext.UserPermissions.Add(userPermission);
+            }
+            else if (accessList.Any())
+            {
+                foreach (Guid access in accessList)
+                {
+                    if (!userPermission.AccessList.Contains(access))
+                    {
+                        userPermission.AddAccess(access);
+                        _customerContext.Entry(userPermission).State = EntityState.Modified;
+                    }
+                }
+            }
             await SaveEntitiesAsync();
             return userPermission;
         }
@@ -88,14 +117,23 @@ namespace CustomerServices
             var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)predefinedRole);
             if (userPermission != null)
             {
-                if (Enum.TryParse(typeof(PredefinedRole), userPermission.Role.Name, out object result) &&
-                    (PredefinedRole)result == PredefinedRole.DepartmentManager &&
-                    accessList.Any())
+                if (accessList.Any())
                 {
+                    foreach (Guid access in accessList)
+                    {
+                        userPermission.RemoveAccess(access);
+                        _customerContext.Entry(userPermission).State = EntityState.Modified;
+                    }
 
+                    if (predefinedRole == PredefinedRole.DepartmentManager && !userPermission.AccessList.Any())
+                    {
+                        userPermission.RemoveRole();
+                        _customerContext.UserPermissions.Remove(userPermission);
+                    }
                 }
                 else
                 {
+                    userPermission.RemoveRole();
                     _customerContext.UserPermissions.Remove(userPermission);
                 }
                 await SaveEntitiesAsync();

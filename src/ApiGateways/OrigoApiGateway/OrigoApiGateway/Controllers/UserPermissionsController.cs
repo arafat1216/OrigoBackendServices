@@ -62,7 +62,8 @@ namespace OrigoApiGateway.Controllers
                 var addedRole = await _userPermissionServices.AddUserPermissionsForUserAsync(userName, userPermissions);
                 if (addedRole != null)
                 {
-                    return CreatedAtAction(nameof(ClaimsIdentity), new { id = addedRole.Name }, JsonSerializer.Serialize(addedRole, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }));
+                    return CreatedAtAction(nameof(ClaimsIdentity), new { id = addedRole.Name }, 
+                        JsonSerializer.Serialize(addedRole, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve, WriteIndented = true }));
                 }
                 return BadRequest();
             }
@@ -82,7 +83,7 @@ namespace OrigoApiGateway.Controllers
                 var removedRole = await _userPermissionServices.RemoveUserPermissionsForUserAsync(userName, userPermissions);
                 if (removedRole != null)
                 {
-                    return CreatedAtAction(nameof(ClaimsIdentity), new { id = removedRole.Name }, JsonSerializer.Serialize(removedRole, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }));
+                    return Ok(JsonSerializer.Serialize(removedRole, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve, WriteIndented = true }));
                 }
                 return BadRequest();
             }

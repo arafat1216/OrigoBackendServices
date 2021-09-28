@@ -33,7 +33,17 @@ namespace CustomerServices.Models
         public string EmployeeId { get; protected set; }
         [JsonIgnore]
         public Customer Customer { get; set; }
-        public IReadOnlyCollection<Department> Departments { get { return new ReadOnlyCollection<Department>(departments); } protected set { departments = new List<Department>(value); } }
+        public IReadOnlyCollection<Department> Departments
+        {
+            get
+            {
+                return departments == null ? new ReadOnlyCollection<Department>(new List<Department>()) : new ReadOnlyCollection<Department>(departments);
+            }
+            protected set
+            {
+                departments = new List<Department>(value);
+            }
+        }
 
         public void AssignDepartment(Department department)
         {
