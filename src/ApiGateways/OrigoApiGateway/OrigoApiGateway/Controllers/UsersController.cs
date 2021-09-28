@@ -37,15 +37,15 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<List<OrigoUser>>> GetAllUsers(Guid customerId)
         {
-            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString())
-            {
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
-                {
-                    return Forbid();
-                }
-            }
+            //var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+            //if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString())
+            //{
+            //    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+            //    if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+            //    {
+            //        return Forbid();
+            //    }
+            //}
 
             var users = await _userServices.GetAllUsersAsync(customerId);
             if (users == null) return NotFound();
