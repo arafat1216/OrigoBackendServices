@@ -34,7 +34,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<ClaimsIdentity>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<ClaimsIdentity>> GetAsset(string sub, string userName, CancellationToken cancellationToken)
+        public async Task<ActionResult<ClaimsIdentity>> GetPermissions(string sub, string userName, CancellationToken cancellationToken)
         {
             try
             {
