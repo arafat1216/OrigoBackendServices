@@ -5,7 +5,7 @@ namespace OrigoApiGateway.Models.BackendDTO
 {
     public class UserPermissionsDTO
     {
-        public UserPermissionsDTO(IReadOnlyCollection<string> permissionNames, IReadOnlyCollection<Guid> accessList, string role)
+        public UserPermissionsDTO(IList<string> permissionNames, IList<Guid> accessList, string role)
         {
             PermissionNames = permissionNames;
             AccessList = accessList;
@@ -13,8 +13,8 @@ namespace OrigoApiGateway.Models.BackendDTO
         }
 
         public string Role { get; }
-        public IReadOnlyCollection<string> PermissionNames { get; }
+        public IList<string> PermissionNames { get; }
 
-        public IReadOnlyCollection<Guid> AccessList { get; }
+        public IList<Guid> AccessList { get; }
     }
 }
