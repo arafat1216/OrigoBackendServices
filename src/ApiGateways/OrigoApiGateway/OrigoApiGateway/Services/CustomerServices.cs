@@ -150,7 +150,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", organizationToChange);
+                var response = await HttpClient.PutAsJsonAsync($"{_options.ApiPath}/{organizationToChange.OrganizationId}/organization", organizationToChange);
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to update organization", (int) response.StatusCode);
 
@@ -168,7 +168,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", organizationToChange);
+                var response = await HttpClient.PostAsync($"{_options.ApiPath}/{organizationToChange.OrganizationId}/organization", JsonContent.Create(organizationToChange));
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to update organization", (int)response.StatusCode);
 

@@ -33,7 +33,7 @@ namespace Customer.API.Controllers
 
         [Route("{organizationId:Guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(ViewModels.Organization), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.Gone)]
         public async Task<ActionResult<Organization>> Get(Guid organizationId, bool includeOrganizationPreferences = true, bool includeLocation = true)
@@ -43,7 +43,7 @@ namespace Customer.API.Controllers
                 var organization = await _organizationServices.GetOrganizationAsync(organizationId, includeOrganizationPreferences, includeLocation);
                 if (organization == null) return NotFound();
 
-                var foundCustomer = new ViewModels.Organization
+                var foundCustomer = new Organization
                 {
                     Id = organization.OrganizationId,
                     OrganizationName = organization.OrganizationName,
@@ -57,6 +57,7 @@ namespace Customer.API.Controllers
             }
             catch (EntityIsDeletedException ex)
             {
+                _logger.LogError("Entity is deleted. {0}", ex.Message);
                 return StatusCode((int)HttpStatusCode.Gone);
             }
             catch (Exception ex)
@@ -72,11 +73,11 @@ namespace Customer.API.Controllers
             try
             {
                 var organizations = await _organizationServices.GetOrganizationsAsync(hierarchical);
-                IList<ViewModels.Organization> list = new List<ViewModels.Organization>();
+                IList<Organization> list = new List<Organization>();
 
                 foreach (CustomerServices.Models.Organization org in organizations)
                 {
-                    var organizationView = new ViewModels.Organization
+                    var organizationView = new Organization
                     {
                         Id = org.OrganizationId,
                         OrganizationName = org.OrganizationName,
@@ -85,13 +86,13 @@ namespace Customer.API.Controllers
                         OrganizationContactPerson = new ContactPerson(org.OrganizationContactPerson),
                         OrganizationPreferences = (org.OrganizationPreferences == null) ? null : new OrganizationPreferences(org.OrganizationPreferences),
                         OrganizationLocation = (org.OrganizationLocation == null) ? null : new Location(org.OrganizationLocation),
-                        ChildOrganizations = new List<ViewModels.Organization>()
+                        ChildOrganizations = new List<Organization>()
                     };
                     if (org.ChildOrganizations != null)
                     {
                         foreach (CustomerServices.Models.Organization childOrg in org.ChildOrganizations)
                         {
-                            var childOrgView = new ViewModels.Organization
+                            var childOrgView = new Organization
                             {
                                 Id = childOrg.OrganizationId,
                                 OrganizationName = childOrg.OrganizationName,
@@ -205,7 +206,7 @@ namespace Customer.API.Controllers
                 // Save new organization
                 var updatedOrganization = await _organizationServices.AddOrganizationAsync(newOrganization);
 
-                var updatedOrganizationView = new ViewModels.Organization
+                var updatedOrganizationView = new Organization
                 {
                     Id = updatedOrganization.OrganizationId,
                     OrganizationName = updatedOrganization.OrganizationName,
@@ -479,7 +480,7 @@ namespace Customer.API.Controllers
 
                 var removedOrganization = await _organizationServices.DeleteOrganizationAsync(deleteOrganization.OrganizationId, deleteOrganization.CallerId, deleteOrganization.HardDelete);
 
-                var removedOrganizationView = new ViewModels.Organization
+                var removedOrganizationView = new Organization
                 {
                     Id = removedOrganization.OrganizationId,
                     OrganizationName = removedOrganization.OrganizationName,
@@ -505,10 +506,10 @@ namespace Customer.API.Controllers
 
         [Route("{organizationId:Guid}/preferences")]
         [HttpGet]
-        [ProducesResponseType(typeof(ViewModels.OrganizationPreferences), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(OrganizationPreferences), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.Gone)]
-        public async Task<ActionResult<OrganizationPreferences>> Get(Guid organizationId)
+        public async Task<ActionResult<OrganizationPreferences>> GetOrganizationPreferences(Guid organizationId)
         {
             try
             {
@@ -516,7 +517,7 @@ namespace Customer.API.Controllers
                 if (preferences == null)
                     return NotFound();
 
-                var preferencesView = new ViewModels.OrganizationPreferences(preferences);
+                var preferencesView = new OrganizationPreferences(preferences);
 
                 return Ok(preferencesView);
             }
@@ -553,7 +554,7 @@ namespace Customer.API.Controllers
                 if (updatedPreferences == null)
                     return NotFound();
 
-                var updatedPreferencesView = new ViewModels.OrganizationPreferences(updatedPreferences);
+                var updatedPreferencesView = new OrganizationPreferences(updatedPreferences);
 
                 return Ok(updatedPreferencesView);
             }
@@ -565,7 +566,7 @@ namespace Customer.API.Controllers
 
         [Route("location")]
         [HttpPut]
-        [ProducesResponseType(typeof(ViewModels.Location), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Location), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<Location>> UpdateOrganizationLocation([FromBody] UpdateLocation location)
         {
             try
@@ -585,7 +586,7 @@ namespace Customer.API.Controllers
                 if (updatedLocation == null)
                     return NotFound();
 
-                var updatedLocationView = new ViewModels.Location(updatedLocation);
+                var updatedLocationView = new Location(updatedLocation);
 
                 return Ok(updatedLocationView);
             }

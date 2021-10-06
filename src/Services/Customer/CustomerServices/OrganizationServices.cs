@@ -185,6 +185,7 @@ namespace CustomerServices
             }
             catch (EntityIsDeletedException ex)
             {
+                _logger.LogError("Entity is deleted. {0}", ex.Message);
                 throw;
             }
             catch (Exception ex)
