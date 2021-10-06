@@ -44,7 +44,7 @@ namespace OrigoApiGateway.Controllers
                     return NotFound();
                 }
 
-                return Ok(JsonSerializer.Serialize(userRole, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }));
+                return Ok(userRole);
             }
             catch (Exception)
             {
@@ -62,8 +62,7 @@ namespace OrigoApiGateway.Controllers
                 var addedRole = await _userPermissionServices.AddUserPermissionsForUserAsync(userName, userPermissions);
                 if (addedRole != null)
                 {
-                    return CreatedAtAction(nameof(ClaimsIdentity), new { id = addedRole.Name }, 
-                        JsonSerializer.Serialize(addedRole, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve, WriteIndented = true }));
+                    return CreatedAtAction(nameof(AddUserPermission), addedRole);
                 }
                 return BadRequest();
             }
@@ -83,7 +82,7 @@ namespace OrigoApiGateway.Controllers
                 var removedRole = await _userPermissionServices.RemoveUserPermissionsForUserAsync(userName, userPermissions);
                 if (removedRole != null)
                 {
-                    return Ok(JsonSerializer.Serialize(removedRole, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve, WriteIndented = true }));
+                    return Ok(removedRole);
                 }
                 return BadRequest();
             }
