@@ -119,6 +119,29 @@ namespace OrigoApiGateway.Controllers
             }
             catch(Exception ex)
             {
+                Logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
+        [HttpPatch]
+        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<Organization>> PatchOrganization([FromBody] UpdateOrganization organizationToChange)
+        {
+            try
+            {
+                var updateOrganization = await CustomerServices.PatchOrganizationAsync(organizationToChange);
+                if (updateOrganization == null)
+                {
+                    return BadRequest();
+                }
+
+                return Ok(updateOrganization);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }

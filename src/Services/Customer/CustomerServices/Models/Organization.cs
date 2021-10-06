@@ -28,7 +28,6 @@ namespace CustomerServices.Models
         public DateTime UpdatedAt { get; protected set; }
         public bool IsDeleted { get; protected set; }
 
-
         public string OrganizationName { get; protected set; }
 
         public string OrganizationNumber { get; protected set; }
@@ -44,7 +43,6 @@ namespace CustomerServices.Models
 
         [NotMapped]
         public Location OrganizationLocation { get; set; }
-
 
         [JsonIgnore]
         public IList<User> Users
@@ -87,7 +85,7 @@ namespace CustomerServices.Models
         {
             OrganizationName = companyName;
             ParentId = (parentId == Guid.Empty) ? null : parentId;
-            OrganizationNumber = orgNumber; 
+            OrganizationNumber = orgNumber;
             OrganizationAddress = companyAddress;
             OrganizationContactPerson = organizationContactPerson;
             OrganizationId = organizationId;
@@ -102,7 +100,6 @@ namespace CustomerServices.Models
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
 
-
         public Organization(Guid customerId, string companyName, string orgNumber, Address companyAddress,
             ContactPerson customerContactPerson)
         {
@@ -114,12 +111,27 @@ namespace CustomerServices.Models
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
 
-        public void UpdateOrganization(Guid parentId, Guid primaryLocation, string companyName, string organizationNumber)
+        public void UpdateOrganization(Guid? parentId, Guid? primaryLocation, string companyName, string organizationNumber)
         {
             ParentId = parentId;
             PrimaryLocation = primaryLocation;
             OrganizationName = companyName;
             OrganizationNumber = organizationNumber;
+        }
+
+        public void PatchOrganization(Guid?parentId, Guid? primaryLocation, string companyName, string organizationNumber)
+        {
+            if (ParentId != parentId)
+                ParentId = parentId;
+
+            if (PrimaryLocation != primaryLocation)
+                PrimaryLocation = primaryLocation;
+
+            if (OrganizationName != companyName)
+                OrganizationName = companyName;
+
+            if (OrganizationNumber != organizationNumber)
+                OrganizationNumber = organizationNumber;
         }
 
         public void Delete(Guid callerId)
