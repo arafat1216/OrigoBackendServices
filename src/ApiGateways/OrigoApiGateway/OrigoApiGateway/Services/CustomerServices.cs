@@ -164,6 +164,24 @@ namespace OrigoApiGateway.Services
             }
         }
 
+        public async Task<Organization> PatchOrganizationAsync(UpdateOrganization organizationToChange)
+        {
+            try
+            {
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", organizationToChange);
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to update organization", (int)response.StatusCode);
+
+                var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+                return organization == null ? null : new Organization(organization);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UpdateOrganizationAsync unknown error.");
+                throw;
+            }
+        }
+
         public async Task<IList<OrigoCustomerAssetCategoryType>> GetAssetCategoryForCustomerAsync(Guid customerId)
         {
             try

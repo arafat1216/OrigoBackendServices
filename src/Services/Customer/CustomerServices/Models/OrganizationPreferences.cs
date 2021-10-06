@@ -56,6 +56,46 @@ namespace CustomerServices.Models
             UpdatedBy = newPreferences.UpdatedBy;
         }
 
+        public void PatchPreferences(OrganizationPreferences newPreferences)
+        {
+            bool isUpdated = false;
+            if (WebPage != newPreferences.WebPage)
+            {
+                WebPage = newPreferences.WebPage;
+                isUpdated = true;
+            }
+            if (LogoUrl != newPreferences.LogoUrl)
+            {
+                LogoUrl = newPreferences.LogoUrl;
+                isUpdated = true;
+            }
+            if (OrganizationNotes != newPreferences.OrganizationNotes)
+            {
+                OrganizationNotes = newPreferences.OrganizationNotes;
+                isUpdated = true;
+            }
+            if (EnforceTwoFactorAuth != newPreferences.EnforceTwoFactorAuth)
+            {
+                EnforceTwoFactorAuth = newPreferences.EnforceTwoFactorAuth;
+                isUpdated = true;
+            }
+            if (PrimaryLanguage != newPreferences.PrimaryLanguage)
+            {
+                PrimaryLanguage = newPreferences.PrimaryLanguage;
+                isUpdated = true;
+            }
+            if (DefaultDepartmentClassification != newPreferences.DefaultDepartmentClassification)
+            {
+                DefaultDepartmentClassification = newPreferences.DefaultDepartmentClassification;
+                isUpdated = true;
+            }
+            if (isUpdated)
+            {
+                UpdatedAt = DateTime.UtcNow;
+                UpdatedBy = newPreferences.UpdatedBy;
+            }
+        }
+
         public void Delete(Guid callerId)
         {
             IsDeleted = true;

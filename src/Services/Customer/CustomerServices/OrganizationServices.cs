@@ -64,23 +64,59 @@ namespace CustomerServices
             return await _customerRepository.GetOrganizationsAsync(parentId);
         }
 
-        /// <summary>
-        /// Get the location object with the given Id
-        /// </summary>
-        /// <param name="locationId"></param>
-        /// <returns>Null or Location</returns>
-        public async Task<Location> GetLocationAsync(Guid locationId)
+        public async Task<Organization> GetOrganizationAsync(Guid customerId)
         {
-            return await _customerRepository.GetOrganizationLocationAsync(locationId);
+            return await _customerRepository.GetOrganizationAsync(customerId);
         }
 
-        public async Task<Organization> UpdateOrganizationAsync(Organization updateOrganization)
+        /// <summary>
+        /// Get the organization with the given Id. Optional: Return the OrganizationPreferences and OrganizationLocation object of the organization along with the organization itself.
+        /// </summary>
+        /// <param name="customerId">The id of the organization queried</param>
+        /// <param name="includePreferences">Include OrganizationPreferences object of the organization if set to true</param>
+        /// <param name="includeLocation">Include OrganizationLocation object of the organization if set to true</param>
+        /// <returns>Organization</returns>
+        public async Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false)
+        {
+            var organization = await _customerRepository.GetOrganizationAsync(customerId);
+
+            if (organization != null)
+            {
+                if (includePreferences)
+                {
+                    organization.OrganizationPreferences = await _customerRepository.GetOrganizationPreferencesAsync(customerId);
+                }
+                if (includeLocation)
+                {
+                    organization.OrganizationLocation = await _customerRepository.GetOrganizationLocationAsync(organization.PrimaryLocation);
+                }
+            }
+
+            return organization;
+        }
+
+        /// <summary>
+        /// Add the given Organization to the database.
+        /// </summary>
+        /// <param name="newOrganization">An Organization entity, to be added to the database</param>
+        /// <returns></returns>
+        public async Task<Organization> AddOrganizationAsync(Organization newOrganization)
+        {
+            return await _customerRepository.AddAsync(newOrganization);
+        }
+
+        public async Task<Organization> UpdateOrganizationAsync(Organization updateOrganization, bool usingPatch = false)
         {
             try
             {
                 var organization = await _customerRepository.GetOrganizationAsync(updateOrganization.OrganizationId);
-                organization.UpdateOrganization((Guid)organization.ParentId, (Guid)organization.PrimaryLocation,
-                                                organization.OrganizationName, organization.OrganizationNumber);
+                if (usingPatch)
+                    organization.PatchOrganization(organization.ParentId, organization.PrimaryLocation,
+                                                 organization.OrganizationName, organization.OrganizationNumber);
+                else
+                    organization.UpdateOrganization(organization.ParentId, organization.PrimaryLocation,
+                                                    organization.OrganizationName, organization.OrganizationNumber);
+
 
                 await _customerRepository.SaveEntitiesAsync();
 
@@ -102,19 +138,19 @@ namespace CustomerServices
                 if (organization == null)
                     throw new CustomerNotFoundException();
 
-                if (organization.IsDeleted == true && hardDelete == false)
+                if (organization.IsDeleted && !hardDelete)
                     throw new CustomerNotFoundException();
 
                 if (organization.PrimaryLocation != null)
                 {
-                   await DeleteOrganizationLocationAsync((Guid) organization.PrimaryLocation, callerId, hardDelete);
+                    await DeleteOrganizationLocationAsync((Guid)organization.PrimaryLocation, callerId, hardDelete);
                 }
-                    
 
-                
+
+
                 await DeleteOrganizationPreferencesAsync(organizationId, callerId, hardDelete);
-                
-                
+
+
 
                 // set IsDelete, caller and date of change
                 organization.Delete(callerId);
@@ -147,30 +183,39 @@ namespace CustomerServices
                     throw new EntityIsDeletedException();
                 return preferences;
             }
-            catch(EntityIsDeletedException ex)
+            catch (EntityIsDeletedException ex)
             {
                 throw;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError("OrganizationServices -GetOrganizationPreferences failed to be retrieved: " + ex.Message);
                 throw;
             }
         }
 
-        public async Task<OrganizationPreferences> UpdateOrganizationPreferencesAsync(OrganizationPreferences preferences)
+        public async Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences)
+        {
+            return await _customerRepository.AddOrganizationPreferencesAsync(organizationPreferences);
+        }
+
+        public async Task<OrganizationPreferences> UpdateOrganizationPreferencesAsync(OrganizationPreferences preferences, bool usingPatch = false)
         {
             try
             {
                 var currentPreferences = await _customerRepository.GetOrganizationPreferencesAsync(preferences.OrganizationId);
                 if (currentPreferences == null)
                     return null;
-                currentPreferences.UpdatePreferences(preferences);
-                await _customerRepository.SaveEntitiesAsync();
 
+                if (usingPatch)
+                    currentPreferences.PatchPreferences(preferences);
+                else
+                    currentPreferences.UpdatePreferences(preferences);
+
+                await _customerRepository.SaveEntitiesAsync();
                 return currentPreferences;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError("OrganizationServices - UpdateOrganizationPreferencesAsync failed to update: " + ex.Message);
                 throw;
@@ -201,7 +246,28 @@ namespace CustomerServices
             }
         }
 
-        public async Task<Location> UpdateOrganizationLocationAsync(Location updateLocation)
+        public async Task<OrganizationPreferences> RemoveOrganizationPreferencesAsync(Guid organizationId)
+        {
+            var organizationPreferences = await _customerRepository.GetOrganizationPreferencesAsync(organizationId);
+            return await _customerRepository.DeleteOrganizationPreferencesAsync(organizationPreferences);
+        }
+
+        /// <summary>
+        /// Get the location object with the given Id
+        /// </summary>
+        /// <param name="locationId"></param>
+        /// <returns>Null or Location</returns>
+        public async Task<Location> GetLocationAsync(Guid locationId)
+        {
+            return await _customerRepository.GetOrganizationLocationAsync(locationId);
+        }
+
+        public async Task<Location> AddOrganizationLocationAsync(Location location)
+        {
+            return await _customerRepository.AddOrganizationLocationAsync(location);
+        }
+
+        public async Task<Location> UpdateOrganizationLocationAsync(Location updateLocation, bool usingPatch = false)
         {
             try
             {
@@ -210,11 +276,14 @@ namespace CustomerServices
                 {
                     return null;
                 }
-                currentLocation.UpdateLocation(updateLocation);
+
+                if (usingPatch)
+                    currentLocation.PatchLocation(updateLocation);
+                else
+                    currentLocation.UpdateLocation(updateLocation);
+
                 await _customerRepository.SaveEntitiesAsync();
-
                 return currentLocation;
-
             }
             catch (Exception ex)
             {
@@ -235,73 +304,16 @@ namespace CustomerServices
 
                 if (hardDelete)
                 {
-                   return await _customerRepository.DeleteOrganizationLocationAsync(location);
+                    return await _customerRepository.DeleteOrganizationLocationAsync(location);
                 }
-               
+
                 return location;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError("OrganizationServices - DeleteOrganizationLocationAsync failed to delete: " + ex.Message);
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Add the given Organization to the database.
-        /// </summary>
-        /// <param name="newOrganization">An Organization entity, to be added to the database</param>
-        /// <returns></returns>
-        public async Task<Organization> AddOrganizationAsync(Organization newOrganization)
-        {
-            return await _customerRepository.AddAsync(newOrganization);
-        }
-
-        public async Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences)
-        {
-            return await _customerRepository.AddOrganizationPreferencesAsync(organizationPreferences);
-        }
-
-        public async Task<Location> AddOrganizationLocationAsync(Location location)
-        {
-            return await _customerRepository.AddOrganizationLocationAsync(location);
-        }
-
-        /// <summary>
-        /// Get the organization with the given Id. Optional: Return the OrganizationPreferences and OrganizationLocation object of the organization along with the organization itself.
-        /// </summary>
-        /// <param name="customerId">The id of the organization queried</param>
-        /// <param name="includePreferences">Include OrganizationPreferences object of the organization if set to true</param>
-        /// <param name="includeLocation">Include OrganizationLocation object of the organization if set to true</param>
-        /// <returns>Organization</returns>
-        public async Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false)
-        {
-            var organization = await _customerRepository.GetOrganizationAsync(customerId);
-
-            if (organization != null)
-            {
-                if (includePreferences)
-                {
-                    organization.OrganizationPreferences = await _customerRepository.GetOrganizationPreferencesAsync(customerId);
-                }
-                if (includeLocation)
-                {
-                    organization.OrganizationLocation = await _customerRepository.GetOrganizationLocationAsync(organization.PrimaryLocation);
-                }
-            }
-
-            return organization;
-        }
-
-        public async Task<OrganizationPreferences> RemoveOrganizationPreferencesAsync(Guid organizationId)
-        {
-            var organizationPreferences = await _customerRepository.GetOrganizationPreferencesAsync(organizationId);
-            return await _customerRepository.DeleteOrganizationPreferencesAsync(organizationPreferences);
-        }
-
-        public async Task<Organization> GetOrganizationAsync(Guid customerId)
-        {
-            return await _customerRepository.GetOrganizationAsync(customerId);
         }
 
         public async Task<IList<AssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypesForCustomerAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes)

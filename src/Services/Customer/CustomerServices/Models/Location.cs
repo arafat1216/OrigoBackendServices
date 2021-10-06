@@ -59,6 +59,51 @@ namespace CustomerServices.Models
             UpdatedBy = updateLocation.CreatedBy;
         }
 
+        public void PatchLocation(Location updateLocation)
+        {
+            bool isUpdated = false;
+            if (Name != updateLocation.Name)
+            {
+                Name = updateLocation.Name;
+                isUpdated = true;
+            }
+            if (Description != updateLocation.Description)
+            {
+                Description = updateLocation.Description;
+                isUpdated = true;
+            }
+            if (Address1 != updateLocation.Address1)
+            {
+                Address1 = updateLocation.Address1;
+                isUpdated = true;
+            }
+            if (Address2 != updateLocation.Address2)
+            {
+                Address2 = updateLocation.Address2;
+                isUpdated = true;
+            }
+            if (PostalCode != updateLocation.PostalCode)
+            {
+                PostalCode = updateLocation.PostalCode;
+                isUpdated = true;
+            }
+            if (City != updateLocation.City)
+            {
+                City = updateLocation.City;
+                isUpdated = true;
+            }
+            if (Country != updateLocation.Country)
+            {
+                Country = updateLocation.Country;
+                isUpdated = true;
+            }
+            if (isUpdated)
+            {
+                UpdatedAt = DateTime.UtcNow;
+                UpdatedBy = updateLocation.CreatedBy;
+            }
+        }
+
         public void Delete(Guid callerId)
         {
             IsDeleted = true;
@@ -66,5 +111,4 @@ namespace CustomerServices.Models
             UpdatedBy = callerId;
         }
     }
-
 }
