@@ -31,14 +31,14 @@ namespace OrigoApiGateway.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(IList<ClaimsIdentity>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<OrigoUserPermissions>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<ClaimsIdentity>> GetPermissions(string sub, string userName, CancellationToken cancellationToken)
+        public async Task<ActionResult<IList<OrigoUserPermissions>>> GetPermissions(string userName)
         {
             try
             {
-                var userRole = await _userPermissionServices.GetUserPermissionsIdentityAsync(sub, userName, cancellationToken);
+                var userRole = await _userPermissionServices.GetUserPermissionsAsync(userName);
                 if (userRole == null)
                 {
                     return NotFound();
@@ -46,16 +46,17 @@ namespace OrigoApiGateway.Controllers
 
                 return Ok(userRole);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
 
         [HttpPut]
-        [ProducesResponseType(typeof(ClaimsIdentity), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(OrigoUserPermissions), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> AddUserPermission(string userName, [FromBody] NewUserPermissions userPermissions)
+        public async Task<ActionResult<OrigoUserPermissions>> AddUserPermission(string userName, [FromBody] NewUserPermissions userPermissions)
         {
             try
             {
@@ -66,16 +67,17 @@ namespace OrigoApiGateway.Controllers
                 }
                 return BadRequest();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
 
         [HttpDelete]
-        [ProducesResponseType(typeof(ClaimsIdentity), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(OrigoUserPermissions), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> RemoveUserPermission(string userName, [FromBody] NewUserPermissions userPermissions)
+        public async Task<ActionResult<OrigoUserPermissions>> RemoveUserPermission(string userName, [FromBody] NewUserPermissions userPermissions)
         {
             try
             {
@@ -86,8 +88,9 @@ namespace OrigoApiGateway.Controllers
                 }
                 return BadRequest();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
