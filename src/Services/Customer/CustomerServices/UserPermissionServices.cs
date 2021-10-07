@@ -65,7 +65,7 @@ namespace CustomerServices
 
         public async Task<UserPermissions> AssignUserPermissionsAsync(string userName, PredefinedRole predefinedRole, IList<Guid> accessList)
         {
-            var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.Email == userName);
+            var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == userName.ToLower());
             if (user == null)
                 return null;
             var userPermissions = await GetUserPermissionsAsync(userName);
