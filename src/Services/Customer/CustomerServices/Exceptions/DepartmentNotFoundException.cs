@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 
 namespace CustomerServices.Exceptions
 {
+    [Serializable]
     public class DepartmentNotFoundException : Exception
     {
         public DepartmentNotFoundException()

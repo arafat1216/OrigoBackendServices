@@ -2,6 +2,7 @@
 using Common.Extensions;
 using Common.Logging;
 using Common.Utilities;
+using CustomerServices.Exceptions;
 using CustomerServices.Infrastructure;
 using CustomerServices.Models;
 using MediatR;
@@ -65,9 +66,9 @@ namespace CustomerServices
 
         public async Task<UserPermissions> AssignUserPermissionsAsync(string userName, PredefinedRole predefinedRole, IList<Guid> accessList)
         {
-            var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == userName.ToLower());
+            var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.Email.Trim().ToLower() == userName.Trim().ToLower());
             if (user == null)
-                return null;
+                throw new UserNameDoNotExistException();
             var userPermissions = await GetUserPermissionsAsync(userName);
             var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)predefinedRole);
             var departments = await _customerContext.Departments.Where(d => d.Customer == user.Customer).ToListAsync();
@@ -110,9 +111,9 @@ namespace CustomerServices
 
         public async Task<UserPermissions> RemoveUserPermissionsAsync(string userName, PredefinedRole predefinedRole, IList<Guid> accessList)
         {
-            var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.Email == userName);
+            var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.Email.Trim().ToLower() == userName.Trim().ToLower());
             if (user == null)
-                return null;
+                throw new UserNameDoNotExistException();
             var userPermissions = await GetUserPermissionsAsync(userName);
             var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)predefinedRole);
             if (userPermission != null)

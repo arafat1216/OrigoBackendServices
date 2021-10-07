@@ -1,5 +1,6 @@
 ﻿using Customer.API.ViewModels;
 using CustomerServices;
+using CustomerServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -53,16 +54,29 @@ namespace Customer.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<ViewModels.UserPermissions>> AssignUserPermissions(string userName, [FromBody] NewUserPermission userRole)
         {
-            var userPermission = await _userPermissionServices.AssignUserPermissionsAsync(userName, userRole.Role, userRole.AccessList);
-            if (userPermission == null) return NotFound();
-
-            var permissionNames = new List<string>();
-            foreach (var roleGrantedPermission in userPermission.Role.GrantedPermissions)
+            try
             {
-                permissionNames.AddRange(roleGrantedPermission.Permissions.Select(p => p.Name));
+                var userPermission = await _userPermissionServices.AssignUserPermissionsAsync(userName, userRole.Role, userRole.AccessList);
+                if (userPermission == null) return NotFound();
+
+                var permissionNames = new List<string>();
+                foreach (var roleGrantedPermission in userPermission.Role.GrantedPermissions)
+                {
+                    permissionNames.AddRange(roleGrantedPermission.Permissions.Select(p => p.Name));
+                }
+                var userPermissionAdded = new UserPermissions(new ReadOnlyCollection<string>(permissionNames), new ReadOnlyCollection<Guid>(userPermission.AccessList), userPermission.Role.Name);
+                return Ok(userPermissionAdded);
             }
-            var userPermissionAdded = new UserPermissions(new ReadOnlyCollection<string>(permissionNames), new ReadOnlyCollection<Guid>(userPermission.AccessList), userPermission.Role.Name);
-            return Ok(userPermissionAdded);
+            catch (UserNameDoNotExistException userEx)
+            {
+                _logger.LogError("{0}", userEx);
+                return NotFound($"User with user name: {userName}. Not found.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex);
+                throw;
+            }
         }
 
         [HttpDelete]
@@ -70,16 +84,29 @@ namespace Customer.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<UserPermissions>> RemoveUserPermissions(string userName, [FromBody] NewUserPermission userRole)
         {
-            var userPermission = await _userPermissionServices.RemoveUserPermissionsAsync(userName, userRole.Role, userRole.AccessList);
-            if (userPermission == null) return NotFound();
-
-            var permissionNames = new List<string>();
-            foreach (var roleGrantedPermission in userPermission.Role.GrantedPermissions)
+            try
             {
-                permissionNames.AddRange(roleGrantedPermission.Permissions.Select(p => p.Name));
+                var userPermission = await _userPermissionServices.RemoveUserPermissionsAsync(userName, userRole.Role, userRole.AccessList);
+                if (userPermission == null) return NotFound();
+
+                var permissionNames = new List<string>();
+                foreach (var roleGrantedPermission in userPermission.Role.GrantedPermissions)
+                {
+                    permissionNames.AddRange(roleGrantedPermission.Permissions.Select(p => p.Name));
+                }
+                var userPermissionAdded = new UserPermissions(new ReadOnlyCollection<string>(permissionNames), new ReadOnlyCollection<Guid>(userPermission.AccessList), userPermission.Role.Name);
+                return Ok(userPermissionAdded);
             }
-            var userPermissionAdded = new UserPermissions(new ReadOnlyCollection<string>(permissionNames), new ReadOnlyCollection<Guid>(userPermission.AccessList), userPermission.Role.Name);
-            return Ok(userPermissionAdded);
+            catch (UserNameDoNotExistException userEx)
+            {
+                _logger.LogError("{0}", userEx);
+                return NotFound($"User with user name: {userName}. Not found.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex);
+                throw;
+            }
         }
     }
 }
