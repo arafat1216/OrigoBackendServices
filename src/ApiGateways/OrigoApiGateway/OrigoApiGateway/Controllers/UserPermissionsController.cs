@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Services;
@@ -65,6 +66,11 @@ namespace OrigoApiGateway.Controllers
                 {
                     return CreatedAtAction(nameof(AddUserPermission), addedRole);
                 }
+                return NotFound();
+            }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
             catch (Exception ex)
@@ -86,6 +92,11 @@ namespace OrigoApiGateway.Controllers
                 {
                     return Ok(removedRole);
                 }
+                return NotFound();
+            }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
             catch (Exception ex)

@@ -82,6 +82,10 @@ namespace OrigoApiGateway.Services
         {
             var encodedUserName = WebUtility.UrlEncode(userName);
             var response = await _httpClient.PutAsync($"{_options.ApiPath}/users/{encodedUserName}/permissions", JsonContent.Create(userPermission));
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
             if (!response.IsSuccessStatusCode)
             {
                 throw new BadHttpRequestException("Unable to save user permissions", (int)response.StatusCode);
@@ -102,6 +106,10 @@ namespace OrigoApiGateway.Services
                 RequestUri = new Uri(requestUri, UriKind.Relative)
             };
             var response = await _httpClient.SendAsync(request);
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
             if (!response.IsSuccessStatusCode)
             {
                 var exception = new BadHttpRequestException("Unable to remove the asset category to the customer.", (int)response.StatusCode);
