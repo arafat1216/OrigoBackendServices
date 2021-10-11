@@ -10,10 +10,10 @@ namespace Customer.API.ViewModels
             FirstName = user.FirstName;
             LastName = user.LastName;
             Email = user.Email;
-            CustomerName = user.Customer.CompanyName;
+            CustomerName = user.Customer.OrganizationName;
             EmployeeId = user.EmployeeId;
             MobileNumber = user.MobileNumber;
-            CustomerName = user.Customer != null ? user.Customer.CompanyName : string.Empty;
+            CustomerName = user.Customer != null ? user.Customer.OrganizationName : string.Empty;
         }
 
         public Guid Id { get; set; }

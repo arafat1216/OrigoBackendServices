@@ -4,7 +4,7 @@ using System;
 
 namespace CustomerServices.DomainEvents
 {
-    class UserUnassignedFromDepartmentDomainEvent : BaseEvent
+    public class UserUnassignedFromDepartmentDomainEvent : BaseEvent
     {
         public UserUnassignedFromDepartmentDomainEvent(User user, Guid departmentId) : base(user.UserId)
         {

@@ -7,10 +7,10 @@ namespace CustomerServices
 {
     public class ModuleServices : IModuleServices
     {
-        private readonly ILogger<CustomerServices> _logger;
-        private readonly ICustomerRepository _customerRepository;
+        private readonly ILogger<OrganizationServices> _logger;
+        private readonly IOrganizationRepository _customerRepository;
 
-        public ModuleServices(ILogger<CustomerServices> logger, ICustomerRepository customerRepository)
+        public ModuleServices(ILogger<OrganizationServices> logger, IOrganizationRepository customerRepository)
         {
             _logger = logger;
             _customerRepository = customerRepository;

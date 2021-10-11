@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using Dapr.Client;
@@ -62,6 +59,7 @@ namespace OrigoApiGateway
             services.Configure<AssetConfiguration>(Configuration.GetSection("Asset"));
             services.Configure<CustomerConfiguration>(Configuration.GetSection("Customer"));
             services.Configure<UserConfiguration>(Configuration.GetSection("User"));
+            services.Configure<UserPermissionsConfigurations>(Configuration.GetSection("UserPermissions"));
             services.Configure<ModuleConfiguration>(Configuration.GetSection("Module"));
             services.Configure<DepartmentConfiguration>(Configuration.GetSection("Department"));
             //services.AddAuthentication(options =>
@@ -103,7 +101,9 @@ namespace OrigoApiGateway
                 DaprClient.CreateInvokeHttpClient("customerservices"),
                 x.GetRequiredService<IOptions<UserConfiguration>>()))));
 
-            services.AddSingleton<IUserPermissionService>(x => new UserPermissionService(DaprClient.CreateInvokeHttpClient("customerservices"), x.GetRequiredService<IOptions<UserConfiguration>>()));
+            services.AddSingleton<IUserPermissionService>(x => new UserPermissionService(x.GetRequiredService<ILogger<UserPermissionService>>(), 
+                DaprClient.CreateInvokeHttpClient("customerservices"), 
+                x.GetRequiredService<IOptions<UserPermissionsConfigurations>>()));
 
             services.AddSingleton<IUserServices>(x => new UserServices(x.GetRequiredService<ILogger<UserServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
@@ -121,7 +121,7 @@ namespace OrigoApiGateway
                 x.GetRequiredService<IOptions<UserConfiguration>>())))));
 
             services.AddSingleton<IDepartmentsServices>(x => new DepartmentsServices(x.GetRequiredService<ILogger<DepartmentsServices>>(),
-                DaprClient.CreateInvokeHttpClient("customerservices"), 
+                DaprClient.CreateInvokeHttpClient("customerservices"),
                 x.GetRequiredService<IOptions<DepartmentConfiguration>>()));
 
             services.AddSwaggerGen(c =>

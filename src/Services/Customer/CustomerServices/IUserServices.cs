@@ -13,5 +13,7 @@ namespace CustomerServices
             string email, string mobileNumber, string employeeId);
         Task<User> AssignDepartment(Guid customerId, Guid userId, Guid departmentId);
         Task<User> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId);
+        Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId);
+        Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId);
     }
 }
