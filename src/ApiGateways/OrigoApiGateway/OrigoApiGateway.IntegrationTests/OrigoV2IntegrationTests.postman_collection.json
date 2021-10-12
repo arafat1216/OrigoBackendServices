@@ -25,7 +25,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{baseUrl}}/Customers/eb86e110-65e6-4259-b2b0-b0cdc098ad81/Departments",
+					"raw": "{{BaseUrl}}/Customers/eb86e110-65e6-4259-b2b0-b0cdc098ad81/Departments",
 					"host": [
 						"{{baseUrl}}"
 					],
