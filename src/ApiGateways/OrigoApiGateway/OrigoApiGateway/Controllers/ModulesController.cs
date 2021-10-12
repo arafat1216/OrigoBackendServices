@@ -30,11 +30,11 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoProductModule>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IList<OrigoProductModule>>> GetModules(Guid? customerId = null)
+        public async Task<ActionResult<IList<OrigoProductModule>>> GetModules(Guid? organizationId = null)
         {
             try
             {
-                var modules = await ModuleServices.GetModulesAsync(customerId);
+                var modules = await ModuleServices.GetModulesAsync(organizationId);
                 return modules != null ? Ok(modules) : NotFound();
             }
             catch (Exception)

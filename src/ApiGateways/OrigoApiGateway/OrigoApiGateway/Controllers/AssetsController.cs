@@ -30,16 +30,16 @@ namespace OrigoApiGateway.Controllers
             _assetServices = assetServices;
         }
 
-        [Route("customers/{customerId:guid}/search")]
+        [Route("customers/{organizationId:guid}/search")]
         [HttpGet]
         [ProducesResponseType(typeof(OrigoPagedAssets), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoPagedAssets>> SearchForAsset(Guid customerId, string search, int page = 1, int limit = 50)
+        public async Task<ActionResult<OrigoPagedAssets>> SearchForAsset(Guid organizationId, string search, int page = 1, int limit = 50)
         {
             try
             {
-                var origoPagedAssets = await _assetServices.SearchForAssetsForCustomerAsync(customerId, search, page, limit);
+                var origoPagedAssets = await _assetServices.SearchForAssetsForCustomerAsync(organizationId, search, page, limit);
                 if (origoPagedAssets == null)
                 {
                     return NotFound();
@@ -53,16 +53,16 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("customers/{customerId:guid}/{userId:Guid}")]
+        [Route("customers/{organizationId:guid}/{userId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<IList<OrigoAsset>>> Get(Guid customerId, Guid userId)
+        public async Task<ActionResult<IList<OrigoAsset>>> Get(Guid organizationId, Guid userId)
         {
             try
             {
-                var assets = await _assetServices.GetAssetsForUserAsync(customerId, userId);
+                var assets = await _assetServices.GetAssetsForUserAsync(organizationId, userId);
                 if (assets == null)
                 {
                     return NotFound();
@@ -76,16 +76,16 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("customers/{customerId:guid}")]
+        [Route("customers/{organizationId:guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<IList<OrigoAsset>>> Get(Guid customerId)
+        public async Task<ActionResult<IList<OrigoAsset>>> Get(Guid organizationId)
         {
             try
             {
-                var assets = await _assetServices.GetAssetsForCustomerAsync(customerId);
+                var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId);
                 if (assets == null)
                 {
                     return NotFound();
@@ -99,16 +99,16 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{assetId:guid}/customers/{customerId:guid}")]
+        [Route("{assetId:guid}/customers/{organizationId:guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoAsset>> GetAsset(Guid customerId, Guid assetId)
+        public async Task<ActionResult<OrigoAsset>> GetAsset(Guid organizationId, Guid assetId)
         {
             try
             {
-                var asset = await _assetServices.GetAssetForCustomerAsync(customerId, assetId);
+                var asset = await _assetServices.GetAssetForCustomerAsync(organizationId, assetId);
                 if (asset == null)
                 {
                     return NotFound();
@@ -122,15 +122,15 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("customers/{customerId:guid}")]
+        [Route("customers/{organizationId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> CreateAsset(Guid customerId, [FromBody] NewAsset asset)
+        public async Task<ActionResult> CreateAsset(Guid organizationId, [FromBody] NewAsset asset)
         {
             try
             {
-                var createdAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset);
+                var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, asset);
                 if (createdAsset != null)
                 {
                     return CreatedAtAction(nameof(CreateAsset), new { id = createdAsset.Id }, createdAsset);
@@ -143,15 +143,15 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
+        [Route("{assetId:Guid}/customers/{organizationId:guid}/assetStatus/{assetStatus:int}")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SetAssetStatusOnAsset(Guid customerId, Guid assetId, int assetStatus)
+        public async Task<ActionResult> SetAssetStatusOnAsset(Guid organizationId, Guid assetId, int assetStatus)
         {
             try
             {
-                var updatedAsset = await _assetServices.UpdateAssetStatus(customerId, assetId, assetStatus);
+                var updatedAsset = await _assetServices.UpdateAssetStatus(organizationId, assetId, assetStatus);
                 if (updatedAsset == null)
                 {
                     return NotFound();
@@ -165,15 +165,15 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/Activate/{isActive:bool}")]
+        [Route("{assetId:Guid}/customers/{organizationId:guid}/Activate/{isActive:bool}")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SetActiveStatusOnAsset(Guid customerId, Guid assetId, bool isActive)
+        public async Task<ActionResult> SetActiveStatusOnAsset(Guid organizationId, Guid assetId, bool isActive)
         {
             try
             {
-                var updatedAsset = await _assetServices.UpdateActiveStatus(customerId, assetId, isActive);
+                var updatedAsset = await _assetServices.UpdateActiveStatus(organizationId, assetId, isActive);
                 if (updatedAsset == null)
                 {
                     return NotFound();
@@ -188,15 +188,15 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/Update")]
+        [Route("{assetId:Guid}/customers/{organizationId:guid}/Update")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> UpdateAsset(Guid customerId, Guid assetId, [FromBody] OrigoUpdateAsset asset)
+        public async Task<ActionResult> UpdateAsset(Guid organizationId, Guid assetId, [FromBody] OrigoUpdateAsset asset)
         {
             try
             {
-                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset);
+                var updatedAsset = await _assetServices.UpdateAssetAsync(organizationId, assetId, asset);
                 if (updatedAsset == null)
                 {
                     return NotFound();
@@ -232,16 +232,16 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/ChangeLifecycleType/{newLifecycleType:int}")]
+        [Route("{assetId:Guid}/customers/{organizationId:guid}/ChangeLifecycleType/{newLifecycleType:int}")]
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid customerId, Guid assetId, int newLifecycleType)
+        public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid organizationId, Guid assetId, int newLifecycleType)
         {
             try
             {
-                var updatedAsset = await _assetServices.ChangeLifecycleType(customerId, assetId, newLifecycleType);
+                var updatedAsset = await _assetServices.ChangeLifecycleType(organizationId, assetId, newLifecycleType);
                 if (updatedAsset == null)
                 {
                     return NotFound();
@@ -254,15 +254,15 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/assign")]
+        [Route("{assetId:Guid}/customers/{organizationId:guid}/assign")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, Guid? userId)
+        public async Task<ActionResult> AssignAsset(Guid organizationId, Guid assetId, Guid? userId)
         {
             try
             {
-                var assignedAsset = await _assetServices.AssignAsset(customerId, assetId, userId);
+                var assignedAsset = await _assetServices.AssignAsset(organizationId, assetId, userId);
                 if (assignedAsset == null)
                 {
                     return NotFound();

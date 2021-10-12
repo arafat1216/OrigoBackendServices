@@ -7,7 +7,7 @@ namespace OrigoApiGateway.Models.BackendDTO
     /// </summary>
     public class OrganizationDTO
     {
-        public Guid Id { get; set; }
+        public Guid OrganizationId { get; set; }
 
         public string OrganizationName { get; set; }
 
