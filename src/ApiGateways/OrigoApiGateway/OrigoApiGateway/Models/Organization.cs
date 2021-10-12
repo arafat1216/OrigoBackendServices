@@ -6,8 +6,8 @@ namespace OrigoApiGateway.Models
     public record Organization
     {
         public Organization(OrganizationDTO customerDTO){
-            Id = customerDTO.Id;
-            CompanyName = customerDTO.OrganizationName;
+            OrganizationId = customerDTO.OrganizationId;
+            OrganizationName = customerDTO.OrganizationName;
             OrganizationNumber = customerDTO.OrganizationNumber;
             OrganizationAddress = new Address(customerDTO.OrganizationAddress);
             OrganizationContactPerson = new ContactPerson(customerDTO.OrganizationContactPerson);
@@ -15,9 +15,9 @@ namespace OrigoApiGateway.Models
             OrganizationLocation = customerDTO.OrganizationLocation;
         }
 
-        public Guid Id { get; set; }
+        public Guid OrganizationId { get; set; }
 
-        public string CompanyName { get; set; }
+        public string OrganizationName { get; set; }
 
         public string OrganizationNumber { get; set; }
 

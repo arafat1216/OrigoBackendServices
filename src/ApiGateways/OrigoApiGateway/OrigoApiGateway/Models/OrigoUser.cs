@@ -13,7 +13,7 @@ namespace OrigoApiGateway.Models
             Email = user.Email;
             MobileNumber = user.MobileNumber;
             EmployeeId = user.EmployeeId;
-            CustomerName = user.CustomerName;
+            OrganizationName = user.OrganizationName;
             AssignedToDepartments = user.AssignedToDepartments;
         }
 
@@ -22,7 +22,7 @@ namespace OrigoApiGateway.Models
         public string Email { get; set; }
         public string MobileNumber { get; set; }
         public string EmployeeId { get; set; }
-        public string CustomerName { get; set; }
+        public string OrganizationName { get; set; }
         public List<Guid> AssignedToDepartments { get; set; }
     }
 }
