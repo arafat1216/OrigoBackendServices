@@ -45,7 +45,7 @@ namespace Customer.API.Controllers
 
                 var foundCustomer = new Organization
                 {
-                    Id = organization.OrganizationId,
+                    OrganizationId = organization.OrganizationId,
                     OrganizationName = organization.OrganizationName,
                     OrganizationNumber = organization.OrganizationNumber,
                     OrganizationAddress = new Address(organization.OrganizationAddress),
@@ -79,7 +79,7 @@ namespace Customer.API.Controllers
                 {
                     var organizationView = new Organization
                     {
-                        Id = org.OrganizationId,
+                        OrganizationId = org.OrganizationId,
                         OrganizationName = org.OrganizationName,
                         OrganizationNumber = org.OrganizationNumber,
                         OrganizationAddress = new Address(org.OrganizationAddress),
@@ -94,7 +94,7 @@ namespace Customer.API.Controllers
                         {
                             var childOrgView = new Organization
                             {
-                                Id = childOrg.OrganizationId,
+                                OrganizationId = childOrg.OrganizationId,
                                 OrganizationName = childOrg.OrganizationName,
                                 OrganizationNumber = childOrg.OrganizationNumber,
                                 OrganizationAddress = new Address(childOrg.OrganizationAddress),
@@ -208,7 +208,7 @@ namespace Customer.API.Controllers
 
                 var updatedOrganizationView = new Organization
                 {
-                    Id = updatedOrganization.OrganizationId,
+                    OrganizationId = updatedOrganization.OrganizationId,
                     OrganizationName = updatedOrganization.OrganizationName,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
                     OrganizationAddress = new Address(updatedOrganization.OrganizationAddress),
@@ -217,7 +217,7 @@ namespace Customer.API.Controllers
                     OrganizationLocation = (updatedOrganization.OrganizationLocation == null) ? null : new Location(updatedOrganization.OrganizationLocation)
                 };
 
-                return CreatedAtAction(nameof(CreateOrganization), new { id = updatedOrganizationView.Id }, updatedOrganizationView);
+                return CreatedAtAction(nameof(CreateOrganization), new { id = updatedOrganizationView.OrganizationId }, updatedOrganizationView);
             }
             catch (Exception ex)
             {
@@ -330,7 +330,7 @@ namespace Customer.API.Controllers
 
                 var updatedOrganizationView = new Organization
                 {
-                    Id = updatedOrganization.OrganizationId,
+                    OrganizationId = updatedOrganization.OrganizationId,
                     OrganizationName = updatedOrganization.OrganizationName,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
                     OrganizationAddress = new Address(updatedOrganization.OrganizationAddress),
@@ -449,7 +449,7 @@ namespace Customer.API.Controllers
                 var updatedOrganization = await _organizationServices.UpdateOrganizationAsync(newOrganization, true);
                 var updatedOrganizationView = new Organization
                 {
-                    Id = updatedOrganization.OrganizationId,
+                    OrganizationId = updatedOrganization.OrganizationId,
                     OrganizationName = updatedOrganization.OrganizationName,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
                     OrganizationAddress = new Address(updatedOrganization.OrganizationAddress),
@@ -482,7 +482,7 @@ namespace Customer.API.Controllers
 
                 var removedOrganizationView = new Organization
                 {
-                    Id = removedOrganization.OrganizationId,
+                    OrganizationId = removedOrganization.OrganizationId,
                     OrganizationName = removedOrganization.OrganizationName,
                     OrganizationNumber = removedOrganization.OrganizationNumber,
                     OrganizationAddress = new Address(removedOrganization.OrganizationAddress),

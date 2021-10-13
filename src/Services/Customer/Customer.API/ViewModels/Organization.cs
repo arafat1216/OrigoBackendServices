@@ -4,7 +4,7 @@ namespace Customer.API.ViewModels
 {
     public record Organization
     {
-        public System.Guid Id { get; set; }
+        public System.Guid OrganizationId { get; set; }
 
         public string OrganizationName { get; set; }
 
