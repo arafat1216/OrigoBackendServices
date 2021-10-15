@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models.BackendDTO
 {
@@ -12,5 +13,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         public string Name { get; set; }
 
         public bool UsesImei { get; set; }
+
+        public IList<AssetCategoryDTO> ChildAssetCategory { get; set; }
     }
 }

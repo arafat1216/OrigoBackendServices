@@ -14,7 +14,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         /// <summary>
         /// Asset is linked to this customer 
         /// </summary>
-        public Guid CustomerId { get; set; }
+        public Guid OrganizationId { get; set; }
 
         /// <summary>
         /// A note containing additional information or comments for the asset.

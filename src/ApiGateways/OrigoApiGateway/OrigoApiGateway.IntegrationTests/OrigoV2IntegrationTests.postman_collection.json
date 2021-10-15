@@ -1,0 +1,42 @@
+{
+	"info": {
+		"_postman_id": "b3e6382e-7e60-40d9-8e50-74528f893208",
+		"name": "OrigoV2IntegrationTests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Customer",
+			"item": []
+		},
+		{
+			"name": "Department",
+			"item": []
+		},
+		{
+			"name": "CreateDepartment",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{BaseUrl}}/Customers/eb86e110-65e6-4259-b2b0-b0cdc098ad81/Departments",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"Customers",
+						"eb86e110-65e6-4259-b2b0-b0cdc098ad81",
+						"Departments"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

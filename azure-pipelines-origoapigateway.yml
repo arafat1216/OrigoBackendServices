@@ -87,6 +87,9 @@ stages:
     - publish: charts/origoapigateway
       artifact: helmcharts
 
+    - publish: src/ApiGateways/OrigoApiGateway/OrigoApiGateway.IntegrationTests
+      artifact: postmanscripts
+
 - stage: Deploy
   displayName: Deploy stage
   dependsOn: Build
@@ -122,6 +125,22 @@ stages:
               arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts
               install: true
+          
+          - task: Npm@0
+            displayName: 'npm install newman'
+            inputs:
+              arguments: 'newman -g'
+
+          - task: Npm@0
+            displayName: 'npm init'
+            inputs:
+              arguments: '-f'
+
+          - task: CmdLine@1
+            displayName: 'Run newman'
+            inputs:
+              filename: newman
+              arguments: 'run "$(Pipeline.Workspace)/postmanscripts/OrigoV2IntegrationTests.postman_collection.json" -e "$(Pipeline.Workspace)/postmanscripts/OrigoV2IntegrationTests-DevEnvironment.postman_environment.json" --disable-unicode'
 
   - deployment: DeployPullRequest
     displayName: Deploy Pull request

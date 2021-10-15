@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using Asset.API.ViewModels;
+﻿using Asset.API.ViewModels;
 using AssetServices;
 using AssetServices.Exceptions;
+using Common.Enums;
+using Common.Exceptions;
+using Common.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Common.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Net;
 using System.Text;
-using Common.Models;
-using Common.Enums;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Asset.API.Controllers
 {
@@ -188,7 +189,7 @@ namespace Asset.API.Controllers
 
         [Route("lifecycles")]
         [HttpGet]
-        [ProducesResponseType(typeof(IList<ViewModels.AssetLifecycle>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<AssetLifecycle>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public ActionResult GetLifecycles()
@@ -298,21 +299,24 @@ namespace Asset.API.Controllers
 
         [Route("categories")]
         [HttpGet]
-        [ProducesResponseType(typeof(ViewModels.AssetCategory), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AssetCategory), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.AssetCategory>>> GetAssetCategories()
+        public async Task<ActionResult<IEnumerable<AssetCategory>>> GetAssetCategories()
         {
             try
             {
-                var asset = await _assetServices.GetAssetCategoriesAsync();
-                if (asset == null)
+                var assetCategories = await _assetServices.GetAssetCategoriesAsync();
+                if (assetCategories == null)
                 {
                     return NotFound();
                 }
-                return Ok(asset);
+                IList<AssetCategory> results = assetCategories.Where(a => a.ParentAssetCategory == null).Select(ac => new AssetCategory(ac, assetCategories)).ToList();
+
+                return Ok(results);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }

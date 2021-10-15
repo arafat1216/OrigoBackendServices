@@ -18,7 +18,7 @@ namespace OrigoApiGateway.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     //[Authorize]
-    [Route("origoapi/v{version:apiVersion}/Customers/{customerId:guid}/[controller]")]
+    [Route("origoapi/v{version:apiVersion}/Customers/{organizationId:guid}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
     public class UsersController : ControllerBase
@@ -35,7 +35,7 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(List<OrigoUser>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<List<OrigoUser>>> GetAllUsers(Guid customerId)
+        public async Task<ActionResult<List<OrigoUser>>> GetAllUsers(Guid organizationId)
         {
             //var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
             //if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString())
@@ -47,7 +47,7 @@ namespace OrigoApiGateway.Controllers
             //    }
             //}
 
-            var users = await _userServices.GetAllUsersAsync(customerId);
+            var users = await _userServices.GetAllUsersAsync(organizationId);
             if (users == null) return NotFound();
             return Ok(users);
         }
@@ -56,9 +56,9 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<OrigoUser>> GetUser(Guid customerId, Guid userId)
+        public async Task<ActionResult<OrigoUser>> GetUser(Guid organizationId, Guid userId)
         {
-            var user = await _userServices.GetUserAsync(customerId, userId);
+            var user = await _userServices.GetUserAsync(organizationId, userId);
             if (user == null) return NotFound();
             return Ok(user);
         }
@@ -66,11 +66,11 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoUser>> CreateUserForCustomer(Guid customerId, [FromBody] NewUser newUser)
+        public async Task<ActionResult<OrigoUser>> CreateUserForCustomer(Guid organizationId, [FromBody] NewUser newUser)
         {
             try
             {
-                var updatedUser = await _userServices.AddUserForCustomerAsync(customerId, newUser);
+                var updatedUser = await _userServices.AddUserForCustomerAsync(organizationId, newUser);
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUser.Id }, updatedUser);
             }
@@ -84,11 +84,11 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoUser>> AssignDepartmentForCustomer(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<ActionResult<OrigoUser>> AssignDepartmentForCustomer(Guid organizationId, Guid userId, Guid departmentId)
         {
             try
             {
-                var updatedUser = await _userServices.AssignUserToDepartment(customerId, userId, departmentId);
+                var updatedUser = await _userServices.AssignUserToDepartment(organizationId, userId, departmentId);
 
                 return Ok(updatedUser);
             }
@@ -102,11 +102,11 @@ namespace OrigoApiGateway.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoUser>> RemoveAssignedDepartmentForCustomer(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<ActionResult<OrigoUser>> RemoveAssignedDepartmentForCustomer(Guid organizationId, Guid userId, Guid departmentId)
         {
             try
             {
-                var updatedUser = await _userServices.UnassignUserFromDepartment(customerId, userId, departmentId);
+                var updatedUser = await _userServices.UnassignUserFromDepartment(organizationId, userId, departmentId);
 
                 return Ok(updatedUser);
             }
@@ -120,11 +120,11 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<ActionResult> AssignManagerToDepartment(Guid organizationId, Guid userId, Guid departmentId)
         {
             try
             {
-                await _userServices.AssignManagerToDepartment(customerId, userId, departmentId);
+                await _userServices.AssignManagerToDepartment(organizationId, userId, departmentId);
                 return Ok();
             }
             catch (Exception exception)
@@ -137,11 +137,11 @@ namespace OrigoApiGateway.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<ActionResult> UnassignManagerFromDepartment(Guid organizationId, Guid userId, Guid departmentId)
         {
             try
             {
-                await _userServices.UnassignManagerFromDepartment(customerId, userId, departmentId);
+                await _userServices.UnassignManagerFromDepartment(organizationId, userId, departmentId);
                 return Ok();
             }
             catch (Exception exception)

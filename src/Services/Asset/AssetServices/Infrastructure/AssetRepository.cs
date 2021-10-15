@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AssetServices.Models;
+﻿using AssetServices.Models;
 using Common.Extensions;
 using Common.Interfaces;
 using Common.Logging;
 using Common.Utilities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace AssetServices.Infrastructure
 {
