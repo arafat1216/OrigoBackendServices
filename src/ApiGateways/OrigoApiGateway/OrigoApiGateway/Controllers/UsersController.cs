@@ -39,16 +39,10 @@ namespace OrigoApiGateway.Controllers
         public async Task<ActionResult<List<OrigoUser>>> GetAllUsers(Guid organizationId)
         {
             // Check if caller has access to this organization
-            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-            if (role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString() ||
-                role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.EndUser.ToString() ||
-                role == PredefinedRole.PartnerAdmin.ToString())
+            var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+            if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
             {
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
-                {
-                    return Forbid();
-                }
+                return Forbid();
             }
 
             var users = await _userServices.GetAllUsersAsync(organizationId);
@@ -64,16 +58,10 @@ namespace OrigoApiGateway.Controllers
         public async Task<ActionResult<OrigoUser>> GetUser(Guid organizationId, Guid userId)
         {
             // Check if caller has access to this organization
-            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-            if (role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString() || 
-                role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.EndUser.ToString() ||
-                role == PredefinedRole.PartnerAdmin.ToString())
+            var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+            if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
             {
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
-                {
-                    return Forbid();
-                }
+                return Forbid();
             }
 
             var user = await _userServices.GetUserAsync(organizationId, userId);
@@ -91,7 +79,11 @@ namespace OrigoApiGateway.Controllers
             {
                 // Check if caller has access to this organization
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-                if (role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString() || role == PredefinedRole.PartnerAdmin.ToString())
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                {
+                    return Forbid();
+                }
+                else   
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
@@ -121,7 +113,11 @@ namespace OrigoApiGateway.Controllers
             {
                 // Check if caller has access to this organization
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-                if (role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString() || role == PredefinedRole.PartnerAdmin.ToString())
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                {
+                    return Forbid();
+                }
+                else
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
@@ -151,7 +147,11 @@ namespace OrigoApiGateway.Controllers
             {
                 // Check if caller has access to this organization
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-                if (role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString() || role == PredefinedRole.PartnerAdmin.ToString())
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                {
+                    return Forbid();
+                }
+                else
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
@@ -181,7 +181,11 @@ namespace OrigoApiGateway.Controllers
             {
                 // Check if caller has access to this organization
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-                if (role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString() || role == PredefinedRole.PartnerAdmin.ToString())
+                if (role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                else
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
@@ -210,13 +214,17 @@ namespace OrigoApiGateway.Controllers
             {
                 // Check if caller has access to this organization
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-                if (role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString() || role == PredefinedRole.PartnerAdmin.ToString())
+                if (!(role == PredefinedRole.EndUser.ToString()))
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
                     }
+                }
+                else
+                {
+                    return Forbid();
                 }
 
                 await _userServices.UnassignManagerFromDepartment(organizationId, userId, departmentId);
