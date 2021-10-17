@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Common.Enums;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Controllers
@@ -31,10 +35,18 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<OrigoDepartment>> GetDepartment(Guid organizationId, Guid departmentId)
         {
             try
             {
+                // All roles have access to Department, as long as they have access to this customer/organization.
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+
                 var department = await _departmentServices.GetDepartment(organizationId, departmentId);
 
                 return Ok(department);
@@ -45,22 +57,21 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{departmentId:Guid}/string")]
-        [HttpGet]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<string>> GetString(Guid organizationId)
-        {
-            return Ok("test");
-        }
-
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoDepartment>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<OrigoDepartment>> GetDepartments(Guid organizationId)
         {
             try
             {
+                // All roles have access to an organizations departments, as long as the organization is in the caller accesslist
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+
                 var departments = await _departmentServices.GetDepartments(organizationId);
 
                 return Ok(departments);
@@ -74,10 +85,25 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<OrigoDepartment>> CreateDepartmentForCustomer(Guid organizationId, [FromBody] NewDepartment newDepartment)
         {
             try
             {
+                // Only admin roles are allowed to create departments
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                {
+                    return Forbid();
+                }
+
+                // System Admin, Partner Admin, Group Admin and Customer Admin have access if organization is in their accesslist
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+
                 var createdDepartment = await _departmentServices.AddDepartmentAsync(organizationId, newDepartment);
 
                 return CreatedAtAction(nameof(CreateDepartmentForCustomer), new { id = createdDepartment.DepartmentId }, createdDepartment);
@@ -92,10 +118,25 @@ namespace OrigoApiGateway.Controllers
         [HttpPut]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<OrigoDepartment>> PutDepartmentForCustomer(Guid organizationId, Guid departmentId, [FromBody] OrigoDepartment updateDepartment)
         {
             try
             {
+                // Only admin roles are allowed to create departments
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                {
+                    return Forbid();
+                }
+
+                // System Admin, Partner Admin, Group Admin and Customer Admin have access if organization is in their accesslist
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+
                 var updatedDepartment = await _departmentServices.UpdateDepartmentPutAsync(organizationId, departmentId, updateDepartment);
 
                 return Ok(updatedDepartment);
@@ -110,10 +151,25 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<OrigoDepartment>> PatchDepartmentForCustomer(Guid organizationId, Guid departmentId, [FromBody] OrigoDepartment updateDepartment)
         {
             try
             {
+                // Only admin roles are allowed to create departments
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                {
+                    return Forbid();
+                }
+
+                // System Admin, Partner Admin, Group Admin and Customer Admin have access if organization is in their accesslist
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+
                 var updatedDepartment = await _departmentServices.UpdateDepartmentPatchAsync(organizationId, departmentId, updateDepartment);
 
                 return Ok(updatedDepartment);
@@ -128,10 +184,25 @@ namespace OrigoApiGateway.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<OrigoDepartment>> DeleteDepartmentForCustomer(Guid organizationId, Guid departmentId)
         {
             try
             {
+                // Only admin roles are allowed to create departments
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                {
+                    return Forbid();
+                }
+
+                // System Admin, Partner Admin, Group Admin and Customer Admin have access if organization is in their accesslist
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+
                 var updatedDepartment = await _departmentServices.DeleteDepartmentPatchAsync(organizationId, departmentId);
 
                 return Ok(updatedDepartment);
