@@ -7,24 +7,24 @@ namespace OrigoApiGateway.Models
     {
         public Organization(OrganizationDTO customerDTO){
             OrganizationId = customerDTO.OrganizationId;
-            OrganizationName = customerDTO.OrganizationName;
+            Name = customerDTO.Name;
             OrganizationNumber = customerDTO.OrganizationNumber;
-            OrganizationAddress = new Address(customerDTO.OrganizationAddress);
-            OrganizationContactPerson = new ContactPerson(customerDTO.OrganizationContactPerson);
-            OrganizationPreferences = customerDTO.OrganizationPreferences;
-            OrganizationLocation = customerDTO.OrganizationLocation;
+            Address = new Address(customerDTO.Address);
+            ContactPerson = new ContactPerson(customerDTO.ContactPerson);
+            Preferences = customerDTO.Preferences;
+            Location = customerDTO.Location;
         }
 
         public Guid OrganizationId { get; set; }
 
-        public string OrganizationName { get; set; }
+        public string Name { get; set; }
 
         public string OrganizationNumber { get; set; }
 
-        public Address OrganizationAddress { get; set; }
+        public Address Address { get; set; }
 
-        public ContactPerson OrganizationContactPerson { get; set; }
-        public NewOrganizationPreferences OrganizationPreferences { get; set; }
-        public NewLocation OrganizationLocation { get; set; }
+        public ContactPerson ContactPerson { get; set; }
+        public NewOrganizationPreferences Preferences { get; set; }
+        public NewLocation Location { get; set; }
     }
 }

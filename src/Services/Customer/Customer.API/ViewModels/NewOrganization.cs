@@ -4,15 +4,15 @@ namespace Customer.API.ViewModels
 {
     public record NewOrganization
     {
-        public string OrganizationName { get; set; }
+        public string Name { get; set; }
 
         public string OrganizationNumber { get; set; }
 
-        public Address OrganizationAddress { get; set; }
+        public Address Address { get; set; }
 
-        public ContactPerson OrganizationContactPerson { get; set; }
+        public ContactPerson ContactPerson { get; set; }
 
-        public NewLocation OrganizationLocation { get; set; }
+        public NewLocation Location { get; set; }
 
         public Guid PrimaryLocation { get; set; }
         public Guid ParentId { get; set; }
@@ -22,6 +22,6 @@ namespace Customer.API.ViewModels
 
         public string InternalNotes { get; set; }
 
-        public NewOrganizationPreferences OrganizationPreferences { get; set; }
+        public NewOrganizationPreferences Preferences { get; set; }
     }
 }

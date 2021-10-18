@@ -9,14 +9,14 @@ namespace OrigoApiGateway.Models.BackendDTO
     {
         public Guid OrganizationId { get; set; }
 
-        public string OrganizationName { get; set; }
+        public string Name { get; set; }
 
         public string OrganizationNumber { get; set; }
 
-        public AddressDTO OrganizationAddress { get; set; }
+        public AddressDTO Address { get; set; }
 
-        public ContactPersonDTO OrganizationContactPerson { get; set; }
-        public NewOrganizationPreferences OrganizationPreferences { get; set; }
-        public NewLocation OrganizationLocation { get; set; }
+        public ContactPersonDTO ContactPerson { get; set; }
+        public NewOrganizationPreferences Preferences { get; set; }
+        public NewLocation Location { get; set; }
     }
 }

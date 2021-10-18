@@ -46,12 +46,12 @@ namespace Customer.API.Controllers
                 var foundCustomer = new Organization
                 {
                     OrganizationId = organization.OrganizationId,
-                    OrganizationName = organization.OrganizationName,
+                    Name = organization.OrganizationName,
                     OrganizationNumber = organization.OrganizationNumber,
-                    OrganizationAddress = new Address(organization.OrganizationAddress),
-                    OrganizationContactPerson = new ContactPerson(organization.OrganizationContactPerson),
-                    OrganizationPreferences = (organization.OrganizationPreferences == null) ? null : new OrganizationPreferences(organization.OrganizationPreferences),
-                    OrganizationLocation = (organization.OrganizationLocation == null) ? null : new Location(organization.OrganizationLocation)
+                    Address = new Address(organization.OrganizationAddress),
+                    ContactPerson = new ContactPerson(organization.OrganizationContactPerson),
+                    Preferences = (organization.OrganizationPreferences == null) ? null : new OrganizationPreferences(organization.OrganizationPreferences),
+                    Location = (organization.OrganizationLocation == null) ? null : new Location(organization.OrganizationLocation)
                 };
                 return Ok(foundCustomer);
             }
@@ -80,12 +80,12 @@ namespace Customer.API.Controllers
                     var organizationView = new Organization
                     {
                         OrganizationId = org.OrganizationId,
-                        OrganizationName = org.OrganizationName,
+                        Name = org.OrganizationName,
                         OrganizationNumber = org.OrganizationNumber,
-                        OrganizationAddress = new Address(org.OrganizationAddress),
-                        OrganizationContactPerson = new ContactPerson(org.OrganizationContactPerson),
-                        OrganizationPreferences = (org.OrganizationPreferences == null) ? null : new OrganizationPreferences(org.OrganizationPreferences),
-                        OrganizationLocation = (org.OrganizationLocation == null) ? null : new Location(org.OrganizationLocation),
+                        Address = new Address(org.OrganizationAddress),
+                        ContactPerson = new ContactPerson(org.OrganizationContactPerson),
+                        Preferences = (org.OrganizationPreferences == null) ? null : new OrganizationPreferences(org.OrganizationPreferences),
+                        Location = (org.OrganizationLocation == null) ? null : new Location(org.OrganizationLocation),
                         ChildOrganizations = new List<Organization>()
                     };
                     if (org.ChildOrganizations != null)
@@ -95,12 +95,12 @@ namespace Customer.API.Controllers
                             var childOrgView = new Organization
                             {
                                 OrganizationId = childOrg.OrganizationId,
-                                OrganizationName = childOrg.OrganizationName,
+                                Name = childOrg.OrganizationName,
                                 OrganizationNumber = childOrg.OrganizationNumber,
-                                OrganizationAddress = new Address(childOrg.OrganizationAddress),
-                                OrganizationContactPerson = new ContactPerson(childOrg.OrganizationContactPerson),
-                                OrganizationPreferences = (childOrg.OrganizationPreferences == null) ? null : new OrganizationPreferences(childOrg.OrganizationPreferences),
-                                OrganizationLocation = (childOrg.OrganizationLocation == null) ? null : new Location(childOrg.OrganizationLocation)
+                                Address = new Address(childOrg.OrganizationAddress),
+                                ContactPerson = new ContactPerson(childOrg.OrganizationContactPerson),
+                                Preferences = (childOrg.OrganizationPreferences == null) ? null : new OrganizationPreferences(childOrg.OrganizationPreferences),
+                                Location = (childOrg.OrganizationLocation == null) ? null : new Location(childOrg.OrganizationLocation)
                             };
                             organizationView.ChildOrganizations.Add(childOrgView);
                         }
@@ -150,44 +150,44 @@ namespace Customer.API.Controllers
                 }
 
                 // Allow creation of organization without a given Location object. Create a new location object from data in OrganizationAddress.
-                else if (organization.OrganizationLocation == null)
+                else if (organization.Location == null)
                 {
-                    organizationLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.OrganizationName, organization.InternalNotes,
-                                                                                organization.OrganizationAddress.Street, organization.OrganizationAddress.Street,
-                                                                                organization.OrganizationAddress.PostCode, organization.OrganizationAddress.City,
-                                                                                organization.OrganizationAddress.Country);
+                    organizationLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.Name, organization.InternalNotes,
+                                                                                organization.Address.Street, organization.Address.Street,
+                                                                                organization.Address.PostCode, organization.Address.City,
+                                                                                organization.Address.Country);
                     await _organizationServices.AddOrganizationLocationAsync(organizationLocation);
                 }
                 else
                 {
-                    organizationLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.OrganizationLocation.Name, organization.OrganizationLocation.Description,
-                                                                                organization.OrganizationLocation.Address1, organization.OrganizationLocation.Address2,
-                                                                                organization.OrganizationLocation.PostalCode, organization.OrganizationLocation.City,
-                                                                                organization.OrganizationLocation.Country);
+                    organizationLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.Location.Name, organization.Location.Description,
+                                                                                organization.Location.Address1, organization.Location.Address2,
+                                                                                organization.Location.PostalCode, organization.Location.City,
+                                                                                organization.Location.Country);
 
                     // only save the location if it does not already exist
                     await _organizationServices.AddOrganizationLocationAsync(organizationLocation);
                 }
 
                 // Create entities from NewOrganization to reduce the number of fields required to make them in OrganizationServices
-                var organizationContactPerson = new CustomerServices.Models.ContactPerson(organization.OrganizationContactPerson?.FullName, organization.OrganizationContactPerson?.Email,
-                                                                                          organization.OrganizationContactPerson?.PhoneNumber);
+                var organizationContactPerson = new CustomerServices.Models.ContactPerson(organization.ContactPerson?.FullName, organization.ContactPerson?.Email,
+                                                                                          organization.ContactPerson?.PhoneNumber);
 
-                var organizationAddress = new CustomerServices.Models.Address(organization.OrganizationAddress?.Street, organization.OrganizationAddress?.PostCode,
-                                                                              organization.OrganizationAddress?.City, organization.OrganizationAddress?.Country);
+                var organizationAddress = new CustomerServices.Models.Address(organization.Address?.Street, organization.Address?.PostCode,
+                                                                              organization.Address?.City, organization.Address?.Country);
 
                 var newOrganization = new CustomerServices.Models.Organization(Guid.NewGuid(), organization.CallerId, organization.ParentId,
-                                                                               organization.OrganizationName, organization.OrganizationNumber,
+                                                                               organization.Name, organization.OrganizationNumber,
                                                                                organizationAddress, organizationContactPerson,
                                                                                null, organizationLocation);
 
                 // organizationPreferences needs the OrganizationId from newOrganization, and is therefore made last
-                if (organization.OrganizationPreferences != null)
+                if (organization.Preferences != null)
                 {
-                    var organizationPreferences = new CustomerServices.Models.OrganizationPreferences(newOrganization.OrganizationId, newOrganization.CreatedBy, organization.OrganizationPreferences?.WebPage,
-                                                                                                 organization.OrganizationPreferences?.LogoUrl, organization.OrganizationPreferences?.OrganizationNotes,
-                                                                                                 organization.OrganizationPreferences.EnforceTwoFactorAuth, organization.OrganizationPreferences?.PrimaryLanguage,
-                                                                                                 organization.OrganizationPreferences.DefaultDepartmentClassification);
+                    var organizationPreferences = new CustomerServices.Models.OrganizationPreferences(newOrganization.OrganizationId, newOrganization.CreatedBy, organization.Preferences?.WebPage,
+                                                                                                 organization.Preferences?.LogoUrl, organization.Preferences?.OrganizationNotes,
+                                                                                                 organization.Preferences.EnforceTwoFactorAuth, organization.Preferences?.PrimaryLanguage,
+                                                                                                 organization.Preferences.DefaultDepartmentClassification);
 
                     // save the organization preferences
                     await _organizationServices.AddOrganizationPreferencesAsync(organizationPreferences);
@@ -209,12 +209,12 @@ namespace Customer.API.Controllers
                 var updatedOrganizationView = new Organization
                 {
                     OrganizationId = updatedOrganization.OrganizationId,
-                    OrganizationName = updatedOrganization.OrganizationName,
+                    Name = updatedOrganization.OrganizationName,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
-                    OrganizationAddress = new Address(updatedOrganization.OrganizationAddress),
-                    OrganizationContactPerson = new ContactPerson(updatedOrganization.OrganizationContactPerson),
-                    OrganizationPreferences = (updatedOrganization.OrganizationPreferences == null) ? null : new OrganizationPreferences(updatedOrganization.OrganizationPreferences),
-                    OrganizationLocation = (updatedOrganization.OrganizationLocation == null) ? null : new Location(updatedOrganization.OrganizationLocation)
+                    Address = new Address(updatedOrganization.OrganizationAddress),
+                    ContactPerson = new ContactPerson(updatedOrganization.OrganizationContactPerson),
+                    Preferences = (updatedOrganization.OrganizationPreferences == null) ? null : new OrganizationPreferences(updatedOrganization.OrganizationPreferences),
+                    Location = (updatedOrganization.OrganizationLocation == null) ? null : new Location(updatedOrganization.OrganizationLocation)
                 };
 
                 return CreatedAtAction(nameof(CreateOrganization), new { id = updatedOrganizationView.OrganizationId }, updatedOrganizationView);
@@ -247,7 +247,7 @@ namespace Customer.API.Controllers
                 if (organization.ParentId != Guid.Empty)
                 {
                     var organizationParent = await _organizationServices.GetOrganizationAsync(organization.ParentId, false, false);
-                    if (organizationParent.ParentId != Guid.Empty)
+                    if (organizationParent.ParentId != Guid.Empty && organizationParent.ParentId != null)
                     {
                         return BadRequest("Parent of the organization cannot itself have a parent.");
                     }
@@ -269,60 +269,60 @@ namespace Customer.API.Controllers
                 }
                 else
                 {
-                    if (organization.OrganizationLocation == null)
+                    if (organization.Location == null)
                     {
                         return BadRequest("An organization must have a location object if PrimaryLocation is empty.");
                     }
                     else
                     {
-                        newLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.OrganizationLocation.Name, organization.OrganizationLocation.Description,
-                                                                           organization.OrganizationLocation.Address1, organization.OrganizationLocation.Address2,
-                                                                           organization.OrganizationLocation.PostalCode, organization.OrganizationLocation.City,
-                                                                           organization.OrganizationLocation.Country);
+                        newLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.Location.Name, organization.Location.Description,
+                                                                           organization.Location.Address1, organization.Location.Address2,
+                                                                           organization.Location.PostalCode, organization.Location.City,
+                                                                           organization.Location.Country);
                     }
                 }
 
                 CustomerServices.Models.Address newAddress;
-                if (organization.OrganizationAddress == null)
+                if (organization.Address == null)
                 {
                     newAddress = new CustomerServices.Models.Address("", "", "", "");
                 }
                 else
                 {
-                    newAddress = new CustomerServices.Models.Address(organization.OrganizationAddress.Street, organization.OrganizationAddress.PostCode,
-                                                                     organization.OrganizationAddress.City, organization.OrganizationAddress.Country);
+                    newAddress = new CustomerServices.Models.Address(organization.Address.Street, organization.Address.PostCode,
+                                                                     organization.Address.City, organization.Address.Country);
                 }
 
                 CustomerServices.Models.ContactPerson newContactPerson;
-                if (organization.OrganizationContactPerson == null)
+                if (organization.ContactPerson == null)
                 {
                     newContactPerson = new CustomerServices.Models.ContactPerson("", "", "");
                 }
                 else
                 {
-                    newContactPerson = new CustomerServices.Models.ContactPerson(organization.OrganizationContactPerson.FullName,
-                                                                                 organization.OrganizationContactPerson.Email,
-                                                                                 organization.OrganizationContactPerson.PhoneNumber);
+                    newContactPerson = new CustomerServices.Models.ContactPerson(organization.ContactPerson.FullName,
+                                                                                 organization.ContactPerson.Email,
+                                                                                 organization.ContactPerson.PhoneNumber);
                 }
 
                 CustomerServices.Models.OrganizationPreferences newOrganizationPreferences;
-                if (organization.OrganizationPreferences == null)
+                if (organization.Preferences == null)
                 {
                     newOrganizationPreferences = new CustomerServices.Models.OrganizationPreferences(organization.OrganizationId, organization.CallerId, "", "", "", false, "", 0);
                 }
                 else
                 {
-                    newOrganizationPreferences = new CustomerServices.Models.OrganizationPreferences(organization.OrganizationId, organization.CallerId, organization.OrganizationPreferences.WebPage,
-                                                                                                     organization.OrganizationPreferences.LogoUrl, organization.OrganizationPreferences.OrganizationNotes,
-                                                                                                     organization.OrganizationPreferences.EnforceTwoFactorAuth, organization.OrganizationPreferences.PrimaryLanguage,
-                                                                                                     organization.OrganizationPreferences.DefaultDepartmentClassification);
+                    newOrganizationPreferences = new CustomerServices.Models.OrganizationPreferences(organization.OrganizationId, organization.CallerId, organization.Preferences.WebPage,
+                                                                                                     organization.Preferences.LogoUrl, organization.Preferences.OrganizationNotes,
+                                                                                                     organization.Preferences.EnforceTwoFactorAuth, organization.Preferences.PrimaryLanguage,
+                                                                                                     organization.Preferences.DefaultDepartmentClassification);
                 }
 
                 await _organizationServices.UpdateOrganizationPreferencesAsync(newOrganizationPreferences);
                 await _organizationServices.UpdateOrganizationLocationAsync(newLocation);
 
                 CustomerServices.Models.Organization newOrganization = new CustomerServices.Models.Organization(organization.OrganizationId, organization.CallerId, organization.ParentId,
-                                                                                        organization.OrganizationName, organization.OrganizationNumber,
+                                                                                        organization.Name, organization.OrganizationNumber,
                                                                                         newAddress, newContactPerson,
                                                                                         newOrganizationPreferences, newLocation);
 
@@ -331,12 +331,12 @@ namespace Customer.API.Controllers
                 var updatedOrganizationView = new Organization
                 {
                     OrganizationId = updatedOrganization.OrganizationId,
-                    OrganizationName = updatedOrganization.OrganizationName,
+                    Name = updatedOrganization.OrganizationName,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
-                    OrganizationAddress = new Address(updatedOrganization.OrganizationAddress),
-                    OrganizationContactPerson = new ContactPerson(updatedOrganization.OrganizationContactPerson),
-                    OrganizationPreferences = new OrganizationPreferences(newOrganization.OrganizationPreferences),
-                    OrganizationLocation = new Location(newOrganization.OrganizationLocation)
+                    Address = new Address(updatedOrganization.OrganizationAddress),
+                    ContactPerson = new ContactPerson(updatedOrganization.OrganizationContactPerson),
+                    Preferences = new OrganizationPreferences(newOrganization.OrganizationPreferences),
+                    Location = new Location(newOrganization.OrganizationLocation)
                 };
 
                 return updatedOrganizationView;
@@ -392,57 +392,57 @@ namespace Customer.API.Controllers
                 }
                 else
                 {
-                    if (organization.OrganizationLocation == null)
+                    if (organization.Location == null)
                     {
                         return BadRequest("An organization must have a location object if PrimaryLocation is empty.");
                     }
                     else
                     {
-                        newLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.OrganizationLocation.Name, organization.OrganizationLocation.Description,
-                                                                           organization.OrganizationLocation.Address1, organization.OrganizationLocation.Address2,
-                                                                           organization.OrganizationLocation.PostalCode, organization.OrganizationLocation.City,
-                                                                           organization.OrganizationLocation.Country);
+                        newLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.Location.Name, organization.Location.Description,
+                                                                           organization.Location.Address1, organization.Location.Address2,
+                                                                           organization.Location.PostalCode, organization.Location.City,
+                                                                           organization.Location.Country);
                     }
                 }
 
                 CustomerServices.Models.Address newAddress;
-                if (organization.OrganizationAddress == null)
+                if (organization.Address == null)
                 {
                     newAddress = new CustomerServices.Models.Address("", "", "", "");
                 }
                 else
                 {
-                    newAddress = new CustomerServices.Models.Address(organization.OrganizationAddress.Street, organization.OrganizationAddress.PostCode, organization.OrganizationAddress.City, organization.OrganizationAddress.Country);
+                    newAddress = new CustomerServices.Models.Address(organization.Address.Street, organization.Address.PostCode, organization.Address.City, organization.Address.Country);
                 }
 
                 CustomerServices.Models.ContactPerson newContactPerson;
-                if (organization.OrganizationContactPerson == null)
+                if (organization.ContactPerson == null)
                 {
                     newContactPerson = new CustomerServices.Models.ContactPerson("", "", "");
                 }
                 else
                 {
-                    newContactPerson = new CustomerServices.Models.ContactPerson(organization.OrganizationContactPerson.FullName, organization.OrganizationContactPerson.Email, organization.OrganizationContactPerson.PhoneNumber);
+                    newContactPerson = new CustomerServices.Models.ContactPerson(organization.ContactPerson.FullName, organization.ContactPerson.Email, organization.ContactPerson.PhoneNumber);
                 }
 
                 CustomerServices.Models.OrganizationPreferences newOrganizationPreferences;
-                if (organization.OrganizationPreferences == null)
+                if (organization.Preferences == null)
                 {
                     newOrganizationPreferences = new CustomerServices.Models.OrganizationPreferences(organization.OrganizationId, organization.CallerId, "", "", "", false, "", 0);
                 }
                 else
                 {
-                    newOrganizationPreferences = new CustomerServices.Models.OrganizationPreferences(organization.OrganizationId, organization.CallerId, organization.OrganizationPreferences.WebPage,
-                                                                                                     organization.OrganizationPreferences.LogoUrl, organization.OrganizationPreferences.OrganizationNotes,
-                                                                                                     organization.OrganizationPreferences.EnforceTwoFactorAuth, organization.OrganizationPreferences.PrimaryLanguage,
-                                                                                                     organization.OrganizationPreferences.DefaultDepartmentClassification);
+                    newOrganizationPreferences = new CustomerServices.Models.OrganizationPreferences(organization.OrganizationId, organization.CallerId, organization.Preferences.WebPage,
+                                                                                                     organization.Preferences.LogoUrl, organization.Preferences.OrganizationNotes,
+                                                                                                     organization.Preferences.EnforceTwoFactorAuth, organization.Preferences.PrimaryLanguage,
+                                                                                                     organization.Preferences.DefaultDepartmentClassification);
                 }
 
                 await _organizationServices.UpdateOrganizationPreferencesAsync(newOrganizationPreferences, true);
                 await _organizationServices.UpdateOrganizationLocationAsync(newLocation, true);
 
                 CustomerServices.Models.Organization newOrganization = new CustomerServices.Models.Organization(organization.OrganizationId, organization.CallerId, organization.ParentId,
-                                                                                        organization.OrganizationName, organization.OrganizationNumber,
+                                                                                        organization.Name, organization.OrganizationNumber,
                                                                                         newAddress, newContactPerson,
                                                                                         newOrganizationPreferences, newLocation);
 
@@ -450,12 +450,12 @@ namespace Customer.API.Controllers
                 var updatedOrganizationView = new Organization
                 {
                     OrganizationId = updatedOrganization.OrganizationId,
-                    OrganizationName = updatedOrganization.OrganizationName,
+                    Name = updatedOrganization.OrganizationName,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
-                    OrganizationAddress = new Address(updatedOrganization.OrganizationAddress),
-                    OrganizationContactPerson = new ContactPerson(updatedOrganization.OrganizationContactPerson),
-                    OrganizationPreferences = new OrganizationPreferences(newOrganization.OrganizationPreferences),
-                    OrganizationLocation = new Location(newOrganization.OrganizationLocation)
+                    Address = new Address(updatedOrganization.OrganizationAddress),
+                    ContactPerson = new ContactPerson(updatedOrganization.OrganizationContactPerson),
+                    Preferences = new OrganizationPreferences(newOrganization.OrganizationPreferences),
+                    Location = new Location(newOrganization.OrganizationLocation)
                 };
 
                 return updatedOrganizationView;
@@ -483,12 +483,12 @@ namespace Customer.API.Controllers
                 var removedOrganizationView = new Organization
                 {
                     OrganizationId = removedOrganization.OrganizationId,
-                    OrganizationName = removedOrganization.OrganizationName,
+                    Name = removedOrganization.OrganizationName,
                     OrganizationNumber = removedOrganization.OrganizationNumber,
-                    OrganizationAddress = new Address(removedOrganization.OrganizationAddress),
-                    OrganizationContactPerson = new ContactPerson(removedOrganization.OrganizationContactPerson),
-                    OrganizationPreferences = (removedOrganization.OrganizationPreferences == null) ? null : new OrganizationPreferences(removedOrganization.OrganizationPreferences),
-                    OrganizationLocation = (removedOrganization.OrganizationLocation == null) ? null : new Location(removedOrganization.OrganizationLocation)
+                    Address = new Address(removedOrganization.OrganizationAddress),
+                    ContactPerson = new ContactPerson(removedOrganization.OrganizationContactPerson),
+                    Preferences = (removedOrganization.OrganizationPreferences == null) ? null : new OrganizationPreferences(removedOrganization.OrganizationPreferences),
+                    Location = (removedOrganization.OrganizationLocation == null) ? null : new Location(removedOrganization.OrganizationLocation)
                 };
                 return Ok(removedOrganizationView);
 
