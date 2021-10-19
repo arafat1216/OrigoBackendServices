@@ -15,7 +15,7 @@ namespace Asset.API.ViewModels
         public Asset(AssetServices.Models.Asset asset)
         {
             AssetId = asset.AssetId;
-            CustomerId = asset.CustomerId;
+            OrganizationId = asset.CustomerId;
             AssetCategoryId = asset.AssetCategoryId;
             SerialNumber = asset.SerialNumber;
             AssetCategoryName = asset.AssetCategory.Name;
@@ -41,7 +41,7 @@ namespace Asset.API.ViewModels
         /// <summary>
         /// Asset is linked to this customer 
         /// </summary>
-        public Guid CustomerId { get; protected set; }
+        public Guid OrganizationId { get; protected set; }
 
         /// <summary>
         /// A note containing additional information or comments for the asset.
