@@ -28,21 +28,21 @@ namespace CustomerServices.Models
         public DateTime UpdatedAt { get; protected set; }
         public bool IsDeleted { get; protected set; }
 
-        public string OrganizationName { get; protected set; }
+        public string Name { get; protected set; }
 
         public string OrganizationNumber { get; protected set; }
 
-        public Address OrganizationAddress { get; protected set; }
+        public Address Address { get; protected set; }
 
-        public ContactPerson OrganizationContactPerson { get; protected set; }
+        public ContactPerson ContactPerson { get; protected set; }
 
         [NotMapped]
         public ICollection<Organization> ChildOrganizations { get; set; }
         [NotMapped]
-        public OrganizationPreferences OrganizationPreferences { get; set; }
+        public OrganizationPreferences Preferences { get; set; }
 
         [NotMapped]
-        public Location OrganizationLocation { get; set; }
+        public Location Location { get; set; }
 
         [JsonIgnore]
         public IList<User> Users
@@ -83,14 +83,14 @@ namespace CustomerServices.Models
         public Organization(Guid organizationId, Guid callerId, Guid? parentId, string companyName, string orgNumber, Address companyAddress,
             ContactPerson organizationContactPerson, OrganizationPreferences organizationPreferences, Location organizationLocation)
         {
-            OrganizationName = companyName;
+            Name = companyName;
             ParentId = (parentId == Guid.Empty) ? null : parentId;
             OrganizationNumber = orgNumber;
-            OrganizationAddress = companyAddress;
-            OrganizationContactPerson = organizationContactPerson;
+            Address = companyAddress;
+            ContactPerson = organizationContactPerson;
             OrganizationId = organizationId;
-            OrganizationPreferences = organizationPreferences;
-            OrganizationLocation = organizationLocation;
+            Preferences = organizationPreferences;
+            Location = organizationLocation;
             PrimaryLocation = organizationLocation.LocationId;
             CreatedBy = callerId;
             CreatedAt = DateTime.UtcNow;
@@ -103,10 +103,10 @@ namespace CustomerServices.Models
         public Organization(Guid customerId, string companyName, string orgNumber, Address companyAddress,
             ContactPerson customerContactPerson)
         {
-            OrganizationName = companyName;
+            Name = companyName;
             OrganizationNumber = orgNumber;
-            OrganizationAddress = companyAddress;
-            OrganizationContactPerson = customerContactPerson;
+            Address = companyAddress;
+            ContactPerson = customerContactPerson;
             OrganizationId = customerId;
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
@@ -115,7 +115,7 @@ namespace CustomerServices.Models
         {
             ParentId = parentId;
             PrimaryLocation = primaryLocation;
-            OrganizationName = companyName;
+            Name = companyName;
             OrganizationNumber = organizationNumber;
         }
 
@@ -127,8 +127,8 @@ namespace CustomerServices.Models
             if (PrimaryLocation != primaryLocation)
                 PrimaryLocation = primaryLocation;
 
-            if (OrganizationName != companyName)
-                OrganizationName = companyName;
+            if (Name != companyName)
+                Name = companyName;
 
             if (OrganizationNumber != organizationNumber)
                 OrganizationNumber = organizationNumber;

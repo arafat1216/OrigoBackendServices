@@ -12,7 +12,7 @@ namespace Customer.API.ViewModels
             Email = user.Email;
             EmployeeId = user.EmployeeId;
             MobileNumber = user.MobileNumber;
-            OrganizationName = user.Customer != null ? user.Customer.OrganizationName : string.Empty;
+            OrganizationName = user.Customer != null ? user.Customer.Name : string.Empty;
         }
 
         public Guid Id { get; set; }

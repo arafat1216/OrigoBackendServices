@@ -46,12 +46,12 @@ namespace Customer.API.Controllers
                 var foundCustomer = new Organization
                 {
                     OrganizationId = organization.OrganizationId,
-                    Name = organization.OrganizationName,
+                    Name = organization.Name,
                     OrganizationNumber = organization.OrganizationNumber,
-                    Address = new Address(organization.OrganizationAddress),
-                    ContactPerson = new ContactPerson(organization.OrganizationContactPerson),
-                    Preferences = (organization.OrganizationPreferences == null) ? null : new OrganizationPreferences(organization.OrganizationPreferences),
-                    Location = (organization.OrganizationLocation == null) ? null : new Location(organization.OrganizationLocation)
+                    Address = new Address(organization.Address),
+                    ContactPerson = new ContactPerson(organization.ContactPerson),
+                    Preferences = (organization.Preferences == null) ? null : new OrganizationPreferences(organization.Preferences),
+                    Location = (organization.Location == null) ? null : new Location(organization.Location)
                 };
                 return Ok(foundCustomer);
             }
@@ -80,12 +80,12 @@ namespace Customer.API.Controllers
                     var organizationView = new Organization
                     {
                         OrganizationId = org.OrganizationId,
-                        Name = org.OrganizationName,
+                        Name = org.Name,
                         OrganizationNumber = org.OrganizationNumber,
-                        Address = new Address(org.OrganizationAddress),
-                        ContactPerson = new ContactPerson(org.OrganizationContactPerson),
-                        Preferences = (org.OrganizationPreferences == null) ? null : new OrganizationPreferences(org.OrganizationPreferences),
-                        Location = (org.OrganizationLocation == null) ? null : new Location(org.OrganizationLocation),
+                        Address = new Address(org.Address),
+                        ContactPerson = new ContactPerson(org.ContactPerson),
+                        Preferences = (org.Preferences == null) ? null : new OrganizationPreferences(org.Preferences),
+                        Location = (org.Location == null) ? null : new Location(org.Location),
                         ChildOrganizations = new List<Organization>()
                     };
                     if (org.ChildOrganizations != null)
@@ -95,12 +95,12 @@ namespace Customer.API.Controllers
                             var childOrgView = new Organization
                             {
                                 OrganizationId = childOrg.OrganizationId,
-                                Name = childOrg.OrganizationName,
+                                Name = childOrg.Name,
                                 OrganizationNumber = childOrg.OrganizationNumber,
-                                Address = new Address(childOrg.OrganizationAddress),
-                                ContactPerson = new ContactPerson(childOrg.OrganizationContactPerson),
-                                Preferences = (childOrg.OrganizationPreferences == null) ? null : new OrganizationPreferences(childOrg.OrganizationPreferences),
-                                Location = (childOrg.OrganizationLocation == null) ? null : new Location(childOrg.OrganizationLocation)
+                                Address = new Address(childOrg.Address),
+                                ContactPerson = new ContactPerson(childOrg.ContactPerson),
+                                Preferences = (childOrg.Preferences == null) ? null : new OrganizationPreferences(childOrg.Preferences),
+                                Location = (childOrg.Location == null) ? null : new Location(childOrg.Location)
                             };
                             organizationView.ChildOrganizations.Add(childOrgView);
                         }
@@ -191,7 +191,7 @@ namespace Customer.API.Controllers
 
                     // save the organization preferences
                     await _organizationServices.AddOrganizationPreferencesAsync(organizationPreferences);
-                    newOrganization.OrganizationPreferences = organizationPreferences;
+                    newOrganization.Preferences = organizationPreferences;
                 }
                 else // Create an empty "default" variant of organization preferences
                 {
@@ -200,7 +200,7 @@ namespace Customer.API.Controllers
 
                     // save the organization preferences
                     await _organizationServices.AddOrganizationPreferencesAsync(organizationPreferences);
-                    newOrganization.OrganizationPreferences = organizationPreferences;
+                    newOrganization.Preferences = organizationPreferences;
                 }
 
                 // Save new organization
@@ -209,12 +209,12 @@ namespace Customer.API.Controllers
                 var updatedOrganizationView = new Organization
                 {
                     OrganizationId = updatedOrganization.OrganizationId,
-                    Name = updatedOrganization.OrganizationName,
+                    Name = updatedOrganization.Name,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
-                    Address = new Address(updatedOrganization.OrganizationAddress),
-                    ContactPerson = new ContactPerson(updatedOrganization.OrganizationContactPerson),
-                    Preferences = (updatedOrganization.OrganizationPreferences == null) ? null : new OrganizationPreferences(updatedOrganization.OrganizationPreferences),
-                    Location = (updatedOrganization.OrganizationLocation == null) ? null : new Location(updatedOrganization.OrganizationLocation)
+                    Address = new Address(updatedOrganization.Address),
+                    ContactPerson = new ContactPerson(updatedOrganization.ContactPerson),
+                    Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferences(updatedOrganization.Preferences),
+                    Location = (updatedOrganization.Location == null) ? null : new Location(updatedOrganization.Location)
                 };
 
                 return CreatedAtAction(nameof(CreateOrganization), new { id = updatedOrganizationView.OrganizationId }, updatedOrganizationView);
@@ -247,6 +247,9 @@ namespace Customer.API.Controllers
                 if (organization.ParentId != Guid.Empty)
                 {
                     var organizationParent = await _organizationServices.GetOrganizationAsync(organization.ParentId, false, false);
+                    if (organizationParent == null)
+                        return BadRequest("Could find no parent organization with the given id");
+
                     if (organizationParent.ParentId != Guid.Empty && organizationParent.ParentId != null)
                     {
                         return BadRequest("Parent of the organization cannot itself have a parent.");
@@ -331,12 +334,12 @@ namespace Customer.API.Controllers
                 var updatedOrganizationView = new Organization
                 {
                     OrganizationId = updatedOrganization.OrganizationId,
-                    Name = updatedOrganization.OrganizationName,
+                    Name = updatedOrganization.Name,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
-                    Address = new Address(updatedOrganization.OrganizationAddress),
-                    ContactPerson = new ContactPerson(updatedOrganization.OrganizationContactPerson),
-                    Preferences = new OrganizationPreferences(newOrganization.OrganizationPreferences),
-                    Location = new Location(newOrganization.OrganizationLocation)
+                    Address = new Address(updatedOrganization.Address),
+                    ContactPerson = new ContactPerson(updatedOrganization.ContactPerson),
+                    Preferences = new OrganizationPreferences(newOrganization.Preferences),
+                    Location = new Location(newOrganization.Location)
                 };
 
                 return updatedOrganizationView;
@@ -370,7 +373,10 @@ namespace Customer.API.Controllers
                 if (organization.ParentId != Guid.Empty)
                 {
                     var organizationParent = await _organizationServices.GetOrganizationAsync(organization.ParentId, false, false);
-                    if (organizationParent.ParentId != Guid.Empty)
+                    if (organizationParent == null)
+                        return BadRequest("Parent of the organization was not found with the given id.");
+
+                    if (organizationParent.ParentId != null && organizationParent.ParentId != Guid.Empty)
                     {
                         return BadRequest("Parent of the organization cannot itself have a parent.");
                     }
@@ -450,12 +456,12 @@ namespace Customer.API.Controllers
                 var updatedOrganizationView = new Organization
                 {
                     OrganizationId = updatedOrganization.OrganizationId,
-                    Name = updatedOrganization.OrganizationName,
+                    Name = updatedOrganization.Name,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
-                    Address = new Address(updatedOrganization.OrganizationAddress),
-                    ContactPerson = new ContactPerson(updatedOrganization.OrganizationContactPerson),
-                    Preferences = new OrganizationPreferences(newOrganization.OrganizationPreferences),
-                    Location = new Location(newOrganization.OrganizationLocation)
+                    Address = new Address(updatedOrganization.Address),
+                    ContactPerson = new ContactPerson(updatedOrganization.ContactPerson),
+                    Preferences = new OrganizationPreferences(newOrganization.Preferences),
+                    Location = new Location(newOrganization.Location)
                 };
 
                 return updatedOrganizationView;
@@ -483,12 +489,12 @@ namespace Customer.API.Controllers
                 var removedOrganizationView = new Organization
                 {
                     OrganizationId = removedOrganization.OrganizationId,
-                    Name = removedOrganization.OrganizationName,
+                    Name = removedOrganization.Name,
                     OrganizationNumber = removedOrganization.OrganizationNumber,
-                    Address = new Address(removedOrganization.OrganizationAddress),
-                    ContactPerson = new ContactPerson(removedOrganization.OrganizationContactPerson),
-                    Preferences = (removedOrganization.OrganizationPreferences == null) ? null : new OrganizationPreferences(removedOrganization.OrganizationPreferences),
-                    Location = (removedOrganization.OrganizationLocation == null) ? null : new Location(removedOrganization.OrganizationLocation)
+                    Address = new Address(removedOrganization.Address),
+                    ContactPerson = new ContactPerson(removedOrganization.ContactPerson),
+                    Preferences = (removedOrganization.Preferences == null) ? null : new OrganizationPreferences(removedOrganization.Preferences),
+                    Location = (removedOrganization.Location == null) ? null : new Location(removedOrganization.Location)
                 };
                 return Ok(removedOrganizationView);
 
