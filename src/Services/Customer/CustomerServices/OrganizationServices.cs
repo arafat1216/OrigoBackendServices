@@ -35,8 +35,8 @@ namespace CustomerServices
                 var orgs = await _customerRepository.GetOrganizationsAsync();
                 foreach (Organization o in orgs)
                 {
-                    o.OrganizationPreferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
-                    o.OrganizationLocation = await _customerRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
+                    o.Preferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
+                    o.Location = await _customerRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
                 }
                 return orgs;
             }
@@ -47,8 +47,8 @@ namespace CustomerServices
                 foreach (Organization o in organizations)
                 {
                     o.ChildOrganizations = await _customerRepository.GetOrganizationsAsync(o.OrganizationId);
-                    o.OrganizationPreferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
-                    o.OrganizationLocation = await _customerRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
+                    o.Preferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
+                    o.Location = await _customerRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
                 }
                 return organizations;
             }
@@ -84,11 +84,11 @@ namespace CustomerServices
             {
                 if (includePreferences)
                 {
-                    organization.OrganizationPreferences = await _customerRepository.GetOrganizationPreferencesAsync(customerId);
+                    organization.Preferences = await _customerRepository.GetOrganizationPreferencesAsync(customerId);
                 }
                 if (includeLocation)
                 {
-                    organization.OrganizationLocation = await _customerRepository.GetOrganizationLocationAsync(organization.PrimaryLocation);
+                    organization.Location = await _customerRepository.GetOrganizationLocationAsync(organization.PrimaryLocation);
                 }
             }
 
@@ -111,11 +111,11 @@ namespace CustomerServices
             {
                 var organization = await _customerRepository.GetOrganizationAsync(updateOrganization.OrganizationId);
                 if (usingPatch)
-                    organization.PatchOrganization(organization.ParentId, organization.PrimaryLocation,
-                                                 organization.OrganizationName, organization.OrganizationNumber);
+                    organization.PatchOrganization(updateOrganization.ParentId, updateOrganization.PrimaryLocation,
+                                                 updateOrganization.Name, updateOrganization.OrganizationNumber);
                 else
-                    organization.UpdateOrganization(organization.ParentId, organization.PrimaryLocation,
-                                                    organization.OrganizationName, organization.OrganizationNumber);
+                    organization.UpdateOrganization(updateOrganization.ParentId, updateOrganization.PrimaryLocation,
+                                                    updateOrganization.Name, updateOrganization.OrganizationNumber);
 
 
                 await _customerRepository.SaveEntitiesAsync();

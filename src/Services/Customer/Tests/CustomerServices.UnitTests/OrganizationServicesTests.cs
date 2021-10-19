@@ -32,11 +32,11 @@ namespace CustomerServices.UnitTests
             var organization = await organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
 
             // Assert
-            Assert.Equal("COMPANY ONE", organization.OrganizationName);
-            Assert.Equal("My Way 1", organization.OrganizationAddress.Street);
-            Assert.Equal("1111", organization.OrganizationAddress.PostCode);
-            Assert.Equal("My City", organization.OrganizationAddress.City);
-            Assert.Equal("NO", organization.OrganizationAddress.Country);
+            Assert.Equal("COMPANY ONE", organization.Name);
+            Assert.Equal("My Way 1", organization.Address.Street);
+            Assert.Equal("1111", organization.Address.PostCode);
+            Assert.Equal("My City", organization.Address.City);
+            Assert.Equal("NO", organization.Address.Country);
         }
     }
 }
