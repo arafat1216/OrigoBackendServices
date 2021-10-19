@@ -111,11 +111,11 @@ namespace CustomerServices
             {
                 var organization = await _customerRepository.GetOrganizationAsync(updateOrganization.OrganizationId);
                 if (usingPatch)
-                    organization.PatchOrganization(organization.ParentId, organization.PrimaryLocation,
-                                                 organization.OrganizationName, organization.OrganizationNumber);
+                    organization.PatchOrganization(updateOrganization.ParentId, updateOrganization.PrimaryLocation,
+                                                 updateOrganization.OrganizationName, updateOrganization.OrganizationNumber);
                 else
-                    organization.UpdateOrganization(organization.ParentId, organization.PrimaryLocation,
-                                                    organization.OrganizationName, organization.OrganizationNumber);
+                    organization.UpdateOrganization(updateOrganization.ParentId, updateOrganization.PrimaryLocation,
+                                                    updateOrganization.OrganizationName, updateOrganization.OrganizationNumber);
 
 
                 await _customerRepository.SaveEntitiesAsync();
