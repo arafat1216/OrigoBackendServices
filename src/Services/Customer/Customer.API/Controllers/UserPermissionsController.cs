@@ -49,6 +49,15 @@ namespace Customer.API.Controllers
             return Ok(returnedUserPermissions);
         }
 
+        [HttpGet]
+        [Route("/api/v{version:apiVersion}/organizations/roles")]
+        [ProducesResponseType(typeof(List<UserPermissions>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<List<string>>> GetAllRoles()
+        {
+            var allRoles = await _userPermissionServices.GetAllRolesAsync();
+            return Ok(allRoles);
+        }
+
         [HttpPut]
         [ProducesResponseType(typeof(UserPermissions), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]

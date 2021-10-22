@@ -19,5 +19,6 @@ namespace OrigoApiGateway.Services
         Task<IList<OrigoUserPermissions>> GetUserPermissionsAsync(string userName);
         Task<OrigoUserPermissions> AddUserPermissionsForUserAsync(string userName, NewUserPermissions userPermission);
         Task<OrigoUserPermissions> RemoveUserPermissionsForUserAsync(string userName, NewUserPermissions userPermission);
+        Task<IList<string>> GetAllRolesAsync();
     }
 }

@@ -141,5 +141,11 @@ namespace CustomerServices
             }
             return userPermission;
         }
+
+        public async Task<IList<string>> GetAllRolesAsync()
+        {
+            return await _customerContext.Roles.Select(r => r.Name).ToListAsync();
+
+        }
     }
 }

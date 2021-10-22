@@ -54,6 +54,22 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("/origoapi/v{version:apiVersion}/roles")]
+        [ProducesResponseType(typeof(IList<string>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IList<string>>> GetRoles()
+        {
+            try
+            {
+                return Ok(await _userPermissionServices.GetAllRolesAsync());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
         [HttpPut]
         [ProducesResponseType(typeof(OrigoUserPermissions), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
