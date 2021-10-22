@@ -8,12 +8,12 @@ namespace AssetServices.DomainEvents
 {
     public class AssetCreatedDomainEvent : BaseEvent
     {
-        public AssetCreatedDomainEvent(Asset newAsset) : base(newAsset.AssetId)
+        public AssetCreatedDomainEvent(Asset asset) : base(asset.AssetId)
         {
-            NewAsset = newAsset;
+            Asset = asset;
         }
 
-        public Asset NewAsset { get; protected set; }
+        public Asset Asset { get; protected set; }
 
         public override string EventMessage(string languageCode = "nb-NO")
         {
