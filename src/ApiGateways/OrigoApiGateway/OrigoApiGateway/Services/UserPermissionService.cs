@@ -118,5 +118,30 @@ namespace OrigoApiGateway.Services
             var userPermissions = await response.Content.ReadFromJsonAsync<UserPermissionsDTO>();
             return userPermissions == null ? null : new OrigoUserPermissions(userPermissions);
         }
+
+        public async Task<IList<string>> GetAllRolesAsync()
+        {
+            try
+            {
+                var allRoles = await _httpClient.GetFromJsonAsync<IList<string>>($"{_options.ApiPath}/roles");
+                return allRoles?.ToList();
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetUserPermissionsAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetUserPermissionsAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetUserPermissionsAsync unknown error.");
+                throw;
+            }
+
+        }
     }
 }
