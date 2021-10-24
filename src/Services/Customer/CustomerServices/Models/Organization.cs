@@ -111,15 +111,7 @@ namespace CustomerServices.Models
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
 
-        public void UpdateOrganization(Guid? parentId, Guid? primaryLocation, string companyName, string organizationNumber)
-        {
-            ParentId = parentId;
-            PrimaryLocation = primaryLocation;
-            Name = companyName;
-            OrganizationNumber = organizationNumber;
-        }
-
-        public void UpdateOrganization2(Organization organization)
+        public void UpdateOrganization(Organization organization)
         {
             ParentId = organization.ParentId;
             PrimaryLocation = (organization.PrimaryLocation == null) ? Guid.Empty : organization.PrimaryLocation;
@@ -134,24 +126,50 @@ namespace CustomerServices.Models
             UpdatedBy = organization.UpdatedBy;
         }
 
-        public void PatchOrganization(Guid?parentId, Guid? primaryLocation, string companyName, string organizationNumber)
+        public void PatchOrganization(Organization organization)
         {
-            if (ParentId != parentId)
-                ParentId = parentId;
+            bool isUpdated = false;
+            if (ParentId != organization.ParentId && organization.ParentId != null)
+            {
+                ParentId = organization.ParentId;
+                isUpdated = true;
+            }
 
-            if (PrimaryLocation != primaryLocation)
-                PrimaryLocation = primaryLocation;
+            if (PrimaryLocation != organization.PrimaryLocation && organization.PrimaryLocation != null)
+            {
+                PrimaryLocation = organization.PrimaryLocation;
+                isUpdated = true;
+            }
 
-            if (Name != companyName)
-                Name = companyName;
+            if (Name != organization.Name && organization.Name != null)
+            {
+                Name = organization.Name;
+                isUpdated = true;
+            }
 
-            if (OrganizationNumber != organizationNumber)
-                OrganizationNumber = organizationNumber;
-        }
+            if (OrganizationNumber != organization.OrganizationNumber && organization.OrganizationNumber != null)
+            {
+                OrganizationNumber = organization.OrganizationNumber;
+                isUpdated = true;
+            }
 
-        public void PatchOrganization2(Organization organization)
-        {
+            if (Address != organization.Address && organization.Address != null)
+            {
+                Address = organization.Address;
+                isUpdated = true;
+            }
 
+            if (ContactPerson != organization.ContactPerson && organization.ContactPerson != null)
+            {
+                ContactPerson = organization.ContactPerson;
+                isUpdated = true;
+            }
+
+            if (isUpdated)
+            {
+                UpdatedAt = DateTime.UtcNow;
+                UpdatedBy = organization.UpdatedBy;
+            }
         }
 
         public void Delete(Guid callerId)

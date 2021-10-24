@@ -25,6 +25,18 @@ namespace CustomerServices.Models
             Country = (country == null) ? "" : country;
         }
 
+        public void PatchAddress(string street, string postCode, string city, string country)
+        {
+            if (street != null)
+                Street = street;
+            if (postCode != null)
+                PostCode = postCode;
+            if (city != null)
+                City = city;
+            if (country != null)
+                Country = country;
+        }
+
         protected override IEnumerable<object> GetEqualityComponents()
         {
             // Using a yield return statement to return each element one at a time

@@ -22,6 +22,16 @@ namespace CustomerServices.Models
 
         public string PhoneNumber { get; private set; }
 
+        public void PatchContactPerson(string fullName, string email, string phoneNumber)
+        {
+            if (fullName != null)
+                FullName = fullName;
+            if (email != null)
+                Email = email;
+            if (phoneNumber != null)
+                PhoneNumber = phoneNumber;
+        }
+
         protected override IEnumerable<object> GetEqualityComponents()
         {
             // Using a yield return statement to return each element one at a time

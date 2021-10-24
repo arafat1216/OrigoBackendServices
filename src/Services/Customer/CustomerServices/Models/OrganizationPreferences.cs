@@ -44,6 +44,18 @@ namespace CustomerServices.Models
             UpdatedBy = callerId;
         }
 
+        /// <summary>
+        /// Cannot check for null in constructor, since patch method needs to check if Preferences object to update has fields we wish to ignore
+        /// This method allows us to set null fields to String.Empty for update method, while ignoring null fields for patch method.
+        /// </summary>
+        public void SetFieldsToEmptyIfNull()
+        {
+            if (WebPage == null) WebPage = "";
+            if (LogoUrl == null) LogoUrl = "";
+            if (OrganizationNotes == null) OrganizationNotes = "";
+            if (PrimaryLanguage == null) PrimaryLanguage = "";
+        }
+
         public void UpdatePreferences(OrganizationPreferences newPreferences)
         {
             WebPage = newPreferences.WebPage;
@@ -59,17 +71,17 @@ namespace CustomerServices.Models
         public void PatchPreferences(OrganizationPreferences newPreferences)
         {
             bool isUpdated = false;
-            if (WebPage != newPreferences.WebPage)
+            if (WebPage != newPreferences.WebPage && newPreferences.WebPage != null)
             {
                 WebPage = newPreferences.WebPage;
                 isUpdated = true;
             }
-            if (LogoUrl != newPreferences.LogoUrl)
+            if (LogoUrl != newPreferences.LogoUrl && newPreferences.LogoUrl != null)
             {
                 LogoUrl = newPreferences.LogoUrl;
                 isUpdated = true;
             }
-            if (OrganizationNotes != newPreferences.OrganizationNotes)
+            if (OrganizationNotes != newPreferences.OrganizationNotes && newPreferences.OrganizationNotes != null)
             {
                 OrganizationNotes = newPreferences.OrganizationNotes;
                 isUpdated = true;
@@ -79,7 +91,7 @@ namespace CustomerServices.Models
                 EnforceTwoFactorAuth = newPreferences.EnforceTwoFactorAuth;
                 isUpdated = true;
             }
-            if (PrimaryLanguage != newPreferences.PrimaryLanguage)
+            if (PrimaryLanguage != newPreferences.PrimaryLanguage && newPreferences.PrimaryLanguage != null)
             {
                 PrimaryLanguage = newPreferences.PrimaryLanguage;
                 isUpdated = true;

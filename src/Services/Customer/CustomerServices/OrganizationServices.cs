@@ -112,15 +112,11 @@ namespace CustomerServices
                 var organization = await _customerRepository.GetOrganizationAsync(updateOrganization.OrganizationId);
                 if (usingPatch)
                 {
-                    //organization.PatchOrganization(updateOrganization.ParentId, updateOrganization.PrimaryLocation,
-                    //                             updateOrganization.Name, updateOrganization.OrganizationNumber);
-                    organization.PatchOrganization2(updateOrganization);
+                    organization.PatchOrganization(updateOrganization);
                 }
                 else
                 {
-                    //organization.UpdateOrganization(updateOrganization.ParentId, updateOrganization.PrimaryLocation,
-                    //                                updateOrganization.Name, updateOrganization.OrganizationNumber);
-                    organization.UpdateOrganization2(updateOrganization);
+                    organization.UpdateOrganization(updateOrganization);
                 }
 
 
