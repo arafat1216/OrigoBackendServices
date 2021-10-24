@@ -84,7 +84,7 @@ namespace CustomerServices.Models
             ContactPerson organizationContactPerson, OrganizationPreferences organizationPreferences, Location organizationLocation)
         {
             Name = companyName;
-            ParentId = (parentId == Guid.Empty) ? null : parentId;
+            ParentId = parentId;
             OrganizationNumber = orgNumber;
             Address = companyAddress;
             ContactPerson = organizationContactPerson;
@@ -119,6 +119,21 @@ namespace CustomerServices.Models
             OrganizationNumber = organizationNumber;
         }
 
+        public void UpdateOrganization2(Organization organization)
+        {
+            ParentId = organization.ParentId;
+            PrimaryLocation = (organization.PrimaryLocation == null) ? Guid.Empty : organization.PrimaryLocation;
+            Name = (organization.Name == null) ? "" : organization.Name;
+            OrganizationNumber = (organization.OrganizationNumber == null) ? "" : organization.OrganizationNumber;
+            Address = organization.Address;
+            ContactPerson = organization.ContactPerson;
+            Preferences = organization.Preferences;
+            PrimaryLocation = organization.PrimaryLocation;
+            Location = organization.Location;
+            UpdatedAt = DateTime.UtcNow;
+            UpdatedBy = organization.UpdatedBy;
+        }
+
         public void PatchOrganization(Guid?parentId, Guid? primaryLocation, string companyName, string organizationNumber)
         {
             if (ParentId != parentId)
@@ -132,6 +147,11 @@ namespace CustomerServices.Models
 
             if (OrganizationNumber != organizationNumber)
                 OrganizationNumber = organizationNumber;
+        }
+
+        public void PatchOrganization2(Organization organization)
+        {
+
         }
 
         public void Delete(Guid callerId)

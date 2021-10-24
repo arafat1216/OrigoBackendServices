@@ -19,10 +19,10 @@ namespace CustomerServices.Models
 
         public Address(string street, string postCode, string city, string country)
         {
-            Street = street;
-            PostCode = postCode;
-            City = city;
-            Country = country;
+            Street = (street == null) ? "" : street;
+            PostCode = (postCode == null) ? "" : postCode;
+            City = (city == null) ? "" : city;
+            Country = (country == null) ? "" : country;
         }
 
         protected override IEnumerable<object> GetEqualityComponents()

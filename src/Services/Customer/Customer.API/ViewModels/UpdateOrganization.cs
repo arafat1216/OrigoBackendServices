@@ -15,8 +15,8 @@ namespace Customer.API.ViewModels
 
         public NewLocation Location { get; set; }
 
-        public Guid PrimaryLocation { get; set; }
-        public Guid ParentId { get; set; }
+        public Guid? PrimaryLocation { get; set; }
+        public Guid? ParentId { get; set; }
         public Guid CallerId { get; set; }
 
         public string ContactEmail { get; set; }

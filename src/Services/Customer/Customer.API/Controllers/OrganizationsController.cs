@@ -237,16 +237,16 @@ namespace Customer.API.Controllers
                     return BadRequest("OrganizationId cannot be empty.");
                 }
 
+                // Does the organization exist?
                 var organizationOriginal = await _organizationServices.GetOrganizationAsync(organization.OrganizationId, true, true);
-
                 if (organizationOriginal == null)
                 {
                     return BadRequest("Organization with the given id was not found.");
                 }
 
-                if (organization.ParentId != Guid.Empty)
+                if (organization.ParentId != null && organization.ParentId != Guid.Empty)
                 {
-                    var organizationParent = await _organizationServices.GetOrganizationAsync(organization.ParentId, false, false);
+                    var organizationParent = await _organizationServices.GetOrganizationAsync((Guid) organization.ParentId, false, false);
                     if (organizationParent == null)
                         return BadRequest("Could find no parent organization with the given id");
 
@@ -258,16 +258,29 @@ namespace Customer.API.Controllers
 
                 // Check if location already exists, or if we must make a new one
                 CustomerServices.Models.Location newLocation;
-                if (organization.PrimaryLocation != Guid.Empty)
+                if (organization.PrimaryLocation != Guid.Empty && organization.PrimaryLocation != null)
                 {
-                    var location = await _organizationServices.GetLocationAsync(organization.PrimaryLocation);
-                    if (location == null)
+                    var locationFound = await _organizationServices.GetLocationAsync((Guid) organization.PrimaryLocation);
+                    if (locationFound == null)
                     {
-                        return BadRequest("No location was found with the given id.");
+                        return NotFound("No location was found with the given id.");
                     }
                     else
                     {
-                        newLocation = location;
+                        // Set location to found value
+                        if (organization.Location == null)
+                        {
+                            newLocation = locationFound;
+                        }
+                        else // Create new location but with existing id
+                        {
+                            newLocation = new CustomerServices.Models.Location((Guid)organizationOriginal.PrimaryLocation, organization.CallerId, organization.Location.Name, organization.Location.Description,
+                                                                           organization.Location.Address1, organization.Location.Address2,
+                                                                           organization.Location.PostalCode, organization.Location.City,
+                                                                           organization.Location.Country);
+                            // update the new location
+                            await _organizationServices.UpdateOrganizationLocationAsync(newLocation);
+                        }
                     }
                 }
                 else
@@ -276,15 +289,17 @@ namespace Customer.API.Controllers
                     {
                         return BadRequest("An organization must have a location object if PrimaryLocation is empty.");
                     }
-                    else
+                    else // create new location object
                     {
                         newLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.Location.Name, organization.Location.Description,
                                                                            organization.Location.Address1, organization.Location.Address2,
                                                                            organization.Location.PostalCode, organization.Location.City,
                                                                            organization.Location.Country);
+                        await _organizationServices.AddOrganizationLocationAsync(newLocation);
                     }
                 }
 
+                // Update Address
                 CustomerServices.Models.Address newAddress;
                 if (organization.Address == null)
                 {
@@ -296,6 +311,7 @@ namespace Customer.API.Controllers
                                                                      organization.Address.City, organization.Address.Country);
                 }
 
+                // Update ContactPerson
                 CustomerServices.Models.ContactPerson newContactPerson;
                 if (organization.ContactPerson == null)
                 {
@@ -308,6 +324,7 @@ namespace Customer.API.Controllers
                                                                                  organization.ContactPerson.PhoneNumber);
                 }
 
+                // Update Preferences
                 CustomerServices.Models.OrganizationPreferences newOrganizationPreferences;
                 if (organization.Preferences == null)
                 {
@@ -322,7 +339,7 @@ namespace Customer.API.Controllers
                 }
 
                 await _organizationServices.UpdateOrganizationPreferencesAsync(newOrganizationPreferences);
-                await _organizationServices.UpdateOrganizationLocationAsync(newLocation);
+                //await _organizationServices.UpdateOrganizationLocationAsync(newLocation);
 
                 CustomerServices.Models.Organization newOrganization = new CustomerServices.Models.Organization(organization.OrganizationId, organization.CallerId, organization.ParentId,
                                                                                         organization.Name, organization.OrganizationNumber,
@@ -370,23 +387,52 @@ namespace Customer.API.Controllers
                     return BadRequest("Organization with the given id was not found.");
                 }
 
-                if (organization.ParentId != Guid.Empty)
+                // Modify parent?
+                if (organization.ParentId != null && organization.ParentId != Guid.Empty)
                 {
-                    var organizationParent = await _organizationServices.GetOrganizationAsync(organization.ParentId, false, false);
+                    var organizationParent = await _organizationServices.GetOrganizationAsync((Guid)organization.ParentId, false, false);
                     if (organizationParent == null)
-                        return BadRequest("Parent of the organization was not found with the given id.");
+                        return BadRequest("Could find no parent organization with the given id");
 
-                    if (organizationParent.ParentId != null && organizationParent.ParentId != Guid.Empty)
+                    // Organizations have a maximum hierarchy depth of 2
+                    if (organizationParent.ParentId != Guid.Empty && organizationParent.ParentId != null)
                     {
                         return BadRequest("Parent of the organization cannot itself have a parent.");
                     }
                 }
-
                 // Check if location already exists, or if we must make a new one
                 CustomerServices.Models.Location newLocation;
-                if (organization.PrimaryLocation != Guid.Empty)
+                if (organization.PrimaryLocation == Guid.Empty) // set location to empty guid. We intentionally do not call UpdateOrganizationLocationAsync here
                 {
-                    var location = await _organizationServices.GetLocationAsync(organization.PrimaryLocation);
+                    newLocation = new CustomerServices.Models.Location(Guid.Empty, Guid.Empty, "", "",
+                                                                           "", "", "", "", "");
+                }
+                else if (organization.PrimaryLocation == null) // Do not modify (patch): accompanying Location object is ignored
+                {
+                    if (organization.Location != null)
+                    {
+
+                    }
+                    newLocation = organizationOriginal.Location;
+                }
+                else // Modify location if it exists
+                {
+                    var location = await _organizationServices.GetLocationAsync((Guid)organization.PrimaryLocation);
+                    if (location == null)
+                    {
+                        return BadRequest("No location was found with the given id.");
+                    }
+                    else
+                    {
+                        newLocation = location;
+                    }
+                }
+                /*
+                    // Check if location already exists, or if we must make a new one
+                    CustomerServices.Models.Location newLocation;
+                if (organization.PrimaryLocation != Guid.Empty && organization.PrimaryLocation != null)
+                {
+                    var location = await _organizationServices.GetLocationAsync((Guid)organization.PrimaryLocation);
                     if (location == null)
                     {
                         return BadRequest("No location was found with the given id.");
@@ -404,12 +450,22 @@ namespace Customer.API.Controllers
                     }
                     else
                     {
-                        newLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.Location.Name, organization.Location.Description,
+                        Guid locId;
+                        if (organizationOriginal.PrimaryLocation == null || organizationOriginal.PrimaryLocation == Guid.Empty)
+                        {
+                            locId = Guid.NewGuid();
+                        }
+                        else
+                        {
+                            locId = (Guid) organizationOriginal.PrimaryLocation;
+                        }
+                        newLocation = new CustomerServices.Models.Location(locId, organization.CallerId, organization.Location.Name, organization.Location.Description,
                                                                            organization.Location.Address1, organization.Location.Address2,
                                                                            organization.Location.PostalCode, organization.Location.City,
                                                                            organization.Location.Country);
                     }
                 }
+                */
 
                 CustomerServices.Models.Address newAddress;
                 if (organization.Address == null)

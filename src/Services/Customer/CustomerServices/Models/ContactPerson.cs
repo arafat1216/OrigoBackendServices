@@ -11,9 +11,9 @@ namespace CustomerServices.Models
     {
         public ContactPerson(string fullName, string email, string phoneNumber)
         {
-            FullName = fullName;
-            Email = email;
-            PhoneNumber = phoneNumber;
+            FullName = (fullName == null) ? "" : fullName;
+            Email = (email == null) ? "" : email;
+            PhoneNumber = (phoneNumber == null) ? "" : phoneNumber;
         }
 
         public string FullName { get; private set; }
