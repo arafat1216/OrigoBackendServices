@@ -5,13 +5,17 @@ using System.Threading.Tasks;
 
 namespace CustomerServices.Models
 {
-    public interface ICustomerRepository
+    public interface IOrganizationRepository
     {
         Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default);
-        Task<Customer> AddAsync(Customer customer);
-        Task<IList<Customer>> GetCustomersAsync();
-        Task<Customer> GetCustomerAsync(Guid customerId);
-
+        Task<Organization> AddAsync(Organization customer);
+        Task<IList<Organization>> GetOrganizationsAsync();
+        Task<IList<Organization>> GetOrganizationsAsync(Guid? parentId);
+        Task<Organization> GetOrganizationAsync(Guid customerId);
+        Task<OrganizationPreferences> GetOrganizationPreferencesAsync(Guid organizationId);
+        Task<Location> GetOrganizationLocationAsync(Guid? locationId);
+        Task<Location> DeleteOrganizationLocationAsync(Location organizationLocation);
+        Task<Organization> DeleteOrganizationAsync(Organization organization);
         Task<IList<User>> GetAllUsersAsync(Guid customerId);
         Task<User> GetUserAsync(Guid customerId, Guid userId);
         Task<User> GetUserAsync(Guid userId);
@@ -19,7 +23,12 @@ namespace CustomerServices.Models
         Task<User> DeleteUserAsync(User user);
 
 
-        Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Customer customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes);
+        Task<Location> AddOrganizationLocationAsync(Location location);
+        Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
+        Task<OrganizationPreferences> DeleteOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
+
+
+        Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes);
         Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId);
         Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, Guid assetCategoryId);
         Task<AssetCategoryType> DeleteAssetCategoryTypeAsync(AssetCategoryType assetCategoryType);

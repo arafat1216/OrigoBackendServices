@@ -113,7 +113,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Email", "Email", "{315A279F-D0FF-429D-8F33-C39751D83AB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Email.API", "src\Services\Email\Email.API\Email.API.csproj", "{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Email.API", "src\Services\Email\Email.API\Email.API.csproj", "{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{DDAD494B-7538-4083-A574-D6F6A7B9A168}"
+	ProjectSection(SolutionItems) = preProject
+		src\ApiGateways\OrigoApiGateway\OrigoApiGateway.IntegrationTests\OrigoV2IntegrationTests-DevEnvironment.postman_environment.json = src\ApiGateways\OrigoApiGateway\OrigoApiGateway.IntegrationTests\OrigoV2IntegrationTests-DevEnvironment.postman_environment.json
+		src\ApiGateways\OrigoApiGateway\OrigoApiGateway.IntegrationTests\OrigoV2IntegrationTests.postman_collection.json = src\ApiGateways\OrigoApiGateway\OrigoApiGateway.IntegrationTests\OrigoV2IntegrationTests.postman_collection.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -192,6 +198,7 @@ Global
 		{DE0A244E-6997-43B7-B187-E97D4847AAC1} = {23F495F5-BB43-4A62-B3F5-096174995E42}
 		{315A279F-D0FF-429D-8F33-C39751D83AB2} = {7618C1FC-2AFA-468A-92C5-74DC94CCCA8E}
 		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38} = {315A279F-D0FF-429D-8F33-C39751D83AB2}
+		{DDAD494B-7538-4083-A574-D6F6A7B9A168} = {1D6FE7EF-D120-4993-BD84-39701AB88B5B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DAEDEBBF-933A-4FFE-B734-B9E748AF86E1}

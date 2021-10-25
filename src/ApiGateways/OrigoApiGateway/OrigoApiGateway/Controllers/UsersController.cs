@@ -1,11 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Common.Enums;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Controllers
@@ -13,26 +18,36 @@ namespace OrigoApiGateway.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     //[Authorize]
-    [Route("origoapi/v{version:apiVersion}/Customers/{customerId:guid}/[controller]")]
+    [Route("origoapi/v{version:apiVersion}/Customers/{organizationId:guid}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
     public class UsersController : ControllerBase
     {
         private readonly ILogger<UsersController> _logger;
-        private readonly IUserServices _customerServices;
+        private readonly IUserServices _userServices;
 
         public UsersController(ILogger<UsersController> logger, IUserServices customerServices)
         {
             _logger = logger;
-            _customerServices = customerServices;
+            _userServices = customerServices;
         }
 
         [HttpGet]
         [ProducesResponseType(typeof(List<OrigoUser>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<List<OrigoUser>>> GetAllUsers(Guid customerId)
+        public async Task<ActionResult<List<OrigoUser>>> GetAllUsers(Guid organizationId)
         {
-            var users = await _customerServices.GetAllUsersAsync(customerId);
+            //var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+            //if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString())
+            //{
+            //    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+            //    if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+            //    {
+            //        return Forbid();
+            //    }
+            //}
+
+            var users = await _userServices.GetAllUsersAsync(organizationId);
             if (users == null) return NotFound();
             return Ok(users);
         }
@@ -41,9 +56,9 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<OrigoUser>> GetUser(Guid customerId, Guid userId)
+        public async Task<ActionResult<OrigoUser>> GetUser(Guid organizationId, Guid userId)
         {
-            var user = await _customerServices.GetUserAsync(customerId, userId);
+            var user = await _userServices.GetUserAsync(organizationId, userId);
             if (user == null) return NotFound();
             return Ok(user);
         }
@@ -51,11 +66,11 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoUser>> CreateUserForCustomer(Guid customerId, [FromBody] NewUser newUser)
+        public async Task<ActionResult<OrigoUser>> CreateUserForCustomer(Guid organizationId, [FromBody] NewUser newUser)
         {
             try
             {
-                var updatedUser = await _customerServices.AddUserForCustomerAsync(customerId, newUser);
+                var updatedUser = await _userServices.AddUserForCustomerAsync(organizationId, newUser);
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUser.Id }, updatedUser);
             }
@@ -110,11 +125,11 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoUser>> AssignDepartmentForCustomer(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<ActionResult<OrigoUser>> AssignDepartmentForCustomer(Guid organizationId, Guid userId, Guid departmentId)
         {
             try
             {
-                var updatedUser = await _customerServices.AssignUserToDepartment(customerId, userId, departmentId);
+                var updatedUser = await _userServices.AssignUserToDepartment(organizationId, userId, departmentId);
 
                 return Ok(updatedUser);
             }
@@ -128,17 +143,51 @@ namespace OrigoApiGateway.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoUser>> RemoveAssignedDepartmentForCustomer(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<ActionResult<OrigoUser>> RemoveAssignedDepartmentForCustomer(Guid organizationId, Guid userId, Guid departmentId)
         {
             try
             {
-                var updatedUser = await _customerServices.UnassignUserFromDepartment(customerId, userId, departmentId);
+                var updatedUser = await _userServices.UnassignUserFromDepartment(organizationId, userId, departmentId);
 
                 return Ok(updatedUser);
             }
             catch
             {
                 return BadRequest();
+            }
+        }
+
+        [Route("{userId:Guid}/department/{departmentId:Guid}/manager")]
+        [HttpPost]
+        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> AssignManagerToDepartment(Guid organizationId, Guid userId, Guid departmentId)
+        {
+            try
+            {
+                await _userServices.AssignManagerToDepartment(organizationId, userId, departmentId);
+                return Ok();
+            }
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
+        }
+
+        [Route("{userId:Guid}/department/{departmentId:Guid}/manager")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> UnassignManagerFromDepartment(Guid organizationId, Guid userId, Guid departmentId)
+        {
+            try
+            {
+                await _userServices.UnassignManagerFromDepartment(organizationId, userId, departmentId);
+                return Ok();
+            }
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
             }
         }
     }

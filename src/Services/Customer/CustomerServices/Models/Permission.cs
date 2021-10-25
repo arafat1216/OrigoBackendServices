@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Common.Seedwork;
 
 namespace CustomerServices.Models
@@ -15,6 +16,7 @@ namespace CustomerServices.Models
 
         public string Name { get; protected set; }
 
+        [JsonIgnore]
         public IReadOnlyCollection<PermissionSet> PermissionSets { get; protected set; }
     }
 }

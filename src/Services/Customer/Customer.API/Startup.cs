@@ -57,12 +57,12 @@ namespace Customer.API
                     sqlOptions.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
                 }));
             services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
-            services.AddScoped<ICustomerServices, CustomerServices.CustomerServices>();
+            services.AddScoped<IOrganizationServices, CustomerServices.OrganizationServices>();
             services.AddScoped<IUserServices, UserServices>();
             services.AddScoped<IUserPermissionServices, UserPermissionServices>();
             services.AddScoped<IModuleServices, ModuleServices>();
             services.AddScoped<IDepartmentsServices, DepartmentsServices>();
-            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<IOrganizationRepository, OrganizationRepository>();
             services.AddMediatR(typeof(Startup));
         }
 

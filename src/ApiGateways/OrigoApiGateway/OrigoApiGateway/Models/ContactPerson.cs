@@ -2,16 +2,16 @@
 
 namespace OrigoApiGateway.Models
 {
-    public class OrigoContactPerson
+    public class ContactPerson
     {
-        public OrigoContactPerson(ContactPersonDTO customerContactPerson)
+        public ContactPerson(ContactPersonDTO customerContactPerson)
         {
             FullName = customerContactPerson.FullName;
             Email = customerContactPerson.Email;
             PhoneNumber = customerContactPerson.PhoneNumber;
         }
 
-        public OrigoContactPerson(){}
+        public ContactPerson(){}
 
         public string FullName { get; set; }
 

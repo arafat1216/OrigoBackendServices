@@ -110,10 +110,15 @@ namespace AssetServices.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ParentAssetCategoryId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("UsesImei")
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentAssetCategoryId");
 
                     b.ToTable("AssetCategory");
                 });
@@ -127,6 +132,15 @@ namespace AssetServices.Migrations
                         .IsRequired();
 
                     b.Navigation("AssetCategory");
+                });
+
+            modelBuilder.Entity("AssetServices.Models.AssetCategory", b =>
+                {
+                    b.HasOne("AssetServices.Models.AssetCategory", "ParentAssetCategory")
+                        .WithMany()
+                        .HasForeignKey("ParentAssetCategoryId");
+
+                    b.Navigation("ParentAssetCategory");
                 });
 #pragma warning restore 612, 618
         }

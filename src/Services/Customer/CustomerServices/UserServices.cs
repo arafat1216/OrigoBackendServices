@@ -10,9 +10,9 @@ namespace CustomerServices
     public class UserServices : IUserServices
     {
         private readonly ILogger<UserServices> _logger;
-        private readonly ICustomerRepository _customerRepository;
+        private readonly IOrganizationRepository _customerRepository;
 
-        public UserServices(ILogger<UserServices> logger, ICustomerRepository customerRepository)
+        public UserServices(ILogger<UserServices> logger, IOrganizationRepository customerRepository)
         {
             _logger = logger;
             _customerRepository = customerRepository;
@@ -30,7 +30,7 @@ namespace CustomerServices
 
         public async Task<User> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName, string email, string mobileNumber, string employeeId)
         {
-            var customer = await _customerRepository.GetCustomerAsync(customerId);
+            var customer = await _customerRepository.GetOrganizationAsync(customerId);
             if (customer == null)
             {
                 throw new CustomerNotFoundException();
@@ -112,6 +112,41 @@ namespace CustomerServices
             user.AssignDepartment(department);
             await _customerRepository.SaveEntitiesAsync();
             return user;
+        }
+
+        public async Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
+            if (user == null) {
+                throw new UserNotFoundException($"Unable to find {userId}");
+            }
+            if(department == null)
+            {
+                throw new DepartmentNotFoundException($"Unable to find {departmentId}"); ;
+            }
+                
+            user.AssignManagerToDepartment(department);
+            await _customerRepository.SaveEntitiesAsync();
+            return;
+        }
+
+        public async Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
+            if (user == null)
+            {
+                throw new UserNotFoundException($"Unable to find {userId}");
+            }
+            if (department == null)
+            {
+                throw new DepartmentNotFoundException($"Unable to find {departmentId}"); ;
+            }
+
+            user.UnassignManagerFromDepartment(department);
+            await _customerRepository.SaveEntitiesAsync();
+            return;
         }
 
         public async Task<User> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId)

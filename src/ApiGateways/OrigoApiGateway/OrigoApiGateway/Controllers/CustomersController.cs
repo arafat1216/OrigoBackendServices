@@ -34,13 +34,13 @@ namespace OrigoApiGateway.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(IList<OrigoCustomer>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<Organization>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         //[PermissionAuthorize(Permission.CanReadCustomer)]
         //[Authorize(Roles = "GroupAdmin,PartnerAdmin")]
         //[PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult<IList<OrigoCustomer>>> Get()
+        public async Task<ActionResult<IList<Organization>>> Get()
         {
             try
             {
@@ -53,12 +53,12 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}")]
+        [Route("{organizationId:Guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(OrigoCustomer), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
-        public async Task<ActionResult<IList<OrigoCustomer>>> Get(Guid customerId)
+        //[PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<IList<Organization>>> Get(Guid organizationId)
         {
             try
             {
@@ -72,7 +72,7 @@ namespace OrigoApiGateway.Controllers
                 //    }
                 //}
 
-                var customer = await CustomerServices.GetCustomerAsync(customerId);
+                var customer = await CustomerServices.GetCustomerAsync(organizationId);
                 return customer != null ? Ok(customer) : NotFound();
             }
             catch (Exception)
@@ -82,9 +82,9 @@ namespace OrigoApiGateway.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(OrigoCustomer), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoCustomer>> CreateCustomer([FromBody] OrigoNewCustomer newCustomer)
+        public async Task<ActionResult<Organization>> CreateCustomer([FromBody] NewOrganization newCustomer)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace OrigoApiGateway.Controllers
                     return BadRequest();
                 }
 
-                return CreatedAtAction(nameof(CreateCustomer), new { id = createdCustomer.Id }, createdCustomer);
+                return CreatedAtAction(nameof(CreateCustomer), new { id = createdCustomer.OrganizationId }, createdCustomer);
             }
             catch (Exception)
             {
@@ -102,15 +102,82 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/assetCategory")]
-        [HttpGet]
-        [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
+        [HttpPut]
+        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<IList<OrigoCustomerAssetCategoryType>>> GetAssetCategoryForCustomer(Guid customerId)
+        public async Task<ActionResult<Organization>> UpdateOrganization([FromBody] UpdateOrganization organizationToChange)
         {
             try
             {
-                var assetCategoryLifecycleTypes = await CustomerServices.GetAssetCategoryForCustomerAsync(customerId);
+                var updateOrganization = await CustomerServices.UpdateOrganizationAsync(organizationToChange);
+                if (updateOrganization == null)
+                {
+                    return BadRequest();
+                }
+
+                return Ok(updateOrganization);
+            }
+            catch(Exception ex)
+            {
+                Logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
+        [HttpPatch]
+        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<Organization>> PatchOrganization([FromBody] UpdateOrganization organizationToChange)
+        {
+            try
+            {
+                var updateOrganization = await CustomerServices.PatchOrganizationAsync(organizationToChange);
+                if (updateOrganization == null)
+                {
+                    return BadRequest();
+                }
+
+                return Ok(updateOrganization);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
+        [Route("{organizationId:Guid}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(Organization), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<Organization>> DeleteOrganization(Guid organizationId)
+        {
+            try
+            {
+                var deletedOrganization = await CustomerServices.DeleteOrganizationAsync(organizationId);
+                if (deletedOrganization == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(deletedOrganization);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{organizationId:Guid}/assetCategory")]
+        [HttpGet]
+        [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<IList<OrigoCustomerAssetCategoryType>>> GetAssetCategoryForCustomer(Guid organizationId)
+        {
+            try
+            {
+                var assetCategoryLifecycleTypes = await CustomerServices.GetAssetCategoryForCustomerAsync(organizationId);
                 return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();
             }
             catch (Exception)
@@ -119,15 +186,15 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/assetCategory")]
+        [Route("{organizationId:Guid}/assetCategory")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoCustomerAssetCategoryType>> AddAssetCategoryForCustomer(Guid customerId, NewCustomerAssetCategoryType customerAssetCategoryType)
+        public async Task<ActionResult<OrigoCustomerAssetCategoryType>> AddAssetCategoryForCustomer(Guid organizationId, NewCustomerAssetCategoryType customerAssetCategoryType)
         {
             try
             {
-                var removedAssetCategory = await CustomerServices.AddAssetCategoryForCustomerAsync(customerId, customerAssetCategoryType);
+                var removedAssetCategory = await CustomerServices.AddAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType);
                 if (removedAssetCategory == null)
                 {
                     return NotFound();
@@ -141,15 +208,15 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/assetCategory")]
+        [Route("{organizationId:Guid}/assetCategory")]
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<IList<OrigoCustomerAssetCategoryType>>> DeleteAssetCategoryForCustomer(Guid customerId, NewCustomerAssetCategoryType customerAssetCategoryType)
+        public async Task<ActionResult<IList<OrigoCustomerAssetCategoryType>>> DeleteAssetCategoryForCustomer(Guid organizationId, NewCustomerAssetCategoryType customerAssetCategoryType)
         {
             try
             {
-                var assetCategoryLifecycleTypes = await CustomerServices.RemoveAssetCategoryForCustomerAsync(customerId, customerAssetCategoryType);
+                var assetCategoryLifecycleTypes = await CustomerServices.RemoveAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType);
                 return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();
             }
             catch (Exception)
@@ -158,14 +225,14 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/modules")]
+        [Route("{organizationId:Guid}/modules")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoProductModule>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IList<OrigoProductModule>>> GetCustomerProductModule(Guid customerId)
+        public async Task<ActionResult<IList<OrigoProductModule>>> GetCustomerProductModule(Guid organizationId)
         {
             try
             {
-                var productModules = await CustomerServices.GetCustomerProductModulesAsync(customerId);
+                var productModules = await CustomerServices.GetCustomerProductModulesAsync(organizationId);
                 return productModules != null ? Ok(productModules) : NotFound();
             }
             catch
@@ -174,14 +241,14 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/modules")]
+        [Route("{organizationId:Guid}/modules")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoProductModule), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrigoProductModule>> AddCustomerProductModule(Guid customerId, NewCustomerProductModule productModule)
+        public async Task<ActionResult<OrigoProductModule>> AddCustomerProductModule(Guid organizationId, NewCustomerProductModule productModule)
         {
             try
             {
-                var productModules = await CustomerServices.AddProductModulesAsync(customerId, productModule);
+                var productModules = await CustomerServices.AddProductModulesAsync(organizationId, productModule);
                 return productModules != null ? Ok(productModules) : NotFound();
             }
             catch
@@ -190,14 +257,14 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{customerId:Guid}/modules")]
+        [Route("{organizationId:Guid}/modules")]
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoProductModule), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrigoProductModule>> DeleteCustomerProductModule(Guid customerId, NewCustomerProductModule productModule)
+        public async Task<ActionResult<OrigoProductModule>> DeleteCustomerProductModule(Guid organizationId, NewCustomerProductModule productModule)
         {
             try
             {
-                var productModules = await CustomerServices.RemoveProductModulesAsync(customerId, productModule);
+                var productModules = await CustomerServices.RemoveProductModulesAsync(organizationId, productModule);
                 return productModules != null ? Ok(productModules) : NoContent();
             }
             catch

@@ -19,36 +19,6 @@ namespace CustomerServices.Migrations
                 .HasAnnotation("ProductVersion", "5.0.8")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("CustomerProductModule", b =>
-                {
-                    b.Property<int>("CustomersId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SelectedProductModulesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CustomersId", "SelectedProductModulesId");
-
-                    b.HasIndex("SelectedProductModulesId");
-
-                    b.ToTable("CustomerProductModule");
-                });
-
-            modelBuilder.Entity("CustomerProductModuleGroup", b =>
-                {
-                    b.Property<int>("CustomersId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SelectedProductModuleGroupsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CustomersId", "SelectedProductModuleGroupsId");
-
-                    b.HasIndex("SelectedProductModuleGroupsId");
-
-                    b.ToTable("CustomerProductModuleGroup");
-                });
-
             modelBuilder.Entity("CustomerServices.Models.AssetCategoryLifecycleType", b =>
                 {
                     b.Property<int>("Id")
@@ -94,49 +64,20 @@ namespace CustomerServices.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CustomerId")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("ExternalCustomerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("LastUpdatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("OrganizationId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerId");
+                    b.HasIndex("OrganizationId");
 
                     b.ToTable("AssetCategory");
-                });
-
-            modelBuilder.Entity("CustomerServices.Models.Customer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CompanyName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("LastUpdatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("OrgNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Customer");
                 });
 
             modelBuilder.Entity("CustomerServices.Models.Department", b =>
@@ -152,6 +93,15 @@ namespace CustomerServices.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ExternalDepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("LastUpdatedDate")
                         .HasColumnType("datetime2");
 
@@ -163,9 +113,172 @@ namespace CustomerServices.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomerId");
+
                     b.HasIndex("ParentDepartmentId");
 
                     b.ToTable("Department");
+                });
+
+            modelBuilder.Entity("CustomerServices.Models.Location", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Address1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Address2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Locations");
+                });
+
+            modelBuilder.Entity("CustomerServices.Models.Organization", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastUpdatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OrganizationNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("PrimaryLocation")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Customer");
+                });
+
+            modelBuilder.Entity("CustomerServices.Models.OrganizationPreferences", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<short>("DefaultDepartmentClassification")
+                        .HasColumnType("smallint");
+
+                    b.Property<bool>("EnforceTwoFactorAuth")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LogoUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OrganizationNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PrimaryLanguage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("WebPage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OrganizationPreferences");
                 });
 
             modelBuilder.Entity("CustomerServices.Models.Permission", b =>
@@ -192,28 +305,28 @@ namespace CustomerServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2021, 9, 6, 6, 59, 22, 711, DateTimeKind.Utc).AddTicks(528),
+                            CreatedDate = new DateTime(2021, 10, 19, 9, 3, 1, 752, DateTimeKind.Utc).AddTicks(3302),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanCreateCustomer"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 582, DateTimeKind.Utc).AddTicks(3864),
+                            CreatedDate = new DateTime(2021, 10, 19, 9, 3, 1, 752, DateTimeKind.Utc).AddTicks(4341),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanReadCustomer"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 582, DateTimeKind.Utc).AddTicks(3867),
+                            CreatedDate = new DateTime(2021, 10, 19, 9, 3, 1, 752, DateTimeKind.Utc).AddTicks(4346),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanUpdateCustomer"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 582, DateTimeKind.Utc).AddTicks(3868),
+                            CreatedDate = new DateTime(2021, 10, 19, 9, 3, 1, 752, DateTimeKind.Utc).AddTicks(4347),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanDeleteCustomer"
                         });
@@ -243,7 +356,7 @@ namespace CustomerServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(366),
+                            CreatedDate = new DateTime(2021, 10, 19, 9, 3, 1, 753, DateTimeKind.Utc).AddTicks(7033),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "FullCustomerAccess"
                         });
@@ -329,42 +442,42 @@ namespace CustomerServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1173),
+                            CreatedDate = new DateTime(2021, 10, 19, 9, 3, 1, 753, DateTimeKind.Utc).AddTicks(8576),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "EndUser"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1386),
+                            CreatedDate = new DateTime(2021, 10, 19, 9, 3, 1, 753, DateTimeKind.Utc).AddTicks(9091),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "DepartmentManager"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1388),
+                            CreatedDate = new DateTime(2021, 10, 19, 9, 3, 1, 753, DateTimeKind.Utc).AddTicks(9095),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CustomerAdmin"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1388),
+                            CreatedDate = new DateTime(2021, 10, 19, 9, 3, 1, 753, DateTimeKind.Utc).AddTicks(9096),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "GroupAdmin"
                         },
                         new
                         {
                             Id = 5,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1389),
+                            CreatedDate = new DateTime(2021, 10, 19, 9, 3, 1, 753, DateTimeKind.Utc).AddTicks(9097),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "PartnerAdmin"
                         },
                         new
                         {
                             Id = 6,
-                            CreatedDate = new DateTime(2021, 9, 7, 6, 27, 55, 583, DateTimeKind.Utc).AddTicks(1390),
+                            CreatedDate = new DateTime(2021, 10, 19, 9, 3, 1, 753, DateTimeKind.Utc).AddTicks(9098),
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "SystemAdmin"
                         });
@@ -446,6 +559,21 @@ namespace CustomerServices.Migrations
 
             modelBuilder.Entity("DepartmentUser", b =>
                 {
+                    b.Property<int>("ManagersId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ManagesDepartmentsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ManagersId", "ManagesDepartmentsId");
+
+                    b.HasIndex("ManagesDepartmentsId");
+
+                    b.ToTable("DepartmentManager");
+                });
+
+            modelBuilder.Entity("DepartmentUser1", b =>
+                {
                     b.Property<int>("DepartmentsId")
                         .HasColumnType("int");
 
@@ -457,6 +585,36 @@ namespace CustomerServices.Migrations
                     b.HasIndex("UsersId");
 
                     b.ToTable("DepartmentUser");
+                });
+
+            modelBuilder.Entity("OrganizationProductModule", b =>
+                {
+                    b.Property<int>("CustomersId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SelectedProductModulesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CustomersId", "SelectedProductModulesId");
+
+                    b.HasIndex("SelectedProductModulesId");
+
+                    b.ToTable("CustomerProductModule");
+                });
+
+            modelBuilder.Entity("OrganizationProductModuleGroup", b =>
+                {
+                    b.Property<int>("CustomersId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SelectedProductModuleGroupsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CustomersId", "SelectedProductModuleGroupsId");
+
+                    b.HasIndex("SelectedProductModuleGroupsId");
+
+                    b.ToTable("CustomerProductModuleGroup");
                 });
 
             modelBuilder.Entity("PermissionPermissionSet", b =>
@@ -489,36 +647,6 @@ namespace CustomerServices.Migrations
                     b.ToTable("PermissionSetRole");
                 });
 
-            modelBuilder.Entity("CustomerProductModule", b =>
-                {
-                    b.HasOne("CustomerServices.Models.Customer", null)
-                        .WithMany()
-                        .HasForeignKey("CustomersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CustomerServices.Models.ProductModule", null)
-                        .WithMany()
-                        .HasForeignKey("SelectedProductModulesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("CustomerProductModuleGroup", b =>
-                {
-                    b.HasOne("CustomerServices.Models.Customer", null)
-                        .WithMany()
-                        .HasForeignKey("CustomersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CustomerServices.Models.ProductModuleGroup", null)
-                        .WithMany()
-                        .HasForeignKey("SelectedProductModuleGroupsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("CustomerServices.Models.AssetCategoryLifecycleType", b =>
                 {
                     b.HasOne("CustomerServices.Models.AssetCategoryType", null)
@@ -528,16 +656,31 @@ namespace CustomerServices.Migrations
 
             modelBuilder.Entity("CustomerServices.Models.AssetCategoryType", b =>
                 {
-                    b.HasOne("CustomerServices.Models.Customer", null)
+                    b.HasOne("CustomerServices.Models.Organization", null)
                         .WithMany("SelectedAssetCategories")
-                        .HasForeignKey("CustomerId");
+                        .HasForeignKey("OrganizationId");
                 });
 
-            modelBuilder.Entity("CustomerServices.Models.Customer", b =>
+            modelBuilder.Entity("CustomerServices.Models.Department", b =>
                 {
-                    b.OwnsOne("CustomerServices.Models.Address", "CompanyAddress", b1 =>
+                    b.HasOne("CustomerServices.Models.Organization", "Customer")
+                        .WithMany("Departments")
+                        .HasForeignKey("CustomerId");
+
+                    b.HasOne("CustomerServices.Models.Department", "ParentDepartment")
+                        .WithMany()
+                        .HasForeignKey("ParentDepartmentId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("ParentDepartment");
+                });
+
+            modelBuilder.Entity("CustomerServices.Models.Organization", b =>
+                {
+                    b.OwnsOne("CustomerServices.Models.Address", "Address", b1 =>
                         {
-                            b1.Property<int>("CustomerId")
+                            b1.Property<int>("OrganizationId")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType("int")
                                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -554,17 +697,17 @@ namespace CustomerServices.Migrations
                             b1.Property<string>("Street")
                                 .HasColumnType("nvarchar(max)");
 
-                            b1.HasKey("CustomerId");
+                            b1.HasKey("OrganizationId");
 
                             b1.ToTable("Customer");
 
                             b1.WithOwner()
-                                .HasForeignKey("CustomerId");
+                                .HasForeignKey("OrganizationId");
                         });
 
-                    b.OwnsOne("CustomerServices.Models.ContactPerson", "CustomerContactPerson", b1 =>
+                    b.OwnsOne("CustomerServices.Models.ContactPerson", "ContactPerson", b1 =>
                         {
-                            b1.Property<int>("CustomerId")
+                            b1.Property<int>("OrganizationId")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType("int")
                                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -578,26 +721,17 @@ namespace CustomerServices.Migrations
                             b1.Property<string>("PhoneNumber")
                                 .HasColumnType("nvarchar(max)");
 
-                            b1.HasKey("CustomerId");
+                            b1.HasKey("OrganizationId");
 
                             b1.ToTable("Customer");
 
                             b1.WithOwner()
-                                .HasForeignKey("CustomerId");
+                                .HasForeignKey("OrganizationId");
                         });
 
-                    b.Navigation("CompanyAddress");
+                    b.Navigation("Address");
 
-                    b.Navigation("CustomerContactPerson");
-                });
-
-            modelBuilder.Entity("CustomerServices.Models.Department", b =>
-                {
-                    b.HasOne("CustomerServices.Models.Department", "ParentDepartment")
-                        .WithMany()
-                        .HasForeignKey("ParentDepartmentId");
-
-                    b.Navigation("ParentDepartment");
+                    b.Navigation("ContactPerson");
                 });
 
             modelBuilder.Entity("CustomerServices.Models.ProductModuleGroup", b =>
@@ -609,7 +743,7 @@ namespace CustomerServices.Migrations
 
             modelBuilder.Entity("CustomerServices.Models.User", b =>
                 {
-                    b.HasOne("CustomerServices.Models.Customer", "Customer")
+                    b.HasOne("CustomerServices.Models.Organization", "Customer")
                         .WithMany("Users")
                         .HasForeignKey("CustomerId");
 
@@ -635,13 +769,58 @@ namespace CustomerServices.Migrations
                 {
                     b.HasOne("CustomerServices.Models.User", null)
                         .WithMany()
-                        .HasForeignKey("DepartmentsId")
+                        .HasForeignKey("ManagersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CustomerServices.Models.Department", null)
                         .WithMany()
+                        .HasForeignKey("ManagesDepartmentsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DepartmentUser1", b =>
+                {
+                    b.HasOne("CustomerServices.Models.Department", null)
+                        .WithMany()
+                        .HasForeignKey("DepartmentsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CustomerServices.Models.User", null)
+                        .WithMany()
                         .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OrganizationProductModule", b =>
+                {
+                    b.HasOne("CustomerServices.Models.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("CustomersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CustomerServices.Models.ProductModule", null)
+                        .WithMany()
+                        .HasForeignKey("SelectedProductModulesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OrganizationProductModuleGroup", b =>
+                {
+                    b.HasOne("CustomerServices.Models.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("CustomersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CustomerServices.Models.ProductModuleGroup", null)
+                        .WithMany()
+                        .HasForeignKey("SelectedProductModuleGroupsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -681,8 +860,10 @@ namespace CustomerServices.Migrations
                     b.Navigation("LifecycleTypes");
                 });
 
-            modelBuilder.Entity("CustomerServices.Models.Customer", b =>
+            modelBuilder.Entity("CustomerServices.Models.Organization", b =>
                 {
+                    b.Navigation("Departments");
+
                     b.Navigation("SelectedAssetCategories");
 
                     b.Navigation("Users");

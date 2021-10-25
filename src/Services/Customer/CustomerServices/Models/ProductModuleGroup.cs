@@ -23,6 +23,6 @@ namespace CustomerServices.Models
         public string Name { get; protected set; }
 
         [JsonIgnore]
-        public ICollection<Customer> Customers { get; protected set; }
+        public ICollection<Organization> Customers { get; protected set; }
     }
 }

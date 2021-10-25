@@ -18,5 +18,7 @@ namespace CustomerServices
         Task<User> DeleteUserAsync(Guid userId, bool softDelete = true);
         Task<User> AssignDepartment(Guid customerId, Guid userId, Guid departmentId);
         Task<User> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId);
+        Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId);
+        Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId);
     }
 }

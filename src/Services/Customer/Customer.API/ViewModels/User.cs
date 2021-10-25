@@ -10,10 +10,9 @@ namespace Customer.API.ViewModels
             FirstName = user.FirstName;
             LastName = user.LastName;
             Email = user.Email;
-            CustomerName = user.Customer.CompanyName;
             EmployeeId = user.EmployeeId;
             MobileNumber = user.MobileNumber;
-            CustomerName = user.Customer != null ? user.Customer.CompanyName : string.Empty;
+            OrganizationName = user.Customer != null ? user.Customer.Name : string.Empty;
         }
 
         public Guid Id { get; set; }
@@ -29,6 +28,6 @@ namespace Customer.API.ViewModels
         /// </summary>
         public string EmployeeId { get; set; }
         public UserPreference UserPreference { get; set; }
-        public string CustomerName { get; set; }
+        public string OrganizationName { get; set; }
     }
 }

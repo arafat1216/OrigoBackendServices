@@ -51,11 +51,19 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IEnumerable<OrigoUser>> GetAllUsersAsync(Guid customerId)
+        public async Task<IEnumerable<OrigoUser>> GetAllUsersAsync(Guid customerId, IReadOnlyCollection<Guid> filteredDepartmentList = null)
         {
             try
             {
                 var users = await HttpClient.GetFromJsonAsync<IList<UserDTO>>($"{_options.ApiPath}/{customerId}/users");
+                //if (filteredDepartmentList != null)
+                //{
+
+                //}
+                //foreach (var item in users)
+                //{
+                //    item.AssignedToDepartments
+                //}
                 return users?.Select(user => new OrigoUser(user)).ToList();
             }
             catch (HttpRequestException exception)
@@ -170,6 +178,52 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Unable to remove assigned department.");
+                throw;
+            }
+        }
+
+        public async Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId)
+        {
+            const string UNABLE_TO_ASSIGN_MESSAGE = "Unable to assign manager to department.";
+            try
+            {
+                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                var requestUri = $"{_options.ApiPath}/{customerId}/users/{userId}/department/{departmentId}/manager";
+                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var exception = new BadHttpRequestException(UNABLE_TO_ASSIGN_MESSAGE, (int)response.StatusCode);
+                    _logger.LogError(exception, UNABLE_TO_ASSIGN_MESSAGE);
+                    throw exception;
+                }
+                return;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, UNABLE_TO_ASSIGN_MESSAGE);
+                throw;
+            }
+        }
+
+        public async Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId)
+        {
+            const string UNABLE_TO_REMOVE_MANAGER_MESSAGE = "Unable to remove assignment of manager from department.";
+            try
+            {
+                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                var requestUri = $"{_options.ApiPath}/{customerId}/users/{userId}/department/{departmentId}/manager";
+                var response = await HttpClient.DeleteAsync(requestUri);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var exception = new BadHttpRequestException(UNABLE_TO_REMOVE_MANAGER_MESSAGE, (int)response.StatusCode);
+                    _logger.LogError(exception, UNABLE_TO_REMOVE_MANAGER_MESSAGE);
+                    throw exception;
+                }
+                return;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, UNABLE_TO_REMOVE_MANAGER_MESSAGE);
                 throw;
             }
         }

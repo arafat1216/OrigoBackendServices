@@ -13,7 +13,7 @@ namespace OrigoApiGateway.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     //[Authorize]
-    [Route("origoapi/v{version:apiVersion}/Customers/{customerId:guid}/[controller]")]
+    [Route("origoapi/v{version:apiVersion}/Customers/{organizationId:guid}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
     public class DepartmentsController : ControllerBase
@@ -31,11 +31,11 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoDepartment>> GetDepartment(Guid customerId, Guid departmentId)
+        public async Task<ActionResult<OrigoDepartment>> GetDepartment(Guid organizationId, Guid departmentId)
         {
             try
             {
-                var department = await _departmentServices.GetDepartment(customerId, departmentId);
+                var department = await _departmentServices.GetDepartment(organizationId, departmentId);
 
                 return Ok(department);
             }
@@ -45,14 +45,23 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("{departmentId:Guid}/string")]
+        [HttpGet]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<string>> GetString(Guid organizationId)
+        {
+            return Ok("test");
+        }
+
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoDepartment>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoDepartment>> GetDepartments(Guid customerId)
+        public async Task<ActionResult<OrigoDepartment>> GetDepartments(Guid organizationId)
         {
             try
             {
-                var departments = await _departmentServices.GetDepartments(customerId);
+                var departments = await _departmentServices.GetDepartments(organizationId);
 
                 return Ok(departments);
             }
@@ -65,11 +74,11 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoDepartment>> CreateDepartmentForCustomer(Guid customerId, [FromBody] NewDepartment newDepartment)
+        public async Task<ActionResult<OrigoDepartment>> CreateDepartmentForCustomer(Guid organizationId, [FromBody] NewDepartment newDepartment)
         {
             try
             {
-                var createdDepartment = await _departmentServices.AddDepartmentAsync(customerId, newDepartment);
+                var createdDepartment = await _departmentServices.AddDepartmentAsync(organizationId, newDepartment);
 
                 return CreatedAtAction(nameof(CreateDepartmentForCustomer), new { id = createdDepartment.DepartmentId }, createdDepartment);
             }
@@ -83,11 +92,11 @@ namespace OrigoApiGateway.Controllers
         [HttpPut]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoDepartment>> PutDepartmentForCustomer(Guid customerId, Guid departmentId, [FromBody] OrigoDepartment updateDepartment)
+        public async Task<ActionResult<OrigoDepartment>> PutDepartmentForCustomer(Guid organizationId, Guid departmentId, [FromBody] OrigoDepartment updateDepartment)
         {
             try
             {
-                var updatedDepartment = await _departmentServices.UpdateDepartmentPutAsync(customerId, departmentId, updateDepartment);
+                var updatedDepartment = await _departmentServices.UpdateDepartmentPutAsync(organizationId, departmentId, updateDepartment);
 
                 return Ok(updatedDepartment);
             }
@@ -101,11 +110,11 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoDepartment>> PatchDepartmentForCustomer(Guid customerId, Guid departmentId, [FromBody] OrigoDepartment updateDepartment)
+        public async Task<ActionResult<OrigoDepartment>> PatchDepartmentForCustomer(Guid organizationId, Guid departmentId, [FromBody] OrigoDepartment updateDepartment)
         {
             try
             {
-                var updatedDepartment = await _departmentServices.UpdateDepartmentPatchAsync(customerId, departmentId, updateDepartment);
+                var updatedDepartment = await _departmentServices.UpdateDepartmentPatchAsync(organizationId, departmentId, updateDepartment);
 
                 return Ok(updatedDepartment);
             }
@@ -119,11 +128,11 @@ namespace OrigoApiGateway.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoDepartment>> DeleteDepartmentForCustomer(Guid customerId, Guid departmentId)
+        public async Task<ActionResult<OrigoDepartment>> DeleteDepartmentForCustomer(Guid organizationId, Guid departmentId)
         {
             try
             {
-                var updatedDepartment = await _departmentServices.DeleteDepartmentPatchAsync(customerId, departmentId);
+                var updatedDepartment = await _departmentServices.DeleteDepartmentPatchAsync(organizationId, departmentId);
 
                 return Ok(updatedDepartment);
             }
