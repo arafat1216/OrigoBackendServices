@@ -105,6 +105,7 @@ namespace CustomerServices
             return await _customerRepository.AddAsync(newOrganization);
         }
 
+
         public async Task<Organization> UpdateOrganizationAsync(Organization updateOrganization, bool usingPatch = false)
         {
             try
@@ -118,8 +119,6 @@ namespace CustomerServices
                 {
                     organization.UpdateOrganization(updateOrganization);
                 }
-
-
 
                 await _customerRepository.SaveEntitiesAsync();
 
@@ -149,11 +148,7 @@ namespace CustomerServices
                     await DeleteOrganizationLocationAsync((Guid)organization.PrimaryLocation, callerId, hardDelete);
                 }
 
-
-
                 await DeleteOrganizationPreferencesAsync(organizationId, callerId, hardDelete);
-
-
 
                 // set IsDelete, caller and date of change
                 organization.Delete(callerId);
@@ -485,6 +480,20 @@ namespace CustomerServices
                 _logger.LogError("DecryptDataForCustomer failed with unknown error: " + ex.Message);
                 throw;
             }
+        }
+
+        public async Task<bool> ParentOrganizationIsValid(Guid? parentId)
+        {
+           if (parentId != null && parentId != Guid.Empty)
+            {
+                var parentOrganization = await GetOrganizationAsync((Guid)parentId, false, false);
+                if (parentOrganization == null)
+                    return false; // not found
+
+                if (parentOrganization.ParentId != null && parentOrganization.ParentId != Guid.Empty)
+                    return false; // invalid hierarchy depth
+            }
+            return true;
         }
     }
 }

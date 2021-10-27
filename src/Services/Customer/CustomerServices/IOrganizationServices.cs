@@ -29,5 +29,6 @@ namespace CustomerServices
         Task<Organization> AddOrganizationAsync(Organization newOrganization);
         Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
         Task<Location> AddOrganizationLocationAsync(Location location);
+        Task<bool> ParentOrganizationIsValid(Guid? parentId);
     }
 }

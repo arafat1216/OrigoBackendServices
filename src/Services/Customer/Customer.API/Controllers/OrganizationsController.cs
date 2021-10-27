@@ -257,57 +257,182 @@ namespace Customer.API.Controllers
         [Route("{organizationId:Guid}/organization")]
         [HttpPut]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<Organization>> UpdateOrganizationPut([FromBody] UpdateOrganization organization)
+        {
+            try
+            {
+                // Check id
+                var organizationOriginal = await _organizationServices.GetOrganizationAsync(organization.OrganizationId, true, true);
+                if (organizationOriginal == null)
+                    return NotFound("Organization with the given id was not found.");
+
+                // Check parent
+                if (!await _organizationServices.ParentOrganizationIsValid(organization.ParentId))
+                    return BadRequest("Invalid organization id on parent.");
+
+                // PrimaryLocation
+                CustomerServices.Models.Location newLocation;
+                if (organization.PrimaryLocation == null || organization.PrimaryLocation == Guid.Empty)
+                    newLocation = new CustomerServices.Models.Location(Guid.Empty, organization.CallerId, "", "", "", "", "", "", "");
+                else {
+                    newLocation = await _organizationServices.GetLocationAsync((Guid)organization.PrimaryLocation);
+                    if (newLocation == null)
+                        return NotFound();
+                }
+
+                // Address
+                CustomerServices.Models.Address newAddress;
+                if (organization.Address == null)
+                    newAddress = new CustomerServices.Models.Address("", "", "", "");
+                else
+                    newAddress = new CustomerServices.Models.Address(organization.Address.Street, organization.Address.PostCode, organization.Address.City, organization.Address.Country);
+
+                // Contact Person
+                CustomerServices.Models.ContactPerson newContactPerson;
+                if (organization.ContactPerson == null)
+                    newContactPerson = new CustomerServices.Models.ContactPerson("", "", "");
+                else
+                    newContactPerson = new CustomerServices.Models.ContactPerson(organization.ContactPerson.FullName, organization.ContactPerson.Email, organization.ContactPerson.PhoneNumber);
+
+                // string fields
+                organization.Name = (organization.Name == null) ? "" : organization.Name;
+                organization.OrganizationNumber = (organization.OrganizationNumber == null) ? "" : organization.OrganizationNumber;
+
+                // Do update
+                CustomerServices.Models.Organization newOrganization = new CustomerServices.Models.Organization(organization.OrganizationId, organization.CallerId, organization.ParentId,
+                                                                                                                organization.Name, organization.OrganizationNumber, newAddress, newContactPerson,
+                                                                                                                organizationOriginal.Preferences, newLocation);
+                var updatedOrganization = await _organizationServices.UpdateOrganizationAsync(newOrganization);
+
+                var updatedOrganizationView = new Organization {
+                    OrganizationId = updatedOrganization.OrganizationId,
+                    Name = updatedOrganization.Name,
+                    OrganizationNumber = updatedOrganization.OrganizationNumber,
+                    Address = new Address(updatedOrganization.Address),
+                    ContactPerson = new ContactPerson(updatedOrganization.ContactPerson),
+                    Preferences = new OrganizationPreferences(newOrganization.Preferences),
+                    Location = new Location(newOrganization.Location)
+                };
+
+                return updatedOrganizationView;
+            }
+            catch(Exception ex) {
+                _logger.LogError("OrganizationsController - UpdateOrganization - unknown error: " + ex.Message);
+                return BadRequest("OrganizationsController - UpdateOrganization - unknown error: " + ex.Message);
+            }
+        }
+
+        [Route("{organizationId:Guid}/organization")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<Organization>> UpdateOrganizationPatch([FromBody] UpdateOrganization organization)
+        {
+            try
+            {
+
+                // Check id
+                var organizationOriginal = await _organizationServices.GetOrganizationAsync(organization.OrganizationId, true, true);
+                if (organizationOriginal == null)
+                    return NotFound("Organization with the given id was not found.");
+
+                // Check parent
+                if (organization.ParentId == null)
+                    organization.ParentId = organizationOriginal.ParentId;
+                else
+                {
+                    // Check parent
+                    if (!await _organizationServices.ParentOrganizationIsValid(organization.ParentId))
+                        return BadRequest("Invalid organization id on parent.");
+                }
+
+                // PrimaryLocation
+                CustomerServices.Models.Location newLocation;
+                if (organization.PrimaryLocation == null)
+                    newLocation = organizationOriginal.Location;
+                else if (organization.PrimaryLocation == Guid.Empty)
+                    newLocation = new CustomerServices.Models.Location(Guid.Empty, organization.CallerId, "", "", "", "", "", "", "");
+                else
+                {
+                    newLocation = await _organizationServices.GetLocationAsync((Guid)organization.PrimaryLocation);
+                    if (newLocation == null)
+                        return NotFound();
+                }
+
+                // Address
+                CustomerServices.Models.Address newAddress;
+                if (organization.Address == null)
+                    newAddress = organizationOriginal.Address;
+                else { 
+                    newAddress = organizationOriginal.Address;//new CustomerServices.Models.Address(organization.Address.Street, organization.Address.PostCode, organization.Address.City, organization.Address.Country);
+                    newAddress.PatchAddress(organization.Address.Street, organization.Address.PostCode, organization.Address.City, organization.Address.Country);
+                }
+
+                // ContactPerson
+                CustomerServices.Models.ContactPerson newContactPerson;
+                if (organization.ContactPerson == null)
+                    newContactPerson = organizationOriginal.ContactPerson;
+                else {
+                    newContactPerson = organizationOriginal.ContactPerson; 
+                    newContactPerson.PatchContactPerson(organization.ContactPerson.FullName, organization.ContactPerson.Email, organization.ContactPerson.PhoneNumber);//new CustomerServices.Models.ContactPerson(organization.ContactPerson.FullName, organization.ContactPerson.Email, organization.ContactPerson.PhoneNumber);
+                }
+                // String fields
+                organization.Name = (organization.Name == null) ? organizationOriginal.Name : organization.Name;
+                organization.OrganizationNumber = (organization.OrganizationNumber == null) ? organizationOriginal.OrganizationNumber : organization.OrganizationNumber;
+
+                CustomerServices.Models.Organization newOrganization = new CustomerServices.Models.Organization(organization.OrganizationId, organization.CallerId, organization.ParentId,
+                                                                                            organization.Name, organization.OrganizationNumber,
+                                                                                            newAddress, newContactPerson,
+                                                                                            organizationOriginal.Preferences, newLocation);
+
+                // Update
+                var updatedOrganization = await _organizationServices.UpdateOrganizationAsync(newOrganization, true);
+                var updatedOrganizationView = new Organization
+                {
+                    OrganizationId = updatedOrganization.OrganizationId,
+                    Name = updatedOrganization.Name,
+                    OrganizationNumber = updatedOrganization.OrganizationNumber,
+                    Address = new Address(updatedOrganization.Address),
+                    ContactPerson = new ContactPerson(updatedOrganization.ContactPerson),
+                    Preferences = new OrganizationPreferences(newOrganization.Preferences),
+                    Location = new Location(newOrganization.Location)
+                };
+
+                return updatedOrganizationView;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("OrganizationsController - UpdateOrganization - unknown error: " + ex.Message);
+                return BadRequest("OrganizationsController - UpdateOrganization - unknown error: " + ex.Message);
+            }
+        }
+
+        /*
+        [Route("{organizationId:Guid}/organization")]
+        [HttpPut]
+        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<Organization>> UpdateOrganization([FromBody] UpdateOrganization organization)
         {
             try
             {
-                #region Check Validity
-
-                if (organization.OrganizationId == Guid.Empty)
-                {
-                    return BadRequest("OrganizationId cannot be empty.");
-                }
-
                 var organizationOriginal = await _organizationServices.GetOrganizationAsync(organization.OrganizationId, true, true);
                 if (organizationOriginal == null)
-                {
-                    return BadRequest("Organization with the given id was not found.");
-                }
+                    return NotFound("Organization with the given id was not found.");
 
-                if (organization.ParentId != null && organization.ParentId != Guid.Empty)
-                {
-                    var organizationParent = await _organizationServices.GetOrganizationAsync((Guid) organization.ParentId, false, false);
-                    if (organizationParent == null)
-                        return BadRequest("Could find no parent organization with the given id");
-
-                    if (organizationParent.ParentId != Guid.Empty && organizationParent.ParentId != null)
-                    {
-                        return BadRequest("Parent of the organization cannot itself have a parent.");
-                    }
-                }
-
-                #endregion Check Validity
-
-                #region Update Location
+                if (! await _organizationServices.ParentOrganizationIsValid(organization.ParentId))
+                    return BadRequest("Invalid organization id on parent.");
 
                 // Check if location already exists, or if we must make a new one
                 CustomerServices.Models.Location newLocation;
-                if (organization.PrimaryLocation != Guid.Empty && organization.PrimaryLocation != null)
-                {
+                if (organization.PrimaryLocation != Guid.Empty && organization.PrimaryLocation != null) {
                     var locationFound = await _organizationServices.GetLocationAsync((Guid) organization.PrimaryLocation);
                     if (locationFound == null)
-                    {
-                        return NotFound("No location was found with the given id.");
-                    }
+                    { return NotFound("No location was found with the given id."); }
                     else
                     {
-                        // Set location to found value
                         if (organization.Location == null)
-                        {
-                            newLocation = locationFound;
-                        }
-                        else // Create new location but with existing id
-                        {
+                        { newLocation = locationFound; }
+                        else
+                        { // Create new location but with existing id
                             newLocation = new CustomerServices.Models.Location((Guid)organization.PrimaryLocation, organization.CallerId, organization.Location.Name, organization.Location.Description,
                                                                            organization.Location.Address1, organization.Location.Address2,
                                                                            organization.Location.PostalCode, organization.Location.City,
@@ -321,10 +446,8 @@ namespace Customer.API.Controllers
                 else
                 {
                     if (organization.Location == null)
-                    {
-                        return BadRequest("An organization must have a location object if PrimaryLocation is empty.");
-                    }
-                    else // create new location object
+                    { return BadRequest("An organization must have a location object if PrimaryLocation is empty."); }
+                    else
                     {
                         newLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.Location.Name, organization.Location.Description,
                                                                            organization.Location.Address1, organization.Location.Address2,
@@ -335,75 +458,44 @@ namespace Customer.API.Controllers
                     }
                 }
 
-                #endregion Update Location
-
-                #region Update Address
-
                 CustomerServices.Models.Address newAddress;
                 if (organization.Address == null)
-                {
-                    newAddress = new CustomerServices.Models.Address("", "", "", "");
-                }
+                { newAddress = new CustomerServices.Models.Address("", "", "", ""); }
                 else
-                {
-                    newAddress = new CustomerServices.Models.Address(organization.Address.Street, organization.Address.PostCode,
-                                                                     organization.Address.City, organization.Address.Country);
-                }
+                { newAddress = new CustomerServices.Models.Address(organization.Address.Street, organization.Address.PostCode, organization.Address.City, organization.Address.Country); }
 
-                #endregion Update Address
-
-                #region Update ContactPerson
 
                 CustomerServices.Models.ContactPerson newContactPerson;
                 if (organization.ContactPerson == null)
-                {
-                    newContactPerson = new CustomerServices.Models.ContactPerson("", "", "");
-                }
+                { newContactPerson = new CustomerServices.Models.ContactPerson("", "", ""); }
                 else
-                {
-                    newContactPerson = new CustomerServices.Models.ContactPerson(organization.ContactPerson.FullName,
-                                                                                 organization.ContactPerson.Email,
-                                                                                 organization.ContactPerson.PhoneNumber);
-                }
-
-                #endregion Update ContactPerson
-
-                #region Update Preferences
+                { newContactPerson = new CustomerServices.Models.ContactPerson(organization.ContactPerson.FullName, organization.ContactPerson.Email, organization.ContactPerson.PhoneNumber); }
 
                 CustomerServices.Models.OrganizationPreferences newOrganizationPreferences;
                 if (organization.Preferences == null)
-                {
-                    newOrganizationPreferences = new CustomerServices.Models.OrganizationPreferences(organization.OrganizationId, organization.CallerId, "", "", "", false, "", 0);
-                }
+                { newOrganizationPreferences = new CustomerServices.Models.OrganizationPreferences(organization.OrganizationId, organization.CallerId, "", "", "", false, "", 0); }
                 else
                 {
-                    if (organization.Preferences.EnforceTwoFactorAuth == null)
-                        organization.Preferences.EnforceTwoFactorAuth = false;
-                    if (organization.Preferences.DefaultDepartmentClassification == null)
-                        organization.Preferences.DefaultDepartmentClassification = 0;
+                    bool enforceTwoFactorAuth = (organization.Preferences.EnforceTwoFactorAuth == null) ? false : (bool)organization.Preferences.EnforceTwoFactorAuth;
+                    short defaultDepartmentClassification = (organization.Preferences.DefaultDepartmentClassification == null) ? 0 : (short)organization.Preferences.DefaultDepartmentClassification;
 
                     newOrganizationPreferences = new CustomerServices.Models.OrganizationPreferences(organization.OrganizationId, organization.CallerId, organization.Preferences.WebPage,
                                                                                                      organization.Preferences.LogoUrl, organization.Preferences.OrganizationNotes,
-                                                                                                     (bool) organization.Preferences.EnforceTwoFactorAuth, organization.Preferences.PrimaryLanguage,
-                                                                                                     (short) organization.Preferences.DefaultDepartmentClassification);
+                                                                                                     enforceTwoFactorAuth, organization.Preferences.PrimaryLanguage,
+                                                                                                     defaultDepartmentClassification);
                     newOrganizationPreferences.SetFieldsToEmptyIfNull();
                 }
 
                 await _organizationServices.UpdateOrganizationPreferencesAsync(newOrganizationPreferences);
 
-                #endregion Update Preferences
-
-                #region Update Organization
 
                 CustomerServices.Models.Organization newOrganization = new CustomerServices.Models.Organization(organization.OrganizationId, organization.CallerId, organization.ParentId,
-                                                                                        organization.Name, organization.OrganizationNumber,
-                                                                                        newAddress, newContactPerson,
-                                                                                        newOrganizationPreferences, newLocation);
-
+                                                                                                                organization.Name, organization.OrganizationNumber,
+                                                                                                                newAddress, newContactPerson,
+                                                                                                                newOrganizationPreferences, newLocation);
                 var updatedOrganization = await _organizationServices.UpdateOrganizationAsync(newOrganization);
 
-                var updatedOrganizationView = new Organization
-                {
+                var updatedOrganizationView = new Organization {
                     OrganizationId = updatedOrganization.OrganizationId,
                     Name = updatedOrganization.Name,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
@@ -414,8 +506,6 @@ namespace Customer.API.Controllers
                 };
 
                 return updatedOrganizationView;
-
-                #endregion Update Organization
             }
             catch (Exception ex)
             {
@@ -600,6 +690,7 @@ namespace Customer.API.Controllers
                 return BadRequest("OrganizationsController - UpdateOrganization - unknown error: " + ex.Message);
             }
         }
+        */
 
         [Route("{organizationId:Guid}")]
         [HttpDelete]

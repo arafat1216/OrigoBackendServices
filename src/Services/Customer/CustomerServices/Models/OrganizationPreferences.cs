@@ -32,11 +32,11 @@ namespace CustomerServices.Models
         public OrganizationPreferences(Guid organizationId, Guid callerId, string webPage, string logoUrl, string organizationNotes, bool enforceTwoFactorAuth, string primaryLanguage, short defaultDepartmentClassification)
         {
             OrganizationId = organizationId;
-            WebPage = (webPage == null) ? "" : webPage;
-            LogoUrl = (logoUrl == null) ? "" : logoUrl;
-            OrganizationNotes = (organizationNotes == null) ? "" : organizationNotes;
+            WebPage = webPage;
+            LogoUrl = logoUrl;
+            OrganizationNotes = organizationNotes;
             EnforceTwoFactorAuth = enforceTwoFactorAuth;
-            PrimaryLanguage = (primaryLanguage == null) ? "" : primaryLanguage;
+            PrimaryLanguage = primaryLanguage;
             DefaultDepartmentClassification = defaultDepartmentClassification;
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
