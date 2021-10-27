@@ -91,7 +91,7 @@ namespace CustomerServices.Models
             OrganizationId = organizationId;
             Preferences = organizationPreferences;
             Location = organizationLocation;
-            PrimaryLocation = organizationLocation.LocationId;
+            PrimaryLocation = (organizationLocation == null) ? Guid.Empty : organizationLocation.LocationId;
             CreatedBy = callerId;
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;

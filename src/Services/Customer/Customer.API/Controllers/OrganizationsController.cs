@@ -323,7 +323,7 @@ namespace Customer.API.Controllers
         }
 
         [Route("{organizationId:Guid}/organization")]
-        [HttpPatch]
+        [HttpPost]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<Organization>> UpdateOrganizationPatch([FromBody] UpdateOrganization organization)
         {
@@ -348,7 +348,7 @@ namespace Customer.API.Controllers
                 // PrimaryLocation
                 CustomerServices.Models.Location newLocation;
                 if (organization.PrimaryLocation == null)
-                    newLocation = organizationOriginal.Location;
+                    newLocation = (organizationOriginal.Location == null) ? new CustomerServices.Models.Location(Guid.Empty, organization.CallerId, "", "", "", "", "", "", "") : organizationOriginal.Location;
                 else if (organization.PrimaryLocation == Guid.Empty)
                     newLocation = new CustomerServices.Models.Location(Guid.Empty, organization.CallerId, "", "", "", "", "", "", "");
                 else
