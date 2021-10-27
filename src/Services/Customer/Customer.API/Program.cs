@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace Customer.API
 {
-    public static class Program
+    public class Program
     {
         public static void Main(string[] args)
         {
@@ -13,9 +14,13 @@ namespace Customer.API
 
         private static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((_, config) =>
+                .ConfigureAppConfiguration((hostContext, config) =>
                 {
                     config.AddJsonFile("secrets/appsettings.secrets.json", optional: true);
+                    if (hostContext.HostingEnvironment.IsDevelopment())
+                    {
+                        config.AddUserSecrets<Program>();
+                    }
                 }).ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
     }
 }
