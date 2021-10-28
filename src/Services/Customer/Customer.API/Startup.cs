@@ -30,6 +30,7 @@ namespace Customer.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            
             services.AddControllers().AddDapr();
             services.AddApiVersioning(config =>
             {
@@ -56,9 +57,13 @@ namespace Customer.API
                     //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
                     sqlOptions.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
                 }));
+
+            services.Configure<OktaConfiguration>(Configuration.GetSection("Okta"));
+
             services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
             services.AddScoped<IOrganizationServices, CustomerServices.OrganizationServices>();
             services.AddScoped<IUserServices, UserServices>();
+            services.AddScoped<IOktaServices, OktaServices>();
             services.AddScoped<IUserPermissionServices, UserPermissionServices>();
             services.AddScoped<IModuleServices, ModuleServices>();
             services.AddScoped<IDepartmentsServices, DepartmentsServices>();

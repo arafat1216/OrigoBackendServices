@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using OrigoApiGateway.Authorization;
 using System.Linq;
 using System.Security.Claims;
+using Common.Enums;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -18,7 +19,7 @@ namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    //[Authorize(AuthenticationSchemes = OktaDefaults.ApiAuthenticationScheme)]
+    [Authorize]
     [Route("origoapi/v{version:apiVersion}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
@@ -37,9 +38,8 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<Organization>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        //[PermissionAuthorize(Permission.CanReadCustomer)]
-        //[Authorize(Roles = "GroupAdmin,PartnerAdmin")]
-        //[PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        [Authorize(Roles = "SystemAdmin")]
         public async Task<ActionResult<IList<Organization>>> Get()
         {
             try
@@ -57,20 +57,21 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        //[PermissionAuthorize(Permission.CanReadCustomer)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<IList<Organization>>> Get(Guid organizationId)
         {
             try
             {
-                //var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-                //if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.GroupAdmin.ToString())
-                //{
-                //    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
-                //    if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
-                //    {
-                //        return Forbid();
-                //    }
-                //}
+                // If role is not System admin, check access list
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                    {
+                        return Forbid();
+                    }
+                }
 
                 var customer = await CustomerServices.GetCustomerAsync(organizationId);
                 return customer != null ? Ok(customer) : NotFound();
@@ -84,6 +85,8 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Organization>> CreateCustomer([FromBody] NewOrganization newCustomer)
         {
             try
@@ -105,10 +108,18 @@ namespace OrigoApiGateway.Controllers
         [HttpPut]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Organization>> UpdateOrganization([FromBody] UpdateOrganization organizationToChange)
         {
             try
             {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationToChange.OrganizationId.ToString()))
+                {
+                    return Forbid();
+                }
+
                 var updateOrganization = await CustomerServices.UpdateOrganizationAsync(organizationToChange);
                 if (updateOrganization == null)
                 {
@@ -127,10 +138,18 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Organization>> PatchOrganization([FromBody] UpdateOrganization organizationToChange)
         {
             try
             {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationToChange.OrganizationId.ToString()))
+                {
+                    return Forbid();
+                }
+
                 var updateOrganization = await CustomerServices.PatchOrganizationAsync(organizationToChange);
                 if (updateOrganization == null)
                 {
@@ -151,10 +170,18 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(Organization), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Organization>> DeleteOrganization(Guid organizationId)
         {
             try
             {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+
                 var deletedOrganization = await CustomerServices.DeleteOrganizationAsync(organizationId);
                 if (deletedOrganization == null)
                 {
@@ -163,7 +190,7 @@ namespace OrigoApiGateway.Controllers
 
                 return Ok(deletedOrganization);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 return BadRequest();
             }
@@ -173,10 +200,18 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<IList<OrigoCustomerAssetCategoryType>>> GetAssetCategoryForCustomer(Guid organizationId)
         {
             try
             {
+                // All roles have access to an organizations departments, as long as the organization is in the caller access list
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+
                 var assetCategoryLifecycleTypes = await CustomerServices.GetAssetCategoryForCustomerAsync(organizationId);
                 return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();
             }
@@ -190,10 +225,26 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<OrigoCustomerAssetCategoryType>> AddAssetCategoryForCustomer(Guid organizationId, NewCustomerAssetCategoryType customerAssetCategoryType)
         {
             try
             {
+                // Only admin or manager roles are allowed to manage assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                else
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var removedAssetCategory = await CustomerServices.AddAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType);
                 if (removedAssetCategory == null)
                 {
@@ -212,10 +263,26 @@ namespace OrigoApiGateway.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<IList<OrigoCustomerAssetCategoryType>>> DeleteAssetCategoryForCustomer(Guid organizationId, NewCustomerAssetCategoryType customerAssetCategoryType)
         {
             try
             {
+                // Only admin or manager roles are allowed to manage assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                else
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var assetCategoryLifecycleTypes = await CustomerServices.RemoveAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType);
                 return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();
             }
@@ -228,6 +295,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/modules")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoProductModule>), (int)HttpStatusCode.OK)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<IList<OrigoProductModule>>> GetCustomerProductModule(Guid organizationId)
         {
             try
@@ -244,10 +312,25 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/modules")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoProductModule), (int)HttpStatusCode.OK)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<OrigoProductModule>> AddCustomerProductModule(Guid organizationId, NewCustomerProductModule productModule)
         {
             try
             {
+                // Only admin roles are allowed to add product modules
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                {
+                    return Forbid();
+                }
+
+                // System Admin, Partner Admin, Group Admin and Customer Admin have access if organization is in their access list
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+
                 var productModules = await CustomerServices.AddProductModulesAsync(organizationId, productModule);
                 return productModules != null ? Ok(productModules) : NotFound();
             }
@@ -260,10 +343,25 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/modules")]
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoProductModule), (int)HttpStatusCode.OK)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<OrigoProductModule>> DeleteCustomerProductModule(Guid organizationId, NewCustomerProductModule productModule)
         {
             try
             {
+                // Only admin roles are allowed to add product modules
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                {
+                    return Forbid();
+                }
+
+                // System Admin, Partner Admin, Group Admin and Customer Admin have access if organization is in their access list
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+
                 var productModules = await CustomerServices.RemoveProductModulesAsync(organizationId, productModule);
                 return productModules != null ? Ok(productModules) : NoContent();
             }

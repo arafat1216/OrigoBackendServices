@@ -20,12 +20,14 @@ namespace Customer.API.Controllers
     {
 
         private readonly IUserServices _userServices;
+        private readonly IOktaServices _oktaServices;
         private readonly ILogger<UsersController> _logger;
 
-        public UsersController(ILogger<UsersController> logger, IUserServices userServices)
+        public UsersController(ILogger<UsersController> logger, IUserServices userServices, IOktaServices oktaServices)
         {
             _logger = logger;
             _userServices = userServices;
+            _oktaServices = oktaServices;
         }
 
         [HttpGet]
@@ -66,6 +68,8 @@ namespace Customer.API.Controllers
                     newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId);
                 var updatedUserView = new User(updatedUser);
 
+                await _oktaServices.AddOktaUser(updatedUser.UserId, updatedUser.FirstName, updatedUser.LastName, updatedUser.Email, updatedUser.MobileNumber, true);
+                
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUserView.Id }, updatedUserView);
             }
             catch (CustomerNotFoundException)
