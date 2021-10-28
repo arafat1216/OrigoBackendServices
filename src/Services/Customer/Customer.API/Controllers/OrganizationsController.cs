@@ -438,7 +438,7 @@ namespace Customer.API.Controllers
             }
         }
 
-        [Route("{organizationId:Guid}/organization")]
+        [Route("{organizationId:Guid}/preferences")]
         [HttpPost]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<OrganizationPreferences>> UpdateOrganizationPreferencesPatch([FromBody] UpdateOrganizationPreferences preferences)
