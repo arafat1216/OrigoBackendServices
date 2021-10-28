@@ -261,6 +261,9 @@ namespace Customer.API.Controllers
         {
             try
             {
+                // todo: remove hide region
+                #region hide
+                /*
                 // Check id
                 var organizationOriginal = await _organizationServices.GetOrganizationAsync(organization.OrganizationId, true, true);
                 if (organizationOriginal == null)
@@ -303,6 +306,24 @@ namespace Customer.API.Controllers
                                                                                                                 organization.Name, organization.OrganizationNumber, newAddress, newContactPerson,
                                                                                                                 organizationOriginal.Preferences, newLocation);
                 var updatedOrganization = await _organizationServices.UpdateOrganizationAsync(newOrganization);
+                */
+                #endregion hide
+
+                // Get address values
+                bool addressIsNull = (organization.Address == null);
+                string street = (addressIsNull) ? "" : organization.Address.Street;
+                string postCode = (addressIsNull) ? "" : organization.Address.PostCode;
+                string city = (addressIsNull) ? "" : organization.Address.City;
+                string country = (addressIsNull) ? "" : organization.Address.Country;
+
+                // Get ContactPerson values
+                bool contactpersonIsNull = (organization.ContactPerson == null);
+                string fullName = (contactpersonIsNull) ? "" : organization.ContactPerson.FullName;
+                string email = (contactpersonIsNull) ? "" : organization.ContactPerson.Email;
+                string phoneNumber = (contactpersonIsNull) ? "" : organization.ContactPerson.PhoneNumber;
+
+                var updatedOrganization = await _organizationServices.PutOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
+                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, fullName, email, phoneNumber);
 
                 var updatedOrganizationView = new Organization {
                     OrganizationId = updatedOrganization.OrganizationId,
@@ -310,15 +331,32 @@ namespace Customer.API.Controllers
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
                     Address = new Address(updatedOrganization.Address),
                     ContactPerson = new ContactPerson(updatedOrganization.ContactPerson),
-                    Preferences = new OrganizationPreferences(newOrganization.Preferences),
-                    Location = new Location(newOrganization.Location)
+                    Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferences(updatedOrganization.Preferences),
+                    Location = (updatedOrganization.Location == null) ? null : new Location(updatedOrganization.Location)
                 };
 
                 return updatedOrganizationView;
             }
-            catch(Exception ex) {
-                _logger.LogError("OrganizationsController - UpdateOrganization - unknown error: " + ex.Message);
-                return BadRequest("OrganizationsController - UpdateOrganization - unknown error: " + ex.Message);
+            catch (CustomerNotFoundException ex)
+            {
+                _logger.LogError("OrganizationController - UpdateOrganizationPut: No result on given OrganizationId: " + ex.Message);
+                return NotFound(ex.Message);
+            }
+            catch (ParentNotValidException ex)
+            {
+                _logger.LogError("OrganizationController - UpdateOrganizationPut: Given parentId (not null || empty) led to organization that A: does not exist, B: has itself a parent." +
+                    "\n : " + ex.Message);
+                return NotFound(ex.Message); // todo replace with good value
+            }
+            catch (LocationNotFoundException ex)
+            {
+                _logger.LogError("OrganizationController - UpdateOrganizationPut: No result on Given locationId (not null || empty): " + ex.Message);
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("OrganizationController - UpdateOrganizationPut: failed to update: " + ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -329,7 +367,9 @@ namespace Customer.API.Controllers
         {
             try
             {
-
+                // todo: remove hide region
+                #region hide
+                /*
                 // Check id
                 var organizationOriginal = await _organizationServices.GetOrganizationAsync(organization.OrganizationId, true, true);
                 if (organizationOriginal == null)
@@ -383,9 +423,27 @@ namespace Customer.API.Controllers
                                                                                             organization.Name, organization.OrganizationNumber,
                                                                                             newAddress, newContactPerson,
                                                                                             organizationOriginal.Preferences, newLocation);
+                */
+                #endregion hide
 
+                // Get address values
+                bool addressIsNull = (organization.Address == null);
+                string street = (addressIsNull) ? null : organization.Address.Street;
+                string postCode = (addressIsNull) ? null : organization.Address.PostCode;
+                string city = (addressIsNull) ? null : organization.Address.City;
+                string country = (addressIsNull) ? null : organization.Address.Country;
+
+                // Get ContactPerson values
+                bool contactpersonIsNull = (organization.ContactPerson == null);
+                string fullName = (contactpersonIsNull) ? null : organization.ContactPerson.FullName;
+                string email = (contactpersonIsNull) ? null : organization.ContactPerson.Email;
+                string phoneNumber = (contactpersonIsNull) ? null : organization.ContactPerson.PhoneNumber;
+
+                var updatedOrganization = await _organizationServices.PatchOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
+                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, fullName, email, phoneNumber);
                 // Update
-                var updatedOrganization = await _organizationServices.UpdateOrganizationAsync(newOrganization, true);
+
+
                 var updatedOrganizationView = new Organization
                 {
                     OrganizationId = updatedOrganization.OrganizationId,
@@ -393,16 +451,32 @@ namespace Customer.API.Controllers
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
                     Address = new Address(updatedOrganization.Address),
                     ContactPerson = new ContactPerson(updatedOrganization.ContactPerson),
-                    Preferences = new OrganizationPreferences(newOrganization.Preferences),
-                    Location = new Location(newOrganization.Location)
+                    Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferences(updatedOrganization.Preferences),
+                    Location = (updatedOrganization.Location == null) ? null : new Location(updatedOrganization.Location)
                 };
 
                 return updatedOrganizationView;
             }
+            catch (CustomerNotFoundException ex)
+            {
+                _logger.LogError("OrganizationController - UpdateOrganizationPatch: No result on given OrganizationId: " + ex.Message);
+                return NotFound(ex.Message);
+            }
+            catch (ParentNotValidException ex)
+            {
+                _logger.LogError("OrganizationController - UpdateOrganizationPatch: Given parentId (not null || empty) led to organization that A: does not exist, B: has itself a parent." +
+                    "\n : " + ex.Message);
+                return NotFound(ex.Message); // todo replace with good value
+            }
+            catch (LocationNotFoundException ex)
+            {
+                _logger.LogError("OrganizationController - UpdateOrganizationPatch: No result on Given locationId (not null || empty): " + ex.Message);
+                return NotFound(ex.Message);
+            }
             catch (Exception ex)
             {
-                _logger.LogError("OrganizationsController - UpdateOrganization - unknown error: " + ex.Message);
-                return BadRequest("OrganizationsController - UpdateOrganization - unknown error: " + ex.Message);
+                _logger.LogError("OrganizationController - UpdateOrganizationPatch: failed to update: " + ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 

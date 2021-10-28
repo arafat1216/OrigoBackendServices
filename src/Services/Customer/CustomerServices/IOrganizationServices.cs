@@ -10,6 +10,12 @@ namespace CustomerServices
         Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false);
         Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false);
         Task<Organization> UpdateOrganizationAsync(Organization updateOrganization, bool usingPatch = false);
+        Task<Organization> PutOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
+                                                               string street, string postCode, string city, string country,
+                                                               string fullName, string email, string phoneNumber);
+        Task<Organization> PatchOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
+                                                               string street, string postCode, string city, string country,
+                                                               string fullName, string email, string phoneNumber);
         Task<Organization> DeleteOrganizationAsync(Guid organizationId, Guid callerId, bool hardDelete = false);
         Task<OrganizationPreferences> GetOrganizationPreferencesAsync(Guid organizationId);
         Task<OrganizationPreferences> UpdateOrganizationPreferencesAsync(OrganizationPreferences preferences, bool usingPatch = false);
