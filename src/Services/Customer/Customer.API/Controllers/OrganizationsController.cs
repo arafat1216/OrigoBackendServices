@@ -122,8 +122,6 @@ namespace Customer.API.Controllers
         {
             try
             {
-                #region Check Validity
-
                 // Check if organization.parentId is set to a valid value
                 if (organization.ParentId != Guid.Empty)
                 {
@@ -134,12 +132,9 @@ namespace Customer.API.Controllers
                     {
                         return BadRequest("Parent organization cannot itself have a parent organization.");
                     }
-                }
+                } 
 
-                #endregion Check Validity
-
-                #region Add Location
-
+                // Location
                 CustomerServices.Models.Location organizationLocation;
                 if (organization.PrimaryLocation != Guid.Empty)
                 {
@@ -179,10 +174,6 @@ namespace Customer.API.Controllers
                     await _organizationServices.AddOrganizationLocationAsync(organizationLocation);
                 }
 
-                #endregion Add Location
-
-                #region Create entities
-
                 // Create entities from NewOrganization to reduce the number of fields required to make them in OrganizationServices
                 var organizationContactPerson = new CustomerServices.Models.ContactPerson(organization.ContactPerson?.FullName, organization.ContactPerson?.Email,
                                                                                           organization.ContactPerson?.PhoneNumber);
@@ -194,10 +185,6 @@ namespace Customer.API.Controllers
                                                                                organization.Name, organization.OrganizationNumber,
                                                                                organizationAddress, organizationContactPerson,
                                                                                null, organizationLocation);
-
-                #endregion Create entities
-
-                #region Add Preferences
 
                 // organizationPreferences needs the OrganizationId from newOrganization, and is therefore made last
                 if (organization.Preferences != null)
@@ -226,10 +213,6 @@ namespace Customer.API.Controllers
                     newOrganization.Preferences = organizationPreferences;
                 }
 
-                #endregion Add Preferences
-
-                #region Save Organization
-
                 // Save new organization
                 var updatedOrganization = await _organizationServices.AddOrganizationAsync(newOrganization);
 
@@ -245,8 +228,6 @@ namespace Customer.API.Controllers
                 };
 
                 return CreatedAtAction(nameof(CreateOrganization), new { id = updatedOrganizationView.OrganizationId }, updatedOrganizationView);
-
-                #endregion Save Organization
             }
             catch (Exception ex)
             {
