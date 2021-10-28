@@ -117,7 +117,7 @@ namespace CustomerServices
                     throw new CustomerNotFoundException("Organization with the given id was not found.");
 
                 // Check parent
-                if (!await ParentOrganizationIsValid(parentId))
+                if (!await ParentOrganizationIsValid(parentId, organizationId))
                     throw new ParentNotValidException("Invalid organization id on parent.");
 
                 // PrimaryLocation
@@ -201,7 +201,7 @@ namespace CustomerServices
                 else
                 {
                     // Check parent
-                    if (!await ParentOrganizationIsValid(parentId))
+                    if (!await ParentOrganizationIsValid(parentId, organizationId))
                         throw new ParentNotValidException("Invalid organization id on parent.");
                 }
 
@@ -647,7 +647,7 @@ namespace CustomerServices
             }
         }
 
-        public async Task<bool> ParentOrganizationIsValid(Guid? parentId)
+        public async Task<bool> ParentOrganizationIsValid(Guid? parentId, Guid organizationId)
         {
            if (parentId != null && parentId != Guid.Empty)
             {
@@ -657,6 +657,10 @@ namespace CustomerServices
 
                 if (parentOrganization.ParentId != null && parentOrganization.ParentId != Guid.Empty)
                     return false; // invalid hierarchy depth
+
+                var childList = await GetOrganizationsByParentId(organizationId);
+                if (childList.Count > 0)
+                    return false;
             }
             return true;
         }

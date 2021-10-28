@@ -261,54 +261,6 @@ namespace Customer.API.Controllers
         {
             try
             {
-                // todo: remove hide region
-                #region hide
-                /*
-                // Check id
-                var organizationOriginal = await _organizationServices.GetOrganizationAsync(organization.OrganizationId, true, true);
-                if (organizationOriginal == null)
-                    return NotFound("Organization with the given id was not found.");
-
-                // Check parent
-                if (!await _organizationServices.ParentOrganizationIsValid(organization.ParentId))
-                    return BadRequest("Invalid organization id on parent.");
-
-                // PrimaryLocation
-                CustomerServices.Models.Location newLocation;
-                if (organization.PrimaryLocation == null || organization.PrimaryLocation == Guid.Empty)
-                    newLocation = new CustomerServices.Models.Location(Guid.Empty, organization.CallerId, "", "", "", "", "", "", "");
-                else {
-                    newLocation = await _organizationServices.GetLocationAsync((Guid)organization.PrimaryLocation);
-                    if (newLocation == null)
-                        return NotFound();
-                }
-
-                // Address
-                CustomerServices.Models.Address newAddress;
-                if (organization.Address == null)
-                    newAddress = new CustomerServices.Models.Address("", "", "", "");
-                else
-                    newAddress = new CustomerServices.Models.Address(organization.Address.Street, organization.Address.PostCode, organization.Address.City, organization.Address.Country);
-
-                // Contact Person
-                CustomerServices.Models.ContactPerson newContactPerson;
-                if (organization.ContactPerson == null)
-                    newContactPerson = new CustomerServices.Models.ContactPerson("", "", "");
-                else
-                    newContactPerson = new CustomerServices.Models.ContactPerson(organization.ContactPerson.FullName, organization.ContactPerson.Email, organization.ContactPerson.PhoneNumber);
-
-                // string fields
-                organization.Name = (organization.Name == null) ? "" : organization.Name;
-                organization.OrganizationNumber = (organization.OrganizationNumber == null) ? "" : organization.OrganizationNumber;
-
-                // Do update
-                CustomerServices.Models.Organization newOrganization = new CustomerServices.Models.Organization(organization.OrganizationId, organization.CallerId, organization.ParentId,
-                                                                                                                organization.Name, organization.OrganizationNumber, newAddress, newContactPerson,
-                                                                                                                organizationOriginal.Preferences, newLocation);
-                var updatedOrganization = await _organizationServices.UpdateOrganizationAsync(newOrganization);
-                */
-                #endregion hide
-
                 // Get address values
                 bool addressIsNull = (organization.Address == null);
                 string street = (addressIsNull) ? "" : organization.Address.Street;
@@ -322,6 +274,7 @@ namespace Customer.API.Controllers
                 string email = (contactpersonIsNull) ? "" : organization.ContactPerson.Email;
                 string phoneNumber = (contactpersonIsNull) ? "" : organization.ContactPerson.PhoneNumber;
 
+                // Update
                 var updatedOrganization = await _organizationServices.PutOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
                                                            organization.Name, organization.OrganizationNumber, street, postCode, city, country, fullName, email, phoneNumber);
 
@@ -346,7 +299,7 @@ namespace Customer.API.Controllers
             {
                 _logger.LogError("OrganizationController - UpdateOrganizationPut: Given parentId (not null || empty) led to organization that A: does not exist, B: has itself a parent." +
                     "\n : " + ex.Message);
-                return NotFound(ex.Message); // todo replace with good value
+                return BadRequest(ex.Message);
             }
             catch (LocationNotFoundException ex)
             {
@@ -367,65 +320,6 @@ namespace Customer.API.Controllers
         {
             try
             {
-                // todo: remove hide region
-                #region hide
-                /*
-                // Check id
-                var organizationOriginal = await _organizationServices.GetOrganizationAsync(organization.OrganizationId, true, true);
-                if (organizationOriginal == null)
-                    return NotFound("Organization with the given id was not found.");
-
-                // Check parent
-                if (organization.ParentId == null)
-                    organization.ParentId = organizationOriginal.ParentId;
-                else
-                {
-                    // Check parent
-                    if (!await _organizationServices.ParentOrganizationIsValid(organization.ParentId))
-                        return BadRequest("Invalid organization id on parent.");
-                }
-
-                // PrimaryLocation
-                CustomerServices.Models.Location newLocation;
-                if (organization.PrimaryLocation == null)
-                    newLocation = (organizationOriginal.Location == null) ? new CustomerServices.Models.Location(Guid.Empty, organization.CallerId, "", "", "", "", "", "", "") : organizationOriginal.Location;
-                else if (organization.PrimaryLocation == Guid.Empty)
-                    newLocation = new CustomerServices.Models.Location(Guid.Empty, organization.CallerId, "", "", "", "", "", "", "");
-                else
-                {
-                    newLocation = await _organizationServices.GetLocationAsync((Guid)organization.PrimaryLocation);
-                    if (newLocation == null)
-                        return NotFound();
-                }
-
-                // Address
-                CustomerServices.Models.Address newAddress;
-                if (organization.Address == null)
-                    newAddress = organizationOriginal.Address;
-                else { 
-                    newAddress = organizationOriginal.Address;//new CustomerServices.Models.Address(organization.Address.Street, organization.Address.PostCode, organization.Address.City, organization.Address.Country);
-                    newAddress.PatchAddress(organization.Address.Street, organization.Address.PostCode, organization.Address.City, organization.Address.Country);
-                }
-
-                // ContactPerson
-                CustomerServices.Models.ContactPerson newContactPerson;
-                if (organization.ContactPerson == null)
-                    newContactPerson = organizationOriginal.ContactPerson;
-                else {
-                    newContactPerson = organizationOriginal.ContactPerson; 
-                    newContactPerson.PatchContactPerson(organization.ContactPerson.FullName, organization.ContactPerson.Email, organization.ContactPerson.PhoneNumber);//new CustomerServices.Models.ContactPerson(organization.ContactPerson.FullName, organization.ContactPerson.Email, organization.ContactPerson.PhoneNumber);
-                }
-                // String fields
-                organization.Name = (organization.Name == null) ? organizationOriginal.Name : organization.Name;
-                organization.OrganizationNumber = (organization.OrganizationNumber == null) ? organizationOriginal.OrganizationNumber : organization.OrganizationNumber;
-
-                CustomerServices.Models.Organization newOrganization = new CustomerServices.Models.Organization(organization.OrganizationId, organization.CallerId, organization.ParentId,
-                                                                                            organization.Name, organization.OrganizationNumber,
-                                                                                            newAddress, newContactPerson,
-                                                                                            organizationOriginal.Preferences, newLocation);
-                */
-                #endregion hide
-
                 // Get address values
                 bool addressIsNull = (organization.Address == null);
                 string street = (addressIsNull) ? null : organization.Address.Street;
@@ -439,11 +333,10 @@ namespace Customer.API.Controllers
                 string email = (contactpersonIsNull) ? null : organization.ContactPerson.Email;
                 string phoneNumber = (contactpersonIsNull) ? null : organization.ContactPerson.PhoneNumber;
 
+                // Update
                 var updatedOrganization = await _organizationServices.PatchOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
                                                            organization.Name, organization.OrganizationNumber, street, postCode, city, country, fullName, email, phoneNumber);
-                // Update
-
-
+                
                 var updatedOrganizationView = new Organization
                 {
                     OrganizationId = updatedOrganization.OrganizationId,
@@ -466,7 +359,7 @@ namespace Customer.API.Controllers
             {
                 _logger.LogError("OrganizationController - UpdateOrganizationPatch: Given parentId (not null || empty) led to organization that A: does not exist, B: has itself a parent." +
                     "\n : " + ex.Message);
-                return NotFound(ex.Message); // todo replace with good value
+                return BadRequest(ex.Message);
             }
             catch (LocationNotFoundException ex)
             {
@@ -545,10 +438,42 @@ namespace Customer.API.Controllers
             }
         }
 
-        [Route("preferences")]
+        [Route("{organizationId:Guid}/organization")]
+        [HttpPost]
+        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<OrganizationPreferences>> UpdateOrganizationPreferencesPatch([FromBody] UpdateOrganizationPreferences preferences)
+        {
+            try
+            {
+                if (preferences.OrganizationId == Guid.Empty)
+                    return BadRequest("Organization Id cannot be empty");
+
+                CustomerServices.Models.OrganizationPreferences newPreference = new CustomerServices.Models.OrganizationPreferences(preferences.OrganizationId,
+                                                                                                                                    preferences.CallerId,
+                                                                                                                                    preferences.WebPage,
+                                                                                                                                    preferences.LogoUrl,
+                                                                                                                                    preferences.OrganizationNotes,
+                                                                                                                                    preferences.EnforceTwoFactorAuth,
+                                                                                                                                    preferences.PrimaryLanguage,
+                                                                                                                                    preferences.DefaultDepartmentClassification);
+                var updatedPreferences = await _organizationServices.UpdateOrganizationPreferencesAsync(newPreference, true);
+                if (updatedPreferences == null)
+                    return NotFound();
+
+                var updatedPreferencesView = new OrganizationPreferences(updatedPreferences);
+
+                return Ok(updatedPreferencesView);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Unknown error: " + ex.Message);
+            }
+        }
+
+        [Route("{organizationId:Guid}/preferences")]
         [HttpPut]
-        [ProducesResponseType(typeof(OrganizationPreferences), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrganizationPreferences>> UpdateOrganizationPreferences([FromBody] UpdateOrganizationPreferences preferences)
+        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<OrganizationPreferences>> UpdateOrganizationPreferencesPut([FromBody] UpdateOrganizationPreferences preferences)
         {
             try
             {
