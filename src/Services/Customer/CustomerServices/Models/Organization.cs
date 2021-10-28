@@ -100,17 +100,6 @@ namespace CustomerServices.Models
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
 
-        public Organization(Guid customerId, string companyName, string orgNumber, Address companyAddress,
-            ContactPerson customerContactPerson)
-        {
-            Name = companyName;
-            OrganizationNumber = orgNumber;
-            Address = companyAddress;
-            ContactPerson = customerContactPerson;
-            OrganizationId = customerId;
-            AddDomainEvent(new CustomerCreatedDomainEvent(this));
-        }
-
         public void UpdateOrganization(Organization organization)
         {
             ParentId = organization.ParentId;

@@ -105,6 +105,68 @@ namespace CustomerServices
             return await _customerRepository.AddAsync(newOrganization);
         }
 
+        public async Task<Organization> PatchOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber, 
+                                                               string street, string postCode, string city, string country,
+                                                               string fullName, string email, string phoneNumber)
+        {
+            // Check id
+            var organizationOriginal = await GetOrganizationAsync(organizationId, true, true);
+            if (organizationOriginal == null)
+                throw new CustomerNotFoundException("Organization with the given id was not found.");
+
+            // Check parent
+            if (parentId == null)
+                parentId = organizationOriginal.ParentId;
+            else
+            {
+                // Check parent
+                if (!await ParentOrganizationIsValid(parentId))
+                    throw new ParentNotValidException("Invalid organization id on parent.");
+            }
+
+            // PrimaryLocation
+            Location newLocation;
+            if (primaryLocation == null)
+                newLocation = (organizationOriginal.Location == null) ? new Location(Guid.Empty, callerId, "", "", "", "", "", "", "") : organizationOriginal.Location;
+            else if (primaryLocation == Guid.Empty)
+                newLocation = new Location(Guid.Empty, callerId, "", "", "", "", "", "", "");
+            else
+            {
+                newLocation = await GetLocationAsync((Guid) primaryLocation);
+                if (newLocation == null)
+                    throw new LocationNotFoundException();
+            }
+
+            // Address
+            Address newAddress;
+            street = (street == null) ? organizationOriginal.Address.Street : street;
+            postCode = (postCode == null) ? organizationOriginal.Address.PostCode : postCode;
+            city = (city == null) ? organizationOriginal.Address.City : city;
+            country = (country == null) ? organizationOriginal.Address.Country : country;
+
+            newAddress = new Address(street, postCode, city, country);
+
+            // ContactPerson
+            ContactPerson newContactPerson;
+            fullName = (fullName == null) ? organizationOriginal.ContactPerson.FullName : fullName;
+            email = (email == null) ? organizationOriginal.ContactPerson.Email : email;
+            phoneNumber = (phoneNumber == null) ? organizationOriginal.ContactPerson.PhoneNumber : phoneNumber;
+
+            newContactPerson = new ContactPerson(fullName, email, phoneNumber);
+
+            // String fields
+            name = (name == null) ? organizationOriginal.Name : name;
+            organizationNumber = (organizationNumber == null) ? organizationOriginal.OrganizationNumber : organizationNumber;
+
+            // Do update
+            Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation);
+
+            organizationOriginal.PatchOrganization(newOrganization);
+
+            await _customerRepository.SaveEntitiesAsync();
+
+            return organizationOriginal;
+        }
 
         public async Task<Organization> UpdateOrganizationAsync(Organization updateOrganization, bool usingPatch = false)
         {
