@@ -105,6 +105,61 @@ namespace CustomerServices
             return await _customerRepository.AddAsync(newOrganization);
         }
 
+        public async Task<Organization> PutOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
+                                                               string street, string postCode, string city, string country,
+                                                               string fullName, string email, string phoneNumber)
+        {
+            // Check id
+            var organizationOriginal = await GetOrganizationAsync(organizationId, true, true);
+            if (organizationOriginal == null)
+                throw new CustomerNotFoundException("Organization with the given id was not found.");
+
+            // Check parent
+            if (!await ParentOrganizationIsValid(parentId))
+                throw new ParentNotValidException("Invalid organization id on parent.");
+
+            // PrimaryLocation
+            Location newLocation;
+            if (primaryLocation == null || primaryLocation == Guid.Empty)
+                newLocation = new Location(Guid.Empty, callerId, "", "", "", "", "", "", "");
+            else
+            {
+                newLocation = await GetLocationAsync((Guid) primaryLocation);
+                if (newLocation == null)
+                    throw new LocationNotFoundException();
+            }
+
+            // Address
+            Address newAddress;
+            street = (street == null) ? "" : street;
+            postCode = (postCode == null) ? "" : postCode;
+            city = (city == null) ? "" : city;
+            country = (country == null) ? "" : country;
+
+            newAddress = new Address(street, postCode, city, country);
+
+            // Contact Person
+            ContactPerson newContactPerson;
+            fullName = (fullName == null) ? "" : fullName;
+            email = (email == null) ? "" : email;
+            phoneNumber = (phoneNumber == null) ? "" : phoneNumber;
+
+            newContactPerson = new ContactPerson(fullName, email, phoneNumber);
+
+            // string fields
+            name = (name == null) ? "" : name;
+            organizationNumber = (organizationNumber == null) ? "" : organizationNumber;
+
+            // Do update
+            Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation);
+
+            organizationOriginal.UpdateOrganization(newOrganization);
+
+            await _customerRepository.SaveEntitiesAsync();
+
+            return organizationOriginal;
+        }
+
         public async Task<Organization> PatchOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber, 
                                                                string street, string postCode, string city, string country,
                                                                string fullName, string email, string phoneNumber)
