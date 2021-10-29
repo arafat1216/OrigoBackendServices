@@ -120,6 +120,11 @@ namespace CustomerServices
                 if (!await ParentOrganizationIsValid(parentId, organizationId))
                     throw new ParentNotValidException("Invalid organization id on parent.");
 
+                // string fields
+                if (name == null || name == string.Empty)
+                    throw new RequiredFieldIsEmptyException("The name field is required and cannot be one of: (null || string.Empty). Null is allowed for patch queries.");
+                organizationNumber = (organizationNumber == null) ? "" : organizationNumber;
+
                 // PrimaryLocation
                 Location newLocation;
                 if (primaryLocation == null || primaryLocation == Guid.Empty)
@@ -148,10 +153,6 @@ namespace CustomerServices
 
                 newContactPerson = new ContactPerson(fullName, email, phoneNumber);
 
-                // string fields
-                name = (name == null) ? "" : name;
-                organizationNumber = (organizationNumber == null) ? "" : organizationNumber;
-
                 // Do update
                 Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation);
 
@@ -170,6 +171,12 @@ namespace CustomerServices
             {
                 _logger.LogError("OrganizationServices - PutOrganizationAsync: Given parentId (not null || empty) led to organization that A: does not exist, B: has itself a parent." +
                     "\n : " + ex.Message);
+                throw;
+            }
+            catch (RequiredFieldIsEmptyException ex)
+            {
+                _logger.LogError("OrganizationServices - PutOrganizationAsync: The name field is required and cannot be one of: (null || string.Empty). Null is allowed for patch queries." +
+                   "\n : " + ex.Message);
                 throw;
             }
             catch (LocationNotFoundException ex)
@@ -205,6 +212,12 @@ namespace CustomerServices
                         throw new ParentNotValidException("Invalid organization id on parent.");
                 }
 
+                // String fields
+                if (name == string.Empty)
+                    throw new RequiredFieldIsEmptyException("The name field is required and should never be empty (null is allowed for patch).");
+                name = (name == null) ? organizationOriginal.Name : name;
+                organizationNumber = (organizationNumber == null) ? organizationOriginal.OrganizationNumber : organizationNumber;
+
                 // PrimaryLocation
                 Location newLocation;
                 if (primaryLocation == null)
@@ -235,10 +248,6 @@ namespace CustomerServices
 
                 newContactPerson = new ContactPerson(fullName, email, phoneNumber);
 
-                // String fields
-                name = (name == null) ? organizationOriginal.Name : name;
-                organizationNumber = (organizationNumber == null) ? organizationOriginal.OrganizationNumber : organizationNumber;
-
                 // Do update
                 Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation);
 
@@ -257,6 +266,12 @@ namespace CustomerServices
             {
                 _logger.LogError("OrganizationServices - PatchOrganizationAsync: Given parentId (not null || empty) led to organization that A: does not exist, B: has itself a parent." +
                     "\n : " + ex.Message);
+                throw;
+            }
+            catch (RequiredFieldIsEmptyException ex)
+            {
+                _logger.LogError("OrganizationServices - PatchOrganizationAsync: The name field is required and cannot be string.Empty. Null is allowed for patch queries." +
+                   "\n : " + ex.Message);
                 throw;
             }
             catch(LocationNotFoundException ex)

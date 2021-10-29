@@ -50,10 +50,10 @@ namespace CustomerServices.UnitTests
             var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository);
 
             // Act
-            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, null, null, null, null, null, null, null, null, null);
+            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "Mytos", null, null, null, null, null, null, null, null);
 
             // Assert 
-            Assert.Equal("", organization.Name);
+            Assert.Equal("Mytos", organization.Name);
             Assert.Equal("", organization.OrganizationNumber);
             Assert.Equal(null, organization.ParentId);
             Assert.Equal(Guid.Empty, organization.PrimaryLocation);

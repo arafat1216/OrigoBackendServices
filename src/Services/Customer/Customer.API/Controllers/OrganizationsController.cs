@@ -282,6 +282,12 @@ namespace Customer.API.Controllers
                     "\n : " + ex.Message);
                 return BadRequest(ex.Message);
             }
+            catch (RequiredFieldIsEmptyException ex)
+            {
+                _logger.LogError("OrganizationController - UpdateOrganizationPut: The name field is required and cannot be one of: (null || string.Empty). Null is allowed for patch queries." +
+                   "\n : " + ex.Message);
+                return BadRequest(ex.Message);
+            }
             catch (LocationNotFoundException ex)
             {
                 _logger.LogError("OrganizationController - UpdateOrganizationPut: No result on Given locationId (not null || empty): " + ex.Message);
@@ -340,6 +346,12 @@ namespace Customer.API.Controllers
             {
                 _logger.LogError("OrganizationController - UpdateOrganizationPatch: Given parentId (not null || empty) led to organization that A: does not exist, B: has itself a parent." +
                     "\n : " + ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (RequiredFieldIsEmptyException ex)
+            {
+                _logger.LogError("OrganizationController - UpdateOrganizationPatch: The name field is required and cannot be string.Empty. Null is allowed for patch queries." +
+                   "\n : " + ex.Message);
                 return BadRequest(ex.Message);
             }
             catch (LocationNotFoundException ex)
