@@ -1,13 +1,14 @@
-﻿namespace Customer.API.ViewModels
+﻿using OrigoApiGateway.Models.BackendDTO;
+
+namespace OrigoApiGateway.Models
 {
     public class UserPreference
     {
         public UserPreference() { }
-        public UserPreference(CustomerServices.Models.UserPreference userPreference)
+        public UserPreference(UserPreferenceDTO userPreference)
         {
             Language = userPreference.Language;
         }
-
         public string Language { get; set; }
     }
 }

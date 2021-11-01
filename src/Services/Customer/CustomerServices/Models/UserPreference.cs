@@ -1,12 +1,23 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Common.Seedwork;
+using System.ComponentModel.DataAnnotations;
 
 namespace CustomerServices.Models
 {
-    public class UserPreference
+    public class UserPreference : Entity
     {
-        public User User { get; protected set; }
+        protected UserPreference() { }
+
+        public UserPreference(string language)
+        {
+            Language = language;
+        }
 
         [StringLength(2, ErrorMessage = "Country code max length is 2")]
         public string Language { get; set; }
+
+        internal void SetDeleteStatus(bool isDeleted)
+        {
+            IsDeleted = isDeleted;
+        }
     }
 }

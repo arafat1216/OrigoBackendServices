@@ -17,6 +17,7 @@ namespace OrigoApiGateway.Models
             EmployeeId = user.EmployeeId;
             OrganizationName = user.OrganizationName;
             AssignedToDepartments = user.AssignedToDepartments;
+            UserPreference = new UserPreference(user.UserPreference);
         }
 
         public Guid Id { get; set; }
@@ -28,5 +29,6 @@ namespace OrigoApiGateway.Models
         public string EmployeeId { get; set; }
         public string OrganizationName { get; set; }
         public List<Guid> AssignedToDepartments { get; set; }
+        public UserPreference UserPreference { get; set; }
     }
 }

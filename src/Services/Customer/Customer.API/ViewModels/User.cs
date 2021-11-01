@@ -13,6 +13,7 @@ namespace Customer.API.ViewModels
             EmployeeId = user.EmployeeId;
             MobileNumber = user.MobileNumber;
             OrganizationName = user.Customer != null ? user.Customer.Name : string.Empty;
+            UserPreference = user.UserPreference != null ? new UserPreference(user.UserPreference) : null;
         }
 
         public Guid Id { get; set; }

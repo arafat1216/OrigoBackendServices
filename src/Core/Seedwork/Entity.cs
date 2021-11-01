@@ -83,7 +83,7 @@ namespace Common.Seedwork
                 return base.GetHashCode();
 
         }
-        
+
         public static bool operator ==(Entity left, Entity right)
         {
             return left?.Equals(right) ?? Equals(right, null);

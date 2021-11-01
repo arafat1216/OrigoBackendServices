@@ -63,7 +63,7 @@ namespace Customer.API.Controllers
             try
             {
                 var updatedUser = await _userServices.AddUserForCustomerAsync(customerId, newUser.FirstName,
-                    newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId);
+                    newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId, new CustomerServices.Models.UserPreference(newUser.UserPreference?.Language));
                 var updatedUserView = new User(updatedUser);
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUserView.Id }, updatedUserView);
@@ -72,8 +72,9 @@ namespace Customer.API.Controllers
             {
                 return BadRequest("Customer not found");
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex);
                 return BadRequest("Unable to save user");
             }
         }
@@ -86,8 +87,9 @@ namespace Customer.API.Controllers
         {
             try
             {
-                var updatedUser = await _userServices.UpdateUserPostAsync(customerId, userId, updateUser.FirstName,
-                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId);
+                var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language);
+                var updatedUser = await _userServices.UpdateUserPutAsync(customerId, userId, updateUser.FirstName,
+                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId, userPreference);
                 if (updatedUser == null)
                     return NotFound();
 
@@ -105,15 +107,16 @@ namespace Customer.API.Controllers
         }
 
         [Route("{userId:Guid}")]
-        [HttpPatch]
+        [HttpPost]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<User>> UpdateUserPatch(Guid customerId, Guid userId, [FromBody] UpdateUser updateUser)
         {
             try
             {
-                var updatedUser = await _userServices.UpdateUserPostAsync(customerId, userId, updateUser.FirstName,
-                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId);
+                var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language);
+                var updatedUser = await _userServices.UpdateUserPatchAsync(customerId, userId, updateUser.FirstName,
+                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId, userPreference);
                 if (updatedUser == null)
                     return NotFound();
 
@@ -142,9 +145,9 @@ namespace Customer.API.Controllers
         /// <returns cref="HttpStatusCode.NotFound"></returns>
         [Route("{userId:Guid}")]
         [HttpDelete]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<User>> DeleteUser(Guid userId, bool softDelete = true)
+        public async Task<ActionResult> DeleteUser(Guid userId, bool softDelete = true)
         {
             try
             {

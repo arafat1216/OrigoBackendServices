@@ -12,7 +12,7 @@ namespace CustomerServices.Models
         private IList<Department> _departments = new List<Department>();
         private IList<Department> _managesDepartments = new List<Department>();
 
-        public User(Organization customer, Guid userId, string firstName, string lastName, string email, string mobileNumber, string employeeId)
+        public User(Organization customer, Guid userId, string firstName, string lastName, string email, string mobileNumber, string employeeId, UserPreference userPreference)
         {
             Customer = customer;
             UserId = userId;
@@ -21,6 +21,7 @@ namespace CustomerServices.Models
             Email = email;
             MobileNumber = mobileNumber;
             EmployeeId = employeeId;
+            UserPreference = userPreference;
             AddDomainEvent(new UserCreatedDomainEvent(this));
         }
 
@@ -45,11 +46,15 @@ namespace CustomerServices.Models
 
         [JsonIgnore]
         public Organization Customer { get; set; }
-        public IReadOnlyCollection<Department> Departments { get => new ReadOnlyCollection<Department>(_departments);
+        public IReadOnlyCollection<Department> Departments
+        {
+            get => new ReadOnlyCollection<Department>(_departments);
             protected set => _departments = new List<Department>(value);
         }
 
-        public IReadOnlyCollection<Department> ManagesDepartments { get => new ReadOnlyCollection<Department>(_managesDepartments);
+        public IReadOnlyCollection<Department> ManagesDepartments
+        {
+            get => new ReadOnlyCollection<Department>(_managesDepartments);
             protected set => _managesDepartments = value != null ? new List<Department>(value) : new List<Department>();
         }
 
@@ -58,7 +63,6 @@ namespace CustomerServices.Models
             AddDomainEvent(new UserAssignedToDepartmentDomainEvent(this, department.ExternalDepartmentId));
             _departments.Add(department);
         }
-        
 
         public void UnassignDepartment(Department department)
         {
@@ -86,10 +90,17 @@ namespace CustomerServices.Models
             _managesDepartments.Remove(department);
         }
 
+        internal void ChangeUserPreferences(UserPreference userPreference)
+        {
+            AddDomainEvent(new UserPreferenceChangedDomainEvent(userPreference, UserId));
+            UserPreference.Language = userPreference.Language;
+        }
+
         internal void SetDeleteStatus(bool isDeleted)
         {
             AddDomainEvent(new UserDeletedDomainEvent(this));
             IsDeleted = isDeleted;
+            UserPreference.SetDeleteStatus(true);
         }
 
         internal void ChangeFirstName(string firstName)
@@ -106,7 +117,6 @@ namespace CustomerServices.Models
             LastName = lastName;
         }
 
-        // TODO: this will be remove in a later version
         internal void ChangeEmailAddress(string email)
         {
             Email = email;

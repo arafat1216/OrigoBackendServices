@@ -1,16 +1,11 @@
-﻿using Common.Enums;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Controllers
@@ -26,10 +21,10 @@ namespace OrigoApiGateway.Controllers
         private readonly ILogger<UsersController> _logger;
         private readonly IUserServices _userServices;
 
-        public UsersController(ILogger<UsersController> logger, IUserServices customerServices)
+        public UsersController(ILogger<UsersController> logger, IUserServices userServices)
         {
             _logger = logger;
-            _userServices = customerServices;
+            _userServices = userServices;
         }
 
         [HttpGet]
@@ -81,14 +76,14 @@ namespace OrigoApiGateway.Controllers
         }
 
         [Route("{userId:Guid}")]
-        [HttpPatch]
+        [HttpPut]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoUser>> UpdateUserForCustomer(Guid customerId, Guid userId, [FromBody] OrigoUpdateUser updateUser)
+        public async Task<ActionResult<OrigoUser>> PutUserForCustomer(Guid organizationId, Guid userId, [FromBody] OrigoUpdateUser updateUser)
         {
             try
             {
-                var updatedUser = await _customerServices.UpdateUserAsync(customerId, userId, updateUser);
+                var updatedUser = await _userServices.PutUserAsync(organizationId, userId, updateUser);
                 if (updatedUser == null)
                     return NotFound();
 
@@ -104,16 +99,35 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoUser>> DeleteUserForCustomer(Guid customerId, Guid userId)
+        public async Task<ActionResult<OrigoUser>> PatchUserForCustomer(Guid organizationId, Guid userId, [FromBody] OrigoUpdateUser updateUser)
         {
             try
             {
-                var deletedUser = await _customerServices.DeleteUserAsync(customerId, userId);
-                if (deletedUser == null)
+                var updatedUser = await _userServices.PatchUserAsync(organizationId, userId, updateUser);
+                if (updatedUser == null)
                     return NotFound();
 
-                return Ok(deletedUser);
-                return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUser.Id }, updatedUser);
+                return Ok(updatedUser);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{userId:Guid}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<bool>> DeleteUserForCustomer(Guid organizationId, Guid userId, bool softDelete = true)
+        {
+            try
+            {
+                var deletedUser = await _userServices.DeleteUserAsync(organizationId, userId, softDelete);
+                if (!deletedUser)
+                    return NotFound();
+
+                return NoContent();
             }
             catch
             {
