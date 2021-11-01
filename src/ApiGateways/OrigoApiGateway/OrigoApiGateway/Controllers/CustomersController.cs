@@ -114,12 +114,6 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationToChange.OrganizationId.ToString()))
-                {
-                    return Forbid();
-                }
-
                 var updateOrganization = await CustomerServices.UpdateOrganizationAsync(organizationToChange);
                 if (updateOrganization == null)
                 {
@@ -144,12 +138,6 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationToChange.OrganizationId.ToString()))
-                {
-                    return Forbid();
-                }
-
                 var updateOrganization = await CustomerServices.PatchOrganizationAsync(organizationToChange);
                 if (updateOrganization == null)
                 {
@@ -176,12 +164,6 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
-                {
-                    return Forbid();
-                }
-
                 var deletedOrganization = await CustomerServices.DeleteOrganizationAsync(organizationId);
                 if (deletedOrganization == null)
                 {
@@ -236,7 +218,8 @@ namespace OrigoApiGateway.Controllers
                 {
                     return Forbid();
                 }
-                else
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
@@ -274,7 +257,8 @@ namespace OrigoApiGateway.Controllers
                 {
                     return Forbid();
                 }
-                else
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
@@ -317,18 +301,20 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                // Only admin roles are allowed to add product modules
+                // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
 
-                // System Admin, Partner Admin, Group Admin and Customer Admin have access if organization is in their access list
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    return Forbid();
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
                 }
 
                 var productModules = await CustomerServices.AddProductModulesAsync(organizationId, productModule);
@@ -348,18 +334,20 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                // Only admin roles are allowed to add product modules
+                // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
 
-                // System Admin, Partner Admin, Group Admin and Customer Admin have access if organization is in their access list
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    return Forbid();
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
                 }
 
                 var productModules = await CustomerServices.RemoveProductModulesAsync(organizationId, productModule);
