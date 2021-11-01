@@ -40,11 +40,16 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                // All roles have access to Department, as long as they have access to this customer/organization.
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                // If role is not System admin, check access list
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    return Forbid();
+                    // All roles have access to Department, as long as they have access to this customer/organization.
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
                 }
 
                 var department = await _departmentServices.GetDepartment(organizationId, departmentId);
@@ -65,11 +70,16 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                // All roles have access to an organizations departments, as long as the organization is in the caller accesslist
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                // If role is not System admin, check access list
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    return Forbid();
+                    // All roles have access to an organizations departments, as long as the organization is in the caller accesslist
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
                 }
 
                 var departments = await _departmentServices.GetDepartments(organizationId);
@@ -91,17 +101,21 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 // Only admin roles are allowed to create departments
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
                 {
                     return Forbid();
                 }
 
-                // System Admin, Partner Admin, Group Admin and Customer Admin have access if organization is in their accesslist
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                // Partner Admin, Group Admin and Customer Admin have access if organization is in their access list
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    return Forbid();
+
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
                 }
 
                 var createdDepartment = await _departmentServices.AddDepartmentAsync(organizationId, newDepartment);
@@ -124,17 +138,20 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 // Only admin roles are allowed to create departments
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
                 {
                     return Forbid();
                 }
 
-                // System Admin, Partner Admin, Group Admin and Customer Admin have access if organization is in their accesslist
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                // Partner Admin, Group Admin and Customer Admin have access if organization is in their access list
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    return Forbid();
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
                 }
 
                 var updatedDepartment = await _departmentServices.UpdateDepartmentPutAsync(organizationId, departmentId, updateDepartment);
@@ -157,17 +174,20 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 // Only admin roles are allowed to create departments
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
                 {
                     return Forbid();
                 }
 
-                // System Admin, Partner Admin, Group Admin and Customer Admin have access if organization is in their accesslist
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                // Partner Admin, Group Admin and Customer Admin have access if organization is in their access list
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    return Forbid();
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
                 }
 
                 var updatedDepartment = await _departmentServices.UpdateDepartmentPatchAsync(organizationId, departmentId, updateDepartment);
@@ -189,18 +209,21 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                // Only admin roles are allowed to create departments
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                // Only admin roles are allowed to delete departments
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
                 {
                     return Forbid();
                 }
 
-                // System Admin, Partner Admin, Group Admin and Customer Admin have access if organization is in their accesslist
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                // Partner Admin, Group Admin and Customer Admin have access if organization is in their access list
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    return Forbid();
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
                 }
 
                 var updatedDepartment = await _departmentServices.DeleteDepartmentPatchAsync(organizationId, departmentId);

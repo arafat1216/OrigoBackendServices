@@ -44,11 +44,20 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                // All roles have access, as long as customer is in their accessList
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                // Only admin or manager roles are allowed to see all assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
+                }
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
                 }
 
                 var origoPagedAssets = await _assetServices.SearchForAssetsForCustomerAsync(organizationId, search, page, limit);
@@ -76,7 +85,7 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 // All roles have access, as long as customer is in their accessList
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                 if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                 {
                     return Forbid();
@@ -107,14 +116,14 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 // Only admin or manager roles are allowed to see all assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
-                else 
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -146,14 +155,14 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 // Only admin or manager roles are allowed to manage assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
-                else
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -184,14 +193,15 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 // Only admin or manager roles are allowed to manage assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
-                else
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -221,14 +231,15 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 // Only admin or manager roles are allowed to manage assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
-                else
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -259,14 +270,15 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 // Only admin or manager roles are allowed to manage assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
-                else
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -298,14 +310,15 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 // Only admin or manager roles are allowed to manage assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
-                else
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -360,14 +373,15 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 // Only admin or manager roles are allowed to manage assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
-                else
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -397,14 +411,15 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 // Only admin or manager roles are allowed to manage assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
-                else
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();

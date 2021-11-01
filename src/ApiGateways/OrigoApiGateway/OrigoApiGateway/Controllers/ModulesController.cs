@@ -19,7 +19,7 @@ namespace OrigoApiGateway.Controllers
     public class ModulesController : ControllerBase
     {
         private ILogger<ModulesController> Logger { get; }
-        public IModuleServices ModuleServices { get; }
+        private IModuleServices ModuleServices { get; }
 
         public ModulesController(ILogger<ModulesController> logger, IModuleServices customerServices)
         {
