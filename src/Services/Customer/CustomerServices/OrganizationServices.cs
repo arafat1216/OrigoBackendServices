@@ -146,13 +146,7 @@ namespace CustomerServices
                 newAddress = new Address(street, postCode, city, country);
 
                 // Contact Person
-                ContactPerson newContactPerson;
-                //firstName = (firstName == null) ? "" : firstName;
-                //lastName = (lastName == null) ? "" : lastName;
-                email = (email == null) ? "" : email;
-                phoneNumber = (phoneNumber == null) ? "" : phoneNumber;
-
-                newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
+                ContactPerson newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
                 Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation);
