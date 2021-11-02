@@ -175,7 +175,7 @@ namespace Customer.API.Controllers
                 }
 
                 // Create entities from NewOrganization to reduce the number of fields required to make them in OrganizationServices
-                var organizationContactPerson = new CustomerServices.Models.ContactPerson(organization.ContactPerson?.FullName, organization.ContactPerson?.Email,
+                var organizationContactPerson = new CustomerServices.Models.ContactPerson(organization.ContactPerson?.FirstName, organization.ContactPerson?.LastName, organization.ContactPerson?.Email,
                                                                                           organization.ContactPerson?.PhoneNumber);
 
                 var organizationAddress = new CustomerServices.Models.Address(organization.Address?.Street, organization.Address?.PostCode,
@@ -251,13 +251,14 @@ namespace Customer.API.Controllers
 
                 // Get ContactPerson values
                 bool contactpersonIsNull = (organization.ContactPerson == null);
-                string fullName = (contactpersonIsNull) ? "" : organization.ContactPerson.FullName;
+                string firstName = (contactpersonIsNull) ? "" : organization.ContactPerson.FirstName;
+                string lastName = (contactpersonIsNull) ? "" : organization.ContactPerson.LastName;
                 string email = (contactpersonIsNull) ? "" : organization.ContactPerson.Email;
                 string phoneNumber = (contactpersonIsNull) ? "" : organization.ContactPerson.PhoneNumber;
 
                 // Update
                 var updatedOrganization = await _organizationServices.PutOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
-                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, fullName, email, phoneNumber);
+                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber);
 
                 var updatedOrganizationView = new Organization {
                     OrganizationId = updatedOrganization.OrganizationId,
@@ -316,13 +317,14 @@ namespace Customer.API.Controllers
 
                 // Get ContactPerson values
                 bool contactpersonIsNull = (organization.ContactPerson == null);
-                string fullName = (contactpersonIsNull) ? null : organization.ContactPerson.FullName;
+                string firstName = (contactpersonIsNull) ? null : organization.ContactPerson.FirstName;
+                string lastName = (contactpersonIsNull) ? null : organization.ContactPerson.LastName;
                 string email = (contactpersonIsNull) ? null : organization.ContactPerson.Email;
                 string phoneNumber = (contactpersonIsNull) ? null : organization.ContactPerson.PhoneNumber;
 
                 // Update
                 var updatedOrganization = await _organizationServices.PatchOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
-                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, fullName, email, phoneNumber);
+                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber);
                 
                 var updatedOrganizationView = new Organization
                 {

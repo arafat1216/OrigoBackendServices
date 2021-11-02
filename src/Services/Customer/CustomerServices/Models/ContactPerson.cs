@@ -9,9 +9,16 @@ namespace CustomerServices.Models
     [Owned]
     public class ContactPerson : ValueObject
     {
-        public ContactPerson(string fullName, string email, string phoneNumber)
+        /// <summary>
+        /// Needed to avoid 'Not suitable constructor found' error.
+        /// </summary>
+        public ContactPerson() { }
+
+        public ContactPerson(string firstName, string lastName, string email, string phoneNumber)
         {
-            FullName = (fullName == null) ? "" : fullName;
+            firstName = (firstName == null) ? "" : firstName;
+            lastName = (lastName == null) ? "" : "," + lastName; // Add a ',' so we can extract firstname vs lastname later
+            FullName = firstName + lastName;
             Email = (email == null) ? "" : email;
             PhoneNumber = (phoneNumber == null) ? "" : phoneNumber;
         }
@@ -30,6 +37,19 @@ namespace CustomerServices.Models
                 Email = email;
             if (phoneNumber != null)
                 PhoneNumber = phoneNumber;
+        }
+
+        public string GetFirstName()
+        {
+            var nameList = FullName.Split(',');
+            return nameList[0];
+        }
+
+        public string GetLastName()
+        {
+            var nameList = FullName.Split(',');
+            var lName = (nameList.Length == 1) ? "" : nameList[1]; // "".Split() == 1, ",xxx".Split() == 2: 0 not possible.
+            return lName;
         }
 
         protected override IEnumerable<object> GetEqualityComponents()

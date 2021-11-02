@@ -50,7 +50,7 @@ namespace CustomerServices.UnitTests
             var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository);
 
             // Act
-            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "Mytos", null, null, null, null, null, null, null, null);
+            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "Mytos", null, null, null, null, null, null, null, null, null);
 
             // Assert 
             Assert.Equal("Mytos", organization.Name);
@@ -62,6 +62,8 @@ namespace CustomerServices.UnitTests
             Assert.Equal("", organization.Address.PostCode);
             Assert.Equal("", organization.Address.City);
             Assert.Equal("", organization.Address.Country);
+            Assert.Equal("", organization.ContactPerson.GetFirstName());
+            Assert.Equal("", organization.ContactPerson.GetLastName());
             Assert.Equal("", organization.ContactPerson.FullName);
             Assert.Equal("", organization.ContactPerson.Email);
             Assert.Equal("", organization.ContactPerson.PhoneNumber);
@@ -77,7 +79,7 @@ namespace CustomerServices.UnitTests
             var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository);
 
             // Act
-            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "fullName", null, null);
+            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null);
 
             // Assert 
             Assert.Equal("name", organization.Name);
@@ -89,7 +91,7 @@ namespace CustomerServices.UnitTests
             Assert.Equal("", organization.Address.PostCode);
             Assert.Equal("", organization.Address.City);
             Assert.Equal("", organization.Address.Country);
-            Assert.Equal("fullName", organization.ContactPerson.FullName);
+            Assert.Equal("FirstName", organization.ContactPerson.FullName);
             Assert.Equal("", organization.ContactPerson.Email);
             Assert.Equal("", organization.ContactPerson.PhoneNumber);
         }
@@ -104,7 +106,7 @@ namespace CustomerServices.UnitTests
             var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository);
 
             // Act
-            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, null, null, null, null, null, null, null, null, null);
+            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, null, null, null, null, null, null, null, null, null, null);
             
             // Assert 
             Assert.Equal("COMPANY ONE", organization.Name);
@@ -116,7 +118,9 @@ namespace CustomerServices.UnitTests
             Assert.Equal("1111", organization.Address.PostCode);
             Assert.Equal("My City", organization.Address.City);
             Assert.Equal("NO", organization.Address.Country);
-            Assert.Equal("JOHN DOE", organization.ContactPerson.FullName);
+            Assert.Equal("JOHN", organization.ContactPerson.GetFirstName());
+            Assert.Equal("DOE", organization.ContactPerson.GetLastName());
+            Assert.Equal("JOHN,DOE", organization.ContactPerson.FullName);
             Assert.Equal("john.doe@example.com", organization.ContactPerson.Email);
             Assert.Equal("99999999", organization.ContactPerson.PhoneNumber);
         }
@@ -131,7 +135,7 @@ namespace CustomerServices.UnitTests
             var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository);
 
             // Act
-            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "fullName", null, null);
+            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, null, "Paavola", null, null);
 
             // Assert 
             Assert.Equal("name", organization.Name);
@@ -143,7 +147,9 @@ namespace CustomerServices.UnitTests
             Assert.Equal("1111", organization.Address.PostCode);
             Assert.Equal("My City", organization.Address.City);
             Assert.Equal("NO", organization.Address.Country);
-            Assert.Equal("fullName", organization.ContactPerson.FullName);
+            Assert.Equal("JOHN", organization.ContactPerson.GetFirstName());
+            Assert.Equal("Paavola", organization.ContactPerson.GetLastName());
+            Assert.Equal("JOHN,Paavola", organization.ContactPerson.FullName);
             Assert.Equal("john.doe@example.com", organization.ContactPerson.Email);
             Assert.Equal("99999999", organization.ContactPerson.PhoneNumber);
         }
