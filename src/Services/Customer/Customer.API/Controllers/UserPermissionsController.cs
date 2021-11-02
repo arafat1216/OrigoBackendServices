@@ -76,7 +76,7 @@ namespace Customer.API.Controllers
                 var userPermissionAdded = new UserPermissions(new ReadOnlyCollection<string>(permissionNames), new ReadOnlyCollection<Guid>(userPermission.AccessList), userPermission.Role.Name);
                 return Ok(userPermissionAdded);
             }
-            catch (UserNameDoNotExistException userEx)
+            catch (UserNameDoesNotExistException userEx)
             {
                 _logger.LogError("{0}", userEx);
                 return NotFound($"User with user name: {userName}. Not found.");
@@ -106,7 +106,7 @@ namespace Customer.API.Controllers
                 var userPermissionAdded = new UserPermissions(new ReadOnlyCollection<string>(permissionNames), new ReadOnlyCollection<Guid>(userPermission.AccessList), userPermission.Role.Name);
                 return Ok(userPermissionAdded);
             }
-            catch (UserNameDoNotExistException userEx)
+            catch (UserNameDoesNotExistException userEx)
             {
                 _logger.LogError("{0}", userEx);
                 return NotFound($"User with user name: {userName}. Not found.");
