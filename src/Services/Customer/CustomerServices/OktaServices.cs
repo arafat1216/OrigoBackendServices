@@ -35,6 +35,9 @@ namespace CustomerServices
         /// <returns></returns>
         public async Task<string> AddOktaUser(Guid? mytosSubsGuid, string firstName, string lastName, string email, string mobilePhone, bool activate, string countryCode = "+47")
         {
+            // Group to add user to ( and by extension - assign to OrigoV2 app)
+            string[] groupIds = new string[] { _oktaOptions.OktaGroupId};
+
             if (null == mytosSubsGuid)
                 throw new OktaException("New Okta users needs to have a valid SubsId", HttpStatusCode.BadRequest);
 
@@ -58,7 +61,8 @@ namespace CustomerServices
                     email,
                     login,
                     mobilePhone = EnforcePhoneNumberCountryCode(mobilePhone, countryCode),
-                }
+                },
+                groupIds
             };
 
             using (var client = new HttpClient())
