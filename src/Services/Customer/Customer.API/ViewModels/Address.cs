@@ -4,10 +4,10 @@
     {
         public Address(CustomerServices.Models.Address customerCompanyAddress)
         {
-            Street = customerCompanyAddress.Street;
-            PostCode = customerCompanyAddress.PostCode;
-            City = customerCompanyAddress.City;
-            Country = customerCompanyAddress.Country;
+            Street = (customerCompanyAddress == null) ? "" : customerCompanyAddress.Street;
+            PostCode = (customerCompanyAddress == null) ? "" : customerCompanyAddress.PostCode;
+            City = (customerCompanyAddress == null) ? "" : customerCompanyAddress.City;
+            Country = (customerCompanyAddress == null) ? "" : customerCompanyAddress.Country;
         }
 
         public Address(){}

@@ -4,9 +4,9 @@
     {
         public ContactPerson(CustomerServices.Models.ContactPerson customerContactPerson)
         {
-            FullName = customerContactPerson.FullName;
-            Email = customerContactPerson.Email;
-            PhoneNumber = customerContactPerson.PhoneNumber;
+            FullName = (customerContactPerson == null) ? "" : customerContactPerson.FullName;
+            Email = (customerContactPerson == null) ? "" : customerContactPerson.Email;
+            PhoneNumber = (customerContactPerson == null) ? "" : customerContactPerson.PhoneNumber;
         }
 
         public ContactPerson(){}

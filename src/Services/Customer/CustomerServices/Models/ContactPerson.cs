@@ -11,9 +11,9 @@ namespace CustomerServices.Models
     {
         public ContactPerson(string fullName, string email, string phoneNumber)
         {
-            FullName = fullName;
-            Email = email;
-            PhoneNumber = phoneNumber;
+            FullName = (fullName == null) ? "" : fullName;
+            Email = (email == null) ? "" : email;
+            PhoneNumber = (phoneNumber == null) ? "" : phoneNumber;
         }
 
         public string FullName { get; private set; }
@@ -21,6 +21,16 @@ namespace CustomerServices.Models
         public string Email { get; private set; }
 
         public string PhoneNumber { get; private set; }
+
+        public void PatchContactPerson(string fullName, string email, string phoneNumber)
+        {
+            if (fullName != null)
+                FullName = fullName;
+            if (email != null)
+                Email = email;
+            if (phoneNumber != null)
+                PhoneNumber = phoneNumber;
+        }
 
         protected override IEnumerable<object> GetEqualityComponents()
         {

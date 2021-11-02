@@ -19,10 +19,22 @@ namespace CustomerServices.Models
 
         public Address(string street, string postCode, string city, string country)
         {
-            Street = street;
-            PostCode = postCode;
-            City = city;
-            Country = country;
+            Street = (street == null) ? "" : street;
+            PostCode = (postCode == null) ? "" : postCode;
+            City = (city == null) ? "" : city;
+            Country = (country == null) ? "" : country;
+        }
+
+        public void PatchAddress(string street, string postCode, string city, string country)
+        {
+            if (street != null)
+                Street = street;
+            if (postCode != null)
+                PostCode = postCode;
+            if (city != null)
+                City = city;
+            if (country != null)
+                Country = country;
         }
 
         protected override IEnumerable<object> GetEqualityComponents()

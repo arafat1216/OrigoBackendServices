@@ -105,18 +105,200 @@ namespace CustomerServices
             return await _customerRepository.AddAsync(newOrganization);
         }
 
+        public async Task<Organization> PutOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
+                                                               string street, string postCode, string city, string country,
+                                                               string fullName, string email, string phoneNumber)
+        {
+            try
+            {
+                // Check id
+                var organizationOriginal = await GetOrganizationAsync(organizationId, true, true);
+                if (organizationOriginal == null)
+                    throw new CustomerNotFoundException("Organization with the given id was not found.");
+
+                // Check parent
+                if (!await ParentOrganizationIsValid(parentId, organizationId))
+                    throw new ParentNotValidException("Invalid organization id on parent.");
+
+                // string fields
+                if (name == null || name == string.Empty)
+                    throw new RequiredFieldIsEmptyException("The name field is required and cannot be one of: (null || string.Empty). Null is allowed for patch queries.");
+                organizationNumber = (organizationNumber == null) ? "" : organizationNumber;
+
+                // PrimaryLocation
+                Location newLocation;
+                if (primaryLocation == null || primaryLocation == Guid.Empty)
+                    newLocation = new Location(Guid.Empty, callerId, "", "", "", "", "", "", "");
+                else
+                {
+                    newLocation = await GetLocationAsync((Guid)primaryLocation);
+                    if (newLocation == null)
+                        throw new LocationNotFoundException();
+                }
+
+                // Address
+                Address newAddress;
+                street = (street == null) ? "" : street;
+                postCode = (postCode == null) ? "" : postCode;
+                city = (city == null) ? "" : city;
+                country = (country == null) ? "" : country;
+
+                newAddress = new Address(street, postCode, city, country);
+
+                // Contact Person
+                ContactPerson newContactPerson;
+                fullName = (fullName == null) ? "" : fullName;
+                email = (email == null) ? "" : email;
+                phoneNumber = (phoneNumber == null) ? "" : phoneNumber;
+
+                newContactPerson = new ContactPerson(fullName, email, phoneNumber);
+
+                // Do update
+                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation);
+
+                organizationOriginal.UpdateOrganization(newOrganization);
+
+                await _customerRepository.SaveEntitiesAsync();
+
+                return organizationOriginal;
+            }
+            catch (CustomerNotFoundException ex)
+            {
+                _logger.LogError("OrganizationServices - PutOrganizationAsync: No result on given OrganizationId: " + ex.Message);
+                throw;
+            }
+            catch (ParentNotValidException ex)
+            {
+                _logger.LogError("OrganizationServices - PutOrganizationAsync: Given parentId (not null || empty) led to organization that A: does not exist, B: has itself a parent." +
+                    "\n : " + ex.Message);
+                throw;
+            }
+            catch (RequiredFieldIsEmptyException ex)
+            {
+                _logger.LogError("OrganizationServices - PutOrganizationAsync: The name field is required and cannot be one of: (null || string.Empty). Null is allowed for patch queries." +
+                   "\n : " + ex.Message);
+                throw;
+            }
+            catch (LocationNotFoundException ex)
+            {
+                _logger.LogError("OrganizationServices - PutOrganizationAsync: No result on Given locationId (not null || empty): " + ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("OrganizationServices - PutOrganizationAsync: failed to update: " + ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<Organization> PatchOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber, 
+                                                               string street, string postCode, string city, string country,
+                                                               string fullName, string email, string phoneNumber)
+        {
+            try
+            {
+                // Check id
+                var organizationOriginal = await GetOrganizationAsync(organizationId, true, true);
+                if (organizationOriginal == null)
+                    throw new CustomerNotFoundException("Organization with the given id was not found.");
+
+                // Check parent
+                if (parentId == null)
+                    parentId = organizationOriginal.ParentId;
+                else
+                {
+                    // Check parent
+                    if (!await ParentOrganizationIsValid(parentId, organizationId))
+                        throw new ParentNotValidException("Invalid organization id on parent.");
+                }
+
+                // String fields
+                if (name == string.Empty)
+                    throw new RequiredFieldIsEmptyException("The name field is required and should never be empty (null is allowed for patch).");
+                name = (name == null) ? organizationOriginal.Name : name;
+                organizationNumber = (organizationNumber == null) ? organizationOriginal.OrganizationNumber : organizationNumber;
+
+                // PrimaryLocation
+                Location newLocation;
+                if (primaryLocation == null)
+                    newLocation = (organizationOriginal.Location == null) ? new Location(Guid.Empty, callerId, "", "", "", "", "", "", "") : organizationOriginal.Location;
+                else if (primaryLocation == Guid.Empty)
+                    newLocation = new Location(Guid.Empty, callerId, "", "", "", "", "", "", "");
+                else
+                {
+                    newLocation = await GetLocationAsync((Guid)primaryLocation);
+                    if (newLocation == null)
+                        throw new LocationNotFoundException();
+                }
+
+                // Address
+                Address newAddress;
+                street = (street == null) ? organizationOriginal.Address.Street : street;
+                postCode = (postCode == null) ? organizationOriginal.Address.PostCode : postCode;
+                city = (city == null) ? organizationOriginal.Address.City : city;
+                country = (country == null) ? organizationOriginal.Address.Country : country;
+
+                newAddress = new Address(street, postCode, city, country);
+
+                // ContactPerson
+                ContactPerson newContactPerson;
+                fullName = (fullName == null) ? organizationOriginal.ContactPerson.FullName : fullName;
+                email = (email == null) ? organizationOriginal.ContactPerson.Email : email;
+                phoneNumber = (phoneNumber == null) ? organizationOriginal.ContactPerson.PhoneNumber : phoneNumber;
+
+                newContactPerson = new ContactPerson(fullName, email, phoneNumber);
+
+                // Do update
+                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation);
+
+                organizationOriginal.PatchOrganization(newOrganization);
+
+                await _customerRepository.SaveEntitiesAsync();
+
+                return organizationOriginal;
+            }
+            catch (CustomerNotFoundException ex)
+            {
+                _logger.LogError("OrganizationServices - PatchOrganizationAsync: No result on given OrganizationId: " + ex.Message);
+                throw;
+            }
+            catch (ParentNotValidException ex)
+            {
+                _logger.LogError("OrganizationServices - PatchOrganizationAsync: Given parentId (not null || empty) led to organization that A: does not exist, B: has itself a parent." +
+                    "\n : " + ex.Message);
+                throw;
+            }
+            catch (RequiredFieldIsEmptyException ex)
+            {
+                _logger.LogError("OrganizationServices - PatchOrganizationAsync: The name field is required and cannot be string.Empty. Null is allowed for patch queries." +
+                   "\n : " + ex.Message);
+                throw;
+            }
+            catch(LocationNotFoundException ex)
+            {
+                _logger.LogError("OrganizationServices - PatchOrganizationAsync: No result on Given locationId (not null || empty): " + ex.Message);
+                throw;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError("OrganizationServices - PatchOrganizationAsync: Failed to update: " + ex.Message);
+                throw;
+            }
+        }
+
         public async Task<Organization> UpdateOrganizationAsync(Organization updateOrganization, bool usingPatch = false)
         {
             try
             {
                 var organization = await _customerRepository.GetOrganizationAsync(updateOrganization.OrganizationId);
                 if (usingPatch)
-                    organization.PatchOrganization(updateOrganization.ParentId, updateOrganization.PrimaryLocation,
-                                                 updateOrganization.Name, updateOrganization.OrganizationNumber);
+                {
+                    organization.PatchOrganization(updateOrganization);
+                }
                 else
-                    organization.UpdateOrganization(updateOrganization.ParentId, updateOrganization.PrimaryLocation,
-                                                    updateOrganization.Name, updateOrganization.OrganizationNumber);
-
+                {
+                    organization.UpdateOrganization(updateOrganization);
+                }
 
                 await _customerRepository.SaveEntitiesAsync();
 
@@ -146,11 +328,7 @@ namespace CustomerServices
                     await DeleteOrganizationLocationAsync((Guid)organization.PrimaryLocation, callerId, hardDelete);
                 }
 
-
-
                 await DeleteOrganizationPreferencesAsync(organizationId, callerId, hardDelete);
-
-
 
                 // set IsDelete, caller and date of change
                 organization.Delete(callerId);
@@ -482,6 +660,24 @@ namespace CustomerServices
                 _logger.LogError("DecryptDataForCustomer failed with unknown error: " + ex.Message);
                 throw;
             }
+        }
+
+        public async Task<bool> ParentOrganizationIsValid(Guid? parentId, Guid organizationId)
+        {
+           if (parentId != null && parentId != Guid.Empty)
+            {
+                var parentOrganization = await GetOrganizationAsync((Guid)parentId, false, false);
+                if (parentOrganization == null)
+                    return false; // not found
+
+                if (parentOrganization.ParentId != null && parentOrganization.ParentId != Guid.Empty)
+                    return false; // invalid hierarchy depth
+
+                var childList = await GetOrganizationsByParentId(organizationId);
+                if (childList.Count > 0)
+                    return false;
+            }
+            return true;
         }
     }
 }
