@@ -80,11 +80,7 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var addedRole = await _userPermissionServices.AddUserPermissionsForUserAsync(userName, userPermissions);
-                if (addedRole != null)
-                {
-                    return CreatedAtAction(nameof(AddUserPermission), addedRole);
-                }
-                return NotFound();
+                return CreatedAtAction(nameof(AddUserPermission), addedRole);
             }
             catch (BadHttpRequestException ex)
             {
