@@ -181,7 +181,8 @@ namespace Customer.API.Controllers
                 var organizationAddress = new CustomerServices.Models.Address(organization.Address?.Street, organization.Address?.PostCode,
                                                                               organization.Address?.City, organization.Address?.Country);
 
-                var newOrganization = new CustomerServices.Models.Organization(Guid.NewGuid(), organization.CallerId, organization.ParentId,
+                Guid? parentId = (organization.ParentId == Guid.Empty) ? null : organization.ParentId; 
+                var newOrganization = new CustomerServices.Models.Organization(Guid.NewGuid(), organization.CallerId, parentId,
                                                                                organization.Name, organization.OrganizationNumber,
                                                                                organizationAddress, organizationContactPerson,
                                                                                null, organizationLocation);
