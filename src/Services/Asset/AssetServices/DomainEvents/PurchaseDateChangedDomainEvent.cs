@@ -12,7 +12,7 @@ namespace AssetServices.DomainEvents
         public Asset Asset { get; protected set; }
         public DateTime PreviousPurchaseDate { get; protected set; }
 
-        public PurchaseDateChangedDomainEvent(Asset asset, DateTime previousPurchaseDate) : base(asset.AssetId)
+        public PurchaseDateChangedDomainEvent(Asset asset, DateTime previousPurchaseDate) : base(asset.ExternalId)
         {
             Asset = asset;
             PreviousPurchaseDate = previousPurchaseDate;

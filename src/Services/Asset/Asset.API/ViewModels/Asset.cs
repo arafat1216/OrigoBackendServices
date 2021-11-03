@@ -14,13 +14,13 @@ namespace Asset.API.ViewModels
 
         public Asset(AssetServices.Models.Asset asset)
         {
-            AssetId = asset.AssetId;
+            AssetId = asset.ExternalId;
             OrganizationId = asset.CustomerId;
             AssetCategoryId = asset.AssetCategoryId;
             SerialNumber = asset.SerialNumber;
             AssetCategoryName = asset.AssetCategory.Name;
             Brand = asset.Brand;
-            Model = asset.Model;
+            Model = asset.ProductName;
             LifecycleType = asset.LifecycleType;
             PurchaseDate = asset.PurchaseDate;
             CreatedDate = asset.CreatedDate;

@@ -12,7 +12,7 @@ namespace AssetServices.DomainEvents
         public Asset Asset { get; protected set; }
         public LifecycleType PreviousLifecycleType { get; protected set; }
 
-        public SetLifeCycleTypeDomainEvent(Asset asset, LifecycleType previousLifecycleType) : base(asset.AssetId)
+        public SetLifeCycleTypeDomainEvent(Asset asset, LifecycleType previousLifecycleType) : base(asset.ExternalId)
         {
             Asset = asset;
             PreviousLifecycleType = previousLifecycleType;

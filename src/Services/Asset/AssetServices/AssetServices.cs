@@ -153,9 +153,9 @@ namespace AssetServices
             {
                 asset.UpdateBrand(brand);
             }
-            if (!string.IsNullOrWhiteSpace(model) && asset.Model != model)
+            if (!string.IsNullOrWhiteSpace(model) && asset.ProductName != model)
             {
-                asset.UpdateModel(model);
+                asset.UpdateProductName(model);
             }
             if (purchaseDate != default && asset.PurchaseDate != purchaseDate)
             {

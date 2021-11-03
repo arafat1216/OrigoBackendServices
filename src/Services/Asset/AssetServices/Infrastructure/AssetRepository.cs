@@ -31,21 +31,22 @@ namespace AssetServices.Infrastructure
             _assetContext.Assets.Add(asset);
             await SaveEntitiesAsync();
             return await _assetContext.Assets.Include(a => a.AssetCategory)
-                .FirstOrDefaultAsync(a => a.AssetId == asset.AssetId);
+                .FirstOrDefaultAsync(a => a.ExternalId == asset.ExternalId);
         }
 
-        public async Task<PagedModel<Asset>> GetAssetsAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
+        public async Task<PagedModel<MobilePhone>> GetAssetsAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(search))
             {
-                return await _assetContext.Assets
-                    .Include(a => a.AssetCategory)
+                var assets = await _assetContext.MobilePhones
                     .Where(a => a.CustomerId == customerId)
                     .PaginateAsync(page, limit, cancellationToken);
+
+                return assets;
             }
             else
             {
-                return await _assetContext.Assets
+                return await _assetContext.MobilePhones
                     .Include(a => a.AssetCategory)
                     .Where(a => a.CustomerId == customerId && a.Brand.Contains(search))
                     .PaginateAsync(page, limit, cancellationToken);
@@ -61,7 +62,7 @@ namespace AssetServices.Infrastructure
         public async Task<Asset> GetAssetAsync(Guid customerId, Guid assetId)
         {
             return await _assetContext.Assets.Include(a => a.AssetCategory)
-                .Where(a => a.CustomerId == customerId && a.AssetId == assetId).FirstOrDefaultAsync();
+                .Where(a => a.CustomerId == customerId && a.ExternalId == assetId).FirstOrDefaultAsync();
         }
 
         public async Task<AssetCategory> GetAssetCategoryAsync(Guid assetAssetCategoryId)

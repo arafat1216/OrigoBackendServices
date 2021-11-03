@@ -23,19 +23,17 @@ namespace AssetServices.Models
 
         public Asset(Guid assetId, Guid customerId, string serialNumber, AssetCategory assetCategory, string brand, string model,
             LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
-            bool isActive, string imei, string macAddress, AssetStatus status,string note, Guid? managedByDepartmentId = null)
+            string imei, string macAddress, AssetStatus status, string note, Guid? managedByDepartmentId = null)
         {
-            AssetId = assetId;
+            ExternalId = assetId;
             CustomerId = customerId;
-            SerialNumber = serialNumber ?? string.Empty;
             AssetCategoryId = assetCategory.Id;
             AssetCategory = assetCategory;
             Brand = brand;
-            Model = model;
+            ProductName = model;
             LifecycleType = lifecycleType;
             PurchaseDate = purchaseDate;
             AssetHolderId = assetHolderId;
-            IsActive = isActive;
             ManagedByDepartmentId = managedByDepartmentId;
             Imei = imei ?? string.Empty;
             MacAddress = macAddress ?? string.Empty;
@@ -49,7 +47,7 @@ namespace AssetServices.Models
         /// <summary>
         /// External Id of the Asset
         /// </summary>
-        public Guid AssetId { get; protected set; }
+        public Guid ExternalId { get; protected set; }
 
         /// <summary>
         /// Asset is linked to this customer 
@@ -61,13 +59,6 @@ namespace AssetServices.Models
         /// A note containing additional information or comments for the asset.
         /// </summary>
         public string Note { get; protected set; }
-
-        /// <summary>
-        /// The unique serial number for the asset. For mobile phones and other devices
-        /// where an IMEI number also exists, the IMEI will be used here.
-        /// </summary>
-        [Required]
-        public string SerialNumber { get; protected set; }
 
         /// <summary>
         /// The category this asset belongs to.
@@ -92,72 +83,12 @@ namespace AssetServices.Models
         /// </summary>
         [Required]
         [StringLength(50, ErrorMessage = "Model max length is 50")]
-        public string Model { get; protected set; }
-
-        /// <summary>
-        /// Set the imei for the asset.
-        /// Erases existing imeis on asset.
-        /// 
-        /// Imei is a comma separated string, and can hold multiple imei values
-        /// </summary>
-        /// <param name="imei"></param>
-        public void SetImei(string imei)
-        {
-            foreach (string e in imei.Split(','))
-            {
-                if (!AssetValidatorUtility.ValidateImei(e))
-                {
-                    throw new InvalidAssetDataException($"Invalid imei: {e}");
-                }
-            }
-            Imei = imei;
-        }
-
-        /// <summary>
-        /// Appends an Imei for the device.
-        /// Imei is a comma separated string, and can hold multiple imei values
-        /// </summary>
-        /// <param name="imei"></param>
-        public void AddImei(string imei)
-        {
-            foreach (string e in imei.Split(','))
-            {
-                if (!AssetValidatorUtility.ValidateImei(e))
-                {
-                    throw new InvalidAssetDataException($"Invalid imei: {e}");
-                }
-            }
-
-            if (Imei == "")
-            {
-                Imei += imei;
-            }
-            else
-            {
-                Imei += "," + imei;
-            }
-        }
-
-        /// <summary>
-        /// Sets the macaddress of the asset
-        /// </summary>
-        /// <param name="macAddress"></param>
-        public void SetMacAddress(string macAddress)
-        {
-            MacAddress = macAddress;
-        }
+        public string ProductName { get; protected set; }
 
         /// <summary>
         /// The type of lifecycle for this asset.
         /// </summary>
         public LifecycleType LifecycleType { get; protected set; }
-
-        public void SetLifeCycleType(LifecycleType newLifecycleType)
-        {
-            var previousLifecycleType = LifecycleType;
-            AddDomainEvent(new SetLifeCycleTypeDomainEvent(this, previousLifecycleType));
-            LifecycleType = newLifecycleType;
-        }
 
         [Required]
         public DateTime PurchaseDate { get; protected set; }
@@ -171,11 +102,6 @@ namespace AssetServices.Models
         /// The employee holding the asset.
         /// </summary>
         public Guid? AssetHolderId { get; protected set; }
-
-        /// <summary>
-        /// Is this asset activated
-        /// </summary>
-        public bool IsActive { get; protected set; }
 
         /// <summary>
         /// The status of the asset.
@@ -199,7 +125,7 @@ namespace AssetServices.Models
         /// Defines whether the asset made has the necessary properties set, as defined by ValidateAsset.
         /// </summary>
         [NotMapped]
-        public bool AssetPropertiesAreValid { get; protected set; }
+        public bool AssetPropertiesAreValid { get { return ValidateAsset(); } }
 
         /// <summary>
         /// List of error messages set when ValidateAsset runs
@@ -207,9 +133,20 @@ namespace AssetServices.Models
         [NotMapped]
         public List<string> ErrorMsgList { get; protected set; }
 
-        public void SetActiveStatus(bool isActive)
+        public void SetLifeCycleType(LifecycleType newLifecycleType)
         {
-            IsActive = isActive;
+            var previousLifecycleType = LifecycleType;
+            AddDomainEvent(new SetLifeCycleTypeDomainEvent(this, previousLifecycleType));
+            LifecycleType = newLifecycleType;
+        }
+
+        /// <summary>
+        /// Sets the macaddress of the asset
+        /// </summary>
+        /// <param name="macAddress"></param>
+        public void SetMacAddress(string macAddress)
+        {
+            MacAddress = macAddress;
         }
 
         public void UpdateAssetStatus(AssetStatus status)
@@ -228,16 +165,9 @@ namespace AssetServices.Models
 
         public void UpdateModel(string model)
         {
-            var previousModel = Model;
-            Model = model;
+            var previousModel = ProductName;
+            ProductName = model;
             AddDomainEvent(new ModelChangedDomainEvent(this, previousModel));
-        }
-
-        public void ChangeSerialNumber(string serialNumber)
-        {
-            var previousSerialNumber = SerialNumber;
-            SerialNumber = serialNumber;
-            AddDomainEvent(new SerialNumberChangedDomainEvent(this, previousSerialNumber));
         }
 
         public void ChangePurchaseDate(DateTime purchaseDate)
@@ -290,7 +220,7 @@ namespace AssetServices.Models
                 validAsset = false;
             }
 
-            if (string.IsNullOrEmpty(Model))
+            if (string.IsNullOrEmpty(ProductName))
             {
                 ErrorMsgList.Add("Model - Cannot be null or empty");
                 validAsset = false;
@@ -300,19 +230,6 @@ namespace AssetServices.Models
             {
                 ErrorMsgList.Add("PurchaseDate - Cannot be DateTime.MinValue");
                 validAsset = false;
-            }
-
-            // Mobile Phones
-            if (AssetCategory.Name == "Mobile phones")
-            {
-                foreach (string e in Imei.Split(","))
-                {
-                    if (!AssetValidatorUtility.ValidateImei(e))
-                    {
-                        ErrorMsgList.Add("Imei : " + e);
-                        validAsset = false;
-                    }
-                }
             }
 
             return validAsset;

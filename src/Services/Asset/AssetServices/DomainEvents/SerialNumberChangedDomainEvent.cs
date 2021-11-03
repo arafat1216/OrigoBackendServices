@@ -11,7 +11,7 @@ namespace AssetServices.DomainEvents
         public Asset Asset { get; protected set; }
         public string PreviousSerialNumber { get; protected set; }
 
-        public SerialNumberChangedDomainEvent(Asset asset, string previousSerialNumber) : base(asset.AssetId)
+        public SerialNumberChangedDomainEvent(Asset asset, string previousSerialNumber) : base(asset.ExternalId)
         {
             Asset = asset;
             PreviousSerialNumber = previousSerialNumber;

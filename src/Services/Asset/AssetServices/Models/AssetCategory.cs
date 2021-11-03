@@ -14,8 +14,6 @@ namespace AssetServices.Models
         public AssetCategory(Guid assetCategoryId, string name, bool usesImei)
         {
             AssetCategoryId = assetCategoryId;
-            Name = name;
-            UsesImei = usesImei;
         }
 
         /// <summary>
@@ -23,11 +21,9 @@ namespace AssetServices.Models
         /// </summary>
         public Guid AssetCategoryId { get; protected set; }
 
-        public string Name { get; protected set; }
-
-        public bool UsesImei { get; protected set; }
-
         public AssetCategory ParentAssetCategory { get; protected set; }
+
+        public IList<AssetCategoryTranslation> Translations { get; set; }
 
         /// <summary>
         /// Returns a list of all subdepartments of this department
