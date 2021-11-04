@@ -237,8 +237,8 @@ namespace CustomerServices
 
                 // ContactPerson
                 ContactPerson newContactPerson;
-                firstName = (firstName == null) ? organizationOriginal.ContactPerson.GetFirstName() : firstName;
-                lastName = (lastName == null) ? organizationOriginal.ContactPerson.GetLastName() : lastName;
+                firstName = (firstName == null) ? organizationOriginal.ContactPerson.FirstName : firstName;
+                lastName = (lastName == null) ? organizationOriginal.ContactPerson.LastName : lastName;
                 email = (email == null) ? organizationOriginal.ContactPerson.Email : email;
                 phoneNumber = (phoneNumber == null) ? organizationOriginal.ContactPerson.PhoneNumber : phoneNumber;
 
