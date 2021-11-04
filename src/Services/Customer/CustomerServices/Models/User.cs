@@ -21,6 +21,8 @@ namespace CustomerServices.Models
             Email = email;
             MobileNumber = mobileNumber;
             EmployeeId = employeeId;
+            IsActive = false;
+            OktaUserId = "";
             AddDomainEvent(new UserCreatedDomainEvent(this));
         }
 
@@ -32,8 +34,23 @@ namespace CustomerServices.Models
         public string Email { get; protected set; }
         public string MobileNumber { get; protected set; }
         public string EmployeeId { get; protected set; }
+        public bool IsActive { get; protected set; }
+        public string OktaUserId { get; protected set; }
+
         [JsonIgnore]
         public Organization Customer { get; set; }
+
+        public void ActivateUser(string oktaUserId)
+        {
+            OktaUserId = oktaUserId;
+            IsActive = true;
+        }
+
+        public void DeactivateUser()
+        {
+            IsActive = false;
+        }
+
         public IReadOnlyCollection<Department> Departments { get => new ReadOnlyCollection<Department>(_departments);
             protected set => _departments = new List<Department>(value);
         }

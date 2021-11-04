@@ -66,19 +66,46 @@ namespace Customer.API.Controllers
             {
                 var updatedUser = await _userServices.AddUserForCustomerAsync(customerId, newUser.FirstName,
                     newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId);
-                var updatedUserView = new User(updatedUser);
-
-                await _oktaServices.AddOktaUser(updatedUser.UserId, updatedUser.FirstName, updatedUser.LastName, updatedUser.Email, updatedUser.MobileNumber, true);
                 
+                var oktaUserId = await _oktaServices.AddOktaUser(updatedUser.UserId, updatedUser.FirstName, updatedUser.LastName, updatedUser.Email, updatedUser.MobileNumber, true);
+                updatedUser = await _userServices.AssignOktaUserId(updatedUser.Customer.OrganizationId, updatedUser.UserId, oktaUserId);
+
+                var updatedUserView = new User(updatedUser);
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUserView.Id }, updatedUserView);
             }
             catch (CustomerNotFoundException)
             {
                 return BadRequest("Customer not found");
             }
+            catch (UserNotFoundException ex)
+            {
+                // This will happen if the user somehow is not able to be located after creation, when we try to update its OktaUserId
+                return BadRequest(ex.Message);
+            }
             catch
             {
                 return BadRequest("Unable to save user");
+            }
+        }
+
+        [Route("{userId:Guid}/deactivate")]
+        [HttpPost]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> DeactivateUser(Guid customerId, Guid userId)
+        {
+            try
+            {
+                await _userServices.DeactivateUser(customerId, userId);
+                return Ok();
+            }
+            catch (UserNotFoundException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Unable to deactivate user");
             }
         }
 

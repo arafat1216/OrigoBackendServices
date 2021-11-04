@@ -41,6 +41,26 @@ namespace CustomerServices
             return await _customerRepository.AddUserAsync(newUser);
         }
 
+        public async Task<User> AssignOktaUserId(Guid customerId, Guid userId, string oktaUserId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            if (user == null)
+                throw new UserNotFoundException($"Unable to find {userId}");
+            user.ActivateUser(oktaUserId);
+            await _customerRepository.SaveEntitiesAsync();
+            return user;
+        }
+
+        public async Task<User> DeactivateUser(Guid customerId, Guid userId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            if (user == null)
+                throw new UserNotFoundException($"Unable to find {userId}");
+            user.DeactivateUser();
+            await _customerRepository.SaveEntitiesAsync();
+            return user;
+        }
+
         public async Task<User> AssignDepartment(Guid customerId, Guid userId, Guid departmentId)
         {
             var user = await GetUserAsync(customerId, userId);
