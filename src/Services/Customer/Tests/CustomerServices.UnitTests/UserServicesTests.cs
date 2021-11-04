@@ -77,7 +77,8 @@ namespace CustomerServices.UnitTests
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository);
 
             // Act
-            var user = await userServices.AssignOktaUserId(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
+            await userServices.AssignOktaUserId(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
+            var user = await userServices.GetUserAsync(CUSTOMER_ONE_ID, USER_ONE_ID);
 
             // Assert
             Assert.Equal("1234", user.OktaUserId);
@@ -94,8 +95,8 @@ namespace CustomerServices.UnitTests
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository);
 
             // Act
-            var user = await userServices.AssignOktaUserId(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
-            user = await userServices.DeactivateUser(CUSTOMER_ONE_ID, USER_ONE_ID);
+            await userServices.AssignOktaUserId(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
+            var user = await userServices.DeactivateUser(CUSTOMER_ONE_ID, USER_ONE_ID);
 
             // Assert
             Assert.Equal("1234", user.OktaUserId); // Should not be changed, as user can be reactivated later
