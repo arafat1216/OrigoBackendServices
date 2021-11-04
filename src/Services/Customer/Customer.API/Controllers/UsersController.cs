@@ -77,6 +77,10 @@ namespace Customer.API.Controllers
             {
                 return BadRequest("Customer not found");
             }
+            catch(OktaException ex)
+            {
+                return BadRequest("Okta failed to activate user.");
+            }
             catch (UserNotFoundException ex)
             {
                 // This will happen if the user somehow is not able to be located after creation, when we try to update its OktaUserId
@@ -90,14 +94,17 @@ namespace Customer.API.Controllers
 
         [Route("{userId:Guid}/deactivate")]
         [HttpPost]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult> DeactivateUser(Guid customerId, Guid userId)
         {
             try
             {
-                await _userServices.DeactivateUser(customerId, userId);
-                return Ok();
+                var user = await _userServices.DeactivateUser(customerId, userId);
+                if (user == null)
+                    return NotFound();
+                return Ok(new User(user));
             }
             catch (UserNotFoundException exception)
             {

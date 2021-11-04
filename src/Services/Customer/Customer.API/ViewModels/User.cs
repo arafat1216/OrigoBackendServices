@@ -13,6 +13,7 @@ namespace Customer.API.ViewModels
             EmployeeId = user.EmployeeId;
             MobileNumber = user.MobileNumber;
             OrganizationName = user.Customer != null ? user.Customer.Name : string.Empty;
+            IsActive = user.IsActive;
         }
 
         public Guid Id { get; set; }
@@ -22,5 +23,6 @@ namespace Customer.API.ViewModels
         public string MobileNumber { get; set; }
         public string EmployeeId { get; set; }
         public string OrganizationName { get; set; }
+        public bool IsActive { get; set; }
     }
 }

@@ -66,5 +66,40 @@ namespace CustomerServices.UnitTests
             var user = await context.Users.FirstOrDefaultAsync(u => u.UserId == USER_ONE_ID);
             Assert.Equal(1, user.ManagesDepartments.Count);
         }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void SetUserActive()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository);
+
+            // Act
+            var user = await userServices.AssignOktaUserId(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
+
+            // Assert
+            Assert.Equal("1234", user.OktaUserId);
+            Assert.True(user.IsActive);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void DeactivateUser()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository);
+
+            // Act
+            var user = await userServices.AssignOktaUserId(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
+            user = await userServices.DeactivateUser(CUSTOMER_ONE_ID, USER_ONE_ID);
+
+            // Assert
+            Assert.Equal("1234", user.OktaUserId); // Should not be changed, as user can be reactivated later
+            Assert.False(user.IsActive);
+        }
     }
 }

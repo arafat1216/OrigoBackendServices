@@ -101,15 +101,16 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task DeactivateUser(Guid customerId, Guid userId)
+        public async Task<OrigoUser> DeactivateUser(Guid customerId, Guid userId)
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users/deactivate", userId);
+                var response = await HttpClient.PostAsync($"{_options.ApiPath}/{customerId}/users/{userId}/deactivate", null);
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to deactivate user.", (int)response.StatusCode);
 
-                return;
+                var user = await response.Content.ReadFromJsonAsync<UserDTO>();
+                return user == null ? null : new OrigoUser(user);
             }
             catch (Exception ex)
             {
