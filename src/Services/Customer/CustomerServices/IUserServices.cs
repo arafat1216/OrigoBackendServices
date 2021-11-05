@@ -11,7 +11,7 @@ namespace CustomerServices
         Task<User> GetUserAsync(Guid customerId, Guid userId);
         Task<User> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
             string email, string mobileNumber, string employeeId);
-        Task<User> AssignOktaUserId(Guid customerId, Guid userId, string oktaUserId);
+        Task<User> AssignOktaUserIdAsync(Guid customerId, Guid userId, string oktaUserId);
         Task<User> DeactivateUser(Guid customerId, Guid userId);
         Task<User> AssignDepartment(Guid customerId, Guid userId, Guid departmentId);
         Task<User> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId);

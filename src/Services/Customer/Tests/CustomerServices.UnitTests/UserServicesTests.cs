@@ -23,7 +23,7 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>());
 
             // Act
             var user = await userServices.GetUserAsync(CUSTOMER_ONE_ID, USER_ONE_ID);
@@ -39,7 +39,7 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>());
 
             // Act
             const string EMAIL_TEST_TEST = "email@test.test";
@@ -57,7 +57,7 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>());
 
             // Act
             await userServices.AssignManagerToDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, DEPARTMENT_ONE_ID);
@@ -74,10 +74,10 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>());
 
             // Act
-            await userServices.AssignOktaUserId(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
+            await userServices.AssignOktaUserIdAsync(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
             var user = await userServices.GetUserAsync(CUSTOMER_ONE_ID, USER_ONE_ID);
 
             // Assert
@@ -92,10 +92,10 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>());
 
             // Act
-            await userServices.AssignOktaUserId(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
+            await userServices.AssignOktaUserIdAsync(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
             var user = await userServices.DeactivateUser(CUSTOMER_ONE_ID, USER_ONE_ID);
 
             // Assert

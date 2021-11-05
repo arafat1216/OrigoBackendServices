@@ -33,7 +33,7 @@ namespace CustomerServices
         /// <param name="activate"></param>
         /// <param name="countryCode"></param>
         /// <returns></returns>
-        public async Task<string> AddOktaUser(Guid? mytosSubsGuid, string firstName, string lastName, string email, string mobilePhone, bool activate, string countryCode = "+47")
+        public async Task<string> AddOktaUserAsync(Guid? mytosSubsGuid, string firstName, string lastName, string email, string mobilePhone, bool activate, string countryCode = "+47")
         {
             // Group to add user to ( and by extension - assign to OrigoV2 app)
             string[] groupIds = new string[] { _oktaOptions.OktaGroupId};

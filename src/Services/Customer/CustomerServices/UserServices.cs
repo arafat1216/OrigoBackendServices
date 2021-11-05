@@ -11,11 +11,13 @@ namespace CustomerServices
     {
         private readonly ILogger<UserServices> _logger;
         private readonly IOrganizationRepository _customerRepository;
+        private readonly IOktaServices _oktaServices;
 
-        public UserServices(ILogger<UserServices> logger, IOrganizationRepository customerRepository)
+        public UserServices(ILogger<UserServices> logger, IOrganizationRepository customerRepository, IOktaServices oktaServices)
         {
             _logger = logger;
             _customerRepository = customerRepository;
+            _oktaServices = oktaServices;
         }
 
         public Task<IList<User>> GetAllUsersAsync(Guid customerId)
@@ -38,10 +40,15 @@ namespace CustomerServices
 
             var newUser = new User(customer, Guid.NewGuid(), firstName, lastName, email, mobileNumber, employeeId);
 
-            return await _customerRepository.AddUserAsync(newUser);
+            newUser = await _customerRepository.AddUserAsync(newUser);
+
+            var oktaUserId = await _oktaServices.AddOktaUserAsync(newUser.UserId, newUser.FirstName, newUser.LastName, newUser.Email, newUser.MobileNumber, true);
+            newUser = await AssignOktaUserIdAsync(newUser.Customer.OrganizationId, newUser.UserId, oktaUserId);
+
+            return newUser;
         }
 
-        public async Task<User> AssignOktaUserId(Guid customerId, Guid userId, string oktaUserId)
+        public async Task<User> AssignOktaUserIdAsync(Guid customerId, Guid userId, string oktaUserId)
         {
             var user = await GetUserAsync(customerId, userId);
             if (user == null)

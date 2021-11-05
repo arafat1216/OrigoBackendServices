@@ -20,14 +20,12 @@ namespace Customer.API.Controllers
     {
 
         private readonly IUserServices _userServices;
-        private readonly IOktaServices _oktaServices;
         private readonly ILogger<UsersController> _logger;
 
-        public UsersController(ILogger<UsersController> logger, IUserServices userServices, IOktaServices oktaServices)
+        public UsersController(ILogger<UsersController> logger, IUserServices userServices)
         {
             _logger = logger;
             _userServices = userServices;
-            _oktaServices = oktaServices;
         }
 
         [HttpGet]
@@ -67,9 +65,6 @@ namespace Customer.API.Controllers
                 var updatedUser = await _userServices.AddUserForCustomerAsync(customerId, newUser.FirstName,
                     newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId);
                 
-                var oktaUserId = await _oktaServices.AddOktaUser(updatedUser.UserId, updatedUser.FirstName, updatedUser.LastName, updatedUser.Email, updatedUser.MobileNumber, true);
-                updatedUser = await _userServices.AssignOktaUserId(updatedUser.Customer.OrganizationId, updatedUser.UserId, oktaUserId);
-
                 var updatedUserView = new User(updatedUser);
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUserView.Id }, updatedUserView);
             }
@@ -82,11 +77,10 @@ namespace Customer.API.Controllers
                 return BadRequest("Okta failed to activate user.");
             }
             catch (UserNotFoundException ex)
-            {
-                // This will happen if the user somehow is not able to be located after creation, when we try to update its OktaUserId
+            {      
                 return BadRequest(ex.Message);
             }
-            catch
+            catch (Exception ex)
             {
                 return BadRequest("Unable to save user");
             }

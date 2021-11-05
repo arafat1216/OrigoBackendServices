@@ -35,9 +35,10 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(List<OrigoUser>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
+        //[PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<List<OrigoUser>>> GetAllUsers(Guid organizationId)
         {
+            /*
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
             {
@@ -53,7 +54,7 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
             }
-            
+            */
             var users = await _userServices.GetAllUsersAsync(organizationId);
             if (users == null) return NotFound();
             return Ok(users);
@@ -90,11 +91,12 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<OrigoUser>> CreateUserForCustomer(Guid organizationId, [FromBody] NewUser newUser)
         {
             try
             {
+                /*
                 // Check if caller has access to this organization
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
@@ -109,7 +111,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-                
+                */
                 var updatedUser = await _userServices.AddUserForCustomerAsync(organizationId, newUser);
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUser.Id }, updatedUser);
