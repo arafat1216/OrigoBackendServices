@@ -96,11 +96,28 @@ namespace CustomerServices.UnitTests
 
             // Act
             await userServices.AssignOktaUserIdAsync(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
-            var user = await userServices.DeactivateUser(CUSTOMER_ONE_ID, USER_ONE_ID);
+            var user = await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, false);
 
             // Assert
             Assert.Equal("1234", user.OktaUserId); // Should not be changed, as user can be reactivated later
             Assert.False(user.IsActive);
+        }
+
+        public async void ReactivateUser()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>());
+
+            // Act
+            await userServices.AssignOktaUserIdAsync(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
+            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, false);
+            var user = await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true);
+
+            // Assert
+            Assert.Equal("1234", user.OktaUserId); 
+            Assert.True(user.IsActive);
         }
     }
 }

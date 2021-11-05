@@ -58,12 +58,20 @@ namespace CustomerServices
             return user;
         }
 
-        public async Task<User> DeactivateUser(Guid customerId, Guid userId)
+        public async Task<User> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive)
         {
             var user = await GetUserAsync(customerId, userId);
             if (user == null)
                 throw new UserNotFoundException($"Unable to find {userId}");
-            user.DeactivateUser();
+
+            if (isActive)
+            {
+                // set active, but reuse the userId set on creation of user : (This may change in future)
+                user.ActivateUser(user.OktaUserId);
+            }
+            else
+                user.DeactivateUser();
+
             await _customerRepository.SaveEntitiesAsync();
             return user;
         }

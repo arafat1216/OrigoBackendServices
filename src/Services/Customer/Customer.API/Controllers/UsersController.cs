@@ -86,16 +86,16 @@ namespace Customer.API.Controllers
             }
         }
 
-        [Route("{userId:Guid}/deactivate")]
+        [Route("{userId:Guid}/setactivestatus/{isActive:bool}")]
         [HttpPost]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> DeactivateUser(Guid customerId, Guid userId)
+        public async Task<ActionResult> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive)
         {
             try
             {
-                var user = await _userServices.DeactivateUser(customerId, userId);
+                var user = await _userServices.SetUserActiveStatus(customerId, userId, isActive);
                 if (user == null)
                     return NotFound();
                 return Ok(new User(user));
