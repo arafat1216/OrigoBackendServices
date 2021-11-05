@@ -6,14 +6,16 @@ namespace OrigoApiGateway.Models
     {
         public ContactPerson(ContactPersonDTO customerContactPerson)
         {
-            FullName = customerContactPerson.FullName;
+            FirstName = customerContactPerson.FirstName;
+            LastName = customerContactPerson.LastName;
             Email = customerContactPerson.Email;
             PhoneNumber = customerContactPerson.PhoneNumber;
         }
 
         public ContactPerson(){}
 
-        public string FullName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
 
         public string Email { get; set; }
 
