@@ -64,13 +64,37 @@ namespace CustomerServices
             if (user == null)
                 throw new UserNotFoundException($"Unable to find {userId}");
 
-            if (isActive)
+            // Do not call if there is no change
+            if (isActive == user.IsActive)
+                return user;
+
+            bool userExistsInOkta = await _oktaServices.UserExistsInOkta(user.OktaUserId);
+            if (userExistsInOkta)
             {
-                // set active, but reuse the userId set on creation of user : (This may change in future)
-                user.ActivateUser(user.OktaUserId);
+                if (isActive)
+                {
+                    // set active, but reuse the userId set on creation of user : (This may change in future)
+                    await _oktaServices.AddUserToGroup(user.OktaUserId);
+                    user.ActivateUser(user.OktaUserId);
+                }
+                else
+                {
+                    await _oktaServices.RemoveUserFromGroup(user.OktaUserId);
+                    user.DeactivateUser();
+                }
             }
             else
-                user.DeactivateUser();
+            {
+                if (isActive)
+                {
+                    var oktaUserId = await _oktaServices.AddOktaUserAsync(user.UserId, user.FirstName, user.LastName, user.Email, user.MobileNumber, true);
+                    user = await AssignOktaUserIdAsync(user.Customer.OrganizationId, user.UserId, oktaUserId);
+                }
+                else
+                {
+                    user.DeactivateUser();
+                }
+            }
 
             await _customerRepository.SaveEntitiesAsync();
             return user;

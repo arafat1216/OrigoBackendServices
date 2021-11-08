@@ -105,7 +105,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await HttpClient.PostAsync($"{_options.ApiPath}/{customerId}/users/{userId}/setactivestatus/{isActive}", null);
+                var response = await HttpClient.PostAsync($"{_options.ApiPath}/{customerId}/users/{userId}/activate/{isActive}", null);
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to change active status on user.", (int)response.StatusCode);
 

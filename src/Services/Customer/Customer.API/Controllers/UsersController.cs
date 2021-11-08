@@ -86,7 +86,7 @@ namespace Customer.API.Controllers
             }
         }
 
-        [Route("{userId:Guid}/setactivestatus/{isActive:bool}")]
+        [Route("{userId:Guid}/activate/{isActive:bool}")]
         [HttpPost]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

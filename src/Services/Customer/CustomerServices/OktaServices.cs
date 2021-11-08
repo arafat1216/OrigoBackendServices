@@ -84,12 +84,139 @@ namespace CustomerServices
             }
         }
 
-        /// <summary>
-        /// Enforces the +47 country code on all phone-numbers. If the alternative number 0047 is used, it is replaced.
-        /// </summary>
-        /// <param name="phoneNumber">The number we want to enforce</param>
-        /// <returns>The phone-number with the enforced country code</returns>
-        private string EnforcePhoneNumberCountryCode(string phoneNumber, string countryCode)
+        public async Task RemoveUserFromGroup(string userOktaId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+                string url = _oktaOptions.OktaUrl + "groups/" + _oktaOptions.OktaGroupId + "/users/" + userOktaId;
+                var resMsg = await client.DeleteAsync(url);
+                string msg = await resMsg.Content.ReadAsStringAsync();
+                if (resMsg.IsSuccessStatusCode)
+                {
+                    // if user has no other apps, erase the user
+                    bool eraseUser = !await UserHasAppLinks(userOktaId);
+                    if (eraseUser)
+                    {
+                        await DeactivateUserInOkta(userOktaId);
+                        await DeleteUserInOkta(userOktaId);
+                    }
+                    return;
+                }
+                else
+                {
+                    throw new OktaException(resMsg.ReasonPhrase, resMsg.StatusCode);
+                }
+            }
+        }
+
+        public async Task DeactivateUserInOkta(string userOktaId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+                string url = _oktaOptions.OktaUrl + "users/" + userOktaId + "/lifecycle/deactivate";
+                var resMsg = await client.PostAsync(url, null);
+                string msg = await resMsg.Content.ReadAsStringAsync();
+                if (resMsg.IsSuccessStatusCode)
+                {
+                    return;
+                }
+                else
+                {
+                    throw new OktaException(resMsg.ReasonPhrase, resMsg.StatusCode);
+                }
+            }
+        }
+
+        public async Task DeleteUserInOkta(string userOktaId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+                string url = _oktaOptions.OktaUrl + "users/" + userOktaId;
+                var resMsg = await client.DeleteAsync(url);
+                string msg = await resMsg.Content.ReadAsStringAsync();
+                if (resMsg.IsSuccessStatusCode)
+                {
+                    return;
+                }
+                else
+                {
+                    throw new OktaException(resMsg.ReasonPhrase, resMsg.StatusCode);
+                }
+            }
+        }
+
+        public async Task AddUserToGroup(string userOktaId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+                string url = _oktaOptions.OktaUrl + "groups/" + _oktaOptions.OktaGroupId + "/users/" + userOktaId;
+                var resMsg = await client.PutAsync(url, null);
+                string msg = await resMsg.Content.ReadAsStringAsync();
+                if (resMsg.IsSuccessStatusCode)
+                {
+                    return;
+                }
+                else
+                {
+                    throw new OktaException(resMsg.ReasonPhrase, resMsg.StatusCode);
+                }
+            }
+        }
+
+        public async Task<bool> UserExistsInOkta(string userOktaId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+                string url = _oktaOptions.OktaUrl + "users/" + userOktaId;
+                var resMsg = await client.GetAsync(url);
+                string msg = await resMsg.Content.ReadAsStringAsync();
+                if (resMsg.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> UserHasAppLinks(string userOktaId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+                string url = _oktaOptions.OktaUrl + "users/" + userOktaId + "/appLinks";
+                var resMsg = await client.GetAsync(url);
+                string msg = await resMsg.Content.ReadAsStringAsync();
+                if (resMsg.IsSuccessStatusCode)
+                {
+                    return msg != "[]";  // if empty list, then user has no applink, else user has applinks
+                }
+                else
+                {
+                    throw new OktaException(resMsg.ReasonPhrase, resMsg.StatusCode);
+                }
+            }
+        }
+
+            /// <summary>
+            /// Enforces the +47 country code on all phone-numbers. If the alternative number 0047 is used, it is replaced.
+            /// </summary>
+            /// <param name="phoneNumber">The number we want to enforce</param>
+            /// <returns>The phone-number with the enforced country code</returns>
+            private string EnforcePhoneNumberCountryCode(string phoneNumber, string countryCode)
         {
             phoneNumber = phoneNumber.Trim();
 
