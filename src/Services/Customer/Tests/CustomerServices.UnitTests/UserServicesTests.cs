@@ -157,6 +157,10 @@ namespace CustomerServices.UnitTests
 
             Assert.Equal(2, user.Count);
             Assert.Contains("TEST", user[1].FirstName);
+            Assert.Contains("TEST", user[1].LastName);
+            Assert.Contains("hello@mail.com", user[1].Email);
+            Assert.Contains("+479898989", user[1].MobileNumber);
+            Assert.Contains("hhhh", user[1].EmployeeId);
             Assert.IsType<List<User>>(user);
 
         }
@@ -172,8 +176,8 @@ namespace CustomerServices.UnitTests
 
             //Act
             const string NOT_VALID_CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
-            // var exeption = await userServices.AddUserForCustomerAsync(new Guid(NOT_VALID_CUSTOMER_ID), "TEST", "TEST", "hello@mail.com", "+479898989", "90909090");
-
+            
+            //Assert
             await Assert.ThrowsAsync<CustomerNotFoundException>(() => userServices.AddUserForCustomerAsync(new Guid(NOT_VALID_CUSTOMER_ID), "TEST", "TEST", "hello@mail.com", "+479898989", "90909090"));
         }
 
@@ -189,6 +193,7 @@ namespace CustomerServices.UnitTests
             //Act
             const string NOT_VALID_CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
 
+            //Assert
             await Assert.ThrowsAsync<UserNotFoundException>(() => userServices.AssignManagerToDepartment(new Guid(NOT_VALID_CUSTOMER_ID), USER_ONE_ID, DEPARTMENT_ONE_ID));
 
         }
@@ -205,6 +210,7 @@ namespace CustomerServices.UnitTests
             //Act
             var userRemoveDepartment = await userServices.UnassignDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, DEPARTMENT_ONE_ID);
 
+            //Assert
             Assert.Equal(0, userRemoveDepartment.Departments.Count);
         }
 
