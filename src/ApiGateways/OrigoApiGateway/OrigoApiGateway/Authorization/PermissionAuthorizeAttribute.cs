@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using OrigoApiGateway.Models;
 
@@ -17,7 +18,8 @@ namespace OrigoApiGateway.Authorization
         public PermissionAuthorizeAttribute(PermissionOperator permissionOperator, params Permission[] permissions)
         {
             // E.g: PERMISSION_1_Create_Update..
-            Policy = $"{PolicyPrefix}{(int)permissionOperator}{Separator}{string.Join(Separator, permissions.ToString())}";
+            string[] permissionsAsStringValues = permissions.Select(p => p.ToString()).ToArray();
+            Policy = $"{PolicyPrefix}{(int)permissionOperator}{Separator}{string.Join(Separator, permissionsAsStringValues)}";
         }
 
         /// <summary>

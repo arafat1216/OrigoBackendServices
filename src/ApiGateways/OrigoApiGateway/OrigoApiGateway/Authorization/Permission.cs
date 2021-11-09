@@ -5,6 +5,10 @@
         CanCreateCustomer,
         CanReadCustomer,
         CanUpdateCustomer,
-        CanDeleteCustomer
+        CanDeleteCustomer,
+        CanCreateAsset,
+        CanReadAsset,
+        CanUpdateAsset,
+        CanDeleteAsset
     }
 }

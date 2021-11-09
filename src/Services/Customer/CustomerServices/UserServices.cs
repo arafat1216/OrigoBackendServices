@@ -11,11 +11,13 @@ namespace CustomerServices
     {
         private readonly ILogger<UserServices> _logger;
         private readonly IOrganizationRepository _customerRepository;
+        private readonly IOktaServices _oktaServices;
 
-        public UserServices(ILogger<UserServices> logger, IOrganizationRepository customerRepository)
+        public UserServices(ILogger<UserServices> logger, IOrganizationRepository customerRepository, IOktaServices oktaServices)
         {
             _logger = logger;
             _customerRepository = customerRepository;
+            _oktaServices = oktaServices;
         }
 
         public Task<IList<User>> GetAllUsersAsync(Guid customerId)
@@ -42,7 +44,64 @@ namespace CustomerServices
             }
             var newUser = new User(customer, Guid.NewGuid(), firstName, lastName, email, mobileNumber, employeeId, userPreference);
 
-            return await _customerRepository.AddUserAsync(newUser);
+            newUser = await _customerRepository.AddUserAsync(newUser);
+
+            var oktaUserId = await _oktaServices.AddOktaUserAsync(newUser.UserId, newUser.FirstName, newUser.LastName, newUser.Email, newUser.MobileNumber, true);
+            newUser = await AssignOktaUserIdAsync(newUser.Customer.OrganizationId, newUser.UserId, oktaUserId);
+
+            return newUser;
+        }
+
+        public async Task<User> AssignOktaUserIdAsync(Guid customerId, Guid userId, string oktaUserId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            if (user == null)
+                throw new UserNotFoundException($"Unable to find {userId}");
+            user.ActivateUser(oktaUserId);
+            await _customerRepository.SaveEntitiesAsync();
+            return user;
+        }
+
+        public async Task<User> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            if (user == null)
+                throw new UserNotFoundException($"Unable to find {userId}");
+
+            // Do not call if there is no change
+            if (isActive == user.IsActive)
+                return user;
+
+            bool userExistsInOkta = await _oktaServices.UserExistsInOkta(user.OktaUserId);
+            if (userExistsInOkta)
+            {
+                if (isActive)
+                {
+                    // set active, but reuse the userId set on creation of user : (This may change in future)
+                    await _oktaServices.AddUserToGroup(user.OktaUserId);
+                    user.ActivateUser(user.OktaUserId);
+                }
+                else
+                {
+                    await _oktaServices.RemoveUserFromGroup(user.OktaUserId);
+                    user.DeactivateUser();
+                }
+            }
+            else
+            {
+                if (isActive)
+                {
+                    var oktaUserId = await _oktaServices.AddOktaUserAsync(user.UserId, user.FirstName, user.LastName, user.Email, user.MobileNumber, true);
+                    user = await AssignOktaUserIdAsync(user.Customer.OrganizationId, user.UserId, oktaUserId);
+                }
+                else
+                {
+                    user.DeactivateUser();
+                }
+            }
+
+            await _customerRepository.SaveEntitiesAsync();
+            return user;
         }
 
         public async Task<User> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName, string email, string employeeId, UserPreference userPreference)

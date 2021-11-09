@@ -18,6 +18,11 @@ namespace CustomerServices.UnitTests
         protected readonly Guid USER_ONE_ID = new Guid("42803f8e-5608-4beb-a3e6-029b8e229d91");
         private readonly Guid USER_TWO_ID = new Guid("39349c24-6e47-4a5e-9bab-7b65f438fac5");
 
+        protected readonly Guid LOCATION_ONE_ID = new("8080A5F0-57C6-4D72-B164-82D54A94C776");
+        private readonly Guid LOCATION_TWO_ID = new("DDF4FDB7-B1B9-4F03-B343-2B2F38AC6138");
+        private readonly Guid LOCATION_THREE_ID = new("E52D8C49-727F-49B1-8DAC-2CE1B199AE15");
+        private readonly Guid LOCATION_FOUR_ID = new("8C5D801A-E7E8-45BB-B9AD-F32111D7AA8D");
+
         protected OrganizationServicesBaseTest(DbContextOptions<CustomerContext> contextOptions)
         {
             ContextOptions = contextOptions;
@@ -34,27 +39,27 @@ namespace CustomerServices.UnitTests
 
             var customerOne = new Organization(CUSTOMER_ONE_ID, USER_ONE_ID, null, "COMPANY ONE", "999888777",
                 new Address("My Way 1", "1111", "My City", "NO"),
-                new ContactPerson("JOHN DOE", "john.doe@example.com", "99999999"),
+                new ContactPerson("JOHN", "DOE", "john.doe@example.com", "99999999"),
                 new OrganizationPreferences(CUSTOMER_ONE_ID, USER_ONE_ID, "webPage 1", "logoUrl 1", "organizationNotes 1", true, "NO", 0),
-                new Location(Guid.NewGuid(), USER_ONE_ID, "COMPANY ONE", "Location of COMPANY ONE", "My Way 1A", "My Way 1B", "0585", "Oslo", "Norway"));
+                new Location(LOCATION_ONE_ID, USER_ONE_ID, "COMPANY ONE", "Location of COMPANY ONE", "My Way 1A", "My Way 1B", "0585", "Oslo", "Norway"));
 
             var customerTwo = new Organization(CUSTOMER_TWO_ID, USER_ONE_ID, null, "COMPANY TWO", "999777666",
                 new Address("My Way 2", "1111", "My City", "NO"),
-                new ContactPerson("Ola Nordmann", "ola.nordmann@example.com", "99999998"),
+                new ContactPerson("Ola", "Nordmann", "ola.nordmann@example.com", "99999998"),
                 new OrganizationPreferences(CUSTOMER_TWO_ID, USER_ONE_ID, "webPage 2", "logoUrl 2", "organizationNotes 2", true, "NO", 0),
-                new Location(Guid.NewGuid(), USER_ONE_ID, "name", "description", "My Way 2A", "My Way 2B", "0585", "Oslo", "Norway"));
+                new Location(LOCATION_TWO_ID, USER_ONE_ID, "name", "description", "My Way 2A", "My Way 2B", "0585", "Oslo", "Norway"));
 
             var customerThree = new Organization(CUSTOMER_THREE_ID, USER_ONE_ID, CUSTOMER_ONE_ID, "COMPANY THREE", "999666555",
                 new Address("My Way 3", "1111", "My Other City", "NO"),
-                new ContactPerson("Kari Nordmann", "kari.nordmann@example.com", "99999997"),
+                new ContactPerson("Kari", "Nordmann", "kari.nordmann@example.com", "99999997"),
                 new OrganizationPreferences(CUSTOMER_THREE_ID, USER_ONE_ID, "webPage 3", "logoUrl 3", "organizationNotes 3", true, "NO", 0),
-                new Location(Guid.NewGuid(), USER_ONE_ID, "name", "description", "My Way 3A", "My Way 3B", "0585", "Oslo", "Norway"));
+                new Location(LOCATION_THREE_ID, USER_ONE_ID, "name", "description", "My Way 3A", "My Way 3B", "0585", "Oslo", "Norway"));
 
             var customerFour = new Organization(CUSTOMER_FOUR_ID, USER_ONE_ID, null, "COMPANY FOUR", "999555444", 
                 new Address("My Way 4", "1111", "My City", "NO"),
-                new ContactPerson("Petter Smart", "petter.smart@example.com", "99999996"),
+                new ContactPerson("Petter", "Smart", "petter.smart@example.com", "99999996"),
                 new OrganizationPreferences(CUSTOMER_FOUR_ID, USER_ONE_ID, "webPage 4", "logoUrl 4", "organizationNotes 4", true, "NO", 0),
-                new Location(Guid.NewGuid(), USER_ONE_ID, "name", "description", "My Way 4A", "My Way 4B", "0585", "Oslo", "Norway"));
+                new Location(LOCATION_FOUR_ID, USER_ONE_ID, "name", "description", "My Way 4A", "My Way 4B", "0585", "Oslo", "Norway"));
 
             context.AddRange(customerOne, customerTwo, customerThree);
 

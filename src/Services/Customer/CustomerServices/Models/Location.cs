@@ -46,15 +46,30 @@ namespace CustomerServices.Models
             UpdatedBy = callerId;
         }
 
+        /// <summary>
+        /// Cannot check for null in constructor, since patch method needs to check if Location object to update has fields we wish to ignore
+        /// This method allows us to set null fields to String.Empty for update method, while ignoring null fields for patch method.
+        /// </summary>
+        public void SetFieldsToEmptyIfNull()
+        {
+            if (Name == null) Name = "";
+            if (Description == null) Description = "";
+            if (Address1 == null) Address1 = "";
+            if (Address2 == null) Address2 = "";
+            if (PostalCode == null) PostalCode = "";
+            if (City == null) City = "";
+            if (Country == null) Country = "";
+        }
+
         public void UpdateLocation(Location updateLocation)
         {
-            Name = updateLocation.Name;
-            Description = updateLocation.Description;
-            Address1 = updateLocation.Address1;
-            Address2 = updateLocation.Address2;
-            PostalCode = updateLocation.PostalCode;
-            City = updateLocation.City;
-            Country = updateLocation.Country;
+            Name = (updateLocation.Name == null) ? "" : updateLocation.Name;
+            Description = (updateLocation.Description == null) ? "" : updateLocation.Description;
+            Address1 = (updateLocation.Address1 == null) ? "" : updateLocation.Address1;
+            Address2 = (updateLocation.Address2 == null) ? "" : updateLocation.Address2;
+            PostalCode = (updateLocation.PostalCode == null) ? "" : updateLocation.PostalCode;
+            City = (updateLocation.City == null) ? "" : updateLocation.City;
+            Country = (updateLocation.Country == null) ? "" : updateLocation.Country;
             UpdatedAt = DateTime.UtcNow;
             UpdatedBy = updateLocation.CreatedBy;
         }
@@ -62,37 +77,37 @@ namespace CustomerServices.Models
         public void PatchLocation(Location updateLocation)
         {
             bool isUpdated = false;
-            if (Name != updateLocation.Name)
+            if (Name != updateLocation.Name && updateLocation.Name != null)
             {
                 Name = updateLocation.Name;
                 isUpdated = true;
             }
-            if (Description != updateLocation.Description)
+            if (Description != updateLocation.Description && updateLocation.Description != null)
             {
                 Description = updateLocation.Description;
                 isUpdated = true;
             }
-            if (Address1 != updateLocation.Address1)
+            if (Address1 != updateLocation.Address1 && updateLocation.Address1 != null)
             {
                 Address1 = updateLocation.Address1;
                 isUpdated = true;
             }
-            if (Address2 != updateLocation.Address2)
+            if (Address2 != updateLocation.Address2 && updateLocation.Address2 != null)
             {
                 Address2 = updateLocation.Address2;
                 isUpdated = true;
             }
-            if (PostalCode != updateLocation.PostalCode)
+            if (PostalCode != updateLocation.PostalCode && updateLocation.PostalCode != null)
             {
                 PostalCode = updateLocation.PostalCode;
                 isUpdated = true;
             }
-            if (City != updateLocation.City)
+            if (City != updateLocation.City && updateLocation.City != null)
             {
                 City = updateLocation.City;
                 isUpdated = true;
             }
-            if (Country != updateLocation.Country)
+            if (Country != updateLocation.Country && updateLocation.Country != null)
             {
                 Country = updateLocation.Country;
                 isUpdated = true;

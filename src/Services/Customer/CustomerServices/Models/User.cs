@@ -22,6 +22,8 @@ namespace CustomerServices.Models
             MobileNumber = mobileNumber;
             EmployeeId = employeeId;
             UserPreference = userPreference;
+            IsActive = false;
+            OktaUserId = "";
             AddDomainEvent(new UserCreatedDomainEvent(this));
         }
 
@@ -44,10 +46,24 @@ namespace CustomerServices.Models
 
         public UserPreference UserPreference { get; protected set; }
 
+        public bool IsActive { get; protected set; }
+        public string OktaUserId { get; protected set; }
+
         [JsonIgnore]
         public Organization Customer { get; set; }
-        public IReadOnlyCollection<Department> Departments
+
+        public void ActivateUser(string oktaUserId)
         {
+            OktaUserId = oktaUserId;
+            IsActive = true;
+        }
+
+        public void DeactivateUser()
+        {
+            IsActive = false;
+        }
+
+        public IReadOnlyCollection<Department> Departments { 
             get => new ReadOnlyCollection<Department>(_departments);
             protected set => _departments = new List<Department>(value);
         }

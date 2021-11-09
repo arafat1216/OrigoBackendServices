@@ -72,6 +72,14 @@ namespace Customer.API.Controllers
             {
                 return BadRequest("Customer not found");
             }
+            catch (OktaException ex)
+            {
+                return BadRequest("Okta failed to activate user.");
+            }
+            catch (UserNotFoundException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
                 _logger.LogError("{0}", ex);
@@ -172,6 +180,31 @@ namespace Customer.API.Controllers
                 return BadRequest("Unable to delete user");
             }
         }
+
+        [Route("{userId:Guid}/activate/{isActive:bool}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive)
+        {
+            try
+            {
+                var user = await _userServices.SetUserActiveStatus(customerId, userId, isActive);
+                if (user == null)
+                    return NotFound();
+                return Ok(new User(user));
+            }
+            catch (UserNotFoundException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Unable to deactivate user");
+            }
+        }
+
         [Route("{userId:Guid}/department/{departmentId:Guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]

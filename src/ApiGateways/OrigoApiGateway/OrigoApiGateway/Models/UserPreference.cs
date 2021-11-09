@@ -7,7 +7,7 @@ namespace OrigoApiGateway.Models
         public UserPreference() { }
         public UserPreference(UserPreferenceDTO userPreference)
         {
-            Language = userPreference.Language;
+            Language = (userPreference == null) ? "" : userPreference.Language;
         }
         public string Language { get; set; }
     }

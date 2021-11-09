@@ -12,10 +12,12 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OrigoApiGateway.Controllers
 {
     [ApiController]
+    [Authorize]
     [ApiVersion("1.0")]
     [Route("origoapi/v{version:apiVersion}/customers/users/{userName:length(6,255)}/permissions")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
@@ -78,11 +80,7 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var addedRole = await _userPermissionServices.AddUserPermissionsForUserAsync(userName, userPermissions);
-                if (addedRole != null)
-                {
-                    return CreatedAtAction(nameof(AddUserPermission), addedRole);
-                }
-                return NotFound();
+                return CreatedAtAction(nameof(AddUserPermission), addedRole);
             }
             catch (BadHttpRequestException ex)
             {

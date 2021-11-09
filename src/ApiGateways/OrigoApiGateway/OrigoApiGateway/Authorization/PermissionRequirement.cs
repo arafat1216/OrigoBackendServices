@@ -23,7 +23,8 @@ namespace OrigoApiGateway.Authorization
                 throw new ArgumentException("At least one permission is required.", nameof(permissions));
 
             PermissionOperator = permissionOperator;
-            Permissions = permissions;
+            Permissions = new string[permissions.Length];
+            permissions.CopyTo(Permissions, 0);
         }
     }
 }
