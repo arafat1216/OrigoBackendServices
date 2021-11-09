@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using Common.Seedwork;
 using CustomerServices.DomainEvents;
@@ -21,7 +22,7 @@ namespace CustomerServices.Models
             Email = email;
             MobileNumber = mobileNumber;
             EmployeeId = employeeId;
-            UserPreference = userPreference;
+            UserPreference = (userPreference == null) ? new UserPreference("EN") : userPreference;
             IsActive = false;
             OktaUserId = "";
             AddDomainEvent(new UserCreatedDomainEvent(this));
@@ -109,6 +110,10 @@ namespace CustomerServices.Models
         internal void ChangeUserPreferences(UserPreference userPreference)
         {
             AddDomainEvent(new UserPreferenceChangedDomainEvent(userPreference, UserId));
+
+            // Allow old users with no preference object ot be updated.
+            if (UserPreference == null)
+                UserPreference = new UserPreference("EN");
             UserPreference.Language = userPreference.Language;
         }
 

@@ -129,7 +129,7 @@ namespace CustomerServices
             }
             if (userPreference != null &&
                 userPreference.Language != null &&
-                userPreference?.Language != user.UserPreference.Language)
+                userPreference?.Language != user.UserPreference?.Language)
             {
                 user.ChangeUserPreferences(userPreference);
             }
