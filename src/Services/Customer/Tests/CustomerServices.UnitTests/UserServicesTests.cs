@@ -1,9 +1,13 @@
 ﻿using Common.Logging;
+using CustomerServices.Exceptions;
 using CustomerServices.Infrastructure;
+using CustomerServices.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace CustomerServices.UnitTests
@@ -103,6 +107,8 @@ namespace CustomerServices.UnitTests
             Assert.False(user.IsActive);
         }
 
+        [Fact]
+        [Trait("Category", "UnitTest")]
         public async void ReactivateUser()
         {
             // Arrange
@@ -119,5 +125,94 @@ namespace CustomerServices.UnitTests
             Assert.Equal("1234", user.OktaUserId); 
             Assert.True(user.IsActive);
         }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void UnnassignDepartment_ShouldReturnUserWithTypeUser()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>());
+
+            //Act
+            var user = await userServices.UnassignDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, DEPARTMENT_ONE_ID);
+
+            //Assert
+            Assert.NotNull(user);
+            Assert.IsType<User>(user);
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void GetAllUsers_AddAUser_ListCountPlussOne()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>());
+
+            // Act
+            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "TEST", "TEST", "hello@mail.com", "+479898989", "hhhh");
+            var user = await userServices.GetAllUsersAsync(CUSTOMER_ONE_ID);
+
+            Assert.Equal(2, user.Count);
+            Assert.Contains("TEST", user[1].FirstName);
+            Assert.Contains("TEST", user[1].LastName);
+            Assert.Contains("hello@mail.com", user[1].Email);
+            Assert.Contains("+479898989", user[1].MobileNumber);
+            Assert.Contains("hhhh", user[1].EmployeeId);
+            Assert.IsType<List<User>>(user);
+
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async System.Threading.Tasks.Task AddUserForCustomer_CustomerNotFoundExeption()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>());
+
+            //Act
+            const string NOT_VALID_CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
+            
+            //Assert
+            await Assert.ThrowsAsync<CustomerNotFoundException>(() => userServices.AddUserForCustomerAsync(new Guid(NOT_VALID_CUSTOMER_ID), "TEST", "TEST", "hello@mail.com", "+479898989", "90909090"));
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void AssignManager_UserNotFound_ThrowsUserNotFoundExeption()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>());
+
+            //Act
+            const string NOT_VALID_CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
+
+            //Assert
+            await Assert.ThrowsAsync<UserNotFoundException>(() => userServices.AssignManagerToDepartment(new Guid(NOT_VALID_CUSTOMER_ID), USER_ONE_ID, DEPARTMENT_ONE_ID));
+
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void UnassignManagerFromDepartment_UserWithNoDepartment()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>());
+
+            //Act
+            var userRemoveDepartment = await userServices.UnassignDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, DEPARTMENT_ONE_ID);
+
+            //Assert
+            Assert.Equal(0, userRemoveDepartment.Departments.Count);
+        }
+
     }
 }
