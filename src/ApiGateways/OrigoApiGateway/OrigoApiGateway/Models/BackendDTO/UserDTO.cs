@@ -12,6 +12,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         public string MobileNumber { get; set; }
         public string EmployeeId { get; set; }
         public string OrganizationName { get; set; }
+        public bool IsActive { get; set; }
         public List<Guid> AssignedToDepartments  { get; set; }
     }
 }
