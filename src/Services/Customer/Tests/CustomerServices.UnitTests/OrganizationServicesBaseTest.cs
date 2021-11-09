@@ -64,8 +64,10 @@ namespace CustomerServices.UnitTests
             var departmentOneForCustomerOne = new Department("Cust1Dept1", "1123", "Department one for customer one", customerOne, DEPARTMENT_ONE_ID);
             context.Add(departmentOneForCustomerOne);
 
-            var userOne = new User(customerOne, USER_ONE_ID, "Jane", "Doe", "jane@doe.com", "+4799999999", "007");
-            var userTwo = new User(customerTwo, USER_TWO_ID, "John", "Doe", "john@doe.com", "+4791111111", "X");
+            var userPreferences1 = new UserPreference("NO");
+            var userPreferences2 = new UserPreference("EN");
+            var userOne = new User(customerOne, USER_ONE_ID, "Jane", "Doe", "jane@doe.com", "+4799999999", "007", userPreferences1);
+            var userTwo = new User(customerTwo, USER_TWO_ID, "John", "Doe", "john@doe.com", "+4791111111", "X", userPreferences2);
 
             context.AddRange(userOne, userTwo);
 
