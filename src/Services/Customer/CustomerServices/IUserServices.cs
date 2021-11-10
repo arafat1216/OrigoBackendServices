@@ -16,7 +16,6 @@ namespace CustomerServices
         Task<User> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, UserPreference userPreference);
         Task<User> DeleteUserAsync(Guid userId, bool softDelete = true);
-        Task<User> AssignOktaUserIdAsync(Guid customerId, Guid userId, string oktaUserId);
         Task<User> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive);
         Task<User> AssignDepartment(Guid customerId, Guid userId, Guid departmentId);
         Task<User> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId);

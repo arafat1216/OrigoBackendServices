@@ -52,7 +52,7 @@ namespace CustomerServices
             return newUser;
         }
 
-        public async Task<User> AssignOktaUserIdAsync(Guid customerId, Guid userId, string oktaUserId)
+        private async Task<User> AssignOktaUserIdAsync(Guid customerId, Guid userId, string oktaUserId)
         {
             var user = await GetUserAsync(customerId, userId);
             if (user == null)
@@ -72,7 +72,7 @@ namespace CustomerServices
             if (isActive == user.IsActive)
                 return user;
 
-            bool userExistsInOkta = await _oktaServices.UserExistsInOkta(user.OktaUserId);
+            var userExistsInOkta = await _oktaServices.UserExistsInOktaAsync(user.OktaUserId);
             if (userExistsInOkta)
             {
                 if (isActive)
