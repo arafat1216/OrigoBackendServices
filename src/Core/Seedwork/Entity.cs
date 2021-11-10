@@ -10,13 +10,23 @@ namespace Common.Seedwork
     public abstract class Entity
     {
         int? _requestedHashCode;
+
         public virtual int Id { get; protected set; }
 
         public DateTime CreatedDate { get; protected set; } = DateTime.UtcNow;
+
+        public Guid CreatedBy { get; protected set; }
+
         public DateTime LastUpdatedDate { get; protected set; }
 
+        public Guid UpdatedBy { get; protected set; }
+
+        public bool IsDeleted { get; protected set; }
+
+        public Guid DeletedBy { get; protected set; }
+
         private List<INotification> _domainEvents;
-        
+
         [JsonIgnore]
         public IReadOnlyCollection<INotification> DomainEvents => _domainEvents?.AsReadOnly();
 
@@ -73,6 +83,7 @@ namespace Common.Seedwork
                 return base.GetHashCode();
 
         }
+
         public static bool operator ==(Entity left, Entity right)
         {
             return left?.Equals(right) ?? Equals(right, null);

@@ -46,8 +46,6 @@ namespace CustomerServices.Infrastructure
             return location;
         }
 
-
-
         public async Task<IList<Organization>> GetOrganizationsAsync()
         {
             return await _customerContext.Organizations.Where(o => o.IsDeleted == false).ToListAsync();
@@ -60,17 +58,16 @@ namespace CustomerServices.Infrastructure
             return await _customerContext.Organizations.Where(p => p.ParentId == parentId && !p.IsDeleted).ToListAsync();
         }
 
-
         public async Task<Organization> GetOrganizationAsync(Guid customerId)
         {
-                return await _customerContext.Organizations
-                .Include(p => p.SelectedProductModules)
-                .ThenInclude(p => p.ProductModuleGroup)
-                .Include(p => p.SelectedProductModuleGroups)
-                .Include(p => p.SelectedAssetCategories)
-                .ThenInclude(p => p.LifecycleTypes)
-                .Include(p => p.Departments)
-                .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
+            return await _customerContext.Organizations
+            .Include(p => p.SelectedProductModules)
+            .ThenInclude(p => p.ProductModuleGroup)
+            .Include(p => p.SelectedProductModuleGroups)
+            .Include(p => p.SelectedAssetCategories)
+            .ThenInclude(p => p.LifecycleTypes)
+            .Include(p => p.Departments)
+            .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
         }
 
         public async Task<OrganizationPreferences> GetOrganizationPreferencesAsync(Guid organizationId)
@@ -130,7 +127,6 @@ namespace CustomerServices.Infrastructure
             return organizationLocation;
         }
 
-
         private async Task<Organization> GetCustomerReadOnlyAsync(Guid customerId)
         {
             return await _customerContext.Organizations
@@ -146,7 +142,10 @@ namespace CustomerServices.Infrastructure
 
         public async Task<IList<User>> GetAllUsersAsync(Guid customerId)
         {
-            return await _customerContext.Users.Include(u => u.Customer).Where(u => u.Customer.OrganizationId == customerId)
+            return await _customerContext.Users
+                .Include(u => u.Customer)
+                .Include(u => u.UserPreference)
+                .Where(u => u.Customer.OrganizationId == customerId)
                 .ToListAsync();
         }
 
@@ -154,8 +153,17 @@ namespace CustomerServices.Infrastructure
         {
             return await _customerContext.Users
                 .Include(u => u.Customer)
-                .Include(u=> u.Departments)
+                .Include(u => u.Departments)
+                .Include(u => u.UserPreference)
                 .Where(u => u.Customer.OrganizationId == customerId && u.UserId == userId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<User> GetUserAsync(Guid userId)
+        {
+            return await _customerContext.Users
+                .Include(u => u.Customer).Where(u => u.UserId == userId)
+                .Include(u => u.UserPreference)
                 .FirstOrDefaultAsync();
         }
 
@@ -164,6 +172,21 @@ namespace CustomerServices.Infrastructure
             _customerContext.Users.Add(newUser);
             await SaveEntitiesAsync();
             return newUser;
+        }
+
+        public async Task<User> DeleteUserAsync(User user)
+        {
+            _customerContext.Users.Remove(user);
+            try
+            {
+                _customerContext.Entry(user.UserPreference).State = EntityState.Deleted;
+            }
+            catch
+            {
+                // User don't have a userpreference. This should not happen.
+            }
+            await SaveEntitiesAsync();
+            return user;
         }
 
         public async Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes)
