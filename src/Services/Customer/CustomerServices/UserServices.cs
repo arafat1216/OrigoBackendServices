@@ -30,15 +30,19 @@ namespace CustomerServices
             return _customerRepository.GetUserAsync(customerId, userId);
         }
 
-        public async Task<User> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName, string email, string mobileNumber, string employeeId)
+        public async Task<User> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName, string email, string mobileNumber, string employeeId, UserPreference userPreference)
         {
             var customer = await _customerRepository.GetOrganizationAsync(customerId);
             if (customer == null)
             {
                 throw new CustomerNotFoundException();
             }
-
-            var newUser = new User(customer, Guid.NewGuid(), firstName, lastName, email, mobileNumber, employeeId);
+            if(userPreference == null || userPreference.Language == null)
+            {
+                // Set a default language setting
+                userPreference = new UserPreference("EN");
+            }
+            var newUser = new User(customer, Guid.NewGuid(), firstName, lastName, email, mobileNumber, employeeId, userPreference);
 
             newUser = await _customerRepository.AddUserAsync(newUser);
 
@@ -100,6 +104,76 @@ namespace CustomerServices
             return user;
         }
 
+        public async Task<User> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName, string email, string employeeId, UserPreference userPreference)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            if (user == null)
+            {
+                return null;
+            }
+            if (firstName != default && user.FirstName != firstName)
+            {
+                user.ChangeFirstName(firstName);
+            }
+            if (lastName != default && user.LastName != lastName)
+            {
+                user.ChangeLastName(lastName);
+            }
+            if (email != default && user.Email != email)
+            {
+                user.ChangeEmailAddress(email);
+            }
+            if (employeeId != default && user.EmployeeId != employeeId)
+            {
+                user.ChangeEmployeeId(employeeId);
+            }
+            if (userPreference != null &&
+                userPreference.Language != null &&
+                userPreference?.Language != user.UserPreference?.Language)
+            {
+                user.ChangeUserPreferences(userPreference);
+            }
+
+            await _customerRepository.SaveEntitiesAsync();
+            return user;
+        }
+
+        public async Task<User> UpdateUserPutAsync(Guid customerId, Guid userId, string firstName, string lastName, string email, string employeeId, UserPreference userPreference)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            if (user == null)
+            {
+                return null;
+            }
+
+            user.ChangeFirstName(firstName);
+            user.ChangeLastName(lastName);
+            user.ChangeEmailAddress(email);
+            user.ChangeEmployeeId(employeeId);
+            if (userPreference != null)
+                user.ChangeUserPreferences(userPreference);
+
+            await _customerRepository.SaveEntitiesAsync();
+            return user;
+        }
+
+        public async Task<User> DeleteUserAsync(Guid userId, bool softDelete = true)
+        {
+            var user = await _customerRepository.GetUserAsync(userId);
+            if (user == null)
+            {
+                return null;
+            }
+            if (user.IsDeleted && !softDelete)
+                await _customerRepository.DeleteUserAsync(user);
+            if (user.IsDeleted && softDelete)
+                throw new UserDeletedException();
+
+            user.SetDeleteStatus(true);
+            await _customerRepository.SaveEntitiesAsync();
+            return user;
+        }
+
         public async Task<User> AssignDepartment(Guid customerId, Guid userId, Guid departmentId)
         {
             var user = await GetUserAsync(customerId, userId);
@@ -115,14 +189,15 @@ namespace CustomerServices
         {
             var user = await GetUserAsync(customerId, userId);
             var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
-            if (user == null) {
+            if (user == null)
+            {
                 throw new UserNotFoundException($"Unable to find {userId}");
             }
-            if(department == null)
+            if (department == null)
             {
                 throw new DepartmentNotFoundException($"Unable to find {departmentId}"); ;
             }
-                
+
             user.AssignManagerToDepartment(department);
             await _customerRepository.SaveEntitiesAsync();
             return;

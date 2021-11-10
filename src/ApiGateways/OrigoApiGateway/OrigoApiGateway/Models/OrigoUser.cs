@@ -17,6 +17,7 @@ namespace OrigoApiGateway.Models
             EmployeeId = user.EmployeeId;
             OrganizationName = user.OrganizationName;
             AssignedToDepartments = user.AssignedToDepartments;
+            UserPreference = new UserPreference(user.UserPreference);
             IsActive = user.IsActive;
         }
 
@@ -30,5 +31,6 @@ namespace OrigoApiGateway.Models
         public string OrganizationName { get; set; }
         public bool IsActive { get; set; }
         public List<Guid> AssignedToDepartments { get; set; }
+        public UserPreference UserPreference { get; set; }
     }
 }

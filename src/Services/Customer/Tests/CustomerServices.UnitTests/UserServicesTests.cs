@@ -47,7 +47,8 @@ namespace CustomerServices.UnitTests
 
             // Act
             const string EMAIL_TEST_TEST = "email@test.test";
-            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4799999999", "43435435");
+            var userPref = new Models.UserPreference("NO");
+            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4799999999", "43435435", userPref);
 
             // Assert
             var newUserRead = await userServices.GetUserAsync(CUSTOMER_ONE_ID, newUser.UserId);
