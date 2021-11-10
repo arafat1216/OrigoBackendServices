@@ -171,24 +171,15 @@ namespace CustomerServices
             }
         }
 
-        public async Task<bool> UserExistsInOkta(string userOktaId)
+        public async Task<bool> UserExistsInOktaAsync(string userOktaId)
         {
-            using (var client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Add("Accept", "application/json");
-                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
-                string url = _oktaOptions.OktaUrl + "users/" + userOktaId;
-                var resMsg = await client.GetAsync(url);
-                string msg = await resMsg.Content.ReadAsStringAsync();
-                if (resMsg.IsSuccessStatusCode)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+            client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+            var url = _oktaOptions.OktaUrl + "users/" + userOktaId;
+            var resMsg = await client.GetAsync(url);
+            var msg = await resMsg.Content.ReadAsStringAsync();
+            return resMsg.IsSuccessStatusCode;
         }
 
         public async Task<bool> UserHasAppLinks(string userOktaId)

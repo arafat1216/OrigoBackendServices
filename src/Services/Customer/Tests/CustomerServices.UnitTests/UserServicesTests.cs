@@ -78,10 +78,14 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>());
+            var oktaMock = new Mock<IOktaServices>();
+            const string OKTA_ID = "1234";
+            oktaMock.Setup(o => o.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), true, It.IsAny<string>())).ReturnsAsync(OKTA_ID);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object);
 
             // Act
-            await userServices.AssignOktaUserIdAsync(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
+            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true);
             var user = await userServices.GetUserAsync(CUSTOMER_ONE_ID, USER_ONE_ID);
 
             // Assert
@@ -96,10 +100,15 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>());
+            var oktaMock = new Mock<IOktaServices>();
+            const string OKTA_ID = "1234";
+            oktaMock.Setup(o => o.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>())).ReturnsAsync(OKTA_ID);
+            oktaMock.Setup(o => o.UserExistsInOktaAsync(OKTA_ID)).ReturnsAsync(true);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object);
+            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true); // Activate user
 
             // Act
-            await userServices.AssignOktaUserIdAsync(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
             var user = await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, false);
 
             // Assert
@@ -114,10 +123,13 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>());
+            var oktaMock = new Mock<IOktaServices>();
+            const string OKTA_ID = "1234";
+            oktaMock.Setup(o => o.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), true, It.IsAny<string>())).ReturnsAsync(OKTA_ID);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object);
 
             // Act
-            await userServices.AssignOktaUserIdAsync(CUSTOMER_ONE_ID, USER_ONE_ID, "1234");
             await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, false);
             var user = await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true);
 
@@ -128,7 +140,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void UnnassignDepartment_ShouldReturnUserWithTypeUser()
+        public async void UnassignDepartment_ShouldReturnUserWithTypeUser()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
