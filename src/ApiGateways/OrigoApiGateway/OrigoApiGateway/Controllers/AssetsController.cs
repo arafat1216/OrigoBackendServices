@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
+﻿using Common.Enums;
 using Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Services;
-using OrigoApiGateway.Authorization;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
-using Common.Enums;
+using System.Threading.Tasks;
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 // ReSharper disable RouteTemplates.ControllerRouteParameterIsNotPassedToMethods
 
@@ -39,7 +40,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoPagedAssets), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
         public async Task<ActionResult<OrigoPagedAssets>> SearchForAsset(Guid organizationId, string search, int page = 1, int limit = 50)
         {
             try
@@ -68,8 +69,9 @@ namespace OrigoApiGateway.Controllers
 
                 return Ok(origoPagedAssets);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
@@ -85,22 +87,31 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 // All roles have access, as long as customer is in their accessList
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    return Forbid();
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
                 }
-
                 var assets = await _assetServices.GetAssetsForUserAsync(organizationId, userId);
                 if (assets == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(assets);
+                var options = new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    TypeNameHandling = TypeNameHandling.Auto
+                };
+                return Ok(JsonConvert.SerializeObject(assets, options));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
@@ -136,10 +147,16 @@ namespace OrigoApiGateway.Controllers
                     return NotFound();
                 }
 
-                return Ok(assets);
+                var options = new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    TypeNameHandling = TypeNameHandling.Auto
+                };
+                return Ok(JsonConvert.SerializeObject(assets, options));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
@@ -175,10 +192,16 @@ namespace OrigoApiGateway.Controllers
                     return NotFound();
                 }
 
-                return Ok(asset);
+                var options = new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    TypeNameHandling = TypeNameHandling.Auto
+                };
+                return Ok(JsonConvert.SerializeObject(asset, options));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
@@ -211,12 +234,18 @@ namespace OrigoApiGateway.Controllers
                 var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, asset);
                 if (createdAsset != null)
                 {
-                    return CreatedAtAction(nameof(CreateAsset), new { id = createdAsset.Id }, createdAsset);
+                    var options = new JsonSerializerSettings
+                    {
+                        Formatting = Formatting.Indented,
+                        TypeNameHandling = TypeNameHandling.Auto
+                    };
+                    return CreatedAtAction(nameof(CreateAsset), new { id = createdAsset.Id }, JsonConvert.SerializeObject(createdAsset, options));
                 }
                 return BadRequest();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
@@ -251,11 +280,16 @@ namespace OrigoApiGateway.Controllers
                 {
                     return NotFound();
                 }
-
-                return Ok(updatedAsset);
+                var options = new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    TypeNameHandling = TypeNameHandling.Auto
+                };
+                return Ok(JsonConvert.SerializeObject(updatedAsset, options));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
@@ -285,17 +319,23 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var updatedAsset = await _assetServices.UpdateActiveStatus(organizationId, assetId, isActive);
+                var updatedAsset = await _assetServices.GetAssetForCustomerAsync(organizationId, assetId);
                 if (updatedAsset == null)
                 {
                     return NotFound();
                 }
-
-                return Ok(updatedAsset);
+                updatedAsset.IsActive = isActive;
+                var options = new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    TypeNameHandling = TypeNameHandling.Auto
+                };
+                return Ok(JsonConvert.SerializeObject(updatedAsset, options));
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
@@ -331,10 +371,16 @@ namespace OrigoApiGateway.Controllers
                     return NotFound();
                 }
 
-                return Ok(updatedAsset);
+                var options = new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    TypeNameHandling = TypeNameHandling.Auto
+                };
+                return Ok(JsonConvert.SerializeObject(updatedAsset, options));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
@@ -356,8 +402,9 @@ namespace OrigoApiGateway.Controllers
                 }
                 return Ok(lifecycles);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
@@ -393,10 +440,16 @@ namespace OrigoApiGateway.Controllers
                 {
                     return NotFound();
                 }
-                return Ok(updatedAsset);
+                var options = new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    TypeNameHandling = TypeNameHandling.Auto
+                };
+                return Ok(JsonConvert.SerializeObject(updatedAsset, options));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
@@ -432,11 +485,16 @@ namespace OrigoApiGateway.Controllers
                     return NotFound();
                 }
 
-                return Ok(assignedAsset);
-
+                var options = new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    TypeNameHandling = TypeNameHandling.Auto
+                };
+                return Ok(JsonConvert.SerializeObject(assignedAsset, options));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
@@ -468,11 +526,11 @@ namespace OrigoApiGateway.Controllers
                 var assetAuditLog = await _assetServices.GetAssetAuditLog(assetId);
                 return Ok(assetAuditLog);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
-
         }
     }
 }

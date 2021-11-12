@@ -1,5 +1,6 @@
 ﻿using Common.Enums;
 using System;
+using System.Linq;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
@@ -9,28 +10,27 @@ namespace Asset.API.ViewModels
     {
         public Asset()
         {
-
+            // So much death.. What can men do agains such reckless hate. - King Théoden
         }
 
         public Asset(AssetServices.Models.Asset asset)
         {
+            AssetTag = asset.AssetTag;
+            Description = asset.Description;
             AssetId = asset.ExternalId;
             OrganizationId = asset.CustomerId;
-            AssetCategoryId = asset.AssetCategoryId;
-            SerialNumber = asset.SerialNumber;
-            AssetCategoryName = asset.AssetCategory.Name;
             Brand = asset.Brand;
-            Model = asset.ProductName;
+            ProductName = asset.ProductName;
             LifecycleType = asset.LifecycleType;
             PurchaseDate = asset.PurchaseDate;
-            CreatedDate = asset.CreatedDate;
-            ManagedByDepartmentId = asset.ManagedByDepartmentId;
-            Imei = asset.Imei;
-            MacAddress = asset.MacAddress;
             AssetHolderId = asset.AssetHolderId;
-            IsActive = asset.IsActive;
+            ManagedByDepartmentId = asset.ManagedByDepartmentId;
             AssetStatus = asset.Status;
             Note = asset.Note;
+            AssetStatus = asset.Status;
+            CreatedDate = asset.CreatedDate;
+            AssetCategoryId = asset.AssetCategory.Id;
+            AssetCategoryName = asset.AssetCategory?.Translations?.FirstOrDefault(a => a.Language == "EN")?.Name;
         }
 
         /// <summary>
@@ -49,15 +49,19 @@ namespace Asset.API.ViewModels
         public string Note { get; protected set; }
 
         /// <summary>
+        /// A description of the asset.
+        /// </summary>
+        public string Description { get; protected set; }
+
+        /// <summary>
+        /// Tags associated with this asset.
+        /// </summary>
+        public string AssetTag { get; protected set; }
+
+        /// <summary>
         /// Asset is linked to this category
         /// </summary>
         public int AssetCategoryId { get; protected set; }
-
-        /// <summary>
-        /// The unique serial number for the asset. For mobile phones and other devices
-        /// where an IMEI number also exists, the IMEI will be used here.
-        /// </summary>
-        public string SerialNumber { get; protected set; }
 
         /// <summary>
         /// The category this asset belongs to.
@@ -72,7 +76,7 @@ namespace Asset.API.ViewModels
         /// <summary>
         /// The model or product name of this asset (e.g. Samsung Galaxy)
         /// </summary>
-        public string Model { get; protected set; }
+        public string ProductName { get; protected set; }
 
         /// <summary>
         /// The type of lifecycle for this asset.
@@ -86,7 +90,7 @@ namespace Asset.API.ViewModels
         {
             get
             {
-                return LifecycleType.GetName<LifecycleType>(LifecycleType);
+                return Enum.GetName(LifecycleType);
             }
         }
 
@@ -111,18 +115,6 @@ namespace Asset.API.ViewModels
         public Guid? AssetHolderId { get; protected set; }
 
         /// <summary>
-        /// The imei of the asset. Applicable to assets with category Mobile phone.
-        /// </summary>
-        public string Imei { get; protected set; }
-
-        /// <summary>
-        /// The mac address of the asset
-        /// </summary>
-        public string MacAddress { get; protected set; }
-
-        public bool IsActive { get; set; }
-
-        /// <summary>
         /// The status of the asset.
         /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
         /// </summary>
@@ -132,7 +124,7 @@ namespace Asset.API.ViewModels
         {
             get
             {
-                return AssetStatus.GetName<AssetStatus>(AssetStatus);
+                return Enum.GetName(AssetStatus);
             }
         }
     }

@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Text;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using AssetServices.Exceptions;
+﻿using AssetServices.Exceptions;
 using AssetServices.Models;
-using Common.Enums;
 using Common.Interfaces;
 using Common.Logging;
 using Common.Models;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace AssetServices
 {
@@ -48,9 +48,9 @@ namespace AssetServices
             return await _assetRepository.GetAssetAsync(customerId, assetId);
         }
 
-        public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId, string brand,
-            string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive, string imei, string macAddress,
-            Guid? managedByDepartmentId, AssetStatus status, string note)
+        public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, int assetCategoryId, string brand,
+            string productName, Common.Enums.LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<long> imei, string macAddress,
+            Guid? managedByDepartmentId, Common.Enums.AssetStatus status, string note, string tag, string description)
         {
             var assetCategory = await _assetRepository.GetAssetCategoryAsync(assetCategoryId);
             if (assetCategory == null)
@@ -58,8 +58,17 @@ namespace AssetServices
                 throw new AssetCategoryNotFoundException();
             }
 
-            var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory, brand, model,
-                lifecycleType, purchaseDate, assetHolderId, isActive, imei, macAddress, status, note, managedByDepartmentId);
+            Asset newAsset;
+            if (assetCategory.Id == 1)
+            {
+                newAsset = new MobilePhone(Guid.NewGuid(), customerId, assetCategory,serialNumber, brand, productName,
+                lifecycleType, purchaseDate, assetHolderId, imei.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
+            }
+            else
+            {
+                newAsset = new Tablet(Guid.NewGuid(), customerId, assetCategory,serialNumber, brand, productName,
+                lifecycleType, purchaseDate, assetHolderId, imei.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
+            }
 
             if (!newAsset.AssetPropertiesAreValid)
             {
@@ -82,14 +91,14 @@ namespace AssetServices
 
         public IList<AssetLifecycle> GetLifecycles()
         {
-            Array arr = Enum.GetValues(typeof(LifecycleType));
-            List<AssetLifecycle> assetLifecycles = new List<AssetLifecycle>();
+            Array arr = Enum.GetValues(typeof(Common.Enums.LifecycleType));
+            IList<AssetLifecycle> assetLifecycles = new List<AssetLifecycle>();
 
-            foreach (LifecycleType e in arr)
+            foreach (Common.Enums.LifecycleType e in arr)
             {
                 assetLifecycles.Add(new AssetLifecycle()
                 {
-                    Name = Enum.GetName(typeof(LifecycleType), e),
+                    Name = Enum.GetName(typeof(Common.Enums.LifecycleType), e),
                     EnumValue = (int)e
                 });
             }
@@ -97,7 +106,7 @@ namespace AssetServices
             return assetLifecycles;
         }
 
-        public async Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, LifecycleType newLifecycleType)
+        public async Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, Common.Enums.LifecycleType newLifecycleType)
         {
             var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
             if (asset == null)
@@ -110,7 +119,7 @@ namespace AssetServices
             return asset;
         }
 
-        public async Task<Asset> UpdateAssetStatus(Guid customerId, Guid assetId, AssetStatus status)
+        public async Task<Asset> UpdateAssetStatus(Guid customerId, Guid assetId, Common.Enums.AssetStatus status)
         {
             var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
             if (asset == null)
@@ -123,31 +132,12 @@ namespace AssetServices
             return asset;
         }
 
-        // TODO: REMOVE is handled by AssetStatus
-        public async Task<Asset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive)
+        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei)
         {
-            var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
+            Asset asset = await _assetRepository.GetAssetAsync(customerId, assetId);
             if (asset == null)
             {
                 return null;
-            }
-
-            asset.SetActiveStatus(isActive);
-            await _assetRepository.SaveChanges();
-            return asset;
-        }
-
-        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string imei)
-        {
-            var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
-
-            if (asset == null)
-            {
-                return null;
-            }
-            if (!string.IsNullOrWhiteSpace(serialNumber) && asset.SerialNumber != serialNumber)
-            {
-                asset.ChangeSerialNumber(serialNumber);
             }
             if (!string.IsNullOrWhiteSpace(brand) && asset.Brand != brand)
             {
@@ -165,13 +155,47 @@ namespace AssetServices
             {
                 asset.UpdateNote(note);
             }
-            if (!string.IsNullOrWhiteSpace(imei) && asset.Imei != imei)
+            if (tag != default && asset.AssetTag != tag)
             {
-                asset.SetImei(imei);
+                asset.UpdateTag(tag);
             }
+            if (description != default && asset.Description != description)
+            {
+                asset.UpdateDescription(description);
+            }
+            UpdateDerivedAssetType(asset, serialNumber, imei);
 
             await _assetRepository.SaveEntitiesAsync();
             return asset;
+        }
+
+        private void UpdateDerivedAssetType(Asset asset, string serialNumber, IList<long> imei)
+        {
+            MobilePhone phone = asset as MobilePhone;
+            if (phone != null)
+            {
+                if (!string.IsNullOrWhiteSpace(serialNumber) && phone.SerialNumber != serialNumber)
+                {
+                    phone.ChangeSerialNumber(serialNumber);
+                }
+                if (phone.Imeis != imei)
+                {
+                    phone.SetImei(imei);
+                }
+            }
+
+            Tablet tablet = asset as Tablet;
+            if (tablet != null)
+            {
+                if (!string.IsNullOrWhiteSpace(serialNumber) && tablet.SerialNumber != serialNumber)
+                {
+                    tablet.ChangeSerialNumber(serialNumber);
+                }
+                if (tablet.Imeis != imei)
+                {
+                    tablet.SetImei(imei);
+                }
+            }
         }
 
         public async Task<Asset> AssignAsset(Guid customerId, Guid assetId, Guid? userId)
@@ -186,11 +210,11 @@ namespace AssetServices
             return asset;
         }
 
-        public async Task<IList<AssetCategory>> GetAssetCategoriesAsync()
+        public async Task<IList<AssetCategory>> GetAssetCategoriesAsync(string language = "EN")
         {
             try
             {
-                return await _assetRepository.GetAssetCategoriesAsync();
+                return await _assetRepository.GetAssetCategoriesAsync(language);
             }
             catch (Exception exception)
             {

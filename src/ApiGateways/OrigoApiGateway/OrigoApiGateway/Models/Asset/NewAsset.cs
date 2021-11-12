@@ -1,8 +1,7 @@
-﻿using Common.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace Asset.API.ViewModels
+namespace OrigoApiGateway.Models
 {
     public class NewAsset
     {
@@ -28,8 +27,9 @@ namespace Asset.API.ViewModels
 
         /// <summary>
         /// The type of lifecycle for this asset.
+        /// <see cref="Common.Enums.LifecycleType">AssetStatus</see>
         /// </summary>
-        public LifecycleType LifecycleType { get; set; }
+        public Common.Enums.LifecycleType LifecycleType { get; set; }
 
         /// <summary>
         /// The date the asset was purchased.
@@ -47,6 +47,12 @@ namespace Asset.API.ViewModels
         public Guid? AssetHolderId { get; set; }
 
         /// <summary>
+        /// The status of the asset.
+        /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
+        /// </summary>
+        public Common.Enums.AssetStatus AssetStatus { get; set; }
+
+        /// <summary>
         /// A description of the asset.
         /// </summary>
         public string Description { get; set; }
@@ -56,11 +62,12 @@ namespace Asset.API.ViewModels
         /// </summary>
         public string AssetTag { get; set; }
 
+        // TODO: remove this field when all reference and dependencies to this is removed.
         /// <summary>
-        /// The status of the asset.
-        /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
+        /// This is a legacy attribute and will be removed.
         /// </summary>
-        public int AssetStatus { get; set; }
+        [Obsolete("This is a legacy attribute and will be removed.")]
+        public bool IsActive { get; set; } = true;
 
         /// <summary>
         /// The imei of the asset. Applicable to assets with category Mobile Phone and Tablet.

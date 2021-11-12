@@ -1,5 +1,6 @@
 ﻿using Common.Enums;
 using System;
+using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models.BackendDTO
 {
@@ -45,7 +46,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         /// <summary>
         /// The model or product name of this asset (e.g. Samsung Galaxy)
         /// </summary>
-        public string Model { get; set; }
+        public string ProductName { get; set; }
 
         /// <summary>
         /// The type of lifecycle for this asset.
@@ -82,12 +83,22 @@ namespace OrigoApiGateway.Models.BackendDTO
         /// A comma separated string, where each instance is an imei.
         /// Applicable to assets with category type Mobile Phones.
         /// </summary>
-        public string Imei { get; set; }
+        public IList<long> Imei { get; set; }
 
         /// <summary>
         /// The mac address of the asset
         /// </summary>
         public string MacAddress { get; set; }
+
+        /// <summary>
+        /// A description of the asset.
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Tags associated with this asset.
+        /// </summary>
+        public string AssetTag { get; set; }
 
         public bool IsActive { get; set; }
 

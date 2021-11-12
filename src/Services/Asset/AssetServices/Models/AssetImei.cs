@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Common.Seedwork;
 
 namespace AssetServices.Models
 {
-    public class AssetImei
+    public class AssetImei : Entity
     {
-        protected AssetImei()
-        {
-
-        }
+        protected AssetImei() { }
 
         public AssetImei(long imei)
         {

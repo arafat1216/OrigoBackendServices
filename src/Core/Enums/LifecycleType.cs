@@ -2,9 +2,9 @@
 {
     public enum LifecycleType
     {
-        NoLifecycle,
-        Leasing,
-        CompanyPurchased,
-        BYOD
+        NoLifecycle = 0,
+        Leasing = 1,
+        CompanyPurchased = 2,
+        BYOD = 3
     }
 }

@@ -8,10 +8,10 @@ namespace AssetServices.DomainEvents
 {
     public class SerialNumberChangedDomainEvent : BaseEvent
     {
-        public Asset Asset { get; protected set; }
+        public HardwareSuperType Asset { get; protected set; }
         public string PreviousSerialNumber { get; protected set; }
 
-        public SerialNumberChangedDomainEvent(Asset asset, string previousSerialNumber) : base(asset.ExternalId)
+        public SerialNumberChangedDomainEvent(HardwareSuperType asset, string previousSerialNumber) : base(asset.ExternalId)
         {
             Asset = asset;
             PreviousSerialNumber = previousSerialNumber;

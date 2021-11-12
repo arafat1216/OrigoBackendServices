@@ -4,14 +4,16 @@ using AssetServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AssetServices.Migrations
 {
     [DbContext(typeof(AssetsContext))]
-    partial class AssetsContextModelSnapshot : ModelSnapshot
+    [Migration("20211110091347_AssetRestructuring")]
+    partial class AssetRestructuring
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,9 +27,6 @@ namespace AssetServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("AssetCategoryId")
-                        .HasColumnType("int");
 
                     b.Property<Guid?>("AssetHolderId")
                         .HasColumnType("uniqueidentifier");
@@ -76,8 +75,6 @@ namespace AssetServices.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AssetCategoryId");
 
                     b.ToTable("Assets");
                 });
@@ -208,15 +205,6 @@ namespace AssetServices.Migrations
                     b.HasBaseType("AssetServices.Models.SoftwareSuperType");
 
                     b.ToTable("Subscription");
-                });
-
-            modelBuilder.Entity("AssetServices.Models.Asset", b =>
-                {
-                    b.HasOne("AssetServices.Models.AssetCategory", "AssetCategory")
-                        .WithMany()
-                        .HasForeignKey("AssetCategoryId");
-
-                    b.Navigation("AssetCategory");
                 });
 
             modelBuilder.Entity("AssetServices.Models.AssetCategory", b =>

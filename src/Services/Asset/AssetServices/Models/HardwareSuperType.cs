@@ -16,7 +16,15 @@ namespace AssetServices.Models
         [Required]
         public string SerialNumber { get; set; }
 
+        /// <summary>
+        /// A list of all the IMEI numbers this asset has
+        /// </summary>
         public IList<AssetImei> Imeis { get; set; }
+
+        /// <summary>
+        /// The mac-address of the asset
+        /// </summary>
+        public string MacAddress { get; protected set; }
 
         public void ChangeSerialNumber(string serialNumber)
         {
@@ -63,6 +71,15 @@ namespace AssetServices.Models
                     Imeis.Add(new AssetImei(imei));
                 }
             }
+        }
+
+        /// <summary>
+        /// Sets the macaddress of the asset
+        /// </summary>
+        /// <param name="macAddress"></param>
+        public void SetMacAddress(string macAddress)
+        {
+            MacAddress = macAddress;
         }
     }
 }

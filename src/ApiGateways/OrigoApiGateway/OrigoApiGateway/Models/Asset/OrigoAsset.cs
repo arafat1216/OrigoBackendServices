@@ -1,32 +1,30 @@
-using System;
 using Common.Enums;
 using OrigoApiGateway.Models.BackendDTO;
+using System;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace OrigoApiGateway.Models
 {
-    public class OrigoAsset
+    public abstract class OrigoAsset
     {
-        public OrigoAsset(AssetDTO asset)
+        protected OrigoAsset() { }
+
+        protected OrigoAsset(AssetDTO asset)
         {
             Id = asset.AssetId;
             OrganizationId = asset.OrganizationId;
             Note = asset.Note;
-            SerialNumber = asset.SerialNumber;
             AssetCategoryId = asset.AssetCategoryId;
             AssetCategoryName = asset.AssetCategoryName;
             Brand = asset.Brand;
-            Model = asset.Model;
+            ProductName = asset.ProductName;
             LifecycleType = asset.LifecycleType;
             LifeCycleName = asset.LifecycleName;
-            Imei = asset.Imei;
-            MacAddress = asset.MacAddress;
             PurchaseDate = asset.PurchaseDate;
             CreatedDate = asset.CreatedDate;
             ManagedByDepartmentId = asset.ManagedByDepartmentId;
             AssetHolderId = asset.AssetHolderId;
-            IsActive = asset.IsActive;
             AssetStatus = asset.AssetStatus;
             AssetStatusName = asset.AssetStatusName;
         }
@@ -47,10 +45,14 @@ namespace OrigoApiGateway.Models
         public string Note { get; protected set; }
 
         /// <summary>
-        /// The unique serial number for the asset. For mobile phones and other devices
-        /// where an IMEI number also exists, the IMEI will be used here.
+        /// A description of the asset.
         /// </summary>
-        public string SerialNumber { get; protected set; }
+        public string Description { get; protected set; }
+
+        /// <summary>
+        /// Tags associated with this asset.
+        /// </summary>
+        public string AssetTag { get; protected set; }
 
         /// <summary>
         /// Asset is linked to this category
@@ -70,7 +72,7 @@ namespace OrigoApiGateway.Models
         /// <summary>
         /// The model or product name of this asset (e.g. Samsung Galaxy)
         /// </summary>
-        public string Model { get; protected set; }
+        public string ProductName { get; protected set; }
 
         /// <summary>
         /// The type of lifecycle for this asset.
@@ -103,23 +105,18 @@ namespace OrigoApiGateway.Models
         public Guid? AssetHolderId { get; protected set; }
 
         /// <summary>
-        /// The imei of the device. Applicable to devices with category Mobile device.
-        /// </summary>
-        public string Imei { get; protected set; }
-
-        /// <summary>
-        /// The mac address of the device.
-        /// </summary>
-        public string MacAddress { get; protected set; }
-
-        public bool IsActive { get; set; }
-
-        /// <summary>
         /// The status of the asset.
         /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
         /// </summary>
         public AssetStatus AssetStatus { get; protected set; }
 
         public string AssetStatusName { get; protected set; }
+
+        // TODO: remove this field when all reference and dependencies to this is removed.
+        /// <summary>
+        /// This is a legacy attribute and will be removed.
+        /// </summary>
+        [Obsolete("This is a legacy attribute and will be removed.")]
+        public bool IsActive { get; set; } = true;
     }
 }

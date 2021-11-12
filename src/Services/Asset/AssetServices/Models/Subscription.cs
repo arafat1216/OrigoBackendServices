@@ -4,23 +4,20 @@ using System.Collections.Generic;
 
 namespace AssetServices.Models
 {
-    public class Tablet : HardwareSuperType
+    public class Subscription : SoftwareSuperType
     {
-        protected Tablet() { }
+        protected Subscription() { }
 
-        public Tablet(Guid externalId, Guid customerId, AssetCategory assetCategory, string serialNumber, string brand, string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<AssetImei> imei, string macAddress, AssetStatus status, string note, string assetTag, string description, Guid? managedByDepartmentId = null)
+        public Subscription(Guid externalId, Guid customerId, string serialNumber, string brand, string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<AssetImei> imei, string macAddress, AssetStatus status, string note, string assetTag, string description, Guid? managedByDepartmentId = null)
         {
             ExternalId = externalId;
             CustomerId = customerId;
-            AssetCategory = assetCategory;
-            SerialNumber = serialNumber;
+            SerialKey = serialNumber;
             Brand = brand;
             ProductName = productName;
             LifecycleType = lifecycleType;
             PurchaseDate = purchaseDate;
             AssetHolderId = assetHolderId;
-            Imeis = imei;
-            MacAddress = macAddress;
             Status = status;
             Note = note;
             AssetTag = assetTag;

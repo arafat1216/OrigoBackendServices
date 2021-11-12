@@ -13,9 +13,8 @@ namespace AssetServices.Models
         Task<PagedModel<Asset>> GetAssetsAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken);
         Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId);
         Task<Asset> GetAssetAsync(Guid customerId, Guid assetId);
-        Task<AssetCategory> GetAssetCategoryAsync(Guid assetAssetCategoryId);
-        Task<IList<AssetCategory>> GetAssetCategoriesAsync();
-        Task SaveChanges();
+        Task<AssetCategory> GetAssetCategoryAsync(int assetAssetCategoryId);
+        Task<IList<AssetCategory>> GetAssetCategoriesAsync(string language = "EN");
         Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default);
         Task<IList<FunctionalEventLogEntry>> GetAuditLog(Guid assetId);
     }
