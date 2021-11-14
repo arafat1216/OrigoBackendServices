@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -55,7 +56,11 @@ namespace OrigoApiGateway
                 .AddCheck("self", () => HealthCheckResult.Healthy("Gateway is ok"), tags: new[] { "Origo API Gateway" });
 
             services.AddHealthChecksUI().AddInMemoryStorage();
-
+            services.AddAzureClients(builder =>
+            {
+                builder.AddBlobServiceClient(Configuration.GetSection("Storage:ConnectionString").Value);
+            });
+            services.AddTransient<IStorageService, StorageService>();
             services.Configure<AssetConfiguration>(Configuration.GetSection("Asset"));
             services.Configure<CustomerConfiguration>(Configuration.GetSection("Customer"));
             services.Configure<UserConfiguration>(Configuration.GetSection("User"));
