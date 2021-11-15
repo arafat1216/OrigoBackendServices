@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -30,14 +31,18 @@ namespace OrigoApiGateway.Services
         /// </summary>
         /// <param name="formFile">A file sent with HttpRequest, to be stored on Azure storage as a blob</param>
         /// <returns>void</returns>
-        /// <exception cref="StorageException">Throws the exception if the file dont exist, or Azure Storage services encountered any problems</exception>
-        public async Task UploadAssetsFileAsync(IFormFile formFile)
+        /// <exception cref="ResourceNotFoundException">Throws the exception if the file dont exist</exception>
+        /// /// <exception cref="Azure.RequestFailedException">Throws the exception if Azure had any problems handling the request</exception>
+        public async Task UploadAssetsFileAsync(Guid organizationId, IFormFile formFile)
         {
             try
             {
+                string fileName = organizationId.ToString() + "/" + formFile.FileName;
                 var containerName = _configuration.GetSection("Storage:ContainerName").Value;
                 var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-                var blobClient = containerClient.GetBlobClient(formFile.FileName);
+                //containerClient.
+                var blobClient = containerClient.GetBlobClient(fileName);
+               
 
                 using var stream = formFile.OpenReadStream();
                 var response = await blobClient.UploadAsync(stream, true);
@@ -45,6 +50,11 @@ namespace OrigoApiGateway.Services
                 {
                     throw new Azure.RequestFailedException(response.GetRawResponse().ReasonPhrase);
                 }
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogError(ex, "UploadAssetsFile failed with ResourceNotFoundException.");
+                throw;
             }
             catch (Azure.RequestFailedException ex)
             {
@@ -63,18 +73,21 @@ namespace OrigoApiGateway.Services
         /// </summary>
         /// <param name="filename">The name or URI of the blob item</param>
         /// <returns>Returns the filebody as a System.IO.Stream</returns>
-        /// <exception cref="StorageException">Throws the exception if the file dont exist, or Azure Storage services encountered any problems</exception>
-        public async Task<Stream> GetAssetsFileAsStreamAsync(string fileName)
+        /// <exception cref="ResourceNotFoundException">Throws the exception if the file dont exist</exception>
+        /// /// <exception cref="Azure.RequestFailedException">Throws the exception if Azure had any problems handling the request</exception>
+        public async Task<Stream> GetAssetsFileAsStreamAsync(Guid organizationId, string fileName)
         {
             try
             {
                 var containerName = _configuration.GetSection("Storage:ContainerName").Value;
                 var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-                var blobClient = containerClient.GetBlobClient(fileName);
+                string path_file = organizationId.ToString() + "/" + fileName;
+                var blobClient = containerClient.GetBlobClient(path_file);
+
                 if (!blobClient.Exists())
                     throw new ResourceNotFoundException(string.Format("The requested resource {0} was not found.", fileName), _logger);
-              
-                var response = await blobClient.DownloadAsync();
+
+                Azure.Response<Azure.Storage.Blobs.Models.BlobDownloadInfo> response = await blobClient.DownloadAsync();
 
                    
                 if (response.GetRawResponse().Status != 200)
@@ -83,6 +96,11 @@ namespace OrigoApiGateway.Services
                 }
 
                 return response.Value.Content;
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogError(ex, "GetAssetsFileAsStreamAsync failed with ResourceNotFoundException.");
+                throw;
             }
             catch (Azure.RequestFailedException ex)
             {
@@ -101,21 +119,38 @@ namespace OrigoApiGateway.Services
         /// </summary>
         /// <param name="filename">The name or URI of the blob item</param>
         /// <returns>Returns the blob file names as a List of strings</returns>
-        /// <exception cref="StorageException">Throws the exception if the file dont exist, or Azure Storage services encountered any problems</exception>
-        public async Task<IEnumerable<string>> GetBlobsAsync()
+        /// <exception cref="ResourceNotFoundException">Throws the exception if the file dont exist</exception>
+        /// /// <exception cref="Azure.RequestFailedException">Throws the exception if Azure had any problems handling the request</exception>
+        public async Task<IEnumerable<string>> GetBlobsAsync(Guid organizationId)
         {
             try
             {
+                string orgId = organizationId.ToString();
                 var containerName = _configuration.GetSection("Storage:ContainerName").Value;
                 var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+                //var blobClient = containerClient.Get(orgId + "/");
                 var blobNames = new List<string>();
-
-                await foreach (var blobItem in containerClient.GetBlobsAsync())
+                
+               
+                
+                // Find all files for organizationId
+                await foreach (var blobItem in containerClient.GetBlobsAsync(BlobTraits.None, BlobStates.None, orgId + "/"))
                 {
-                    blobNames.Add(blobItem.Name);
+                    blobNames.Add(blobItem.Name.Split("/")[1]); // Do not include custId as name of file.
+                }
+
+                // Check if item was found
+                if (blobNames.Count == 0)
+                {
+                    throw new ResourceNotFoundException(string.Format("The requested resource {0} was not found.", orgId), _logger);
                 }
 
                 return blobNames;
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogError(ex, "GetBlogsAsync failed with ResourceNotFoundException.");
+                throw;
             }
             catch (Azure.RequestFailedException ex)
             {

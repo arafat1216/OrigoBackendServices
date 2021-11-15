@@ -154,8 +154,12 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                _storageService.UploadAssetsFileAsync(file);
+                await _storageService.UploadAssetsFileAsync(organizationId, file);
                 return Ok();
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Azure.RequestFailedException ex)
             {
@@ -173,13 +177,13 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var fileStream = await _storageService.GetAssetsFileAsStreamAsync(fileName);
+                var fileStream = await _storageService.GetAssetsFileAsStreamAsync(organizationId, fileName);
 
                 return File(fileStream, "text/html", fileName);
             }
             catch (ResourceNotFoundException ex)
             {
-                return NotFound("The requested resource " + fileName + ", was not found");
+                return NotFound(ex.Message);
             }
             catch (Azure.RequestFailedException ex)
             {
@@ -197,10 +201,14 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var blobList = await _storageService.GetBlobsAsync();
+                var blobList = await _storageService.GetBlobsAsync(organizationId);
                 return Ok(blobList);
             }
-           catch(Azure.RequestFailedException ex)
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Azure.RequestFailedException ex)
             {
                 return BadRequest("RequestFailedException: Could not get files from azure with the following message: " + ex.Message);
             }
