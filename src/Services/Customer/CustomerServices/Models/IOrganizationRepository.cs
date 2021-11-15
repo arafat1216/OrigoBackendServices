@@ -18,7 +18,10 @@ namespace CustomerServices.Models
         Task<Organization> DeleteOrganizationAsync(Organization organization);
         Task<IList<User>> GetAllUsersAsync(Guid customerId);
         Task<User> GetUserAsync(Guid customerId, Guid userId);
+        Task<User> GetUserAsync(Guid userId);
         Task<User> AddUserAsync(User newUser);
+        Task<User> DeleteUserAsync(User user);
+
 
         Task<Location> AddOrganizationLocationAsync(Location location);
         Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);

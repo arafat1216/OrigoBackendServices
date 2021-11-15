@@ -107,7 +107,7 @@ namespace CustomerServices
 
         public async Task<Organization> PutOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
                                                                string street, string postCode, string city, string country,
-                                                               string fullName, string email, string phoneNumber)
+                                                               string firstName, string lastName, string email, string phoneNumber)
         {
             try
             {
@@ -146,12 +146,7 @@ namespace CustomerServices
                 newAddress = new Address(street, postCode, city, country);
 
                 // Contact Person
-                ContactPerson newContactPerson;
-                fullName = (fullName == null) ? "" : fullName;
-                email = (email == null) ? "" : email;
-                phoneNumber = (phoneNumber == null) ? "" : phoneNumber;
-
-                newContactPerson = new ContactPerson(fullName, email, phoneNumber);
+                ContactPerson newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
                 Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation);
@@ -193,7 +188,7 @@ namespace CustomerServices
 
         public async Task<Organization> PatchOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber, 
                                                                string street, string postCode, string city, string country,
-                                                               string fullName, string email, string phoneNumber)
+                                                               string firstName, string lastName, string email, string phoneNumber)
         {
             try
             {
@@ -242,11 +237,12 @@ namespace CustomerServices
 
                 // ContactPerson
                 ContactPerson newContactPerson;
-                fullName = (fullName == null) ? organizationOriginal.ContactPerson.FullName : fullName;
+                firstName = (firstName == null) ? organizationOriginal.ContactPerson.FirstName : firstName;
+                lastName = (lastName == null) ? organizationOriginal.ContactPerson.LastName : lastName;
                 email = (email == null) ? organizationOriginal.ContactPerson.Email : email;
                 phoneNumber = (phoneNumber == null) ? organizationOriginal.ContactPerson.PhoneNumber : phoneNumber;
 
-                newContactPerson = new ContactPerson(fullName, email, phoneNumber);
+                newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
                 Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation);

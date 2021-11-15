@@ -1,5 +1,4 @@
 ﻿using Common.Enums;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
@@ -26,10 +25,10 @@ namespace OrigoApiGateway.Controllers
         private readonly ILogger<UsersController> _logger;
         private readonly IUserServices _userServices;
 
-        public UsersController(ILogger<UsersController> logger, IUserServices customerServices)
+        public UsersController(ILogger<UsersController> logger, IUserServices userServices)
         {
             _logger = logger;
-            _userServices = customerServices;
+            _userServices = userServices;
         }
 
         [HttpGet]
@@ -37,7 +36,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<List<OrigoUser>>> GetAllUsers(Guid organizationId)
-        {
+        { 
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
             {
@@ -53,7 +52,7 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
             }
-
+            
             var users = await _userServices.GetAllUsersAsync(organizationId);
             if (users == null) return NotFound();
             return Ok(users);
@@ -66,6 +65,7 @@ namespace OrigoApiGateway.Controllers
         [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<OrigoUser>> GetUser(Guid organizationId, Guid userId)
         {
+           
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
             {
@@ -81,7 +81,7 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
             }
-
+          
             var user = await _userServices.GetUserAsync(organizationId, userId);
             if (user == null) return NotFound();
             return Ok(user);
@@ -113,6 +113,149 @@ namespace OrigoApiGateway.Controllers
                 var updatedUser = await _userServices.AddUserForCustomerAsync(organizationId, newUser);
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUser.Id }, updatedUser);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{userId:Guid}/activate")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        public async Task<ActionResult<OrigoUser>> SetUserActiveStatus(Guid organizationId, Guid userId, bool isActive)
+        {
+            try
+            {         
+                // Check if caller has access to this organization
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var user = await _userServices.SetUserActiveStatusAsync(organizationId, userId, isActive);
+                if (user == null)
+                    return NotFound();
+                return Ok(user);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("{userId:Guid}")]
+        [HttpPut]
+        [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        public async Task<ActionResult<OrigoUser>> PutUserForCustomer(Guid organizationId, Guid userId, [FromBody] OrigoUpdateUser updateUser)
+        {
+            try
+            {
+                // Check if caller has access to this organization
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var updatedUser = await _userServices.PutUserAsync(organizationId, userId, updateUser);
+                if (updatedUser == null)
+                    return NotFound();
+
+                return Ok(updatedUser);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{userId:Guid}")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        public async Task<ActionResult<OrigoUser>> PatchUserForCustomer(Guid organizationId, Guid userId, [FromBody] OrigoUpdateUser updateUser)
+        {
+            try
+            {
+                // Check if caller has access to this organization
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var updatedUser = await _userServices.PatchUserAsync(organizationId, userId, updateUser);
+                if (updatedUser == null)
+                    return NotFound();
+
+                return Ok(updatedUser);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{userId:Guid}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        public async Task<ActionResult<bool>> DeleteUserForCustomer(Guid organizationId, Guid userId, bool softDelete = true)
+        {
+            try
+            {
+                // Check if caller has access to this organization
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var deletedUser = await _userServices.DeleteUserAsync(organizationId, userId, softDelete);
+                if (!deletedUser)
+                    return NotFound();
+
+                return NoContent();
             }
             catch
             {

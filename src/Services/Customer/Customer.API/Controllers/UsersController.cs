@@ -20,14 +20,12 @@ namespace Customer.API.Controllers
     {
 
         private readonly IUserServices _userServices;
-        private readonly IOktaServices _oktaServices;
         private readonly ILogger<UsersController> _logger;
 
-        public UsersController(ILogger<UsersController> logger, IUserServices userServices, IOktaServices oktaServices)
+        public UsersController(ILogger<UsersController> logger, IUserServices userServices)
         {
             _logger = logger;
             _userServices = userServices;
-            _oktaServices = oktaServices;
         }
 
         [HttpGet]
@@ -65,12 +63,46 @@ namespace Customer.API.Controllers
             try
             {
                 var updatedUser = await _userServices.AddUserForCustomerAsync(customerId, newUser.FirstName,
-                    newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId);
+                    newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId, new CustomerServices.Models.UserPreference(newUser.UserPreference?.Language));
                 var updatedUserView = new User(updatedUser);
 
-                await _oktaServices.AddOktaUser(updatedUser.UserId, updatedUser.FirstName, updatedUser.LastName, updatedUser.Email, updatedUser.MobileNumber, true);
-                
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUserView.Id }, updatedUserView);
+            }
+            catch (CustomerNotFoundException)
+            {
+                return BadRequest("Customer not found");
+            }
+            catch (OktaException ex)
+            {
+                return BadRequest("Okta failed to activate user.");
+            }
+            catch (UserNotFoundException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex);
+                return BadRequest("Unable to save user");
+            }
+        }
+
+        [Route("{userId:Guid}")]
+        [HttpPut]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<User>> UpdateUserPut(Guid customerId, Guid userId, [FromBody] UpdateUser updateUser)
+        {
+            try
+            {
+                var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language);
+                var updatedUser = await _userServices.UpdateUserPutAsync(customerId, userId, updateUser.FirstName,
+                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId, userPreference);
+                if (updatedUser == null)
+                    return NotFound();
+
+                var updatedUserView = new User(updatedUser);
+                return Ok(updatedUserView);
             }
             catch (CustomerNotFoundException)
             {
@@ -79,6 +111,97 @@ namespace Customer.API.Controllers
             catch
             {
                 return BadRequest("Unable to save user");
+            }
+        }
+
+        [Route("{userId:Guid}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<User>> UpdateUserPatch(Guid customerId, Guid userId, [FromBody] UpdateUser updateUser)
+        {
+            try
+            {
+                var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language);
+                var updatedUser = await _userServices.UpdateUserPatchAsync(customerId, userId, updateUser.FirstName,
+                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId, userPreference);
+                if (updatedUser == null)
+                    return NotFound();
+
+                var updatedUserView = new User(updatedUser);
+                return Ok(updatedUserView);
+            }
+            catch (CustomerNotFoundException)
+            {
+                return BadRequest("Customer not found");
+            }
+            catch
+            {
+                return BadRequest("Unable to save user");
+            }
+        }
+
+        /// <summary>
+        /// If this is true then the entity will only be soft-deleted (isDeleted or any equivalent value). This is the default handling that is used by all user-initiated calls.
+        /// When it is false, the entry is permanently deleted from the system.This should only be run under very spesific circumstances by the automated cleanup tools, and only on assets that is already soft-deleted.
+        /// Default value : true
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="softDelete"></param>
+        /// <returns cref="HttpStatusCode.NoContent"></returns
+        /// <returns cref="HttpStatusCode.BadRequest"></returns>
+        /// <returns cref="HttpStatusCode.NotFound"></returns>
+        [Route("{userId:Guid}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> DeleteUser(Guid userId, bool softDelete = true)
+        {
+            try
+            {
+                var deletedUser = await _userServices.DeleteUserAsync(userId, softDelete);
+                if (deletedUser == null)
+                    return NotFound("The requested resource don't exist.");
+                // TODO: Ask about this status code 302. Does this make sense??
+                // The resource was deleted successfully.
+                return NoContent();
+            }
+            catch (CustomerNotFoundException)
+            {
+                return BadRequest("Customer not found");
+            }
+            catch (UserDeletedException)
+            {
+                // TODO: 410 result?
+                return NotFound("The requested resource have already been deleted (soft-delete).");
+            }
+            catch
+            {
+                return BadRequest("Unable to delete user");
+            }
+        }
+
+        [Route("{userId:Guid}/activate/{isActive:bool}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive)
+        {
+            try
+            {
+                var user = await _userServices.SetUserActiveStatus(customerId, userId, isActive);
+                if (user == null)
+                    return NotFound();
+                return Ok(new User(user));
+            }
+            catch (UserNotFoundException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Unable to deactivate user");
             }
         }
 

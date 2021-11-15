@@ -28,9 +28,9 @@ namespace CustomerServices
             _mediator = mediator;
         }
 
-        public async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
+        private async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
         {
-            int numberOfRecordsSaved = 0;
+            var numberOfRecordsSaved = 0;
             //Use of an EF Core resiliency strategy when using multiple DbContexts within an explicit BeginTransaction():
             //See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency            
             await ResilientTransaction.New(_customerContext).ExecuteAsync(async () =>
@@ -55,7 +55,7 @@ namespace CustomerServices
                 .Where(up => up.User.Email == userName).ToListAsync();
         }
 
-        public async Task<Role> GetRole(PredefinedRole predefinedRole)
+        private async Task<Role> GetRole(PredefinedRole predefinedRole)
         {
             var role = await _customerContext.Roles
                 .Include(r => r.GrantedPermissions)
@@ -64,30 +64,34 @@ namespace CustomerServices
             return role;
         }
 
-        public async Task<UserPermissions> AssignUserPermissionsAsync(string userName, PredefinedRole predefinedRole, IList<Guid> accessList)
+        public async Task<UserPermissions> AssignUserPermissionsAsync(string userName, string roleName, IList<Guid> accessList)
         {
+            if (!Enum.TryParse(roleName, out PredefinedRole roleType))
+            {
+                throw new InvalidRoleNameException();
+            }
             var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.Email.Trim().ToLower() == userName.Trim().ToLower());
             if (user == null)
-                throw new UserNameDoNotExistException();
+                throw new UserNameDoesNotExistException();
             var userPermissions = await GetUserPermissionsAsync(userName);
-            var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)predefinedRole);
+            var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)roleType);
             var departments = await _customerContext.Departments.Where(d => d.Customer == user.Customer).ToListAsync();
-            if (predefinedRole == PredefinedRole.DepartmentManager && !accessList.Any()) // Can't be department manager without access to a department.
+            if (roleType == PredefinedRole.DepartmentManager && !accessList.Any()) // Can't be department manager without access to a department.
             {
                 return null;
             }
-            else if (predefinedRole == PredefinedRole.DepartmentManager &&
-                (departments.Any(d => accessList.Contains(d.ExternalDepartmentId)) ||
-                departments.Any(d => userPermission.AccessList.Contains(d.ExternalDepartmentId)))) // Check if the lists contains at least one department id.
+            if (roleType == PredefinedRole.DepartmentManager &&
+                     (departments.Any(d => accessList.Contains(d.ExternalDepartmentId)) || 
+                      (userPermission != null && departments.Any(d => userPermission.AccessList.Contains(d.ExternalDepartmentId))))) // Check if the lists contains at least one department id.
             {
                 return null;
             }
 
-            bool addNew = false; // Check if we need to add this permission or update it.
+            var addNew = false; // Check if we need to add this permission or update it.
             if (userPermission == null)
             {
                 addNew = true;
-                var role = await GetRole(predefinedRole);
+                var role = await GetRole(roleType);
                 userPermission = new UserPermissions(user, role, accessList);
             }
             if (addNew)
@@ -96,7 +100,7 @@ namespace CustomerServices
             }
             else if (accessList.Any())
             {
-                foreach (Guid access in accessList)
+                foreach (var access in accessList)
                 {
                     if (!userPermission.AccessList.Contains(access))
                     {
@@ -109,13 +113,17 @@ namespace CustomerServices
             return userPermission;
         }
 
-        public async Task<UserPermissions> RemoveUserPermissionsAsync(string userName, PredefinedRole predefinedRole, IList<Guid> accessList)
+        public async Task<UserPermissions> RemoveUserPermissionsAsync(string userName, string roleName, IList<Guid> accessList)
         {
+            if (!Enum.TryParse(roleName, out PredefinedRole roleType))
+            {
+                throw new InvalidRoleNameException();
+            }
             var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.Email.Trim().ToLower() == userName.Trim().ToLower());
             if (user == null)
-                throw new UserNameDoNotExistException();
+                throw new UserNameDoesNotExistException();
             var userPermissions = await GetUserPermissionsAsync(userName);
-            var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)predefinedRole);
+            var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)roleType);
             if (userPermission != null)
             {
                 if (accessList.Any())
@@ -126,7 +134,7 @@ namespace CustomerServices
                         _customerContext.Entry(userPermission).State = EntityState.Modified;
                     }
 
-                    if (predefinedRole == PredefinedRole.DepartmentManager && !userPermission.AccessList.Any())
+                    if (roleType == PredefinedRole.DepartmentManager && !userPermission.AccessList.Any())
                     {
                         userPermission.RemoveRole();
                         _customerContext.UserPermissions.Remove(userPermission);

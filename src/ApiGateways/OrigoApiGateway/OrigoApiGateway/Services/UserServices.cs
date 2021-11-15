@@ -88,6 +88,8 @@ namespace OrigoApiGateway.Services
             try
             {
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users", newUser);
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return null;
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save user", (int)response.StatusCode);
 
@@ -97,6 +99,83 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "AddUserForCustomerAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoUser> PutUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser)
+        {
+            try
+            {
+                var response = await HttpClient.PutAsJsonAsync($"{_options.ApiPath}/{customerId}/users/{userId}", updateUser);
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return null;
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to save user changes", (int)response.StatusCode);
+
+                var user = await response.Content.ReadFromJsonAsync<UserDTO>();
+                return user == null ? null : new OrigoUser(user);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "UpdateUserAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoUser> PatchUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser)
+        {
+            try
+            {
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users/{userId}", updateUser);
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return null;
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to save user changes", (int)response.StatusCode);
+
+                var user = await response.Content.ReadFromJsonAsync<UserDTO>();
+                return user == null ? null : new OrigoUser(user);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "UpdateUserAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<bool> DeleteUserAsync(Guid customerId, Guid userId, bool softDelete)
+        {
+            try
+            {
+                var response = await HttpClient.DeleteAsync($"{_options.ApiPath}/{customerId}/users/{userId}?softDelete={softDelete}");
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return false;
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to delete user", (int)response.StatusCode);
+
+                return true;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "DeleteUserAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoUser> SetUserActiveStatusAsync(Guid customerId, Guid userId, bool isActive)
+        {
+            try
+            {
+                var response = await HttpClient.PostAsync($"{_options.ApiPath}/{customerId}/users/{userId}/activate/{isActive}", null);
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to change active status on user.", (int)response.StatusCode);
+
+                var user = await response.Content.ReadFromJsonAsync<UserDTO>();
+                return user == null ? null : new OrigoUser(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to deactivate user.");
                 throw;
             }
         }
