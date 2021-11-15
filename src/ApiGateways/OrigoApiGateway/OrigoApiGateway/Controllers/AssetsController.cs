@@ -150,6 +150,10 @@ namespace OrigoApiGateway.Controllers
 
         [Route("customers/{organizationId:guid}/upload")]
         [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult> UploadAssetFile(Guid organizationId, IFormFile file)
         {
@@ -189,6 +193,10 @@ namespace OrigoApiGateway.Controllers
 
         [Route("customers/{organizationId:guid}/download")]
         [HttpGet]
+        [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
         public async Task<ActionResult> DownloadAssetFile(Guid organizationId, string fileName)
         {
@@ -229,8 +237,12 @@ namespace OrigoApiGateway.Controllers
 
         [Route("customers/{organizationId:guid}/blob_files")]
         [HttpGet]
+        [ProducesResponseType(typeof(IList<string>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult> GetBlobFiles(Guid organizationId)
+        public async Task<ActionResult<IList<string>>> GetBlobFiles(Guid organizationId)
         {
             try
             {
@@ -248,7 +260,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
+  
                 var blobList = await _storageService.GetBlobsAsync(organizationId);
                 return Ok(blobList);
             }
