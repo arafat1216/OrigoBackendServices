@@ -150,10 +150,26 @@ namespace OrigoApiGateway.Controllers
 
         [Route("customers/{organizationId:guid}/upload")]
         [HttpPost]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult> UploadAssetFile(Guid organizationId, IFormFile file)
         {
             try
             {
+                // Only admin or manager roles are allowed to import assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 await _storageService.UploadAssetsFileAsync(organizationId, file);
                 return Ok();
             }
@@ -173,10 +189,26 @@ namespace OrigoApiGateway.Controllers
 
         [Route("customers/{organizationId:guid}/download")]
         [HttpGet]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
         public async Task<ActionResult> DownloadAssetFile(Guid organizationId, string fileName)
         {
             try
             {
+                // Only admin or manager roles are allowed to download files
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var fileStream = await _storageService.GetAssetsFileAsStreamAsync(organizationId, fileName);
 
                 return File(fileStream, "text/html", fileName);
@@ -197,10 +229,26 @@ namespace OrigoApiGateway.Controllers
 
         [Route("customers/{organizationId:guid}/blob_files")]
         [HttpGet]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
         public async Task<ActionResult> GetBlobFiles(Guid organizationId)
         {
             try
             {
+                // Only admin or manager roles are allowed to view all files
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var blobList = await _storageService.GetBlobsAsync(organizationId);
                 return Ok(blobList);
             }
