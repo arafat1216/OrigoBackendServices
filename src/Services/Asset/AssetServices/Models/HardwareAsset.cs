@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace AssetServices.Models
 {
-    public abstract class HardwareSuperType : Asset
+    public abstract class HardwareAsset : Asset
     {
         /// <summary>
         /// The unique serial number for the asset. For mobile phones and other devices
@@ -49,6 +49,7 @@ namespace AssetServices.Models
                     throw new InvalidAssetDataException($"Invalid imei: {imei}");
                 }
             }
+            Imeis?.Clear();
             Imeis = imeiList.Select(i => new AssetImei(i)).ToList();
         }
 

@@ -10,15 +10,19 @@ namespace AssetServices.Infrastructure
         }
 
         public DbSet<Asset> Assets {get; set;}
+        public DbSet<HardwareAsset> HardwareAsset { get; set; }
+        public DbSet<SoftwareAsset> SoftwareAsset { get; set; }
         public DbSet<AssetCategory> AssetCategories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Asset>().ToTable("Asset");
+            modelBuilder.Entity<Asset>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<MobilePhone>().ToTable("MobilePhone");
             modelBuilder.Entity<Tablet>().ToTable("Tablet");
             modelBuilder.Entity<Subscription>().ToTable("Subscription");
-            modelBuilder.Entity<HardwareSuperType>().ToTable("HardwareType");
-            modelBuilder.Entity<SoftwareSuperType>().ToTable("SoftwareType");
+            modelBuilder.Entity<HardwareAsset>().ToTable("HardwareAsset");
+            modelBuilder.Entity<SoftwareAsset>().ToTable("SoftwareAsset");
             modelBuilder.Entity<AssetCategory>().ToTable("AssetCategory");
         }
     }

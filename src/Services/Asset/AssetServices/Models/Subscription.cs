@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AssetServices.Models
 {
-    public class Subscription : SoftwareSuperType
+    public class Subscription : SoftwareAsset
     {
         protected Subscription() { }
 

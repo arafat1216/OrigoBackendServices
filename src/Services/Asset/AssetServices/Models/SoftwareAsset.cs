@@ -2,7 +2,7 @@
 
 namespace AssetServices.Models
 {
-    public abstract class SoftwareSuperType : Asset
+    public abstract class SoftwareAsset : Asset
     {
         /// <summary>
         /// The unique serial number for the asset. For mobile phones and other devices

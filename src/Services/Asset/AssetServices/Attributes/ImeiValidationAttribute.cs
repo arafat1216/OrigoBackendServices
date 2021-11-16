@@ -8,7 +8,7 @@ namespace AssetServices.Attributes
     {
         public override bool IsValid(object value)
         {
-            var inputValue = value as HardwareSuperType;
+            var inputValue = value as HardwareAsset;
             var isValid = false;
 
             if (AssetValidatorUtility.ValidateImeis(string.Join(',', inputValue.Imeis)))

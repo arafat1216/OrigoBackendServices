@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AssetServices.Models
 {
-    public class Tablet : HardwareSuperType
+    public class Tablet : HardwareAsset
     {
         protected Tablet() { }
 

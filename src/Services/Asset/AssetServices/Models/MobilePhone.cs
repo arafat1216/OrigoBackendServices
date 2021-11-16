@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AssetServices.Models
 {
-    public class MobilePhone : HardwareSuperType
+    public class MobilePhone : HardwareAsset
     {
         protected MobilePhone() { }
 
