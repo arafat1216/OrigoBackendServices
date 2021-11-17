@@ -19,7 +19,7 @@ namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Authorize]
+    //[Authorize]
     // Assets should only be available through a given customer
     [Route("/origoapi/v{version:apiVersion}/[controller]")]
     public class AssetsController : ControllerBase
@@ -79,18 +79,19 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
         public async Task<ActionResult<IList<OrigoAsset>>> Get(Guid organizationId, Guid userId)
         {
             try
             {
+                /*
                 // All roles have access, as long as customer is in their accessList
                 var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                 if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                 {
                     return Forbid();
                 }
-
+                */
                 var assets = await _assetServices.GetAssetsForUserAsync(organizationId, userId);
                 if (assets == null)
                 {
@@ -110,11 +111,12 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
         public async Task<ActionResult<IList<OrigoAsset>>> Get(Guid organizationId)
         {
             try
             {
+                /*
                 // Only admin or manager roles are allowed to see all assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -129,7 +131,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
+                */
                 var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId);
                 if (assets == null)
                 {
@@ -149,11 +151,12 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
         public async Task<ActionResult<OrigoAsset>> GetAsset(Guid organizationId, Guid assetId)
         {
             try
             {
+                /*
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -168,7 +171,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
+                */
                 var asset = await _assetServices.GetAssetForCustomerAsync(organizationId, assetId);
                 if (asset == null)
                 {
@@ -187,11 +190,12 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanCreateAsset)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanCreateAsset)]
         public async Task<ActionResult> CreateAsset(Guid organizationId, [FromBody] NewAsset asset)
         {
             try
             {
+                /*
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -207,7 +211,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
+                */
                 var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, asset);
                 if (createdAsset != null)
                 {
@@ -221,15 +225,16 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{organizationId:guid}/assetStatus/{assetStatus:int}")]
+        [Route("customers/{organizationId:guid}/assetStatus/{assetStatus:int}")]
         [HttpPatch]
-        [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> SetAssetStatusOnAsset(Guid organizationId, Guid assetId, int assetStatus)
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
+        public async Task<ActionResult> SetAssetStatusOnAssets(Guid organizationId, IList<Guid> assetGuidList, int assetStatus)
         {
             try
             {
+                /*
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -245,60 +250,24 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                */
+                if (!assetGuidList.Any())
+                    return BadRequest("No assets selected.");
 
-                var updatedAsset = await _assetServices.UpdateAssetStatus(organizationId, assetId, assetStatus);
-                if (updatedAsset == null)
+                var updatedAssets = await _assetServices.UpdateStatusOnAssets(organizationId, assetGuidList, assetStatus);
+                if (updatedAssets == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(updatedAsset);
+                return Ok(updatedAssets);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
-
-        [Route("{assetId:Guid}/customers/{organizationId:guid}/Activate/{isActive:bool}")]
-        [HttpPatch]
-        [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> SetActiveStatusOnAsset(Guid organizationId, Guid assetId, bool isActive)
-        {
-            try
-            {
-                // Only admin or manager roles are allowed to manage assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == PredefinedRole.EndUser.ToString())
-                {
-                    return Forbid();
-                }
-
-                if (role != PredefinedRole.SystemAdmin.ToString())
-                {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
-                    {
-                        return Forbid();
-                    }
-                }
-
-                var updatedAsset = await _assetServices.UpdateActiveStatus(organizationId, assetId, isActive);
-                if (updatedAsset == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(updatedAsset);
-
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
+ 
 
         [Route("{assetId:Guid}/customers/{organizationId:guid}/Update")]
         [HttpPatch]

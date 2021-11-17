@@ -26,7 +26,6 @@ namespace OrigoApiGateway.Models
             CreatedDate = asset.CreatedDate;
             ManagedByDepartmentId = asset.ManagedByDepartmentId;
             AssetHolderId = asset.AssetHolderId;
-            IsActive = asset.IsActive;
             AssetStatus = asset.AssetStatus;
             AssetStatusName = asset.AssetStatusName;
         }
@@ -111,8 +110,6 @@ namespace OrigoApiGateway.Models
         /// The mac address of the device.
         /// </summary>
         public string MacAddress { get; protected set; }
-
-        public bool IsActive { get; set; }
 
         /// <summary>
         /// The status of the asset.

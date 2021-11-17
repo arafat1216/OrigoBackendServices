@@ -166,53 +166,39 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAsset> UpdateAssetStatus(Guid customerId, Guid assetId, int assetStatus)
+        public async Task<IList<OrigoAsset>> UpdateStatusOnAssets(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
         {
             try
             {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/assetStatus/{assetStatus.ToString().ToLower()}";
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/assetStatus/{assetStatus.ToString().ToLower()}";
                 //TODO: Why isn't Patch supported? Dapr translates it to POST.
-                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                var response = await HttpClient.PostAsJsonAsync(requestUri, assetGuidList);
                 if (!response.IsSuccessStatusCode)
                 {
-                    var exception = new BadHttpRequestException("Unable to set status for asset", (int)response.StatusCode);
-                    _logger.LogError(exception, "Unable to set status for asset.");
+                    var exception = new BadHttpRequestException("Unable to set status for assets", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to set status for assets.");
                     throw exception;
                 }
-                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
-                return asset == null ? null : new OrigoAsset(asset);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "Unable to set status for asset.");
-                throw;
-            }
-        }
+                var assets = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
 
-        public async Task<OrigoAsset> UpdateActiveStatus(Guid customerId, Guid assetId, bool isActive)
-        {
-            try
-            {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/activate/{isActive.ToString().ToLower()}";
-                //TODO: Why isn't Patch supported? Dapr translates it to POST.
-                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
-                if (!response.IsSuccessStatusCode)
+                if (assets == null)
+                    return null;
+
+                List<OrigoAsset> origoAssets = new List<OrigoAsset>();
+                foreach (AssetDTO asset in assets)
                 {
-                    var exception = new BadHttpRequestException("Unable to set status for asset", (int)response.StatusCode);
-                    _logger.LogError(exception, "Unable to set status for asset.");
-                    throw exception;
+                    origoAssets.Add(new OrigoAsset(asset));
                 }
-                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
-                return asset == null ? null : new OrigoAsset(asset);
+
+                return origoAssets;
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to set status for asset.");
+                _logger.LogError(exception, "Unable to set status for assets.");
                 throw;
             }
         }
+ 
 
         public async Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset)
         {

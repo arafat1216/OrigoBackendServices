@@ -28,7 +28,6 @@ namespace Asset.API.ViewModels
             Imei = asset.Imei;
             MacAddress = asset.MacAddress;
             AssetHolderId = asset.AssetHolderId;
-            IsActive = asset.IsActive;
             AssetStatus = asset.Status;
             Note = asset.Note;
         }
@@ -119,8 +118,6 @@ namespace Asset.API.ViewModels
         /// The mac address of the asset
         /// </summary>
         public string MacAddress { get; protected set; }
-
-        public bool IsActive { get; set; }
 
         /// <summary>
         /// The status of the asset.
