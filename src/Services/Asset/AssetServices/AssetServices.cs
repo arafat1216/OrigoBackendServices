@@ -48,7 +48,7 @@ namespace AssetServices
             return await _assetRepository.GetAssetAsync(customerId, assetId);
         }
 
-        public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId, string brand,
+        public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, string alias, Guid assetCategoryId, string brand,
             string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive, string imei, string macAddress,
             Guid? managedByDepartmentId, AssetStatus status, string note)
         {
@@ -58,7 +58,7 @@ namespace AssetServices
                 throw new AssetCategoryNotFoundException();
             }
 
-            var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory, brand, model,
+            var newAsset = new Asset(Guid.NewGuid(), customerId, alias, serialNumber, assetCategory, brand, model,
                 lifecycleType, purchaseDate, assetHolderId, isActive, imei, macAddress, status, note, managedByDepartmentId);
 
             if (!newAsset.AssetPropertiesAreValid)

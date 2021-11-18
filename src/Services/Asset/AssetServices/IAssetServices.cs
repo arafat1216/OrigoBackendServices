@@ -14,7 +14,7 @@ namespace AssetServices
         Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId);
         Task<PagedModel<Asset>> GetAssetsForCustomerAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken);
         Task<Asset> GetAssetForCustomerAsync(Guid customerId, Guid assetId);
-        Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId,
+        Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, string alias, Guid assetCategoryId,
             string brand, string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
             bool isActive, string imei, string macAddress, Guid? managedByDepartmentId, AssetStatus status, string note);
         Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, LifecycleType newLifecycleType);

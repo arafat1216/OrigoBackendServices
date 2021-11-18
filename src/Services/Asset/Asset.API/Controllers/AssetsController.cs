@@ -117,7 +117,7 @@ namespace Asset.API.Controllers
                     throw new InvalidAssetDataException(errorMessage.ToString());
                 }
 
-                var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.SerialNumber,
+                var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.SerialNumber, asset.Alias,
                     asset.AssetCategoryId, asset.Brand, asset.Model, asset.LifecycleType, asset.PurchaseDate,
                     asset.AssetHolderId, asset.IsActive, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, (AssetStatus)asset.AssetStatus, asset.Note);
                 var updatedAssetView = new ViewModels.Asset(updatedAsset);
