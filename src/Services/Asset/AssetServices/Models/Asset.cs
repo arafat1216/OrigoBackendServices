@@ -61,7 +61,7 @@ namespace AssetServices.Models
         /// <summary>
         /// Alias for the asset.
         /// </summary>
-        public string Alias { get; set; }
+        public string Alias { get; protected set; }
 
         /// <summary>
         /// A note containing additional information or comments for the asset.
@@ -151,6 +151,15 @@ namespace AssetServices.Models
         public void SetMacAddress(string macAddress)
         {
             MacAddress = macAddress;
+        }
+
+        /// <summary>
+        /// Sets the alias of the asset
+        /// </summary>
+        /// <param name="alias"></param>
+        public void SetAlias(string alias)
+        {
+            Alias = alias;
         }
 
         /// <summary>

@@ -137,7 +137,7 @@ namespace AssetServices
             return asset;
         }
 
-        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string imei)
+        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string imei)
         {
             var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
 
@@ -168,6 +168,10 @@ namespace AssetServices
             if (!string.IsNullOrWhiteSpace(imei) && asset.Imei != imei)
             {
                 asset.SetImei(imei);
+            }
+            if (!string.IsNullOrWhiteSpace(alias) && asset.Alias != alias)
+            {
+                asset.SetAlias(alias);
             }
 
             await _assetRepository.SaveEntitiesAsync();
