@@ -1,5 +1,5 @@
 fullnameOverride: assetservices
-namespace: develop
+namespace: {{ .Values.namespace}}
 
 service:
   type: ClusterIP

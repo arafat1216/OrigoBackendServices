@@ -5,7 +5,8 @@
 trigger:
   branches:
     include:
-    - master
+    - main
+    - release
     - develop
   paths:
     include:
@@ -23,8 +24,18 @@ variables:
   imageRepository: 'customersbackend'
   containerRegistry: 'origov2acr.azurecr.io'
   dockerfilePath: 'src/Services/Customer/Customer.API/Dockerfile'
-  tag: '$(Build.BuildId)'
-  namespace: develop # TODO: set by condition based on branch
+  ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
+    namespace: prod
+    tag: '$(Build.BuildId)_prod'
+    hostname: origov2dev.mytos.no
+  ${{ elseif eq(variables['Build.SourceBranchName'], 'release') }}:
+    namespace: test
+    tag: '$(Build.BuildId)_test'
+    hostname: origov2test.mytos.no
+  ${{ elseif eq(variables['Build.SourceBranchName'], 'develop') }}:
+    namespace: develop
+    tag: '$(Build.BuildId)_develop'
+    hostname: origov2prod.mytos.no
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
@@ -171,7 +182,7 @@ stages:
               chartType: FilePath
               releaseName: customerservices
               namespace: $(namespace)
-              overrideValues: deployment.image.tag=$(tag),namespace=$(namespace)
+              overrideValues: deployment.image.tag=$(tag),namespace=$(namespace),ingress.hosts.host=$(hostname),ingress.tls.hosts[0]=$(hostname)
               arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts
               install: true
@@ -209,7 +220,7 @@ stages:
               chartType: FilePath
               releaseName: customerservices
               namespace: $(k8sNamespaceForPR)
-              overrideValues: image.tag=$(tag),namespace=$(k8sNamespaceForPR)
+              overrideValues: deployment.image.tag=$(tag),namespace=$(k8sNamespaceForPR),ingress.hosts.host=$(hostname),ingress.tls.hosts[0]=$(hostname)
               arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts
               install: true
