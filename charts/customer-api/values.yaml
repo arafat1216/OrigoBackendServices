@@ -1,5 +1,5 @@
 fullnameOverride: customerservices
-namespace: {{ .Values.namespace}}
+namespace: develop
 
 service:
   type: ClusterIP
