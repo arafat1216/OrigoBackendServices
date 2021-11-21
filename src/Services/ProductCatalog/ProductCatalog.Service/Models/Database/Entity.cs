@@ -4,5 +4,6 @@ namespace ProductCatalog.Service.Models.Database
 {
     public abstract class Entity : IDbEntity
     {
+        public Guid UpdatedBy { get; set; }
     }
 }

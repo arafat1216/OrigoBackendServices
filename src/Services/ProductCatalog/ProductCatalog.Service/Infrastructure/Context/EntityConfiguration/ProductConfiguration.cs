@@ -4,24 +4,13 @@ using ProductCatalog.Service.Models.Database;
 
 namespace ProductCatalog.Service.Infrastructure.Context.EntityConfiguration
 {
-    internal class FeatureConfiguration : IEntityTypeConfiguration<Feature>
+    internal class ProductConfiguration : IEntityTypeConfiguration<Product>
     {
-        public void Configure(EntityTypeBuilder<Feature> builder)
+        public void Configure(EntityTypeBuilder<Product> builder)
         {
-            /*
-            builder.ToTable("Feature");
-
-            builder.HasKey(e => e.Id);
-
-            builder.Property(e => e.FeatureTypeId).IsRequired();
-            builder.Property(e => e.AccessControlPermissionNode).IsRequired();
-            */
-
             builder.ToTable(t => t.IsTemporal());
 
-            builder.HasAlternateKey(e => e.AccessControlPermissionNode);
-
-            builder.Property(e => e.AccessControlPermissionNode).HasMaxLength(64);
+            builder.HasIndex(e => e.PartnerId);
 
             builder.OwnsMany(e => e.Translations);
 

@@ -1,7 +1,13 @@
-﻿
-namespace ProductCatalog.Service.Models.Database
+﻿namespace ProductCatalog.Service.Models.Database
 {
-    internal class Order : Entity
+    public class Order : Entity
     {
+        public int Id { get; set; }
+        public Guid ExternalId { get; set; }
+        public int ProductId { get; set; }
+        public Guid OrganizationId { get; set; }
+
+        // EF Navigation
+        public virtual Product Product { get; set; }
     }
 }
