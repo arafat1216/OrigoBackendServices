@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30804.86
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8DEC9CCC-E8BB-4482-B54D-6E480C19D4A6}"
 EndProject
@@ -121,6 +121,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "Integra
 		src\ApiGateways\OrigoApiGateway\OrigoApiGateway.IntegrationTests\OrigoV2IntegrationTests.postman_collection.json = src\ApiGateways\OrigoApiGateway\OrigoApiGateway.IntegrationTests\OrigoV2IntegrationTests.postman_collection.json
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProductCatalog", "ProductCatalog", "{9D515A05-713E-4722-A511-AD593B4C609F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductCatalog.API", "src\Services\ProductCatalog\ProductCatalog.API\ProductCatalog.API.csproj", "{FFFDAEAD-5472-4FB8-AC9F-5B7E18183FD3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductCatalog.Service", "src\Services\ProductCatalog\ProductCatalog.Service\ProductCatalog.Service.csproj", "{08C35C18-E1E8-441C-AD95-96F2BA1B2EAD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{01059CFC-C74C-4175-A661-61AA0C90DAC0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -167,6 +175,14 @@ Global
 		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFFDAEAD-5472-4FB8-AC9F-5B7E18183FD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFFDAEAD-5472-4FB8-AC9F-5B7E18183FD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFFDAEAD-5472-4FB8-AC9F-5B7E18183FD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFFDAEAD-5472-4FB8-AC9F-5B7E18183FD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08C35C18-E1E8-441C-AD95-96F2BA1B2EAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08C35C18-E1E8-441C-AD95-96F2BA1B2EAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08C35C18-E1E8-441C-AD95-96F2BA1B2EAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08C35C18-E1E8-441C-AD95-96F2BA1B2EAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -199,6 +215,10 @@ Global
 		{315A279F-D0FF-429D-8F33-C39751D83AB2} = {7618C1FC-2AFA-468A-92C5-74DC94CCCA8E}
 		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38} = {315A279F-D0FF-429D-8F33-C39751D83AB2}
 		{DDAD494B-7538-4083-A574-D6F6A7B9A168} = {1D6FE7EF-D120-4993-BD84-39701AB88B5B}
+		{9D515A05-713E-4722-A511-AD593B4C609F} = {7618C1FC-2AFA-468A-92C5-74DC94CCCA8E}
+		{FFFDAEAD-5472-4FB8-AC9F-5B7E18183FD3} = {9D515A05-713E-4722-A511-AD593B4C609F}
+		{08C35C18-E1E8-441C-AD95-96F2BA1B2EAD} = {9D515A05-713E-4722-A511-AD593B4C609F}
+		{01059CFC-C74C-4175-A661-61AA0C90DAC0} = {9D515A05-713E-4722-A511-AD593B4C609F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DAEDEBBF-933A-4FFE-B734-B9E748AF86E1}
