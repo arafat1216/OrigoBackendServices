@@ -132,7 +132,7 @@ stages:
               chartType: FilePath
               releaseName: origoapigateway
               namespace: $(namespace)
-              overrideValues: deployment.image.tag=$(tag),namespace=$(namespace),ingress.hosts.host=$(hostname),ingress.tls.hosts[0]=$(hostname)
+              overrideValues: "deployment.image.tag=$(tag),namespace=$(namespace),ingress.hosts[0].host=$(hostname),ingress.tls[0].hosts[0]=$(hostname)"
               arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts
               install: true
