@@ -182,7 +182,7 @@ stages:
               chartType: FilePath
               releaseName: assetservices
               namespace: $(namespace)
-              overrideValues: deployment.image.tag=$(tag),namespace=$(namespace),ingress.hosts.host=$(hostname),ingress.tls.hosts[0]=$(hostname)
+              overrideValues: deployment.image.tag=$(tag),namespace=$(namespace)
               arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts
               install: true
@@ -220,7 +220,7 @@ stages:
               chartType: FilePath
               releaseName: assetservices
               namespace: $(k8sNamespaceForPR)
-              overrideValues: deployment.image.tag=$(tag),namespace=$(k8sNamespaceForPR),ingress.hosts.host=$(hostname),ingress.tls.hosts[0]=$(hostname)
+              overrideValues: deployment.image.tag=$(tag),namespace=$(k8sNamespaceForPR)
               arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts/AssetServices
               install: true
