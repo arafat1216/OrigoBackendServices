@@ -32,7 +32,6 @@ namespace OrigoApiGateway.Services
         private HttpClient HttpClient { get; }
         private readonly AssetConfiguration _options;
 
-
         public async Task<IList<OrigoAsset>> GetAssetsForUserAsync(Guid customerId, Guid userId)
         {
             try

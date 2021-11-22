@@ -12,6 +12,8 @@ using OrigoApiGateway.Authorization;
 using System.Linq;
 using System.Security.Claims;
 using Common.Enums;
+using Microsoft.AspNetCore.Http;
+using OrigoApiGateway.Exceptions;
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 // ReSharper disable RouteTemplates.ControllerRouteParameterIsNotPassedToMethods
 
@@ -27,11 +29,13 @@ namespace OrigoApiGateway.Controllers
         // ReSharper disable once NotAccessedField.Local
         private readonly ILogger<AssetsController> _logger;
         private readonly IAssetServices _assetServices;
+        private readonly IStorageService _storageService;
 
-        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices)
+        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices, IStorageService storageService)
         {
             _logger = logger;
             _assetServices = assetServices;
+            _storageService = storageService;
         }
 
         [Route("customers/{organizationId:guid}/search")]
@@ -141,6 +145,136 @@ namespace OrigoApiGateway.Controllers
             catch (Exception)
             {
                 return BadRequest();
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/upload")]
+        [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        public async Task<ActionResult> UploadAssetFile(Guid organizationId, IFormFile file)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to import assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                await _storageService.UploadAssetsFileAsync(organizationId, file);
+                return Ok();
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Azure.RequestFailedException ex)
+            {
+                return BadRequest("RequestFailedException: Could not upload file to azure: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Exception: Could not upload file due to unknown error: " + ex.Message);
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/download")]
+        [HttpGet]
+        [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult> DownloadAssetFile(Guid organizationId, string fileName)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to download files
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var fileStream = await _storageService.GetAssetsFileAsStreamAsync(organizationId, fileName);
+
+                return File(fileStream, "text/html", fileName);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Azure.RequestFailedException ex)
+            {
+                return BadRequest("RequestFailedException: Could not download file from azure: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Exception: Could not download file due to unknown error: " + ex.Message);
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/blob_files")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<string>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult<IList<string>>> GetBlobFiles(Guid organizationId)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to view all files
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+  
+                var blobList = await _storageService.GetBlobsAsync(organizationId);
+                return Ok(blobList);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Azure.RequestFailedException ex)
+            {
+                return BadRequest("RequestFailedException: Could not get files from azure with the following message: " + ex.Message);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest("Exception: Could not retrieve files due to unknown exception: " + ex.Message);
             }
         }
 
