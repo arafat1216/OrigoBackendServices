@@ -1,8 +1,6 @@
-﻿using Common.Seedwork;
-
-namespace AssetServices.Models
+﻿namespace AssetServices.Models
 {
-    public class AssetImei : Entity
+    public class AssetImei
     {
         protected AssetImei() { }
 
@@ -10,6 +8,7 @@ namespace AssetServices.Models
         {
             Imei = imei;
         }
+        public int Id { get; set; }
 
         public long Imei { get; set; }
     }
