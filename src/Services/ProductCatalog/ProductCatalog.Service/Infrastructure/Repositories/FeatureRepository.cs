@@ -28,7 +28,6 @@ namespace ProductCatalog.Service.Infrastructure.Repositories
                                                 .Distinct()     // There is no reason to fetch duplicate permission nodes
                                                 .AsNoTracking() // A read-only query, so we don't need to track changes (this increases speed)
                                                 .ToListAsync(); // Microsoft's official "hack" to make the EntityFramework context support async
-
             return permissionNodes;
         }
 
