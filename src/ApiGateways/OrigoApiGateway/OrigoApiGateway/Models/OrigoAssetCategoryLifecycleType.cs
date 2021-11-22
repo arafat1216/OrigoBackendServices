@@ -8,7 +8,7 @@ namespace OrigoApiGateway.Models
     {
         public string Name { get; set; }
 
-        public Guid AssetCategoryId { get; set; }
+        public int AssetCategoryId { get; set; }
 
         public LifecycleType LifecycleType { get; set; }
 

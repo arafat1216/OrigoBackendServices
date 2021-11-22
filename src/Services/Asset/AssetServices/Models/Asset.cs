@@ -19,7 +19,7 @@ namespace AssetServices.Models
         {
         }
 
-        protected Asset(Guid assetId, Guid customerId, AssetCategory assetCategory, string brand, string productName,
+        protected Asset(Guid assetId, Guid customerId,string alias, AssetCategory assetCategory, string brand, string productName,
             LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
             AssetStatus status, string note, string assetTag, string description, Guid? managedByDepartmentId = null)
         {

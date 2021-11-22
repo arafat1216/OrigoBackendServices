@@ -218,7 +218,7 @@ namespace Asset.API.Controllers
             }
         }
 
-             
+
 
         [Route("lifecycles")]
         [HttpGet]
@@ -302,7 +302,7 @@ namespace Asset.API.Controllers
         {
             try
             {
-                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.Alias,asset.SerialNumber, asset.Brand, asset.ProductName, asset.PurchaseDate, asset.Note, asset.AssetTag, asset.Description, asset.Imei);
+                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.Alias, asset.SerialNumber, asset.Brand, asset.ProductName, asset.PurchaseDate, asset.Note, asset.AssetTag, asset.Description, asset.Imei);
                 if (updatedAsset == null)
                 {
                     return NotFound();
@@ -320,7 +320,7 @@ namespace Asset.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger?.LogError("{0}", ex.Message);   
+                _logger?.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }

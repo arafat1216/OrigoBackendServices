@@ -6,19 +6,19 @@ namespace AssetServices.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "IsActive",
-                table: "Asset");
+            //migrationBuilder.DropColumn(
+            //    name: "IsActive",
+            //    table: "Asset");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "IsActive",
-                table: "Asset",
-                type: "bit",
-                nullable: false,
-                defaultValue: false);
+            //migrationBuilder.AddColumn<bool>(
+            //    name: "IsActive",
+            //    table: "Asset",
+            //    type: "bit",
+            //    nullable: false,
+            //    defaultValue: false);
         }
     }
 }

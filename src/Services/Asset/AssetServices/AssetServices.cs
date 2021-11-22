@@ -61,7 +61,7 @@ namespace AssetServices
             Asset newAsset;
             if (assetCategory.Id == 1)
             {
-                newAsset = new MobilePhone(Guid.NewGuid(), alias, customerId, assetCategory, serialNumber, brand, productName,
+                newAsset = new MobilePhone(Guid.NewGuid(), customerId, alias, assetCategory, serialNumber, brand, productName,
                 lifecycleType, purchaseDate, assetHolderId, imei.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
             }
             else

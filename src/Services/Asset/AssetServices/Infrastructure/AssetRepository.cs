@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace AssetServices.Infrastructure
 {
@@ -96,7 +95,7 @@ namespace AssetServices.Infrastructure
             {
                 return await _assetContext.Assets
                     .Include(a => a.AssetCategory)
-                    .Where(a => (a.CustomerId == customerId &&  assetGuidList.Contains(a.AssetId))).ToListAsync();
+                    .Where(a => (a.CustomerId == customerId &&  assetGuidList.Contains(a.ExternalId))).ToListAsync();
             }
             return null;
         }

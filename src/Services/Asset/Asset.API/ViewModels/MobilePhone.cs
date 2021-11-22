@@ -26,6 +26,7 @@ namespace Asset.API.ViewModels
             ManagedByDepartmentId = asset.ManagedByDepartmentId;
             AssetCategoryId = asset.AssetCategory != null ? asset.AssetCategory.Id : 0;
             AssetCategoryName = asset.AssetCategory?.Translations?.FirstOrDefault(a => a.Language == "EN")?.Name;
+            Alias = asset.Alias;
         }
     }
 }

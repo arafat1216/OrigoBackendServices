@@ -8,7 +8,7 @@ namespace AssetServices.Models
     {
         protected Tablet() { }
 
-        public Tablet(Guid externalId, Guid customerId, AssetCategory assetCategory, string serialNumber, string brand, string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<AssetImei> imei, string macAddress, AssetStatus status, string note, string assetTag, string description, Guid? managedByDepartmentId = null)
+        public Tablet(Guid externalId, Guid customerId, string alias, AssetCategory assetCategory, string serialNumber, string brand, string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<AssetImei> imei, string macAddress, AssetStatus status, string note, string assetTag, string description, Guid? managedByDepartmentId = null)
         {
             ExternalId = externalId;
             CustomerId = customerId;
@@ -26,6 +26,7 @@ namespace AssetServices.Models
             AssetTag = assetTag;
             Description = description;
             ManagedByDepartmentId = managedByDepartmentId;
+            Alias = alias;
         }
     }
 }

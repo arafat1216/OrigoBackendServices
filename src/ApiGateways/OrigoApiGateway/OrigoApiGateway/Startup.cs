@@ -129,6 +129,8 @@ namespace OrigoApiGateway
                 DaprClient.CreateInvokeHttpClient("customerservices"),
                 x.GetRequiredService<IOptions<DepartmentConfiguration>>()));
 
+            services.AddSingleton<IStorageService>(x => new StorageService(null, x.GetRequiredService<ILogger<StorageService>>(),null ));
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc($"v{_apiVersion.MajorVersion}", new OpenApiInfo { Title = "Origo API Gateway", Version = $"v{_apiVersion.MajorVersion}" });

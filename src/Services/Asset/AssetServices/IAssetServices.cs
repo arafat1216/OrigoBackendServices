@@ -13,7 +13,7 @@ namespace AssetServices
         Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId);
         Task<PagedModel<Asset>> GetAssetsForCustomerAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken);
         Task<Asset> GetAssetForCustomerAsync(Guid customerId, Guid assetId);
-        Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, int assetCategoryId,
+        Task<Asset> AddAssetForCustomerAsync(Guid customerId, string alias, string serialNumber, int assetCategoryId,
             string brand, string productName, Common.Enums.LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
             IList<long> imei, string macAddress, Guid? managedByDepartmentId, Common.Enums.AssetStatus status, string note, string tag, string description);
         Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, Common.Enums.LifecycleType newLifecycleType);

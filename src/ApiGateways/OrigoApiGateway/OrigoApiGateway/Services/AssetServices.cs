@@ -220,8 +220,8 @@ namespace OrigoApiGateway.Services
                 foreach (AssetDTO asset in assets)
                 {
                     if (asset == null)
-                         continue;
-                    AssetDTO result;
+                        continue;
+                    OrigoAsset result;
                     if (asset.AssetCategoryId == 1)
                         result = new OrigoMobilePhone(asset);
                     else
@@ -237,7 +237,7 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
- 
+
 
         public async Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset)
         {
