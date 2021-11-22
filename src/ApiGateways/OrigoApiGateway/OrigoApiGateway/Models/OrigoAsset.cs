@@ -12,6 +12,7 @@ namespace OrigoApiGateway.Models
         {
             Id = asset.AssetId;
             OrganizationId = asset.OrganizationId;
+            Alias = asset.Alias;
             Note = asset.Note;
             SerialNumber = asset.SerialNumber;
             AssetCategoryId = asset.AssetCategoryId;
@@ -39,6 +40,12 @@ namespace OrigoApiGateway.Models
         /// Asset is linked to this customer 
         /// </summary>
         public Guid OrganizationId { get; protected set; }
+
+
+        /// <summary>
+        /// Alias for the asset.
+        /// </summary>
+        public string Alias { get; set; }
 
         /// <summary>
         /// A note containing additional information or comments for the asset.

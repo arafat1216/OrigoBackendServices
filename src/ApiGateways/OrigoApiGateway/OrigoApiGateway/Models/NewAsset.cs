@@ -16,6 +16,11 @@ namespace OrigoApiGateway.Models
         public Guid AssetCategoryId { get; set; }
 
         /// <summary>
+        /// Alias for the asset.
+        /// </summary>
+        public string Alias { get; set; }
+
+        /// <summary>
         /// A note containing additional information or comments for the asset.
         /// </summary>
         public string Note { get; set; }

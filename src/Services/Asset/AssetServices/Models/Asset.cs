@@ -21,12 +21,13 @@ namespace AssetServices.Models
         {
         }
 
-        public Asset(Guid assetId, Guid customerId, string serialNumber, AssetCategory assetCategory, string brand, string model,
+        public Asset(Guid assetId, Guid customerId, string alias, string serialNumber, AssetCategory assetCategory, string brand, string model,
             LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, string imei, string macAddress, 
-            AssetStatus status,string note, Guid? managedByDepartmentId = null)
+            AssetStatus status, string note, Guid? managedByDepartmentId = null)
         {
             AssetId = assetId;
             CustomerId = customerId;
+            Alias = alias;
             SerialNumber = serialNumber ?? string.Empty;
             AssetCategoryId = assetCategory.Id;
             AssetCategory = assetCategory;
@@ -55,6 +56,11 @@ namespace AssetServices.Models
         /// </summary>
         [Required]
         public Guid CustomerId { get; protected set; }
+
+        /// <summary>
+        /// Alias for the asset.
+        /// </summary>
+        public string Alias { get; protected set; }
 
         /// <summary>
         /// A note containing additional information or comments for the asset.
@@ -144,6 +150,15 @@ namespace AssetServices.Models
         public void SetMacAddress(string macAddress)
         {
             MacAddress = macAddress;
+        }
+
+        /// <summary>
+        /// Sets the alias of the asset
+        /// </summary>
+        /// <param name="alias"></param>
+        public void SetAlias(string alias)
+        {
+            Alias = alias;
         }
 
         /// <summary>

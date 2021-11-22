@@ -16,6 +16,7 @@ namespace Asset.API.ViewModels
         {
             AssetId = asset.AssetId;
             OrganizationId = asset.CustomerId;
+            Alias = asset.Alias;
             AssetCategoryId = asset.AssetCategoryId;
             SerialNumber = asset.SerialNumber;
             AssetCategoryName = asset.AssetCategory.Name;
@@ -41,6 +42,11 @@ namespace Asset.API.ViewModels
         /// Asset is linked to this customer 
         /// </summary>
         public Guid OrganizationId { get; protected set; }
+
+        /// <summary>
+        /// Alias for the asset.
+        /// </summary>
+        public string Alias { get; set; }
 
         /// <summary>
         /// A note containing additional information or comments for the asset.
