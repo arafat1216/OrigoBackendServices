@@ -48,7 +48,7 @@ namespace AssetServices
             return await _assetRepository.GetAssetAsync(customerId, assetId);
         }
 
-        public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, int assetCategoryId, string brand,
+        public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string alias, string serialNumber, int assetCategoryId, string brand,
             string productName, Common.Enums.LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<long> imei, string macAddress,
             Guid? managedByDepartmentId, Common.Enums.AssetStatus status, string note, string tag, string description)
         {
@@ -61,12 +61,12 @@ namespace AssetServices
             Asset newAsset;
             if (assetCategory.Id == 1)
             {
-                newAsset = new MobilePhone(Guid.NewGuid(), customerId, assetCategory,serialNumber, brand, productName,
+                newAsset = new MobilePhone(Guid.NewGuid(), alias, customerId, assetCategory, serialNumber, brand, productName,
                 lifecycleType, purchaseDate, assetHolderId, imei.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
             }
             else
             {
-                newAsset = new Tablet(Guid.NewGuid(), customerId, assetCategory,serialNumber, brand, productName,
+                newAsset = new Tablet(Guid.NewGuid(), customerId, alias, assetCategory, serialNumber, brand, productName,
                 lifecycleType, purchaseDate, assetHolderId, imei.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
             }
 
@@ -132,7 +132,7 @@ namespace AssetServices
             return asset;
         }
 
-        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei)
+        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei)
         {
             Asset asset = await _assetRepository.GetAssetAsync(customerId, assetId);
             if (asset == null)
@@ -162,6 +162,10 @@ namespace AssetServices
             if (description != default && asset.Description != description)
             {
                 asset.UpdateDescription(description);
+            }
+            if (!string.IsNullOrWhiteSpace(alias) && asset.Alias != alias)
+            {
+                asset.SetAlias(alias);
             }
             UpdateDerivedAssetType(asset, serialNumber, imei);
 

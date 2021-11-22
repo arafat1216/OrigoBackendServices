@@ -45,5 +45,10 @@ namespace OrigoApiGateway.Models
         /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
         public string SerialNumber { get; set; }
+
+        /// <summary>
+        /// Alias for the asset.
+        /// </summary>
+        public string Alias { get; set; }
     }
 }

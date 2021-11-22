@@ -12,6 +12,11 @@ namespace Asset.API.ViewModels
         public int AssetCategoryId { get; set; }
 
         /// <summary>
+        /// Alias for the asset.
+        /// </summary>
+        public string Alias { get; set; }
+
+        /// <summary>
         /// A note containing additional information or comments for the asset.
         /// </summary>
         public string Note { get; set; }

@@ -19,6 +19,7 @@ namespace Asset.API.ViewModels
             Description = asset.Description;
             AssetId = asset.ExternalId;
             OrganizationId = asset.CustomerId;
+            Alias = asset.Alias;
             Brand = asset.Brand;
             ProductName = asset.ProductName;
             LifecycleType = asset.LifecycleType;
@@ -42,6 +43,11 @@ namespace Asset.API.ViewModels
         /// Asset is linked to this customer 
         /// </summary>
         public Guid OrganizationId { get; protected set; }
+
+        /// <summary>
+        /// Alias for the asset.
+        /// </summary>
+        public string Alias { get; set; }
 
         /// <summary>
         /// A note containing additional information or comments for the asset.

@@ -55,6 +55,30 @@ namespace AssetServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
+        public async void SetAssetStatus_ForUserOne_Active()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
+            var assetsFromUser = await assetService.GetAssetsForUserAsync(COMPANY_ID, ASSETHOLDER_ONE_ID);
+
+            IList<Guid> assetGuidList = new List<Guid>();
+            foreach (Asset asset in assetsFromUser)
+            {
+                assetGuidList.Add(asset.AssetId);
+            }
+
+            // Act
+            IList<Asset> updatedAssets = await assetService.UpdateMultipleAssetsStatus(COMPANY_ID, assetGuidList, AssetStatus.Active);
+
+            // Assert
+            Assert.Equal(2, updatedAssets.Count);
+            Assert.Equal(AssetStatus.Active, updatedAssets[0].Status);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
         public async void SaveAssetForCustomer_WithAssetHolderAndDepartmentAssigned()
         {
             // Arrange
@@ -63,7 +87,7 @@ namespace AssetServices.UnitTests
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
 
             // Act
-            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "4543534535344", ASSET_CATEGORY_ID,
+            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID,"alias", "4543534535344", ASSET_CATEGORY_ID,
                 "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), ASSETHOLDER_ONE_ID, true, new List<long>() { 014239898330525 }, "5e:c4:33:df:61:70",
                 Guid.NewGuid(), AssetStatus.Active, "Test note");
             var newAssetRead = await assetService.GetAssetForCustomerAsync(COMPANY_ID, newAsset.ExternalId);
@@ -82,7 +106,7 @@ namespace AssetServices.UnitTests
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
 
             // Act
-            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "4543534535344", ASSET_CATEGORY_ID,
+            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID,"alias", "4543534535344", ASSET_CATEGORY_ID,
                 "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, true, new List<long>() { 993100473611389 }, "a3:21:99:5d:a7:a0", null, AssetStatus.Active, "Unassigned asset");
             var newAssetRead = await assetService.GetAssetForCustomerAsync(COMPANY_ID, newAsset.ExternalId);
 
@@ -174,7 +198,7 @@ namespace AssetServices.UnitTests
             await using var context = new AssetsContext(ContextOptions);
             var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetCategory = await assetRepository.GetAssetCategoryAsync(ASSET_CATEGORY_ID);
-            Asset asset = new MobilePhone(Guid.NewGuid(), COMPANY_ID, "4543534535344", "iPhone", "iPhone X", LifecycleType.BYOD,
+            Asset asset = new MobilePhone(Guid.NewGuid(), COMPANY_ID,"alias_0", "4543534535344", "iPhone", "iPhone X", LifecycleType.BYOD,
                 new DateTime(2020, 1, 1), null, new List<AssetImei>() { new AssetImei(111111987863622) }, "a3:21:99:5d:a7:a0", AssetStatus.Active, "note", "tag", "description", null);
             var attribute = new ImeiValidationAttribute();
 
@@ -193,7 +217,7 @@ namespace AssetServices.UnitTests
             await using var context = new AssetsContext(ContextOptions);
             var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetCategory = await assetRepository.GetAssetCategoryAsync(ASSET_CATEGORY_ID);
-            Asset asset = new MobilePhone(Guid.NewGuid(), COMPANY_ID, "4543534535344", "iPhone", "iPhone X", LifecycleType.BYOD,
+            Asset asset = new MobilePhone(Guid.NewGuid(), COMPANY_ID,"alias_1", "4543534535344", "iPhone", "iPhone X", LifecycleType.BYOD,
                 new DateTime(2020, 1, 1), null, new List<AssetImei>() { new AssetImei(993100473611389) }, "a3:21:99:5d:a7:a0", AssetStatus.Active, "note", "tag", "description", null);
             var attribute = new ImeiValidationAttribute();
 

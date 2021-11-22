@@ -14,6 +14,7 @@ namespace OrigoApiGateway.Models
         {
             Id = asset.AssetId;
             OrganizationId = asset.OrganizationId;
+            Alias = asset.Alias;
             Note = asset.Note;
             AssetCategoryId = asset.AssetCategoryId;
             AssetCategoryName = asset.AssetCategoryName;
@@ -38,6 +39,12 @@ namespace OrigoApiGateway.Models
         /// Asset is linked to this customer 
         /// </summary>
         public Guid OrganizationId { get; protected set; }
+
+
+        /// <summary>
+        /// Alias for the asset.
+        /// </summary>
+        public string Alias { get; set; }
 
         /// <summary>
         /// A note containing additional information or comments for the asset.
@@ -103,6 +110,16 @@ namespace OrigoApiGateway.Models
         /// The employee holding the asset.
         /// </summary>
         public Guid? AssetHolderId { get; protected set; }
+
+        /// <summary>
+        /// The imei of the device. Applicable to devices with category Mobile device.
+        /// </summary>
+        public string Imei { get; protected set; }
+
+        /// <summary>
+        /// The mac address of the device.
+        /// </summary>
+        public string MacAddress { get; protected set; }
 
         /// <summary>
         /// The status of the asset.

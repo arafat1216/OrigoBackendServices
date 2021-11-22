@@ -32,7 +32,6 @@ namespace OrigoApiGateway.Services
         private HttpClient HttpClient { get; }
         private readonly AssetConfiguration _options;
 
-
         public async Task<IList<OrigoAsset>> GetAssetsForUserAsync(Guid customerId, Guid userId)
         {
             try
@@ -200,38 +199,45 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAsset> UpdateAssetStatus(Guid customerId, Guid assetId, int assetStatus)
+        public async Task<IList<OrigoAsset>> UpdateStatusOnAssets(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
         {
             try
             {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/assetStatus/{assetStatus.ToString().ToLower()}";
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/assetStatus/{assetStatus.ToString().ToLower()}";
                 //TODO: Why isn't Patch supported? Dapr translates it to POST.
-                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                var response = await HttpClient.PostAsJsonAsync(requestUri, assetGuidList);
                 if (!response.IsSuccessStatusCode)
                 {
-                    var exception = new BadHttpRequestException("Unable to set status for asset", (int)response.StatusCode);
-                    _logger.LogError(exception, "Unable to set status for asset.");
+                    var exception = new BadHttpRequestException("Unable to set status for assets", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to set status for assets.");
                     throw exception;
                 }
-                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                var assets = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
+                List<OrigoAsset> origoAssets = new List<OrigoAsset>();
+                if (assets == null)
+                    return null;
 
-                OrigoAsset result = null;
-                if (asset == null)
-                    return result;
-                if (asset.AssetCategoryId == 1)
-                    result = new OrigoMobilePhone(asset);
-                else
-                    result = new OrigoTablet(asset);
+                foreach (AssetDTO asset in assets)
+                {
+                    if (asset == null)
+                         continue;
+                    AssetDTO result;
+                    if (asset.AssetCategoryId == 1)
+                        result = new OrigoMobilePhone(asset);
+                    else
+                        result = new OrigoTablet(asset);
+                    origoAssets.Add(result);
+                }
 
-                return result;
+                return origoAssets;
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to set status for asset.");
+                _logger.LogError(exception, "Unable to set status for assets.");
                 throw;
             }
         }
+ 
 
         public async Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset)
         {

@@ -25,6 +25,7 @@ namespace AssetServices.Models
         {
             ExternalId = assetId;
             CustomerId = customerId;
+            Alias = alias;
             Brand = brand;
             ProductName = productName;
             LifecycleType = lifecycleType;
@@ -53,6 +54,11 @@ namespace AssetServices.Models
         public AssetCategory AssetCategory { get; protected set; }
 
         /// <summary>
+        /// Alias for the asset.
+        /// </summary>
+        public string Alias { get; protected set; }
+
+        /// <summary>
         /// A note containing additional information or comments for the asset.
         /// </summary>
         public string Note { get; protected set; }
@@ -74,6 +80,15 @@ namespace AssetServices.Models
         [Required]
         [StringLength(50, ErrorMessage = "Model max length is 50")]
         public string ProductName { get; protected set; }
+
+        /// <summary>
+        /// Sets the alias of the asset
+        /// </summary>
+        /// <param name="alias"></param>
+        public void SetAlias(string alias)
+        {
+            Alias = alias;
+        }
 
         /// <summary>
         /// The type of lifecycle for this asset.

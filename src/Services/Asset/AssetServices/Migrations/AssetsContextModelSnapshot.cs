@@ -26,7 +26,10 @@ namespace AssetServices.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("AssetCategoryId")
+                    b.Property<string>("Alias")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("AssetCategoryId")
                         .HasColumnType("int");
 
                     b.Property<Guid?>("AssetHolderId")

@@ -153,7 +153,7 @@ namespace Asset.API.Controllers
                     throw new InvalidAssetDataException(errorMessage.ToString());
                 }
 
-                var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.SerialNumber,
+                var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.Alias, asset.SerialNumber,
                     asset.AssetCategoryId, asset.Brand, asset.ProductName, asset.LifecycleType, asset.PurchaseDate,
                     asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, (AssetStatus)asset.AssetStatus, asset.Note, asset.AssetTag, asset.Description);
 
@@ -217,6 +217,8 @@ namespace Asset.API.Controllers
                 return BadRequest();
             }
         }
+
+             
 
         [Route("lifecycles")]
         [HttpGet]
@@ -300,7 +302,7 @@ namespace Asset.API.Controllers
         {
             try
             {
-                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.SerialNumber, asset.Brand, asset.ProductName, asset.PurchaseDate, asset.Note, asset.AssetTag, asset.Description, asset.Imei);
+                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.Alias,asset.SerialNumber, asset.Brand, asset.ProductName, asset.PurchaseDate, asset.Note, asset.AssetTag, asset.Description, asset.Imei);
                 if (updatedAsset == null)
                 {
                     return NotFound();
