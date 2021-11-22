@@ -94,8 +94,6 @@ namespace OrigoApiGateway.Models.BackendDTO
         /// </summary>
         public string MacAddress { get; set; }
 
-        public bool IsActive { get; set; }
-
         /// <summary>
         /// The status of the asset.
         /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>

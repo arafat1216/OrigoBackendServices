@@ -355,12 +355,12 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{organizationId:guid}/assetStatus/{assetStatus:int}")]
+        [Route("customers/{organizationId:guid}/assetStatus/{assetStatus:int}")]
         [HttpPatch]
-        [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> SetAssetStatusOnAsset(Guid organizationId, Guid assetId, int assetStatus)
+        public async Task<ActionResult> SetAssetStatusOnAssets(Guid organizationId, IList<Guid> assetGuidList, int assetStatus)
         {
             try
             {
@@ -380,59 +380,23 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var updatedAsset = await _assetServices.UpdateAssetStatus(organizationId, assetId, assetStatus);
-                if (updatedAsset == null)
+                if (!assetGuidList.Any())
+                    return BadRequest("No assets selected.");
+
+                var updatedAssets = await _assetServices.UpdateStatusOnAssets(organizationId, assetGuidList, assetStatus);
+                if (updatedAssets == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(updatedAsset);
+                return Ok(updatedAssets);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
-
-        [Route("{assetId:Guid}/customers/{organizationId:guid}/Activate/{isActive:bool}")]
-        [HttpPatch]
-        [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> SetActiveStatusOnAsset(Guid organizationId, Guid assetId, bool isActive)
-        {
-            try
-            {
-                // Only admin or manager roles are allowed to manage assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == PredefinedRole.EndUser.ToString())
-                {
-                    return Forbid();
-                }
-
-                if (role != PredefinedRole.SystemAdmin.ToString())
-                {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
-                    {
-                        return Forbid();
-                    }
-                }
-
-                var updatedAsset = await _assetServices.UpdateActiveStatus(organizationId, assetId, isActive);
-                if (updatedAsset == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(updatedAsset);
-
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
+ 
 
         [Route("{assetId:Guid}/customers/{organizationId:guid}/Update")]
         [HttpPatch]

@@ -67,8 +67,6 @@ namespace Asset.API.ViewModels
         /// </summary>
         public string MacAddress { get; set; }
 
-        public bool IsActive { get; set; }
-
         public int AssetStatus { get; set; }
     }
 }

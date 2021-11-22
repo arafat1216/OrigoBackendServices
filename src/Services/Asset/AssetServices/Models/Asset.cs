@@ -22,8 +22,8 @@ namespace AssetServices.Models
         }
 
         public Asset(Guid assetId, Guid customerId, string alias, string serialNumber, AssetCategory assetCategory, string brand, string model,
-            LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
-            bool isActive, string imei, string macAddress, AssetStatus status,string note, Guid? managedByDepartmentId = null)
+            LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, string imei, string macAddress, 
+            AssetStatus status, string note, Guid? managedByDepartmentId = null)
         {
             AssetId = assetId;
             CustomerId = customerId;
@@ -36,7 +36,6 @@ namespace AssetServices.Models
             LifecycleType = lifecycleType;
             PurchaseDate = purchaseDate;
             AssetHolderId = assetHolderId;
-            IsActive = isActive;
             ManagedByDepartmentId = managedByDepartmentId;
             Imei = imei ?? string.Empty;
             MacAddress = macAddress ?? string.Empty;
@@ -188,11 +187,6 @@ namespace AssetServices.Models
         public Guid? AssetHolderId { get; protected set; }
 
         /// <summary>
-        /// Is this asset activated
-        /// </summary>
-        public bool IsActive { get; protected set; }
-
-        /// <summary>
         /// The status of the asset.
         /// <see cref="AssetStatus">AssetStatus</see>
         /// </summary>
@@ -222,10 +216,10 @@ namespace AssetServices.Models
         [NotMapped]
         public List<string> ErrorMsgList { get; protected set; }
 
-        public void SetActiveStatus(bool isActive)
-        {
-            IsActive = isActive;
-        }
+        //public void SetActiveStatus(bool isActive)
+        //{
+        //    IsActive = isActive;
+        //}
 
         public void UpdateAssetStatus(AssetStatus status)
         {

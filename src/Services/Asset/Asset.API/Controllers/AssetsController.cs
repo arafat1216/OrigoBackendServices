@@ -119,7 +119,7 @@ namespace Asset.API.Controllers
 
                 var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.SerialNumber, asset.Alias,
                     asset.AssetCategoryId, asset.Brand, asset.Model, asset.LifecycleType, asset.PurchaseDate,
-                    asset.AssetHolderId, asset.IsActive, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, (AssetStatus)asset.AssetStatus, asset.Note);
+                    asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, (AssetStatus)asset.AssetStatus, asset.Note);
                 var updatedAssetView = new ViewModels.Asset(updatedAsset);
 
                 return CreatedAtAction(nameof(CreateAsset), new { id = updatedAssetView.AssetId }, updatedAssetView);
@@ -139,6 +139,7 @@ namespace Asset.API.Controllers
             }
         }
 
+        /*
         [Route("{assetId:Guid}/customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
@@ -163,22 +164,31 @@ namespace Asset.API.Controllers
                 return BadRequest();
             }
         }
+        */
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/Activate/{isActive:bool}")]
+        [Route("customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
         [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SetActiveStatusOnAsset(Guid customerId, Guid assetId, bool isActive)
+        public async Task<ActionResult> SetAssetStatusOnAsset(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
         {
             try
             {
-                var updatedAsset = await _assetServices.UpdateActiveStatus(customerId, assetId, isActive);
-                if (updatedAsset == null)
+                if (!Enum.IsDefined(typeof(AssetStatus), assetStatus))
+                    return BadRequest("Invalid AssetStatus");
+                var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, assetGuidList, (AssetStatus)assetStatus);
+                if (updatedAssets == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(new ViewModels.Asset(updatedAsset));
+                List<ViewModels.Asset> updatedAssetsView = new List<ViewModels.Asset>();
+                foreach (AssetServices.Models.Asset asset in updatedAssets)
+                {
+                    updatedAssetsView.Add(new ViewModels.Asset(asset));
+                }
+
+                return Ok(updatedAssetsView);
 
             }
             catch (Exception)

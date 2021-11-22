@@ -52,6 +52,17 @@ namespace AssetServices.Infrastructure
             }
         }
 
+        public async Task<IList<Asset>> GetAssetsFromListAsync(Guid customerId, IList<Guid> assetGuidList)
+        {
+            if (assetGuidList.Any())
+            {
+                return await _assetContext.Assets
+                    .Include(a => a.AssetCategory)
+                    .Where(a => (a.CustomerId == customerId &&  assetGuidList.Contains(a.AssetId))).ToListAsync();
+            }
+            return null;
+        }
+
         public async Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId)
         {
             return await _assetContext.Assets.Include(a => a.AssetCategory)
