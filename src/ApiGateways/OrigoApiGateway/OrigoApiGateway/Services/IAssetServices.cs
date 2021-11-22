@@ -1,5 +1,4 @@
 ﻿using Common.Models;
-using Microsoft.AspNetCore.Http;
 using OrigoApiGateway.Models;
 using System;
 using System.Collections.Generic;
@@ -16,7 +15,7 @@ namespace OrigoApiGateway.Services
         Task<OrigoAsset> AddAssetForCustomerAsync(Guid customerId, NewAsset newAsset);
         Task<IList<OrigoAsset>> UpdateStatusOnAssets(Guid customerId, IList<Guid> assetGuidList, int assetStatus);
         Task<IList<OrigoAssetLifecycle>> GetLifecycles();
-        Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, int lifecycleType);
+        Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, int newLifecycleType);
         Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset);
         Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid? userId);
         Task<IList<OrigoAssetCategory>> GetAssetCategoriesAsync();

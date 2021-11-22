@@ -36,12 +36,17 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var assets =
-                    await HttpClient.GetFromJsonAsync<IList<AssetDTO>>(
-                        $"{_options.ApiPath}/customers/{customerId}/users/{userId}");
+                var assets = await HttpClient.GetFromJsonAsync<IList<AssetDTO>>($"{_options.ApiPath}/customers/{customerId}/users/{userId}");
+
                 if (assets == null) return null;
                 var origoAssets = new List<OrigoAsset>();
-                foreach (var asset in assets) origoAssets.Add(new OrigoAsset(asset));
+                foreach (var asset in assets)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        origoAssets.Add(new OrigoMobilePhone(asset));
+                    else
+                        origoAssets.Add(new OrigoTablet(asset));
+                }
                 return origoAssets;
             }
             catch (HttpRequestException exception)
@@ -65,11 +70,17 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var assets =
-                    await HttpClient.GetFromJsonAsync<PagedAssetsDTO>($"{_options.ApiPath}/customers/{customerId}");
+                var assets = await HttpClient.GetFromJsonAsync<PagedAssetsDTO>($"{_options.ApiPath}/customers/{customerId}");
+
                 if (assets == null) return null;
                 var origoAssets = new List<OrigoAsset>();
-                foreach (var asset in assets.Assets) origoAssets.Add(new OrigoAsset(asset));
+                foreach (var asset in assets.Assets)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        origoAssets.Add(new OrigoMobilePhone(asset));
+                    else
+                        origoAssets.Add(new OrigoTablet(asset));
+                }
                 return origoAssets;
             }
             catch (HttpRequestException exception)
@@ -96,7 +107,13 @@ namespace OrigoApiGateway.Services
                 if (pagedAssetsDto == null) return null;
 
                 var origoPagedAssets = new OrigoPagedAssets();
-                foreach (var asset in pagedAssetsDto.Assets) origoPagedAssets.Assets.Add(new OrigoAsset(asset));
+                foreach (var asset in pagedAssetsDto.Assets)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        origoPagedAssets.Assets.Add(new OrigoMobilePhone(asset));
+                    else
+                        origoPagedAssets.Assets.Add(new OrigoTablet(asset));
+                }
                 origoPagedAssets.CurrentPage = pagedAssetsDto.CurrentPage;
                 origoPagedAssets.TotalItems = pagedAssetsDto.TotalItems;
                 origoPagedAssets.TotalPages = pagedAssetsDto.TotalPages;
@@ -122,9 +139,17 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var asset =
-                    await HttpClient.GetFromJsonAsync<AssetDTO>($"{_options.ApiPath}/{assetId}/customers/{customerId}");
-                return asset == null ? null : new OrigoAsset(asset);
+                var asset = await HttpClient.GetFromJsonAsync<AssetDTO>($"{_options.ApiPath}/{assetId}/customers/{customerId}");
+
+                OrigoAsset result = null;
+                if (asset == null)
+                    return result;
+                if (asset.AssetCategoryId == 1)
+                    result = new OrigoMobilePhone(asset);
+                else
+                    result = new OrigoTablet(asset);
+
+                return result;
             }
             catch (HttpRequestException exception)
             {
@@ -156,7 +181,16 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
-                return asset == null ? null : new OrigoAsset(asset);
+
+                OrigoAsset result = null;
+                if (asset == null)
+                    return result;
+                if (asset.AssetCategoryId == 1)
+                    result = new OrigoMobilePhone(asset);
+                else
+                    result = new OrigoTablet(asset);
+
+                return result;
             }
             catch (Exception exception)
             {
@@ -179,14 +213,20 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var assets = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
-
+                List<OrigoAsset> origoAssets = new List<OrigoAsset>();
                 if (assets == null)
                     return null;
 
-                List<OrigoAsset> origoAssets = new List<OrigoAsset>();
                 foreach (AssetDTO asset in assets)
                 {
-                    origoAssets.Add(new OrigoAsset(asset));
+                    if (asset == null)
+                        continue;
+                    OrigoAsset result;
+                    if (asset.AssetCategoryId == 1)
+                        result = new OrigoMobilePhone(asset);
+                    else
+                        result = new OrigoTablet(asset);
+                    origoAssets.Add(result);
                 }
 
                 return origoAssets;
@@ -197,7 +237,7 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
- 
+
 
         public async Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset)
         {
@@ -211,7 +251,16 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
-                return asset == null ? null : new OrigoAsset(asset);
+
+                OrigoAsset result = null;
+                if (asset == null)
+                    return result;
+                if (asset.AssetCategoryId == 1)
+                    result = new OrigoMobilePhone(asset);
+                else
+                    result = new OrigoTablet(asset);
+
+                return result;
             }
             catch (Exception exception)
             {
@@ -228,7 +277,7 @@ namespace OrigoApiGateway.Services
                 var lifecycles = await HttpClient.GetFromJsonAsync<IList<LifecycleDTO>>(requestUri);
                 if (lifecycles == null) return null;
                 var origoAssets = new List<OrigoAssetLifecycle>();
-                foreach (var lifecycle in lifecycles) origoAssets.Add(new OrigoAssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue }); 
+                foreach (var lifecycle in lifecycles) origoAssets.Add(new OrigoAssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
                 return origoAssets;
             }
             catch (HttpRequestException exception)
@@ -272,7 +321,16 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
-                return asset == null ? null : new OrigoAsset(asset);
+
+                OrigoAsset result = null;
+                if (asset == null)
+                    return result;
+                if (asset.AssetCategoryId == 1)
+                    result = new OrigoMobilePhone(asset);
+                else
+                    result = new OrigoTablet(asset);
+
+                return result;
             }
             catch (Exception exception)
             {
@@ -310,7 +368,16 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
-                return asset == null ? null : new OrigoAsset(asset);
+
+                OrigoAsset result = null;
+                if (asset == null)
+                    return result;
+                if (asset.AssetCategoryId == 1)
+                    result = new OrigoMobilePhone(asset);
+                else
+                    result = new OrigoTablet(asset);
+
+                return result;
             }
             catch (Exception exception)
             {
@@ -344,7 +411,7 @@ namespace OrigoApiGateway.Services
             {
                 _logger.LogError(exception, "GetAssetCategoriesAsync failed with invalid JSON.");
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 _logger.LogError(exception, "GetAssetCategoriesAsync failed with unknown exception");
             }

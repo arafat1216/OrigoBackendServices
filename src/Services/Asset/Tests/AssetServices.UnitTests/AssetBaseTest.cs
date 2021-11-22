@@ -2,6 +2,7 @@ using System;
 using AssetServices.Infrastructure;
 using AssetServices.Models;
 using Common.Enums;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
 // ReSharper disable InconsistentNaming
@@ -14,7 +15,7 @@ namespace AssetServices.UnitTests
         private readonly Guid ASSET_TWO_ID = new("6c38b551-a5c2-4f53-8df8-221bf8485c61");
         private readonly Guid ASSET_THREE_ID = new("80665d26-90b4-4a3a-a20d-686b64466f32");
         protected readonly Guid COMPANY_ID = new("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
-        protected readonly Guid ASSET_CATEGORY_ID = new Guid("9a9dd12f-e523-4fae-a9df-dddda5c719de");
+        protected readonly int ASSET_CATEGORY_ID = 1;
 
         protected readonly Guid ASSETHOLDER_ONE_ID = new("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
         private readonly Guid ASSETHOLDER_TWO_ID = new();
@@ -33,28 +34,19 @@ namespace AssetServices.UnitTests
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
-            var assetCategory = new AssetCategory(ASSET_CATEGORY_ID, "Mobile phones", true);
-            context.Add(assetCategory);
-            context.SaveChanges();
+            var assetOne = new MobilePhone(ASSET_ONE_ID, COMPANY_ID, "123456789012345", "Samsung", "Samsung Galaxy S20",
+                LifecycleType.Leasing, new DateTime(2021, 4, 1), ASSETHOLDER_ONE_ID, new List<AssetImei>() { new AssetImei(500119468586675) }, "B26EDC46046B", AssetStatus.OnRepair, string.Empty, "", "");
 
-            var assetOne = new Asset(ASSET_ONE_ID, COMPANY_ID, "123456789012345","alias_one",
-                assetCategory, "Samsung", "Samsung Galaxy S20",
-                LifecycleType.Leasing, new DateTime(2021, 4, 1), ASSETHOLDER_ONE_ID, "500119468586675", "B26EDC46046B", AssetStatus.OnRepair, string.Empty);
+            var assetTwo = new MobilePhone(ASSET_TWO_ID, COMPANY_ID, "123456789012364", "Apple", "Apple iPhone 8",
+                LifecycleType.Leasing, new DateTime(2021, 5, 1), ASSETHOLDER_TWO_ID, new List<AssetImei>() { new AssetImei(546366434558702) }, "487027C99FA1", AssetStatus.Inactive, "", "", "", null);
 
-            var assetTwo = new Asset(ASSET_TWO_ID, COMPANY_ID, "123456789012364","alias_two",
-                assetCategory, "Apple", "Apple iPhone 8",
-                LifecycleType.Leasing, new DateTime(2021, 5, 1), ASSETHOLDER_TWO_ID, "546366434558702", "487027C99FA1", AssetStatus.Inactive, null);
+            var assetThree = new MobilePhone(ASSET_THREE_ID, COMPANY_ID, "123456789012399", "Samsung", "Samsung Galaxy S21",
+                LifecycleType.Leasing, new DateTime(2021, 6, 1), ASSETHOLDER_ONE_ID, new List<AssetImei>() { new AssetImei(512217111821626) }, "840F1D0C06AD", AssetStatus.Active, "Company phone", "", "");
 
-            var assetThree = new Asset(ASSET_THREE_ID, COMPANY_ID, "123456789012399","alias_three",
-                assetCategory, "Samsung", "Samsung Galaxy S21",
-                LifecycleType.Leasing, new DateTime(2021, 6, 1), ASSETHOLDER_ONE_ID, "512217111821626", "840F1D0C06AD", AssetStatus.Active, "Company phone");
-
-            var assetOther = new Asset(Guid.NewGuid(), Guid.NewGuid(), "123457789012399","alias_other",
-                assetCategory, "Samsung", "Samsung Galaxy S21",
-                LifecycleType.Leasing, new DateTime(2021, 6, 1), Guid.NewGuid(), "308757706784653", "2E423AD72484", AssetStatus.Active, "");
+            var assetOther = new MobilePhone(Guid.NewGuid(), Guid.NewGuid(), "123457789012399", "Samsung", "Samsung Galaxy S21",
+                LifecycleType.Leasing, new DateTime(2021, 6, 1), Guid.NewGuid(), new List<AssetImei>() { new AssetImei(308757706784653) }, "2E423AD72484", AssetStatus.Active, "", "", "");
 
             context.AddRange(assetOne, assetTwo, assetThree, assetOther);
-
             context.SaveChanges();
         }
     }

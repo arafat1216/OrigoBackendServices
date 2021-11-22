@@ -30,25 +30,62 @@ namespace AssetServices.Infrastructure
         {
             _assetContext.Assets.Add(asset);
             await SaveEntitiesAsync();
-            return await _assetContext.Assets.Include(a => a.AssetCategory)
-                .FirstOrDefaultAsync(a => a.AssetId == asset.AssetId);
+            return await _assetContext.Assets
+                .Include(a => a.AssetCategory)
+                .ThenInclude(c => c.Translations)
+                .FirstOrDefaultAsync(a => a.ExternalId == asset.ExternalId);
         }
 
         public async Task<PagedModel<Asset>> GetAssetsAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(search))
             {
-                return await _assetContext.Assets
-                    .Include(a => a.AssetCategory)
-                    .Where(a => a.CustomerId == customerId)
-                    .PaginateAsync(page, limit, cancellationToken);
+                var temp = await _assetContext.HardwareAsset
+                      .Include(a => a.AssetCategory)
+                      .ThenInclude(c => c.Translations)
+                      .Include(a => a.Imeis)
+                      .Where(a => a.CustomerId == customerId)
+                      .PaginateAsync(page, limit, cancellationToken);
+
+                IList<Asset> result = new List<Asset>();
+                foreach (var asset in temp.Items)
+                {
+                    result.Add(asset);
+                }
+                PagedModel<Asset> assets = new PagedModel<Asset>()
+                {
+                    CurrentPage = temp.CurrentPage,
+                    PageSize = temp.PageSize,
+                    TotalItems = temp.TotalItems,
+                    TotalPages = temp.TotalPages,
+                    Items = result
+                };
+                return assets;
             }
             else
             {
-                return await _assetContext.Assets
+                var temp = await _assetContext.HardwareAsset
                     .Include(a => a.AssetCategory)
+                    .ThenInclude(c => c.Translations)
+                    .Include(a => a.Imeis)
                     .Where(a => a.CustomerId == customerId && a.Brand.Contains(search))
                     .PaginateAsync(page, limit, cancellationToken);
+
+                IList<Asset> result = new List<Asset>();
+                foreach (var asset in temp.Items)
+                {
+                    result.Add(asset);
+                }
+                PagedModel<Asset> assets = new PagedModel<Asset>()
+                {
+                    CurrentPage = temp.CurrentPage,
+                    PageSize = temp.PageSize,
+                    TotalItems = temp.TotalItems,
+                    TotalPages = temp.TotalPages,
+                    Items = result
+                };
+
+                return assets;
             }
         }
 
@@ -58,38 +95,51 @@ namespace AssetServices.Infrastructure
             {
                 return await _assetContext.Assets
                     .Include(a => a.AssetCategory)
-                    .Where(a => (a.CustomerId == customerId &&  assetGuidList.Contains(a.AssetId))).ToListAsync();
+                    .Where(a => (a.CustomerId == customerId &&  assetGuidList.Contains(a.ExternalId))).ToListAsync();
             }
             return null;
         }
 
         public async Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId)
         {
-            return await _assetContext.Assets.Include(a => a.AssetCategory)
-                .Where(a => a.CustomerId == customerId && a.AssetHolderId == userId).AsNoTracking().ToListAsync();
+            var temp = await _assetContext.HardwareAsset
+                .Include(a => a.AssetCategory)
+                .ThenInclude(c => c.Translations)
+                .Include(a => a.Imeis)
+                .Where(a => a.CustomerId == customerId && a.AssetHolderId == userId)
+                .AsNoTracking()
+                .ToListAsync();
+
+            IList<Asset> result = new List<Asset>();
+            foreach (var asset in temp)
+            {
+                result.Add(asset);
+            }
+            return result;
         }
 
         public async Task<Asset> GetAssetAsync(Guid customerId, Guid assetId)
         {
-            return await _assetContext.Assets.Include(a => a.AssetCategory)
-                .Where(a => a.CustomerId == customerId && a.AssetId == assetId).FirstOrDefaultAsync();
-        }
-
-        public async Task<AssetCategory> GetAssetCategoryAsync(Guid assetAssetCategoryId)
-        {
-            return await _assetContext.AssetCategories.Where(c => c.AssetCategoryId == assetAssetCategoryId)
+            return await _assetContext.HardwareAsset
+                .Include(a => a.AssetCategory)
+                .ThenInclude(c => c.Translations)
+                .Include(a => a.Imeis)
+                .Where(a => a.CustomerId == customerId && a.ExternalId == assetId)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<IList<AssetCategory>> GetAssetCategoriesAsync()
+        public async Task<AssetCategory> GetAssetCategoryAsync(int assetAssetCategoryId)
         {
-            return await _assetContext.AssetCategories.ToListAsync();
+            return await _assetContext.AssetCategories.Where(c => c.Id == assetAssetCategoryId)
+                .Include(c => c.Translations)
+                .FirstOrDefaultAsync();
         }
 
-        // TODO: Should be removed and all reference replaced with SaveEntitiesAsync.
-        public async Task SaveChanges()
+        public async Task<IList<AssetCategory>> GetAssetCategoriesAsync(string language = "EN")
         {
-            await _assetContext.SaveChangesAsync();
+            return await _assetContext.AssetCategories
+                .Include(a => a.Translations.Where(t => t.Language == language))
+                .ToListAsync();
         }
 
         public async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)

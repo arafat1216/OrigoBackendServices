@@ -13,7 +13,7 @@ namespace AssetServices.DomainEvents
         public Asset Asset { get; protected set; }
         public string PreviousNote { get; protected set; }
 
-        public NoteChangedDomainEvent(Asset asset, string previousNote) : base(asset.AssetId)
+        public NoteChangedDomainEvent(Asset asset, string previousNote) : base(asset.ExternalId)
         {
             Asset = asset;
             PreviousNote = previousNote;

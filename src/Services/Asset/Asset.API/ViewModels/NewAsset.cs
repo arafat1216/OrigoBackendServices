@@ -1,20 +1,15 @@
 ﻿using Common.Enums;
 using System;
+using System.Collections.Generic;
 
 namespace Asset.API.ViewModels
 {
     public class NewAsset
     {
         /// <summary>
-        /// The unique serial number for the asset. For mobile phones and other devices
-        /// where an IMEI number also exists, the IMEI will be used here.
-        /// </summary>
-        public string SerialNumber { get; set; }
-
-        /// <summary>
         /// The category this asset belongs to.
         /// </summary>
-        public Guid AssetCategoryId { get; set; }
+        public int AssetCategoryId { get; set; }
 
         /// <summary>
         /// Alias for the asset.
@@ -34,13 +29,12 @@ namespace Asset.API.ViewModels
         /// <summary>
         /// The model or product name of this asset (e.g. Samsung Galaxy)
         /// </summary>
-        public string Model { get; set; }
+        public string ProductName { get; set; }
 
         /// <summary>
         /// The type of lifecycle for this asset.
         /// </summary>
         public LifecycleType LifecycleType { get; set; }
-
 
         /// <summary>
         /// The date the asset was purchased.
@@ -58,15 +52,35 @@ namespace Asset.API.ViewModels
         public Guid? AssetHolderId { get; set; }
 
         /// <summary>
-        /// The imei of the asset. Applicable to assets with category Mobile Phone
+        /// A description of the asset.
         /// </summary>
-        public string Imei { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
-        /// The mac address of the asset.
+        /// Tags associated with this asset.
+        /// </summary>
+        public string AssetTag { get; set; }
+
+        /// <summary>
+        /// The status of the asset.
+        /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
+        /// </summary>
+        public int AssetStatus { get; set; }
+
+        /// <summary>
+        /// The imei of the asset. Applicable to assets with category Mobile Phone and Tablet.
+        /// </summary>
+        public IList<long> Imei { get; set; }
+
+        /// <summary>
+        /// The mac address of the asset. Applicable to assets with category Mobile Phone and Tablet.
         /// </summary>
         public string MacAddress { get; set; }
 
-        public int AssetStatus { get; set; }
+        /// <summary>
+        /// The unique serial number for the asset. For mobile phones and other devices
+        /// where an IMEI number also exists, the IMEI will be used here.
+        /// </summary>
+        public string SerialNumber { get; set; }
     }
 }
