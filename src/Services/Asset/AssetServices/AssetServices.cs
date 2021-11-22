@@ -48,7 +48,7 @@ namespace AssetServices
             return await _assetRepository.GetAssetAsync(customerId, assetId);
         }
 
-        public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, Guid assetCategoryId, string brand,
+        public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string serialNumber, string alias, Guid assetCategoryId, string brand,
             string model, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, bool isActive, string imei, string macAddress,
             Guid? managedByDepartmentId, AssetStatus status, string note)
         {
@@ -58,7 +58,7 @@ namespace AssetServices
                 throw new AssetCategoryNotFoundException();
             }
 
-            var newAsset = new Asset(Guid.NewGuid(), customerId, serialNumber, assetCategory, brand, model,
+            var newAsset = new Asset(Guid.NewGuid(), customerId, alias, serialNumber, assetCategory, brand, model,
                 lifecycleType, purchaseDate, assetHolderId, isActive, imei, macAddress, status, note, managedByDepartmentId);
 
             if (!newAsset.AssetPropertiesAreValid)
@@ -137,7 +137,7 @@ namespace AssetServices
             return asset;
         }
 
-        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string imei)
+        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string imei)
         {
             var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
 
@@ -168,6 +168,10 @@ namespace AssetServices
             if (!string.IsNullOrWhiteSpace(imei) && asset.Imei != imei)
             {
                 asset.SetImei(imei);
+            }
+            if (!string.IsNullOrWhiteSpace(alias) && asset.Alias != alias)
+            {
+                asset.SetAlias(alias);
             }
 
             await _assetRepository.SaveEntitiesAsync();

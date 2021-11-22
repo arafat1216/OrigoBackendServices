@@ -34,5 +34,10 @@ namespace Asset.API.ViewModels
         /// Imei assigned to this asset
         /// </summary>
         public string Imei { get; set; }
+
+        /// <summary>
+        /// Alias for the asset.
+        /// </summary>
+        public string Alias { get; set; }
     }
 }

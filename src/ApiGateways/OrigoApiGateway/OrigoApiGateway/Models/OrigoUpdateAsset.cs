@@ -34,5 +34,10 @@ namespace OrigoApiGateway.Models
         /// The imei value of the asset
         /// </summary>
         public string Imei { get; set; }
+
+        /// <summary>
+        /// Alias for the asset.
+        /// </summary>
+        public string Alias { get; set; }
     }
 }
