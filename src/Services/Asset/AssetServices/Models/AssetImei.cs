@@ -1,6 +1,10 @@
-﻿namespace AssetServices.Models
+﻿using Common.Seedwork;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+
+namespace AssetServices.Models
 {
-    public class AssetImei
+    public class AssetImei : ValueObject
     {
         protected AssetImei() { }
 
@@ -8,8 +12,12 @@
         {
             Imei = imei;
         }
-        public int Id { get; set; }
 
         public long Imei { get; set; }
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Imei;
+        }
     }
 }
