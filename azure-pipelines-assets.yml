@@ -27,12 +27,15 @@ variables:
   ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
     namespace: prod
     tag: '$(Build.BuildId)_prod'
+    currentDbConnection: '$(AssetsDbConnection)'
   ${{ elseif eq(variables['Build.SourceBranchName'], 'release') }}:
     namespace: test
     tag: '$(Build.BuildId)_test'
+    currentDbConnection: '$(AssetsDbConnectionTest)'
   ${{ elseif eq(variables['Build.SourceBranchName'], 'develop') }}:
     namespace: develop
     tag: '$(Build.BuildId)_develop'
+    currentDbConnection: '$(AssetsDbConnection)'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
@@ -141,7 +144,7 @@ stages:
               azureConnectionType: ConnectedServiceNameARM
               azureSubscription: OrigoV2ServiceConnection
               authenticationType: connectionString
-              connectionString: $(AssetsDbConnection)
+              connectionString: $(currentDbConnection)
               deployType: SqlTask
               sqlFile: $(System.ArtifactsDirectory)/migrations/migrations.sql
           - task: SqlAzureDacpacDeployment@1
@@ -150,7 +153,7 @@ stages:
               azureConnectionType: ConnectedServiceNameARM
               azureSubscription: OrigoV2ServiceConnection
               authenticationType: connectionString
-              connectionString: $(AssetsDbConnection)
+              connectionString: $(currentDbConnection)
               deployType: SqlTask
               sqlFile: $(System.ArtifactsDirectory)/migrations/logging_migrations.sql
 
