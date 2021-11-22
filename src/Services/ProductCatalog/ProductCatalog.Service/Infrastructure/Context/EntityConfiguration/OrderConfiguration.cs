@@ -10,7 +10,8 @@ namespace ProductCatalog.Service.Infrastructure.Context.EntityConfiguration
         {
             builder.ToTable(t => t.IsTemporal());
 
-            builder.Property(e => e.ExternalId).ValueGeneratedOnAdd();
+            builder.Property(e => e.ExternalId)
+                   .ValueGeneratedOnAdd();
 
             builder.HasAlternateKey(e => e.ExternalId);
             builder.HasIndex(e => e.OrganizationId);

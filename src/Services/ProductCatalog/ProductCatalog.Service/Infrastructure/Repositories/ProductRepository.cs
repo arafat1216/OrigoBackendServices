@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProductCatalog.Service.Infrastructure.Context;
 using ProductCatalog.Service.Infrastructure.Spesification;
 using ProductCatalog.Service.Models.Database;
 
 namespace ProductCatalog.Service.Infrastructure.Repositories
 {
-    internal class ProductRepository<TDbContext> : Repository<Product, TDbContext>, IProductRepository where TDbContext : DbContext
+    internal class ProductRepository : Repository<Product, ProductCatalogContext>, IProductRepository
     {
-        public ProductRepository(TDbContext context) : base(context)
+        public ProductRepository(ProductCatalogContext context) : base(context)
         {
         }
 

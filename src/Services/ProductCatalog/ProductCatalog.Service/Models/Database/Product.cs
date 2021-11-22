@@ -10,9 +10,10 @@ namespace ProductCatalog.Service.Models.Database
         public Guid PartnerId { get; set; }
         public int ProductTypeId { get; set; }
 
-        public virtual ICollection<Translation> Translations { get; set; } = new HashSet<Translation>();
 
         // EF Navigation
+        public virtual ICollection<ProductTranslation> Translations { get; set; } = new HashSet<ProductTranslation>();
+
         public virtual ProductType ProductType { get; set; }
         public virtual ICollection<Order> Orders { get; set; } = new HashSet<Order>();
         public virtual ICollection<Feature> Features { get; set; } = new HashSet<Feature>();
@@ -29,5 +30,8 @@ namespace ProductCatalog.Service.Models.Database
 
         [NotMapped]
         public virtual ICollection<Product> HasRequiresOneDependencyFrom { get; set; } = new HashSet<Product>();
+
+        // EF "Shadow navigation"
+        internal virtual ICollection<ProductFeature> ProductFeatures { get; set; } = new HashSet<ProductFeature>();
     }
 }

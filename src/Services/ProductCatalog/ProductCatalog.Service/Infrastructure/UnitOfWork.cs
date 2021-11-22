@@ -17,9 +17,9 @@ namespace ProductCatalog.Service.Infrastructure
         {
             _context = context;
 
-            Features = new FeatureRepository<ProductCatalogContext>(context);
-            Products = new ProductRepository<ProductCatalogContext>(context);
-            Orders = new OrderRepository<ProductCatalogContext>(context);
+            Features = new FeatureRepository(context);
+            Products = new ProductRepository(context);
+            Orders = new OrderRepository(context);
         }
 
 

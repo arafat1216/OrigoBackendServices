@@ -8,7 +8,7 @@ namespace ProductCatalog.Service.Models.Database
     {
         public int Id { get; set; }
 
-        public virtual ICollection<Translation> Translations { get; set; } = new HashSet<Translation>();
+        public virtual ICollection<ProductTypeTranslation> Translations { get; set; } = new HashSet<ProductTypeTranslation>();
 
         // EF Navigation
         public virtual IReadOnlyCollection<Product> Products { get; set; } = new HashSet<Product>();
