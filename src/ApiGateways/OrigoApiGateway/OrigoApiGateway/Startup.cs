@@ -56,9 +56,10 @@ namespace OrigoApiGateway
                 .AddCheck("self", () => HealthCheckResult.Healthy("Gateway is ok"), tags: new[] { "Origo API Gateway" });
 
             services.AddHealthChecksUI().AddInMemoryStorage();
+            var blobConnectionString = Configuration.GetSection("Storage:ConnectionString").Value;
             services.AddAzureClients(builder =>
             {
-                builder.AddBlobServiceClient(Configuration.GetSection("Storage:ConnectionString").Value);
+                builder.AddBlobServiceClient(blobConnectionString);
             });
             services.AddTransient<IStorageService, StorageService>();
             services.Configure<AssetConfiguration>(Configuration.GetSection("Asset"));
