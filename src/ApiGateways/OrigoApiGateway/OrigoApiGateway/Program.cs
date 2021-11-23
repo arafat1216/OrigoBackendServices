@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -13,6 +14,10 @@ namespace OrigoApiGateway
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((_, config) =>
+                {
+                    config.AddJsonFile("secrets/appsettings.secrets.json", optional: true);
+                })
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
