@@ -35,9 +35,9 @@ namespace AssetServices.Migrations
                 name: "AssetCategoryId",
                 table: "Asset");
 
-            migrationBuilder.DropColumn(
-                name: "IsActive",
-                table: "Asset");
+            //migrationBuilder.DropColumn(
+            //    name: "IsActive",
+            //    table: "Asset");
 
             migrationBuilder.DropColumn(
                 name: "SerialNumber",
@@ -313,12 +313,12 @@ namespace AssetServices.Migrations
                 nullable: false,
                 defaultValue: 0);
 
-            migrationBuilder.AddColumn<bool>(
-                name: "IsActive",
-                table: "Asset",
-                type: "bit",
-                nullable: false,
-                defaultValue: false);
+            //migrationBuilder.AddColumn<bool>(
+            //    name: "IsActive",
+            //    table: "Asset",
+            //    type: "bit",
+            //    nullable: false,
+            //    defaultValue: false);
 
             migrationBuilder.AddColumn<string>(
                 name: "SerialNumber",
