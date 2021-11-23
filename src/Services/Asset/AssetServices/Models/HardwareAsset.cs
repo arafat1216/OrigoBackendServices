@@ -2,6 +2,7 @@
 using AssetServices.Exceptions;
 using AssetServices.Utility;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
@@ -14,12 +15,17 @@ namespace AssetServices.Models
         /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
         [Required]
-        public string SerialNumber { get; set; }
+        public string SerialNumber { get; protected set; }
 
         /// <summary>
         /// A list of all the IMEI numbers this asset has
         /// </summary>
-        public IList<AssetImei> Imeis { get; set; }
+        private IList<AssetImei> imeis;
+        public IReadOnlyCollection<AssetImei> Imeis
+        {
+            get => new ReadOnlyCollection<AssetImei>(imeis);
+            protected set => imeis = value != null ? new List<AssetImei>(value) : new List<AssetImei>();
+        }
 
         /// <summary>
         /// The mac-address of the asset
@@ -49,8 +55,7 @@ namespace AssetServices.Models
                     throw new InvalidAssetDataException($"Invalid imei: {imei}");
                 }
             }
-            Imeis?.Clear();
-            Imeis = imeiList.Select(i => new AssetImei(i)).ToList();
+            Imeis = new List<AssetImei>(imeiList.Select(i => new AssetImei(i)).ToList());
         }
 
         /// <summary>
@@ -60,6 +65,7 @@ namespace AssetServices.Models
         /// <param name="imeiList"></param>
         public void AddImei(IList<long> imeiList)
         {
+            List<AssetImei> imeis = new List<AssetImei>();
             foreach (long imei in imeiList)
             {
                 if (!AssetValidatorUtility.ValidateImei(imei.ToString()))
@@ -69,9 +75,10 @@ namespace AssetServices.Models
 
                 if (!Imeis.Any(i => i.Imei == imei))
                 {
-                    Imeis.Add(new AssetImei(imei));
+                    imeis.Add(new AssetImei(imei));
                 }
             }
+            Imeis = new List<AssetImei>(imeis);
         }
 
         /// <summary>

@@ -11,6 +11,13 @@ namespace AssetServices.Models
         {
         }
 
+        public AssetCategory(int id, AssetCategory parent, IList<AssetCategoryTranslation> translations)
+        {
+            Id = id;
+            ParentAssetCategory = parent;
+            Translations = translations;
+        }
+
         public AssetCategory ParentAssetCategory { get; protected set; }
 
         public IList<AssetCategoryTranslation> Translations { get; set; }
