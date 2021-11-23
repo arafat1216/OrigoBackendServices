@@ -218,7 +218,7 @@ namespace AssetServices.UnitTests
             var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetCategory = await assetRepository.GetAssetCategoryAsync(ASSET_CATEGORY_ID);
             Asset asset = new MobilePhone(Guid.NewGuid(), COMPANY_ID, "alias_1", assetCategory, "4543534535344", "iPhone", "iPhone X", LifecycleType.BYOD,
-                new DateTime(2020, 1, 1), null, new List<AssetImei>() { new AssetImei(993100473611389) }, "a3:21:99:5d:a7:a0", AssetStatus.Active, "note", "tag", "description", null);
+                new DateTime(2020, 1, 1), null, new List<AssetImei>() { new AssetImei(357879702624426) }, "a3:21:99:5d:a7:a0", AssetStatus.Active, "note", "tag", "description", null);
             var attribute = new ImeiValidationAttribute();
 
             // Act
