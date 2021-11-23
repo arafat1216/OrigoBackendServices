@@ -218,6 +218,51 @@ namespace Asset.API.Controllers
             }
         }
 
+        [Route("customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> SetAssetStatusOnAsset(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
+        {
+            try
+            {
+                if (!Enum.IsDefined(typeof(AssetStatus), assetStatus))
+                    return BadRequest("Invalid AssetStatus");
+                var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, assetGuidList, (AssetStatus)assetStatus);
+                if (updatedAssets == null)
+                {
+                    return NotFound();
+                }
+
+                var assetList = new List<ViewModels.Asset>();
+                foreach (var asset in updatedAssets)
+                {
+                    ViewModels.Asset assetToReturn;
+                    var phone = asset as AssetServices.Models.MobilePhone;
+                    var tablet = asset as AssetServices.Models.Tablet;
+
+                    if (phone != null)
+                        assetToReturn = new MobilePhone(phone);
+                    else if (tablet != null)
+                        assetToReturn = new Tablet(tablet);
+                    else
+                        assetToReturn = new ViewModels.Asset(asset);
+                    assetList.Add(assetToReturn);
+                }
+                var options = new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    TypeNameHandling = TypeNameHandling.Auto
+                };
+                return Ok(JsonConvert.SerializeObject(assetList, options));
+
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
 
 
         [Route("lifecycles")]

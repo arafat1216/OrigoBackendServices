@@ -1,5 +1,6 @@
 ﻿using AssetServices.Exceptions;
 using AssetServices.Models;
+using Common.Enums;
 using Common.Interfaces;
 using Common.Logging;
 using Common.Models;
@@ -49,8 +50,8 @@ namespace AssetServices
         }
 
         public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string alias, string serialNumber, int assetCategoryId, string brand,
-            string productName, Common.Enums.LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<long> imei, string macAddress,
-            Guid? managedByDepartmentId, Common.Enums.AssetStatus status, string note, string tag, string description)
+            string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<long> imei, string macAddress,
+            Guid? managedByDepartmentId, AssetStatus status, string note, string tag, string description)
         {
             var assetCategory = await _assetRepository.GetAssetCategoryAsync(assetCategoryId);
             if (assetCategory == null)
@@ -106,7 +107,7 @@ namespace AssetServices
             return assetLifecycles;
         }
 
-        public async Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, Common.Enums.LifecycleType newLifecycleType)
+        public async Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, LifecycleType newLifecycleType)
         {
             var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
             if (asset == null)
@@ -119,7 +120,7 @@ namespace AssetServices
             return asset;
         }
 
-        public async Task<Asset> UpdateAssetStatus(Guid customerId, Guid assetId, Common.Enums.AssetStatus status)
+        public async Task<Asset> UpdateAssetStatus(Guid customerId, Guid assetId, AssetStatus status)
         {
             var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
             if (asset == null)
@@ -130,6 +131,23 @@ namespace AssetServices
             asset.UpdateAssetStatus(status);
             await _assetRepository.SaveEntitiesAsync();
             return asset;
+        }
+
+        public async Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, IList<Guid> assetGuidList, AssetStatus status)
+        {
+            var assets = await _assetRepository.GetAssetsFromListAsync(customerId, assetGuidList);
+            if (assets == null)
+            {
+                return null;
+            }
+
+            foreach (Asset asset in assets)
+            {
+                asset.UpdateAssetStatus(status);
+            }
+
+            await _assetRepository.SaveEntitiesAsync();
+            return assets;
         }
 
         public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei)

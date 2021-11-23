@@ -29,6 +29,7 @@ namespace OrigoApiGateway.Models
             AssetStatusName = asset.AssetStatusName;
             AssetTag = asset.AssetTag;
             Description = asset.Description;
+            Alias = asset.Alias;
         }
     }
 }

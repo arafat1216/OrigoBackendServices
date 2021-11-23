@@ -1,6 +1,7 @@
 ﻿using Common.Enums;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace AssetServices.Models
 {
@@ -19,7 +20,7 @@ namespace AssetServices.Models
             LifecycleType = lifecycleType;
             PurchaseDate = purchaseDate;
             AssetHolderId = assetHolderId;
-            Imeis = imei;
+            Imeis = new ReadOnlyCollection<AssetImei>( imei);
             MacAddress = macAddress;
             Status = status;
             Note = note;
