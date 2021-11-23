@@ -27,6 +27,17 @@ deployment:
     tag: 3642
     pullPolicy: IfNotPresent
 
+  secretVolumes:
+    - secretVolume:
+       name: "secrets"
+       secretName: "secret-origoapigateway-appsettings"
+
+  volumeMounts:
+    - volumeMount:
+        name: "secrets"
+        mountPath: "/app/secrets"
+        readOnly: true
+
 probes:
   enabled: false
 
