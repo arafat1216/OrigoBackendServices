@@ -12,9 +12,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Text;
-using Newtonsoft.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace Asset.API.Controllers
 {
@@ -47,7 +47,7 @@ namespace Asset.API.Controllers
             {
                 return NotFound();
             }
-            var assetList = new List<ViewModels.Asset>();
+            var assetList = new List<object>();
             foreach (var asset in assets)
             {
                 ViewModels.Asset assetToReturn;
@@ -62,12 +62,11 @@ namespace Asset.API.Controllers
                     assetToReturn = new ViewModels.Asset(asset);
                 assetList.Add(assetToReturn);
             }
-            var options = new JsonSerializerSettings
+            var options = new JsonSerializerOptions
             {
-                Formatting = Formatting.Indented,
-                TypeNameHandling = TypeNameHandling.Auto
+                WriteIndented = true
             };
-            return Ok(JsonConvert.SerializeObject(assetList, options));
+            return Ok(JsonSerializer.Serialize<object>(assetList, options));
         }
 
         [Route("customers/{customerId:guid}")]
@@ -82,7 +81,7 @@ namespace Asset.API.Controllers
                 return NotFound();
             }
 
-            var assetList = new List<ViewModels.Asset>();
+            var assetList = new List<object>();
             foreach (var asset in pagedAssetResult.Items)
             {
                 ViewModels.Asset assetToReturn;
@@ -97,19 +96,18 @@ namespace Asset.API.Controllers
                     assetToReturn = new ViewModels.Asset(asset);
                 assetList.Add(assetToReturn);
             }
-            var options = new JsonSerializerSettings
+            var options = new JsonSerializerOptions
             {
-                Formatting = Formatting.Indented,
-                TypeNameHandling = TypeNameHandling.Auto
+                WriteIndented = true
             };
-            return Ok(JsonConvert.SerializeObject(
-                new PagedAssetList
-                {
-                    CurrentPage = pagedAssetResult.CurrentPage,
-                    TotalItems = pagedAssetResult.TotalItems,
-                    TotalPages = pagedAssetResult.TotalPages,
-                    Assets = assetList
-                }, options));
+            return Ok(JsonSerializer.Serialize<object>(
+            new PagedAssetList
+            {
+                CurrentPage = pagedAssetResult.CurrentPage,
+                TotalItems = pagedAssetResult.TotalItems,
+                TotalPages = pagedAssetResult.TotalPages,
+                Assets = assetList
+            }, options));
         }
 
         [Route("{assetId:Guid}/customers/{customerId:guid}")]
@@ -234,7 +232,7 @@ namespace Asset.API.Controllers
                     return NotFound();
                 }
 
-                var assetList = new List<ViewModels.Asset>();
+                var assetList = new List<object>();
                 foreach (var asset in updatedAssets)
                 {
                     ViewModels.Asset assetToReturn;
@@ -249,12 +247,11 @@ namespace Asset.API.Controllers
                         assetToReturn = new ViewModels.Asset(asset);
                     assetList.Add(assetToReturn);
                 }
-                var options = new JsonSerializerSettings
+                var options = new JsonSerializerOptions
                 {
-                    Formatting = Formatting.Indented,
-                    TypeNameHandling = TypeNameHandling.Auto
+                    WriteIndented = true
                 };
-                return Ok(JsonConvert.SerializeObject(assetList, options));
+                return Ok(JsonSerializer.Serialize<object>(assetList, options));
 
             }
             catch (Exception)
