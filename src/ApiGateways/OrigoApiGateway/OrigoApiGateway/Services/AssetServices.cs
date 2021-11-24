@@ -66,20 +66,17 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<OrigoAsset>> GetAssetsForCustomerAsync(Guid customerId)
+        public async Task<IList<object>> GetAssetsForCustomerAsync(Guid customerId)
         {
             try
             {
                 var assets = await HttpClient.GetFromJsonAsync<PagedAssetsDTO>($"{_options.ApiPath}/customers/{customerId}");
 
                 if (assets == null) return null;
-                var origoAssets = new List<OrigoAsset>();
+                var origoAssets = new List<object>();
                 foreach (var asset in assets.Assets)
                 {
-                    if (asset.AssetCategoryId == 1)
-                        origoAssets.Add(new OrigoMobilePhone(asset));
-                    else
-                        origoAssets.Add(new OrigoTablet(asset));
+                    origoAssets.Add(asset);
                 }
                 return origoAssets;
             }
@@ -109,10 +106,7 @@ namespace OrigoApiGateway.Services
                 var origoPagedAssets = new OrigoPagedAssets();
                 foreach (var asset in pagedAssetsDto.Assets)
                 {
-                    if (asset.AssetCategoryId == 1)
-                        origoPagedAssets.Assets.Add(new OrigoMobilePhone(asset));
-                    else
-                        origoPagedAssets.Assets.Add(new OrigoTablet(asset));
+                    origoPagedAssets.Assets.Add(asset);
                 }
                 origoPagedAssets.CurrentPage = pagedAssetsDto.CurrentPage;
                 origoPagedAssets.TotalItems = pagedAssetsDto.TotalItems;
