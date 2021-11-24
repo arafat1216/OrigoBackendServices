@@ -14,7 +14,7 @@ using System.Security.Claims;
 using Common.Enums;
 using Microsoft.AspNetCore.Http;
 using OrigoApiGateway.Exceptions;
-using Newtonsoft.Json;
+using System.Text.Json;
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 // ReSharper disable RouteTemplates.ControllerRouteParameterIsNotPassedToMethods
 
@@ -106,12 +106,11 @@ namespace OrigoApiGateway.Controllers
                     return NotFound();
                 }
 
-                var options = new JsonSerializerSettings
+                var options = new JsonSerializerOptions
                 {
-                    Formatting = Formatting.Indented,
-                    TypeNameHandling = TypeNameHandling.Auto
+                    WriteIndented = true
                 };
-                return Ok(JsonConvert.SerializeObject(assets, options));
+                return Ok(JsonSerializer.Serialize<object>(assets, options));
             }
             catch (Exception ex)
             {
@@ -151,12 +150,11 @@ namespace OrigoApiGateway.Controllers
                     return NotFound();
                 }
 
-                var options = new JsonSerializerSettings
+                var options = new JsonSerializerOptions
                 {
-                    Formatting = Formatting.Indented,
-                    TypeNameHandling = TypeNameHandling.Auto
+                    WriteIndented = true
                 };
-                return Ok(JsonConvert.SerializeObject(assets, options));
+                return Ok(JsonSerializer.Serialize<object>(assets, options));
             }
             catch (Exception ex)
             {
@@ -196,12 +194,11 @@ namespace OrigoApiGateway.Controllers
                     return NotFound();
                 }
 
-                var options = new JsonSerializerSettings
+                var options = new JsonSerializerOptions
                 {
-                    Formatting = Formatting.Indented,
-                    TypeNameHandling = TypeNameHandling.Auto
+                    WriteIndented = true
                 };
-                return Ok(JsonConvert.SerializeObject(asset, options));
+                return Ok(JsonSerializer.Serialize<object>(asset, options));
             }
             catch (Exception ex)
             {
@@ -238,12 +235,11 @@ namespace OrigoApiGateway.Controllers
                 var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, asset);
                 if (createdAsset != null)
                 {
-                    var options = new JsonSerializerSettings
+                    var options = new JsonSerializerOptions
                     {
-                        Formatting = Formatting.Indented,
-                        TypeNameHandling = TypeNameHandling.Auto
+                        WriteIndented = true
                     };
-                    return CreatedAtAction(nameof(CreateAsset), new { id = createdAsset.Id }, JsonConvert.SerializeObject(createdAsset, options));
+                    return CreatedAtAction(nameof(CreateAsset), new { id = createdAsset.Id }, JsonSerializer.Serialize<object>(createdAsset, options));
                 }
                 return BadRequest();
             }
@@ -288,12 +284,11 @@ namespace OrigoApiGateway.Controllers
                     return NotFound();
                 }
 
-                var options = new JsonSerializerSettings
+                var options = new JsonSerializerOptions
                 {
-                    Formatting = Formatting.Indented,
-                    TypeNameHandling = TypeNameHandling.Auto
+                    WriteIndented = true
                 };
-                return Ok(JsonConvert.SerializeObject(updatedAssets, options));
+                return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
             }
             catch (Exception ex)
             {
@@ -333,13 +328,11 @@ namespace OrigoApiGateway.Controllers
                     return NotFound();
                 }
                 updatedAsset.IsActive = isActive;
-                var options = new JsonSerializerSettings
+                var options = new JsonSerializerOptions
                 {
-                    Formatting = Formatting.Indented,
-                    TypeNameHandling = TypeNameHandling.Auto
+                    WriteIndented = true
                 };
-                return Ok(JsonConvert.SerializeObject(updatedAsset, options));
-
+                return Ok(JsonSerializer.Serialize<object>(updatedAsset, options));
             }
             catch (Exception ex)
             {
@@ -379,12 +372,11 @@ namespace OrigoApiGateway.Controllers
                     return NotFound();
                 }
 
-                var options = new JsonSerializerSettings
+                var options = new JsonSerializerOptions
                 {
-                    Formatting = Formatting.Indented,
-                    TypeNameHandling = TypeNameHandling.Auto
+                    WriteIndented = true
                 };
-                return Ok(JsonConvert.SerializeObject(updatedAsset, options));
+                return Ok(JsonSerializer.Serialize<object>(updatedAsset, options));
             }
             catch (Exception ex)
             {
@@ -448,12 +440,11 @@ namespace OrigoApiGateway.Controllers
                 {
                     return NotFound();
                 }
-                var options = new JsonSerializerSettings
+                var options = new JsonSerializerOptions
                 {
-                    Formatting = Formatting.Indented,
-                    TypeNameHandling = TypeNameHandling.Auto
+                    WriteIndented = true
                 };
-                return Ok(JsonConvert.SerializeObject(updatedAsset, options));
+                return Ok(JsonSerializer.Serialize<object>(updatedAsset, options));
             }
             catch (Exception ex)
             {
@@ -493,12 +484,11 @@ namespace OrigoApiGateway.Controllers
                     return NotFound();
                 }
 
-                var options = new JsonSerializerSettings
+                var options = new JsonSerializerOptions
                 {
-                    Formatting = Formatting.Indented,
-                    TypeNameHandling = TypeNameHandling.Auto
+                    WriteIndented = true
                 };
-                return Ok(JsonConvert.SerializeObject(assignedAsset, options));
+                return Ok(JsonSerializer.Serialize<object>(assignedAsset, options));
             }
             catch (Exception ex)
             {
