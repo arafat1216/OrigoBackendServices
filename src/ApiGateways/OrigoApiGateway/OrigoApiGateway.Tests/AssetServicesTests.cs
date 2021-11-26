@@ -92,7 +92,7 @@ namespace OrigoApiGateway.Tests
 
             // Assert
             Assert.Equal(2, assetsFromUser.Count);
-            Assert.Equal("iPhone",  ((OrigoAsset)assetsFromUser[0]).ProductName);
+            Assert.Equal("iPhone",  (assetsFromUser[0] as OrigoMobilePhone).Brand);
         }
 
         [Fact]
