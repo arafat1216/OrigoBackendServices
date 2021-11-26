@@ -12,7 +12,7 @@ namespace OrigoApiGateway.Models
 
         protected OrigoAsset(AssetDTO asset)
         {
-            Id = asset.AssetId;
+            Id = asset.Id;
             OrganizationId = asset.OrganizationId;
             Alias = asset.Alias;
             Note = asset.Note;

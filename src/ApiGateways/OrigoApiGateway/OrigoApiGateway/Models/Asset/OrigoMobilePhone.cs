@@ -9,7 +9,7 @@ namespace OrigoApiGateway.Models
 
         public OrigoMobilePhone(AssetDTO asset)
         {
-            Id = asset.AssetId;
+            Id = asset.Id;
             OrganizationId = asset.OrganizationId;
             Note = asset.Note;
             SerialNumber = asset.SerialNumber;
