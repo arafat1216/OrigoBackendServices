@@ -32,14 +32,14 @@ namespace OrigoApiGateway.Services
         private HttpClient HttpClient { get; }
         private readonly AssetConfiguration _options;
 
-        public async Task<IList<OrigoAsset>> GetAssetsForUserAsync(Guid customerId, Guid userId)
+        public async Task<IList<object>> GetAssetsForUserAsync(Guid customerId, Guid userId)
         {
             try
             {
                 var assets = await HttpClient.GetFromJsonAsync<IList<AssetDTO>>($"{_options.ApiPath}/customers/{customerId}/users/{userId}");
 
                 if (assets == null) return null;
-                var origoAssets = new List<OrigoAsset>();
+                var origoAssets = new List<object>();
                 foreach (var asset in assets)
                 {
                     if (asset.AssetCategoryId == 1)

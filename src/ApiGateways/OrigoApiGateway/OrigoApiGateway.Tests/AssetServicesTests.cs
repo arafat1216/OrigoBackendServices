@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
+using OrigoApiGateway.Models;
 using OrigoApiGateway.Services;
 using Xunit;
 
@@ -91,7 +92,7 @@ namespace OrigoApiGateway.Tests
 
             // Assert
             Assert.Equal(2, assetsFromUser.Count);
-            Assert.Equal("iPhone",  assetsFromUser[0].Brand);
+            Assert.Equal("iPhone",  (assetsFromUser[0] as OrigoMobilePhone).Brand);
         }
 
         [Fact]

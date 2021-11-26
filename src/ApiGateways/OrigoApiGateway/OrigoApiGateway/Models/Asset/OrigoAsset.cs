@@ -118,12 +118,5 @@ namespace OrigoApiGateway.Models
         public AssetStatus AssetStatus { get; protected set; }
 
         public string AssetStatusName { get; protected set; }
-
-        // TODO: remove this field when all reference and dependencies to this is removed.
-        /// <summary>
-        /// This is a legacy attribute and will be removed.
-        /// </summary>
-        [Obsolete("This is a legacy attribute and will be removed.")]
-        public bool IsActive { get; set; } = true;
     }
 }
