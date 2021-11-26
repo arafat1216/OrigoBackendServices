@@ -170,8 +170,8 @@ namespace OrigoApiGateway.Services
                 var response = await HttpClient.PostAsJsonAsync(requestUri, newAsset);
                 if (!response.IsSuccessStatusCode)
                 {
-                    var exception = new BadHttpRequestException("Unable to save asset", (int)response.StatusCode);
-                    _logger.LogError(exception, "Unable to save Asset.");
+                    var errorDescription = await response.Content.ReadAsStringAsync();
+                    var exception = new BadHttpRequestException(errorDescription, (int)response.StatusCode);
                     throw exception;
                 }
                 var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
@@ -203,7 +203,6 @@ namespace OrigoApiGateway.Services
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to set status for assets", (int)response.StatusCode);
-                    _logger.LogError(exception, "Unable to set status for assets.");
                     throw exception;
                 }
                 var assets = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
@@ -240,8 +239,8 @@ namespace OrigoApiGateway.Services
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{assetId}/customers/{customerId}/update/", updateAsset);
                 if (!response.IsSuccessStatusCode)
                 {
-                    var exception = new BadHttpRequestException("Unable to update asset", (int)response.StatusCode);
-                    _logger.LogError(exception, "Unable to update asset.");
+                    var errorDescription = await response.Content.ReadAsStringAsync();
+                    var exception = new BadHttpRequestException(errorDescription, (int)response.StatusCode);
                     throw exception;
                 }
                 var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();

@@ -243,10 +243,15 @@ namespace OrigoApiGateway.Controllers
                 }
                 return BadRequest();
             }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
                 _logger.LogError("{0}", ex.Message);
-                return BadRequest();
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
 
@@ -345,6 +350,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
         public async Task<ActionResult> UpdateAsset(Guid organizationId, Guid assetId, [FromBody] OrigoUpdateAsset asset)
         {
@@ -371,17 +377,22 @@ namespace OrigoApiGateway.Controllers
                 {
                     return NotFound();
                 }
-
+                
                 var options = new JsonSerializerOptions
                 {
                     WriteIndented = true
                 };
                 return Ok(JsonSerializer.Serialize<object>(updatedAsset, options));
             }
+            catch(BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);      
+                return  BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
                 _logger.LogError("{0}", ex.Message);
-                return BadRequest();
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
 

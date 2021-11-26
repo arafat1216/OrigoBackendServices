@@ -185,6 +185,25 @@ namespace AssetServices
             {
                 asset.SetAlias(alias);
             }
+
+            if (!asset.AssetPropertiesAreValid)
+            {
+                StringBuilder exceptionMsg = new StringBuilder();
+                foreach (string errorMsg in asset.ErrorMsgList)
+                {
+                    if (errorMsg.Contains("Imei"))
+                    {
+                        exceptionMsg.Append($"Asset {errorMsg}" + " is invalid.\n");
+                    }
+                    else
+                    {
+                        exceptionMsg.Append($"Minimum asset data requirements not set: {errorMsg}" + ".\n");
+                    }
+                }
+
+                throw new InvalidAssetDataException(exceptionMsg.ToString());
+            }
+
             UpdateDerivedAssetType(asset, serialNumber, imei);
 
             await _assetRepository.SaveEntitiesAsync();
