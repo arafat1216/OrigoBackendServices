@@ -174,8 +174,8 @@ namespace OrigoApiGateway.Tests
 
             // Assert
             Assert.Equal(2, updatedAssets.Count);
-            Assert.Equal("NoStatus", updatedAssets[0].AssetStatusName);
-            Assert.Equal(0, (int) updatedAssets[1].AssetStatus);
+            Assert.Equal("NoStatus", (updatedAssets[0] as OrigoMobilePhone).AssetStatusName);
+            Assert.Equal(0, (int) (updatedAssets[1]as OrigoMobilePhone).AssetStatus);
         }
     }
 }
