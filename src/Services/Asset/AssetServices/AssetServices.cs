@@ -120,19 +120,6 @@ namespace AssetServices
             return asset;
         }
 
-        public async Task<Asset> UpdateAssetStatus(Guid customerId, Guid assetId, AssetStatus status)
-        {
-            var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
-            if (asset == null)
-            {
-                return null;
-            }
-
-            asset.UpdateAssetStatus(status);
-            await _assetRepository.SaveEntitiesAsync();
-            return asset;
-        }
-
         public async Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, IList<Guid> assetGuidList, AssetStatus status)
         {
             var assets = await _assetRepository.GetAssetsFromListAsync(customerId, assetGuidList);

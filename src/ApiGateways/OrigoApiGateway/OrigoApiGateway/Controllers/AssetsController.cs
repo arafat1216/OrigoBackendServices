@@ -15,6 +15,8 @@ using Common.Enums;
 using Microsoft.AspNetCore.Http;
 using OrigoApiGateway.Exceptions;
 using System.Text.Json;
+using Newtonsoft.Json.Linq;
+using OrigoApiGateway.Models.Asset;
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 // ReSharper disable RouteTemplates.ControllerRouteParameterIsNotPassedToMethods
 
@@ -22,7 +24,7 @@ namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Authorize]
+    //[Authorize]
     // Assets should only be available through a given customer
     [Route("/origoapi/v{version:apiVersion}/[controller]")]
     public class AssetsController : ControllerBase
@@ -254,12 +256,13 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{organizationId:guid}/assetStatus/{assetStatus:int}")]
+
+        [Route("customers/{organizationId:guid}/assetStatus")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> SetAssetStatusOnAssets(Guid organizationId, IList<Guid> assetGuidList, int assetStatus)
+        public async Task<ActionResult> SetAssetStatusOnAssets(Guid organizationId, [FromBody] UpdateAssetsStatus data)
         {
             try
             {
@@ -278,6 +281,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
+                IList<Guid> assetGuidList = data.AssetGuidList;
+                int assetStatus = data.AssetStatus;
 
                 if (!assetGuidList.Any())
                     return BadRequest("No assets selected.");

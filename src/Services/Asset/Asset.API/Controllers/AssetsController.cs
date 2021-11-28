@@ -185,44 +185,12 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
-        [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SetAssetStatusOnAsset(Guid customerId, Guid assetId, int assetStatus)
-        {
-            try
-            {
-                if (!Enum.IsDefined(typeof(AssetStatus), assetStatus))
-                    return BadRequest("Invalid AssetStatus");
-                var updatedAsset = await _assetServices.UpdateAssetStatus(customerId, assetId, (AssetStatus)assetStatus);
-                if (updatedAsset == null)
-                {
-                    return NotFound();
-                }
-
-                var phone = updatedAsset as AssetServices.Models.MobilePhone;
-                if (phone != null)
-                    return Ok(new MobilePhone(phone));
-
-                var tablet = updatedAsset as AssetServices.Models.Tablet;
-                if (tablet != null)
-                    return Ok(new Tablet(tablet));
-
-                return Ok(new ViewModels.Asset(updatedAsset));
-
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
+        
         [Route("customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SetAssetStatusOnAsset(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
+        public async Task<ActionResult> SetAssetStatusOnAssets(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
         {
             try
             {
