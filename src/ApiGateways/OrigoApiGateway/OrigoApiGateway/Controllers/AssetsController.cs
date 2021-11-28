@@ -24,7 +24,7 @@ namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    //[Authorize]
+    [Authorize]
     // Assets should only be available through a given customer
     [Route("/origoapi/v{version:apiVersion}/[controller]")]
     public class AssetsController : ControllerBase
@@ -301,10 +301,20 @@ namespace OrigoApiGateway.Controllers
                 };
                 return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
             }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch(ResourceNotFoundException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return NotFound(ex.Message);
+            }
             catch (Exception ex)
             {
                 _logger.LogError("{0}", ex.Message);
-                return BadRequest();
+                return StatusCode((int)HttpStatusCode.InternalServerError, "Unable to change status on assets");
             }
         }
 

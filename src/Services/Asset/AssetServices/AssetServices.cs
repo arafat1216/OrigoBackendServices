@@ -123,7 +123,7 @@ namespace AssetServices
         public async Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, IList<Guid> assetGuidList, AssetStatus status)
         {
             var assets = await _assetRepository.GetAssetsFromListAsync(customerId, assetGuidList);
-            if (assets == null)
+            if (assets == null || assets.Count == 0)
             {
                 return null;
             }

@@ -195,11 +195,19 @@ namespace Asset.API.Controllers
             try
             {
                 if (!Enum.IsDefined(typeof(AssetStatus), assetStatus))
-                    return BadRequest("Invalid AssetStatus");
+                {
+                    string statusString = "";
+                    foreach (int i in Enum.GetValues(typeof(AssetStatus)))
+                    {
+                        statusString += i + " - " + Enum.GetName(typeof(AssetStatus), i) + "\n";
+                    }
+                    return BadRequest("Invalid AssetStatus, possible values are: " + statusString);
+                }
+                
                 var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, assetGuidList, (AssetStatus)assetStatus);
                 if (updatedAssets == null)
                 {
-                    return NotFound();
+                    return NotFound("Given organization does not exist or none of the assets were found");
                 }
 
                 var assetList = new List<object>();
@@ -222,12 +230,13 @@ namespace Asset.API.Controllers
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     WriteIndented = true
                 };
+
                 return Ok(JsonSerializer.Serialize<object>(assetList, options));
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
 
