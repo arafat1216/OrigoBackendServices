@@ -108,6 +108,7 @@ namespace OrigoApiGateway.Controllers
 
                 var options = new JsonSerializerOptions
                 {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     WriteIndented = true
                 };
                 return Ok(JsonSerializer.Serialize<object>(assets, options));
@@ -152,6 +153,7 @@ namespace OrigoApiGateway.Controllers
 
                 var options = new JsonSerializerOptions
                 {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     WriteIndented = true
                 };
                 return Ok(JsonSerializer.Serialize<object>(assets, options));
@@ -196,6 +198,7 @@ namespace OrigoApiGateway.Controllers
 
                 var options = new JsonSerializerOptions
                 {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     WriteIndented = true
                 };
                 return Ok(JsonSerializer.Serialize<object>(asset, options));
@@ -237,6 +240,7 @@ namespace OrigoApiGateway.Controllers
                 {
                     var options = new JsonSerializerOptions
                     {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                         WriteIndented = true
                     };
                     return CreatedAtAction(nameof(CreateAsset), new { id = createdAsset.Id }, JsonSerializer.Serialize<object>(createdAsset, options));
@@ -291,53 +295,10 @@ namespace OrigoApiGateway.Controllers
 
                 var options = new JsonSerializerOptions
                 {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     WriteIndented = true
                 };
                 return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest();
-            }
-        }
-
-        [Route("{assetId:Guid}/customers/{organizationId:guid}/Activate/{isActive:bool}")]
-        [HttpPatch]
-        [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> SetActiveStatusOnAsset(Guid organizationId, Guid assetId, bool isActive)
-        {
-            try
-            {
-                // Only admin or manager roles are allowed to manage assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == PredefinedRole.EndUser.ToString())
-                {
-                    return Forbid();
-                }
-
-                if (role != PredefinedRole.SystemAdmin.ToString())
-                {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
-                    {
-                        return Forbid();
-                    }
-                }
-
-                var updatedAsset = await _assetServices.GetAssetForCustomerAsync(organizationId, assetId);
-                if (updatedAsset == null)
-                {
-                    return NotFound();
-                }
-                updatedAsset.IsActive = isActive;
-                var options = new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                };
-                return Ok(JsonSerializer.Serialize<object>(updatedAsset, options));
             }
             catch (Exception ex)
             {
@@ -380,6 +341,7 @@ namespace OrigoApiGateway.Controllers
                 
                 var options = new JsonSerializerOptions
                 {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     WriteIndented = true
                 };
                 return Ok(JsonSerializer.Serialize<object>(updatedAsset, options));
@@ -453,6 +415,7 @@ namespace OrigoApiGateway.Controllers
                 }
                 var options = new JsonSerializerOptions
                 {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     WriteIndented = true
                 };
                 return Ok(JsonSerializer.Serialize<object>(updatedAsset, options));
@@ -497,6 +460,7 @@ namespace OrigoApiGateway.Controllers
 
                 var options = new JsonSerializerOptions
                 {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     WriteIndented = true
                 };
                 return Ok(JsonSerializer.Serialize<object>(assignedAsset, options));

@@ -65,6 +65,7 @@ namespace Asset.API.Controllers
             }
             var options = new JsonSerializerOptions
             {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 WriteIndented = true
             };
             return Ok(JsonSerializer.Serialize<object>(assetList, options));
@@ -99,7 +100,8 @@ namespace Asset.API.Controllers
             }
             var options = new JsonSerializerOptions
             {
-                WriteIndented = true
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true,
             };
             return Ok(JsonSerializer.Serialize<object>(
             new PagedAssetList
@@ -115,7 +117,7 @@ namespace Asset.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> Get(Guid customerId, Guid assetId)
+        public async Task<ActionResult<ViewModels.Asset>> Get(Guid customerId, Guid assetId)
         {
             var asset = await _assetServices.GetAssetForCustomerAsync(customerId, assetId);
             if (asset == null)
@@ -250,6 +252,7 @@ namespace Asset.API.Controllers
                 }
                 var options = new JsonSerializerOptions
                 {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     WriteIndented = true
                 };
                 return Ok(JsonSerializer.Serialize<object>(assetList, options));
@@ -277,8 +280,8 @@ namespace Asset.API.Controllers
                 {
                     return NotFound();
                 }
-                var lifecycleList = new List<ViewModels.AssetLifecycle>();
-                foreach (var lifecycle in lifecycles) lifecycleList.Add(new ViewModels.AssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
+                var lifecycleList = new List<AssetLifecycle>();
+                foreach (var lifecycle in lifecycles) lifecycleList.Add(new AssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
 
                 return Ok(lifecycleList);
             }
