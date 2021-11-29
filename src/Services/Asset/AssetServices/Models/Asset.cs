@@ -204,6 +204,8 @@ namespace AssetServices.Models
         /// <returns>Boolean value, true if asset has valid properties, false if not</returns>
         protected bool ValidateAsset()
         {
+            ErrorMsgList = new List<string>();
+
             bool validAsset = true;
             // General (all types)
             if (CustomerId == Guid.Empty)
@@ -227,6 +229,12 @@ namespace AssetServices.Models
             if (PurchaseDate == DateTime.MinValue)
             {
                 ErrorMsgList.Add("PurchaseDate - Cannot be DateTime.MinValue");
+                validAsset = false;
+            }
+
+            if (PurchaseDate > DateTime.UtcNow)
+            {
+                ErrorMsgList.Add("PurchaseDate - Cannot be set in the future");
                 validAsset = false;
             }
 
