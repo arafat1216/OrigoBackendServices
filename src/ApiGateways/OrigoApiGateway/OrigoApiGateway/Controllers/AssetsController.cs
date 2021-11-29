@@ -15,6 +15,8 @@ using Common.Enums;
 using Microsoft.AspNetCore.Http;
 using OrigoApiGateway.Exceptions;
 using System.Text.Json;
+using Newtonsoft.Json.Linq;
+using OrigoApiGateway.Models.Asset;
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 // ReSharper disable RouteTemplates.ControllerRouteParameterIsNotPassedToMethods
 
@@ -259,12 +261,13 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{organizationId:guid}/assetStatus/{assetStatus:int}")]
+
+        [Route("customers/{organizationId:guid}/assetStatus")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> SetAssetStatusOnAssets(Guid organizationId, IList<Guid> assetGuidList, int assetStatus)
+        public async Task<ActionResult> SetAssetStatusOnAssets(Guid organizationId, [FromBody] UpdateAssetsStatus data)
         {
             try
             {
@@ -284,6 +287,9 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
+                IList<Guid> assetGuidList = data.AssetGuidList;
+                int assetStatus = data.AssetStatus;
+
                 if (!assetGuidList.Any())
                     return BadRequest("No assets selected.");
 
@@ -300,10 +306,20 @@ namespace OrigoApiGateway.Controllers
                 };
                 return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
             }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch(ResourceNotFoundException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return NotFound(ex.Message);
+            }
             catch (Exception ex)
             {
                 _logger.LogError("{0}", ex.Message);
-                return BadRequest();
+                return StatusCode((int)HttpStatusCode.InternalServerError, "Unable to change status on assets");
             }
         }
 

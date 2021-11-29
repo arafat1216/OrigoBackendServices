@@ -10,7 +10,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         /// <summary>
         /// External Id of the Asset
         /// </summary>
-        public Guid AssetId { get; set; }
+        public Guid Id { get; set; }
 
         /// <summary>
         /// Asset is linked to this customer 

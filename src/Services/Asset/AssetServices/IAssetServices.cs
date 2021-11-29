@@ -18,7 +18,6 @@ namespace AssetServices
             string brand, string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
             IList<long> imei, string macAddress, Guid? managedByDepartmentId, AssetStatus status, string note, string tag, string description);
         Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, LifecycleType newLifecycleType);
-        Task<Asset> UpdateAssetStatus(Guid customerId, Guid assetId, AssetStatus status);
         Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, IList<Guid> assetGuidList, AssetStatus status);
         Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei);
         Task<Asset> AssignAsset(Guid customerId, Guid assetId, Guid? userId);

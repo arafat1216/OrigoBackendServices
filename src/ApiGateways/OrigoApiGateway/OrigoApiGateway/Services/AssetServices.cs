@@ -193,7 +193,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<OrigoAsset>> UpdateStatusOnAssets(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
+        public async Task<IList<object>> UpdateStatusOnAssets(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
         {
             try
             {
@@ -202,11 +202,17 @@ namespace OrigoApiGateway.Services
                 var response = await HttpClient.PostAsJsonAsync(requestUri, assetGuidList);
                 if (!response.IsSuccessStatusCode)
                 {
-                    var exception = new BadHttpRequestException("Unable to set status for assets", (int)response.StatusCode);
-                    throw exception;
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int) response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int) response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription,_logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
                 }
+               
                 var assets = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
-                List<OrigoAsset> origoAssets = new List<OrigoAsset>();
+                List<object> origoAssets = new List<object>();
                 if (assets == null)
                     return null;
 

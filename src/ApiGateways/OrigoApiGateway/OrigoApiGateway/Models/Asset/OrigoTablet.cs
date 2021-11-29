@@ -9,7 +9,7 @@ namespace OrigoApiGateway.Models
 
         public OrigoTablet(AssetDTO asset)
         {
-            Id = asset.AssetId;
+            Id = asset.Id;
             OrganizationId = asset.OrganizationId;
             Note = asset.Note;
             SerialNumber = asset.SerialNumber;

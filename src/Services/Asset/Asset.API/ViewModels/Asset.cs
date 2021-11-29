@@ -17,7 +17,7 @@ namespace Asset.API.ViewModels
         {
             AssetTag = asset.AssetTag;
             Description = asset.Description;
-            AssetId = asset.ExternalId;
+            Id = asset.ExternalId;
             OrganizationId = asset.CustomerId;
             Alias = asset.Alias;
             Brand = asset.Brand;
@@ -37,7 +37,7 @@ namespace Asset.API.ViewModels
         /// <summary>
         /// External Id of the Asset
         /// </summary>
-        public Guid AssetId { get; protected set; }
+        public Guid Id { get; protected set; }
 
         /// <summary>
         /// Asset is linked to this customer 

@@ -168,7 +168,7 @@ namespace Asset.API.Controllers
 
                 var updatedAssetView = new ViewModels.Asset(updatedAsset);
 
-                return CreatedAtAction(nameof(CreateAsset), new { id = updatedAssetView.AssetId }, updatedAssetView);
+                return CreatedAtAction(nameof(CreateAsset), new { id = updatedAssetView.Id }, updatedAssetView);
             }
             catch (AssetCategoryNotFoundException)
             {
@@ -186,53 +186,29 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
-        [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SetAssetStatusOnAsset(Guid customerId, Guid assetId, int assetStatus)
-        {
-            try
-            {
-                if (!Enum.IsDefined(typeof(AssetStatus), assetStatus))
-                    return BadRequest("Invalid AssetStatus");
-                var updatedAsset = await _assetServices.UpdateAssetStatus(customerId, assetId, (AssetStatus)assetStatus);
-                if (updatedAsset == null)
-                {
-                    return NotFound();
-                }
-
-                var phone = updatedAsset as AssetServices.Models.MobilePhone;
-                if (phone != null)
-                    return Ok(new MobilePhone(phone));
-
-                var tablet = updatedAsset as AssetServices.Models.Tablet;
-                if (tablet != null)
-                    return Ok(new Tablet(tablet));
-
-                return Ok(new ViewModels.Asset(updatedAsset));
-
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
+        
         [Route("customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SetAssetStatusOnAsset(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
+        public async Task<ActionResult> SetAssetStatusOnAssets(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
         {
             try
             {
                 if (!Enum.IsDefined(typeof(AssetStatus), assetStatus))
-                    return BadRequest("Invalid AssetStatus");
+                {
+                    string statusString = "";
+                    foreach (int i in Enum.GetValues(typeof(AssetStatus)))
+                    {
+                        statusString += i + " - " + Enum.GetName(typeof(AssetStatus), i) + "\n";
+                    }
+                    return BadRequest("Invalid AssetStatus, possible values are: " + statusString);
+                }
+                
                 var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, assetGuidList, (AssetStatus)assetStatus);
                 if (updatedAssets == null)
                 {
-                    return NotFound();
+                    return NotFound("Given organization does not exist or none of the assets were found");
                 }
 
                 var assetList = new List<object>();
@@ -255,12 +231,13 @@ namespace Asset.API.Controllers
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     WriteIndented = true
                 };
+
                 return Ok(JsonSerializer.Serialize<object>(assetList, options));
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
 

@@ -9,7 +9,7 @@ namespace Asset.API.ViewModels
 
         public MobilePhone(AssetServices.Models.MobilePhone asset)
         {
-            AssetId = asset.ExternalId;
+            Id = asset.ExternalId;
             OrganizationId = asset.CustomerId;
             SerialNumber = asset.SerialNumber;
             Brand = asset.Brand;
