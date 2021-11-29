@@ -9,7 +9,7 @@ namespace Asset.API.ViewModels
 
         public Tablet(AssetServices.Models.Tablet asset)
         {
-            AssetId = asset.ExternalId;
+            Id = asset.ExternalId;
             OrganizationId = asset.CustomerId;
             SerialNumber = asset.SerialNumber;
             Brand = asset.Brand;

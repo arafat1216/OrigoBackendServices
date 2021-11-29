@@ -193,7 +193,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<OrigoAsset>> UpdateStatusOnAssets(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
+        public async Task<IList<object>> UpdateStatusOnAssets(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
         {
             try
             {
@@ -212,7 +212,7 @@ namespace OrigoApiGateway.Services
                 }
                
                 var assets = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
-                List<OrigoAsset> origoAssets = new List<OrigoAsset>();
+                List<object> origoAssets = new List<object>();
                 if (assets == null)
                     return null;
 

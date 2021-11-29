@@ -167,7 +167,7 @@ namespace Asset.API.Controllers
 
                 var updatedAssetView = new ViewModels.Asset(updatedAsset);
 
-                return CreatedAtAction(nameof(CreateAsset), new { id = updatedAssetView.AssetId }, updatedAssetView);
+                return CreatedAtAction(nameof(CreateAsset), new { id = updatedAssetView.Id }, updatedAssetView);
             }
             catch (AssetCategoryNotFoundException)
             {
