@@ -1,11 +1,9 @@
 ﻿using ProductCatalog.Domain.Interfaces;
-using ProductCatalog.Service.Models.Database;
-using ProductCatalog.Service.Models.Database.Interfaces;
 using System.ComponentModel.DataAnnotations;
 
-namespace ProductCatalog.Service.Models.Boilerplate
+namespace ProductCatalog.Domain.Generic
 {
-    public class Translation : Entity, ITranslationResult
+    public class Translation : ITranslationResult
     {
         [Required]
         [RegularExpression("^[a-z]{2}")]
@@ -17,6 +15,14 @@ namespace ProductCatalog.Service.Models.Boilerplate
         [MaxLength(128)]
         public string Name { get; set; }
 
-        public string? Description { get ; set ; }
+        public string? Description { get; set; }
+
+
+        public Translation(string language, string name, string? description)
+        {
+            Language = language;
+            Name = name;
+            Description = description;
+        }
     }
 }

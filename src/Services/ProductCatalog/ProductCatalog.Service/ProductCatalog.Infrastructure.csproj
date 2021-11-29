@@ -22,4 +22,8 @@
     <Folder Include="Specification\Builder\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ProductCatalog.Domain\ProductCatalog.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

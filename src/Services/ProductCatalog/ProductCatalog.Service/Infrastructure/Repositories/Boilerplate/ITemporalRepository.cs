@@ -1,8 +1,15 @@
 ﻿using ProductCatalog.Service.Models.Database.Interfaces;
 
-namespace ProductCatalog.Service.Infrastructure.Repositories
+namespace ProductCatalog.Service.Infrastructure.Repositories.Boilerplate
 {
-    internal interface ITemporalRepository<TEntity> where TEntity : class, IDbEntity, new()
+    /// <summary>
+    ///     Defines temporal operations that is shared across all repositories.
+    /// </summary>
+    /// <inheritdoc/>
+    /// <seealso cref="IReadRepository{TEntity}{TEntity}"/>
+    /// <seealso cref="IRepository{TEntity}"/>
+    /// <seealso cref="ITranslationRepository{TEntity}"/>
+    internal interface ITemporalRepository<TEntity> : IReadRepository<TEntity> where TEntity : class, IEntityFrameworkEntity
     {
 
     }

@@ -1,12 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using ProductCatalog.Service.Models.Database.Interfaces;
 using System.Linq.Expressions;
 
-namespace ProductCatalog.Service.Infrastructure.Repositories
+namespace ProductCatalog.Service.Infrastructure.Repositories.Boilerplate
 {
-    /// <inheritdoc/>
-    internal abstract class Repository<TEntity, TDbContext> : IRepository<TEntity> where TEntity : class, IDbEntity, new()
-                                                                                   where TDbContext : DbContext
+    /// <typeparam name="TDbContext"> The <see cref="DbContext"/> that will be used by the repository. </typeparam>
+    /// <inheritdoc cref="IReadRepository{TEntity}"/>
+    internal abstract class Repository<TEntity, TDbContext> : IRepository<TEntity>
+        where TEntity : class, IEntityFrameworkEntity
+        where TDbContext : DbContext
     {
         protected readonly TDbContext _context;
 
@@ -16,10 +19,10 @@ namespace ProductCatalog.Service.Infrastructure.Repositories
         }
 
         /// <inheritdoc/>
-        public virtual async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
+        public virtual async Task<EntityEntry<TEntity>> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
-            await _context.Set<TEntity>()
-                          .AddAsync(entity, cancellationToken);
+            return await _context.Set<TEntity>()
+                                 .AddAsync(entity, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -30,18 +33,71 @@ namespace ProductCatalog.Service.Infrastructure.Repositories
         }
 
         /// <inheritdoc/>
-        public virtual async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+        public virtual async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, bool asNoTracking, CancellationToken cancellationToken = default)
         {
-            return await _context.Set<TEntity>()
-                                 .Where(predicate)
-                                 .ToListAsync(cancellationToken);
+            if (asNoTracking)
+            {
+                return await _context.Set<TEntity>()
+                                     .Where(predicate)
+                                     .AsNoTracking()
+                                     .ToListAsync(cancellationToken);
+            }
+            else
+            {
+                return await _context.Set<TEntity>()
+                                     .Where(predicate)
+                                     .ToListAsync(cancellationToken);
+            }
         }
 
         /// <inheritdoc/>
-        public virtual async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
+        public virtual IAsyncEnumerable<TEntity> FindAsStream(Expression<Func<TEntity, bool>> predicate, bool asNoTracking)
         {
-            return await _context.Set<TEntity>()
-                                 .ToListAsync(cancellationToken);
+            if (asNoTracking)
+            {
+                return _context.Set<TEntity>()
+                               .Where(predicate)
+                               .AsNoTracking()
+                               .AsAsyncEnumerable();
+            }
+            else
+            {
+                return _context.Set<TEntity>()
+                               .Where(predicate)
+                               .AsAsyncEnumerable();
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual async Task<IEnumerable<TEntity>> GetAllAsync(bool asNoTracking, CancellationToken cancellationToken = default)
+        {
+            if (asNoTracking)
+            {
+                return await _context.Set<TEntity>()
+                                     .AsNoTracking()
+                                     .ToListAsync(cancellationToken);
+            }
+            else
+            {
+                return await _context.Set<TEntity>()
+                                     .ToListAsync(cancellationToken);
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual IAsyncEnumerable<TEntity> GetAllAsStream(bool asNoTracking)
+        {
+            if (asNoTracking)
+            {
+                return _context.Set<TEntity>()
+                               .AsNoTracking()
+                               .AsAsyncEnumerable();
+            }
+            else
+            {
+                return _context.Set<TEntity>()
+                               .AsAsyncEnumerable();
+            }
         }
 
         // Alternative to the "TId id" parameter => "params object?[]? keys"

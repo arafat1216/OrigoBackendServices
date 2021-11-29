@@ -2,8 +2,9 @@
 
 namespace ProductCatalog.Service.Models.Database
 {
-    public class FeatureTypeTranslation : Translation
+    internal class FeatureTypeTranslation : Translation
     {
+        // EF DB Columns
         public int FeatureTypeId { get; set; }
     }
 }

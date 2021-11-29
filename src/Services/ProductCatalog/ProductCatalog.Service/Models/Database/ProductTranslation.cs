@@ -2,8 +2,9 @@
 
 namespace ProductCatalog.Service.Models.Database
 {
-    public class ProductTranslation : Translation
+    internal class ProductTranslation : Translation
     {
+        // EF DB Columns
         public int ProductId { get; set; }
     }
 }

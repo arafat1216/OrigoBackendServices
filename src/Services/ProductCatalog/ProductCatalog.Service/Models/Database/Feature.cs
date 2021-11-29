@@ -1,19 +1,23 @@
-﻿using ProductCatalog.Service.Models.Boilerplate;
+﻿using ProductCatalog.Domain.Interfaces;
+using ProductCatalog.Service.Models.Boilerplate;
 using ProductCatalog.Service.Models.Database.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProductCatalog.Service.Models.Database
 {
-    public class Feature : Entity
+    internal class Feature : Entity, ITranslatable<FeatureTranslation>
     {
-        public int Id { get; set; }
+        // EF DB Columns
+        public int Id { get; private set; }
         public int FeatureTypeId { get; set; }
         public string AccessControlPermissionNode { get; set; }
 
-        // EF Navigation
+        // EF Owned Tables
         public virtual ICollection<FeatureTranslation> Translations { get; set; } = new HashSet<FeatureTranslation>();
+
+        // EF Navigation
         public virtual ICollection<Product> Products { get; set; } = new HashSet<Product>();
-        public virtual FeatureType Type { get; set; }
+        public virtual FeatureType? Type { get; set; }
 
         public virtual ICollection<Feature> Excludes { get; set; } = new HashSet<Feature>();
         public virtual ICollection<Feature> RequiresAll { get; set; } = new HashSet<Feature>();
@@ -28,7 +32,7 @@ namespace ProductCatalog.Service.Models.Database
         [NotMapped]
         public virtual ICollection<Feature> HasRequiresOneDependencyFrom { get; set; } = new HashSet<Feature>();
 
-        // EF "Shadow navigation"
+        // EF Join Tables
         internal virtual ICollection<ProductFeature> ProductFeatures { get; set; } = new HashSet<ProductFeature>();
     }
 }

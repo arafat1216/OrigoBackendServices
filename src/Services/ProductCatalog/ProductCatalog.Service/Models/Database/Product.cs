@@ -1,19 +1,21 @@
-﻿using ProductCatalog.Service.Models.Boilerplate;
+﻿using ProductCatalog.Domain.Interfaces;
+using ProductCatalog.Service.Models.Boilerplate;
 using ProductCatalog.Service.Models.Database.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProductCatalog.Service.Models.Database
 {
-    public class Product : Entity
+    internal class Product : Entity, ITranslatable<ProductTranslation>
     {
-        public int Id { get; set; }
+        // EF DB Columns
+        public int Id { get; private set; }
         public Guid PartnerId { get; set; }
         public int ProductTypeId { get; set; }
 
-
-        // EF Navigation
+        // EF Owned Tables
         public virtual ICollection<ProductTranslation> Translations { get; set; } = new HashSet<ProductTranslation>();
 
+        // EF Navigation
         public virtual ProductType ProductType { get; set; }
         public virtual ICollection<Order> Orders { get; set; } = new HashSet<Order>();
         public virtual ICollection<Feature> Features { get; set; } = new HashSet<Feature>();
@@ -31,7 +33,7 @@ namespace ProductCatalog.Service.Models.Database
         [NotMapped]
         public virtual ICollection<Product> HasRequiresOneDependencyFrom { get; set; } = new HashSet<Product>();
 
-        // EF "Shadow navigation"
+        // EF Join Tables
         internal virtual ICollection<ProductFeature> ProductFeatures { get; set; } = new HashSet<ProductFeature>();
     }
 }

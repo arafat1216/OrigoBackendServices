@@ -1,16 +1,40 @@
-﻿using ProductCatalog.Service.Models.Boilerplate;
-using ProductCatalog.Service.Models.Database.Interfaces;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using ProductCatalog.Domain.Interfaces;
 
 namespace ProductCatalog.Service.Models.Database
 {
-    public class ProductType : Entity, IBaseType
+    internal class ProductType : Entity, ITranslatable<ProductTypeTranslation>
     {
+        // EF DB Columns
         public int Id { get; set; }
 
-        public virtual ICollection<ProductTypeTranslation> Translations { get; set; } = new HashSet<ProductTypeTranslation>();
+        // EF Owned
+        public virtual ICollection<ProductTypeTranslation> Translations { get; set; }
 
         // EF Navigation
-        public virtual IReadOnlyCollection<Product> Products { get; set; } = new HashSet<Product>();
+        public virtual ICollection<Product> Products { get; set; }
+
+
+        [Obsolete("A reserved constructor that should only be utilized by EF!")]
+        public ProductType()
+        {
+            Translations = new HashSet<ProductTypeTranslation>();
+            Products = new HashSet<Product>();
+        }
+
+
+        public ProductType(ICollection<ProductTypeTranslation> translations)
+        {
+            Translations = translations;
+        }
+
+        public ProductType(IEnumerable<ProductTypeTranslation> translations)
+        {
+            Translations = translations.ToList();
+        }
+
+        public ProductType(IEnumerable<ITranslationResult> translations)
+        {
+            Translations = new EntityAdapter().Convert<ProductTypeTranslation>(translations).ToList();
+        }
     }
 }

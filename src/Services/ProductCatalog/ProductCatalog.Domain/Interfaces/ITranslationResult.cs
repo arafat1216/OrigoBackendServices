@@ -1,8 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ProductCatalog.Service.Models.Database.Interfaces
+namespace ProductCatalog.Domain.Interfaces
 {
-    public interface ITranslation
+    /// <summary>
+    ///     Exposes a single translation results
+    /// </summary>
+    /// <seealso cref="ITranslatable{TTranslationEntity}"/>
+    public interface ITranslationResult
     {
         [Required]
         [RegularExpression("^[a-z]{2}")]

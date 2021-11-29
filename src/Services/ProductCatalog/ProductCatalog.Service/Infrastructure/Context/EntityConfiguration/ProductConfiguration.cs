@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ProductCatalog.Service.Models.Database;
 using ProductCatalog.Service.Models.Boilerplate;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace ProductCatalog.Service.Infrastructure.Context.EntityConfiguration
 {
@@ -9,6 +10,14 @@ namespace ProductCatalog.Service.Infrastructure.Context.EntityConfiguration
     {
         public void Configure(EntityTypeBuilder<Product> builder)
         {
+            // A value comparer for keys. Used to force EF Core into case-insensitive string comparisons like in the database.
+            // Source: Use case-insensitive string keys (https://docs.microsoft.com/en-us/ef/core/modeling/value-conversions?tabs=fluent-api#use-case-insensitive-string-keys)
+            var comparer = new ValueComparer<string>(
+                (l, r) => string.Equals(l, r, StringComparison.OrdinalIgnoreCase),
+                v => v.ToLower().GetHashCode(),
+                v => v
+            );
+
             builder.ToTable(t => t.IsTemporal());
 
             builder.HasIndex(e => e.PartnerId);
@@ -22,7 +31,8 @@ namespace ProductCatalog.Service.Infrastructure.Context.EntityConfiguration
                 builder.Property(e => e.Language)
                        .HasMaxLength(2)
                        .IsFixedLength()
-                       .IsUnicode(false);
+                       .IsUnicode(false)
+                       .Metadata.SetValueComparer(comparer);
             });
 
             builder.HasMany(p => p.Features)

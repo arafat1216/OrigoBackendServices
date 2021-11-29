@@ -1,15 +1,19 @@
-﻿using ProductCatalog.Service.Models.Boilerplate;
+﻿using ProductCatalog.Domain.Interfaces;
+using ProductCatalog.Service.Models.Boilerplate;
 using ProductCatalog.Service.Models.Database.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProductCatalog.Service.Models.Database
 {
-    public class FeatureType : Entity
+    internal class FeatureType : Entity, ITranslatable<FeatureTypeTranslation>
     {
-        public int Id { get; set; }
+        // EF DB Columns
+        public int Id { get; private set; }
+
+        // EF Owned Tables
         public virtual ICollection<FeatureTypeTranslation> Translations { get; set; } = new HashSet<FeatureTypeTranslation>();
 
         // EF Navigation
-        public virtual IReadOnlyCollection<Feature> Features { get; set; } = new HashSet<Feature>();
+        public virtual ICollection<Feature> Features { get; set; } = new HashSet<Feature>();
     }
 }

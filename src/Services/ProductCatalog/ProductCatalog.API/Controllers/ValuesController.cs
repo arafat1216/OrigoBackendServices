@@ -11,9 +11,9 @@ namespace ProductCatalog.API.Controllers
     {
         // GET: api/<ValuesController>
         [HttpGet]
-        public async Task<IEnumerable<Service.Models.Database.Feature>> Get()
+        public async void Get()
         {
-            return await new FeatureService().Test();
+            throw new NotImplementedException();
         }
 
         // GET api/<ValuesController>/5
