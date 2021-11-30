@@ -22,6 +22,22 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
+        public async void GetUsersCount_ForCompanyOne()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>());
+
+            // Act
+            int user = await userServices.GetUsersCountAsync(CUSTOMER_ONE_ID);
+
+            // Assert
+            Assert.Equal(2, user);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
         public async void GetAllUsers_ForCompanyOne()
         {
             // Arrange
@@ -168,12 +184,12 @@ namespace CustomerServices.UnitTests
             var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "TEST", "TEST", "hello@mail.com", "+479898989", "hhhh", new UserPreference("EN"));
             var user = await userServices.GetAllUsersAsync(CUSTOMER_ONE_ID);
 
-            Assert.Equal(2, user.Count);
-            Assert.Contains("TEST", user[1].FirstName);
-            Assert.Contains("TEST", user[1].LastName);
-            Assert.Contains("hello@mail.com", user[1].Email);
-            Assert.Contains("+479898989", user[1].MobileNumber);
-            Assert.Contains("hhhh", user[1].EmployeeId);
+            Assert.Equal(3, user.Count);
+            Assert.Contains("TEST", user[2].FirstName);
+            Assert.Contains("TEST", user[2].LastName);
+            Assert.Contains("hello@mail.com", user[2].Email);
+            Assert.Contains("+479898989", user[2].MobileNumber);
+            Assert.Contains("hhhh", user[2].EmployeeId);
             Assert.IsType<List<User>>(user);
 
         }

@@ -7,6 +7,7 @@ namespace OrigoApiGateway.Services
 {
     public interface IUserServices
     {
+        Task<int> GetUsersCountAsync(Guid customerId);
         Task<OrigoUser> GetUserAsync(Guid customerId, Guid userId);
         Task<IEnumerable<OrigoUser>> GetAllUsersAsync(Guid customerId, IReadOnlyCollection<Guid> filteredDepartments = null);
         Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser);

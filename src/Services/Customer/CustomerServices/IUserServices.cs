@@ -7,6 +7,7 @@ namespace CustomerServices
 {
     public interface IUserServices
     {
+        Task<int> GetUsersCountAsync(Guid customerId);
         Task<IList<User>> GetAllUsersAsync(Guid customerId);
         Task<User> GetUserAsync(Guid customerId, Guid userId);
         Task<User> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,

@@ -20,6 +20,11 @@ namespace CustomerServices
             _oktaServices = oktaServices;
         }
 
+        public Task<int> GetUsersCountAsync(Guid customerId)
+        {
+            return _customerRepository.GetUsersCountAsync(customerId);
+        }
+
         public Task<IList<User>> GetAllUsersAsync(Guid customerId)
         {
             return _customerRepository.GetAllUsersAsync(customerId);

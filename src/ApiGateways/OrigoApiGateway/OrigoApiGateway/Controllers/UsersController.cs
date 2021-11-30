@@ -31,12 +31,13 @@ namespace OrigoApiGateway.Controllers
             _userServices = userServices;
         }
 
+        [Route("count")]
         [HttpGet]
         [ProducesResponseType(typeof(List<OrigoUser>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
-        public async Task<ActionResult<List<OrigoUser>>> GetAllUsers(Guid organizationId)
-        { 
+        public async Task<ActionResult<int>> GetUsersCount(Guid organizationId)
+        {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
             {
@@ -52,7 +53,34 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
             }
-            
+
+            var count = await _userServices.GetUsersCountAsync(organizationId);
+            if (count == 0) return NotFound();
+            return Ok(new { organizationId, count });
+        }
+
+        [HttpGet]
+        [ProducesResponseType(typeof(List<OrigoUser>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<List<OrigoUser>>> GetAllUsers(Guid organizationId)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                // Check if caller has access to this organization
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+
             var users = await _userServices.GetAllUsersAsync(organizationId);
             if (users == null) return NotFound();
             return Ok(users);
@@ -65,7 +93,7 @@ namespace OrigoApiGateway.Controllers
         [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<OrigoUser>> GetUser(Guid organizationId, Guid userId)
         {
-           
+
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
             {
@@ -81,7 +109,7 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
             }
-          
+
             var user = await _userServices.GetUserAsync(organizationId, userId);
             if (user == null) return NotFound();
             return Ok(user);
@@ -128,7 +156,7 @@ namespace OrigoApiGateway.Controllers
         public async Task<ActionResult<OrigoUser>> SetUserActiveStatus(Guid organizationId, Guid userId, bool isActive)
         {
             try
-            {         
+            {
                 // Check if caller has access to this organization
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
@@ -149,7 +177,7 @@ namespace OrigoApiGateway.Controllers
                     return NotFound();
                 return Ok(user);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
