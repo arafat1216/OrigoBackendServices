@@ -36,6 +36,14 @@ namespace AssetServices.Infrastructure
                 .FirstOrDefaultAsync(a => a.ExternalId == asset.ExternalId);
         }
 
+        public async Task<int> GetAssetsCountAsync(Guid customerId)
+        {
+            var assets = await _assetContext.Assets
+                .Where(a => a.CustomerId == customerId).ToListAsync();
+
+            return assets.Count;
+        }
+
         public async Task<PagedModel<Asset>> GetAssetsAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(search))
@@ -95,7 +103,7 @@ namespace AssetServices.Infrastructure
             {
                 return await _assetContext.Assets
                     .Include(a => a.AssetCategory)
-                    .Where(a => (a.CustomerId == customerId &&  assetGuidList.Contains(a.ExternalId))).ToListAsync();
+                    .Where(a => (a.CustomerId == customerId && assetGuidList.Contains(a.ExternalId))).ToListAsync();
             }
             return null;
         }

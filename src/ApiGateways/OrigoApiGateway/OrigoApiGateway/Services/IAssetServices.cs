@@ -8,6 +8,7 @@ namespace OrigoApiGateway.Services
 {
     public interface IAssetServices
     {
+        Task<int> GetAssetsCountAsync(Guid customerId);
         Task<IList<object>> GetAssetsForUserAsync(Guid customerId, Guid userId);
         Task<IList<object>> GetAssetsForCustomerAsync(Guid customerId);
         Task<OrigoPagedAssets> SearchForAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 50);

@@ -41,6 +41,41 @@ namespace OrigoApiGateway.Controllers
             _storageService = storageService;
         }
 
+        [Route("customers/{organizationId:guid}/count")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult<IList<OrigoAsset>>> GetAssetCount(Guid organizationId)
+        {
+            try
+            {
+                // All roles have access, as long as customer is in their accessList
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+                var count = await _assetServices.GetAssetsCountAsync(organizationId);
+                if (count == 0)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new { organizationId, count });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
         [Route("customers/{organizationId:guid}/search")]
         [HttpGet]
         [ProducesResponseType(typeof(OrigoPagedAssets), (int)HttpStatusCode.OK)]
@@ -306,7 +341,7 @@ namespace OrigoApiGateway.Controllers
                 _logger.LogError("{0}", ex.Message);
                 return BadRequest(ex.Message);
             }
-            catch(ResourceNotFoundException ex)
+            catch (ResourceNotFoundException ex)
             {
                 _logger.LogError("{0}", ex.Message);
                 return NotFound(ex.Message);

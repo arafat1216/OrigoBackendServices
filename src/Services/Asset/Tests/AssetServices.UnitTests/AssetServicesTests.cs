@@ -39,6 +39,22 @@ namespace AssetServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
+        public async void GetAssetsCount_ForCompany_CheckCount()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
+
+            // Act
+            var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID);
+
+            // Assert
+            Assert.Equal(3, assetsFromCompany);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
         public async void GetAssetsForCustomer_ForOneCustomer_CheckCount()
         {
             // Arrange

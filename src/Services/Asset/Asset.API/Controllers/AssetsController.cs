@@ -36,6 +36,21 @@ namespace Asset.API.Controllers
             _assetServices = assetServices;
         }
 
+        [Route("customers/{customerId:guid}/count")]
+        [HttpGet]
+        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<int>> GetCount(Guid customerId)
+        {
+            var count = await _assetServices.GetAssetsCountAsync(customerId);
+            if (count == 0)
+            {
+                return NotFound();
+            }
+
+            return Ok(count);
+        }
+
         [Route("customers/{customerId:guid}/users/{userId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
@@ -185,7 +200,7 @@ namespace Asset.API.Controllers
             }
         }
 
-        
+
         [Route("customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
@@ -203,7 +218,7 @@ namespace Asset.API.Controllers
                     }
                     return BadRequest("Invalid AssetStatus, possible values are: " + statusString);
                 }
-                
+
                 var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, assetGuidList, (AssetStatus)assetStatus);
                 if (updatedAssets == null)
                 {
