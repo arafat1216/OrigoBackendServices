@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text.Json;
+using System.Net.Http;
 
 namespace Asset.API.Controllers
 {
@@ -152,7 +153,7 @@ namespace Asset.API.Controllers
         [Route("customers/{customerId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.Created)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> CreateAsset(Guid customerId, [FromBody] NewAsset asset)
         {
             try
@@ -196,7 +197,7 @@ namespace Asset.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("{0}", ex.Message);
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -334,8 +335,8 @@ namespace Asset.API.Controllers
         [Route("{assetId:Guid}/customers/{customerId:guid}/Update")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> UpdateAsset(Guid customerId, Guid assetId, [FromBody] UpdateAsset asset)
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> UpdateAsset(Guid customerId, Guid assetId, [FromBody] UpdateAsset asset)
         {
             try
             {
@@ -354,6 +355,11 @@ namespace Asset.API.Controllers
                     return Ok(new Tablet(tablet));
 
                 return Ok(new ViewModels.Asset(updatedAsset));
+            }
+            catch(InvalidAssetDataException ex)
+            {
+                _logger?.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
