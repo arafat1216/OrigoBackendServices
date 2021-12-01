@@ -28,6 +28,18 @@ namespace Customer.API.Controllers
             _userServices = userServices;
         }
 
+        [Route("count")]
+        [HttpGet]
+        [ProducesResponseType(typeof(List<User>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<int>> GetUsersCount(Guid customerId)
+        {
+            var count = await _userServices.GetUsersCountAsync(customerId);
+            if (count == 0) return NotFound();
+            
+            return Ok(count);
+        }
+
         [HttpGet]
         [ProducesResponseType(typeof(List<User>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]

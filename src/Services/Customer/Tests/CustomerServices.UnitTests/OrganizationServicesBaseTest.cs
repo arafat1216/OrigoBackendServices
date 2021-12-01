@@ -71,10 +71,12 @@ namespace CustomerServices.UnitTests
 
             var userPreferences1 = new UserPreference("NO");
             var userPreferences2 = new UserPreference("EN");
+            var userPreferences3 = new UserPreference("EN");
             var userOne = new User(customerOne, USER_ONE_ID, "Jane", "Doe", "jane@doe.com", "+4799999999", "007", userPreferences1);
-            var userTwo = new User(customerTwo, USER_TWO_ID, "John", "Doe", "john@doe.com", "+4791111111", "X", userPreferences2);
+            var userTwo = new User(customerOne, Guid.NewGuid(), "Gordon", "Freeman", "gordon@freeman.com", "+4755555555", "DH-101", userPreferences2);
+            var userThree = new User(customerTwo, USER_TWO_ID, "John", "Doe", "john@doe.com", "+4791111111", "X", userPreferences3);
 
-            context.AddRange(userOne, userTwo);
+            context.AddRange(userOne, userTwo, userThree);
 
             context.SaveChanges();
         }

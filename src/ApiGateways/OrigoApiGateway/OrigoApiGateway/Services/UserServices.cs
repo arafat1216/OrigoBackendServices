@@ -27,6 +27,25 @@ namespace OrigoApiGateway.Services
         private HttpClient HttpClient { get; }
         private readonly UserConfiguration _options;
 
+        public async Task<int> GetUsersCountAsync(Guid customerId)
+        {
+            try
+            {
+                var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/{customerId}/users/count");
+                return count ;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetUserAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetUserAsync unknown error.");
+                throw;
+            }
+        }
+
         public async Task<OrigoUser> GetUserAsync(Guid customerId, Guid userId)
         {
             try
