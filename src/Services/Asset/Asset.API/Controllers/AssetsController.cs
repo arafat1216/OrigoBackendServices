@@ -71,6 +71,60 @@ namespace Asset.API.Controllers
             return Ok(JsonSerializer.Serialize<object>(assetList, options));
         }
 
+        [Route("customers/{customerId:guid}/labels")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> CreateLabelsForCustomer(Guid customerId, IList<NewLabel> newLabels)
+        {
+            // todo: check valid asset color
+            List<AssetServices.Models.Label> labels = new List<AssetServices.Models.Label>();
+            foreach (NewLabel newLabel in newLabels)
+            {
+                labels.Add(new AssetServices.Models.Label(newLabel.Text, newLabel.Color));
+            }
+
+            var labelsAdded = await _assetServices.AddLabelsForCustomerAsync(customerId, labels);
+  
+            if (labelsAdded == null)
+                return BadRequest("Unable to add labels.");
+
+            var labelsView = new List<object>();
+            foreach (AssetServices.Models.CustomerLabel label in labelsAdded)
+            {
+                labelsView.Add(new ViewModels.Label(label));
+            }
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            };
+            return Ok(JsonSerializer.Serialize<object>(labelsView, options));
+        }
+
+        [Route("customers/{customerId:guid}/labels")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> GetLabelsForCustomer(Guid customerId)
+        {
+            var labels = await _assetServices.GetLabelsForCustomerAsync(customerId);
+            if (labels == null)
+                return NotFound();
+
+            var labelList = new List<object>();
+            foreach (AssetServices.Models.CustomerLabel label in labels)
+            {
+                labelList.Add(new ViewModels.Label(label));
+            }
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            };
+            return Ok(JsonSerializer.Serialize<object>(labelList, options));
+        }
+
         [Route("customers/{customerId:guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(PagedAssetList), (int)HttpStatusCode.OK)]

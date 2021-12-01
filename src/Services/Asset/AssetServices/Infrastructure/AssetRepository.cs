@@ -99,6 +99,19 @@ namespace AssetServices.Infrastructure
             }
             return null;
         }
+        public async Task<IList<CustomerLabel>> AddLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
+        {
+            _assetContext.CustomerLabels.AddRange(labels);
+            await SaveEntitiesAsync();
+            return await _assetContext.CustomerLabels
+                         .Where(c => c.CustomerId == customerId).ToListAsync();
+        }
+
+        public async Task<IList<CustomerLabel>> GetLabelsForCustomerAsync(Guid customerId)
+        {
+            return await _assetContext.CustomerLabels
+                         .Where(a => a.CustomerId == customerId).ToListAsync();
+        }
 
         public async Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId)
         {

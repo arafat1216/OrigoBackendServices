@@ -49,6 +49,22 @@ namespace AssetServices
             return await _assetRepository.GetAssetAsync(customerId, assetId);
         }
 
+        public async Task<IList<CustomerLabel>> AddLabelsForCustomerAsync(Guid customerId, IList<Label> labels)
+        {
+            List<CustomerLabel> customerLabels = new List<CustomerLabel>();
+            foreach (Label label in labels)
+            {
+                customerLabels.Add(new CustomerLabel(customerId, label));
+            }
+
+            return await _assetRepository.AddLabelsForCustomerAsync(customerId, customerLabels);
+        }
+
+        public async Task<IList<CustomerLabel>> GetLabelsForCustomerAsync(Guid customerId)
+        {
+            return await _assetRepository.GetLabelsForCustomerAsync(customerId);
+        }
+
         public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string alias, string serialNumber, int assetCategoryId, string brand,
             string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<long> imei, string macAddress,
             Guid? managedByDepartmentId, AssetStatus status, string note, string tag, string description)
