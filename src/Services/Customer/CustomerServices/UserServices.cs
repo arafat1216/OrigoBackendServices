@@ -22,7 +22,7 @@ namespace CustomerServices
 
         public Task<int> GetUsersCountAsync(Guid customerId)
         {
-            return _customerRepository.GetUsersCountAsync(customerId);
+            return _customerRepository.GetUsersCount(customerId);
         }
 
         public Task<IList<User>> GetAllUsersAsync(Guid customerId)
