@@ -29,7 +29,7 @@ namespace AssetServices
 
         public async Task<int> GetAssetsCountAsync(Guid customerId)
         {
-            return await _assetRepository.GetAssetsCountAsync(customerId);
+            return await _assetRepository.GetAssetsCount(customerId);
         }
 
         public async Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId)

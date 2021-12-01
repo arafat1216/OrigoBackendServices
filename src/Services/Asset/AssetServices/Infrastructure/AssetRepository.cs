@@ -36,12 +36,12 @@ namespace AssetServices.Infrastructure
                 .FirstOrDefaultAsync(a => a.ExternalId == asset.ExternalId);
         }
 
-        public async Task<int> GetAssetsCountAsync(Guid customerId)
+        public async Task<int> GetAssetsCount(Guid customerId)
         {
-            var assets = await _assetContext.Assets
-                .Where(a => a.CustomerId == customerId).ToListAsync();
+            var assets =  _assetContext.Assets
+                .Where(a => a.CustomerId == customerId).Count();
 
-            return assets.Count;
+            return assets;
         }
 
         public async Task<PagedModel<Asset>> GetAssetsAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
