@@ -19,7 +19,7 @@ namespace AssetServices.Models
         {
         }
 
-        protected Asset(Guid assetId, Guid customerId,string alias, AssetCategory assetCategory, string brand, string productName,
+        protected Asset(Guid assetId, Guid customerId, string alias, AssetCategory assetCategory, string brand, string productName,
             LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
             AssetStatus status, string note, string assetTag, string description, Guid? managedByDepartmentId = null)
         {
@@ -81,14 +81,7 @@ namespace AssetServices.Models
         [StringLength(50, ErrorMessage = "Model max length is 50")]
         public string ProductName { get; protected set; }
 
-        /// <summary>
-        /// Sets the alias of the asset
-        /// </summary>
-        /// <param name="alias"></param>
-        public void SetAlias(string alias)
-        {
-            Alias = alias;
-        }
+        
 
         /// <summary>
         /// The type of lifecycle for this asset.
@@ -113,6 +106,15 @@ namespace AssetServices.Models
         /// <see cref="AssetStatus">AssetStatus</see>
         /// </summary>
         public AssetStatus Status { get; protected set; }
+
+        /// <summary>
+        /// Sets the alias of the asset
+        /// </summary>
+        /// <param name="alias"></param>
+        public void SetAlias(string alias)
+        {
+            Alias = alias;
+        }
 
         /// <summary>
         /// The labels assigned to the asset
@@ -214,43 +216,6 @@ namespace AssetServices.Models
         ///  - Imei must be valid
         /// </summary>
         /// <returns>Boolean value, true if asset has valid properties, false if not</returns>
-        protected bool ValidateAsset()
-        {
-            ErrorMsgList = new List<string>();
-
-            bool validAsset = true;
-            // General (all types)
-            if (CustomerId == Guid.Empty)
-            {
-                ErrorMsgList.Add("CustomerId - Cannot be Guid.Empty");
-                validAsset = false;
-            }
-
-            if (string.IsNullOrEmpty(Brand))
-            {
-                ErrorMsgList.Add("Brand - Cannot be null or empty");
-                validAsset = false;
-            }
-
-            if (string.IsNullOrEmpty(ProductName))
-            {
-                ErrorMsgList.Add("Model - Cannot be null or empty");
-                validAsset = false;
-            }
-
-            if (PurchaseDate == DateTime.MinValue)
-            {
-                ErrorMsgList.Add("PurchaseDate - Cannot be DateTime.MinValue");
-                validAsset = false;
-            }
-
-            if (PurchaseDate > DateTime.UtcNow)
-            {
-                ErrorMsgList.Add("PurchaseDate - Cannot be set in the future");
-                validAsset = false;
-            }
-
-            return validAsset;
-        }
+        protected abstract bool ValidateAsset();
     }
 }

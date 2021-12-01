@@ -32,6 +32,26 @@ namespace OrigoApiGateway.Services
         private HttpClient HttpClient { get; }
         private readonly AssetConfiguration _options;
 
+        public async Task<int> GetAssetsCountAsync(Guid customerId)
+        {
+            try
+            {
+                var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/customers/{customerId}/count");
+                
+                return count;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAssetsCountAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetAssetsCountAsync failed with unknown error.");
+                throw;
+            }
+        }
+
         public async Task<IList<object>> GetAssetsForUserAsync(Guid customerId, Guid userId)
         {
             try
@@ -203,14 +223,14 @@ namespace OrigoApiGateway.Services
                 if (!response.IsSuccessStatusCode)
                 {
                     string errorDescription = await response.Content.ReadAsStringAsync();
-                    if ((int) response.StatusCode == 500)
+                    if ((int)response.StatusCode == 500)
                         throw new Exception(errorDescription);
-                    else if ((int) response.StatusCode == 404)
-                        throw new ResourceNotFoundException(errorDescription,_logger);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
                     else
                         throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
                 }
-               
+
                 var assets = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
                 List<object> origoAssets = new List<object>();
                 if (assets == null)

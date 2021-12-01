@@ -27,6 +27,11 @@ namespace AssetServices
             _assetRepository = assetRepository;
         }
 
+        public async Task<int> GetAssetsCountAsync(Guid customerId)
+        {
+            return await _assetRepository.GetAssetsCount(customerId);
+        }
+
         public async Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId)
         {
             return await _assetRepository.GetAssetsForUserAsync(customerId, userId);
@@ -79,12 +84,12 @@ namespace AssetServices
             if (assetCategory.Id == 1)
             {
                 newAsset = new MobilePhone(Guid.NewGuid(), customerId, alias, assetCategory, serialNumber, brand, productName,
-                lifecycleType, purchaseDate, assetHolderId, imei.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
+                lifecycleType, purchaseDate, assetHolderId, imei?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
             }
             else
             {
                 newAsset = new Tablet(Guid.NewGuid(), customerId, alias, assetCategory, serialNumber, brand, productName,
-                lifecycleType, purchaseDate, assetHolderId, imei.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
+                lifecycleType, purchaseDate, assetHolderId, imei?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
             }
 
             if (!newAsset.AssetPropertiesAreValid)

@@ -57,7 +57,9 @@ namespace AssetServices.Infrastructure
             modelBuilder.Entity<AssetCategoryTranslation>(b =>
             {
                 b.HasData(new { Id = 1, AssetCategoryId = 1, Language = "EN", Name = "Mobile phone", Description = "Mobile phone", CreatedDate = DateTime.Now, LastUpdatedDate = DateTime.Now, CreatedBy = Guid.NewGuid(), DeletedBy = Guid.Empty, IsDeleted = false, UpdatedBy = Guid.Empty });
-                b.HasData(new { Id = 2, AssetCategoryId = 2, Language = "EN", Name = "Tablet", Description = "Tablet", CreatedDate = DateTime.Now, LastUpdatedDate = DateTime.Now, CreatedBy = Guid.NewGuid(), DeletedBy = Guid.Empty, IsDeleted = false, UpdatedBy = Guid.Empty });
+                b.HasData(new { Id = 2, AssetCategoryId = 1, Language = "NO", Name = "Mobiltelefon", Description = "Mobiltelefon", CreatedDate = DateTime.Now, LastUpdatedDate = DateTime.Now, CreatedBy = Guid.NewGuid(), DeletedBy = Guid.Empty, IsDeleted = false, UpdatedBy = Guid.Empty });
+                b.HasData(new { Id = 3, AssetCategoryId = 2, Language = "EN", Name = "Tablet", Description = "Tablet", CreatedDate = DateTime.Now, LastUpdatedDate = DateTime.Now, CreatedBy = Guid.NewGuid(), DeletedBy = Guid.Empty, IsDeleted = false, UpdatedBy = Guid.Empty });
+                b.HasData(new { Id = 4, AssetCategoryId = 2, Language = "NO", Name = "Nettbrett", Description = "Nettbrett", CreatedDate = DateTime.Now, LastUpdatedDate = DateTime.Now, CreatedBy = Guid.NewGuid(), DeletedBy = Guid.Empty, IsDeleted = false, UpdatedBy = Guid.Empty });
             });
 
             modelBuilder.Entity<CustomerLabel>().ToTable("CustomerLabel");

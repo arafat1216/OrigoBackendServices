@@ -48,7 +48,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<IList<Organization>> GetOrganizationsAsync()
         {
-            return await _customerContext.Organizations.Where(o => o.IsDeleted == false).ToListAsync();
+            return await _customerContext.Organizations.Where(o => !o.IsDeleted).ToListAsync();
         }
 
         public async Task<IList<Organization>> GetOrganizationsAsync(Guid? parentId)
@@ -138,6 +138,13 @@ namespace CustomerServices.Infrastructure
                 .Include(p => p.Departments)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
+        }
+
+        public async Task<int> GetUsersCount(Guid customerId)
+        {
+            var users = _customerContext.Users
+                .Where(u => u.Customer.OrganizationId == customerId).Count();
+            return users;
         }
 
         public async Task<IList<User>> GetAllUsersAsync(Guid customerId)
