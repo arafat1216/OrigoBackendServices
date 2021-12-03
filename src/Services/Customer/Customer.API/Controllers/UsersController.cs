@@ -35,7 +35,6 @@ namespace Customer.API.Controllers
         public async Task<ActionResult<int>> GetUsersCount(Guid customerId)
         {
             var count = await _userServices.GetUsersCountAsync(customerId);
-            if (count == 0) return NotFound();
             
             return Ok(count);
         }
