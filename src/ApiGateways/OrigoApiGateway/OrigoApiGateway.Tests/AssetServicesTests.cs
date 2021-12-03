@@ -232,7 +232,7 @@ namespace OrigoApiGateway.Tests
             newLabels.Add(new NewLabel { Text = "Customer service", Color = Common.Enums.LabelColor.Gray });
 
             // Act
-            IList<Label> createdLabels = await assetService.CreateLabelsForCustomerAsync(new Guid(CUSTOMER_ID), newLabels);
+            IList<Label> createdLabels = await assetService.CreateLabelsForCustomerAsync(new Guid(CUSTOMER_ID), Guid.Empty, newLabels);
 
             // Assert
             Assert.Equal(3, createdLabels.Count);
@@ -287,7 +287,7 @@ namespace OrigoApiGateway.Tests
 
 
             // Act
-            IList<Label> remainingLabels = await assetService.DeleteCustomerLabelsAsync(new Guid(CUSTOMER_ID), guidList);
+            IList<Label> remainingLabels = await assetService.DeleteCustomerLabelsAsync(new Guid(CUSTOMER_ID), Guid.Empty, guidList);
 
             // Assert
             Assert.Equal(1, remainingLabels.Count);
@@ -351,12 +351,12 @@ namespace OrigoApiGateway.Tests
 
             IList<Label> labels = new List<Label>();
             labels.Add(new Label { Id = new Guid(LABEL_ONE_ID), Text = "Administrator", Color = Common.Enums.LabelColor.Blue });
-            labels.Add(new Label { Id = new Guid(LABEL_TWO_ID), Text = "Assistant", Color = Common.Enums.LabelColor.Light_blue });
+            labels.Add(new Label { Id = new Guid(LABEL_TWO_ID), Text = "Assistant", Color = Common.Enums.LabelColor.Lightblue });
 
             
 
             // Act
-            IList<Label> labelsResult = await assetService.UpdateLabelsForCustomerAsync(new Guid(CUSTOMER_ID), labels);
+            IList<Label> labelsResult = await assetService.UpdateLabelsForCustomerAsync(new Guid(CUSTOMER_ID), Guid.Empty, labels);
 
             // Assert
             Assert.Equal(3, labelsResult.Count);

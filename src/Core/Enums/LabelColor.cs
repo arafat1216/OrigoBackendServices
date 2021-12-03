@@ -10,7 +10,7 @@ namespace Common.Enums
     {
         Blue,
         Green,
-        Light_blue,
+        Lightblue,
         Orange,
         Red,
         Gray

@@ -54,12 +54,12 @@ namespace AssetServices
             return await _assetRepository.GetAssetAsync(customerId, assetId);
         }
 
-        public async Task<IList<CustomerLabel>> AddLabelsForCustomerAsync(Guid customerId, IList<Label> labels)
+        public async Task<IList<CustomerLabel>> AddLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Label> labels)
         {
             List<CustomerLabel> customerLabels = new List<CustomerLabel>();
             foreach (Label label in labels)
             {
-                customerLabels.Add(new CustomerLabel(customerId, label));
+                customerLabels.Add(new CustomerLabel(customerId, callerId, label));
             }
 
             return await _assetRepository.AddLabelsForCustomerAsync(customerId, customerLabels);
@@ -70,10 +70,40 @@ namespace AssetServices
             return await _assetRepository.GetLabelsForCustomerAsync(customerId);
         }
 
+        /// <summary>
+        /// Deletes labels permanently from table.
+        /// Should not be called by users in gateway, but can be used by a cleanup job, or similar for when 
+        /// an entity has been IsDelete = 1, for a long enough time.
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <param name="callerId"></param>
+        /// <param name="labelGuids"></param>
+        /// <returns></returns>
         public async Task<IList<CustomerLabel>> DeleteLabelsForCustomerAsync(Guid customerId, IList<Guid> labelGuids)
         {
             IList<CustomerLabel> customerLabels = await _assetRepository.GetLabelsFromListAsync(labelGuids);
             return await _assetRepository.DeleteLabelsForCustomerAsync(customerId, customerLabels);
+        }
+
+        /// <summary>
+        /// Set IsDeleted = 1 on CustomerLabels found by Id in <paramref name="labelGuids"/>.
+        /// CustomerLabels still exist in database, but will not show up when fetching labels owned by customer
+        /// </summary>
+        /// <param name="customerId">External Id of customer whose labels we are soft deleting</param>
+        /// <param name="callerId">Id of user who called endpoint to delete labels</param>
+        /// <param name="labelGuids">External id of labels we are soft deleting</param>
+        /// <returns></returns>
+        public async Task<IList<CustomerLabel>> SoftDeleteLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Guid> labelGuids)
+        {
+            IList<CustomerLabel> customerLabels = await _assetRepository.GetLabelsFromListAsync(labelGuids);
+            foreach (CustomerLabel label in customerLabels)
+            {
+                label.SoftDelete(callerId);
+            }
+
+            await _assetRepository.SaveEntitiesAsync();
+            return await _assetRepository.GetLabelsForCustomerAsync(customerId);
+
         }
 
         public async Task<IList<CustomerLabel>> UpdateLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> updateLabels)

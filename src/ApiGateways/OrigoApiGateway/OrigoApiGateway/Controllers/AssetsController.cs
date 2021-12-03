@@ -440,7 +440,13 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var createdLabels = await _assetServices.CreateLabelsForCustomerAsync(organizationId, labels);
+                string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                Guid callerId;
+                bool valid = Guid.TryParse(userId, out callerId);
+                if (!valid)
+                    callerId = Guid.Empty;
+
+                var createdLabels = await _assetServices.CreateLabelsForCustomerAsync(organizationId, callerId, labels);
 
                 return Ok(createdLabels);
             }
@@ -460,7 +466,39 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var createdLabels = await _assetServices.DeleteCustomerLabelsAsync(organizationId, labelGuids);
+                string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                Guid callerId;
+                bool valid = Guid.TryParse(userId, out callerId);
+                if (!valid)
+                    callerId = Guid.Empty;
+
+                var createdLabels = await _assetServices.DeleteCustomerLabelsAsync(organizationId, callerId, labelGuids);
+
+                return Ok(createdLabels);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/labels")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        //[PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<IList<Label>>> UpdateLabelsForCustomer(Guid organizationId, IList<Label> labels)
+        {
+            try
+            {
+                string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                Guid callerId;
+                bool valid = Guid.TryParse(userId, out callerId);
+                if (!valid)
+                    callerId = Guid.Empty;
+
+                var createdLabels = await _assetServices.UpdateLabelsForCustomerAsync(organizationId, callerId, labels);
 
                 return Ok(createdLabels);
             }

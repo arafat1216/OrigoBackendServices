@@ -32,27 +32,55 @@ namespace AssetServices.Models
         /// <summary>
         /// Assign the given label to the given customer
         /// </summary>
-        public CustomerLabel(Guid customerId, Label label)
+        public CustomerLabel(Guid customerId, Guid callerId, Label label)
         {
             ExternalId = Guid.NewGuid();
             CustomerId = customerId;
             Label = label;
+            CreatedDate = DateTime.UtcNow;
+            LastUpdatedDate = DateTime.UtcNow;
+            CreatedBy = callerId;
+            UpdatedBy = callerId;
         }
 
-        public CustomerLabel(Guid externalId, Guid customerId, Label label)
+        /// <summary>
+        /// Used when updating a CustomerLabel.
+        /// CreatedBy & CreatedDate is intentionally not set, as the object already exists.
+        /// </summary>
+        /// <param name="externalId"></param>
+        /// <param name="customerId"></param>
+        /// <param name="callerId"></param>
+        /// <param name="label"></param>
+        public CustomerLabel(Guid externalId, Guid customerId, Guid callerId, Label label)
         {
             ExternalId = externalId;
             CustomerId = customerId;
             Label = label;
+            LastUpdatedDate = DateTime.UtcNow;
+            UpdatedBy = callerId;
         }
 
         /// <summary>
         /// Update the label attribute
         /// </summary>
         /// <param name="label"></param>
-        public void PatchLabel(Label label)
+        public void PatchLabel(Guid callerId, Label label)
         {
-            Label = label;
+            Label = Label;
+            LastUpdatedDate = DateTime.UtcNow;
+            UpdatedBy = callerId;
+        }
+
+        /// <summary>
+        /// Soft delete this from database.
+        /// Entity still exists, but will not show up when fetching CustomerLabels from repository
+        /// </summary>
+        /// <param name="callerId"></param>
+        public void SoftDelete(Guid callerId)
+        {
+            IsDeleted = true;
+            LastUpdatedDate = DateTime.UtcNow;
+            DeletedBy = callerId;
         }
     }
 }

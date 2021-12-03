@@ -118,7 +118,7 @@ namespace AssetServices.Infrastructure
         public async Task<IList<CustomerLabel>> GetLabelsForCustomerAsync(Guid customerId)
         {
             return await _assetContext.CustomerLabels
-                         .Where(a => a.CustomerId == customerId).ToListAsync();
+                         .Where(a => a.CustomerId == customerId && a.IsDeleted == false).ToListAsync();
         }
 
         public async Task<IList<CustomerLabel>> GetLabelsFromListAsync(IList<Guid> labelsGuid)
@@ -148,7 +148,7 @@ namespace AssetServices.Infrastructure
                 CustomerLabel original = await GetLabelAsync(updateLabel.ExternalId);
                 if (original != null)
                 {
-                    original.PatchLabel(updateLabel.Label);
+                    original.PatchLabel(updateLabel.UpdatedBy, updateLabel.Label);
                 }
             }
 

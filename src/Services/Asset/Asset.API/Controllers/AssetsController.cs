@@ -86,11 +86,11 @@ namespace Asset.API.Controllers
             return Ok(JsonSerializer.Serialize<object>(assetList, options));
         }
 
-        [Route("customers/{customerId:guid}/labels")]
+        [Route("customers/{customerId:guid}/labels/{callerId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Label>>> CreateLabelsForCustomer(Guid customerId, [FromBody] IList<NewLabel> newLabels)//[FromBody] IList<NewLabel> newLabels)
+        public async Task<ActionResult<IEnumerable<ViewModels.Label>>> CreateLabelsForCustomer(Guid customerId, Guid callerId, [FromBody] IList<NewLabel> newLabels)//[FromBody] IList<NewLabel> newLabels)
         {
             // todo: check valid asset color
             List<AssetServices.Models.Label> labels = new List<AssetServices.Models.Label>();
@@ -99,7 +99,7 @@ namespace Asset.API.Controllers
                 labels.Add(new AssetServices.Models.Label(newLabel.Text, newLabel.Color));
             }
 
-            var labelsAdded = await _assetServices.AddLabelsForCustomerAsync(customerId, labels);
+            var labelsAdded = await _assetServices.AddLabelsForCustomerAsync(customerId, callerId, labels);
   
             if (labelsAdded == null)
                 return BadRequest("Unable to add labels.");
@@ -141,13 +141,13 @@ namespace Asset.API.Controllers
             return Ok(JsonSerializer.Serialize<object>(labelList, options));
         }
 
-        [Route("customers/{customerId:guid}/labels/delete")]
+        [Route("customers/{customerId:guid}/labels/delete/{callerId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> DeleteLabelsForCustomer(Guid customerId, IList<Guid> labelGuids)
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> DeleteLabelsForCustomer(Guid customerId, Guid callerId, IList<Guid> labelGuids)
         {
-            var labels = await _assetServices.DeleteLabelsForCustomerAsync(customerId, labelGuids);
+            var labels = await _assetServices.SoftDeleteLabelsForCustomerAsync(customerId, callerId, labelGuids);
 
             var labelList = new List<object>();
             foreach (AssetServices.Models.CustomerLabel label in labels)
@@ -162,17 +162,17 @@ namespace Asset.API.Controllers
             return Ok(JsonSerializer.Serialize<object>(labelList, options));
         }
 
-        [Route("customers/{customerId:guid}/labels/update")]
+        [Route("customers/{customerId:guid}/labels/update/{callerId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UpdateLabelsForCustomer(Guid customerId, IList<Label> labels)
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UpdateLabelsForCustomer(Guid customerId, Guid callerId, [FromBody] IList<Label> labels)
         {
             IList<AssetServices.Models.CustomerLabel> customerLabels = new List<AssetServices.Models.CustomerLabel>();
 
             foreach (Label label in labels)
             {
-                customerLabels.Add(new AssetServices.Models.CustomerLabel(label.Id, customerId, new AssetServices.Models.Label(label.Text, label.Color)));
+                customerLabels.Add(new AssetServices.Models.CustomerLabel(label.Id, customerId, callerId, new AssetServices.Models.Label(label.Text, label.Color)));
             }
 
             var updatedLabels = await _assetServices.UpdateLabelsForCustomerAsync(customerId, customerLabels);

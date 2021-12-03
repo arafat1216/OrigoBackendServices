@@ -258,7 +258,7 @@ namespace AssetServices.UnitTests
             labelsToAdd.Add(new Label("Field", LabelColor.Blue));
 
             // Act
-            await assetService.AddLabelsForCustomerAsync(COMPANY_ID, labelsToAdd);
+            await assetService.AddLabelsForCustomerAsync(COMPANY_ID, Guid.Empty, labelsToAdd);
 
             IList<CustomerLabel> savedLabels = await assetService.GetLabelsForCustomerAsync(COMPANY_ID);
 
@@ -296,8 +296,8 @@ namespace AssetServices.UnitTests
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
 
             IList<CustomerLabel> labels = await assetService.GetLabelsForCustomerAsync(COMPANY_ID);
-            labels[0].PatchLabel(new Label("Deprecated", LabelColor.Orange));
-            labels[1].PatchLabel(new Label("Lost", LabelColor.Gray));
+            labels[0].PatchLabel(Guid.Empty, new Label("Deprecated", LabelColor.Orange));
+            labels[1].PatchLabel(Guid.Empty, new Label("Lost", LabelColor.Gray));
             
             // Act
             await assetService.UpdateLabelsForCustomerAsync(COMPANY_ID, labels);

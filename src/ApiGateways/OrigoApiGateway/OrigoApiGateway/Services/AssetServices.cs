@@ -288,11 +288,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<Label>> CreateLabelsForCustomerAsync(Guid customerId, IList<NewLabel> newLabels)
+        public async Task<IList<Label>> CreateLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<NewLabel> newLabels)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels";
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/{callerId}";
 
                 var response = await HttpClient.PostAsJsonAsync<IList<NewLabel>>(requestUri, newLabels);
 
@@ -332,11 +332,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<Label>> DeleteCustomerLabelsAsync(Guid customerId, IList<Guid> labelGuids)
+        public async Task<IList<Label>> DeleteCustomerLabelsAsync(Guid customerId, Guid callerId, IList<Guid> labelGuids)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/delete";
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/delete/{callerId}";
                 var response = await HttpClient.PostAsJsonAsync<IList<Guid>>(requestUri, labelGuids);
                 if (!response.IsSuccessStatusCode)
                 {
@@ -359,11 +359,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<Label>> UpdateLabelsForCustomerAsync(Guid customerId, IList<Label> labels)
+        public async Task<IList<Label>> UpdateLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Label> labels)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/update";
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/update/{callerId}";
                 var response = await HttpClient.PostAsJsonAsync<IList<Label>>(requestUri, labels);
 
                 if (!response.IsSuccessStatusCode)

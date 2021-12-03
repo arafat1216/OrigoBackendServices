@@ -15,9 +15,10 @@ namespace AssetServices
         Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId);
         Task<PagedModel<Asset>> GetAssetsForCustomerAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken);
         Task<Asset> GetAssetForCustomerAsync(Guid customerId, Guid assetId);
-        Task<IList<CustomerLabel>> AddLabelsForCustomerAsync(Guid customerId, IList<Label> labels);
+        Task<IList<CustomerLabel>> AddLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Label> labels);
         Task<IList<CustomerLabel>> GetLabelsForCustomerAsync(Guid customerId);
         Task<IList<CustomerLabel>> DeleteLabelsForCustomerAsync(Guid customerId, IList<Guid> labelGuids);
+        Task<IList<CustomerLabel>> SoftDeleteLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Guid> labelGuids);
         Task<IList<CustomerLabel>> UpdateLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> updateLabels);
         Task<Asset> AddAssetForCustomerAsync(Guid customerId, string alias, string serialNumber, int assetCategoryId,
             string brand, string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
