@@ -91,6 +91,7 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 var createdCustomer = await CustomerServices.CreateCustomerAsync(newCustomer);
                 if (createdCustomer == null)
                 {

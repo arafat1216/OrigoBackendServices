@@ -22,11 +22,8 @@ namespace CustomerServices.Models
         public Guid OrganizationId { get; protected set; }
         public Guid? ParentId { get; protected set; }
         public Guid? PrimaryLocation { get; protected set; }
-        public Guid CreatedBy { get; protected set; }
-        public Guid UpdatedBy { get; protected set; }
         public DateTime CreatedAt { get; protected set; }
         public DateTime UpdatedAt { get; protected set; }
-        public bool IsDeleted { get; protected set; }
 
         public string Name { get; protected set; }
 

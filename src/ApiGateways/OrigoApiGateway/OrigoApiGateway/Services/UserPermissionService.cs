@@ -49,6 +49,7 @@ namespace OrigoApiGateway.Services
             permissionsIdentity.AddClaims(claimPermissions);
             permissionsIdentity.AddClaims(claimAccessList);
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, userPermissions.First().Role));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, userPermissions.First().UserId.ToString()));
 
             return permissionsIdentity;
         }

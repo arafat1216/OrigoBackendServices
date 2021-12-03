@@ -10,13 +10,10 @@ namespace CustomerServices.Models
     public class OrganizationPreferences : Entity
     {
         public Guid OrganizationId { get; set; }
-        public Guid CreatedBy { get; protected set; }
-        public Guid UpdatedBy { get; protected set; }
         public string WebPage { get; protected set; }
         public string LogoUrl { get; protected set; }
         public string OrganizationNotes { get; protected set; }
         public bool EnforceTwoFactorAuth { get; protected set; }
-        public bool IsDeleted { get; protected set; }
         public string PrimaryLanguage { get; protected set; }
         public short DefaultDepartmentClassification { get; protected set; }
         public DateTime CreatedAt { get; protected set; }

@@ -138,7 +138,7 @@ namespace AssetServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void ValidateImei_invalid_empty_single()
+        public void ValidateImei_invalid_empty_single()
         {
             // Arrange
             string imei = "";
@@ -152,7 +152,7 @@ namespace AssetServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void ValidateImei_invalid_single()
+        public void ValidateImei_invalid_single()
         {
             // Arrange
             string imei = "111111111111111";
@@ -166,7 +166,7 @@ namespace AssetServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void ValidateImei_valid_single()
+        public void ValidateImei_valid_single()
         {
             // Arrange
             string imei = "532618333994628";
@@ -180,7 +180,7 @@ namespace AssetServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void ValidateImei_valid__multiple()
+        public void ValidateImei_valid__multiple()
         {
             // Arrange
             string imeis = "337047052140527,548668589912669,010708141304465";
@@ -194,7 +194,7 @@ namespace AssetServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void ValidateImei_invalid__multiple()
+        public void ValidateImei_invalid__multiple()
         {
             // Arrange
             string imeis = "33704705214052,548668589912669,0107081413044651";
