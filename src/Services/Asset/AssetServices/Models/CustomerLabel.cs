@@ -41,6 +41,7 @@ namespace AssetServices.Models
             LastUpdatedDate = DateTime.UtcNow;
             CreatedBy = callerId;
             UpdatedBy = callerId;
+            IsDeleted = false;
         }
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace AssetServices.Models
         /// <param name="label"></param>
         public void PatchLabel(Guid callerId, Label label)
         {
-            Label = Label;
+            Label = label;
             LastUpdatedDate = DateTime.UtcNow;
             UpdatedBy = callerId;
         }

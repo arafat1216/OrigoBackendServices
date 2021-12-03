@@ -56,8 +56,8 @@ namespace AssetServices.UnitTests
             var assetOther = new MobilePhone(Guid.NewGuid(), Guid.NewGuid(), "alias_3", assetCategory, "123457789012399", "Samsung", "Samsung Galaxy S21",
                 LifecycleType.Leasing, new DateTime(2021, 6, 1), Guid.NewGuid(), new List<AssetImei>() { new AssetImei(308757706784653) }, "2E423AD72484", AssetStatus.Active, "Note_3", "Tag_3", "Description_3");
 
-            var labelOne = new CustomerLabel(LABEL_ONE_ID, COMPANY_ID, new Label("Label_1", LabelColor.Blue));
-            var labelTwo = new CustomerLabel(LABEL_TWO_ID, COMPANY_ID, new Label("Label_2", LabelColor.Green));
+            var labelOne = new CustomerLabel(LABEL_ONE_ID, COMPANY_ID, Guid.Empty, new Label("Label_1", LabelColor.Blue));
+            var labelTwo = new CustomerLabel(LABEL_TWO_ID, COMPANY_ID, Guid.Empty, new Label("Label_2", LabelColor.Green));
 
 
             context.Assets.AddRange(assetOne, assetTwo, assetThree, assetOther);

@@ -166,7 +166,7 @@ namespace Asset.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UpdateLabelsForCustomer(Guid customerId, Guid callerId, [FromBody] IList<Label> labels)
+        public async Task<ActionResult<IEnumerable<ViewModels.Label>>> UpdateLabelsForCustomer(Guid customerId, Guid callerId, [FromBody] IList<Label> labels)
         {
             IList<AssetServices.Models.CustomerLabel> customerLabels = new List<AssetServices.Models.CustomerLabel>();
 

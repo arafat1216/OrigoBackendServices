@@ -17,6 +17,11 @@ namespace Asset.API.ViewModels
             get => Enum.GetName(Color);
         }
 
+        public Label()
+        {
+
+        }
+
         public Label(AssetServices.Models.CustomerLabel label)
         {
             Id = label.ExternalId;
