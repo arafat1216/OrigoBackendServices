@@ -62,11 +62,6 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
                 var count = await _assetServices.GetAssetsCountAsync(organizationId);
-                if (count == 0)
-                {
-                    return NotFound();
-                }
-
                 return Ok(new { organizationId, count });
             }
             catch (Exception ex)

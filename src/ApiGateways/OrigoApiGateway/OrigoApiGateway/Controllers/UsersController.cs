@@ -53,9 +53,7 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
             }
-
             var count = await _userServices.GetUsersCountAsync(organizationId);
-            if (count == 0) return NotFound();
             return Ok(new { organizationId, count });
         }
 

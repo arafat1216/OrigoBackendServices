@@ -44,10 +44,6 @@ namespace Asset.API.Controllers
         public async Task<ActionResult<int>> GetCount(Guid customerId)
         {
             var count = await _assetServices.GetAssetsCountAsync(customerId);
-            if (count == 0)
-            {
-                return NotFound();
-            }
 
             return Ok(count);
         }
