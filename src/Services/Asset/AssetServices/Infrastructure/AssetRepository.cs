@@ -121,6 +121,41 @@ namespace AssetServices.Infrastructure
                          .Where(a => a.CustomerId == customerId).ToListAsync();
         }
 
+        public async Task<IList<CustomerLabel>> GetLabelsFromListAsync(IList<Guid> labelsGuid)
+        {
+            return await _assetContext.CustomerLabels
+                         .Where(a => labelsGuid.Contains<Guid>(a.ExternalId)).ToListAsync();
+        }
+
+        public async Task<CustomerLabel> GetLabelAsync(Guid labelGuid)
+        {
+            return await _assetContext.CustomerLabels
+                         .Where(a => labelGuid == a.ExternalId).FirstOrDefaultAsync();
+        }
+
+        public async Task<IList<CustomerLabel>> DeleteLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
+        {
+            
+            _assetContext.CustomerLabels.RemoveRange(labels);
+            await SaveEntitiesAsync();
+            return await GetLabelsForCustomerAsync(customerId);
+        }
+
+        public async Task<IList<CustomerLabel>> UpdateLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
+        {
+            foreach(CustomerLabel updateLabel in labels)
+            {
+                CustomerLabel original = await GetLabelAsync(updateLabel.ExternalId);
+                if (original != null)
+                {
+                    original.PatchLabel(updateLabel.Label);
+                }
+            }
+
+            await SaveEntitiesAsync();
+            return await GetLabelsForCustomerAsync(customerId);
+        }
+
         public async Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId)
         {
             var temp = await _assetContext.HardwareAsset

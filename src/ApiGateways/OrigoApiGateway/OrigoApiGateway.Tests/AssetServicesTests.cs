@@ -76,7 +76,7 @@ namespace OrigoApiGateway.Tests
                     ")
                 });
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object) {BaseAddress = new Uri("http://localhost")};
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
             mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
             var options = new AssetConfiguration() { ApiPath = @"/assets" };
             var optionsMock = new Mock<IOptions<AssetConfiguration>>();
@@ -92,7 +92,7 @@ namespace OrigoApiGateway.Tests
 
             // Assert
             Assert.Equal(2, assetsFromUser.Count);
-            Assert.Equal("iPhone",  (assetsFromUser[0] as OrigoMobilePhone).Brand);
+            Assert.Equal("iPhone", (assetsFromUser[0] as OrigoMobilePhone).Brand);
         }
 
         [Fact]
@@ -175,7 +175,195 @@ namespace OrigoApiGateway.Tests
             // Assert
             Assert.Equal(2, updatedAssets.Count);
             Assert.Equal("NoStatus", (updatedAssets[0] as OrigoMobilePhone).AssetStatusName);
-            Assert.Equal(0, (int) (updatedAssets[1]as OrigoMobilePhone).AssetStatus);
+            Assert.Equal(0, (int)(updatedAssets[1] as OrigoMobilePhone).AssetStatus);
         }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void CreateLabelsForCustomer()
+        {
+            // Arrange
+            const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        [{
+                            ""Id"": ""94D22A10-FC47-4F23-A524-B30D022DD8AF"",
+                            ""text"":  ""Manager"",
+                            ""color"":  4,
+                            ""colorName"": ""Red""
+                         },
+                         {
+                            ""Id"": ""53D6241B-7297-44E4-857B-9EEA69BEB174"",
+                            ""text"":  ""Department"",
+                            ""color"": 3,
+                            ""colorName"": ""Orange""
+                         },
+                         {
+                            ""Id"": ""484289DA-FA13-4629-8AAA-CF988F905681"",
+                            ""text"":  ""Customer service"",
+                            ""color"":  5,
+                            ""colorName"": ""Gray""
+                         }]
+                    ")
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new AssetConfiguration() { ApiPath = @"/assets" };
+            var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object);
+
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService);
+
+            IList<NewLabel> newLabels = new List<NewLabel>();
+            newLabels.Add(new NewLabel { Text = "Manager", Color = Common.Enums.LabelColor.Red });
+            newLabels.Add(new NewLabel { Text = "Department", Color = Common.Enums.LabelColor.Orange });
+            newLabels.Add(new NewLabel { Text = "Customer service", Color = Common.Enums.LabelColor.Gray });
+
+            // Act
+            IList<Label> createdLabels = await assetService.CreateLabelsForCustomerAsync(new Guid(CUSTOMER_ID), newLabels);
+
+            // Assert
+            Assert.Equal(3, createdLabels.Count);
+            Assert.Equal("Manager", createdLabels[0].Text);
+            Assert.Equal(3,  (int) createdLabels[1].Color);
+            Assert.Equal("Gray", createdLabels[2].ColorName);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void DeleteLabelsForCustomer()
+        {
+            // Arrange
+            const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
+            const string LABEL_ONE_ID = "94D22A10-FC47-4F23-A524-B30D022DD8AF";
+            const string LABEL_TWO_ID = "53D6241B-7297-44E4-857B-9EEA69BEB174";
+            const string LABEL_THREE_ID = "484289DA-FA13-4629-8AAA-CF988F905681";
+
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        [{
+                           ""Id"" : ""94D22A10-FC47-4F23-A524-B30D022DD8AF"",
+                            ""text"":  ""Manager"",
+                            ""color"":  4,
+                            ""colorName"": ""Red""
+                         }]
+                    ")
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new AssetConfiguration() { ApiPath = @"/assets" };
+            var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object);
+
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService);
+
+            IList<Guid> guidList = new List<Guid>();
+            guidList.Add(new Guid(LABEL_THREE_ID));
+            guidList.Add(new Guid(LABEL_TWO_ID));
+
+
+            // Act
+            IList<Label> remainingLabels = await assetService.DeleteCustomerLabelsAsync(new Guid(CUSTOMER_ID), guidList);
+
+            // Assert
+            Assert.Equal(1, remainingLabels.Count);
+            Assert.Equal("Manager", remainingLabels[0].Text);
+            Assert.Equal(4, (int)remainingLabels[0].Color);
+            Assert.Equal("Red", remainingLabels[0].ColorName);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void UpdateLabelsForCustomer()
+        {
+            // Arrange
+            const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
+            const string LABEL_ONE_ID = "94D22A10-FC47-4F23-A524-B30D022DD8AF";
+            const string LABEL_TWO_ID = "53D6241B-7297-44E4-857B-9EEA69BEB174";
+            const string LABEL_THREE_ID = "484289DA-FA13-4629-8AAA-CF988F905681";
+
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        [{
+                            ""Id"": ""94D22A10-FC47-4F23-A524-B30D022DD8AF"",
+                            ""text"":  ""Administrator"",
+                            ""color"":  0,
+                            ""colorName"": ""Blue""
+                         },
+                         {
+                            ""Id"": ""53D6241B-7297-44E4-857B-9EEA69BEB174"",
+                            ""text"":  ""Assistant"",
+                            ""color"": 2,
+                            ""colorName"": ""Light_blue""
+                         },
+                         {
+                            ""Id"": ""484289DA-FA13-4629-8AAA-CF988F905681"",
+                            ""text"":  ""Customer service"",
+                            ""color"":  1,
+                            ""colorName"": ""Green""
+                         }]
+                    ")
+                });
+
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new AssetConfiguration() { ApiPath = @"/assets" };
+            var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object);
+
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService);
+
+            IList<Label> labels = new List<Label>();
+            labels.Add(new Label { Id = new Guid(LABEL_ONE_ID), Text = "Administrator", Color = Common.Enums.LabelColor.Blue });
+            labels.Add(new Label { Id = new Guid(LABEL_TWO_ID), Text = "Assistant", Color = Common.Enums.LabelColor.Light_blue });
+
+            
+
+            // Act
+            IList<Label> labelsResult = await assetService.UpdateLabelsForCustomerAsync(new Guid(CUSTOMER_ID), labels);
+
+            // Assert
+            Assert.Equal(3, labelsResult.Count);
+            Assert.Equal("Administrator", labelsResult[0].Text);
+            Assert.Equal(2, (int)labelsResult[1].Color);
+            Assert.Equal("Green", labelsResult[2].ColorName);
+        }
+
     }
 }

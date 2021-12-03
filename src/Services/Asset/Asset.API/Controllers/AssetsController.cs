@@ -90,7 +90,7 @@ namespace Asset.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> CreateLabelsForCustomer(Guid customerId, IList<NewLabel> newLabels)
+        public async Task<ActionResult<IEnumerable<ViewModels.Label>>> CreateLabelsForCustomer(Guid customerId, [FromBody] IList<NewLabel> newLabels)//[FromBody] IList<NewLabel> newLabels)
         {
             // todo: check valid asset color
             List<AssetServices.Models.Label> labels = new List<AssetServices.Models.Label>();
@@ -129,6 +129,55 @@ namespace Asset.API.Controllers
 
             var labelList = new List<object>();
             foreach (AssetServices.Models.CustomerLabel label in labels)
+            {
+                labelList.Add(new ViewModels.Label(label));
+            }
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            };
+            return Ok(JsonSerializer.Serialize<object>(labelList, options));
+        }
+
+        [Route("customers/{customerId:guid}/labels/delete")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> DeleteLabelsForCustomer(Guid customerId, IList<Guid> labelGuids)
+        {
+            var labels = await _assetServices.DeleteLabelsForCustomerAsync(customerId, labelGuids);
+
+            var labelList = new List<object>();
+            foreach (AssetServices.Models.CustomerLabel label in labels)
+            {
+                labelList.Add(new ViewModels.Label(label));
+            }
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            };
+            return Ok(JsonSerializer.Serialize<object>(labelList, options));
+        }
+
+        [Route("customers/{customerId:guid}/labels/update")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UpdateLabelsForCustomer(Guid customerId, IList<Label> labels)
+        {
+            IList<AssetServices.Models.CustomerLabel> customerLabels = new List<AssetServices.Models.CustomerLabel>();
+
+            foreach (Label label in labels)
+            {
+                customerLabels.Add(new AssetServices.Models.CustomerLabel(label.Id, customerId, new AssetServices.Models.Label(label.Text, label.Color)));
+            }
+
+            var updatedLabels = await _assetServices.UpdateLabelsForCustomerAsync(customerId, customerLabels);
+            var labelList = new List<object>();
+            foreach (AssetServices.Models.CustomerLabel label in updatedLabels)
             {
                 labelList.Add(new ViewModels.Label(label));
             }

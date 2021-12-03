@@ -288,6 +288,105 @@ namespace OrigoApiGateway.Services
             }
         }
 
+        public async Task<IList<Label>> CreateLabelsForCustomerAsync(Guid customerId, IList<NewLabel> newLabels)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels";
+
+                var response = await HttpClient.PostAsJsonAsync<IList<NewLabel>>(requestUri, newLabels);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var labels = await response.Content.ReadFromJsonAsync<IList<Label>>();
+
+                return labels;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IList<Label>> GetCustomerLabelsAsync(Guid customerId)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels";
+                var labels = await HttpClient.GetFromJsonAsync<IList<Label>>(requestUri);
+                if (labels == null) return null;
+                return labels;
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IList<Label>> DeleteCustomerLabelsAsync(Guid customerId, IList<Guid> labelGuids)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/delete";
+                var response = await HttpClient.PostAsJsonAsync<IList<Guid>>(requestUri, labelGuids);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var labels = await response.Content.ReadFromJsonAsync<IList<Label>>();
+
+                return labels;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IList<Label>> UpdateLabelsForCustomerAsync(Guid customerId, IList<Label> labels)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/update";
+                var response = await HttpClient.PostAsJsonAsync<IList<Label>>(requestUri, labels);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var labelsResult = await response.Content.ReadFromJsonAsync<IList<Label>>();
+
+                return labelsResult;
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+        }
+
         public async Task<IList<OrigoAssetLifecycle>> GetLifecycles()
         {
             try

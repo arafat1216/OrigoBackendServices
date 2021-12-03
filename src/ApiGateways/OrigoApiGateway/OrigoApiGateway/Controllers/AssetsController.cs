@@ -24,7 +24,7 @@ namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Authorize]
+    //[Authorize]
     // Assets should only be available through a given customer
     [Route("/origoapi/v{version:apiVersion}/[controller]")]
     public class AssetsController : ControllerBase
@@ -408,6 +408,69 @@ namespace OrigoApiGateway.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+
+      
+        [Route("customers/{organizationId:guid}/labels")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        //[PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<IList<Label>>> GetLabelsForCustomer(Guid organizationId)
+        {
+            try
+            {
+                var labels =  await _assetServices.GetCustomerLabelsAsync(organizationId);
+
+                return Ok(labels);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+       
+        [Route("customers/{organizationId:guid}/labels")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        //[PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<IList<Label>>> CreateLabelsForCustomer(Guid organizationId, IList<NewLabel> labels)
+        {
+            try
+            {
+                var createdLabels = await _assetServices.CreateLabelsForCustomerAsync(organizationId, labels);
+
+                return Ok(createdLabels);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/labels")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        //[PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<IList<Label>>> DeleteLabelsForCustomer(Guid organizationId, IList<Guid> labelGuids)
+        {
+            try
+            {
+                var createdLabels = await _assetServices.DeleteCustomerLabelsAsync(organizationId, labelGuids);
+
+                return Ok(createdLabels);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+
 
         [Route("lifecycles")]
         [HttpGet]

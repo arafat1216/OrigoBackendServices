@@ -17,6 +17,10 @@ namespace AssetServices.Models
         Task<Asset> GetAssetAsync(Guid customerId, Guid assetId);
         Task<IList<CustomerLabel>> AddLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels);
         Task<IList<CustomerLabel>> GetLabelsForCustomerAsync(Guid customerId);
+        Task<IList<CustomerLabel>> GetLabelsFromListAsync(IList<Guid> labelsGuid);
+        Task<CustomerLabel> GetLabelAsync(Guid labelGuid);
+        Task<IList<CustomerLabel>> DeleteLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels);
+        Task<IList<CustomerLabel>> UpdateLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels);
         Task<AssetCategory> GetAssetCategoryAsync(int assetAssetCategoryId);
         Task<IList<AssetCategory>> GetAssetCategoriesAsync(string language = "EN");
         Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default);

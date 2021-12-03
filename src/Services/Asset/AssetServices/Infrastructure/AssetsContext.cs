@@ -24,7 +24,6 @@ namespace AssetServices.Infrastructure
         public DbSet<SoftwareAsset> SoftwareAsset { get; set; }
         public DbSet<AssetCategory> AssetCategories { get; set; }
         public DbSet<CustomerLabel> CustomerLabels { get; set; }
-        public DbSet<AssetLabel> AssetLabels { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Asset>().ToTable("Asset");
@@ -63,7 +62,6 @@ namespace AssetServices.Infrastructure
             });
 
             modelBuilder.Entity<CustomerLabel>().ToTable("CustomerLabel");
-            modelBuilder.Entity<AssetLabel>().ToTable("AssetLabel");
         }
     }
 }

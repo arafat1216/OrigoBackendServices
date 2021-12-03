@@ -1,4 +1,5 @@
-﻿using Common.Seedwork;
+﻿using Common.Enums;
+using Common.Seedwork;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -29,16 +30,5 @@ namespace AssetServices.Models
             yield return Text;
             yield return Color;
         }
-    }
-
-    public enum LabelColor
-    {
-        Red,
-        Orange,
-        Yellow,
-        Green,
-        Blue,
-        Indigo,
-        Violet
     }
 }

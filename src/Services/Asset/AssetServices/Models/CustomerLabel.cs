@@ -28,6 +28,7 @@ namespace AssetServices.Models
         // Set to protected as DDD best practice
         protected CustomerLabel()
         { }
+
         /// <summary>
         /// Assign the given label to the given customer
         /// </summary>
@@ -35,6 +36,22 @@ namespace AssetServices.Models
         {
             ExternalId = Guid.NewGuid();
             CustomerId = customerId;
+            Label = label;
+        }
+
+        public CustomerLabel(Guid externalId, Guid customerId, Label label)
+        {
+            ExternalId = externalId;
+            CustomerId = customerId;
+            Label = label;
+        }
+
+        /// <summary>
+        /// Update the label attribute
+        /// </summary>
+        /// <param name="label"></param>
+        public void PatchLabel(Label label)
+        {
             Label = label;
         }
     }

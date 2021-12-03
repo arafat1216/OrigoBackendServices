@@ -21,6 +21,9 @@ namespace AssetServices.UnitTests
         protected readonly Guid COMPANY_ID = new("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
         protected readonly int ASSET_CATEGORY_ID = 1;
 
+        protected readonly Guid LABEL_ONE_ID = new("BA92FC18-9399-4AC1-9BEB-57DCE85FF657");
+        protected readonly Guid LABEL_TWO_ID = new("D3EF00AB-C3B6-4751-982F-BF66738BC068");
+
         protected readonly Guid ASSETHOLDER_ONE_ID = new("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
         private readonly Guid ASSETHOLDER_TWO_ID = new();
 
@@ -52,8 +55,13 @@ namespace AssetServices.UnitTests
 
             var assetOther = new MobilePhone(Guid.NewGuid(), Guid.NewGuid(), "alias_3", assetCategory, "123457789012399", "Samsung", "Samsung Galaxy S21",
                 LifecycleType.Leasing, new DateTime(2021, 6, 1), Guid.NewGuid(), new List<AssetImei>() { new AssetImei(308757706784653) }, "2E423AD72484", AssetStatus.Active, "Note_3", "Tag_3", "Description_3");
-            
+
+            var labelOne = new CustomerLabel(LABEL_ONE_ID, COMPANY_ID, new Label("Label_1", LabelColor.Blue));
+            var labelTwo = new CustomerLabel(LABEL_TWO_ID, COMPANY_ID, new Label("Label_2", LabelColor.Green));
+
+
             context.Assets.AddRange(assetOne, assetTwo, assetThree, assetOther);
+            context.CustomerLabels.AddRange(labelOne, labelTwo);
             context.SaveChanges();
         }
     }

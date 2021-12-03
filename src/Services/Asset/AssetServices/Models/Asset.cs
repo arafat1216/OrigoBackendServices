@@ -116,18 +116,6 @@ namespace AssetServices.Models
             Alias = alias;
         }
 
-        /// <summary>
-        /// The labels assigned to the asset
-        /// <see cref="AssetLabel"/>
-        /// <seealso cref="CustomerLabel"/>"
-        /// </summary>
-        public IList<AssetLabel> Labels { get; protected set; }
-
-        public void AddLabel(Guid labelId)
-        {
-            Labels.Add(new AssetLabel(this.ExternalId, labelId));
-        }
-
         public void SetLifeCycleType(LifecycleType newLifecycleType)
         {
             var previousLifecycleType = LifecycleType;
