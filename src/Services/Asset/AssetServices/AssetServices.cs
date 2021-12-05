@@ -56,6 +56,10 @@ namespace AssetServices
 
         public async Task<IList<CustomerLabel>> AddLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Label> labels)
         {
+            try
+            {
+
+
             List<CustomerLabel> customerLabels = new List<CustomerLabel>();
             foreach (Label label in labels)
             {
@@ -63,6 +67,11 @@ namespace AssetServices
             }
 
             return await _assetRepository.AddLabelsForCustomerAsync(customerId, customerLabels);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         public async Task<IList<CustomerLabel>> GetLabelsForCustomerAsync(Guid customerId)

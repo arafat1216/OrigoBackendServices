@@ -1,4 +1,5 @@
-﻿using Common.Seedwork;
+﻿using AssetServices.DomainEvents;
+using Common.Seedwork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +43,7 @@ namespace AssetServices.Models
             CreatedBy = callerId;
             UpdatedBy = callerId;
             IsDeleted = false;
+            AddDomainEvent(new CustomerLabelCreatedDomainEvent(this));
         }
 
         /// <summary>
@@ -67,9 +69,12 @@ namespace AssetServices.Models
         /// <param name="label"></param>
         public void PatchLabel(Guid callerId, Label label)
         {
+            var previousLabel = Label;
             Label = label;
             LastUpdatedDate = DateTime.UtcNow;
             UpdatedBy = callerId;
+            AddDomainEvent(new CustomerLabelChangedDomainEvent(this, previousLabel));
+
         }
 
         /// <summary>
@@ -79,9 +84,12 @@ namespace AssetServices.Models
         /// <param name="callerId"></param>
         public void SoftDelete(Guid callerId)
         {
+            var previousState = IsDeleted;
             IsDeleted = true;
             LastUpdatedDate = DateTime.UtcNow;
             DeletedBy = callerId;
+            UpdatedBy = callerId;
+            AddDomainEvent(new CustomerLabelDeletedDomainEvent(this, previousState));
         }
     }
 }
