@@ -10,9 +10,6 @@ namespace CustomerServices.Models
     public class Location : Entity
     {
         public Guid LocationId { get; protected set; }
-        public Guid CreatedBy { get; protected set; }
-        public Guid UpdatedBy { get; protected set; }
-
         public string Name { get; protected set; }
         public string? Description { get; protected set; }
         public string? Address1 { get; protected set; }
@@ -20,7 +17,6 @@ namespace CustomerServices.Models
         public string? PostalCode { get; protected set; }
         public string? City { get; protected set; }
         public string? Country { get; protected set; }
-        public bool IsDeleted { get; protected set; }
         public DateTime CreatedAt { get; protected set; }
         public DateTime UpdatedAt { get; protected set; }
 
