@@ -1,4 +1,5 @@
-﻿using ProductCatalog.Domain.Orders;
+﻿using ProductCatalog.Domain.Exceptions;
+using ProductCatalog.Domain.Orders;
 using ProductCatalog.Domain.Products;
 using ProductCatalog.Domain.ProductTypes;
 using ProductCatalog.Infrastructure.Infrastructure;
@@ -56,17 +57,26 @@ namespace ProductCatalog.Infrastructure
             return new EntityAdapter().ToDTO(result);
         }
 
-
+        /// <summary>
+        ///     Validates the requirements before updating the list of ordered products for a organization.
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="updateProductOrders"> The </param>
+        /// <returns></returns>
+        /// <exception cref="RequirementNotFulfilledException"> Thrown when one or more of the product requirements failed to pass their checks.
+        ///     This typically means we are missing a dependency product, or that an excluded product have been added. </exception>
+        /// <inheritdoc cref="ValidateRequirements(IEnumerable{int})"/>
         public async Task UpdateOrderedProductsAsync(Guid organizationId, UpdateProductOrders updateProductOrders)
         {
+            // Make sure the configuration is valid before we do anything
+            var validConfiguration = await new ProductService().ValidateProductListRequirements(updateProductOrders.ProductIds);
+            if (!validConfiguration)
+                throw new RequirementNotFulfilledException("One or more requirement checks failed. Make sure no requirements are missing, and that no excluded items have been added.");
+
+
             var currentProducts = await _unitOfWork.Orders.GetAsync(filter: e => e.OrganizationId == organizationId);
 
-            if (updateProductOrders.ProductIds.Count() != currentProducts.Count())
-                throw new ArgumentException("One or more products was not found.");
-
-
-            var currentProductIds = from i
-                                    in currentProducts
+            var currentProductIds = from i in currentProducts
                                     select i.ProductId;
 
             // Find all IDs that's exists, but is not present in the new product-list
@@ -87,18 +97,7 @@ namespace ProductCatalog.Infrastructure
                 await _unitOfWork.Orders.AddAsync(order);
             }
 
-            // TODO: Remove this line
-            ValidateRequirements(updateProductOrders.ProductIds);
-
             await _unitOfWork.SaveAsync();
-        }
-
-
-        public async void ValidateRequirements(IEnumerable<int> newProductIds)
-        {
-            var newProducts = await _unitOfWork.Products.GetAsync(filter: e => newProductIds.Contains(e.Id));
-
-            var a = Guid.Empty;
         }
     }
 }

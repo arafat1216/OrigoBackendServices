@@ -1,14 +1,29 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ProductCatalog.Infrastructure;
-using System.Net;
+using System.Text.Json;
 
 namespace ProductCatalog.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0-RC1", Deprecated = false)]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class FeaturesController : ControllerBase
     {
+        private readonly JsonSerializerOptions options = new JsonSerializerOptions()
+        {
+#if DEBUG
+            WriteIndented = true,
+#endif
+
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <returns></returns>
         [HttpGet("organization/{organizationId}/permissions")]
         public async Task<ActionResult<IEnumerable<string>>> GetFeaturePermissionsByOrganizationAsync([FromRoute] Guid organizationId)
         {
@@ -23,6 +38,11 @@ namespace ProductCatalog.API.Controllers
             }
         }
 
+
+        /// <summary>
+        /// this is a test
+        /// </summary>
+        /// <returns>some return here</returns>
         [HttpPost]
         public IActionResult test()
         {

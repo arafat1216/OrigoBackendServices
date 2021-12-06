@@ -2,6 +2,9 @@
 
 namespace ProductCatalog.Domain.Orders
 {
+    /// <summary>
+    ///     A domain entity that represents a new product-configuration order for an organization.
+    /// </summary>
     public class UpdateProductOrders
     {
         /// <summary>

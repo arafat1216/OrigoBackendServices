@@ -1,6 +1,6 @@
 ﻿namespace ProductCatalog.Infrastructure.Models.Database.Joins
 {
-    internal class ProductExcludes
+    internal class ProductExcludes : Entity
     {
         // EF DB Columns
 
@@ -18,5 +18,11 @@
 
         public virtual Product? Product { get; set; }
         public virtual Product? RequiresProduct { get; set; }
+
+
+        [Obsolete("This is a reserved constructor that should only be utilized by the automated Entity Framework injections! Make sure you are using the correct \"base()\" constructor.", false)]
+        public ProductExcludes() : base()
+        {
+        }
     }
 }

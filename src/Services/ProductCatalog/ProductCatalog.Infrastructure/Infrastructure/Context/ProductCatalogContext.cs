@@ -44,9 +44,14 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
 
             // Misc join tables
             modelBuilder.ApplyConfiguration(new ProductFeatureConfiguration());
+
             modelBuilder.ApplyConfiguration(new ProductExcludesConfiguration());
             modelBuilder.ApplyConfiguration(new ProductRequiresOneConfiguration());
             modelBuilder.ApplyConfiguration(new ProductRequiresAllConfiguration());
+
+            modelBuilder.ApplyConfiguration(new FeatureExcludesConfiguration());
+            modelBuilder.ApplyConfiguration(new FeatureRequiresOneConfiguration());
+            modelBuilder.ApplyConfiguration(new FeatureRequiresAllConfiguration());
         }
     }
 }

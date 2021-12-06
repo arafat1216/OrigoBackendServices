@@ -6,6 +6,9 @@ using System.Text.Json.Serialization;
 
 namespace ProductCatalog.Domain.Products
 {
+    /// <summary>
+    /// test
+    /// </summary>
     public class ProductGet
     {
         [Required]

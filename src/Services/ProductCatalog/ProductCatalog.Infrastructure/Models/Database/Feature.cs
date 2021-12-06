@@ -1,4 +1,5 @@
-﻿using ProductCatalog.Domain.Interfaces;
+﻿using FeatureCatalog.Infrastructure.Models.Database.Joins;
+using ProductCatalog.Domain.Interfaces;
 using ProductCatalog.Infrastructure.Models.Database.Joins;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -18,18 +19,23 @@ namespace ProductCatalog.Infrastructure.Models.Database
         public virtual ICollection<Product> Products { get; set; } = new HashSet<Product>();
         public virtual FeatureType? Type { get; set; }
 
-        public virtual ICollection<Feature> Excludes { get; set; } = new HashSet<Feature>();
-        public virtual ICollection<Feature> RequiresAll { get; set; } = new HashSet<Feature>();
-        public virtual ICollection<Feature> RequiresOne { get; set; } = new HashSet<Feature>();
+        public virtual ICollection<FeatureExcludes> Excludes { get; set; } = new HashSet<FeatureExcludes>();
+        public virtual IEnumerable<int> ExcludesAsIds { get { return Excludes.Select(e => e.ExcludesFeatureId); } }
+
+        public virtual ICollection<FeatureRequiresAll> RequiresAll { get; set; } = new HashSet<FeatureRequiresAll>();
+        public virtual IEnumerable<int> RequiresAllAsIds { get { return RequiresAll.Select(e => e.RequiresFeatureId); } }
+
+        public virtual ICollection<FeatureRequiresOne> RequiresOne { get; set; } = new HashSet<FeatureRequiresOne>();
+        public virtual IEnumerable<int> RequiresOneAsIds { get { return RequiresOne.Select(e => e.RequiresFeatureId); } }
 
         [NotMapped]
-        public virtual ICollection<Feature> HasExcludesDependencyFrom { get; set; } = new HashSet<Feature>();
+        public virtual ICollection<FeatureExcludes> HasExcludesDependenciesFrom { get; set; } = new HashSet<FeatureExcludes>();
 
         [NotMapped]
-        public virtual ICollection<Feature> HasRequiresAllDependencyFrom { get; set; } = new HashSet<Feature>();
+        public virtual ICollection<FeatureRequiresAll> HasRequiresAllDependenciesFrom { get; set; } = new HashSet<FeatureRequiresAll>();
 
         [NotMapped]
-        public virtual ICollection<Feature> HasRequiresOneDependencyFrom { get; set; } = new HashSet<Feature>();
+        public virtual ICollection<FeatureRequiresOne> HasRequiresOneDependenciesFrom { get; set; } = new HashSet<FeatureRequiresOne>();
 
         // EF Join Tables
         internal virtual ICollection<ProductFeature> ProductFeatures { get; set; } = new HashSet<ProductFeature>();

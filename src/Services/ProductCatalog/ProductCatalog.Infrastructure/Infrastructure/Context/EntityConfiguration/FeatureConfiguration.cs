@@ -40,11 +40,20 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfigurati
                        .Metadata.SetValueComparer(comparer);
             });
 
-            /*
-            builder.HasMany(e => e.Excludes).WithMany(e => e.HasExcludesDependencyFrom);
-            builder.HasMany(e => e.RequiresAll).WithMany(e => e.HasRequiresAllDependencyFrom);
-            builder.HasMany(e => e.RequiresOne).WithMany(e => e.HasRequiresOneDependencyFrom);
-            */
+
+            builder.HasMany(e => e.Excludes)
+                   .WithOne(e => e.Feature);
+
+            builder.HasMany(e => e.RequiresAll)
+                   .WithOne(e => e.Feature);
+
+            builder.HasMany(e => e.RequiresOne)
+                   .WithOne(e => e.Feature);
+
+            // Enable eager loading on requirements
+            builder.Navigation(e => e.Excludes).AutoInclude();
+            builder.Navigation(e => e.RequiresAll).AutoInclude();
+            builder.Navigation(e => e.RequiresOne).AutoInclude();
         }
     }
 }

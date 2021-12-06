@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ProductCatalog.Domain.Generic
 {
+    /// <summary>
+    ///     Represents a single translation entry.
+    /// </summary>
     public class Translation : ITranslationResult
     {
         [Required]

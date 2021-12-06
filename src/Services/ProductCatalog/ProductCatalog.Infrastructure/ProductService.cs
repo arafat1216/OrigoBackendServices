@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using ProductCatalog.Domain.Exceptions;
 using ProductCatalog.Domain.Generic;
 using ProductCatalog.Domain.Products;
 using ProductCatalog.Domain.ProductTypes;
@@ -56,6 +57,73 @@ namespace ProductCatalog.Infrastructure
                 return null;
             else
                 return new EntityAdapter().ToDTO(result);
+        }
+
+
+        // TODO: This loop nightmare to validate/resolve the requirements may end up a bottleneck if we end up with larger datasets.
+        // If so, this will likely need another revision to figure out a more optimal way of solving the checks!
+        /// <summary>
+        ///     Checks a list of productIds, and tries to determine whether or not all requirements for products has been fulfilled.
+        /// </summary>
+        /// <param name="newProductIds"> The list of product IDs that is checked against each other. </param>
+        /// <returns> Returns <see langword="true"/> if the configuration is valid, and <see langword="false"/> 
+        ///     if any conflicting requirements was detected. </returns>
+        /// <exception cref="EntityNotFoundException"> Thrown of one or more of the provided product IDs does not exist. </exception>
+        public async Task<bool> ValidateProductListRequirements(IEnumerable<int> newProductIds)
+        {
+            var newProductIdsAsHash = newProductIds.ToHashSet();
+            var newProducts = await _unitOfWork.Products.GetAsync(filter: e => newProductIdsAsHash.Contains(e.Id));
+
+            // Make sure all products actually exist by comparing the list counts.
+            if (newProductIds.Count() != newProducts.Count())
+                throw new EntityNotFoundException("One or more of the IDs was not found!");
+
+            var excludesAll = new HashSet<int>();
+            var requiresAll = new HashSet<int>();
+
+            try
+            {
+                foreach (var product in newProducts)
+                {
+                    // If needed, compare the requirement list, and make sure that at least one of the values are overlapping between the lists.
+                    if (product.RequiresOne.Any())
+                    {
+                        var hashSet = (from item in product.RequiresOne
+                                       select item.RequiresProductId
+                                      ).ToHashSet();
+
+                        if (!hashSet.Overlaps(newProductIdsAsHash))
+                            throw new TaskCanceledException(); // Conflict: A 'RequiresOne' requirement went unfulfilled for the current productId.
+                    }
+
+                    // If needed, extract the values to prevent nested looping.
+                    if (product.Excludes.Any())
+                    {
+                        excludesAll.UnionWith(product.ExcludesAsIds);
+                    }
+
+                    // If needed, extract the values to prevent nested looping.
+                    if (product.RequiresAll.Any())
+                    {
+                        requiresAll.UnionWith(product.RequiresAllAsIds);
+                    }
+                }
+
+                // Check the extracted values. If there are any overlaps between the sets, then a excluded product have been added, and the configuration is invalid.
+                if (excludesAll.Overlaps(newProductIdsAsHash))
+                    throw new TaskCanceledException(); // Conflict: One or more 'Excluded' requirements went unfulfilled. Either remove the excluded product(s), or the product(s) with the exclusion requirement
+
+                // Check the extracted values, and make sure all required ids also exist in the new product list.
+                // If it's not, we are missing a requirement, and the configuration is invalid.
+                if (!requiresAll.IsSubsetOf(newProductIdsAsHash))
+                    throw new TaskCanceledException(); // Conflict: One or more 'RequiresAll' requirements went unfulfilled. Please add the missing products.
+            }
+            catch (TaskCanceledException)
+            {
+                return false;
+            }
+
+            return true;
         }
 
 

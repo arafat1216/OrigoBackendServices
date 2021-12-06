@@ -1,6 +1,6 @@
 ﻿namespace ProductCatalog.Infrastructure.Models.Database.Joins
 {
-    internal class ProductRequiresAll
+    internal class ProductRequiresAll : Entity
     {
         // EF DB Columns
 

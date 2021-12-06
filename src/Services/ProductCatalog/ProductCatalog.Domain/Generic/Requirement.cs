@@ -1,11 +1,16 @@
-﻿namespace ProductCatalog.Domain.Generic
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ProductCatalog.Domain.Generic
 {
     public class Requirement
     {
+        [Required]
         public IEnumerable<int> Excludes { get; set; }
 
+        [Required]
         public IEnumerable<int> RequiresAll { get; set; }
 
+        [Required]
         public IEnumerable<int> RequiresOne { get; set; }
 
 

@@ -7,8 +7,9 @@ using ProductCatalog.Infrastructure;
 
 namespace ProductCatalog.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class OrdersController : ControllerBase
     {
         [HttpGet]
