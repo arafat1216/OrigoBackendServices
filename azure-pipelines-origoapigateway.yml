@@ -135,7 +135,7 @@ stages:
           - task: Npm@0
             displayName: 'npm init'
             inputs:
-              arguments: '-f'
+              arguments: 'init -f'
               cwd: '$(System.DefaultWorkingDirectory)'
 
           - task: CmdLine@1
