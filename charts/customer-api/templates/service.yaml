@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "customerservices.fullname" . }}
+  name: {{ include "productcatalogservices.fullname" . }}
   labels:
-    {{- include "customerservices.labels" . | nindent 4 }}
+    {{- include "productcatalogservices.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
       targetPort: 80
   selector:
-    {{- include "customerservices.selectorLabels" . | nindent 4 }}
+    {{- include "productcatalogservices.selectorLabels" . | nindent 4 }}

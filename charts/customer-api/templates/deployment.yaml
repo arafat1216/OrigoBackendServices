@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "customerservices.fullname" . }}
+  name: {{ include "productcatalogservices.fullname" . }}
   labels:
-    {{- include "customerservices.labels" . | nindent 4 }}
+    {{- include "productcatalogservices.labels" . | nindent 4 }}
 spec:
   revisionHistoryLimit: 0
   replicas: {{ .Values.deployment.replicaCount }}
   selector:
     matchLabels:
-      {{- include "customerservices.selectorLabels" . | nindent 6 }}
+      {{- include "productcatalogservices.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "customerservices.selectorLabels" . | nindent 8 }}
+        {{- include "productcatalogservices.selectorLabels" . | nindent 8 }}
       {{- with .Values.deployment.annotations }}
       annotations:
 {{ toYaml . | indent 8 }}
@@ -47,7 +47,7 @@ spec:
             - name: {{ $ref }}_{{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "customerservices.fullname" $root }}-{{ $ref | lower }}
+                  name: {{ template "productcatalogservices.fullname" $root }}-{{ $ref | lower }}
                   key: {{ $key }}
             {{- end }}
             {{- end }}
