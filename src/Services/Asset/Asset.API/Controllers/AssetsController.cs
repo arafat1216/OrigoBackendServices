@@ -90,7 +90,6 @@ namespace Asset.API.Controllers
         {
             try
             {
-                // todo: check valid asset color
                 List<AssetServices.Models.Label> labels = new List<AssetServices.Models.Label>();
                 foreach (NewLabel newLabel in newLabels)
                 {
@@ -114,7 +113,11 @@ namespace Asset.API.Controllers
                 };
                 return Ok(JsonSerializer.Serialize<object>(labelsView, options));
             }
-           catch (Exception ex)
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
             {
                 return BadRequest();
             }
@@ -128,7 +131,7 @@ namespace Asset.API.Controllers
         {
             var labels = await _assetServices.GetCustomerLabelsForCustomerAsync(customerId);
             if (labels == null)
-                return NotFound();
+                return NotFound("No labels found on customer. Did you enter the correct customerId?");
 
             var labelList = new List<object>();
             foreach (AssetServices.Models.CustomerLabel label in labels)
@@ -153,16 +156,18 @@ namespace Asset.API.Controllers
             try
             {
                 var customerLabels = await _assetServices.GetCustomerLabelsAsync(labelGuids);
-                /*IList<int> labelInts = new List<int>();
+                
+                var labels = await _assetServices.SoftDeleteLabelsForCustomerAsync(customerId, callerId, labelGuids);
+
+                IList<int> labelInts = new List<int>();
                 foreach (AssetServices.Models.CustomerLabel label in customerLabels)
                 {
                     labelInts.Add(label.Id);
                 }
 
                 await _assetServices.SoftDeleteAssetLabelsAsync(callerId, labelInts);
-                */
-                var labels = await _assetServices.SoftDeleteLabelsForCustomerAsync(customerId, callerId, labelGuids);
 
+                
                 var labelList = new List<object>();
                 foreach (AssetServices.Models.CustomerLabel label in labels)
                 {
@@ -175,7 +180,11 @@ namespace Asset.API.Controllers
                 };
                 return Ok(JsonSerializer.Serialize<object>(labelList, options));
             }
-           catch(Exception ex)
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
             {
                 return BadRequest();
             }
@@ -187,25 +196,36 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Label>>> UpdateLabelsForCustomer(Guid customerId, Guid callerId, [FromBody] IList<Label> labels)
         {
-            IList<AssetServices.Models.CustomerLabel> customerLabels = new List<AssetServices.Models.CustomerLabel>();
+            try
+            {
+                IList<AssetServices.Models.CustomerLabel> customerLabels = new List<AssetServices.Models.CustomerLabel>();
 
-            foreach (Label label in labels)
-            {
-                customerLabels.Add(new AssetServices.Models.CustomerLabel(label.Id, customerId, callerId, new AssetServices.Models.Label(label.Text, label.Color)));
-            }
+                foreach (Label label in labels)
+                {
+                    customerLabels.Add(new AssetServices.Models.CustomerLabel(label.Id, customerId, callerId, new AssetServices.Models.Label(label.Text, label.Color)));
+                }
 
-            var updatedLabels = await _assetServices.UpdateLabelsForCustomerAsync(customerId, customerLabels);
-            var labelList = new List<object>();
-            foreach (AssetServices.Models.CustomerLabel label in updatedLabels)
-            {
-                labelList.Add(new ViewModels.Label(label));
+                var updatedLabels = await _assetServices.UpdateLabelsForCustomerAsync(customerId, customerLabels);
+                var labelList = new List<object>();
+                foreach (AssetServices.Models.CustomerLabel label in updatedLabels)
+                {
+                    labelList.Add(new ViewModels.Label(label));
+                }
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(labelList, options));
             }
-            var options = new JsonSerializerOptions
+            catch(ResourceNotFoundException ex)
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            return Ok(JsonSerializer.Serialize<object>(labelList, options));
+                return NotFound(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
         [Route("customers/{customerId:guid}/labels/assign/{callerId:guid}")]
@@ -244,7 +264,11 @@ namespace Asset.API.Controllers
                 return Ok(JsonSerializer.Serialize<object>(assetList, options));
 
             }
-            catch(Exception ex)
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
             {
                 return BadRequest();
             }
@@ -262,7 +286,8 @@ namespace Asset.API.Controllers
                 IList<Guid> labelGuids = assetLabels.LabelGuids;
 
                 IList<AssetServices.Models.Asset> assets = await _assetServices.UnAssignLabelsToAssetsAsync(customerId, callerId, assetGuids, labelGuids);
-
+                if (assets == null)
+                    return NotFound("No assets with given Ids where found. Did you enter the correct customerId?");
                 var assetList = new List<object>();
                 foreach (var asset in assets)
                 {
@@ -285,6 +310,10 @@ namespace Asset.API.Controllers
                 };
                 return Ok(JsonSerializer.Serialize<object>(assetList, options));
 
+            }
+            catch(ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {

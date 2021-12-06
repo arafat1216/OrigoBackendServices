@@ -25,7 +25,7 @@ namespace AssetServices.Models
             CreatedDate = DateTime.UtcNow;
             LastUpdatedDate = DateTime.UtcNow;
             IsDeleted = false;
-            //AddDomainEvent(new AssetLabelCreatedDomainEvent(this));
+            AddDomainEvent(new AssetLabelCreatedDomainEvent(ExternalId, AssetId, LabelId));
         }
 
         public void SetActiveStatus(Guid callerId, bool deactivate)
@@ -36,12 +36,11 @@ namespace AssetServices.Models
                 DeletedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
             UpdatedBy = callerId;
-            //AddDomainEvent(new AssetLabelChangedDomainEvent(this, previousValue));
+            AddDomainEvent(new AssetLabelChangedDomainEvent(ExternalId, AssetId, LabelId, previousValue));
         }
 
         public Guid ExternalId { get; protected set; }
 
-        public int AssetLabelId { get; protected set; }
         // AssetLabel belongs to 1 Asset
         public int AssetId { get; protected set; }
         public virtual Asset Asset { get; set; }

@@ -10,16 +10,20 @@ namespace AssetServices.DomainEvents
 {
     public class AssetLabelCreatedDomainEvent : BaseEvent
     {
-        public AssetLabelCreatedDomainEvent(AssetLabel label) : base(label.ExternalId)
+        public AssetLabelCreatedDomainEvent(Guid assetLabelExternalId, int assetId, int labelId) : base(assetLabelExternalId)
         {
-            Label = label;
+            AssetLabelExternalId = assetLabelExternalId;
+            AssetId = assetId;
+            LabelId = labelId;
         }
 
-        public AssetLabel Label { get; protected set; }
+        public Guid AssetLabelExternalId { get; protected set; }
+        public int AssetId { get; protected set; }
+        public int LabelId { get; protected set; }
 
         public override string EventMessage(string languageCode = "nb-NO")
         {
-            return $"AssetLabel {Label.ExternalId} created. Asset {Label.AssetId} was assigned to CustomerLabel {Label.LabelId}.";
+            return $"AssetLabel {AssetLabelExternalId} created. Asset {AssetId} was assigned to CustomerLabel {LabelId}.";
         }
     }
 }

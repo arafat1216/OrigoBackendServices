@@ -107,11 +107,26 @@ namespace AssetServices.Infrastructure
         {
             if (assetGuidList.Any())
             {
-                return await _assetContext.Assets
+                var temp =  await _assetContext.HardwareAsset
                     .Include(a => a.AssetCategory)
-                    .Include(a => a.AssetLabels.Where(a => a.IsDeleted == false))
-                    .ThenInclude(a => a.Label)
+                    .Include(b => b.AssetLabels.Where(c => (c.IsDeleted == false)))
+                    .ThenInclude(b => b.Label)
                     .Where(a => (a.CustomerId == customerId && assetGuidList.Contains(a.ExternalId))).ToListAsync();
+
+                IList<Asset> result = new List<Asset>();
+                foreach (var asset in temp)
+                {
+                    // should not be necessary...
+                    foreach (AssetLabel al in asset.AssetLabels)
+                    {
+                        if (al.IsDeleted || al.Label.IsDeleted)
+                        {
+                            asset.AssetLabels.Remove(al);
+                        }
+                    }
+                    result.Add(asset);
+                }
+                return result;
             }
             return null;
         }
@@ -194,7 +209,7 @@ namespace AssetServices.Infrastructure
                 .Include(a => a.AssetCategory)
                 .ThenInclude(c => c.Translations)
                 .Include(a => a.Imeis)
-                .Include(a => a.AssetLabels)
+                .Include(a => a.AssetLabels.Where(a => a.IsDeleted == false))
                 .ThenInclude(a => a.Label)
                 .Where(a => a.CustomerId == customerId && a.AssetHolderId == userId)
                 .AsNoTracking()
@@ -210,14 +225,15 @@ namespace AssetServices.Infrastructure
 
         public async Task<Asset> GetAssetAsync(Guid customerId, Guid assetId)
         {
-            return await _assetContext.HardwareAsset
+            var temp =  await _assetContext.HardwareAsset
                 .Include(a => a.AssetCategory)
                 .ThenInclude(c => c.Translations)
                 .Include(a => a.Imeis)
-                .Include(a => a.AssetLabels.Where(a => a.IsDeleted == false))
+                .Include(a => a.AssetLabels.Where(b => b.IsDeleted == false))
                 .ThenInclude(a => a.Label)
                 .Where(a => a.CustomerId == customerId && a.ExternalId == assetId)
                 .FirstOrDefaultAsync();
+            return temp;
         }
 
         public async Task<AssetCategory> GetAssetCategoryAsync(int assetAssetCategoryId)

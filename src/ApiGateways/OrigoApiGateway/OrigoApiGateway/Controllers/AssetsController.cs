@@ -24,7 +24,7 @@ namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    //[Authorize]
+    [Authorize]
     // Assets should only be available through a given customer
     [Route("/origoapi/v{version:apiVersion}/[controller]")]
     public class AssetsController : ControllerBase
@@ -157,12 +157,11 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
         public async Task<ActionResult<IList<OrigoAsset>>> Get(Guid organizationId)
         {
             try
             {
-                /*
                 // Only admin or manager roles are allowed to see all assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -177,7 +176,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-                */
+
                 var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId);
                 if (assets == null)
                 {
@@ -203,12 +202,12 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
         public async Task<ActionResult<OrigoAsset>> GetAsset(Guid organizationId, Guid assetId)
         {
             try
             {
-                /*
+                
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -223,7 +222,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-                */
+                
                 var asset = await _assetServices.GetAssetForCustomerAsync(organizationId, assetId);
                 if (asset == null)
                 {
@@ -248,12 +247,11 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanCreateAsset)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanCreateAsset)]
         public async Task<ActionResult> CreateAsset(Guid organizationId, [FromBody] NewAsset asset)
         {
             try
             {
-                /*
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -269,7 +267,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-                */
+
                 var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, asset);
                 if (createdAsset != null)
                 {
@@ -413,11 +411,22 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        //[PermissionAuthorize(Permission.CanReadCustomer)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<IList<Label>>> GetLabelsForCustomer(Guid organizationId)
         {
             try
             {
+                // All roles have access, as long as customer is in their accessList
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var labels =  await _assetServices.GetCustomerLabelsAsync(organizationId);
 
                 return Ok(labels);
@@ -433,13 +442,27 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<IList<Label>>> CreateLabelsForCustomer(Guid organizationId, IList<NewLabel> labels)
         {
             try
             {
+                // Only admin or manager roles are allowed to update customer labels
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                //string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 Guid callerId;
                 bool valid = Guid.TryParse(actor, out callerId);
                 if (!valid)
@@ -460,13 +483,27 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<IList<Label>>> DeleteLabelsForCustomer(Guid organizationId, IList<Guid> labelGuids)
         {
             try
             {
+                // Only admin or manager roles are allowed to update customer labels
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                //string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 Guid callerId;
                 bool valid = Guid.TryParse(actor, out callerId);
                 if (!valid)
@@ -487,13 +524,27 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<IList<Label>>> UpdateLabelsForCustomer(Guid organizationId, IList<Label> labels)
         {
             try
             {
+                // Only admin or manager roles are allowed to update customer labels
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                //string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 Guid callerId;
                 bool valid = Guid.TryParse(actor, out callerId);
                 if (!valid)
@@ -514,13 +565,27 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadAsset, Permission.CanUpdateAsset)]
         public async Task<ActionResult<IList<OrigoAsset>>> AssignLabelsToAssets(Guid organizationId, AssetLabels assetLabels)
         {
             try
             {
+                // Only admin or manager roles are allowed to set labels on assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                //string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 Guid callerId;
                 bool valid = Guid.TryParse(actor, out callerId);
                 if (!valid)
@@ -551,13 +616,27 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadAsset, Permission.CanUpdateAsset)]
         public async Task<ActionResult<IList<OrigoAsset>>> UnAssignLabelsToAssets(Guid organizationId, AssetLabels assetLabels)
         {
             try
             {
+                // Only admin or manager roles are allowed to set labels on assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                //string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 Guid callerId;
                 bool valid = Guid.TryParse(actor, out callerId);
                 if (!valid)
