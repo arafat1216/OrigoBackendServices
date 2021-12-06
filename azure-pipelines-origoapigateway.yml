@@ -130,11 +130,13 @@ stages:
             displayName: 'npm install newman'
             inputs:
               arguments: 'newman -g'
+              cwd: '$(System.DefaultWorkingDirectory)'
 
           - task: Npm@0
             displayName: 'npm init'
             inputs:
               arguments: '-f'
+              cwd: '$(System.DefaultWorkingDirectory)'
 
           - task: CmdLine@1
             displayName: 'Run newman'
