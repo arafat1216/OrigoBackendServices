@@ -49,9 +49,275 @@ namespace AssetServices
             }
         }
 
+        public async Task<IList<Asset>> GetAssetsForCustomerFromListAsync(Guid customerId, IList<Guid> assetGuids)
+        {
+            try
+            {
+                return await _assetRepository.GetAssetsFromListAsync(customerId, assetGuids);
+            }
+            catch (Exception exception)
+            {
+                throw new ReadingDataException(exception);
+            }
+        }
+
         public async Task<Asset> GetAssetForCustomerAsync(Guid customerId, Guid assetId)
         {
             return await _assetRepository.GetAssetAsync(customerId, assetId);
+        }
+
+        public async Task<IList<CustomerLabel>> AddLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Label> labels)
+        {
+            try
+            {
+                List<CustomerLabel> customerLabels = new List<CustomerLabel>();
+                foreach (Label label in labels)
+                {
+                    customerLabels.Add(new CustomerLabel(customerId, callerId, label));
+                }
+
+                return await _assetRepository.AddCustomerLabelsForCustomerAsync(customerId, customerLabels);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unknown error. Unable to delete CustomerLabels.");
+                throw;
+            }
+        }
+
+        public async Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId)
+        {
+            return await _assetRepository.GetCustomerLabelsForCustomerAsync(customerId);
+        }
+
+        public async Task<IList<CustomerLabel>> GetCustomerLabelsAsync(IList<Guid> customerLabelGuids)
+        {
+            return await _assetRepository.GetCustomerLabelsFromListAsync(customerLabelGuids);
+        }
+
+        /// <summary>
+        /// Deletes labels permanently from table.
+        /// Should not be called by users in gateway, but can be used by a cleanup job, or similar for when 
+        /// an entity has been IsDelete = 1, for a long enough time.
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <param name="callerId"></param>
+        /// <param name="labelGuids"></param>
+        /// <returns></returns>
+        public async Task<IList<CustomerLabel>> DeleteLabelsForCustomerAsync(Guid customerId, IList<Guid> labelGuids)
+        {
+            try
+            {
+                IList<CustomerLabel> customerLabels = await _assetRepository.GetCustomerLabelsFromListAsync(labelGuids);
+                if (customerLabels == null || customerLabels.Count == 0)
+                {
+                    throw new ResourceNotFoundException("No CustomerLabels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
+                }
+
+                IList<int> labelIds = new List<int>();
+                foreach (CustomerLabel label in customerLabels)
+                {
+                    labelIds.Add(label.Id);
+                }
+
+                await _assetRepository.DeleteLabelsFromAssetLabels(labelIds);
+                return await _assetRepository.DeleteCustomerLabelsForCustomerAsync(customerId, customerLabels);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                throw; // no need to log same exception again
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unknown error. Unable to delete CustomerLabels.");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Set IsDeleted = 1 on CustomerLabels found by Id in <paramref name="labelGuids"/>.
+        /// CustomerLabels still exist in database, but will not show up when fetching labels owned by customer
+        /// </summary>
+        /// <param name="customerId">External Id of customer whose labels we are soft deleting</param>
+        /// <param name="callerId">Id of user who called endpoint to delete labels</param>
+        /// <param name="labelGuids">External id of labels we are soft deleting</param>
+        /// <returns></returns>
+        public async Task<IList<CustomerLabel>> SoftDeleteLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Guid> labelGuids)
+        {
+            try
+            {
+                IList<CustomerLabel> customerLabels = await _assetRepository.GetCustomerLabelsFromListAsync(labelGuids);
+
+                if (customerLabels == null || customerLabels.Count == 0)
+                {
+                    throw new ResourceNotFoundException("No CustomerLabels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
+                }
+
+                foreach (CustomerLabel label in customerLabels)
+                {
+                    label.SoftDelete(callerId);
+                }
+
+                await _assetRepository.SaveEntitiesAsync();
+                return await _assetRepository.GetCustomerLabelsForCustomerAsync(customerId);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                throw; // no need to log same exception again
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unknown error. Unable to delete CustomerLabels.");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Set IsDeleted to true for Given AssetLabels
+        /// </summary>
+        /// <param name="callerId">Caller of call</param>
+        /// <param name="assetLabelIds">AssetLabels to soft-delete</param>
+        /// <returns></returns>
+        public async Task SoftDeleteAssetLabelsAsync(Guid callerId, IList<int> assetLabelIds)
+        {
+            try
+            {
+
+                var assetLabels = await _assetRepository.GetAssetLabelsFromListAsync(assetLabelIds);
+                if (assetLabels == null || assetLabels.Count == 0)
+                {
+                    throw new ResourceNotFoundException("No labels were found using the given AssetIds. Did you enter the correct customer Id?", _logger);
+                }
+                foreach (AssetLabel label in assetLabels)
+                {
+                    label.SetActiveStatus(callerId, true);
+                }
+
+                await _assetRepository.SaveEntitiesAsync();
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                throw; // no need to log same exception again
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unknown error. Unable to delete given AssetLabels.");
+                throw;
+            }
+        }
+
+        public async Task<IList<CustomerLabel>> UpdateLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> updateLabels)
+        {
+            return await _assetRepository.UpdateCustomerLabelsForCustomerAsync(customerId, updateLabels);
+        }
+
+        public async Task<IList<Asset>> AssignLabelsToAssetsAsync(Guid customerId, Guid callerId, IList<Guid> assetGuids, IList<Guid> labelGuids)
+        {
+            try
+            {
+                IList<Asset> assets = await _assetRepository.GetAssetsFromListAsync(customerId, assetGuids);
+                if (assets == null || assets.Count == 0)
+                {
+                    throw new ResourceNotFoundException("No assets were found using the given AssetIds. Did you enter the correct customer Id?", _logger);
+                }
+
+                IList <CustomerLabel> customerLabels = await _assetRepository.GetCustomerLabelsFromListAsync(labelGuids);
+                if (customerLabels == null)
+                {
+                    throw new ResourceNotFoundException("No labels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
+                }
+
+                foreach(Asset asset in assets)
+                {
+                    await AssignLabelsToAssetAsync(asset, customerLabels, callerId);
+                }
+
+                return assets;
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                throw; // no need to log same exception again
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unknown error. Unable to assign given labels to assets.");
+                throw;
+            }
+        }
+
+        public async Task AssignLabelsToAssetAsync(Asset asset, IList<CustomerLabel> customerLabels, Guid callerId)
+        {
+            IList<AssetLabel> newLabels = new List<AssetLabel>();
+            foreach (CustomerLabel customerLabel in customerLabels)
+            {
+                if (customerLabel.IsDeleted == false)
+                {
+                    var assetLabel = await _assetRepository.GetAssetLabelForAssetAsync(asset.Id, customerLabel.Id);
+                    if (assetLabel == null)
+                    {
+                        newLabels.Add(new AssetLabel(asset.Id, customerLabel.Id, callerId));
+                    }
+                    else if (assetLabel.IsDeleted == true)
+                    {
+                        assetLabel.SetActiveStatus(callerId, false);
+                    }
+                    // else, label already assigned
+                }
+            }
+
+            await _assetRepository.AddAssetLabelsForAsset(newLabels);
+        }
+
+        public async Task<IList<Asset>> UnAssignLabelsToAssetsAsync(Guid customerId, Guid callerId, IList<Guid> assetGuids, IList<Guid> labelGuids)
+        {
+            try
+            {
+                IList<Asset> assets = await _assetRepository.GetAssetsFromListAsync(customerId, assetGuids);
+                if (assets == null || assets.Count == 0)
+                {
+                    throw new ResourceNotFoundException("No assets were found using the given AssetIds. Did you enter the correct customer Id?", _logger);
+                }
+
+                IList<CustomerLabel> customerLabels = await _assetRepository.GetCustomerLabelsFromListAsync(labelGuids);
+                if (customerLabels == null || customerLabels.Count == 0)
+                {
+                    throw new ResourceNotFoundException("No labels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
+                }
+
+                foreach (Asset asset in assets)
+                {
+                    await UnAssignLabelsToAssetAsync(asset, customerLabels, callerId);
+                }
+
+                await _assetRepository.SaveEntitiesAsync();
+                return await _assetRepository.GetAssetsFromListAsync(customerId, assetGuids);
+            }
+            catch(ResourceNotFoundException ex)
+            {
+                throw; // no need to log same exception again
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unknown error. Unable to unassign given labels to assets.");
+                throw;
+            }
+        }
+
+        public async Task UnAssignLabelsToAssetAsync(Asset asset, IList<CustomerLabel> customerLabels, Guid callerId)
+        {
+            foreach (CustomerLabel customerLabel in customerLabels)
+            {
+                if (customerLabel.IsDeleted == false)
+                {
+                    var assetLabel = await _assetRepository.GetAssetLabelForAssetAsync(asset.Id, customerLabel.Id);
+
+                    // Update if necessary
+                    if (assetLabel != null && assetLabel.IsDeleted == false)
+                    {
+                        assetLabel.SetActiveStatus(callerId, true); 
+                    }
+                }
+            }
         }
 
         public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string alias, string serialNumber, int assetCategoryId, string brand,

@@ -33,6 +33,8 @@ namespace AssetServices.Infrastructure
             return await _assetContext.Assets
                 .Include(a => a.AssetCategory)
                 .ThenInclude(c => c.Translations)
+                .Include(a => a.AssetLabels.Where(a => a.IsDeleted == false))
+                .ThenInclude(a => a.Label)
                 .FirstOrDefaultAsync(a => a.ExternalId == asset.ExternalId);
         }
 
@@ -52,6 +54,8 @@ namespace AssetServices.Infrastructure
                       .Include(a => a.AssetCategory)
                       .ThenInclude(c => c.Translations)
                       .Include(a => a.Imeis)
+                      .Include(a => a.AssetLabels.Where(a => a.IsDeleted == false))
+                      .ThenInclude(a => a.Label)
                       .Where(a => a.CustomerId == customerId)
                       .PaginateAsync(page, limit, cancellationToken);
 
@@ -76,6 +80,8 @@ namespace AssetServices.Infrastructure
                     .Include(a => a.AssetCategory)
                     .ThenInclude(c => c.Translations)
                     .Include(a => a.Imeis)
+                    .Include(a => a.AssetLabels.Where(a => a.IsDeleted == false))
+                    .ThenInclude(a => a.Label)
                     .Where(a => a.CustomerId == customerId && a.Brand.Contains(search))
                     .PaginateAsync(page, limit, cancellationToken);
 
@@ -101,11 +107,100 @@ namespace AssetServices.Infrastructure
         {
             if (assetGuidList.Any())
             {
-                return await _assetContext.Assets
+                var temp =  await _assetContext.HardwareAsset
                     .Include(a => a.AssetCategory)
+                    .Include(b => b.AssetLabels.Where(c => (c.IsDeleted == false)))
+                    .ThenInclude(b => b.Label)
                     .Where(a => (a.CustomerId == customerId && assetGuidList.Contains(a.ExternalId))).ToListAsync();
+
+                IList<Asset> result = new List<Asset>();
+                foreach (var asset in temp)
+                {
+                    // should not be necessary...
+                    foreach (AssetLabel al in asset.AssetLabels)
+                    {
+                        if (al.IsDeleted || al.Label.IsDeleted)
+                        {
+                            asset.AssetLabels.Remove(al);
+                        }
+                    }
+                    result.Add(asset);
+                }
+                return result;
             }
             return null;
+        }
+        public async Task<IList<CustomerLabel>> AddCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
+        {
+            _assetContext.CustomerLabels.AddRange(labels);
+            await SaveEntitiesAsync();
+            return await _assetContext.CustomerLabels
+                         .Where(c => c.CustomerId == customerId).ToListAsync();
+        }
+
+        public async Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId)
+        {
+            return await _assetContext.CustomerLabels
+                         .Where(a => a.CustomerId == customerId && a.IsDeleted == false).ToListAsync();
+        }
+
+        public async Task<IList<CustomerLabel>> GetCustomerLabelsFromListAsync(IList<Guid> labelsGuid)
+        {
+            return await _assetContext.CustomerLabels
+                         .Where(a => labelsGuid.Contains<Guid>(a.ExternalId)).ToListAsync();
+        }
+
+        public async Task<IList<AssetLabel>> GetAssetLabelsFromListAsync(IList<int> labelInts)
+        {
+            return await _assetContext.AssetLabels
+                         .Where(a => labelInts.Contains<int>(a.LabelId)).ToListAsync();
+        }
+
+        public async Task<CustomerLabel> GetCustomerLabelAsync(Guid labelGuid)
+        {
+            return await _assetContext.CustomerLabels
+                         .Where(a => labelGuid == a.ExternalId).FirstOrDefaultAsync();
+        }
+
+        public async Task<IList<CustomerLabel>> DeleteCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
+        {
+            
+            _assetContext.CustomerLabels.RemoveRange(labels);
+            await SaveEntitiesAsync();
+            return await GetCustomerLabelsForCustomerAsync(customerId);
+        }
+
+        public async Task<IList<CustomerLabel>> UpdateCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
+        {
+            foreach(CustomerLabel updateLabel in labels)
+            {
+                CustomerLabel original = await GetCustomerLabelAsync(updateLabel.ExternalId);
+                if (original != null)
+                {
+                    original.PatchLabel(updateLabel.UpdatedBy, updateLabel.Label);
+                }
+            }
+
+            await SaveEntitiesAsync();
+            return await GetCustomerLabelsForCustomerAsync(customerId);
+        }
+
+        public async Task<AssetLabel> GetAssetLabelForAssetAsync(int assetId, int labelId)
+        {
+            return  await _assetContext.AssetLabels.Where(a => a.AssetId == assetId && a.LabelId == labelId).FirstOrDefaultAsync();
+        }
+
+        public async Task AddAssetLabelsForAsset(IList<AssetLabel> labels)
+        {
+            await _assetContext.AssetLabels.AddRangeAsync(labels);
+            await SaveEntitiesAsync();
+        }
+
+        public async Task DeleteLabelsFromAssetLabels(IList<int> labelIds)
+        {
+            var labels = await _assetContext.AssetLabels.Where(a => labelIds.Contains(a.LabelId)).ToListAsync();
+            _assetContext.AssetLabels.RemoveRange(labels);
+            await SaveEntitiesAsync();
         }
 
         public async Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId)
@@ -114,6 +209,8 @@ namespace AssetServices.Infrastructure
                 .Include(a => a.AssetCategory)
                 .ThenInclude(c => c.Translations)
                 .Include(a => a.Imeis)
+                .Include(a => a.AssetLabels.Where(a => a.IsDeleted == false))
+                .ThenInclude(a => a.Label)
                 .Where(a => a.CustomerId == customerId && a.AssetHolderId == userId)
                 .AsNoTracking()
                 .ToListAsync();
@@ -128,12 +225,15 @@ namespace AssetServices.Infrastructure
 
         public async Task<Asset> GetAssetAsync(Guid customerId, Guid assetId)
         {
-            return await _assetContext.HardwareAsset
+            var temp =  await _assetContext.HardwareAsset
                 .Include(a => a.AssetCategory)
                 .ThenInclude(c => c.Translations)
                 .Include(a => a.Imeis)
+                .Include(a => a.AssetLabels.Where(b => b.IsDeleted == false))
+                .ThenInclude(a => a.Label)
                 .Where(a => a.CustomerId == customerId && a.ExternalId == assetId)
                 .FirstOrDefaultAsync();
+            return temp;
         }
 
         public async Task<AssetCategory> GetAssetCategoryAsync(int assetAssetCategoryId)

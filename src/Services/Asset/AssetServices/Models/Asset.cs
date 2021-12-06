@@ -107,6 +107,9 @@ namespace AssetServices.Models
         /// </summary>
         public AssetStatus Status { get; protected set; }
 
+        // The mapping of labels assigned to this asset
+        public virtual ICollection<AssetLabel> AssetLabels { get; set; }
+
         /// <summary>
         /// Sets the alias of the asset
         /// </summary>

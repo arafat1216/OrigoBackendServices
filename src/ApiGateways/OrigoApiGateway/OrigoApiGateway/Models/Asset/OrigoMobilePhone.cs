@@ -30,6 +30,7 @@ namespace OrigoApiGateway.Models
             AssetTag = asset.AssetTag;
             Description = asset.Description;
             Alias = asset.Alias;
+            Labels = asset.Labels;
         }
     }
 }

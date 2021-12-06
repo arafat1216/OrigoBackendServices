@@ -23,6 +23,8 @@ namespace AssetServices.Infrastructure
         public DbSet<HardwareAsset> HardwareAsset { get; set; }
         public DbSet<SoftwareAsset> SoftwareAsset { get; set; }
         public DbSet<AssetCategory> AssetCategories { get; set; }
+        public DbSet<CustomerLabel> CustomerLabels { get; set; }
+        public DbSet<AssetLabel> AssetLabels { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Asset>().ToTable("Asset");
@@ -59,6 +61,22 @@ namespace AssetServices.Infrastructure
                 b.HasData(new { Id = 3, AssetCategoryId = 2, Language = "EN", Name = "Tablet", Description = "Tablet", CreatedDate = DateTime.Now, LastUpdatedDate = DateTime.Now, CreatedBy = Guid.NewGuid(), DeletedBy = Guid.Empty, IsDeleted = false, UpdatedBy = Guid.Empty });
                 b.HasData(new { Id = 4, AssetCategoryId = 2, Language = "NO", Name = "Nettbrett", Description = "Nettbrett", CreatedDate = DateTime.Now, LastUpdatedDate = DateTime.Now, CreatedBy = Guid.NewGuid(), DeletedBy = Guid.Empty, IsDeleted = false, UpdatedBy = Guid.Empty });
             });
+
+            modelBuilder.Entity<CustomerLabel>().ToTable("CustomerLabel");
+            modelBuilder.Entity<AssetLabel>().ToTable("AssetLabel");
+
+            modelBuilder.Entity<AssetLabel>()
+            .HasKey(t => new { t.AssetId, t.LabelId });
+
+            modelBuilder.Entity<AssetLabel>()
+            .HasOne(pt => pt.Asset)
+            .WithMany(p => p.AssetLabels)
+            .HasForeignKey(pt => pt.AssetId);
+
+            modelBuilder.Entity<AssetLabel>()
+                .HasOne(pt => pt.Label)
+                .WithMany(t => t.AssetLabels)
+                .HasForeignKey(pt => pt.LabelId);
         }
     }
 }

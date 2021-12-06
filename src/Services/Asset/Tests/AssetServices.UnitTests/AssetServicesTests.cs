@@ -146,7 +146,7 @@ namespace AssetServices.UnitTests
             // Act
             bool valid = AssetValidatorUtility.ValidateImei(imei);
 
-            // Asset
+            // Assert
             Assert.True(!valid);
         }
 
@@ -160,7 +160,7 @@ namespace AssetServices.UnitTests
             // Act
             bool valid = AssetValidatorUtility.ValidateImei(imei);
 
-            // Asset
+            // Assert
             Assert.False(valid);
         }
 
@@ -174,7 +174,7 @@ namespace AssetServices.UnitTests
             // Act
             bool valid = AssetValidatorUtility.ValidateImei(imei);
 
-            // Asset
+            // Assert
             Assert.True(valid);
         }
 
@@ -188,7 +188,7 @@ namespace AssetServices.UnitTests
             // Act
             bool valid = AssetValidatorUtility.ValidateImeis(imeis);
 
-            // Asset
+            // Assert
             Assert.True(valid);
         }
 
@@ -202,7 +202,7 @@ namespace AssetServices.UnitTests
             // Act
             bool valid = AssetValidatorUtility.ValidateImeis(imeis);
 
-            // Asset
+            // Assert
             Assert.False(valid);
         }
 
@@ -221,7 +221,7 @@ namespace AssetServices.UnitTests
             // Act
             bool valid = attribute.IsValid(asset);
 
-            // Asset
+            // Assert
             Assert.False(valid);
         }
 
@@ -240,8 +240,138 @@ namespace AssetServices.UnitTests
             // Act
             bool valid = attribute.IsValid(asset);
 
-            // Asset
+            // Assert
             Assert.True(valid);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void CreateLabelsForCustomer()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
+            
+            IList<Label> labelsToAdd = new List<Label>();
+            labelsToAdd.Add(new Label("Repair", LabelColor.Red));
+            labelsToAdd.Add(new Label("Field", LabelColor.Blue));
+
+            // Act
+            await assetService.AddLabelsForCustomerAsync(COMPANY_ID, Guid.Empty, labelsToAdd);
+
+            IList<CustomerLabel> savedLabels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
+
+            // Assert
+            Assert.Equal(4, savedLabels.Count); // 2 made here, 2 made in AssetBaseTest
+            Assert.Equal("Repair", savedLabels[2].Label.Text);
+            Assert.Equal(LabelColor.Blue, savedLabels[3].Label.Color);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void DeleteLabelsForCustomer()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
+
+            // Act
+            await assetService.DeleteLabelsForCustomerAsync(COMPANY_ID, new List<Guid> { LABEL_ONE_ID, LABEL_TWO_ID });
+
+            IList<CustomerLabel> savedLabels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
+
+            // Assert
+            Assert.Equal(0, savedLabels.Count);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void UpdateLabelsForCustomer()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
+
+            IList<CustomerLabel> labels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
+            labels[0].PatchLabel(Guid.Empty, new Label("Deprecated", LabelColor.Orange));
+            labels[1].PatchLabel(Guid.Empty, new Label("Lost", LabelColor.Gray));
+            
+            // Act
+            await assetService.UpdateLabelsForCustomerAsync(COMPANY_ID, labels);
+
+            IList<CustomerLabel> savedLabels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
+
+            // Assert
+            Assert.Equal(2, savedLabels.Count);
+            Assert.Equal("Deprecated", savedLabels[0].Label.Text);
+            Assert.Equal(LabelColor.Gray, savedLabels[1].Label.Color);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void AssignLabelsForAsset()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
+
+            IList<CustomerLabel> labels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
+            IList<Guid> labelGuids = new List<Guid>();
+            foreach (CustomerLabel label in labels)
+            {
+                labelGuids.Add(label.ExternalId);
+            }
+
+            Asset asset = await assetService.GetAssetForCustomerAsync(COMPANY_ID, ASSET_THREE_ID);
+            IList<Guid> assetGuids = new List<Guid>
+            {
+                asset.ExternalId
+            };
+
+            // Act
+            asset = (await assetService.AssignLabelsToAssetsAsync(COMPANY_ID, Guid.Empty, assetGuids, labelGuids))[0];
+
+            // Assert
+            Assert.Equal(labelGuids.Count, asset.AssetLabels.Count);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void UnAssignLabelsForAsset()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
+
+            IList<CustomerLabel> labels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
+            IList<Guid> labelGuids = new List<Guid>();
+            foreach (CustomerLabel label in labels)
+            {
+                labelGuids.Add(label.ExternalId);
+            }
+
+            Asset asset = await assetService.GetAssetForCustomerAsync(COMPANY_ID, ASSET_THREE_ID);
+            IList<Guid> assetGuids = new List<Guid>
+            {
+                asset.ExternalId
+            };
+
+            await assetService.AssignLabelsToAssetsAsync(COMPANY_ID, Guid.Empty, assetGuids, labelGuids);
+            
+            
+            // Act
+            asset = (await assetService.UnAssignLabelsToAssetsAsync(COMPANY_ID, Guid.Empty, assetGuids, labelGuids))[0];
+
+            // Assert
+            foreach (AssetLabel al in asset.AssetLabels)
+            {
+                Assert.True(al.IsDeleted);
+            }
         }
     }
 }

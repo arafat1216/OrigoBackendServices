@@ -4,14 +4,16 @@ using AssetServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AssetServices.Migrations
 {
     [DbContext(typeof(AssetsContext))]
-    partial class AssetsContextModelSnapshot : ModelSnapshot
+    [Migration("20211202094931_CustomerLabelEntity")]
+    partial class CustomerLabelEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -137,21 +139,21 @@ namespace AssetServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedBy = new Guid("f3793f65-1681-4fd3-997a-3f6c58e08eda"),
-                            CreatedDate = new DateTime(2021, 12, 6, 14, 11, 55, 91, DateTimeKind.Local).AddTicks(2832),
+                            CreatedBy = new Guid("1d4988aa-ca58-4f02-b2f5-8eba7d060b33"),
+                            CreatedDate = new DateTime(2021, 12, 2, 10, 49, 30, 457, DateTimeKind.Local).AddTicks(824),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
-                            LastUpdatedDate = new DateTime(2021, 12, 6, 14, 11, 55, 95, DateTimeKind.Local).AddTicks(3144),
+                            LastUpdatedDate = new DateTime(2021, 12, 2, 10, 49, 30, 460, DateTimeKind.Local).AddTicks(4748),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             Id = 2,
-                            CreatedBy = new Guid("3efb81c8-66a4-4536-94e2-4472a9c693cf"),
-                            CreatedDate = new DateTime(2021, 12, 6, 14, 11, 55, 96, DateTimeKind.Local).AddTicks(8376),
+                            CreatedBy = new Guid("152a03f7-7bb0-4b97-b119-509939b87645"),
+                            CreatedDate = new DateTime(2021, 12, 2, 10, 49, 30, 461, DateTimeKind.Local).AddTicks(5797),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
-                            LastUpdatedDate = new DateTime(2021, 12, 6, 14, 11, 55, 96, DateTimeKind.Local).AddTicks(8420),
+                            LastUpdatedDate = new DateTime(2021, 12, 2, 10, 49, 30, 461, DateTimeKind.Local).AddTicks(5818),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });
@@ -205,13 +207,13 @@ namespace AssetServices.Migrations
                         {
                             Id = 1,
                             AssetCategoryId = 1,
-                            CreatedBy = new Guid("6b6e9448-973a-4204-86e2-3bcb4ffbbf9f"),
-                            CreatedDate = new DateTime(2021, 12, 6, 14, 11, 55, 97, DateTimeKind.Local).AddTicks(5148),
+                            CreatedBy = new Guid("2eaf71c1-6888-4883-8c13-0524bf6205c7"),
+                            CreatedDate = new DateTime(2021, 12, 2, 10, 49, 30, 462, DateTimeKind.Local).AddTicks(550),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             Description = "Mobile phone",
                             IsDeleted = false,
                             Language = "EN",
-                            LastUpdatedDate = new DateTime(2021, 12, 6, 14, 11, 55, 97, DateTimeKind.Local).AddTicks(5174),
+                            LastUpdatedDate = new DateTime(2021, 12, 2, 10, 49, 30, 462, DateTimeKind.Local).AddTicks(566),
                             Name = "Mobile phone",
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
@@ -219,13 +221,13 @@ namespace AssetServices.Migrations
                         {
                             Id = 2,
                             AssetCategoryId = 1,
-                            CreatedBy = new Guid("6870b4e7-b8e0-47f6-9fda-960054d6864c"),
-                            CreatedDate = new DateTime(2021, 12, 6, 14, 11, 55, 97, DateTimeKind.Local).AddTicks(8115),
+                            CreatedBy = new Guid("77be706e-17a4-4634-b9dd-5c8d239825bf"),
+                            CreatedDate = new DateTime(2021, 12, 2, 10, 49, 30, 462, DateTimeKind.Local).AddTicks(1829),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             Description = "Mobiltelefon",
                             IsDeleted = false,
                             Language = "NO",
-                            LastUpdatedDate = new DateTime(2021, 12, 6, 14, 11, 55, 97, DateTimeKind.Local).AddTicks(8140),
+                            LastUpdatedDate = new DateTime(2021, 12, 2, 10, 49, 30, 462, DateTimeKind.Local).AddTicks(1841),
                             Name = "Mobiltelefon",
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
@@ -233,13 +235,13 @@ namespace AssetServices.Migrations
                         {
                             Id = 3,
                             AssetCategoryId = 2,
-                            CreatedBy = new Guid("cff07875-3e86-4834-b066-9da308f3ef05"),
-                            CreatedDate = new DateTime(2021, 12, 6, 14, 11, 55, 97, DateTimeKind.Local).AddTicks(8166),
+                            CreatedBy = new Guid("9e6ad69f-675c-435a-b5e7-ff94e5cefd85"),
+                            CreatedDate = new DateTime(2021, 12, 2, 10, 49, 30, 462, DateTimeKind.Local).AddTicks(1852),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             Description = "Tablet",
                             IsDeleted = false,
                             Language = "EN",
-                            LastUpdatedDate = new DateTime(2021, 12, 6, 14, 11, 55, 97, DateTimeKind.Local).AddTicks(8169),
+                            LastUpdatedDate = new DateTime(2021, 12, 2, 10, 49, 30, 462, DateTimeKind.Local).AddTicks(1854),
                             Name = "Tablet",
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
@@ -247,55 +249,16 @@ namespace AssetServices.Migrations
                         {
                             Id = 4,
                             AssetCategoryId = 2,
-                            CreatedBy = new Guid("fc9f3d2c-5480-43b6-9dbc-6a22ff50300e"),
-                            CreatedDate = new DateTime(2021, 12, 6, 14, 11, 55, 97, DateTimeKind.Local).AddTicks(8175),
+                            CreatedBy = new Guid("d046ecb6-39c6-488a-b611-4a4a16acd2af"),
+                            CreatedDate = new DateTime(2021, 12, 2, 10, 49, 30, 462, DateTimeKind.Local).AddTicks(1869),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             Description = "Nettbrett",
                             IsDeleted = false,
                             Language = "NO",
-                            LastUpdatedDate = new DateTime(2021, 12, 6, 14, 11, 55, 97, DateTimeKind.Local).AddTicks(8179),
+                            LastUpdatedDate = new DateTime(2021, 12, 2, 10, 49, 30, 462, DateTimeKind.Local).AddTicks(1871),
                             Name = "Nettbrett",
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
-                });
-
-            modelBuilder.Entity("AssetServices.Models.AssetLabel", b =>
-                {
-                    b.Property<int>("AssetId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LabelId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ExternalId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastUpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("AssetId", "LabelId");
-
-                    b.HasIndex("LabelId");
-
-                    b.ToTable("AssetLabel");
                 });
 
             modelBuilder.Entity("AssetServices.Models.CustomerLabel", b =>
@@ -403,25 +366,6 @@ namespace AssetServices.Migrations
                         .HasForeignKey("AssetCategoryId");
                 });
 
-            modelBuilder.Entity("AssetServices.Models.AssetLabel", b =>
-                {
-                    b.HasOne("AssetServices.Models.Asset", "Asset")
-                        .WithMany("AssetLabels")
-                        .HasForeignKey("AssetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("AssetServices.Models.CustomerLabel", "Label")
-                        .WithMany("AssetLabels")
-                        .HasForeignKey("LabelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Asset");
-
-                    b.Navigation("Label");
-                });
-
             modelBuilder.Entity("AssetServices.Models.CustomerLabel", b =>
                 {
                     b.OwnsOne("AssetServices.Models.Label", "Label", b1 =>
@@ -516,19 +460,9 @@ namespace AssetServices.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AssetServices.Models.Asset", b =>
-                {
-                    b.Navigation("AssetLabels");
-                });
-
             modelBuilder.Entity("AssetServices.Models.AssetCategory", b =>
                 {
                     b.Navigation("Translations");
-                });
-
-            modelBuilder.Entity("AssetServices.Models.CustomerLabel", b =>
-                {
-                    b.Navigation("AssetLabels");
                 });
 #pragma warning restore 612, 618
         }

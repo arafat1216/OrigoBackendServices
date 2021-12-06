@@ -1,6 +1,7 @@
 using Common.Enums;
 using OrigoApiGateway.Models.BackendDTO;
 using System;
+using System.Collections.Generic;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
@@ -28,6 +29,7 @@ namespace OrigoApiGateway.Models
             AssetHolderId = asset.AssetHolderId;
             AssetStatus = asset.AssetStatus;
             AssetStatusName = asset.AssetStatusName;
+            Labels = asset.Labels;
         }
 
         /// <summary>
@@ -118,5 +120,7 @@ namespace OrigoApiGateway.Models
         public AssetStatus AssetStatus { get; protected set; }
 
         public string AssetStatusName { get; protected set; }
+
+        public IList<Label> Labels { get; protected set; }
     }
 }

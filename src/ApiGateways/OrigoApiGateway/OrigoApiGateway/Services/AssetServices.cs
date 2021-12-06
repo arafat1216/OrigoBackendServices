@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Models.BackendDTO;
 using System;
 using System.Collections.Generic;
@@ -285,6 +286,189 @@ namespace OrigoApiGateway.Services
             {
                 _logger.LogError(exception, "Unable to update asset.");
                 throw;
+            }
+        }
+
+        public async Task<IList<Label>> CreateLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<NewLabel> newLabels)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/{callerId}";
+
+                var response = await HttpClient.PostAsJsonAsync<IList<NewLabel>>(requestUri, newLabels);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var labels = await response.Content.ReadFromJsonAsync<IList<Label>>();
+
+                return labels;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IList<Label>> GetCustomerLabelsAsync(Guid customerId)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels";
+                var labels = await HttpClient.GetFromJsonAsync<IList<Label>>(requestUri);
+                if (labels == null) return null;
+                return labels;
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IList<Label>> DeleteCustomerLabelsAsync(Guid customerId, Guid callerId, IList<Guid> labelGuids)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/delete/{callerId}";
+                var response = await HttpClient.PostAsJsonAsync<IList<Guid>>(requestUri, labelGuids);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var labels = await response.Content.ReadFromJsonAsync<IList<Label>>();
+
+                return labels;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IList<Label>> UpdateLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Label> labels)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/update/{callerId}";
+                var response = await HttpClient.PostAsJsonAsync<IList<Label>>(requestUri, labels);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var labelsResult = await response.Content.ReadFromJsonAsync<IList<Label>>();
+
+                return labelsResult;
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IList<object>> AssignLabelsToAssets(Guid customerId, Guid callerId, AssetLabels assetLabels)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/assign/{callerId}";
+                var response = await HttpClient.PostAsJsonAsync<AssetLabels>(requestUri, assetLabels);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var assets = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
+                List<object> origoAssets = new List<object>();
+                if (assets == null)
+                    return null;
+
+                foreach (AssetDTO asset in assets)
+                {
+                    if (asset == null)
+                        continue;
+                    OrigoAsset result;
+                    if (asset.AssetCategoryId == 1)
+                        result = new OrigoMobilePhone(asset);
+                    else
+                        result = new OrigoTablet(asset);
+                    origoAssets.Add(result);
+                }
+
+                return origoAssets;
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<IList<object>> UnAssignLabelsFromAssets(Guid customerId, Guid callerId, AssetLabels assetLabels)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/unassign/{callerId}";
+                var response = await HttpClient.PostAsJsonAsync<AssetLabels>(requestUri, assetLabels);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var assets = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
+                List<object> origoAssets = new List<object>();
+                if (assets == null)
+                    return null;
+
+                foreach (AssetDTO asset in assets)
+                {
+                    if (asset == null)
+                        continue;
+                    OrigoAsset result;
+                    if (asset.AssetCategoryId == 1)
+                        result = new OrigoMobilePhone(asset);
+                    else
+                        result = new OrigoTablet(asset);
+                    origoAssets.Add(result);
+                }
+
+                return origoAssets;
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
         }
 

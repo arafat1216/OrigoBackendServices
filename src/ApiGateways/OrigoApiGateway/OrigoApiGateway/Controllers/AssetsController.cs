@@ -207,6 +207,7 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -221,7 +222,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
+                
                 var asset = await _assetServices.GetAssetForCustomerAsync(organizationId, assetId);
                 if (asset == null)
                 {
@@ -403,6 +404,265 @@ namespace OrigoApiGateway.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+
+      
+        [Route("customers/{organizationId:guid}/labels")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<IList<Label>>> GetLabelsForCustomer(Guid organizationId)
+        {
+            try
+            {
+                // All roles have access, as long as customer is in their accessList
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var labels =  await _assetServices.GetCustomerLabelsAsync(organizationId);
+
+                return Ok(labels);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+       
+        [Route("customers/{organizationId:guid}/labels")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        public async Task<ActionResult<IList<Label>>> CreateLabelsForCustomer(Guid organizationId, IList<NewLabel> labels)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to update customer labels
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                bool valid = Guid.TryParse(actor, out callerId);
+                if (!valid)
+                    callerId = Guid.Empty;
+
+                var createdLabels = await _assetServices.CreateLabelsForCustomerAsync(organizationId, callerId, labels);
+
+                return Ok(createdLabels);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/labels")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        public async Task<ActionResult<IList<Label>>> DeleteLabelsForCustomer(Guid organizationId, IList<Guid> labelGuids)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to update customer labels
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                bool valid = Guid.TryParse(actor, out callerId);
+                if (!valid)
+                    callerId = Guid.Empty;
+
+                var createdLabels = await _assetServices.DeleteCustomerLabelsAsync(organizationId, callerId, labelGuids);
+
+                return Ok(createdLabels);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/labels")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        public async Task<ActionResult<IList<Label>>> UpdateLabelsForCustomer(Guid organizationId, IList<Label> labels)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to update customer labels
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                bool valid = Guid.TryParse(actor, out callerId);
+                if (!valid)
+                    callerId = Guid.Empty;
+
+                var createdLabels = await _assetServices.UpdateLabelsForCustomerAsync(organizationId, callerId, labels);
+
+                return Ok(createdLabels);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/labels/assign")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadAsset, Permission.CanUpdateAsset)]
+        public async Task<ActionResult<IList<OrigoAsset>>> AssignLabelsToAssets(Guid organizationId, AssetLabels assetLabels)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to set labels on assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                bool valid = Guid.TryParse(actor, out callerId);
+                if (!valid)
+                    callerId = Guid.Empty;
+
+                var updatedAssets = await _assetServices.AssignLabelsToAssets(organizationId, callerId, assetLabels);
+                if (updatedAssets == null)
+                {
+                    return NotFound();
+                }
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
+
+            }
+            catch(Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/labels/unassign")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadAsset, Permission.CanUpdateAsset)]
+        public async Task<ActionResult<IList<OrigoAsset>>> UnAssignLabelsToAssets(Guid organizationId, AssetLabels assetLabels)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to set labels on assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                bool valid = Guid.TryParse(actor, out callerId);
+                if (!valid)
+                    callerId = Guid.Empty;
+
+                var updatedAssets = await _assetServices.UnAssignLabelsFromAssets(organizationId, callerId, assetLabels);
+                if (updatedAssets == null)
+                {
+                    return NotFound();
+                }
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+
 
         [Route("lifecycles")]
         [HttpGet]
