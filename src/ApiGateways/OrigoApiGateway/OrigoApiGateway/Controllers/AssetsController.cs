@@ -24,7 +24,7 @@ namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Authorize]
+    //[Authorize]
     // Assets should only be available through a given customer
     [Route("/origoapi/v{version:apiVersion}/[controller]")]
     public class AssetsController : ControllerBase
@@ -157,11 +157,12 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
         public async Task<ActionResult<IList<OrigoAsset>>> Get(Guid organizationId)
         {
             try
             {
+                /*
                 // Only admin or manager roles are allowed to see all assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -176,7 +177,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
+                */
                 var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId);
                 if (assets == null)
                 {
@@ -202,11 +203,12 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
         public async Task<ActionResult<OrigoAsset>> GetAsset(Guid organizationId, Guid assetId)
         {
             try
             {
+                /*
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -221,7 +223,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
+                */
                 var asset = await _assetServices.GetAssetForCustomerAsync(organizationId, assetId);
                 if (asset == null)
                 {
@@ -246,11 +248,12 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanCreateAsset)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanCreateAsset)]
         public async Task<ActionResult> CreateAsset(Guid organizationId, [FromBody] NewAsset asset)
         {
             try
             {
+                /*
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -266,7 +269,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
+                */
                 var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, asset);
                 if (createdAsset != null)
                 {
@@ -410,7 +413,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
+        //[PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<IList<Label>>> GetLabelsForCustomer(Guid organizationId)
         {
             try
@@ -430,14 +433,15 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<IList<Label>>> CreateLabelsForCustomer(Guid organizationId, IList<NewLabel> labels)
         {
             try
             {
-                string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                //string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 Guid callerId;
-                bool valid = Guid.TryParse(userId, out callerId);
+                bool valid = Guid.TryParse(actor, out callerId);
                 if (!valid)
                     callerId = Guid.Empty;
 
@@ -456,14 +460,15 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<IList<Label>>> DeleteLabelsForCustomer(Guid organizationId, IList<Guid> labelGuids)
         {
             try
             {
-                string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                //string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 Guid callerId;
-                bool valid = Guid.TryParse(userId, out callerId);
+                bool valid = Guid.TryParse(actor, out callerId);
                 if (!valid)
                     callerId = Guid.Empty;
 
@@ -482,20 +487,95 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<IList<Label>>> UpdateLabelsForCustomer(Guid organizationId, IList<Label> labels)
         {
             try
             {
-                string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                //string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 Guid callerId;
-                bool valid = Guid.TryParse(userId, out callerId);
+                bool valid = Guid.TryParse(actor, out callerId);
                 if (!valid)
                     callerId = Guid.Empty;
 
                 var createdLabels = await _assetServices.UpdateLabelsForCustomerAsync(organizationId, callerId, labels);
 
                 return Ok(createdLabels);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/labels/assign")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        public async Task<ActionResult<IList<OrigoAsset>>> AssignLabelsToAssets(Guid organizationId, AssetLabels assetLabels)
+        {
+            try
+            {
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                //string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                Guid callerId;
+                bool valid = Guid.TryParse(actor, out callerId);
+                if (!valid)
+                    callerId = Guid.Empty;
+
+                var updatedAssets = await _assetServices.AssignLabelsToAssets(organizationId, callerId, assetLabels);
+                if (updatedAssets == null)
+                {
+                    return NotFound();
+                }
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
+
+            }
+            catch(Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/labels/unassign")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        public async Task<ActionResult<IList<OrigoAsset>>> UnAssignLabelsToAssets(Guid organizationId, AssetLabels assetLabels)
+        {
+            try
+            {
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                //string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                Guid callerId;
+                bool valid = Guid.TryParse(actor, out callerId);
+                if (!valid)
+                    callerId = Guid.Empty;
+
+                var updatedAssets = await _assetServices.UnAssignLabelsFromAssets(organizationId, callerId, assetLabels);
+                if (updatedAssets == null)
+                {
+                    return NotFound();
+                }
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
+
             }
             catch (Exception ex)
             {

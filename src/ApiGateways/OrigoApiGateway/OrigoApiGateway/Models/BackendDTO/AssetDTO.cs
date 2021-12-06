@@ -112,5 +112,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         public AssetStatus AssetStatus { get; set; }
 
         public string AssetStatusName { get; set; }
+
+        public IList<Label> Labels { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Common.Enums;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
@@ -32,6 +33,7 @@ namespace Asset.API.ViewModels
             CreatedDate = asset.CreatedDate;
             AssetCategoryId = asset.AssetCategory.Id;
             AssetCategoryName = asset.AssetCategory?.Translations?.FirstOrDefault(a => a.Language == "EN")?.Name;
+            SetLabels(asset.AssetLabels);
         }
 
         /// <summary>
@@ -132,6 +134,18 @@ namespace Asset.API.ViewModels
             {
                 return Enum.GetName(AssetStatus);
             }
+        }
+
+        public IList<Label> Labels { get; protected set; }
+
+        public void SetLabels(ICollection<AssetServices.Models.AssetLabel> assetLabels)
+        {
+            IList<Label> labelList = new List<Label>();
+            foreach (AssetServices.Models.AssetLabel al in assetLabels)
+            {
+                labelList.Add(new Label(al.Label));
+            }
+            Labels = labelList;
         }
     }
 }

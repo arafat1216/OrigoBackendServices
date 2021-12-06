@@ -17,7 +17,7 @@ namespace AssetServices.UnitTests
     {
         private readonly Guid ASSET_ONE_ID = new("4e7413da-54c9-4f79-b882-f66ce48e5074");
         private readonly Guid ASSET_TWO_ID = new("6c38b551-a5c2-4f53-8df8-221bf8485c61");
-        private readonly Guid ASSET_THREE_ID = new("80665d26-90b4-4a3a-a20d-686b64466f32");
+        protected readonly Guid ASSET_THREE_ID = new("80665d26-90b4-4a3a-a20d-686b64466f32");
         protected readonly Guid COMPANY_ID = new("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
         protected readonly int ASSET_CATEGORY_ID = 1;
 

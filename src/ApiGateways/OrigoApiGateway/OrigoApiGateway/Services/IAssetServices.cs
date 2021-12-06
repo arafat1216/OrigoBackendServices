@@ -1,5 +1,6 @@
 ﻿using Common.Models;
 using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.Asset;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -19,6 +20,8 @@ namespace OrigoApiGateway.Services
         Task<IList<Label>> GetCustomerLabelsAsync(Guid customerId);
         Task<IList<Label>> DeleteCustomerLabelsAsync(Guid customerId, Guid callerId, IList<Guid> labelGuids);
         Task<IList<Label>> UpdateLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Label> labels);
+        Task<IList<object>> AssignLabelsToAssets(Guid customerId, Guid callerId, AssetLabels assetLabels);
+        Task<IList<object>> UnAssignLabelsFromAssets(Guid customerId, Guid callerId, AssetLabels assetLabels);
         Task<IList<OrigoAssetLifecycle>> GetLifecycles();
         Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, int newLifecycleType);
         Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset);

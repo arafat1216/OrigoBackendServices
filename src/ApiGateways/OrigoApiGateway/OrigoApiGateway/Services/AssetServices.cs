@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Models.BackendDTO;
 using System;
 using System.Collections.Generic;
@@ -384,6 +385,90 @@ namespace OrigoApiGateway.Services
             catch(Exception ex)
             {
                 throw;
+            }
+        }
+
+        public async Task<IList<object>> AssignLabelsToAssets(Guid customerId, Guid callerId, AssetLabels assetLabels)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/assign/{callerId}";
+                var response = await HttpClient.PostAsJsonAsync<AssetLabels>(requestUri, assetLabels);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var assets = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
+                List<object> origoAssets = new List<object>();
+                if (assets == null)
+                    return null;
+
+                foreach (AssetDTO asset in assets)
+                {
+                    if (asset == null)
+                        continue;
+                    OrigoAsset result;
+                    if (asset.AssetCategoryId == 1)
+                        result = new OrigoMobilePhone(asset);
+                    else
+                        result = new OrigoTablet(asset);
+                    origoAssets.Add(result);
+                }
+
+                return origoAssets;
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<IList<object>> UnAssignLabelsFromAssets(Guid customerId, Guid callerId, AssetLabels assetLabels)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/unassign/{callerId}";
+                var response = await HttpClient.PostAsJsonAsync<AssetLabels>(requestUri, assetLabels);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var assets = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
+                List<object> origoAssets = new List<object>();
+                if (assets == null)
+                    return null;
+
+                foreach (AssetDTO asset in assets)
+                {
+                    if (asset == null)
+                        continue;
+                    OrigoAsset result;
+                    if (asset.AssetCategoryId == 1)
+                        result = new OrigoMobilePhone(asset);
+                    else
+                        result = new OrigoTablet(asset);
+                    origoAssets.Add(result);
+                }
+
+                return origoAssets;
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
         }
 

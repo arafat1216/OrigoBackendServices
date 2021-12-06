@@ -49,6 +49,18 @@ namespace AssetServices
             }
         }
 
+        public async Task<IList<Asset>> GetAssetsForCustomerFromListAsync(Guid customerId, IList<Guid> assetGuids)
+        {
+            try
+            {
+                return await _assetRepository.GetAssetsFromListAsync(customerId, assetGuids);
+            }
+            catch (Exception exception)
+            {
+                throw new ReadingDataException(exception);
+            }
+        }
+
         public async Task<Asset> GetAssetForCustomerAsync(Guid customerId, Guid assetId)
         {
             return await _assetRepository.GetAssetAsync(customerId, assetId);
@@ -66,7 +78,7 @@ namespace AssetServices
                 customerLabels.Add(new CustomerLabel(customerId, callerId, label));
             }
 
-            return await _assetRepository.AddLabelsForCustomerAsync(customerId, customerLabels);
+            return await _assetRepository.AddCustomerLabelsForCustomerAsync(customerId, customerLabels);
             }
             catch (Exception ex)
             {
@@ -74,9 +86,14 @@ namespace AssetServices
             }
         }
 
-        public async Task<IList<CustomerLabel>> GetLabelsForCustomerAsync(Guid customerId)
+        public async Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId)
         {
-            return await _assetRepository.GetLabelsForCustomerAsync(customerId);
+            return await _assetRepository.GetCustomerLabelsForCustomerAsync(customerId);
+        }
+
+        public async Task<IList<CustomerLabel>> GetCustomerLabelsAsync(IList<Guid> customerLabelGuids)
+        {
+            return await _assetRepository.GetCustomerLabelsFromListAsync(customerLabelGuids);
         }
 
         /// <summary>
@@ -90,8 +107,15 @@ namespace AssetServices
         /// <returns></returns>
         public async Task<IList<CustomerLabel>> DeleteLabelsForCustomerAsync(Guid customerId, IList<Guid> labelGuids)
         {
-            IList<CustomerLabel> customerLabels = await _assetRepository.GetLabelsFromListAsync(labelGuids);
-            return await _assetRepository.DeleteLabelsForCustomerAsync(customerId, customerLabels);
+            IList<CustomerLabel> customerLabels = await _assetRepository.GetCustomerLabelsFromListAsync(labelGuids);
+            IList<int> labelIds = new List<int>();
+            foreach (CustomerLabel label in customerLabels)
+            {
+                labelIds.Add(label.Id);
+            }
+
+            await _assetRepository.DeleteLabelsFromAssetLabels(labelIds);
+            return await _assetRepository.DeleteCustomerLabelsForCustomerAsync(customerId, customerLabels);
         }
 
         /// <summary>
@@ -104,20 +128,146 @@ namespace AssetServices
         /// <returns></returns>
         public async Task<IList<CustomerLabel>> SoftDeleteLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Guid> labelGuids)
         {
-            IList<CustomerLabel> customerLabels = await _assetRepository.GetLabelsFromListAsync(labelGuids);
-            foreach (CustomerLabel label in customerLabels)
+            try
             {
-                label.SoftDelete(callerId);
+                IList<CustomerLabel> customerLabels = await _assetRepository.GetCustomerLabelsFromListAsync(labelGuids);
+                //IList<int> assetLabelIds = new List<int>();
+                foreach (CustomerLabel label in customerLabels)
+                {
+                    //assetLabelIds.Add(label.Id);
+                    label.SoftDelete(callerId);
+                }
+
+                await _assetRepository.SaveEntitiesAsync();
+                return await _assetRepository.GetCustomerLabelsForCustomerAsync(customerId);
             }
+            catch(Exception ex)
+            {
+                return null;
+            }
+        }
 
-            await _assetRepository.SaveEntitiesAsync();
-            return await _assetRepository.GetLabelsForCustomerAsync(customerId);
+        public async Task SoftDeleteAssetLabelsAsync(Guid callerId, IList<int> assetLabelIds)
+        {
+            try
+            {
 
+                var assetLabels = await _assetRepository.GetAssetLabelsFromListAsync(assetLabelIds);
+                foreach (AssetLabel label in assetLabels)
+                {
+                    label.SetActiveStatus(callerId, true);
+                }
+
+                await _assetRepository.SaveEntitiesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         public async Task<IList<CustomerLabel>> UpdateLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> updateLabels)
         {
-            return await _assetRepository.UpdateLabelsForCustomerAsync(customerId, updateLabels);
+            return await _assetRepository.UpdateCustomerLabelsForCustomerAsync(customerId, updateLabels);
+        }
+
+        public async Task<IList<Asset>> AssignLabelsToAssetsAsync(Guid customerId, Guid callerId, IList<Guid> assetGuids, IList<Guid> labelGuids)
+        {
+            try
+            {
+                IList<Asset> assets = await _assetRepository.GetAssetsFromListAsync(customerId, assetGuids);
+                if (assets == null || assets.Count == 0)
+                {
+                    return null;
+                }
+
+                IList <CustomerLabel> customerLabels = await _assetRepository.GetCustomerLabelsFromListAsync(labelGuids);
+                if (customerLabels == null)
+                {
+                    return null;
+                }
+
+                foreach(Asset asset in assets)
+                {
+                    await AssignLabelsToAssetAsync(asset, customerLabels, callerId);
+                }
+
+                return assets;
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task AssignLabelsToAssetAsync(Asset asset, IList<CustomerLabel> customerLabels, Guid callerId)
+        {
+            IList<AssetLabel> newLabels = new List<AssetLabel>();
+            foreach (CustomerLabel customerLabel in customerLabels)
+            {
+                if (customerLabel.IsDeleted == false)
+                {
+                    var assetLabel = await _assetRepository.GetAssetLabelForAssetAsync(asset.Id, customerLabel.Id);
+                    if (assetLabel == null)
+                    {
+                        newLabels.Add(new AssetLabel(asset.Id, customerLabel.Id, callerId));
+                    }
+                    else if (assetLabel.IsDeleted == true)
+                    {
+                        assetLabel.SetActiveStatus(callerId, false);
+                    }
+                    // else, label already assigned
+                }
+            }
+
+            await _assetRepository.AddAssetLabelsForAsset(newLabels);
+        }
+
+        public async Task<IList<Asset>> UnAssignLabelsToAssetsAsync(Guid customerId, Guid callerId, IList<Guid> assetGuids, IList<Guid> labelGuids)
+        {
+            try
+            {
+                IList<Asset> assets = await _assetRepository.GetAssetsFromListAsync(customerId, assetGuids);
+                if (assets == null || assets.Count == 0)
+                {
+                    return null;
+                }
+
+                IList<CustomerLabel> customerLabels = await _assetRepository.GetCustomerLabelsFromListAsync(labelGuids);
+                if (customerLabels == null)
+                {
+                    return null;
+                }
+
+                foreach (Asset asset in assets)
+                {
+                    await UnAssignLabelsToAssetAsync(asset, customerLabels, callerId);
+                }
+
+                await _assetRepository.SaveEntitiesAsync();
+                return await _assetRepository.GetAssetsFromListAsync(customerId, assetGuids);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task UnAssignLabelsToAssetAsync(Asset asset, IList<CustomerLabel> customerLabels, Guid callerId)
+        {
+            foreach (CustomerLabel customerLabel in customerLabels)
+            {
+                if (customerLabel.IsDeleted == false)
+                {
+                    var assetLabel = await _assetRepository.GetAssetLabelForAssetAsync(asset.Id, customerLabel.Id);
+
+                    // Update if necessary
+                    if (assetLabel != null && assetLabel.IsDeleted == false)
+                    {
+                        assetLabel.SetActiveStatus(callerId, true); 
+                    }
+                }
+            }
         }
 
         public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string alias, string serialNumber, int assetCategoryId, string brand,

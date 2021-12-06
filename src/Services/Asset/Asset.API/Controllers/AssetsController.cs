@@ -88,29 +88,36 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Label>>> CreateLabelsForCustomer(Guid customerId, Guid callerId, [FromBody] IList<NewLabel> newLabels)//[FromBody] IList<NewLabel> newLabels)
         {
-            // todo: check valid asset color
-            List<AssetServices.Models.Label> labels = new List<AssetServices.Models.Label>();
-            foreach (NewLabel newLabel in newLabels)
+            try
             {
-                labels.Add(new AssetServices.Models.Label(newLabel.Text, newLabel.Color));
-            }
+                // todo: check valid asset color
+                List<AssetServices.Models.Label> labels = new List<AssetServices.Models.Label>();
+                foreach (NewLabel newLabel in newLabels)
+                {
+                    labels.Add(new AssetServices.Models.Label(newLabel.Text, newLabel.Color));
+                }
 
-            var labelsAdded = await _assetServices.AddLabelsForCustomerAsync(customerId, callerId, labels);
-  
-            if (labelsAdded == null)
-                return BadRequest("Unable to add labels.");
+                var labelsAdded = await _assetServices.AddLabelsForCustomerAsync(customerId, callerId, labels);
 
-            var labelsView = new List<object>();
-            foreach (AssetServices.Models.CustomerLabel label in labelsAdded)
-            {
-                labelsView.Add(new ViewModels.Label(label));
+                if (labelsAdded == null)
+                    return BadRequest("Unable to add labels.");
+
+                var labelsView = new List<object>();
+                foreach (AssetServices.Models.CustomerLabel label in labelsAdded)
+                {
+                    labelsView.Add(new ViewModels.Label(label));
+                }
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(labelsView, options));
             }
-            var options = new JsonSerializerOptions
+           catch (Exception ex)
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            return Ok(JsonSerializer.Serialize<object>(labelsView, options));
+                return BadRequest();
+            }
         }
 
         [Route("customers/{customerId:guid}/labels")]
@@ -119,7 +126,7 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> GetLabelsForCustomer(Guid customerId)
         {
-            var labels = await _assetServices.GetLabelsForCustomerAsync(customerId);
+            var labels = await _assetServices.GetCustomerLabelsForCustomerAsync(customerId);
             if (labels == null)
                 return NotFound();
 
@@ -143,19 +150,35 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> DeleteLabelsForCustomer(Guid customerId, Guid callerId, IList<Guid> labelGuids)
         {
-            var labels = await _assetServices.SoftDeleteLabelsForCustomerAsync(customerId, callerId, labelGuids);
+            try
+            {
+                var customerLabels = await _assetServices.GetCustomerLabelsAsync(labelGuids);
+                /*IList<int> labelInts = new List<int>();
+                foreach (AssetServices.Models.CustomerLabel label in customerLabels)
+                {
+                    labelInts.Add(label.Id);
+                }
 
-            var labelList = new List<object>();
-            foreach (AssetServices.Models.CustomerLabel label in labels)
-            {
-                labelList.Add(new ViewModels.Label(label));
+                await _assetServices.SoftDeleteAssetLabelsAsync(callerId, labelInts);
+                */
+                var labels = await _assetServices.SoftDeleteLabelsForCustomerAsync(customerId, callerId, labelGuids);
+
+                var labelList = new List<object>();
+                foreach (AssetServices.Models.CustomerLabel label in labels)
+                {
+                    labelList.Add(new ViewModels.Label(label));
+                }
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(labelList, options));
             }
-            var options = new JsonSerializerOptions
+           catch(Exception ex)
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            return Ok(JsonSerializer.Serialize<object>(labelList, options));
+                return BadRequest();
+            }
         }
 
         [Route("customers/{customerId:guid}/labels/update/{callerId:guid}")]
@@ -183,6 +206,90 @@ namespace Asset.API.Controllers
                 WriteIndented = true
             };
             return Ok(JsonSerializer.Serialize<object>(labelList, options));
+        }
+
+        [Route("customers/{customerId:guid}/labels/assign/{callerId:guid}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> AssignLabelsToAssets(Guid customerId, Guid callerId, [FromBody] AssetLabels assetLabels)
+        {
+            try
+            {
+                IList<Guid> assetGuids = assetLabels.AssetGuids;
+                IList<Guid> labelGuids = assetLabels.LabelGuids;
+
+                IList<AssetServices.Models.Asset> assets = await _assetServices.AssignLabelsToAssetsAsync(customerId, callerId, assetGuids, labelGuids);
+                
+                var assetList = new List<object>();
+                foreach (var asset in assets)
+                {
+                    ViewModels.Asset assetToReturn;
+                    var phone = asset as AssetServices.Models.MobilePhone;
+                    var tablet = asset as AssetServices.Models.Tablet;
+
+                    if (phone != null)
+                        assetToReturn = new MobilePhone(phone);
+                    else if (tablet != null)
+                        assetToReturn = new Tablet(tablet);
+                    else
+                        assetToReturn = new ViewModels.Asset(asset);
+                    assetList.Add(assetToReturn);
+                }
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(assetList, options));
+
+            }
+            catch(Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{customerId:guid}/labels/unassign/{callerId:guid}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UnAssignLabelsToAssets(Guid customerId, Guid callerId, [FromBody] AssetLabels assetLabels)
+        {
+            try
+            {
+                IList<Guid> assetGuids = assetLabels.AssetGuids;
+                IList<Guid> labelGuids = assetLabels.LabelGuids;
+
+                IList<AssetServices.Models.Asset> assets = await _assetServices.UnAssignLabelsToAssetsAsync(customerId, callerId, assetGuids, labelGuids);
+
+                var assetList = new List<object>();
+                foreach (var asset in assets)
+                {
+                    ViewModels.Asset assetToReturn;
+                    var phone = asset as AssetServices.Models.MobilePhone;
+                    var tablet = asset as AssetServices.Models.Tablet;
+
+                    if (phone != null)
+                        assetToReturn = new MobilePhone(phone);
+                    else if (tablet != null)
+                        assetToReturn = new Tablet(tablet);
+                    else
+                        assetToReturn = new ViewModels.Asset(asset);
+                    assetList.Add(assetToReturn);
+                }
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(assetList, options));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
         [Route("customers/{customerId:guid}")]
@@ -238,15 +345,22 @@ namespace Asset.API.Controllers
             {
                 return NotFound();
             }
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true,
+            };
+
             var phone = asset as AssetServices.Models.MobilePhone;
             if (phone != null)
-                return Ok(new MobilePhone(phone));
+                return Ok(JsonSerializer.Serialize<object>(new MobilePhone(phone), options));
 
             var tablet = asset as AssetServices.Models.Tablet;
             if (tablet != null)
-                return Ok(new Tablet(tablet));
+                return Ok(JsonSerializer.Serialize<object>(new Tablet(tablet), options));
 
-            return Ok(new ViewModels.Asset(asset));
+            return Ok(JsonSerializer.Serialize<object>(new ViewModels.Asset(asset), options));
         }
 
         [Route("customers/{customerId:guid}")]

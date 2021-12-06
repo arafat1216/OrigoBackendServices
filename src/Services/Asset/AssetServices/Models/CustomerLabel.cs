@@ -26,6 +26,8 @@ namespace AssetServices.Models
         /// </summary>
         public Label Label { get; protected set; }
 
+        public virtual ICollection<AssetLabel> AssetLabels { get; set; }
+
         // Set to protected as DDD best practice
         protected CustomerLabel()
         { }
