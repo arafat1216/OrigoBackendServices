@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models.ProductCatalog;
 using OrigoApiGateway.Services;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
