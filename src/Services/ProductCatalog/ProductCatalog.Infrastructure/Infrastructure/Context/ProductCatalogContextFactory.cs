@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 
 namespace ProductCatalog.Infrastructure.Infrastructure.Context
@@ -27,7 +28,7 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
             //optionsBuilder.LogTo(Console.WriteLine, new[] { RelationalEventId.CommandExecuted })
             //              .EnableSensitiveDataLogging();
 
-            optionsBuilder.LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information);
+            //optionsBuilder.LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information);
 
 
             return new ProductCatalogContext(optionsBuilder.Options);
