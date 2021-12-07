@@ -4,6 +4,7 @@
 		<UserSecretsId>099c2e7d-3673-475e-abf1-d0634c0e625e</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<ApplicationInsightsResourceId>/subscriptions/bb679c65-6e2a-4559-a247-c01745f3a0a9/resourceGroups/OrigoV2/providers/microsoft.insights/components/OrigoV2AppInsights</ApplicationInsightsResourceId>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />

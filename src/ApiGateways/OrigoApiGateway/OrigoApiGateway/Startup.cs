@@ -1,4 +1,7 @@
+using System.IO;
+using System;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading;
 using Dapr.Client;
@@ -166,10 +169,14 @@ namespace OrigoApiGateway
                 x.GetRequiredService<IOptions<ProductCatalogConfiguration>>()
             ));
 
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(options =>
             {
-                c.EnableAnnotations();
-                c.SwaggerDoc($"v{_apiVersion.MajorVersion}", new OpenApiInfo { Title = "Origo API Gateway", Version = $"v{_apiVersion.MajorVersion}" });
+                // Include XML documentation used for Swagger enrichment
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
+                options.EnableAnnotations();
+                options.SwaggerDoc($"v{_apiVersion.MajorVersion}", new OpenApiInfo { Title = "Origo API Gateway", Version = $"v{_apiVersion.MajorVersion}" });
                 var securityScheme = new OpenApiSecurityScheme
                 {
                     Name = "JWT Authentication",
@@ -184,8 +191,8 @@ namespace OrigoApiGateway
                         Type = ReferenceType.SecurityScheme
                     }
                 };
-                c.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                options.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {securityScheme, new string[] { }}
                 });
