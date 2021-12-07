@@ -24,7 +24,7 @@ services:
     project: src/ApiGateways/OrigoApiGateway/OrigoApiGateway/OrigoApiGateway.csproj
     bindings:
     - port: 58890
-  - name: productcatalogservice
+  - name: productcatalogservices
     project: src/Services/ProductCatalog/ProductCatalog.API/ProductCatalog.API.csproj
     bindings:
     - port: 58891
