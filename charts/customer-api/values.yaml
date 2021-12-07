@@ -1,4 +1,4 @@
-fullnameOverride: productcatalogservices
+fullnameOverride: customerservices
 namespace: develop
 
 service:
@@ -10,24 +10,24 @@ deployment:
   replicaCount: 2
   annotations:
     dapr.io/enabled: "true"
-    dapr.io/app-id: "productcatalogservices"
+    dapr.io/app-id: "customerservices"
     dapr.io/app-port: "80"
     dapr.io/log-level: "debug"
-    dapr.io/config: "appconfig-productcatalogservices"
+    dapr.io/config: "appconfig-customerservices"
 
   env: 
     "ASPNETCORE_ENVIRONMENT": "Staging"
     "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true"
 
   image:
-    repository: origov2acr.azurecr.io/productcatalogbackend
+    repository: origov2acr.azurecr.io/customersbackend
     tag: 3642
     pullPolicy: IfNotPresent
 
   secretVolumes:
     - secretVolume:
        name: "secrets"
-       secretName: "secret-productcatalog-appsettings"
+       secretName: "secret-customer-appsettings"
 
   volumeMounts:
     - volumeMount:
