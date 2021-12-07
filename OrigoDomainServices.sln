@@ -53,17 +53,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "src\Core\Common.csproj", "{7ED75F5E-1C74-48A9-9CC2-B1323181456A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{808AC5B1-E29E-471C-8433-C8D0E856CA70}"
-	ProjectSection(SolutionItems) = preProject
-		charts\customer-api\templates\_helpers.tpl = charts\customer-api\templates\_helpers.tpl
-		charts\customer-api\templates\collector-config.yaml = charts\customer-api\templates\collector-config.yaml
-		charts\customer-api\templates\deployment.yaml = charts\customer-api\templates\deployment.yaml
-		charts\customer-api\templates\ingress.yaml = charts\customer-api\templates\ingress.yaml
-		charts\customer-api\templates\NOTES.txt = charts\customer-api\templates\NOTES.txt
-		charts\customer-api\templates\secrets.yaml = charts\customer-api\templates\secrets.yaml
-		charts\customer-api\templates\service.yaml = charts\customer-api\templates\service.yaml
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{20512BEA-2958-4218-BAB3-95FCE7363A93}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssetServices.UnitTests", "src\Services\Asset\Tests\AssetServices.UnitTests\AssetServices.UnitTests.csproj", "{C1D1A4EA-EE80-41CD-B924-0E7359975292}"
@@ -135,6 +124,26 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Boilerplate", "Boilerplate"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.EntityFramework", "src\Boilerplate\Boilerplate.EntityFramework\Boilerplate.EntityFramework.csproj", "{83FB7F97-15FA-44E0-928B-FAAD0E0C5AE8}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.EntityFramework.UnitTest", "src\Boilerplate\Boilerplate.EntityFramework.UnitTest\Boilerplate.EntityFramework.UnitTest.csproj", "{5585CA98-0A63-414E-8C4E-76C8A3350C39}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "product-catalog", "product-catalog", "{3528BA8E-D416-474C-9511-AC63C2477767}"
+	ProjectSection(SolutionItems) = preProject
+		charts\product-catalog\.helmignore = charts\product-catalog\.helmignore
+		charts\product-catalog\Chart.yaml = charts\product-catalog\Chart.yaml
+		charts\product-catalog\values.yaml = charts\product-catalog\values.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{F57E5F59-F921-48F1-9A6B-2C0969E3C70A}"
+	ProjectSection(SolutionItems) = preProject
+		charts\product-catalog\templates\_helpers.tpl = charts\product-catalog\templates\_helpers.tpl
+		charts\product-catalog\templates\collector-config.yaml = charts\product-catalog\templates\collector-config.yaml
+		charts\product-catalog\templates\deployment.yaml = charts\product-catalog\templates\deployment.yaml
+		charts\product-catalog\templates\ingress.yaml = charts\product-catalog\templates\ingress.yaml
+		charts\product-catalog\templates\NOTES.txt = charts\product-catalog\templates\NOTES.txt
+		charts\product-catalog\templates\secrets.yaml = charts\product-catalog\templates\secrets.yaml
+		charts\product-catalog\templates\service.yaml = charts\product-catalog\templates\service.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -197,6 +206,10 @@ Global
 		{83FB7F97-15FA-44E0-928B-FAAD0E0C5AE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83FB7F97-15FA-44E0-928B-FAAD0E0C5AE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83FB7F97-15FA-44E0-928B-FAAD0E0C5AE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5585CA98-0A63-414E-8C4E-76C8A3350C39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5585CA98-0A63-414E-8C4E-76C8A3350C39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5585CA98-0A63-414E-8C4E-76C8A3350C39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5585CA98-0A63-414E-8C4E-76C8A3350C39}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -214,7 +227,6 @@ Global
 		{45217BC1-D812-44F3-AF44-732C89E8496D} = {8D5A9903-F29E-457C-A27C-199EF34B1933}
 		{569E8B6B-0521-491B-959F-8840E457A0E6} = {02F63936-07AB-4111-B54F-8FEB54FA4322}
 		{7ED75F5E-1C74-48A9-9CC2-B1323181456A} = {A3164982-49B9-42B2-998E-D5AADF463077}
-		{808AC5B1-E29E-471C-8433-C8D0E856CA70} = {45217BC1-D812-44F3-AF44-732C89E8496D}
 		{20512BEA-2958-4218-BAB3-95FCE7363A93} = {D811BE4C-599D-475A-9870-8C0BCA0ABECE}
 		{C1D1A4EA-EE80-41CD-B924-0E7359975292} = {20512BEA-2958-4218-BAB3-95FCE7363A93}
 		{5F61689A-C83C-40C1-88C4-567CB50363F9} = {0799563F-7C86-4EC3-B912-73E06AA4FAA6}
@@ -236,6 +248,9 @@ Global
 		{211F2CB3-6844-4A9F-A02E-7A1E4CB240AC} = {9D515A05-713E-4722-A511-AD593B4C609F}
 		{86D5BAC5-A9B3-42F1-8EC3-07B3EC3BEBC5} = {8DEC9CCC-E8BB-4482-B54D-6E480C19D4A6}
 		{83FB7F97-15FA-44E0-928B-FAAD0E0C5AE8} = {86D5BAC5-A9B3-42F1-8EC3-07B3EC3BEBC5}
+		{5585CA98-0A63-414E-8C4E-76C8A3350C39} = {86D5BAC5-A9B3-42F1-8EC3-07B3EC3BEBC5}
+		{3528BA8E-D416-474C-9511-AC63C2477767} = {8D5A9903-F29E-457C-A27C-199EF34B1933}
+		{F57E5F59-F921-48F1-9A6B-2C0969E3C70A} = {3528BA8E-D416-474C-9511-AC63C2477767}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DAEDEBBF-933A-4FFE-B734-B9E748AF86E1}
