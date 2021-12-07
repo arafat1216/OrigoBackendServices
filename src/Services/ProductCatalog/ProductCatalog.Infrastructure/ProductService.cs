@@ -63,16 +63,20 @@ namespace ProductCatalog.Infrastructure
         // TODO: This loop nightmare to validate/resolve the requirements may end up a bottleneck if we end up with larger datasets.
         // If so, this will likely need another revision to figure out a more optimal way of solving the checks!
         /// <summary>
-        ///     Checks a list of productIds, and tries to determine whether or not all requirements for products has been fulfilled.
+        ///     Checks a list of productIds, and tries to determine if all products is available for the partner, 
+        ///     and if they are available, whether or not all product-requirements has been fulfilled.
         /// </summary>
         /// <param name="newProductIds"> The list of product IDs that is checked against each other. </param>
+        /// <param name="partnerId"> The partner we are validating the requirements for. </param>
         /// <returns> Returns <see langword="true"/> if the configuration is valid, and <see langword="false"/> 
         ///     if any conflicting requirements was detected. </returns>
-        /// <exception cref="EntityNotFoundException"> Thrown of one or more of the provided product IDs does not exist. </exception>
-        public async Task<bool> ValidateProductListRequirements(IEnumerable<int> newProductIds)
+        /// <exception cref="EntityNotFoundException"> Thrown of one or more of the provided product IDs does not exist. 
+        ///     This may be because one or more products is not available for the given partner. </exception>
+        public async Task<bool> ValidateProductListRequirements(IEnumerable<int> newProductIds, Guid partnerId)
         {
             var newProductIdsAsHash = newProductIds.ToHashSet();
-            var newProducts = await _unitOfWork.Products.GetAsync(filter: e => newProductIdsAsHash.Contains(e.Id));
+            var newProducts = await _unitOfWork.Products.GetAsync(filter: e => newProductIdsAsHash.Contains(e.Id)
+                                                                               && e.PartnerId == partnerId);
 
             // Make sure all products actually exist by comparing the list counts.
             if (newProductIds.Count() != newProducts.Count())
@@ -132,7 +136,7 @@ namespace ProductCatalog.Infrastructure
 
         #region Product Types
 
-        public async Task<ProductTypeGet?> GetProductTypeAsync(int id)
+        public async Task<ProductTypeGet?> GetProductTypeAsync(int id, IEnumerable<string>? languages = null)
         {
             var result = await _unitOfWork.ProductTypes.GetByIdAsync(id);
 

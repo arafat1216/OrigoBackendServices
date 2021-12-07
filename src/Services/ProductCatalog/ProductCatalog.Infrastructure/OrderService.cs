@@ -65,11 +65,11 @@ namespace ProductCatalog.Infrastructure
         /// <returns></returns>
         /// <exception cref="RequirementNotFulfilledException"> Thrown when one or more of the product requirements failed to pass their checks.
         ///     This typically means we are missing a dependency product, or that an excluded product have been added. </exception>
-        /// <inheritdoc cref="ValidateRequirements(IEnumerable{int})"/>
-        public async Task UpdateOrderedProductsAsync(Guid organizationId, UpdateProductOrders updateProductOrders)
+        /// <exception cref="EntityNotFoundException"> <inheritdoc cref="ProductService.ValidateProductListRequirements(IEnumerable{int}, Guid)"/> </exception>
+        public async Task UpdateOrderedProductsAsync(Guid organizationId, Guid partnerId, UpdateProductOrders updateProductOrders)
         {
             // Make sure the configuration is valid before we do anything
-            var validConfiguration = await new ProductService().ValidateProductListRequirements(updateProductOrders.ProductIds);
+            var validConfiguration = await new ProductService().ValidateProductListRequirements(updateProductOrders.ProductIds, partnerId);
             if (!validConfiguration)
                 throw new RequirementNotFulfilledException("One or more requirement checks failed. Make sure no requirements are missing, and that no excluded items have been added.");
 

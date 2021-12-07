@@ -16,22 +16,6 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Repositories
         /// <exception cref="ArgumentNullException"> Thrown when all parameters are <see langword="null"/>. </exception>
         public async Task<IEnumerable<int>> GetProductIdsFromOrdersAsync(Expression<Func<Order, bool>>? filter = null)
         {
-            /*
-            if (organizationId is null && partnerId is null)
-                throw new ArgumentNullException("Both parameters are null. At least one is required.");
-
-            var query = QueryBuilder();
-
-            if (organizationId is not null)
-                query = query.Where(e => e.OrganizationId == organizationId);
-
-            if (partnerId is not null)
-                query = query.Where(e => e.Product!.PartnerId == partnerId);
-
-            return await query.Select(e => e.ProductId)
-                              .Distinct()
-                              .ToListAsync();
-            */
             if (filter is null)
             {
                 return await _context.Orders
@@ -55,23 +39,6 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Repositories
         /// <exception cref="ArgumentNullException"> Thrown when all parameters are <see langword="null"/>. </exception>
         public async Task<IEnumerable<Product>> GetProductsFromOrdersAsync(Expression<Func<Order, bool>>? filter = null)
         {
-            /*
-            if (organizationId is null && partnerId is null)
-                throw new ArgumentNullException("Both parameters are null. At least one is required.");
-
-            var query = QueryBuilder();
-
-            if (organizationId is not null)
-                query = query.Where(e => e.OrganizationId == organizationId);
-
-            if (partnerId is not null)
-                query = query.Where(e => e.Product!.PartnerId == partnerId);
-
-            return await query.Include(e => e.Product!.Translations)
-                                 .Select(e => e.Product!)
-                                 .Distinct()
-                                 .ToListAsync();
-            */
             if (filter is null)
             {
                 return await _context.Orders

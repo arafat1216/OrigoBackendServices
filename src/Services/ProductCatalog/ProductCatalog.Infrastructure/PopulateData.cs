@@ -1,11 +1,5 @@
-﻿using ProductCatalog.Infrastructure;
-using ProductCatalog.Infrastructure.Infrastructure.Context;
+﻿using ProductCatalog.Infrastructure.Infrastructure.Context;
 using ProductCatalog.Infrastructure.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ProductCatalog.Infrastructure.Models.Database;
 
 namespace ProductCatalog.Infrastructure
