@@ -168,6 +168,7 @@ namespace OrigoApiGateway
 
             services.AddSwaggerGen(c =>
             {
+                c.EnableAnnotations();
                 c.SwaggerDoc($"v{_apiVersion.MajorVersion}", new OpenApiInfo { Title = "Origo API Gateway", Version = $"v{_apiVersion.MajorVersion}" });
                 var securityScheme = new OpenApiSecurityScheme
                 {
