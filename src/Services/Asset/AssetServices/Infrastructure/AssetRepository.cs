@@ -1,4 +1,5 @@
 ﻿using AssetServices.Models;
+using Common.Enums;
 using Common.Extensions;
 using Common.Interfaces;
 using Common.Logging;
@@ -33,15 +34,15 @@ namespace AssetServices.Infrastructure
             return await _assetContext.Assets
                 .Include(a => a.AssetCategory)
                 .ThenInclude(c => c.Translations)
-                .Include(a => a.AssetLabels.Where(a => a.IsDeleted == false))
+                .Include(a => a.AssetLabels.Where(a => !a.IsDeleted))
                 .ThenInclude(a => a.Label)
                 .FirstOrDefaultAsync(a => a.ExternalId == asset.ExternalId);
         }
 
         public async Task<int> GetAssetsCount(Guid customerId)
         {
-            var assets =  _assetContext.Assets
-                .Where(a => a.CustomerId == customerId).Count();
+            var assets = _assetContext.Assets
+            .Where(a => a.CustomerId == customerId && a.Status == AssetStatus.Active).Count();
 
             return assets;
         }
@@ -54,7 +55,7 @@ namespace AssetServices.Infrastructure
                       .Include(a => a.AssetCategory)
                       .ThenInclude(c => c.Translations)
                       .Include(a => a.Imeis)
-                      .Include(a => a.AssetLabels.Where(a => a.IsDeleted == false))
+                      .Include(a => a.AssetLabels.Where(a => !a.IsDeleted))
                       .ThenInclude(a => a.Label)
                       .Where(a => a.CustomerId == customerId)
                       .PaginateAsync(page, limit, cancellationToken);
@@ -80,7 +81,7 @@ namespace AssetServices.Infrastructure
                     .Include(a => a.AssetCategory)
                     .ThenInclude(c => c.Translations)
                     .Include(a => a.Imeis)
-                    .Include(a => a.AssetLabels.Where(a => a.IsDeleted == false))
+                    .Include(a => a.AssetLabels.Where(a => !a.IsDeleted))
                     .ThenInclude(a => a.Label)
                     .Where(a => a.CustomerId == customerId && a.Brand.Contains(search))
                     .PaginateAsync(page, limit, cancellationToken);
@@ -107,9 +108,9 @@ namespace AssetServices.Infrastructure
         {
             if (assetGuidList.Any())
             {
-                var temp =  await _assetContext.HardwareAsset
+                var temp = await _assetContext.HardwareAsset
                     .Include(a => a.AssetCategory)
-                    .Include(b => b.AssetLabels.Where(c => (c.IsDeleted == false)))
+                    .Include(b => b.AssetLabels.Where(c => (!c.IsDeleted)))
                     .ThenInclude(b => b.Label)
                     .Where(a => (a.CustomerId == customerId && assetGuidList.Contains(a.ExternalId))).ToListAsync();
 
@@ -141,7 +142,7 @@ namespace AssetServices.Infrastructure
         public async Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId)
         {
             return await _assetContext.CustomerLabels
-                         .Where(a => a.CustomerId == customerId && a.IsDeleted == false).ToListAsync();
+                         .Where(a => a.CustomerId == customerId && !a.IsDeleted).ToListAsync();
         }
 
         public async Task<IList<CustomerLabel>> GetCustomerLabelsFromListAsync(IList<Guid> labelsGuid)
@@ -164,7 +165,7 @@ namespace AssetServices.Infrastructure
 
         public async Task<IList<CustomerLabel>> DeleteCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
         {
-            
+
             _assetContext.CustomerLabels.RemoveRange(labels);
             await SaveEntitiesAsync();
             return await GetCustomerLabelsForCustomerAsync(customerId);
@@ -172,7 +173,7 @@ namespace AssetServices.Infrastructure
 
         public async Task<IList<CustomerLabel>> UpdateCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
         {
-            foreach(CustomerLabel updateLabel in labels)
+            foreach (CustomerLabel updateLabel in labels)
             {
                 CustomerLabel original = await GetCustomerLabelAsync(updateLabel.ExternalId);
                 if (original != null)
@@ -187,7 +188,7 @@ namespace AssetServices.Infrastructure
 
         public async Task<AssetLabel> GetAssetLabelForAssetAsync(int assetId, int labelId)
         {
-            return  await _assetContext.AssetLabels.Where(a => a.AssetId == assetId && a.LabelId == labelId).FirstOrDefaultAsync();
+            return await _assetContext.AssetLabels.Where(a => a.AssetId == assetId && a.LabelId == labelId).FirstOrDefaultAsync();
         }
 
         public async Task AddAssetLabelsForAsset(IList<AssetLabel> labels)
@@ -209,7 +210,7 @@ namespace AssetServices.Infrastructure
                 .Include(a => a.AssetCategory)
                 .ThenInclude(c => c.Translations)
                 .Include(a => a.Imeis)
-                .Include(a => a.AssetLabels.Where(a => a.IsDeleted == false))
+                .Include(a => a.AssetLabels.Where(a => !a.IsDeleted))
                 .ThenInclude(a => a.Label)
                 .Where(a => a.CustomerId == customerId && a.AssetHolderId == userId)
                 .AsNoTracking()
@@ -225,11 +226,11 @@ namespace AssetServices.Infrastructure
 
         public async Task<Asset> GetAssetAsync(Guid customerId, Guid assetId)
         {
-            var temp =  await _assetContext.HardwareAsset
+            var temp = await _assetContext.HardwareAsset
                 .Include(a => a.AssetCategory)
                 .ThenInclude(c => c.Translations)
                 .Include(a => a.Imeis)
-                .Include(a => a.AssetLabels.Where(b => b.IsDeleted == false))
+                .Include(a => a.AssetLabels.Where(b => !b.IsDeleted))
                 .ThenInclude(a => a.Label)
                 .Where(a => a.CustomerId == customerId && a.ExternalId == assetId)
                 .FirstOrDefaultAsync();
