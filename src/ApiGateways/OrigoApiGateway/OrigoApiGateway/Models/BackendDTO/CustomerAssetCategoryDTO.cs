@@ -5,7 +5,7 @@ namespace OrigoApiGateway.Models.BackendDTO
 {
     public class CustomerAssetCategoryDTO
     {
-        public Guid AssetCategoryId { get; set; }
+        public int AssetCategoryId { get; set; }
 
         public Guid OrganizationId { get; set; }
 

@@ -8,7 +8,7 @@ namespace AssetServices.DomainEvents
 {
     public class AssignAssetToUserDomainEvent : BaseEvent
     {
-        public AssignAssetToUserDomainEvent(Asset asset, Guid? previousUserId):base(asset.AssetId)
+        public AssignAssetToUserDomainEvent(Asset asset, Guid? previousUserId):base(asset.ExternalId)
         {
             Asset = asset;
             PreviousUserId = previousUserId;

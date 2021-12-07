@@ -11,19 +11,16 @@ namespace OrigoApiGateway.Models
         {
             AssetCategoryId = assetCategory.AssetCategoryId;
             Name = assetCategory.Name;
-            UsesImei = assetCategory.UsesImei;
+            Description = assetCategory.Description;
+            Language = assetCategory.Language;
+            ParentId = assetCategory.ParentId;
             ChildAssetCategory = assetCategory.ChildAssetCategory?.Select(c => new OrigoAssetCategory(c)).ToList();
         }
-
-        /// <summary>
-        /// External id of the AssetCategory
-        /// </summary>
-        public Guid AssetCategoryId { get; set; }
-
+        public int AssetCategoryId { get; set; }
         public string Name { get; set; }
-
-        public bool UsesImei { get; set; }
-
+        public string Description { get; set; }
+        public string Language { get; set; }
+        public int? ParentId { get; set; }
         public IList<OrigoAssetCategory> ChildAssetCategory { get; set; }
     }
 }

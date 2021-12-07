@@ -11,7 +11,7 @@ namespace AssetServices.DomainEvents
         public Asset Asset { get; protected set; }
         public string PreviousModel { get; protected set; }
 
-        public ModelChangedDomainEvent(Asset asset, string previousModel) : base(asset.AssetId)
+        public ModelChangedDomainEvent(Asset asset, string previousModel) : base(asset.ExternalId)
         {
             Asset = asset;
             PreviousModel = previousModel;
@@ -19,7 +19,7 @@ namespace AssetServices.DomainEvents
 
         public override string EventMessage(string languageCode = "nb-NO")
         {
-            return $"Asset changed from {PreviousModel} to {Asset.Model}.";
+            return $"Asset changed from {PreviousModel} to {Asset.ProductName}.";
         }
     }
 }

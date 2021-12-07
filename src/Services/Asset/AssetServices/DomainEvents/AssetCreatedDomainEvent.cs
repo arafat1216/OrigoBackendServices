@@ -8,7 +8,7 @@ namespace AssetServices.DomainEvents
 {
     public class AssetCreatedDomainEvent : BaseEvent
     {
-        public AssetCreatedDomainEvent(Asset asset) : base(asset.AssetId)
+        public AssetCreatedDomainEvent(Asset asset) : base(asset.ExternalId)
         {
             Asset = asset;
         }

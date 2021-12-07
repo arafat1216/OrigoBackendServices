@@ -12,7 +12,7 @@ namespace AssetServices.DomainEvents
         public Asset Asset { get; protected set; }
         public AssetStatus PreviousStatus { get; protected set; }
 
-        public UpdateAssetStatusDomainEvent(Asset asset, AssetStatus previousStatus) : base(asset.AssetId)
+        public UpdateAssetStatusDomainEvent(Asset asset, AssetStatus previousStatus) : base(asset.ExternalId)
         {
             Asset = asset;
             PreviousStatus = previousStatus;

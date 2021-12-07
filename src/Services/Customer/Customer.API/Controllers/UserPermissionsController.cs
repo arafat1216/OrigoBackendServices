@@ -44,7 +44,7 @@ namespace Customer.API.Controllers
                 {
                     permissionNames.AddRange(roleGrantedPermission.Permissions.Select(p => p.Name));
                 }
-                returnedUserPermissions.Add(new UserPermissions(permissionNames, userPermission.AccessList.ToList(), userPermission.Role.Name));
+                returnedUserPermissions.Add(new UserPermissions(permissionNames, userPermission.AccessList.ToList(), userPermission.Role.Name, userPermission.User.UserId));
             }
             return Ok(returnedUserPermissions);
         }
@@ -73,7 +73,7 @@ namespace Customer.API.Controllers
                 {
                     permissionNames.AddRange(roleGrantedPermission.Permissions.Select(p => p.Name));
                 }
-                var userPermissionAdded = new UserPermissions(new ReadOnlyCollection<string>(permissionNames), new ReadOnlyCollection<Guid>(userPermission.AccessList), userPermission.Role.Name);
+                var userPermissionAdded = new UserPermissions(new ReadOnlyCollection<string>(permissionNames), new ReadOnlyCollection<Guid>(userPermission.AccessList), userPermission.Role.Name, userPermission.User.UserId);
                 return Ok(userPermissionAdded);
             }
             catch (UserNameDoesNotExistException userEx)
@@ -103,7 +103,7 @@ namespace Customer.API.Controllers
                 {
                     permissionNames.AddRange(roleGrantedPermission.Permissions.Select(p => p.Name));
                 }
-                var userPermissionAdded = new UserPermissions(new ReadOnlyCollection<string>(permissionNames), new ReadOnlyCollection<Guid>(userPermission.AccessList), userPermission.Role.Name);
+                var userPermissionAdded = new UserPermissions(new ReadOnlyCollection<string>(permissionNames), new ReadOnlyCollection<Guid>(userPermission.AccessList), userPermission.Role.Name, userPermission.User.UserId);
                 return Ok(userPermissionAdded);
             }
             catch (UserNameDoesNotExistException userEx)

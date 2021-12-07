@@ -11,7 +11,7 @@ namespace AssetServices.DomainEvents
         public Asset Asset { get; protected set; }
         public string PreviousBrand { get; protected set; }
 
-        public BrandChangedDomainEvent(Asset asset, string previousBrand) : base(asset.AssetId)
+        public BrandChangedDomainEvent(Asset asset, string previousBrand) : base(asset.ExternalId)
         {
             Asset = asset;
             PreviousBrand = previousBrand;
