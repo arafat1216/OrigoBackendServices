@@ -50,7 +50,7 @@ namespace AssetServices.UnitTests
             var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID);
 
             // Assert
-            Assert.Equal(3, assetsFromCompany);
+            Assert.Equal(1, assetsFromCompany);
         }
 
         [Fact]
