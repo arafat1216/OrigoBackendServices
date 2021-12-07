@@ -131,12 +131,13 @@ namespace AssetServices.Infrastructure
             }
             return null;
         }
+
         public async Task<IList<CustomerLabel>> AddCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
         {
             _assetContext.CustomerLabels.AddRange(labels);
             await SaveEntitiesAsync();
             return await _assetContext.CustomerLabels
-                         .Where(c => c.CustomerId == customerId).ToListAsync();
+                         .Where(c => c.CustomerId == customerId && !c.IsDeleted).ToListAsync();
         }
 
         public async Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId)

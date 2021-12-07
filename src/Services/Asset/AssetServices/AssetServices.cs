@@ -184,10 +184,7 @@ namespace AssetServices
             {
 
                 var assetLabels = await _assetRepository.GetAssetLabelsFromListAsync(assetLabelIds);
-                if (assetLabels == null || assetLabels.Count == 0)
-                {
-                    throw new ResourceNotFoundException("No labels were found using the given AssetIds. Did you enter the correct customer Id?", _logger);
-                }
+               
                 foreach (AssetLabel label in assetLabels)
                 {
                     label.SetActiveStatus(callerId, true);
