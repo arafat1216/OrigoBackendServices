@@ -5,7 +5,8 @@ using System.Text.Json;
 namespace ProductCatalog.API.Controllers
 {
     [ApiController]
-    [ApiVersion("1.0-RC1", Deprecated = false)]
+    //[ApiVersion("2.0-RC1", Deprecated = false)]
+    [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
     public class FeaturesController : ControllerBase
     {
