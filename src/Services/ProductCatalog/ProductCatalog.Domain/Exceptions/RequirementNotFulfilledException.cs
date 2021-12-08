@@ -1,4 +1,6 @@
-﻿namespace ProductCatalog.Domain.Exceptions
+﻿using System.Runtime.Serialization;
+
+namespace ProductCatalog.Domain.Exceptions
 {
     [Serializable]
     public class RequirementNotFulfilledException : Exception
@@ -9,9 +11,7 @@
 
         public RequirementNotFulfilledException(string message, Exception inner) : base(message, inner) { }
 
-        protected RequirementNotFulfilledException(
-          System.Runtime.Serialization.SerializationInfo info,
-          System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+        protected RequirementNotFulfilledException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 
 }

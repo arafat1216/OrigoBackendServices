@@ -2,8 +2,12 @@
 
 namespace ProductCatalog.Domain.Generic
 {
+    /// <inheritdoc/>
     public class TranslationWithId : Translation
     {
+        /// <summary>
+        ///     The ID for the translation.
+        /// </summary>
         [Required]
         public int Id { get; set; }
 

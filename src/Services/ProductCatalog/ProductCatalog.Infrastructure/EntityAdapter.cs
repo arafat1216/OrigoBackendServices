@@ -1,5 +1,6 @@
 ﻿using ProductCatalog.Domain.Generic;
 using ProductCatalog.Domain.Interfaces;
+using ProductCatalog.Domain.Orders;
 using ProductCatalog.Domain.Products;
 using ProductCatalog.Domain.ProductTypes;
 using ProductCatalog.Infrastructure.Models.Database;
@@ -89,10 +90,30 @@ namespace ProductCatalog.Infrastructure
             return results;
         }
 
+
+        public IEnumerable<OrderGet> ToDTO(IEnumerable<Order> input)
+        {
+            var results = new List<OrderGet>();
+
+            foreach (var item in input)
+            {
+                results.Add(ToDTO(item));
+            }
+
+            return results;
+        }
+
+
         public ProductGet ToDTO(Product input)
         {
             var requirement = new Requirement(input.ExcludesAsIds, input.RequiresAllAsIds, input.RequiresOneAsIds);
             return new ProductGet(input.Id, input.PartnerId, input.ProductTypeId, null, ToDTO(input.Translations), requirement);
+        }
+
+
+        public OrderGet ToDTO(Order input)
+        {
+            return new OrderGet(input.ExternalId, input.ProductId, input.OrganizationId);
         }
 
 

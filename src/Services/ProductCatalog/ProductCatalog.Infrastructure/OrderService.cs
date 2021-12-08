@@ -26,6 +26,23 @@ namespace ProductCatalog.Infrastructure
         }
 
 
+        public async Task<IEnumerable<OrderGet>> GetOrders(Guid? organizationId, Guid? partnerId)
+        {
+            IEnumerable<Order>? result;
+
+            if (organizationId is null && partnerId is null) // Both are null
+                result = await _unitOfWork.Orders.GetAsync();
+            else if (partnerId is null) // One is null, so the other one isn't
+                result = await _unitOfWork.Orders.GetAsync(e => e.OrganizationId == organizationId);
+            else if (organizationId is null) // One is null, so the other one isn't
+                result = await _unitOfWork.Orders.GetAsync(e => e.Product!.PartnerId == partnerId);
+            else
+                result = await _unitOfWork.Orders.GetAsync(e => e.OrganizationId == organizationId && e.Product!.PartnerId == partnerId);
+
+            return new EntityAdapter().ToDTO(result);
+        }
+
+
         // TODO: Rework later to support partners (so a partner that's adding or removing products can't access anything that's purchased through another partner)
         public async Task<IEnumerable<int>> GetOrderedProductIdsAsync(Guid? organizationId, Guid? partnerId)
         {

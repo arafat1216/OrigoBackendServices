@@ -5,6 +5,9 @@ namespace ProductCatalog.Domain.ProductTypes
 {
     public class ProductTypeUpdate : ProductTypePost
     {
+        /// <summary>
+        ///     The product-types' ID.
+        /// </summary>
         [Required]
         public int Id { get; }
 

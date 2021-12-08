@@ -6,22 +6,42 @@ using ProductCatalog.Domain.Products;
 using ProductCatalog.Domain.ProductTypes;
 using ProductCatalog.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Text.Json;
 
 namespace ProductCatalog.API.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [SwaggerTag("Actions for placing, changing and handling product-orders.")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public class OrdersController : ControllerBase
     {
+        private readonly JsonSerializerOptions options = new JsonSerializerOptions()
+        {
+#if DEBUG
+            WriteIndented = true,
+#endif
+
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
+
+
+        /// <summary>
+        ///     Retrieves all orders.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves a list of all orders.
+        /// </remarks>
+        /// <returns> A collection of all orders. </returns>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<ProductGet>>> GetAllOrders()
+        [ProducesResponseType(typeof(IEnumerable<OrderGet>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<OrderGet>>> GetOrdersAsync()
         {
             try
             {
-                var service = new OrderService();
-                var result = await service.GetOrderedProductsAsync(null, null);
+                var result = await new OrderService().GetOrders(null, null);
 
                 return Ok(result);
             }
@@ -32,14 +52,20 @@ namespace ProductCatalog.API.Controllers
         }
 
 
-        [HttpGet("partner/{partnerId}")]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<ProductGet>>> GetAllOrdersByPartner([FromRoute] Guid partnerId)
+        /// <summary>
+        ///     Lists all products that has been ordered.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves a list of all products that also has active orders. This includes the results for all partners and organizations.
+        /// </remarks>
+        /// <returns> A collection of all corresponding products. </returns>
+        [HttpGet("products")]
+        [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsAsync()
         {
             try
             {
-                var service = new OrderService();
-                var result = await service.GetOrderedProductsAsync(null, partnerId);
+                var result = await new OrderService().GetOrderedProductsAsync(null, null);
 
                 return Ok(result);
             }
@@ -50,18 +76,82 @@ namespace ProductCatalog.API.Controllers
         }
 
 
-        // TODO: Rework to support partner ID
+        /// <summary>
+        ///    Lists all products that has been ordered and belongs to a given partner.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves a list of all products that also has active orders, filtered on the provided <code><paramref name="partnerId"/></code>.
+        /// </remarks>
+        /// <param name="partnerId"> The partner to retrieve orders for. </param>
+        /// <returns> A collection of all corresponding products. </returns>
+        [HttpGet("products/partner/{partnerId}")]
+        [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByPartnerAsync([FromRoute] Guid partnerId)
+        {
+            try
+            {
+                var result = await new OrderService().GetOrderedProductsAsync(null, partnerId);
+
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+
+        // TODO: Add a version that supports partner ID
+        /// <summary>
+        ///     Lists all products that has been ordered by an organization.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves all products that is currently ordered by a specific organization. This is filtered based on 
+        ///     the provided <code><paramref name="organizationId"/></code>.
+        /// </remarks>
+        /// <param name="organizationId"> The organization to retrieve orders for. </param>
+        /// <returns> A collection of all corresponding products. </returns>
+        [HttpGet("products/organization/{organizationId}/")]
+        [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByOrganizationAsync([FromRoute] Guid organizationId)
+        {
+            try
+            {
+                var result = await new OrderService().GetOrderedProductsAsync(organizationId, null);
+
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+
+        /// <summary>
+        ///     Replaces the existing product-orders for an organization.
+        /// </summary>
+        /// <remarks>
+        ///     Replace all current product-orders for a given organization, and replaces them with a new configuration.
+        ///     
+        /// 
+        ///     This only affects products for the provided <code><paramref name="partnerId"/></code>. 
+        ///     Products that belongs to other partners is not affected.
+        /// </remarks>
+        /// <param name="partnerId"> The partner that is placing the order. </param>
+        /// <param name="organizationId"> The organization that is updated with a new product-configuration. </param>
+        /// <param name="updateProductOrders"> The object that contains the order-details. </param>
+        /// <response code="404"> One or more products does not exist, or is not available using the provided details. </response>
+        /// <response code="409"> One or more of the product requirements is not fulfilled. </response>
         [HttpPut("partner/{partnerId}/organization/{organizationId}")]
-        [SwaggerResponse(StatusCodes.Status204NoContent)]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "One or more products does not exist, or is not available using the provided details.")]
-        [SwaggerResponse(StatusCodes.Status409Conflict, "One or more of the product requirements is not fulfilled.")]
-        [SwaggerResponse(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> ReplaceOrderedProducts([FromRoute] Guid partnerId, [FromRoute] Guid organizationId, [FromBody] UpdateProductOrders updateProductOrders)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult> ReplaceOrderedProductsAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId, [FromBody] UpdateProductOrders updateProductOrders)
         {
             try
             {
-                var service = new OrderService();
-                await service.UpdateOrderedProductsAsync(organizationId, partnerId, updateProductOrders);
+                await new OrderService().UpdateOrderedProductsAsync(organizationId, partnerId, updateProductOrders);
 
                 return StatusCode(StatusCodes.Status204NoContent);
             }
@@ -79,23 +169,5 @@ namespace ProductCatalog.API.Controllers
             }
         }
 
-
-        // TODO: Add a duplicate version that supports partner ID
-        [HttpGet("organization/{organizationId}/")]
-        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProducts([FromRoute] Guid organizationId)
-        {
-            try
-            {
-                var service = new OrderService();
-                var result = await service.GetOrderedProductsAsync(organizationId, null);
-
-                return Ok(result);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
-
-        }
     }
 }

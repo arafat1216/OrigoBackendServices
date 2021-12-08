@@ -36,7 +36,7 @@ namespace ProductCatalog.Infrastructure
         /// </summary>
         /// <param name="partnerId"> The partner ID that should be filtered on, or <see langword="null"/> if no filters should be added. </param>
         /// <returns> A list of all matching products. </returns>
-        public async Task<IEnumerable<ProductGet>> GetAllProductsAsync(Guid? partnerId)
+        public async Task<IEnumerable<ProductGet>> GetAllAsync(Guid? partnerId)
         {
             IEnumerable<Product> results;
 
@@ -49,7 +49,7 @@ namespace ProductCatalog.Infrastructure
         }
 
 
-        public async Task<ProductGet?> GetProductAsync(int id)
+        public async Task<ProductGet?> GetByIdAsync(int id)
         {
             var result = await _unitOfWork.Products.GetByIdAsync(id);
 

@@ -10,12 +10,15 @@ namespace ProductCatalog.Domain.Orders
         /// <summary>
         ///     The customers new and complete list of product IDs. Any existing products that's not added in this list will be removed.
         /// </summary>
+        /// <example>
+        ///     [1,20,54,55,875]
+        /// </example>
         [Required]
         public IEnumerable<int> ProductIds { get; set; }
 
 
         /// <summary>
-        ///     The ID of the user that performed the update
+        ///     The ID of the user that performed the update.
         /// </summary>
         [Required]
         public Guid UpdatedBy { get; set; }
