@@ -31,6 +31,12 @@ namespace ProductCatalog.Domain.Generic
         public string? Description { get; set; }
 
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Translation"/> class.
+        /// </summary>
+        /// <param name="language"> The language for this translation. This must be in the <code>ISO 639-1</code> standard. </param>
+        /// <param name="name"> The translated name. </param>
+        /// <param name="description"> An optional translated description. </param>
         public Translation(string language, string name, string? description)
         {
             Language = language;

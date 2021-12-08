@@ -7,6 +7,9 @@
     /// <seealso cref="ITranslationResult"/>
     public interface ITranslatable<TEntity> where TEntity : ITranslationResult
     {
+        /// <summary>
+        ///     A collection that contains the translations for this entity-type.
+        /// </summary>
         ICollection<TEntity> Translations { get; set; }
     }
 }

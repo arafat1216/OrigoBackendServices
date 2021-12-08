@@ -24,6 +24,11 @@ namespace ProductCatalog.Domain.Orders
         public Guid UpdatedBy { get; set; }
 
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="UpdateProductOrders"/> class.
+        /// </summary>
+        /// <param name="productIds"> The customers new and complete list of product IDs. Any existing products that's not added in this list will be removed. </param>
+        /// <param name="updatedBy"> The ID of the user that performed the update. </param>
         public UpdateProductOrders(IEnumerable<int> productIds, Guid updatedBy)
         {
             ProductIds = productIds;

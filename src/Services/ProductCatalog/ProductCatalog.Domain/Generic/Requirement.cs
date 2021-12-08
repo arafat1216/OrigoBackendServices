@@ -30,6 +30,12 @@ namespace ProductCatalog.Domain.Generic
         public IEnumerable<int> RequiresOne { get; set; }
 
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Requirement"/> class.
+        /// </summary>
+        /// <param name="excludes"> A list of excluded items. </param>
+        /// <param name="requiresAll"> A list of items, where all entries are required. </param>
+        /// <param name="requiresOne"> A list of items, where at least one entry is required. </param>
         public Requirement(IEnumerable<int> excludes, IEnumerable<int> requiresAll, IEnumerable<int> requiresOne)
         {
             Excludes = excludes;

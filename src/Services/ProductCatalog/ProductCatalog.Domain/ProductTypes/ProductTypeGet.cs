@@ -22,12 +22,23 @@ namespace ProductCatalog.Domain.ProductTypes
         public IEnumerable<Translation> Translations { get; }
 
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ProductTypeGet"/> class.
+        /// </summary>
+        /// <param name="id"> The product-types' ID. </param>
+        /// <param name="translations"> A collection that contains the translations for this product-type. </param>
         public ProductTypeGet(int id, IEnumerable<Translation> translations)
         {
             Id = id;
             Translations = translations;
         }
 
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ProductTypeGet"/> class.
+        /// </summary>
+        /// <param name="id"> The product-types' ID. </param>
+        /// <param name="translations"> A collection that contains the translations for this product-type. </param>
         public ProductTypeGet(int id, IEnumerable<ITranslationResult> translations)
         {
             var results = new TypeConverter().ToTranslation(translations);
