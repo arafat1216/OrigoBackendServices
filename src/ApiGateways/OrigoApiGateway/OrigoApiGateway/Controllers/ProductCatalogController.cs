@@ -1,5 +1,4 @@
-﻿using Grpc.Core;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -8,22 +7,20 @@ using OrigoApiGateway.Models.ProductCatalog;
 using OrigoApiGateway.Services;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Controllers
 {
-
     [ApiController]
     [Authorize]
     [ApiVersion("1.0")]
     [Route("origoapi/v{version:apiVersion}/products")]
+    [SwaggerTag("Actions for handling features, permission sets and corresponding translations.")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status504GatewayTimeout)]
     public class ProductCatalogController : ControllerBase
     {
         private readonly ILogger<ProductCatalogController> _logger;
@@ -39,7 +36,19 @@ namespace OrigoApiGateway.Controllers
 
         #region Features
 
+        /// <summary>
+        ///     Resolves all permission-nodes for a given organization.
+        /// </summary>
+        /// <remarks>
+        ///     Resolves and returns all permission nodes for a given organization.
+        /// </remarks>
+        /// <param name="organizationId"> The organization you are retrieving permission-nodes for. </param>
+        /// <returns> A list containing all permission-nodes for the given organization. </returns>
         [HttpGet("organization/{organizationId}/permissions")]
+        [SwaggerOperation(
+            Tags = new[] { "Product Catalog: Features" }
+        )]
+        [ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<string>>> GetProductPermissionsByOrganization([FromRoute] Guid organizationId)
         {
             try
@@ -57,7 +66,19 @@ namespace OrigoApiGateway.Controllers
 
         #region Product Types
 
+
+        /// <summary>
+        ///     Retrieves all product-types.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves a list of all product-types.
+        /// </remarks>
+        /// <returns> A collection of all product-types. </returns>
         [HttpGet("types")]
+        [SwaggerOperation(
+            Tags = new[] { "Product Catalog: Product Types" }
+        )]
+        [ProducesResponseType(typeof(IEnumerable<ProductTypeGet>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ProductTypeGet>>> GetProductTypes()
         {
             try
@@ -75,8 +96,20 @@ namespace OrigoApiGateway.Controllers
 
         #region Products
 
+        /// <summary>
+        ///     Retrieves a product based on it's ID.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves a single product by it's <code><paramref name="productId"/></code>.
+        /// </remarks>
+        /// <param name="productId"> The ID for the product. </param>
+        /// <returns> If found, the corresponding product. </returns>
         [HttpGet("{productId}")]
-        public async Task<ActionResult> GetProductById([FromRoute] int productId)
+        [SwaggerOperation(
+            Tags = new[] { "Product Catalog: Products" }
+        )]
+        [ProducesResponseType(typeof(ProductGet), StatusCodes.Status200OK)]
+        public async Task<ActionResult<ProductGet>> GetProductById([FromRoute] int productId)
         {
             try
             {
@@ -89,7 +122,19 @@ namespace OrigoApiGateway.Controllers
         }
 
 
+        /// <summary>
+        ///     Retrieves all products for a partner.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves a list of all products in the system that belongs to a specific partner.
+        /// </remarks>
+        /// <param name="partnerId"> The ID for the partner. </param>
+        /// <returns> Returns a collection containing all products for the partner. </returns>
         [HttpGet("partner/{partnerId}")]
+        [SwaggerOperation(
+            Tags = new[] { "Product Catalog: Products" }
+        )]
+        [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ProductGet>>> GetProductsByPartner([FromRoute] Guid partnerId)
         {
             try
@@ -107,13 +152,29 @@ namespace OrigoApiGateway.Controllers
 
         #region Orders
 
-
+        /// <summary>
+        ///     Replaces the existing product-orders for an organization.
+        /// </summary>
+        /// <remarks>
+        ///     Replace all current product-orders for a given organization, and replaces them with a new configuration.
+        ///     
+        /// 
+        ///     This only affects products for the provided <code><paramref name="partnerId"/></code>. 
+        ///     Products that belongs to other partners is not affected.
+        /// </remarks>
+        /// <param name="partnerId"> The partner that is placing the order. </param>
+        /// <param name="organizationId"> The organization that is updated with a new product-configuration. </param>
+        /// <param name="productOrders"> The object that contains the order-details. </param>
+        /// <response code="404"> One or more products does not exist, or is not available using the provided details. </response>
+        /// <response code="409"> One or more of the product requirements is not fulfilled. </response>
         [HttpPut("partner/{partnerId}/organization/{organizationId}")]
-        [SwaggerResponse(StatusCodes.Status204NoContent)]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "One or more products does not exist, or is not available using the provided details.")]
-        [SwaggerResponse(StatusCodes.Status409Conflict, "One or more of the product requirements is not fulfilled.")]
-        [SwaggerResponse(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> GetCurrentProductOrdersByOrganization([FromRoute] Guid partnerId, [FromRoute] Guid organizationId, [FromBody] ProductOrdersPut productOrders)
+        [SwaggerOperation(
+            Tags = new[] { "Product Catalog: Orders" }
+        )]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult> ReplaceOrderedProductsAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId, [FromBody] ProductOrdersPut productOrders)
         {
             try
             {
@@ -123,7 +184,7 @@ namespace OrigoApiGateway.Controllers
                 // In the event that we cannon retrieve or parse the user's UUID, throw an exception and log the problem.
                 if (!parseSuccess)
                 {
-                    _logger.LogError($"{nameof(GetCurrentProductOrdersByOrganization)} failed as the actor's claim could not be retrieved and/or parsed to a valid user UUID. Unique location ID: 'F7E971AF-3FF2-4259-AF0F-171A5A534B8F'");
+                    _logger.LogError($"{nameof(ReplaceOrderedProductsAsync)} failed as the actor's claim could not be retrieved and/or parsed to a valid user UUID. Unique location ID: 'F7E971AF-3FF2-4259-AF0F-171A5A534B8F'");
                     return Problem(statusCode: 500);
                 }
 
@@ -138,11 +199,15 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-
         #endregion
 
 
-
+        /// <summary>
+        ///     Parses a provided <see cref="MicroserviceErrorResponseException"/>, and attempts to creates a corresponding <see cref="ActionResult"/> response.
+        ///     The response will contain the proper status-code and message.
+        /// </summary>
+        /// <param name="exception"> The exception that is used to generate the response. </param>
+        /// <returns> A <see cref="ActionResult"/> that corresponds to the exception information. </returns>
         private ActionResult ExceptionResponseBuilder(MicroserviceErrorResponseException exception)
         {
             // Try and parse the error code, and set it to 500 if it's null.
