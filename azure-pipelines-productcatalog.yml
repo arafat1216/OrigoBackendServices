@@ -10,7 +10,7 @@ trigger:
   paths:
     include:
     - azure-pipelines-productcatalog
-    - charts/product-catalog
+    - charts/product-catalog-api
     - src/Boilerplate/Boilerplate.EntityFramework
     - src/Boilerplate/Boilerplate.EntityFramework.UnitTest
     - src/Services/ProductCatalog
@@ -43,16 +43,17 @@ stages:
       vmImage: $(vmImageName)
     steps:
     - script: 'dotnet tool install --global dotnet-ef'
-      displayName: Install EF Core
+      displayName: Install EF Core Console Tools
 
     - script: 'dotnet ef migrations script --context ProductCatalogContext --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/ProductCatalog/ProductCatalog.Infrastructure/ProductCatalog.Infrastructure.csproj'
-      displayName: Create product-catalog migration scripts
+      displayName: Create DbContext (ProductCatalogContext) migrations
 
     - task: PublishPipelineArtifact@1
       displayName: 'Publish migrations'
       inputs:
         targetPath: '$(build.artifactstagingdirectory)/migrations'
         artifact: 'migrations'
+
   - job: Build
     displayName: Build
     pool:
@@ -100,7 +101,7 @@ stages:
         testResultsFiles: '**/*.trx'
       displayName: 'Publish test results'
 
-    - publish: charts/product-catalog
+    - publish: charts/product-catalog-api
       artifact: helmcharts
 
 - stage: Deploy
