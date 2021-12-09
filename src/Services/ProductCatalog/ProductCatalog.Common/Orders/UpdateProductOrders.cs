@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ProductCatalog.Domain.Orders
+namespace ProductCatalog.Common.Orders
 {
     /// <summary>
     ///     A domain entity that represents a new product-configuration order for an organization.

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ProductCatalog.Domain.Interfaces
+namespace ProductCatalog.Common.Interfaces
 {
     /// <summary>
     ///     Exposes a single translation results

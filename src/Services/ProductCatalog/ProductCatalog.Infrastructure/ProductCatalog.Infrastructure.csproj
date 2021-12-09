@@ -26,7 +26,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\Boilerplate\Boilerplate.EntityFramework\Boilerplate.EntityFramework.csproj" />
-		<ProjectReference Include="..\ProductCatalog.Domain\ProductCatalog.Domain.csproj" />
+		<ProjectReference Include="..\ProductCatalog.Common\ProductCatalog.Common.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿using ProductCatalog.Domain.Interfaces;
+﻿using ProductCatalog.Common.Interfaces;
 using ProductCatalog.Infrastructure.Models.Database;
 using System.ComponentModel.DataAnnotations;
 

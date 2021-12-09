@@ -1,4 +1,4 @@
-﻿namespace ProductCatalog.Domain.Orders
+﻿namespace ProductCatalog.Common.Orders
 {
     /// <summary>
     ///     Represents a single, existing order.

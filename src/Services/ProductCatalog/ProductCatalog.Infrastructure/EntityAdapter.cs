@@ -1,8 +1,8 @@
-﻿using ProductCatalog.Domain.Generic;
-using ProductCatalog.Domain.Interfaces;
-using ProductCatalog.Domain.Orders;
-using ProductCatalog.Domain.Products;
-using ProductCatalog.Domain.ProductTypes;
+﻿using ProductCatalog.Common.Generic;
+using ProductCatalog.Common.Interfaces;
+using ProductCatalog.Common.Orders;
+using ProductCatalog.Common.Products;
+using ProductCatalog.Common.ProductTypes;
 using ProductCatalog.Infrastructure.Models.Database;
 
 namespace ProductCatalog.Infrastructure

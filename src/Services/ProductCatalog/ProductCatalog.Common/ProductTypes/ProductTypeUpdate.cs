@@ -1,7 +1,7 @@
-﻿using ProductCatalog.Domain.Generic;
+﻿using ProductCatalog.Common.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace ProductCatalog.Domain.ProductTypes
+namespace ProductCatalog.Common.ProductTypes
 {
     public class ProductTypeUpdate : ProductTypePost
     {

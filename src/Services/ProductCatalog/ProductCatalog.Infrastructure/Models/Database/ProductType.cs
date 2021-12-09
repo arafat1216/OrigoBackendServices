@@ -1,4 +1,4 @@
-﻿using ProductCatalog.Domain.Interfaces;
+﻿using ProductCatalog.Common.Interfaces;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ProductCatalog.Infrastructure.Models.Database

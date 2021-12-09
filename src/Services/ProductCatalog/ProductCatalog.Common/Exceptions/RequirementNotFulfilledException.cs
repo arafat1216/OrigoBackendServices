@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace ProductCatalog.Domain.Exceptions
+namespace ProductCatalog.Common.Exceptions
 {
     /// <summary>
     ///     Represents errors that occur because if unfulfilled requirements.

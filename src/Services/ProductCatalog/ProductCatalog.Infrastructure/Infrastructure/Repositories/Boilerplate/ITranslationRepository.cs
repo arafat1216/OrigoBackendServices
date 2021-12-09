@@ -1,5 +1,5 @@
 ﻿using Boilerplate.EntityFramework.Generics.Repositories;
-using ProductCatalog.Domain.Interfaces;
+using ProductCatalog.Common.Interfaces;
 using System.Linq.Expressions;
 
 namespace ProductCatalog.Infrastructure.Infrastructure.Repositories.Boilerplate

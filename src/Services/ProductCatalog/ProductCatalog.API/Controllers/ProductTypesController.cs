@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ProductCatalog.Domain.Generic;
-using ProductCatalog.Domain.ProductTypes;
+using ProductCatalog.Common.Generic;
+using ProductCatalog.Common.ProductTypes;
 using ProductCatalog.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json;

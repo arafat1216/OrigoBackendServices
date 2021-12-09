@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace ProductCatalog.Domain.Exceptions
+namespace ProductCatalog.Common.Exceptions
 {
     /// <summary>
     ///     Represents an error that occurs when a entity is not found.

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ProductCatalog.Domain.Generic
+namespace ProductCatalog.Common.Generic
 {
     /// <summary>
     ///     Defines other entries that must - or can't - be combined with this one.

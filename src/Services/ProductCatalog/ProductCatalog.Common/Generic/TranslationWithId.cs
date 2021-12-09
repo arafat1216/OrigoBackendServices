@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ProductCatalog.Domain.Generic
+namespace ProductCatalog.Common.Generic
 {
     /// <inheritdoc/>
     public class TranslationWithId : Translation

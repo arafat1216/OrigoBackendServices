@@ -1,10 +1,10 @@
-﻿using ProductCatalog.Domain.Generic;
-using ProductCatalog.Domain.Interfaces;
-using ProductCatalog.Domain.ProductTypes;
+﻿using ProductCatalog.Common.Generic;
+using ProductCatalog.Common.Interfaces;
+using ProductCatalog.Common.ProductTypes;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace ProductCatalog.Domain.Products
+namespace ProductCatalog.Common.Products
 {
     /// <summary>
     ///     Represents a single, existing product.

@@ -1,4 +1,4 @@
-﻿using ProductCatalog.Domain.Interfaces;
+﻿using ProductCatalog.Common.Interfaces;
 
 namespace ProductCatalog.Infrastructure.Models.Database
 {

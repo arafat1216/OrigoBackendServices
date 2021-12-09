@@ -1,7 +1,7 @@
-﻿using ProductCatalog.Domain.Generic;
-using ProductCatalog.Domain.Interfaces;
+﻿using ProductCatalog.Common.Generic;
+using ProductCatalog.Common.Interfaces;
 
-namespace ProductCatalog.Domain
+namespace ProductCatalog.Common
 {
     internal class TypeConverter
     {

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
-using ProductCatalog.Domain.Exceptions;
-using ProductCatalog.Domain.Generic;
-using ProductCatalog.Domain.Products;
-using ProductCatalog.Domain.ProductTypes;
+using ProductCatalog.Common.Exceptions;
+using ProductCatalog.Common.Generic;
+using ProductCatalog.Common.Products;
+using ProductCatalog.Common.ProductTypes;
 using ProductCatalog.Infrastructure.Infrastructure;
 using ProductCatalog.Infrastructure.Infrastructure.Context;
 using ProductCatalog.Infrastructure.Models.Database;

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Options;
 using ProductCatalog.API;
 using ProductCatalog.API.Infrastructure;
-using ProductCatalog.Domain.Generic;
+using ProductCatalog.Common.Generic;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ProductCatalog.Domain.Exceptions;
-using ProductCatalog.Domain.Orders;
-using ProductCatalog.Domain.Products;
-using ProductCatalog.Domain.ProductTypes;
+using ProductCatalog.Common.Exceptions;
+using ProductCatalog.Common.Orders;
+using ProductCatalog.Common.Products;
+using ProductCatalog.Common.ProductTypes;
 using ProductCatalog.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json;

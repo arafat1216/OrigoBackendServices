@@ -19,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\ProductCatalog.Domain\ProductCatalog.Domain.csproj" />
+		<ProjectReference Include="..\ProductCatalog.Common\ProductCatalog.Common.csproj" />
 		<ProjectReference Include="..\ProductCatalog.Infrastructure\ProductCatalog.Infrastructure.csproj" />
 	</ItemGroup>
 

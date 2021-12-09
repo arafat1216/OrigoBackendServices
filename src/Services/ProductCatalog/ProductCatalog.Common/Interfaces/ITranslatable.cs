@@ -1,4 +1,4 @@
-﻿namespace ProductCatalog.Domain.Interfaces
+﻿namespace ProductCatalog.Common.Interfaces
 {
     /// <summary>
     ///     Represents a object that contains a list of translations.

@@ -1,7 +1,7 @@
-﻿using ProductCatalog.Domain.Interfaces;
+﻿using ProductCatalog.Common.Interfaces;
 using System.ComponentModel.DataAnnotations;
 
-namespace ProductCatalog.Domain.Generic
+namespace ProductCatalog.Common.Generic
 {
     /// <summary>
     ///     Represents a single translation entry.

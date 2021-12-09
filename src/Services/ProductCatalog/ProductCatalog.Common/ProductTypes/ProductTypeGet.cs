@@ -1,8 +1,8 @@
-﻿using ProductCatalog.Domain.Generic;
-using ProductCatalog.Domain.Interfaces;
+﻿using ProductCatalog.Common.Generic;
+using ProductCatalog.Common.Interfaces;
 using System.ComponentModel.DataAnnotations;
 
-namespace ProductCatalog.Domain.ProductTypes
+namespace ProductCatalog.Common.ProductTypes
 {
     /// <summary>
     ///     Represents a single, existing product-type.

@@ -1,6 +1,6 @@
 ﻿using Boilerplate.EntityFramework.Generics.Repositories;
 using Microsoft.EntityFrameworkCore;
-using ProductCatalog.Domain.Interfaces;
+using ProductCatalog.Common.Interfaces;
 using ProductCatalog.Infrastructure.Models.Database.Interfaces;
 using System.Linq.Expressions;
 
