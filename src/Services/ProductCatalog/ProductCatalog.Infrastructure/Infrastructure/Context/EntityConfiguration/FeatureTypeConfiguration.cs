@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
-using ProductCatalog.Infrastructure.Models.Database;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using ProductCatalog.Infrastructure.Models.Database;
 
 namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfiguration
 {

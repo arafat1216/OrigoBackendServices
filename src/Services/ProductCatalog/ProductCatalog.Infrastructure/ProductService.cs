@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using ProductCatalog.Common.Exceptions;
+﻿using ProductCatalog.Common.Exceptions;
 using ProductCatalog.Common.Generic;
 using ProductCatalog.Common.Products;
 using ProductCatalog.Common.ProductTypes;
 using ProductCatalog.Infrastructure.Infrastructure;
 using ProductCatalog.Infrastructure.Infrastructure.Context;
 using ProductCatalog.Infrastructure.Models.Database;
-using System.Linq.Expressions;
 
 namespace ProductCatalog.Infrastructure
 {

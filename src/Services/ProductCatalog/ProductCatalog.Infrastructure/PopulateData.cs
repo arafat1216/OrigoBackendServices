@@ -1,5 +1,5 @@
-﻿using ProductCatalog.Infrastructure.Infrastructure.Context;
-using ProductCatalog.Infrastructure.Infrastructure;
+﻿using ProductCatalog.Infrastructure.Infrastructure;
+using ProductCatalog.Infrastructure.Infrastructure.Context;
 using ProductCatalog.Infrastructure.Models.Database;
 
 namespace ProductCatalog.Infrastructure

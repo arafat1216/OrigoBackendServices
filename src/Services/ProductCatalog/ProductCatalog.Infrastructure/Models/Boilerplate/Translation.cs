@@ -16,7 +16,7 @@ namespace ProductCatalog.Infrastructure.Models.Boilerplate
         [MaxLength(128)]
         public string Name { get; set; }
 
-        public string? Description { get ; set ; }
+        public string? Description { get; set; }
 
 
         [Obsolete("This is a reserved constructor that should only be utilized by the automated Entity Framework injections! Make sure you are using the correct \"base()\" constructor.", false)]

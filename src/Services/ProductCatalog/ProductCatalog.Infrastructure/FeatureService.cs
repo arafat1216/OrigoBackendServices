@@ -1,8 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ProductCatalog.Common.Exceptions;
+﻿using ProductCatalog.Common.Exceptions;
 using ProductCatalog.Infrastructure.Infrastructure;
 using ProductCatalog.Infrastructure.Infrastructure.Context;
-using ProductCatalog.Infrastructure.Models.Database;
 
 namespace ProductCatalog.Infrastructure
 {

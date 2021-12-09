@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ProductCatalog.Infrastructure.Models.Database.Joins;
 
 namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfiguration

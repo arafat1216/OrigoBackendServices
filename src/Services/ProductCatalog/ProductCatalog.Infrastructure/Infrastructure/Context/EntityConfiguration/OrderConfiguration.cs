@@ -14,7 +14,7 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfigurati
             builder.Property(e => e.ExternalId)
                    .ValueGeneratedOnAdd()
                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-            
+
             builder.HasAlternateKey(e => e.ExternalId);
             builder.HasIndex(e => e.OrganizationId);
 

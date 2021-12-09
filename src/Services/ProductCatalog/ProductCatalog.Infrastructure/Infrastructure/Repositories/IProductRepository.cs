@@ -1,6 +1,5 @@
-﻿using ProductCatalog.Infrastructure.Models.Database;
-using ProductCatalog.Infrastructure.Infrastructure.Spesification;
-using ProductCatalog.Infrastructure.Infrastructure.Repositories.Boilerplate;
+﻿using ProductCatalog.Infrastructure.Infrastructure.Repositories.Boilerplate;
+using ProductCatalog.Infrastructure.Models.Database;
 
 namespace ProductCatalog.Infrastructure.Infrastructure.Repositories
 {

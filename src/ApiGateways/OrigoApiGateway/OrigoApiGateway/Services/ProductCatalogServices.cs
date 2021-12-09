@@ -1,16 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OrigoApiGateway.Models.BackendDTO;
-using System.Collections.Generic;
+using OrigoApiGateway.Exceptions;
+using OrigoApiGateway.Models.ProductCatalog;
 using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using OrigoApiGateway.Exceptions;
-using OrigoApiGateway.Models.ProductCatalog;
-using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using Microsoft.AspNetCore.Http;
 
 namespace OrigoApiGateway.Services
 {
@@ -156,7 +154,7 @@ namespace OrigoApiGateway.Services
                     return result;
                 }
             }
-            catch(MicroserviceErrorResponseException)
+            catch (MicroserviceErrorResponseException)
             {
                 // It's expected since we just threw it. Duhh.. Re-throw it as intended, so we can intercept it in the controller.
                 throw;

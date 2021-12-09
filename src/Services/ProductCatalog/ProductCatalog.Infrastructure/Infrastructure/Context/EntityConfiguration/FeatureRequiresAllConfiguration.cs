@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using FeatureCatalog.Infrastructure.Models.Database.Joins;
 using Microsoft.EntityFrameworkCore;
-using FeatureCatalog.Infrastructure.Models.Database.Joins;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfiguration
 {

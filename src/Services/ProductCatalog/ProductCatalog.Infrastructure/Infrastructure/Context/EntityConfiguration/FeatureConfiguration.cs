@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProductCatalog.Infrastructure.Models.Database;
 
 namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfiguration
@@ -34,7 +33,7 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfigurati
                 builder.HasKey(e => new { e.FeatureId, e.Language });
 
                 builder.Property(e => e.Language)
-                       .HasMaxLength(2)       
+                       .HasMaxLength(2)
                        .IsFixedLength()
                        .IsUnicode(false)
                        .Metadata.SetValueComparer(comparer);

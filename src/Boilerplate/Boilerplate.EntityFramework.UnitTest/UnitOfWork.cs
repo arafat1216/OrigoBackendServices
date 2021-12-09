@@ -1,5 +1,4 @@
-﻿using Boilerplate.EntityFramework.Generics.Repositories;
-using Boilerplate.EntityFramework.Generics.UnitOfWork;
+﻿using Boilerplate.EntityFramework.Generics.UnitOfWork;
 
 namespace Boilerplate.EntityFramework.UnitTest
 {

@@ -1,9 +1,3 @@
-using System.IO;
-using System;
-using System.Linq;
-using System.Reflection;
-using System.Security.Claims;
-using System.Threading;
 using Dapr.Client;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication;
@@ -25,6 +19,12 @@ using Okta.AspNetCore;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Helpers;
 using OrigoApiGateway.Services;
+using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Security.Claims;
+using System.Threading;
 
 namespace OrigoApiGateway
 {
@@ -162,7 +162,7 @@ namespace OrigoApiGateway
                 DaprClient.CreateInvokeHttpClient("customerservices"),
                 x.GetRequiredService<IOptions<DepartmentConfiguration>>()
             ));
-            
+
             services.AddSingleton<IProductCatalogServices>(x => new ProductCatalogServices(
                 x.GetRequiredService<ILogger<ProductCatalogServices>>(),
                 DaprClient.CreateInvokeHttpClient("productcatalogservices"),

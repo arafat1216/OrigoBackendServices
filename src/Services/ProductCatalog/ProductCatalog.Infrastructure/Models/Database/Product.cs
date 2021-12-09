@@ -1,6 +1,4 @@
 ﻿using ProductCatalog.Common.Interfaces;
-using ProductCatalog.Infrastructure.Models.Boilerplate;
-using ProductCatalog.Infrastructure.Models.Database.Interfaces;
 using ProductCatalog.Infrastructure.Models.Database.Joins;
 using System.ComponentModel.DataAnnotations.Schema;
 

@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ProductCatalog.Common.Generic;
 using ProductCatalog.Common.Products;
-using ProductCatalog.Common.ProductTypes;
 using ProductCatalog.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Net;
 using System.Text.Json;
 
 namespace ProductCatalog.API.Controllers

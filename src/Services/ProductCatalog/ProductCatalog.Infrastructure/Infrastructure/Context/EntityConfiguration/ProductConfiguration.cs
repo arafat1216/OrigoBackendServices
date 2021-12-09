@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ProductCatalog.Infrastructure.Models.Database;
-using ProductCatalog.Infrastructure.Models.Boilerplate;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using ProductCatalog.Infrastructure.Models.Database.Joins;
 
 namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfiguration

@@ -1,5 +1,4 @@
 ﻿using ProductCatalog.Infrastructure.Models.Database.Interfaces;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProductCatalog.Infrastructure.Models.Database
 {
