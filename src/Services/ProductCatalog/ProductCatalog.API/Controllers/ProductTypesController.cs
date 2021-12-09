@@ -145,13 +145,19 @@ namespace ProductCatalog.API.Controllers
         ///     Insert test-data to the database.
         /// </summary>
         /// <remarks>
+        ///     THIS IS A POTENTIALLY DANGEROUS OPERATION ONLY INTENDED FOR USE IN DEVELOPMENT ENVIRONMENTS!
+        ///     
+        /// 
         ///     Populates the database with various dummy data.
         /// </remarks>
         /// <returns></returns>
         [HttpPatch("/populate/testdata")]
+        [SwaggerOperation(
+            Tags = new[] { "Data Population" }
+        )]
         public async Task AddDummyDataAsync()
         {
-            await new PopulateData().Populate();
+            await new PopulateData().PopulateDummyData();
         }
 #endif
     }

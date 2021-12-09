@@ -18,7 +18,7 @@ namespace ProductCatalog.Infrastructure
 
 
 #pragma warning disable CS0618 // Type or member is obsolete
-        public async Task Populate()
+        public async Task PopulateDummyData()
         {
             Guid guid1 = Guid.Empty;
             Guid guid2 = Guid.NewGuid();

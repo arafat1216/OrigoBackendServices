@@ -52,6 +52,9 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
             modelBuilder.ApplyConfiguration(new FeatureExcludesConfiguration());
             modelBuilder.ApplyConfiguration(new FeatureRequiresOneConfiguration());
             modelBuilder.ApplyConfiguration(new FeatureRequiresAllConfiguration());
+
+            // Seed production data
+            SeedProductionData(modelBuilder);
         }
     }
 }

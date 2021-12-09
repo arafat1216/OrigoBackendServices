@@ -8,7 +8,7 @@ namespace ProductCatalog.Infrastructure.Models.Database
     internal class Feature : Entity, ITranslatable<FeatureTranslation>
     {
         // EF DB Columns
-        public int Id { get; private set; }
+        public int Id { get; init; }
         public int FeatureTypeId { get; set; }
         public string AccessControlPermissionNode { get; set; }
 

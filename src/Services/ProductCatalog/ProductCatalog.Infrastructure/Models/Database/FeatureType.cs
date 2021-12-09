@@ -5,7 +5,7 @@ namespace ProductCatalog.Infrastructure.Models.Database
     internal class FeatureType : Entity, ITranslatable<FeatureTypeTranslation>
     {
         // EF DB Columns
-        public int Id { get; private set; }
+        public int Id { get; init; }
 
         // EF Owned Tables
         public virtual ICollection<FeatureTypeTranslation> Translations { get; set; } = new HashSet<FeatureTypeTranslation>();
