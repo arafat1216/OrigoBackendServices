@@ -62,6 +62,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		azure-pipelines-assets.yml = azure-pipelines-assets.yml
 		azure-pipelines-customers.yml = azure-pipelines-customers.yml
 		azure-pipelines-origoapigateway.yml = azure-pipelines-origoapigateway.yml
+		azure-pipelines-productcatalog.yml = azure-pipelines-productcatalog.yml
 		tye.yaml = tye.yaml
 	EndProjectSection
 EndProject
@@ -126,22 +127,22 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.EntityFramework
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.EntityFramework.UnitTest", "src\Boilerplate\Boilerplate.EntityFramework.UnitTest\Boilerplate.EntityFramework.UnitTest.csproj", "{5585CA98-0A63-414E-8C4E-76C8A3350C39}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "product-catalog", "product-catalog", "{3528BA8E-D416-474C-9511-AC63C2477767}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "product-catalog-api", "product-catalog-api", "{75574DA2-242D-4E80-A691-F588AC483972}"
 	ProjectSection(SolutionItems) = preProject
-		charts\product-catalog\.helmignore = charts\product-catalog\.helmignore
-		charts\product-catalog\Chart.yaml = charts\product-catalog\Chart.yaml
-		charts\product-catalog\values.yaml = charts\product-catalog\values.yaml
+		charts\product-catalog-api\.helmignore = charts\product-catalog-api\.helmignore
+		charts\product-catalog-api\Chart.yaml = charts\product-catalog-api\Chart.yaml
+		charts\product-catalog-api\values.yaml = charts\product-catalog-api\values.yaml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{F57E5F59-F921-48F1-9A6B-2C0969E3C70A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{C1E2A43E-79A8-402F-8B7B-BA220EF2A58C}"
 	ProjectSection(SolutionItems) = preProject
-		charts\product-catalog\templates\_helpers.tpl = charts\product-catalog\templates\_helpers.tpl
-		charts\product-catalog\templates\collector-config.yaml = charts\product-catalog\templates\collector-config.yaml
-		charts\product-catalog\templates\deployment.yaml = charts\product-catalog\templates\deployment.yaml
-		charts\product-catalog\templates\ingress.yaml = charts\product-catalog\templates\ingress.yaml
-		charts\product-catalog\templates\NOTES.txt = charts\product-catalog\templates\NOTES.txt
-		charts\product-catalog\templates\secrets.yaml = charts\product-catalog\templates\secrets.yaml
-		charts\product-catalog\templates\service.yaml = charts\product-catalog\templates\service.yaml
+		charts\product-catalog-api\templates\_helpers.tpl = charts\product-catalog-api\templates\_helpers.tpl
+		charts\product-catalog-api\templates\collector-config.yaml = charts\product-catalog-api\templates\collector-config.yaml
+		charts\product-catalog-api\templates\deployment.yaml = charts\product-catalog-api\templates\deployment.yaml
+		charts\product-catalog-api\templates\ingress.yaml = charts\product-catalog-api\templates\ingress.yaml
+		charts\product-catalog-api\templates\NOTES.txt = charts\product-catalog-api\templates\NOTES.txt
+		charts\product-catalog-api\templates\secrets.yaml = charts\product-catalog-api\templates\secrets.yaml
+		charts\product-catalog-api\templates\service.yaml = charts\product-catalog-api\templates\service.yaml
 	EndProjectSection
 EndProject
 Global
@@ -249,8 +250,8 @@ Global
 		{86D5BAC5-A9B3-42F1-8EC3-07B3EC3BEBC5} = {8DEC9CCC-E8BB-4482-B54D-6E480C19D4A6}
 		{83FB7F97-15FA-44E0-928B-FAAD0E0C5AE8} = {86D5BAC5-A9B3-42F1-8EC3-07B3EC3BEBC5}
 		{5585CA98-0A63-414E-8C4E-76C8A3350C39} = {86D5BAC5-A9B3-42F1-8EC3-07B3EC3BEBC5}
-		{3528BA8E-D416-474C-9511-AC63C2477767} = {8D5A9903-F29E-457C-A27C-199EF34B1933}
-		{F57E5F59-F921-48F1-9A6B-2C0969E3C70A} = {3528BA8E-D416-474C-9511-AC63C2477767}
+		{75574DA2-242D-4E80-A691-F588AC483972} = {8D5A9903-F29E-457C-A27C-199EF34B1933}
+		{C1E2A43E-79A8-402F-8B7B-BA220EF2A58C} = {75574DA2-242D-4E80-A691-F588AC483972}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DAEDEBBF-933A-4FFE-B734-B9E748AF86E1}

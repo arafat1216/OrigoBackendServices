@@ -1,0 +1,224 @@
+# Deploy to Azure Kubernetes Service
+# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+  branches:
+    include:
+    - master
+    - develop
+  paths:
+    include:
+    - azure-pipelines-productcatalog
+    - charts/product-catalog
+    - src/Boilerplate/Boilerplate.EntityFramework
+    - src/Boilerplate/Boilerplate.EntityFramework.UnitTest
+    - src/Services/ProductCatalog
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '09ee8083-2a55-4731-876c-d6df7059bd8f'
+  imageRepository: 'productcatalog'
+  containerRegistry: 'origov2acr.azurecr.io'
+  dockerfilePath: 'src/Services/ProductCatalog/Dockerfile'
+  tag: '$(Build.BuildId)'
+  namespace: develop # TODO: set by condition based on branch
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+  
+  # Name of the new namespace being created to deploy the PR changes.
+  k8sNamespaceForPR: 'review-app-$(System.PullRequest.PullRequestId)'
+
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: MigrationScripts
+    displayName: Migration scripts
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - script: 'dotnet tool install --global dotnet-ef'
+      displayName: Install EF Core
+
+    - script: 'dotnet ef migrations script --context ProductCatalogContext --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/ProductCatalog/ProductCatalog.Infrastructure/ProductCatalog.Infrastructure.csproj'
+      displayName: Create product-catalog migration scripts
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish migrations'
+      inputs:
+        targetPath: '$(build.artifactstagingdirectory)/migrations'
+        artifact: 'migrations'
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2 # Can't use buildAndPush since arguments are needed
+      displayName: Build image
+      inputs:
+        command: build
+        buildContext: '$(Build.Repository.LocalPath)'
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        arguments: --build-arg SONAR_TOKEN=$(SonarToken) --build-arg BUILD_ID=$(Build.BuildId)
+        tags: |
+          $(tag)
+    - task: Docker@2
+      displayName: Push an image to container registry
+      inputs:
+        command: push
+        buildContext: '$(Build.Repository.LocalPath)'
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+
+    - pwsh: |
+        $id=docker images --filter "label=test=$(Build.BuildId)" -q | Select-Object -First 1
+        docker create --name testcontainer $id
+        docker cp testcontainer:/TestResults $(Build.SourcesDirectory)/TestResults
+        docker cp testcontainer:/CodeCoverage $(Build.SourcesDirectory)/CodeCoverage
+        docker rm testcontainer
+      displayName: 'Copy test results' 
+
+    - task: PublishCodeCoverageResults@1
+      inputs:
+        codeCoverageTool: Cobertura
+        summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/coverage.cobertura.xml'
+      displayName: 'Publish code coverage'
+
+    - task: PublishTestResults@2
+      inputs:
+        testRunner: VSTest
+        testResultsFiles: '**/*.trx'
+      displayName: 'Publish test results'
+
+    - publish: charts/product-catalog
+      artifact: helmcharts
+
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: Build
+  variables:
+    - group: ProductCatalogLibrary
+  jobs:
+  - deployment: MigrateDatabase
+    environment: 'BackendServices.develop'
+    displayName: Migrate database
+    variables:
+      namespace: develop
+    pool:
+      vmImage: windows-latest
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: Download migration scripts
+            inputs:
+              artifactName: 'migrations'
+              downloadPath: '$(System.ArtifactsDirectory)/migrations'
+          - task: SqlAzureDacpacDeployment@1
+            displayName: Run product-catalog sql migrations
+            inputs:
+              azureConnectionType: ConnectedServiceNameARM
+              azureSubscription: OrigoV2ServiceConnection
+              authenticationType: connectionString
+              connectionString: $(ProductCatalogDbConnection)
+              deployType: SqlTask
+              sqlFile: $(System.ArtifactsDirectory)/migrations/migrations.sql
+
+  - deployment: Deploy
+    condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
+    displayName: Deploy
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'BackendServices.develop'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+
+          - task: HelmInstaller@0
+            displayName: Install Helm
+            inputs:
+              helmVersion: 'latest'
+              installKubectl: true
+
+          - task: HelmDeploy@0
+            displayName: Helm upgrade
+            inputs:
+              command: upgrade
+              chartType: FilePath
+              releaseName: productcatalogservices
+              namespace: $(namespace)
+              overrideValues: deployment.image.tag=$(tag),namespace=$(namespace)
+              arguments: --version $(tag)
+              chartPath: $(Pipeline.Workspace)/helmcharts
+              install: true
+
+  - deployment: DeployPullRequest
+    displayName: Deploy Pull request
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/pull/'))
+    pool:
+      vmImage: $(vmImageName)
+      
+    environment: 'BackendServices.$(k8sNamespaceForPR)'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - reviewApp: develop
+
+          - task: Kubernetes@1
+            displayName: 'Create a new namespace for the pull request'
+            inputs:
+              command: apply
+              useConfigurationFile: true
+              inline: '{ "kind": "Namespace", "apiVersion": "v1", "metadata": { "name": "$(k8sNamespaceForPR)" }}'
+
+          - task: HelmInstaller@0
+            displayName: Install Helm
+            inputs:
+              helmVersion: 'latest'
+              installKubectl: true
+
+          - task: HelmDeploy@0
+            displayName: Helm upgrade
+            inputs:
+              command: upgrade
+              chartType: FilePath
+              releaseName: productcatalogservices
+              namespace: $(k8sNamespaceForPR)
+              overrideValues: image.tag=$(tag),namespace=$(k8sNamespaceForPR)
+              arguments: --version $(tag)
+              chartPath: $(Pipeline.Workspace)/helmcharts/ProductCatalogServices
+              install: true
+
+          - task: Kubernetes@1
+            name: get
+            displayName: 'Get services in the new namespace'
+            continueOnError: true
+            inputs:
+              command: get
+              namespace: $(k8sNamespaceForPR)
+              arguments: svc
+              outputFormat: jsonpath='http://{.items[0].status.loadBalancer.ingress[0].ip}:{.items[0].spec.ports[0].port}'
+
+          # Getting the IP of the deployed service and writing it to a variable for posing comment
+          - script: |
+              url="$(get.KubectlOutput)"
+              message="Your review app has been deployed"
+              if [ ! -z "$url" -a "$url" != "http://:" ] 
+              then
+                message="${message} and is available at $url.<br><br>[Learn More](https://aka.ms/testwithreviewapps) about how to test and provide feedback for the app."
+              fi
+              echo "##vso[task.setvariable variable=GITHUB_COMMENT]$message"
