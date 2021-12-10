@@ -20,6 +20,9 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("secrets/appsettings.secrets.json", optional: true);
+
+
 // Configuration for the NuGet package: 'Microsoft.AspNetCore.Mvc.Versioning'
 builder.Services.AddApiVersioning(options =>
 {
