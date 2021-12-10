@@ -45,8 +45,8 @@ stages:
     - script: 'dotnet tool install --global dotnet-ef'
       displayName: Install EF Core Console Tools
 
-    - script: 'dotnet ef migrations script --context ProductCatalogContext --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/ProductCatalog/ProductCatalog.Infrastructure/ProductCatalog.Infrastructure.csproj'
-      displayName: Create DbContext (ProductCatalogContext) migrations
+    - script: 'dotnet ef migrations script --verbose --context ProductCatalogContext --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/ProductCatalog/ProductCatalog.Infrastructure/ProductCatalog.Infrastructure.csproj'
+      displayName: Run DbContext (ProductCatalogContext) migrations
 
     - task: PublishPipelineArtifact@1
       displayName: 'Publish migrations'
