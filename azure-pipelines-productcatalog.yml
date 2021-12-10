@@ -23,7 +23,7 @@ variables:
   dockerRegistryServiceConnection: '09ee8083-2a55-4731-876c-d6df7059bd8f'
   imageRepository: 'productcatalog'
   containerRegistry: 'origov2acr.azurecr.io'
-  dockerfilePath: 'src/Services/ProductCatalog/Dockerfile'
+  dockerfilePath: 'src/Services/ProductCatalog/ProductCatalog.API/Dockerfile'
   tag: '$(Build.BuildId)'
   namespace: develop # TODO: set by condition based on branch
 
@@ -54,6 +54,7 @@ stages:
 
     # Add a Command To List the Current .NET SDKs (Sanity Check)
     - task: CmdLine@2
+      displayName: List Current .NET SDKs
       inputs:
         script: 'dotnet --list-sdks'
 
@@ -61,7 +62,7 @@ stages:
       displayName: Install EF Core Console Tools
 
     - script: 'dotnet ef migrations script --verbose --context ProductCatalogContext --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/ProductCatalog/ProductCatalog.Infrastructure/ProductCatalog.Infrastructure.csproj'
-      displayName: Run DbContext (ProductCatalogContext) migrations
+      displayName: Create EF --> .SQL migration scripts
 
     - task: PublishPipelineArtifact@1
       displayName: 'Publish migrations'
