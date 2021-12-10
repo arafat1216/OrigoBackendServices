@@ -49,8 +49,7 @@ namespace ProductCatalog.API.Controllers
             }
             catch (Exception)
             {
-                throw;
-                //return StatusCode(StatusCodes.Status500InternalServerError);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
