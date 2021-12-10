@@ -27,8 +27,10 @@ variables:
   tag: '$(Build.BuildId)'
   namespace: develop # TODO: set by condition based on branch
 
-  # Agent VM image name
+  # Agent VM image name(s)
   vmImageName: 'ubuntu-latest'
+  windowsVmImageName: 'windows-2022'
+  #windowsVmImageName: 'windows-latest' # Currently the latest version isn't actually the latest. We should swap back once Microsoft corrects this.
   
   # Name of the new namespace being created to deploy the PR changes.
   k8sNamespaceForPR: 'review-app-$(System.PullRequest.PullRequestId)'
@@ -42,6 +44,19 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
+
+    # Add this Command to Include the .NET 6 SDK
+    - task: UseDotNet@2
+      displayName: Use .NET 6.0
+      inputs:
+        packageType: 'sdk'
+        version: '6.0.x'
+
+    # Add a Command To List the Current .NET SDKs (Sanity Check)
+    - task: CmdLine@2
+      inputs:
+        script: 'dotnet --list-sdks'
+
     - script: 'dotnet tool install --global dotnet-ef'
       displayName: Install EF Core Console Tools
 
@@ -116,7 +131,7 @@ stages:
     variables:
       namespace: develop
     pool:
-      vmImage: windows-latest
+      vmImage: $(windowsVmImageName)
     strategy:
       runOnce:
         deploy:
