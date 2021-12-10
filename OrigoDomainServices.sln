@@ -145,6 +145,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 		charts\product-catalog-api\templates\service.yaml = charts\product-catalog-api\templates\service.yaml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{8C6EE1D2-3BC6-4CCF-AD12-4D07D585F5D0}"
+	ProjectSection(SolutionItems) = preProject
+		charts\customer-api\templates\_helpers.tpl = charts\customer-api\templates\_helpers.tpl
+		charts\customer-api\templates\collector-config.yaml = charts\customer-api\templates\collector-config.yaml
+		charts\customer-api\templates\deployment.yaml = charts\customer-api\templates\deployment.yaml
+		charts\customer-api\templates\ingress.yaml = charts\customer-api\templates\ingress.yaml
+		charts\customer-api\templates\NOTES.txt = charts\customer-api\templates\NOTES.txt
+		charts\customer-api\templates\secrets.yaml = charts\customer-api\templates\secrets.yaml
+		charts\customer-api\templates\service.yaml = charts\customer-api\templates\service.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -252,6 +263,7 @@ Global
 		{5585CA98-0A63-414E-8C4E-76C8A3350C39} = {86D5BAC5-A9B3-42F1-8EC3-07B3EC3BEBC5}
 		{75574DA2-242D-4E80-A691-F588AC483972} = {8D5A9903-F29E-457C-A27C-199EF34B1933}
 		{C1E2A43E-79A8-402F-8B7B-BA220EF2A58C} = {75574DA2-242D-4E80-A691-F588AC483972}
+		{8C6EE1D2-3BC6-4CCF-AD12-4D07D585F5D0} = {45217BC1-D812-44F3-AF44-732C89E8496D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DAEDEBBF-933A-4FFE-B734-B9E748AF86E1}

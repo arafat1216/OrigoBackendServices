@@ -20,7 +20,7 @@ deployment:
     "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true"
 
   image:
-    repository: origov2acr.azurecr.io/productcatalogbackend
+    repository: origov2acr.azurecr.io/productcatalog
     tag: 3642
     pullPolicy: IfNotPresent
 
