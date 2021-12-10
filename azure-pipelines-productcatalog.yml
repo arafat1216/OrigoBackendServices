@@ -127,31 +127,6 @@ stages:
   variables:
     - group: ProductCatalogLibrary
   jobs:
-  - deployment: MigrateDatabase
-    environment: 'BackendServices.develop'
-    displayName: Migrate database
-    variables:
-      namespace: develop
-    pool:
-      vmImage: $(windowsVmImageName)
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: Download migration scripts
-            inputs:
-              artifactName: 'migrations'
-              downloadPath: '$(System.ArtifactsDirectory)/migrations'
-          - task: SqlAzureDacpacDeployment@1
-            displayName: Run product-catalog sql migrations
-            inputs:
-              azureConnectionType: ConnectedServiceNameARM
-              azureSubscription: OrigoV2ServiceConnection
-              authenticationType: connectionString
-              connectionString: $(ProductCatalogDbConnection)
-              deployType: SqlTask
-              sqlFile: $(System.ArtifactsDirectory)/migrations/migrations.sql
 
   - deployment: Deploy
     condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
@@ -182,6 +157,34 @@ stages:
               arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts
               install: true
+
+  - deployment: MigrateDatabase
+    dependsOn: Deploy
+    environment: 'BackendServices.develop'
+    displayName: Migrate database
+    variables:
+      namespace: develop
+    pool:
+      vmImage: $(windowsVmImageName)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: Download migration scripts
+            inputs:
+              artifactName: 'migrations'
+              downloadPath: '$(System.ArtifactsDirectory)/migrations'
+          - task: SqlAzureDacpacDeployment@1
+            displayName: Run product-catalog sql migrations
+            inputs:
+              azureConnectionType: ConnectedServiceNameARM
+              azureSubscription: OrigoV2ServiceConnection
+              authenticationType: connectionString
+              connectionString: $(ProductCatalogDbConnection)
+              deployType: SqlTask
+              sqlFile: $(System.ArtifactsDirectory)/migrations/migrations.sql
+
 
   - deployment: DeployPullRequest
     displayName: Deploy Pull request
