@@ -9,6 +9,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -210,8 +211,12 @@ namespace OrigoApiGateway.Controllers
         /// <returns> A <see cref="ActionResult"/> that corresponds to the exception information. </returns>
         private ActionResult ExceptionResponseBuilder(MicroserviceErrorResponseException exception)
         {
+            if (exception.StatusCode.HasValue && exception.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+                _logger.LogError(exception, $"Encountered an unexpected exception.\nUnique location ID: 731B4BE3-D358-4104-AAF7-96041BD07102.\nMessage:\n{exception.Message}");
+
             // Try and parse the error code, and set it to 500 if it's null.
             int statusCode = exception.StatusCode.HasValue ? (int)exception.StatusCode : 500;
+
 
             // If the status code was 207 (Multi Status), or it was 300 or above, then it's been explicitly thrown by the
             // internal micro-service, meaning we can forward it to the frontend.
