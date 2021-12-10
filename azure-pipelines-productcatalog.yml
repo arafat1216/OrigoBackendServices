@@ -86,6 +86,7 @@ stages:
         arguments: --build-arg SONAR_TOKEN=$(SonarToken) --build-arg BUILD_ID=$(Build.BuildId)
         tags: |
           $(tag)
+
     - task: Docker@2
       displayName: Push an image to container registry
       inputs:
@@ -97,25 +98,25 @@ stages:
         tags: |
           $(tag)
 
-    - pwsh: |
-        $id=docker images --filter "label=test=$(Build.BuildId)" -q | Select-Object -First 1
-        docker create --name testcontainer $id
-        docker cp testcontainer:/TestResults $(Build.SourcesDirectory)/TestResults
-        docker cp testcontainer:/CodeCoverage $(Build.SourcesDirectory)/CodeCoverage
-        docker rm testcontainer
-      displayName: 'Copy test results' 
+#    - pwsh: |
+#        $id=docker images --filter "label=test=$(Build.BuildId)" -q | Select-Object -First 1
+#        docker create --name testcontainer $id
+#        docker cp testcontainer:/TestResults $(Build.SourcesDirectory)/TestResults
+#        docker cp testcontainer:/CodeCoverage $(Build.SourcesDirectory)/CodeCoverage
+#        docker rm testcontainer
+#      displayName: 'Copy test results' 
 
-    - task: PublishCodeCoverageResults@1
-      inputs:
-        codeCoverageTool: Cobertura
-        summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/coverage.cobertura.xml'
-      displayName: 'Publish code coverage'
+#    - task: PublishCodeCoverageResults@1
+#      inputs:
+#        codeCoverageTool: Cobertura
+#        summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/coverage.cobertura.xml'
+#      displayName: 'Publish code coverage'
 
-    - task: PublishTestResults@2
-      inputs:
-        testRunner: VSTest
-        testResultsFiles: '**/*.trx'
-      displayName: 'Publish test results'
+#    - task: PublishTestResults@2
+#      inputs:
+#        testRunner: VSTest
+#        testResultsFiles: '**/*.trx'
+#      displayName: 'Publish test results'
 
     - publish: charts/product-catalog-api
       artifact: helmcharts
