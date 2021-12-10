@@ -212,10 +212,7 @@ namespace OrigoApiGateway.Controllers
         private ActionResult ExceptionResponseBuilder(MicroserviceErrorResponseException exception)
         {
             if (exception.StatusCode.HasValue && exception.StatusCode == System.Net.HttpStatusCode.InternalServerError)
-            {
                 _logger.LogError(exception, $"Encountered an unexpected exception.\nUnique location ID: 731B4BE3-D358-4104-AAF7-96041BD07102.\nMessage:\n{exception.Message}");
-                Console.WriteLine($"Unique location ID: 731B4BE3-D358-4104-AAF7-96041BD07102\nException Message: {exception.Message}\n\nException StackTrace: {exception.StackTrace}");
-            }
 
             // Try and parse the error code, and set it to 500 if it's null.
             int statusCode = exception.StatusCode.HasValue ? (int)exception.StatusCode : 500;
