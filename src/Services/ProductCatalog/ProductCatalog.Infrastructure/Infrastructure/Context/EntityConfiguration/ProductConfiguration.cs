@@ -22,23 +22,61 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfigurati
 
             builder.HasIndex(e => e.PartnerId);
 
+            /*
+             * Properties
+             */
+
+            builder.Property(e => e.Id)
+                   .HasColumnOrder(0);
+
+            builder.Property(e => e.PartnerId)
+                   .HasColumnOrder(1)
+                   .HasComment("The partner that owns and sells this product");
+
+            builder.Property(e => e.ProductTypeId)
+                   .HasColumnOrder(2);
+
+            /*
+             * Owned entities
+             */
+
             builder.OwnsMany(e => e.Translations, builder =>
             {
                 builder.ToTable(t => t.IsTemporal());
 
                 builder.HasKey(e => new { e.ProductId, e.Language });
 
+                /*
+                 * Properties
+                 */
+
+                builder.Property(e => e.ProductId)
+                       .HasColumnOrder(0);
+
                 builder.Property(e => e.Language)
+                       .HasColumnOrder(1)
+                       .HasComment("The language for this translation. This should be stored in lowercase 'ISO 639-1' format")
                        .HasMaxLength(2)
                        .IsFixedLength()
                        .IsUnicode(false)
                        .Metadata.SetValueComparer(comparer);
+
+                builder.Property(e => e.Name)
+                       .HasColumnOrder(2)
+                       .HasComment("A short, descriptive name");
+
+                builder.Property(e => e.Description)
+                       .HasColumnOrder(3)
+                       .HasComment("An optional description");
             });
+
+            /*
+             * Relationships / Navigation
+             */
 
             builder.HasMany(p => p.Features)
                    .WithMany(f => f.Products)
                    .UsingEntity<ProductFeature>();
-
 
             builder.HasMany(e => e.Excludes)
                    .WithOne(e => e.Product);

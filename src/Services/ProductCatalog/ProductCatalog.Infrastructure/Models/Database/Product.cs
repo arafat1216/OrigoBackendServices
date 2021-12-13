@@ -4,17 +4,43 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProductCatalog.Infrastructure.Models.Database
 {
+    /// <summary>
+    ///     Represents a single partner-specific product that is sold/offered to customers.
+    /// </summary>
     internal class Product : Entity, ITranslatable<ProductTranslation>
     {
-        // EF DB Columns
+        /*
+         * EF DB Columns
+         */
+
+        /// <summary>
+        ///     The database-generated primary key.
+        /// </summary>
         public int Id { get; private set; }
+
+        /// <summary>
+        ///     The partner that owns and sells this product.
+        /// </summary>
         public Guid PartnerId { get; set; }
+
+        /// <summary>
+        ///     A foreign-key to the corresponding <see cref="ProductType.Id"/> that is used for this product.
+        /// </summary>
         public int ProductTypeId { get; set; }
 
-        // EF Owned Tables
+        /*
+         * EF Owned Tables
+         */
+
+        /// <summary>
+        ///     Contains the internationalization (i18n) translations.
+        /// </summary>
         public virtual ICollection<ProductTranslation> Translations { get; set; }
 
-        // EF Navigation
+        /*
+         * EF Navigation
+         */
+
         public virtual ProductType? ProductType { get; set; }
         public virtual ICollection<Order> Orders { get; set; } = new HashSet<Order>();
         public virtual ICollection<Feature> Features { get; set; } = new HashSet<Feature>();
@@ -43,9 +69,15 @@ namespace ProductCatalog.Infrastructure.Models.Database
         //public virtual ICollection<Product> HasRequiresOneDependenciesFrom { get; set; } = new HashSet<Product>();
 
 
-        // EF Join Tables
+        /*
+         * EF Join Tables
+         */
+
         internal virtual ICollection<ProductFeature> ProductFeatures { get; set; } = new HashSet<ProductFeature>();
 
+        /*
+         * Constructors
+         */
 
         [Obsolete("This is a reserved constructor that should only be utilized by the automated Entity Framework injections! Make sure you are using the correct \"base()\" constructor.", false)]
         public Product() : base()

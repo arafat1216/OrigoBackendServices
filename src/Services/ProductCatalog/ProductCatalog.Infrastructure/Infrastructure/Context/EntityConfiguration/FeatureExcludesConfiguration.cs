@@ -12,6 +12,22 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfigurati
 
             builder.HasKey(e => new { e.FeatureId, e.ExcludesFeatureId });
 
+            /*
+             * Properties
+             */
+
+            builder.Property(e => e.FeatureId)
+                   .HasColumnOrder(0)
+                   .HasComment("The feature that has exclusions");
+
+            builder.Property(e => e.ExcludesFeatureId)
+                   .HasColumnOrder(1)
+                   .HasComment("The 'FeatureID' cant be combined or used with this feature. This is a one-way requirement");
+
+            /*
+             * Relationships / Navigation
+             */
+
             builder.HasOne(fe => fe.Feature)
                    .WithMany(f => f.Excludes)
                    .HasForeignKey(fe => fe.FeatureId)
