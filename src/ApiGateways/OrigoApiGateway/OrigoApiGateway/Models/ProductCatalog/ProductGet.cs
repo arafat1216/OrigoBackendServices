@@ -14,41 +14,41 @@ namespace OrigoApiGateway.Models.ProductCatalog
         ///     The products' ID.
         /// </summary>
         [Required]
-        public int Id { get; }
+        public int Id { get; init; }
 
         /// <summary>
         ///     The partner the product is associated with.
         /// </summary>
         [Required]
-        public Guid PartnerId { get; }
+        public Guid PartnerId { get; init; }
 
         /// <summary>
         ///     The ID for the product's current product-type.
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? ProductTypeId { get; }
+        public int? ProductTypeId { get; init; }
 
         /// <summary>
         ///     The product's current product-type.
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public ProductTypeGet? ProductType { get; }
+        public ProductTypeGet? ProductType { get; init; }
 
         /// <summary>
         ///     A collection that contains the translations for this product.
         /// </summary>
         [Required]
-        public IEnumerable<Translation> Translations { get; }
+        public IEnumerable<Translation> Translations { get; init; } 
 
         /// <summary>
         ///     Contains requirements for the product.
         /// </summary>
-        public Requirement Requirements { get; }
+        public Requirement Requirements { get; init; } 
 
 
         public ProductGet()
         {
-            Translations = new List<Translation>();
+            // Do not place default constructors in here. They should be injected during the HTTP deserialization process.
         }
 
 
