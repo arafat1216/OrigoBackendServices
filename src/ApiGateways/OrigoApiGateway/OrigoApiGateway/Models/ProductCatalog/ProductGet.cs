@@ -48,7 +48,7 @@ namespace OrigoApiGateway.Models.ProductCatalog
 
         public ProductGet()
         {
-            // Do not place default constructors in here. They should be injected during the HTTP deserialization process.
+            // Do not place default property initializers in here. They should be injected during the HTTP deserialization process.
         }
 
 
