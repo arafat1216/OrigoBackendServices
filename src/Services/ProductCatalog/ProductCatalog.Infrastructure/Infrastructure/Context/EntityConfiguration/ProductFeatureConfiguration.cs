@@ -10,7 +10,29 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfigurati
         {
             builder.ToTable(t => t.IsTemporal());
 
-            builder.HasComment("Join table");
+            /*
+             * Properties
+             */
+
+            builder.Property(e => e.ProductId)
+                   .HasColumnOrder(0);
+
+            builder.Property(e => e.FeatureId)
+                   .HasColumnOrder(1);
+
+            /*
+             * Relationships / Navigation
+             */
+
+            builder.HasOne(e => e.Product)
+                   .WithMany(e => e.ProductFeatures)
+                   .HasForeignKey(e => e.ProductId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(e => e.Feature)
+                   .WithMany(e => e.ProductFeatures)
+                   .HasForeignKey(e => e.FeatureId)
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

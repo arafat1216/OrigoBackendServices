@@ -22,9 +22,24 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfigurati
 
             builder.HasAlternateKey(e => e.AccessControlPermissionNode);
 
+            /*
+             * Properties
+             */
+
+            builder.Property(e => e.Id)
+                   .HasColumnOrder(0);
+
+            builder.Property(e => e.FeatureTypeId)
+                   .HasColumnOrder(1);
+
             builder.Property(e => e.AccessControlPermissionNode)
+                   .HasColumnOrder(2)
+                   .HasComment("A fixed and unique access-control node-name that's used by the front- and back-end to enable or disable functionality for an organization. The node-name must consist of only characters, formated in PascalCase. Example: 'MyPermissionNodeIdentifier'")
                    .HasMaxLength(64);
 
+            /*
+             * Owned entities
+             */
 
             builder.OwnsMany(e => e.Translations, builder =>
             {
@@ -32,13 +47,33 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfigurati
 
                 builder.HasKey(e => new { e.FeatureId, e.Language });
 
+                /*
+                 * Properties
+                 */
+
+                builder.Property(e => e.FeatureId)
+                       .HasColumnOrder(0);
+
                 builder.Property(e => e.Language)
+                       .HasColumnOrder(1)
+                       .HasComment("The language for this translation. This should be stored in lowercase 'ISO 639-1' format")
                        .HasMaxLength(2)
                        .IsFixedLength()
                        .IsUnicode(false)
                        .Metadata.SetValueComparer(comparer);
+
+                builder.Property(e => e.Name)
+                       .HasColumnOrder(2)
+                       .HasComment("A short, descriptive name");
+
+                builder.Property(e => e.Description)
+                       .HasColumnOrder(3)
+                       .HasComment("An optional description"); 
             });
 
+            /*
+             * Relationships / Navigation
+             */
 
             builder.HasMany(e => e.Excludes)
                    .WithOne(e => e.Feature);

@@ -54,7 +54,7 @@ namespace Boilerplate.EntityFramework.Generics.Repositories
                              .Take(pageSize);
             }
 
-            if (includeProperties is not null)
+            if (includeProperties is not null && includeProperties != string.Empty)
             {
                 // Include properties
                 foreach (var includedProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))

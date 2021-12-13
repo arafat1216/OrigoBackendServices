@@ -12,6 +12,21 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfigurati
 
             builder.HasKey(e => new { e.ProductId, e.RequiresProductId });
 
+            /*
+             * Properties
+             */
+
+            builder.Property(e => e.ProductId)
+                   .HasColumnOrder(0);
+
+            builder.Property(e => e.RequiresProductId)
+                   .HasColumnOrder(1);
+
+
+            /*
+             * Relationships / Navigation
+             */
+
             builder.HasOne(pe => pe.Product)
                    .WithMany(p => p.RequiresAll)
                    .HasForeignKey(pe => pe.ProductId)

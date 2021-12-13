@@ -12,12 +12,12 @@ namespace OrigoApiGateway.Models.ProductCatalog
         ///     The product-types' ID.
         /// </summary>
         [Required]
-        public int Id { get; }
+        public int Id { get; init; }
 
         /// <summary>
         ///     A collection that contains the translations for this product-type.
         /// </summary>
         [Required]
-        public IEnumerable<Translation> Translations { get; }
+        public IEnumerable<Translation> Translations { get; init; }
     }
 }

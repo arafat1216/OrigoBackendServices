@@ -19,17 +19,39 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfigurati
 
             builder.ToTable(t => t.IsTemporal());
 
+
+            /*
+             * Owned entities
+             */
+
             builder.OwnsMany(e => e.Translations, builder =>
             {
                 builder.ToTable(t => t.IsTemporal());
 
                 builder.HasKey(e => new { e.ProductTypeId, e.Language });
 
+                /*
+                 * Properties
+                 */
+
+                builder.Property(e => e.ProductTypeId)
+                       .HasColumnOrder(0);
+
                 builder.Property(e => e.Language)
+                       .HasColumnOrder(1)
+                       .HasComment("The language for this translation. This should be stored in lowercase 'ISO 639-1' format")
                        .HasMaxLength(2)
                        .IsFixedLength()
                        .IsUnicode(false)
                        .Metadata.SetValueComparer(comparer);
+
+                builder.Property(e => e.Name)
+                       .HasColumnOrder(2)
+                       .HasComment("A short, descriptive name");
+
+                builder.Property(e => e.Description)
+                       .HasColumnOrder(3)
+                       .HasComment("An optional description");
             });
         }
     }

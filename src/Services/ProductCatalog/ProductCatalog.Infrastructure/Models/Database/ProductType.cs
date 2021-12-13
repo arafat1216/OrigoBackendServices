@@ -4,15 +4,27 @@ namespace ProductCatalog.Infrastructure.Models.Database
 {
     internal class ProductType : Entity, ITranslatable<ProductTypeTranslation>
     {
-        // EF DB Columns
+        /*
+         * EF DB Columns
+         */
+
         public int Id { get; set; }
 
-        // EF Owned
+        /*
+         * EF Owned
+         */
+
         public virtual ICollection<ProductTypeTranslation> Translations { get; set; }
 
-        // EF Navigation
+        /*
+         * EF Navigation
+         */
+
         public virtual ICollection<Product> Products { get; set; } = new HashSet<Product>();
 
+        /*
+         * Constructors
+         */
 
         [Obsolete("This is a reserved constructor that should only be utilized by the automated Entity Framework injections! Make sure you are using the correct \"base()\" constructor.", false)]
         public ProductType() : base()

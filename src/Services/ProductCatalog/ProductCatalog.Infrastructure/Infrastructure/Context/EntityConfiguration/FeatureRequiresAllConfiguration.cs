@@ -12,6 +12,22 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfigurati
 
             builder.HasKey(e => new { e.FeatureId, e.RequiresFeatureId });
 
+            /*
+             * Properties
+             */
+
+            builder.Property(e => e.FeatureId)
+                   .HasColumnOrder(0)
+                   .HasComment("The feature that has requirements");
+
+            builder.Property(e => e.RequiresFeatureId)
+                   .HasColumnOrder(1)
+                   .HasComment("The 'FeatureID' requires all these features before it can be added or used. This is a one-way requirement");
+
+            /*
+             * Relationships / Navigation
+             */
+
             builder.HasOne(fe => fe.Feature)
                    .WithMany(f => f.RequiresAll)
                    .HasForeignKey(fe => fe.FeatureId)

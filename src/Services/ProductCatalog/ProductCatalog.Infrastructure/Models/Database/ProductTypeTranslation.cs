@@ -4,9 +4,15 @@ namespace ProductCatalog.Infrastructure.Models.Database
 {
     internal class ProductTypeTranslation : Translation
     {
-        // EF DB Columns
+        /*
+         * EF DB Columns
+         */
+
         public int ProductTypeId { get; set; }
 
+        /*
+         * Constructors
+         */
 
         [Obsolete("This is a reserved constructor that should only be utilized by the automated Entity Framework injections! Make sure you are using the correct \"base()\" constructor.", false)]
         public ProductTypeTranslation() : base()
