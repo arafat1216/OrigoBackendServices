@@ -444,11 +444,11 @@ namespace Asset.API.Controllers
         }
 
 
-        [Route("customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
+        [Route("customers/{customerId:guid}/assetStatus/{assetStatus:int}/{callerId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SetAssetStatusOnAssets(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
+        public async Task<ActionResult> SetAssetStatusOnAssets(Guid customerId, Guid callerId, IList<Guid> assetGuidList, int assetStatus)
         {
             try
             {
@@ -462,7 +462,7 @@ namespace Asset.API.Controllers
                     return BadRequest("Invalid AssetStatus, possible values are: " + statusString);
                 }
 
-                var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, assetGuidList, (AssetStatus)assetStatus);
+                var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, callerId, assetGuidList, (AssetStatus)assetStatus);
                 if (updatedAssets == null)
                 {
                     return NotFound("Given organization does not exist or none of the assets were found");

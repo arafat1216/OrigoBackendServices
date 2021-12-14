@@ -42,11 +42,11 @@ namespace AssetServices.Models
             AddDomainEvent(new SetLifeCycleTypeDomainEvent<MobilePhone>(this, callerId, previousLifecycleType));
         }
 
-        public override void UpdateAssetStatus(AssetStatus status)
+        public override void UpdateAssetStatus(AssetStatus status, Guid callerId)
         {
             var previousStatus = Status;
             Status = status;
-            AddDomainEvent(new UpdateAssetStatusDomainEvent<MobilePhone>(this, previousStatus));
+            AddDomainEvent(new UpdateAssetStatusDomainEvent<MobilePhone>(this, callerId, previousStatus));
         }
 
         public override void UpdateBrand(string brand)

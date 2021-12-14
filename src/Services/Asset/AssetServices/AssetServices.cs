@@ -389,7 +389,7 @@ namespace AssetServices
             return asset;
         }
 
-        public async Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, IList<Guid> assetGuidList, AssetStatus status)
+        public async Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, Guid callerId, IList<Guid> assetGuidList, AssetStatus status)
         {
             var assets = await _assetRepository.GetAssetsFromListAsync(customerId, assetGuidList);
             if (assets == null || assets.Count == 0)
@@ -399,7 +399,7 @@ namespace AssetServices
 
             foreach (Asset asset in assets)
             {
-                asset.UpdateAssetStatus(status);
+                asset.UpdateAssetStatus(status, callerId);
             }
 
             await _assetRepository.SaveEntitiesAsync();

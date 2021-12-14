@@ -143,11 +143,11 @@ namespace AssetServices.Models
             AddDomainEvent(new SetLifeCycleTypeDomainEvent<Asset>(this, callerId, previousLifecycleType));
         }
 
-        public virtual void UpdateAssetStatus(AssetStatus status)
+        public virtual void UpdateAssetStatus(AssetStatus status, Guid callerId)
         {
             var previousStatus = Status;
             Status = status;
-            AddDomainEvent(new UpdateAssetStatusDomainEvent<Asset>(this, previousStatus));
+            AddDomainEvent(new UpdateAssetStatusDomainEvent<Asset>(this, callerId, previousStatus));
         }
 
         public virtual void UpdateBrand(string brand)

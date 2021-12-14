@@ -325,13 +325,17 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+
                 IList<Guid> assetGuidList = data.AssetGuidList;
                 int assetStatus = data.AssetStatus;
 
                 if (!assetGuidList.Any())
                     return BadRequest("No assets selected.");
 
-                var updatedAssets = await _assetServices.UpdateStatusOnAssets(organizationId, assetGuidList, assetStatus);
+                var updatedAssets = await _assetServices.UpdateStatusOnAssets(organizationId, callerId, assetGuidList, assetStatus);
                 if (updatedAssets == null)
                 {
                     return NotFound();
