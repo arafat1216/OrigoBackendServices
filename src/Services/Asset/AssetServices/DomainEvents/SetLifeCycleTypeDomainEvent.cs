@@ -7,12 +7,12 @@ using Common.Logging;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 namespace AssetServices.DomainEvents
 {
-    public class SetLifeCycleTypeDomainEvent : BaseEvent
+    public class SetLifeCycleTypeDomainEvent<T> : BaseEvent where T:Asset
     {
-        public Asset Asset { get; protected set; }
+        public T Asset { get; protected set; }
         public LifecycleType PreviousLifecycleType { get; protected set; }
 
-        public SetLifeCycleTypeDomainEvent(Asset asset, LifecycleType previousLifecycleType) : base(asset.ExternalId)
+        public SetLifeCycleTypeDomainEvent(T asset, LifecycleType previousLifecycleType) : base(asset.ExternalId)
         {
             Asset = asset;
             PreviousLifecycleType = previousLifecycleType;

@@ -61,6 +61,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
                 var count = await _assetServices.GetAssetsCountAsync(organizationId);
                 return Ok(new { organizationId, count });
             }
@@ -132,6 +133,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
                 var assets = await _assetServices.GetAssetsForUserAsync(organizationId, userId);
                 if (assets == null)
                 {
@@ -176,7 +178,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
+ 
                 var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId);
                 if (assets == null)
                 {
@@ -207,7 +209,6 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -222,7 +223,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-                
+
                 var asset = await _assetServices.GetAssetForCustomerAsync(organizationId, assetId);
                 if (asset == null)
                 {
@@ -268,7 +269,14 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, asset);
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                bool valid = Guid.TryParse(actor, out callerId);
+                if (!valid)
+                    callerId = Guid.Empty;
+
+                var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, callerId, asset);
                 if (createdAsset != null)
                 {
                     var options = new JsonSerializerOptions
@@ -742,6 +750,7 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())

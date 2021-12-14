@@ -7,12 +7,12 @@ using Common.Logging;
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 namespace AssetServices.DomainEvents
 {
-    public class UpdateAssetStatusDomainEvent : BaseEvent
+    public class UpdateAssetStatusDomainEvent<T> : BaseEvent where T:Asset
     {
-        public Asset Asset { get; protected set; }
+        public T Asset { get; protected set; }
         public AssetStatus PreviousStatus { get; protected set; }
 
-        public UpdateAssetStatusDomainEvent(Asset asset, AssetStatus previousStatus) : base(asset.ExternalId)
+        public UpdateAssetStatusDomainEvent(T asset, AssetStatus previousStatus) : base(asset.ExternalId)
         {
             Asset = asset;
             PreviousStatus = previousStatus;

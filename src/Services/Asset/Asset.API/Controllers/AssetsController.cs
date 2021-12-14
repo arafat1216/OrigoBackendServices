@@ -392,11 +392,11 @@ namespace Asset.API.Controllers
             return Ok(JsonSerializer.Serialize<object>(new ViewModels.Asset(asset), options));
         }
 
-        [Route("customers/{customerId:guid}")]
+        [Route("customers/{customerId:guid}/{callerId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> CreateAsset(Guid customerId, [FromBody] NewAsset asset)
+        public async Task<ActionResult> CreateAsset(Guid customerId, Guid callerId, [FromBody] NewAsset asset)
         {
             try
             {
@@ -411,7 +411,7 @@ namespace Asset.API.Controllers
                     throw new InvalidAssetDataException(errorMessage.ToString());
                 }
 
-                var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.Alias, asset.SerialNumber,
+                var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, callerId,  asset.Alias, asset.SerialNumber,
                     asset.AssetCategoryId, asset.Brand, asset.ProductName, asset.LifecycleType, asset.PurchaseDate,
                     asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, (AssetStatus)asset.AssetStatus, asset.Note, asset.AssetTag, asset.Description);
 
@@ -689,7 +689,7 @@ namespace Asset.API.Controllers
 
                 return Ok(assetLogList);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return BadRequest();
             }

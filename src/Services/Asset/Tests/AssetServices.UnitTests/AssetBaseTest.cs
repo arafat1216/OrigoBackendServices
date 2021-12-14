@@ -44,16 +44,16 @@ namespace AssetServices.UnitTests
             var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetCategory = assetRepository.GetAssetCategoryAsync(ASSET_CATEGORY_ID).Result;
 
-            var assetOne = new MobilePhone(ASSET_ONE_ID, COMPANY_ID, "alias_0", assetCategory, "123456789012345", "Samsung", "Samsung Galaxy S20",
+            var assetOne = new MobilePhone(ASSET_ONE_ID, COMPANY_ID, Guid.Empty, "alias_0", assetCategory, "123456789012345", "Samsung", "Samsung Galaxy S20",
                 LifecycleType.Leasing, new DateTime(2021, 4, 1), ASSETHOLDER_ONE_ID, new List<AssetImei>() { new AssetImei(500119468586675) }, "B26EDC46046B", AssetStatus.OnRepair, string.Empty, "Tag_0", "Description_0");
 
-            var assetTwo = new MobilePhone(ASSET_TWO_ID, COMPANY_ID, "alias_1", assetCategory, "123456789012364", "Apple", "Apple iPhone 8",
+            var assetTwo = new MobilePhone(ASSET_TWO_ID, COMPANY_ID, Guid.Empty, "alias_1", assetCategory, "123456789012364", "Apple", "Apple iPhone 8",
                 LifecycleType.Leasing, new DateTime(2021, 5, 1), ASSETHOLDER_TWO_ID, new List<AssetImei>() { new AssetImei(546366434558702) }, "487027C99FA1", AssetStatus.Inactive, "Note_1", "Tag_1", "Description_1", null);
 
-            var assetThree = new MobilePhone(ASSET_THREE_ID, COMPANY_ID, "alias_2", assetCategory, "123456789012399", "Samsung", "Samsung Galaxy S21",
+            var assetThree = new MobilePhone(ASSET_THREE_ID, COMPANY_ID, Guid.Empty, "alias_2", assetCategory, "123456789012399", "Samsung", "Samsung Galaxy S21",
                 LifecycleType.Leasing, new DateTime(2021, 6, 1), ASSETHOLDER_ONE_ID, new List<AssetImei>() { new AssetImei(512217111821626) }, "840F1D0C06AD", AssetStatus.Active, "Company phone", "Company", "This is a company owned device");
 
-            var assetOther = new MobilePhone(Guid.NewGuid(), Guid.NewGuid(), "alias_3", assetCategory, "123457789012399", "Samsung", "Samsung Galaxy S21",
+            var assetOther = new MobilePhone(Guid.NewGuid(), Guid.NewGuid(), Guid.Empty, "alias_3", assetCategory, "123457789012399", "Samsung", "Samsung Galaxy S21",
                 LifecycleType.Leasing, new DateTime(2021, 6, 1), Guid.NewGuid(), new List<AssetImei>() { new AssetImei(308757706784653) }, "2E423AD72484", AssetStatus.Active, "Note_3", "Tag_3", "Description_3");
 
             var labelOne = new CustomerLabel(LABEL_ONE_ID, COMPANY_ID, Guid.Empty, new Label("Label_1", LabelColor.Blue));

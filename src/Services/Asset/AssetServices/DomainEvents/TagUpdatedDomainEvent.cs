@@ -3,12 +3,12 @@ using Common.Logging;
 
 namespace AssetServices.DomainEvents
 {
-    public class TagUpdatedDomainEvent : BaseEvent
+    public class TagUpdatedDomainEvent<T> : BaseEvent where T:Asset
     {
-        public Asset Asset { get; protected set; }
+        public T Asset { get; protected set; }
         public string PreviousTag { get; protected set; }
 
-        public TagUpdatedDomainEvent(Asset asset, string previousTag) : base(asset.ExternalId)
+        public TagUpdatedDomainEvent(T asset, string previousTag) : base(asset.ExternalId)
         {
             Asset = asset;
             PreviousTag = previousTag;

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -15,16 +16,17 @@ namespace AssetServices.Models
     {
         // Set to protected as DDD best practice
         // ReSharper disable once UnusedMember.Global
-        protected Asset()
+        public Asset()
         {
         }
 
-        protected Asset(Guid assetId, Guid customerId, string alias, AssetCategory assetCategory, string brand, string productName,
+        protected Asset(Guid assetId, Guid customerId, Guid callerId, string alias, AssetCategory assetCategory, string brand, string productName,
             LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
             AssetStatus status, string note, string assetTag, string description, Guid? managedByDepartmentId = null)
         {
             ExternalId = assetId;
             CustomerId = customerId;
+            CreatedBy = callerId;
             Alias = alias;
             Brand = brand;
             ProductName = productName;
@@ -37,34 +39,41 @@ namespace AssetServices.Models
             Note = note;
             AssetTag = assetTag;
             Description = description;
-            AddDomainEvent(new AssetCreatedDomainEvent(this));
+            AddDomainEvent(new AssetCreatedDomainEvent<Asset>(this, callerId));
         }
 
         /// <summary>
         /// External Id of the Asset
         /// </summary>
-        public Guid ExternalId { get; protected set; }
+        [JsonInclude]
+        public Guid ExternalId { get;  set; }
 
         /// <summary>
         /// Asset is linked to this customer 
         /// </summary>
         [Required]
+        [JsonInclude]
         public Guid CustomerId { get; protected set; }
 
+        [JsonInclude]
         public AssetCategory AssetCategory { get; protected set; }
 
         /// <summary>
         /// Alias for the asset.
         /// </summary>
+        [JsonInclude]
         public string Alias { get; protected set; }
 
         /// <summary>
         /// A note containing additional information or comments for the asset.
         /// </summary>
+        [JsonInclude]
         public string Note { get; protected set; }
 
+        [JsonInclude]
         public string Description { get; protected set; }
 
+        [JsonInclude]
         public string AssetTag { get; protected set; }
 
         /// <summary>
@@ -72,6 +81,7 @@ namespace AssetServices.Models
         /// </summary>
         [Required]
         [StringLength(50, ErrorMessage = "Brand max length is 50")]
+        [JsonInclude]
         public string Brand { get; protected set; }
 
         /// <summary>
@@ -79,35 +89,42 @@ namespace AssetServices.Models
         /// </summary>
         [Required]
         [StringLength(50, ErrorMessage = "Model max length is 50")]
+        [JsonInclude]
         public string ProductName { get; protected set; }
 
-        
+
 
         /// <summary>
         /// The type of lifecycle for this asset.
         /// </summary>
+        [JsonInclude]
         public LifecycleType LifecycleType { get; protected set; }
 
         [Required]
+        [JsonInclude]
         public DateTime PurchaseDate { get; protected set; }
 
         /// <summary>
         /// The department or cost center this asset is assigned to.
         /// </summary>
+        [JsonInclude]
         public Guid? ManagedByDepartmentId { get; protected set; }
 
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
+        [JsonInclude]
         public Guid? AssetHolderId { get; protected set; }
 
         /// <summary>
         /// The status of the asset.
         /// <see cref="AssetStatus">AssetStatus</see>
         /// </summary>
+        [JsonInclude]
         public AssetStatus Status { get; protected set; }
 
         // The mapping of labels assigned to this asset
+        [JsonIgnore]
         public virtual ICollection<AssetLabel> AssetLabels { get; set; }
 
         /// <summary>
@@ -119,79 +136,81 @@ namespace AssetServices.Models
             Alias = alias;
         }
 
-        public void SetLifeCycleType(LifecycleType newLifecycleType)
+        public virtual void SetLifeCycleType(LifecycleType newLifecycleType)
         {
             var previousLifecycleType = LifecycleType;
-            AddDomainEvent(new SetLifeCycleTypeDomainEvent(this, previousLifecycleType));
             LifecycleType = newLifecycleType;
+            AddDomainEvent(new SetLifeCycleTypeDomainEvent<Asset>(this, previousLifecycleType));
         }
 
-        public void UpdateAssetStatus(AssetStatus status)
+        public virtual void UpdateAssetStatus(AssetStatus status)
         {
             var previousStatus = Status;
             Status = status;
-            AddDomainEvent(new UpdateAssetStatusDomainEvent(this, previousStatus));
+            AddDomainEvent(new UpdateAssetStatusDomainEvent<Asset>(this, previousStatus));
         }
 
-        public void UpdateBrand(string brand)
+        public virtual void UpdateBrand(string brand)
         {
             var previousBrand = Brand;
             Brand = brand;
-            AddDomainEvent(new BrandChangedDomainEvent(this, previousBrand));
+            AddDomainEvent(new BrandChangedDomainEvent<Asset>(this, previousBrand));
         }
 
-        public void UpdateProductName(string model)
+        public virtual void UpdateProductName(string model)
         {
             var previousModel = ProductName;
             ProductName = model;
-            AddDomainEvent(new ModelChangedDomainEvent(this, previousModel));
+            AddDomainEvent(new ModelChangedDomainEvent<Asset>(this, previousModel));
         }
 
-        public void ChangePurchaseDate(DateTime purchaseDate)
+        public virtual void ChangePurchaseDate(DateTime purchaseDate)
         {
             var previousPurchaseDate = PurchaseDate;
             PurchaseDate = purchaseDate;
-            AddDomainEvent(new PurchaseDateChangedDomainEvent(this, previousPurchaseDate));
+            AddDomainEvent(new PurchaseDateChangedDomainEvent<Asset>(this, previousPurchaseDate));
         }
 
-        public void AssignAssetToUser(Guid? userId)
+        public virtual void AssignAssetToUser(Guid? userId)
         {
             var oldUserId = AssetHolderId;
             AssetHolderId = userId;
-            AddDomainEvent(new AssignAssetToUserDomainEvent(this, oldUserId));
+            AddDomainEvent(new AssignAssetToUserDomainEvent<Asset>(this, oldUserId));
         }
 
-        public void UpdateNote(string note)
+        public virtual void UpdateNote(string note)
         {
             var previousNote = Note;
             Note = note;
-            AddDomainEvent(new NoteChangedDomainEvent(this, previousNote));
+            AddDomainEvent(new NoteChangedDomainEvent<Asset>(this, previousNote));
         }
 
-        public void UpdateDescription(string description)
+        public virtual void UpdateDescription(string description)
         {
             var previousDescription = Description;
             Description = description;
-            AddDomainEvent(new DescriptionChangedDomainEvent(this, previousDescription));
+            AddDomainEvent(new DescriptionChangedDomainEvent<Asset>(this, previousDescription));
         }
 
-        public void UpdateTag(string tag)
+        public virtual void UpdateTag(string tag)
         {
             var previousTag = AssetTag;
             AssetTag = tag;
-            AddDomainEvent(new TagUpdatedDomainEvent(this, previousTag));
+            AddDomainEvent(new TagUpdatedDomainEvent<Asset>(this, previousTag));
         }
 
         /// <summary>
         /// Defines whether the asset made has the necessary properties set, as defined by ValidateAsset.
         /// </summary>
         [NotMapped]
+        [JsonIgnore]
         public bool AssetPropertiesAreValid { get { return ValidateAsset(); } }
 
         /// <summary>
         /// List of error messages set when ValidateAsset runs
         /// </summary>
         [NotMapped]
+        [JsonIgnore]
         public List<string> ErrorMsgList { get; protected set; }
 
         /// <summary>

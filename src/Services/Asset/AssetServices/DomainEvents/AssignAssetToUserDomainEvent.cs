@@ -6,15 +6,15 @@ using Common.Logging;
 
 namespace AssetServices.DomainEvents
 {
-    public class AssignAssetToUserDomainEvent : BaseEvent
+    public class AssignAssetToUserDomainEvent<T> : BaseEvent where T:Asset
     {
-        public AssignAssetToUserDomainEvent(Asset asset, Guid? previousUserId):base(asset.ExternalId)
+        public AssignAssetToUserDomainEvent(T asset, Guid? previousUserId):base(asset.ExternalId)
         {
             Asset = asset;
             PreviousUserId = previousUserId;
         }
 
-        public Asset Asset { get; protected set; }
+        public T Asset { get; protected set; }
         public Guid? PreviousUserId { get; protected set; }
 
         public override string EventMessage(string languageCode = "nb-NO")

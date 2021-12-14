@@ -7,12 +7,12 @@ using Common.Logging;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 namespace AssetServices.DomainEvents
 {
-    public class PurchaseDateChangedDomainEvent : BaseEvent
+    public class PurchaseDateChangedDomainEvent<T> : BaseEvent where T:Asset
     {
-        public Asset Asset { get; protected set; }
+        public T Asset { get; protected set; }
         public DateTime PreviousPurchaseDate { get; protected set; }
 
-        public PurchaseDateChangedDomainEvent(Asset asset, DateTime previousPurchaseDate) : base(asset.ExternalId)
+        public PurchaseDateChangedDomainEvent(T asset, DateTime previousPurchaseDate) : base(asset.ExternalId)
         {
             Asset = asset;
             PreviousPurchaseDate = previousPurchaseDate;

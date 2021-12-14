@@ -6,12 +6,12 @@ using Common.Logging;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 namespace AssetServices.DomainEvents
 {
-    public class ModelChangedDomainEvent : BaseEvent
+    public class ModelChangedDomainEvent<T> : BaseEvent where T:Asset
     {
-        public Asset Asset { get; protected set; }
+        public T Asset { get; protected set; }
         public string PreviousModel { get; protected set; }
 
-        public ModelChangedDomainEvent(Asset asset, string previousModel) : base(asset.ExternalId)
+        public ModelChangedDomainEvent(T asset, string previousModel) : base(asset.ExternalId)
         {
             Asset = asset;
             PreviousModel = previousModel;

@@ -26,7 +26,15 @@ namespace Common.Logging
         [Required]
         public string EventTypeName { get; private set; }
         [NotMapped]
-        public string EventTypeShortName => EventTypeName.Split('.')?.Last();
+        public string EventTypeShortName
+        {
+            get  {
+                string name = EventTypeName.Split('.')[2];
+                int indexEnd = name.IndexOf("Event");
+                return name.Substring(0, indexEnd + "Event".Length);
+            }
+        }
+        
         [NotMapped]
         public IEvent FunctionalLogEvent { get; private set; }
         [Required]
