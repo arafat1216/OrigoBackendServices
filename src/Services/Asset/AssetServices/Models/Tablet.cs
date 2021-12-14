@@ -80,11 +80,11 @@ namespace AssetServices.Models
             AddDomainEvent(new PurchaseDateChangedDomainEvent<Tablet>(this, callerId, previousPurchaseDate));
         }
 
-        public override void AssignAssetToUser(Guid? userId)
+        public override void AssignAssetToUser(Guid? userId, Guid callerId)
         {
             var oldUserId = AssetHolderId;
             AssetHolderId = userId;
-            AddDomainEvent(new AssignAssetToUserDomainEvent<Tablet>(this, oldUserId));
+            AddDomainEvent(new AssignAssetToUserDomainEvent<Tablet>(this, callerId, oldUserId));
         }
 
         public override void UpdateNote(string note, Guid callerId)

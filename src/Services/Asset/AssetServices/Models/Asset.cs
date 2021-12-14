@@ -173,11 +173,11 @@ namespace AssetServices.Models
             AddDomainEvent(new PurchaseDateChangedDomainEvent<Asset>(this, callerId, previousPurchaseDate));
         }
 
-        public virtual void AssignAssetToUser(Guid? userId)
+        public virtual void AssignAssetToUser(Guid? userId, Guid callerId)
         {
             var oldUserId = AssetHolderId;
             AssetHolderId = userId;
-            AddDomainEvent(new AssignAssetToUserDomainEvent<Asset>(this, oldUserId));
+            AddDomainEvent(new AssignAssetToUserDomainEvent<Asset>(this, callerId, oldUserId));
         }
 
         public virtual void UpdateNote(string note, Guid callerId)

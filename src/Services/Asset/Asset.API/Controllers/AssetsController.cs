@@ -610,15 +610,15 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customer/{customerId:guid}/assign")]
+        [Route("{assetId:Guid}/customer/{customerId:guid}/assign/{callerId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, Guid? userId)
+        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, Guid? userId, Guid callerId)
         {
             try
             {
-                var updatedAsset = await _assetServices.AssignAsset(customerId, assetId, userId);
+                var updatedAsset = await _assetServices.AssignAsset(customerId, assetId, userId, callerId);
                 if (updatedAsset == null)
                 {
                     return NotFound();

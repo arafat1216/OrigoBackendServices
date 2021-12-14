@@ -776,7 +776,11 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var assignedAsset = await _assetServices.AssignAsset(organizationId, assetId, userId);
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+
+                var assignedAsset = await _assetServices.AssignAsset(organizationId, assetId, userId, callerId);
                 if (assignedAsset == null)
                 {
                     return NotFound();

@@ -542,7 +542,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid? userId)
+        public async Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid? userId, Guid callerId)
         {
             try
             {
@@ -562,7 +562,7 @@ namespace OrigoApiGateway.Services
                     }
                 }
                 var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{assetId}/customer/{customerId}/assign?userId={userId}";
+                var requestUri = $"{_options.ApiPath}/{assetId}/customer/{customerId}/assign?userId={userId}/{callerId}";
                 var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
                 if (!response.IsSuccessStatusCode)
                 {

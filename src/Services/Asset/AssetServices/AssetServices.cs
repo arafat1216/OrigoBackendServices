@@ -495,14 +495,14 @@ namespace AssetServices
             }
         }
 
-        public async Task<Asset> AssignAsset(Guid customerId, Guid assetId, Guid? userId)
+        public async Task<Asset> AssignAsset(Guid customerId, Guid assetId, Guid? userId, Guid callerId)
         {
             var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
             if (asset == null)
             {
                 return null;
             }
-            asset.AssignAssetToUser(userId);
+            asset.AssignAssetToUser(userId, callerId);
             await _assetRepository.SaveEntitiesAsync();
             return asset;
         }
