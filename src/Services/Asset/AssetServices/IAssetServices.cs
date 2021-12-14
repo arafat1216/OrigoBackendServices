@@ -32,7 +32,7 @@ namespace AssetServices
             IList<long> imei, string macAddress, Guid? managedByDepartmentId, AssetStatus status, string note, string tag, string description);
         Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, Guid callerId, LifecycleType newLifecycleType);
         Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, Guid callerId, IList<Guid> assetGuidList, AssetStatus status);
-        Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei);
+        Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei);
         Task<Asset> AssignAsset(Guid customerId, Guid assetId, Guid? userId);
         Task<IList<AssetCategory>> GetAssetCategoriesAsync(string language = "EN");
         Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId);

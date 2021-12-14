@@ -574,15 +574,15 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/Update")]
+        [Route("{assetId:Guid}/customers/{customerId:guid}/Update/{callerId}")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> UpdateAsset(Guid customerId, Guid assetId, [FromBody] UpdateAsset asset)
+        public async Task<IActionResult> UpdateAsset(Guid customerId, Guid assetId, Guid callerId, [FromBody] UpdateAsset asset)
         {
             try
             {
-                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.Alias, asset.SerialNumber, asset.Brand, asset.ProductName, asset.PurchaseDate, asset.Note, asset.AssetTag, asset.Description, asset.Imei);
+                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, callerId, asset.Alias, asset.SerialNumber, asset.Brand, asset.ProductName, asset.PurchaseDate, asset.Note, asset.AssetTag, asset.Description, asset.Imei);
                 if (updatedAsset == null)
                 {
                     return NotFound();

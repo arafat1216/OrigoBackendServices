@@ -406,7 +406,7 @@ namespace AssetServices
             return assets;
         }
 
-        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei)
+        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei)
         {
             Asset asset = await _assetRepository.GetAssetAsync(customerId, assetId);
             if (asset == null)
@@ -415,31 +415,31 @@ namespace AssetServices
             }
             if (!string.IsNullOrWhiteSpace(brand) && asset.Brand != brand)
             {
-                asset.UpdateBrand(brand);
+                asset.UpdateBrand(brand, callerId);
             }
             if (!string.IsNullOrWhiteSpace(model) && asset.ProductName != model)
             {
-                asset.UpdateProductName(model);
+                asset.UpdateProductName(model, callerId);
             }
             if (purchaseDate != default && asset.PurchaseDate != purchaseDate)
             {
-                asset.ChangePurchaseDate(purchaseDate);
+                asset.ChangePurchaseDate(purchaseDate, callerId);
             }
             if (note != default && asset.Note != note)
             {
-                asset.UpdateNote(note);
+                asset.UpdateNote(note, callerId);
             }
             if (tag != default && asset.AssetTag != tag)
             {
-                asset.UpdateTag(tag);
+                asset.UpdateTag(tag, callerId);
             }
             if (description != default && asset.Description != description)
             {
-                asset.UpdateDescription(description);
+                asset.UpdateDescription(description, callerId);
             }
             if (!string.IsNullOrWhiteSpace(alias) && asset.Alias != alias)
             {
-                asset.SetAlias(alias);
+                asset.SetAlias(alias, callerId);
             }
 
             if (!asset.AssetPropertiesAreValid)
@@ -460,20 +460,20 @@ namespace AssetServices
                 throw new InvalidAssetDataException(exceptionMsg.ToString());
             }
 
-            UpdateDerivedAssetType(asset, serialNumber, imei);
+            UpdateDerivedAssetType(asset, serialNumber, imei, callerId);
 
             await _assetRepository.SaveEntitiesAsync();
             return asset;
         }
 
-        private void UpdateDerivedAssetType(Asset asset, string serialNumber, IList<long> imei)
+        private void UpdateDerivedAssetType(Asset asset, string serialNumber, IList<long> imei, Guid callerId)
         {
             MobilePhone phone = asset as MobilePhone;
             if (phone != null)
             {
                 if (!string.IsNullOrWhiteSpace(serialNumber) && phone.SerialNumber != serialNumber)
                 {
-                    phone.ChangeSerialNumber(serialNumber);
+                    phone.ChangeSerialNumber(serialNumber, callerId);
                 }
                 if (phone.Imeis != imei)
                 {
@@ -486,7 +486,7 @@ namespace AssetServices
             {
                 if (!string.IsNullOrWhiteSpace(serialNumber) && tablet.SerialNumber != serialNumber)
                 {
-                    tablet.ChangeSerialNumber(serialNumber);
+                    tablet.ChangeSerialNumber(serialNumber, callerId);
                 }
                 if (tablet.Imeis != imei)
                 {

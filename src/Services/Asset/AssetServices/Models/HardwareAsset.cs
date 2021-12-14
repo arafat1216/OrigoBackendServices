@@ -35,11 +35,11 @@ namespace AssetServices.Models
         [JsonInclude]
         public string MacAddress { get; protected set; }
 
-        public void ChangeSerialNumber(string serialNumber)
+        public virtual void ChangeSerialNumber(string serialNumber, Guid callerId)
         {
             var previousSerialNumber = SerialNumber;
             SerialNumber = serialNumber;
-            AddDomainEvent(new SerialNumberChangedDomainEvent(this, previousSerialNumber));
+            AddDomainEvent(new SerialNumberChangedDomainEvent<HardwareAsset>(this, callerId, previousSerialNumber));
         }
 
         /// <summary>

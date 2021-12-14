@@ -131,9 +131,11 @@ namespace AssetServices.Models
         /// Sets the alias of the asset
         /// </summary>
         /// <param name="alias"></param>
-        public void SetAlias(string alias)
+        public virtual void SetAlias(string alias, Guid callerId)
         {
+            var previousAlias = Alias;
             Alias = alias;
+            AddDomainEvent(new SetAliasDomainEvent<Asset>(this, callerId, previousAlias));
         }
 
         public virtual void SetLifeCycleType(LifecycleType newLifecycleType, Guid callerId)
@@ -150,25 +152,25 @@ namespace AssetServices.Models
             AddDomainEvent(new UpdateAssetStatusDomainEvent<Asset>(this, callerId, previousStatus));
         }
 
-        public virtual void UpdateBrand(string brand)
+        public virtual void UpdateBrand(string brand, Guid callerId)
         {
             var previousBrand = Brand;
             Brand = brand;
-            AddDomainEvent(new BrandChangedDomainEvent<Asset>(this, previousBrand));
+            AddDomainEvent(new BrandChangedDomainEvent<Asset>(this, callerId, previousBrand));
         }
 
-        public virtual void UpdateProductName(string model)
+        public virtual void UpdateProductName(string model, Guid callerId)
         {
             var previousModel = ProductName;
             ProductName = model;
-            AddDomainEvent(new ModelChangedDomainEvent<Asset>(this, previousModel));
+            AddDomainEvent(new ModelChangedDomainEvent<Asset>(this, callerId, previousModel));
         }
 
-        public virtual void ChangePurchaseDate(DateTime purchaseDate)
+        public virtual void ChangePurchaseDate(DateTime purchaseDate, Guid callerId)
         {
             var previousPurchaseDate = PurchaseDate;
             PurchaseDate = purchaseDate;
-            AddDomainEvent(new PurchaseDateChangedDomainEvent<Asset>(this, previousPurchaseDate));
+            AddDomainEvent(new PurchaseDateChangedDomainEvent<Asset>(this, callerId, previousPurchaseDate));
         }
 
         public virtual void AssignAssetToUser(Guid? userId)
@@ -178,25 +180,25 @@ namespace AssetServices.Models
             AddDomainEvent(new AssignAssetToUserDomainEvent<Asset>(this, oldUserId));
         }
 
-        public virtual void UpdateNote(string note)
+        public virtual void UpdateNote(string note, Guid callerId)
         {
             var previousNote = Note;
             Note = note;
-            AddDomainEvent(new NoteChangedDomainEvent<Asset>(this, previousNote));
+            AddDomainEvent(new NoteChangedDomainEvent<Asset>(this, callerId, previousNote));
         }
 
-        public virtual void UpdateDescription(string description)
+        public virtual void UpdateDescription(string description, Guid callerId)
         {
             var previousDescription = Description;
             Description = description;
-            AddDomainEvent(new DescriptionChangedDomainEvent<Asset>(this, previousDescription));
+            AddDomainEvent(new DescriptionChangedDomainEvent<Asset>(this, callerId, previousDescription));
         }
 
-        public virtual void UpdateTag(string tag)
+        public virtual void UpdateTag(string tag, Guid callerId)
         {
             var previousTag = AssetTag;
             AssetTag = tag;
-            AddDomainEvent(new TagUpdatedDomainEvent<Asset>(this, previousTag));
+            AddDomainEvent(new TagUpdatedDomainEvent<Asset>(this, callerId, previousTag));
         }
 
         /// <summary>

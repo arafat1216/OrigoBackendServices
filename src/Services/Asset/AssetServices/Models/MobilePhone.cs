@@ -35,6 +35,17 @@ namespace AssetServices.Models
             AddDomainEvent(new AssetCreatedDomainEvent<MobilePhone>(this, callerId));
         }
 
+        /// <summary>
+        /// Sets the alias of the asset
+        /// </summary>
+        /// <param name="alias"></param>
+        public override void SetAlias(string alias, Guid callerId)
+        {
+            var previousAlias = Alias;
+            Alias = alias;
+            AddDomainEvent(new SetAliasDomainEvent<MobilePhone>(this, callerId, previousAlias));
+        }
+
         public override void SetLifeCycleType(LifecycleType newLifecycleType, Guid callerId)
         {
             var previousLifecycleType = LifecycleType; 
@@ -49,25 +60,25 @@ namespace AssetServices.Models
             AddDomainEvent(new UpdateAssetStatusDomainEvent<MobilePhone>(this, callerId, previousStatus));
         }
 
-        public override void UpdateBrand(string brand)
+        public override void UpdateBrand(string brand, Guid callerId)
         {
             var previousBrand = Brand;
             Brand = brand;
-            AddDomainEvent(new BrandChangedDomainEvent<MobilePhone>(this, previousBrand));
+            AddDomainEvent(new BrandChangedDomainEvent<MobilePhone>(this, callerId, previousBrand));
         }
 
-        public override void UpdateProductName(string model)
+        public override void UpdateProductName(string model, Guid callerId)
         {
             var previousModel = ProductName;
             ProductName = model;
-            AddDomainEvent(new ModelChangedDomainEvent<MobilePhone>(this, previousModel));
+            AddDomainEvent(new ModelChangedDomainEvent<MobilePhone>(this, callerId, previousModel));
         }
 
-        public override void ChangePurchaseDate(DateTime purchaseDate)
+        public override void ChangePurchaseDate(DateTime purchaseDate, Guid callerId)
         {
             var previousPurchaseDate = PurchaseDate;
             PurchaseDate = purchaseDate;
-            AddDomainEvent(new PurchaseDateChangedDomainEvent<MobilePhone>(this, previousPurchaseDate));
+            AddDomainEvent(new PurchaseDateChangedDomainEvent<MobilePhone>(this, callerId, previousPurchaseDate));
         }
 
         public override void AssignAssetToUser(Guid? userId)
@@ -77,25 +88,32 @@ namespace AssetServices.Models
             AddDomainEvent(new AssignAssetToUserDomainEvent<MobilePhone>(this, oldUserId));
         }
 
-        public override void UpdateNote(string note)
+        public override void UpdateNote(string note, Guid callerId)
         {
             var previousNote = Note;
             Note = note;
-            AddDomainEvent(new NoteChangedDomainEvent<MobilePhone>(this, previousNote));
+            AddDomainEvent(new NoteChangedDomainEvent<MobilePhone>(this, callerId, previousNote));
         }
 
-        public override void UpdateDescription(string description)
+        public override void UpdateDescription(string description, Guid callerId)
         {
             var previousDescription = Description;
             Description = description;
-            AddDomainEvent(new DescriptionChangedDomainEvent<MobilePhone>(this, previousDescription));
+            AddDomainEvent(new DescriptionChangedDomainEvent<MobilePhone>(this, callerId, previousDescription));
         }
 
-        public override void UpdateTag(string tag)
+        public override void UpdateTag(string tag, Guid callerId)
         {
             var previousTag = AssetTag;
             AssetTag = tag;
-            AddDomainEvent(new TagUpdatedDomainEvent<MobilePhone>(this, previousTag));
+            AddDomainEvent(new TagUpdatedDomainEvent<MobilePhone>(this, callerId, previousTag));
+        }
+
+        public override void ChangeSerialNumber(string serialNumber, Guid callerId)
+        {
+            var previousSerialNumber = SerialNumber;
+            SerialNumber = serialNumber;
+            AddDomainEvent(new SerialNumberChangedDomainEvent<MobilePhone>(this, callerId, previousSerialNumber));
         }
     }
 }
