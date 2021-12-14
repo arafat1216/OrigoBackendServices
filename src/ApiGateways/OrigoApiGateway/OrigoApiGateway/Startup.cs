@@ -1,6 +1,3 @@
-using System.Linq;
-using System.Security.Claims;
-using System.Threading;
 using Dapr.Client;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication;
@@ -22,6 +19,12 @@ using Okta.AspNetCore;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Helpers;
 using OrigoApiGateway.Services;
+using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Security.Claims;
+using System.Threading;
 
 namespace OrigoApiGateway
 {
@@ -53,7 +56,7 @@ namespace OrigoApiGateway
             });
 
             services.AddHealthChecks()
-                .AddCheck("self", () => HealthCheckResult.Healthy("Gateway is ok"), tags: new[] { "Origo API Gateway" });
+                    .AddCheck("self", () => HealthCheckResult.Healthy("Gateway is ok"), tags: new[] { "Origo API Gateway" });
 
             services.AddHealthChecksUI().AddInMemoryStorage();
             var blobConnectionString = Configuration.GetSection("Storage:ConnectionString").Value;
@@ -68,6 +71,8 @@ namespace OrigoApiGateway
             services.Configure<UserPermissionsConfigurations>(Configuration.GetSection("UserPermissions"));
             services.Configure<ModuleConfiguration>(Configuration.GetSection("Module"));
             services.Configure<DepartmentConfiguration>(Configuration.GetSection("Department"));
+            services.Configure<ProductCatalogConfiguration>(Configuration.GetSection("ProductCatalog"));
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = OktaDefaults.ApiAuthenticationScheme;
@@ -89,50 +94,89 @@ namespace OrigoApiGateway
             });
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
             services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
             services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
-            services.AddSingleton<IAssetServices>(x => new AssetServices(x.GetRequiredService<ILogger<AssetServices>>(),
+            services.AddSingleton<IAssetServices>(x => new AssetServices(
+                x.GetRequiredService<ILogger<AssetServices>>(),
                 DaprClient.CreateInvokeHttpClient("assetservices"),
-                x.GetRequiredService<IOptions<AssetConfiguration>>(), new UserServices(x.GetRequiredService<ILogger<UserServices>>(),
-                DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<UserConfiguration>>())));
+                x.GetRequiredService<IOptions<AssetConfiguration>>(),
+                new UserServices(
+                    x.GetRequiredService<ILogger<UserServices>>(),
+                    DaprClient.CreateInvokeHttpClient("customerservices"),
+                    x.GetRequiredService<IOptions<UserConfiguration>>()
+                )
+            ));
 
-            services.AddSingleton<ICustomerServices>(x => new CustomerServices(x.GetRequiredService<ILogger<CustomerServices>>(),
+            services.AddSingleton<ICustomerServices>(x => new CustomerServices(
+                x.GetRequiredService<ILogger<CustomerServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<CustomerConfiguration>>(), new AssetServices(x.GetRequiredService<ILogger<AssetServices>>(),
-                DaprClient.CreateInvokeHttpClient("assetservices"),
-                x.GetRequiredService<IOptions<AssetConfiguration>>(), new UserServices(x.GetRequiredService<ILogger<UserServices>>(),
+                x.GetRequiredService<IOptions<CustomerConfiguration>>(),
+                new AssetServices(
+                    x.GetRequiredService<ILogger<AssetServices>>(),
+                    DaprClient.CreateInvokeHttpClient("assetservices"),
+                    x.GetRequiredService<IOptions<AssetConfiguration>>(),
+                    new UserServices(
+                            x.GetRequiredService<ILogger<UserServices>>(),
+                            DaprClient.CreateInvokeHttpClient("customerservices"),
+                            x.GetRequiredService<IOptions<UserConfiguration>>()
+                    )
+                )
+            ));
+
+            services.AddSingleton<IUserPermissionService>(x => new UserPermissionService(
+                x.GetRequiredService<ILogger<UserPermissionService>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<UserConfiguration>>()))));
+                x.GetRequiredService<IOptions<UserPermissionsConfigurations>>()
+            ));
 
-            services.AddSingleton<IUserPermissionService>(x => new UserPermissionService(x.GetRequiredService<ILogger<UserPermissionService>>(), 
-                DaprClient.CreateInvokeHttpClient("customerservices"), 
-                x.GetRequiredService<IOptions<UserPermissionsConfigurations>>()));
-
-            services.AddSingleton<IUserServices>(x => new UserServices(x.GetRequiredService<ILogger<UserServices>>(),
+            services.AddSingleton<IUserServices>(x => new UserServices(
+                x.GetRequiredService<ILogger<UserServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<UserConfiguration>>()));
+                x.GetRequiredService<IOptions<UserConfiguration>>()
+            ));
 
-            services.AddSingleton<IModuleServices>(x => new ModuleServices(x.GetRequiredService<ILogger<ModuleServices>>(),
+            services.AddSingleton<IModuleServices>(x => new ModuleServices(
+                x.GetRequiredService<ILogger<ModuleServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
                 x.GetRequiredService<IOptions<ModuleConfiguration>>(),
-                new CustomerServices(x.GetRequiredService<ILogger<CustomerServices>>(),
-                DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<CustomerConfiguration>>(), new AssetServices(x.GetRequiredService<ILogger<AssetServices>>(),
-                DaprClient.CreateInvokeHttpClient("assetservices"),
-                x.GetRequiredService<IOptions<AssetConfiguration>>(), new UserServices(x.GetRequiredService<ILogger<UserServices>>(),
-                DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<UserConfiguration>>())))));
+                new CustomerServices(
+                    x.GetRequiredService<ILogger<CustomerServices>>(),
+                    DaprClient.CreateInvokeHttpClient("customerservices"),
+                    x.GetRequiredService<IOptions<CustomerConfiguration>>(),
+                    new AssetServices(
+                        x.GetRequiredService<ILogger<AssetServices>>(),
+                        DaprClient.CreateInvokeHttpClient("assetservices"),
+                        x.GetRequiredService<IOptions<AssetConfiguration>>(),
+                        new UserServices(
+                            x.GetRequiredService<ILogger<UserServices>>(),
+                            DaprClient.CreateInvokeHttpClient("customerservices"),
+                            x.GetRequiredService<IOptions<UserConfiguration>>()
+                        )
+                    )
+                )
+            ));
 
-            services.AddSingleton<IDepartmentsServices>(x => new DepartmentsServices(x.GetRequiredService<ILogger<DepartmentsServices>>(),
+            services.AddSingleton<IDepartmentsServices>(x => new DepartmentsServices(
+                x.GetRequiredService<ILogger<DepartmentsServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<DepartmentConfiguration>>()));
+                x.GetRequiredService<IOptions<DepartmentConfiguration>>()
+            ));
 
-            services.AddSwaggerGen(c =>
+            services.AddSingleton<IProductCatalogServices>(x => new ProductCatalogServices(
+                x.GetRequiredService<ILogger<ProductCatalogServices>>(),
+                DaprClient.CreateInvokeHttpClient("productcatalogservices"),
+                x.GetRequiredService<IOptions<ProductCatalogConfiguration>>()
+            ));
+
+            services.AddSwaggerGen(options =>
             {
-                c.SwaggerDoc($"v{_apiVersion.MajorVersion}", new OpenApiInfo { Title = "Origo API Gateway", Version = $"v{_apiVersion.MajorVersion}" });
+                // Include XML documentation used for Swagger enrichment
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
+                options.EnableAnnotations();
+                options.SwaggerDoc($"v{_apiVersion.MajorVersion}", new OpenApiInfo { Title = "Origo API Gateway", Version = $"v{_apiVersion.MajorVersion}" });
                 var securityScheme = new OpenApiSecurityScheme
                 {
                     Name = "JWT Authentication",
@@ -147,8 +191,8 @@ namespace OrigoApiGateway
                         Type = ReferenceType.SecurityScheme
                     }
                 };
-                c.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                options.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {securityScheme, new string[] { }}
                 });

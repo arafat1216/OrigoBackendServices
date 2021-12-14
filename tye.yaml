@@ -5,20 +5,26 @@
 #    https://aka.ms/AA7q20u
 #
 name: origodomainservices
+
 extensions:
-- name: dapr
-  log-level: debug
-- name: zipkin
+  - name: dapr
+    log-level: debug
+  - name: zipkin
+
 services:
-- name: assetservices
-  project: src/Services/Asset/Asset.API/Asset.API.csproj
-  bindings:
-  - port: 58888
-- name: customerservices
-  project: src/Services/Customer/Customer.API/Customer.API.csproj
-  bindings:
-  - port: 58889
-- name: origoapigateway
-  project: src/ApiGateways/OrigoApiGateway/OrigoApiGateway/OrigoApiGateway.csproj
-  bindings:
-  - port: 58890
+  - name: assetservices
+    project: src/Services/Asset/Asset.API/Asset.API.csproj
+    bindings:
+    - port: 58888
+  - name: customerservices
+    project: src/Services/Customer/Customer.API/Customer.API.csproj
+    bindings:
+    - port: 58889
+  - name: origoapigateway
+    project: src/ApiGateways/OrigoApiGateway/OrigoApiGateway/OrigoApiGateway.csproj
+    bindings:
+    - port: 58890
+  - name: productcatalogservices
+    project: src/Services/ProductCatalog/ProductCatalog.API/ProductCatalog.API.csproj
+    bindings:
+    - port: 58891
