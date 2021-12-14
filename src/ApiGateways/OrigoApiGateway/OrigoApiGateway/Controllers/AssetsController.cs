@@ -253,6 +253,7 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())

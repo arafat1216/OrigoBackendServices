@@ -561,8 +561,9 @@ namespace OrigoApiGateway.Services
                         throw exception;
                     }
                 }
+
                 var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{assetId}/customer/{customerId}/assign?userId={userId}/{callerId}";
+                var requestUri = $"{_options.ApiPath}/{assetId}/customer/{customerId}/{callerId}/assign?userId={userId}";
                 var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
                 if (!response.IsSuccessStatusCode)
                 {

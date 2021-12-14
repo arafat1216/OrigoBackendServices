@@ -610,11 +610,11 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customer/{customerId:guid}/assign/{callerId:guid}")]
+        [Route("{assetId:Guid}/customer/{customerId:guid}/{callerId:guid}/assign/")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, Guid? userId, Guid callerId)
+        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, Guid callerId, Guid? userId)
         {
             try
             {
