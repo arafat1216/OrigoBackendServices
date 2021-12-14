@@ -376,7 +376,7 @@ namespace AssetServices
             return assetLifecycles;
         }
 
-        public async Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, LifecycleType newLifecycleType)
+        public async Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, Guid callerId, LifecycleType newLifecycleType)
         {
             var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
             if (asset == null)
@@ -384,7 +384,7 @@ namespace AssetServices
                 return null;
             }
 
-            asset.SetLifeCycleType(newLifecycleType);
+            asset.SetLifeCycleType(newLifecycleType, callerId);
             await _assetRepository.SaveEntitiesAsync();
             return asset;
         }

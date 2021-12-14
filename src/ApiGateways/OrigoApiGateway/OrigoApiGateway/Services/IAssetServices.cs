@@ -23,7 +23,7 @@ namespace OrigoApiGateway.Services
         Task<IList<object>> AssignLabelsToAssets(Guid customerId, Guid callerId, AssetLabels assetLabels);
         Task<IList<object>> UnAssignLabelsFromAssets(Guid customerId, Guid callerId, AssetLabels assetLabels);
         Task<IList<OrigoAssetLifecycle>> GetLifecycles();
-        Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, int newLifecycleType);
+        Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, Guid callerId, int newLifecycleType);
         Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset);
         Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid? userId);
         Task<IList<OrigoAssetCategory>> GetAssetCategoriesAsync();

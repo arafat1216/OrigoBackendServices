@@ -178,7 +178,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
- 
+
                 var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId);
                 if (assets == null)
                 {
@@ -259,7 +259,7 @@ namespace OrigoApiGateway.Controllers
                 {
                     return Forbid();
                 }
-
+                
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
@@ -268,7 +268,6 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
@@ -316,7 +315,7 @@ namespace OrigoApiGateway.Controllers
                 {
                     return Forbid();
                 }
-
+                
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
@@ -722,7 +721,11 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var updatedAsset = await _assetServices.ChangeLifecycleType(organizationId, assetId, newLifecycleType);
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+
+                var updatedAsset = await _assetServices.ChangeLifecycleType(organizationId, assetId, callerId, newLifecycleType);
                 if (updatedAsset == null)
                 {
                     return NotFound();
@@ -750,7 +753,6 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())

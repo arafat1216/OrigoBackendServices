@@ -34,11 +34,11 @@ namespace AssetServices.Models
             AddDomainEvent(new AssetCreatedDomainEvent<Tablet>(this, callerId));
         }
 
-        public override void SetLifeCycleType(LifecycleType newLifecycleType)
+        public override void SetLifeCycleType(LifecycleType newLifecycleType, Guid callerId)
         {
             var previousLifecycleType = LifecycleType;
             LifecycleType = newLifecycleType;
-            AddDomainEvent(new SetLifeCycleTypeDomainEvent<Tablet>(this, previousLifecycleType));
+            AddDomainEvent(new SetLifeCycleTypeDomainEvent<Tablet>(this, callerId, previousLifecycleType));
         }
 
         public override void UpdateAssetStatus(AssetStatus status)

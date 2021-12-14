@@ -136,11 +136,11 @@ namespace AssetServices.Models
             Alias = alias;
         }
 
-        public virtual void SetLifeCycleType(LifecycleType newLifecycleType)
+        public virtual void SetLifeCycleType(LifecycleType newLifecycleType, Guid callerId)
         {
             var previousLifecycleType = LifecycleType;
             LifecycleType = newLifecycleType;
-            AddDomainEvent(new SetLifeCycleTypeDomainEvent<Asset>(this, previousLifecycleType));
+            AddDomainEvent(new SetLifeCycleTypeDomainEvent<Asset>(this, callerId, previousLifecycleType));
         }
 
         public virtual void UpdateAssetStatus(AssetStatus status)
