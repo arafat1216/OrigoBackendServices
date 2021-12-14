@@ -527,35 +527,43 @@ namespace AssetServices
 
             foreach (var logEventEntry in logEventEntries)
             {
-                if (string.IsNullOrEmpty(logEventEntry.Content) || string.IsNullOrEmpty(logEventEntry.EventTypeName))
+                try
                 {
-                    continue;
-                }
-                var eventType = Type.GetType(logEventEntry.EventTypeName);
-                if (eventType == null)
-                {
-                    continue;
-                }
-                dynamic @event = JsonSerializer.Deserialize(logEventEntry.Content, eventType) as IEvent;
-                if (@event == null)
-                {
-                    continue;
-                }
+                    if (string.IsNullOrEmpty(logEventEntry.Content) || string.IsNullOrEmpty(logEventEntry.EventTypeName))
+                    {
+                        continue;
+                    }
+                    var eventType = Type.GetType(logEventEntry.EventTypeName);
+                    if (eventType == null)
+                    {
+                        continue;
+                    }
+                    dynamic @event = JsonSerializer.Deserialize(logEventEntry.Content, eventType) as IEvent;
+                    if (@event == null)
+                    {
+                        continue;
+                    }
 
-                if (!Guid.TryParse(logEventEntry.TransactionId, out var transactionGuid))
-                {
-                    continue;
-                }
+                    if (!Guid.TryParse(logEventEntry.TransactionId, out var transactionGuid))
+                    {
+                        continue;
+                    }
 
-                var previousStatus = PropertyExist(@event, "PreviousStatus")
-                    ? @event.PreviousStatus.ToString()
-                    : @event.Asset.Status.ToString();
-                var callerId = PropertyExist(@event, "CallerId")
-                    ? @event.CallerId.ToString()
-                    : "N/A";
-                var auditLog = new AssetAuditLog(transactionGuid, @event.Asset.ExternalId, logEventEntry.CreationTime, callerId,
-                    ((IEvent)@event).EventMessage(), logEventEntry.EventTypeShortName, previousStatus, @event.Asset.Status.ToString());
-                assetLogList.Add(auditLog);
+                    var previousStatus = PropertyExist(@event, "PreviousStatus")
+                        ? @event.PreviousStatus.ToString()
+                        : @event.Asset.Status.ToString();
+                    var callerId = PropertyExist(@event, "CallerId")
+                        ? @event.CallerId.ToString()
+                        : "N/A";
+                    var auditLog = new AssetAuditLog(transactionGuid, @event.Asset.ExternalId, logEventEntry.CreationTime, callerId,
+                        ((IEvent)@event).EventMessage(), logEventEntry.EventTypeShortName, previousStatus, @event.Asset.Status.ToString());
+                    assetLogList.Add(auditLog);
+                }
+                catch (Exception ex)
+                {
+                    // Log error but don't stop request
+                    _logger?.LogError("{0}", ex.Message);
+                }
             }
             return assetLogList;
         }
