@@ -170,7 +170,7 @@ namespace OrigoApiGateway.Tests
             assetGuidList.Add(new Guid("ef8710e8-ca5c-4832-ae27-139100d1ae63"));
 
             // Act
-            var updatedAssets = await assetService.UpdateStatusOnAssets(new Guid(CUSTOMER_ID), assetGuidList, 0);
+            var updatedAssets = await assetService.UpdateStatusOnAssets(new Guid(CUSTOMER_ID), Guid.Empty, assetGuidList, 0);
 
             // Assert
             Assert.Equal(2, updatedAssets.Count);
