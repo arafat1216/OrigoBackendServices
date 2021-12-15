@@ -9,7 +9,7 @@ trigger:
     - develop
   paths:
     include:
-    - azure-pipelines-productcatalog
+    - azure-pipelines-productcatalog.yml
     - charts/product-catalog-api
     - src/Boilerplate/Boilerplate.EntityFramework
     - src/Boilerplate/Boilerplate.EntityFramework.UnitTest
