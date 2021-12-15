@@ -228,18 +228,18 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("customers/{customerId:guid}/labels/assign/{callerId:guid}")]
+        [Route("customers/{customerId:guid}/labels/assign")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> AssignLabelsToAssets(Guid customerId, Guid callerId, [FromBody] AssetLabels assetLabels)
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> AssignLabelsToAssets(Guid customerId, [FromBody] AssetLabels assetLabels)
         {
             try
             {
                 IList<Guid> assetGuids = assetLabels.AssetGuids;
                 IList<Guid> labelGuids = assetLabels.LabelGuids;
 
-                IList<AssetServices.Models.Asset> assets = await _assetServices.AssignLabelsToAssetsAsync(customerId, callerId, assetGuids, labelGuids);
+                IList<AssetServices.Models.Asset> assets = await _assetServices.AssignLabelsToAssetsAsync(customerId, assetLabels.CallerId, assetGuids, labelGuids);
                 
                 var assetList = new List<object>();
                 foreach (var asset in assets)
