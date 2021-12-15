@@ -792,7 +792,16 @@ namespace OrigoApiGateway.Controllers
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
 
-                var assignedAsset = await _assetServices.AssignAsset(organizationId, assetId, userId, callerId);
+                // Input model for assigning asset to a user
+                // Talk to frontend about using this model.
+                AssignAssetToUser data = new AssignAssetToUser
+                {
+                    AssetId = assetId,
+                    CallerId = callerId,
+                    UserId = userId
+                };
+
+                var assignedAsset = await _assetServices.AssignAsset(organizationId, assetId, data);
                 if (assignedAsset == null)
                 {
                     return NotFound();

@@ -542,15 +542,15 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid? userId, Guid callerId)
+        public async Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, AssignAssetToUser data)
         {
             try
             {
-                if (userId != null)
+                if (data.UserId != null)
                 {
                     try
                     {
-                        var user = _userServices.GetUserAsync(customerId, userId.Value).Result;
+                        var user = _userServices.GetUserAsync(customerId, data.UserId.Value).Result;
                         if (user == null)
                             throw new BadHttpRequestException("Unable to assign asset. User not found");
                     }
@@ -562,9 +562,9 @@ namespace OrigoApiGateway.Services
                     }
                 }
 
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{assetId}/customer/{customerId}/{callerId}/assign?userId={userId}";
-                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                //var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                var requestUri = $"{_options.ApiPath}/{data.AssetId}/customer/{customerId}/assign";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, data);//emptyStringBodyContent);
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to assign asset", (int)response.StatusCode);

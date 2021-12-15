@@ -25,7 +25,7 @@ namespace OrigoApiGateway.Services
         Task<IList<OrigoAssetLifecycle>> GetLifecycles();
         Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, UpdateAssetLifecycleType data);
         Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset);
-        Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid? userId, Guid callerId);
+        Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, AssignAssetToUser data);
         Task<IList<OrigoAssetCategory>> GetAssetCategoriesAsync();
         Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId);
     }

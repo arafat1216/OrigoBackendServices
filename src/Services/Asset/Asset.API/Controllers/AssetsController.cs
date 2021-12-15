@@ -614,11 +614,11 @@ namespace Asset.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, Guid callerId, Guid? userId)
+        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, [FromBody] AssignAssetToUser data)
         {
             try
             {
-                var updatedAsset = await _assetServices.AssignAsset(customerId, assetId, userId, callerId);
+                var updatedAsset = await _assetServices.AssignAsset(customerId, assetId, data.UserId, data.CallerId);
                 if (updatedAsset == null)
                 {
                     return NotFound();
