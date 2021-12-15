@@ -12,6 +12,22 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfigurati
 
             builder.HasKey(e => new { e.ProductId, e.ExcludesProductId });
 
+            /*
+             * Properties
+             */
+
+            builder.Property(e => e.ProductId)
+                   .HasColumnOrder(0)
+                   .HasComment("The product that has exclusions");
+
+            builder.Property(e => e.ExcludesProductId)
+                   .HasColumnOrder(1)
+                   .HasComment($"The 'ProductId' cant be combined or used with this product. This is a one-way requirement");
+
+            /*
+             * Relationships / Navigation
+             */
+
             builder.HasOne(pe => pe.Product)
                    .WithMany(p => p.Excludes)
                    .HasForeignKey(pe => pe.ProductId)
