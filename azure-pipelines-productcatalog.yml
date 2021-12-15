@@ -137,10 +137,11 @@ stages:
   variables:
     - group: ProductCatalogLibrary
   jobs:
-
   - deployment: Deploy
     condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
     displayName: Deploy
+    variables:
+      namespace: $(namespace)
     pool:
       vmImage: $(vmImageName)
     environment: 'BackendServices.develop'
@@ -172,8 +173,6 @@ stages:
     dependsOn: Deploy
     environment: 'BackendServices.develop'
     displayName: Migrate database
-    variables:
-      namespace: develop
     pool:
       vmImage: $(windowsVmImageName)
     strategy:
