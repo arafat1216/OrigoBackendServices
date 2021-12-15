@@ -190,19 +190,19 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("customers/{customerId:guid}/labels/update/{callerId:guid}")]
+        [Route("customers/{customerId:guid}/labels/update")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Label>>> UpdateLabelsForCustomer(Guid customerId, Guid callerId, [FromBody] IList<Label> labels)
+        public async Task<ActionResult<IEnumerable<ViewModels.Label>>> UpdateLabelsForCustomer(Guid customerId, [FromBody] UpdateCustomerLabelsData data)
         {
             try
             {
                 IList<AssetServices.Models.CustomerLabel> customerLabels = new List<AssetServices.Models.CustomerLabel>();
 
-                foreach (Label label in labels)
+                foreach (Label label in data.Labels)
                 {
-                    customerLabels.Add(new AssetServices.Models.CustomerLabel(label.Id, customerId, callerId, new AssetServices.Models.Label(label.Text, label.Color)));
+                    customerLabels.Add(new AssetServices.Models.CustomerLabel(label.Id, customerId, data.CallerId, new AssetServices.Models.Label(label.Text, label.Color)));
                 }
 
                 var updatedLabels = await _assetServices.UpdateLabelsForCustomerAsync(customerId, customerLabels);

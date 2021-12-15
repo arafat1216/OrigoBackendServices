@@ -360,12 +360,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<Label>> UpdateLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Label> labels)
+        public async Task<IList<Label>> UpdateLabelsForCustomerAsync(Guid customerId, UpdateCustomerLabelsData data)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/update/{callerId}";
-                var response = await HttpClient.PostAsJsonAsync<IList<Label>>(requestUri, labels);
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/update";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, data);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -504,9 +504,8 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                //var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
                 var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/ChangeLifecycleType";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, data);//emptyStringBodyContent);
+                var response = await HttpClient.PostAsJsonAsync(requestUri, data);
                 if (!response.IsSuccessStatusCode)
                 {
                     Exception exception;
@@ -562,9 +561,9 @@ namespace OrigoApiGateway.Services
                     }
                 }
 
-                //var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+
                 var requestUri = $"{_options.ApiPath}/{data.AssetId}/customer/{customerId}/assign";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, data);//emptyStringBodyContent);
+                var response = await HttpClient.PostAsJsonAsync(requestUri, data);
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to assign asset", (int)response.StatusCode);
