@@ -610,7 +610,7 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customer/{customerId:guid}/{callerId:guid}/assign/")]
+        [Route("{assetId:Guid}/customer/{customerId:guid}/assign")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
