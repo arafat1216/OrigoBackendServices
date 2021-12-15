@@ -82,21 +82,21 @@ namespace Asset.API.Controllers
             return Ok(JsonSerializer.Serialize<object>(assetList, options));
         }
 
-        [Route("customers/{customerId:guid}/labels/{callerId:guid}")]
+        [Route("customers/{customerId:guid}/labels")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Label>>> CreateLabelsForCustomer(Guid customerId, Guid callerId, [FromBody] IList<NewLabel> newLabels)//[FromBody] IList<NewLabel> newLabels)
+        public async Task<ActionResult<IEnumerable<ViewModels.Label>>> CreateLabelsForCustomer(Guid customerId, [FromBody] AddLabelsData data)
         {
             try
             {
                 List<AssetServices.Models.Label> labels = new List<AssetServices.Models.Label>();
-                foreach (NewLabel newLabel in newLabels)
+                foreach (NewLabel newLabel in data.NewLabels)
                 {
                     labels.Add(new AssetServices.Models.Label(newLabel.Text, newLabel.Color));
                 }
 
-                var labelsAdded = await _assetServices.AddLabelsForCustomerAsync(customerId, callerId, labels);
+                var labelsAdded = await _assetServices.AddLabelsForCustomerAsync(customerId, data.CallerId, labels);
 
                 if (labelsAdded == null)
                     return BadRequest("Unable to add labels.");

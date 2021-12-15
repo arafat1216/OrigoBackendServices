@@ -289,13 +289,13 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<Label>> CreateLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<NewLabel> newLabels)
+        public async Task<IList<Label>> CreateLabelsForCustomerAsync(Guid customerId, AddLabelsData data)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/{callerId}";
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels";
 
-                var response = await HttpClient.PostAsJsonAsync<IList<NewLabel>>(requestUri, newLabels);
+                var response = await HttpClient.PostAsJsonAsync(requestUri, data);
 
                 if (!response.IsSuccessStatusCode)
                 {

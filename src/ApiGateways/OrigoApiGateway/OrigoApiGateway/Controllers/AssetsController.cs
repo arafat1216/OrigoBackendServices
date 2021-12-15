@@ -481,11 +481,15 @@ namespace OrigoApiGateway.Controllers
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
-                bool valid = Guid.TryParse(actor, out callerId);
-                if (!valid)
-                    callerId = Guid.Empty;
+                Guid.TryParse(actor, out callerId); // callerId is empty if tryparse fails.
 
-                var createdLabels = await _assetServices.CreateLabelsForCustomerAsync(organizationId, callerId, labels);
+                AddLabelsData data = new AddLabelsData
+                {
+                    NewLabels = labels,
+                    CallerId = callerId
+                };
+
+                var createdLabels = await _assetServices.CreateLabelsForCustomerAsync(organizationId, data);
 
                 return Ok(createdLabels);
             }
