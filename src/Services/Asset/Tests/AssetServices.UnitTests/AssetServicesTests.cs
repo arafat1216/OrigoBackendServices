@@ -86,7 +86,7 @@ namespace AssetServices.UnitTests
             }
 
             // Act
-            IList<Asset> updatedAssets = await assetService.UpdateMultipleAssetsStatus(COMPANY_ID, Guid.Empty, assetGuidList);
+            IList<Asset> updatedAssets = await assetService.UpdateMultipleAssetsStatus(COMPANY_ID, Guid.Empty, assetGuidList, AssetStatus.Active);
 
             // Assert
             Assert.Equal(3, updatedAssets.Count);

@@ -173,11 +173,12 @@ namespace OrigoApiGateway.Tests
             UpdateAssetsStatus data = new UpdateAssetsStatus
             {
                 AssetGuidList = assetGuidList,
-                CallerId = Guid.Empty
+                CallerId = Guid.Empty,
+                AssetStatus =  1
             };
 
             // Act
-            var updatedAssets = await assetService.UpdateStatusOnAssets(new Guid(CUSTOMER_ID), data);
+            var updatedAssets = await assetService.UpdateStatusOnAssets(new Guid(CUSTOMER_ID), data, 1);
 
             // Assert
             Assert.Equal(2, updatedAssets.Count);
