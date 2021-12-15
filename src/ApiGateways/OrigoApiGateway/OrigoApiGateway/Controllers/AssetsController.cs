@@ -328,6 +328,7 @@ namespace OrigoApiGateway.Controllers
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
+                data.CallerId = callerId; // Guid.Empty if tryparse fails.
 
                 IList<Guid> assetGuidList = data.AssetGuidList;
                 int assetStatus = data.AssetStatus;
@@ -335,7 +336,7 @@ namespace OrigoApiGateway.Controllers
                 if (!assetGuidList.Any())
                     return BadRequest("No assets selected.");
 
-                var updatedAssets = await _assetServices.UpdateStatusOnAssets(organizationId, callerId, assetGuidList, assetStatus);
+                var updatedAssets = await _assetServices.UpdateStatusOnAssets(organizationId, data);
                 if (updatedAssets == null)
                 {
                     return NotFound();

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace OrigoApiGateway.Models.Asset
+namespace Asset.API.ViewModels
 {
     /// <summary>
     /// A list of Assets ID (Guid), and an integer representing the status these assets will be set to.
