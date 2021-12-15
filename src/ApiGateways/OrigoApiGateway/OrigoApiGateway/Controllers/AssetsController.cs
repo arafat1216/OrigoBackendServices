@@ -530,7 +530,13 @@ namespace OrigoApiGateway.Controllers
                 if (!valid)
                     callerId = Guid.Empty;
 
-                var createdLabels = await _assetServices.DeleteCustomerLabelsAsync(organizationId, callerId, labelGuids);
+                DeleteCustomerLabelsData data = new DeleteCustomerLabelsData
+                {
+                    LabelGuids = labelGuids,
+                    CallerId = callerId
+                };
+
+                var createdLabels = await _assetServices.DeleteCustomerLabelsAsync(organizationId, data);
 
                 return Ok(createdLabels);
             }

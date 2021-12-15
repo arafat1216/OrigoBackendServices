@@ -147,17 +147,17 @@ namespace Asset.API.Controllers
             return Ok(JsonSerializer.Serialize<object>(labelList, options));
         }
 
-        [Route("customers/{customerId:guid}/labels/delete/{callerId:guid}")]
+        [Route("customers/{customerId:guid}/labels/delete")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> DeleteLabelsForCustomer(Guid customerId, Guid callerId, IList<Guid> labelGuids)
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> DeleteLabelsForCustomer(Guid customerId, [FromBody] DeleteCustomerLabelsData data)
         {
             try
             {
-                var customerLabels = await _assetServices.GetCustomerLabelsAsync(labelGuids);
+                var customerLabels = await _assetServices.GetCustomerLabelsAsync(data.LabelGuids);
                 
-                var labels = await _assetServices.SoftDeleteLabelsForCustomerAsync(customerId, callerId, labelGuids);
+                var labels = await _assetServices.SoftDeleteLabelsForCustomerAsync(customerId, data.CallerId, data.LabelGuids);
 
                 IList<int> labelInts = new List<int>();
                 foreach (AssetServices.Models.CustomerLabel label in customerLabels)
@@ -165,7 +165,7 @@ namespace Asset.API.Controllers
                     labelInts.Add(label.Id);
                 }
 
-                await _assetServices.SoftDeleteAssetLabelsAsync(callerId, labelInts);
+                await _assetServices.SoftDeleteAssetLabelsAsync(data.CallerId, labelInts);
 
                 
                 var labelList = new List<object>();

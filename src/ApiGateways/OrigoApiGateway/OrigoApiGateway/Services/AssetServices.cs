@@ -333,12 +333,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<Label>> DeleteCustomerLabelsAsync(Guid customerId, Guid callerId, IList<Guid> labelGuids)
+        public async Task<IList<Label>> DeleteCustomerLabelsAsync(Guid customerId, DeleteCustomerLabelsData data)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/delete/{callerId}";
-                var response = await HttpClient.PostAsJsonAsync<IList<Guid>>(requestUri, labelGuids);
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/delete";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, data);
                 if (!response.IsSuccessStatusCode)
                 {
                     string errorDescription = await response.Content.ReadAsStringAsync();

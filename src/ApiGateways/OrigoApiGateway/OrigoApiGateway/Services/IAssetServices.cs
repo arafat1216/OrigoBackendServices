@@ -18,7 +18,7 @@ namespace OrigoApiGateway.Services
         Task<IList<object>> UpdateStatusOnAssets(Guid customerId, UpdateAssetsStatus data);
         Task<IList<Label>> CreateLabelsForCustomerAsync(Guid customerId, AddLabelsData data);
         Task<IList<Label>> GetCustomerLabelsAsync(Guid customerId);
-        Task<IList<Label>> DeleteCustomerLabelsAsync(Guid customerId, Guid callerId, IList<Guid> labelGuids);
+        Task<IList<Label>> DeleteCustomerLabelsAsync(Guid customerId, DeleteCustomerLabelsData data);
         Task<IList<Label>> UpdateLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Label> labels);
         Task<IList<object>> AssignLabelsToAssets(Guid customerId, Guid callerId, AssetLabels assetLabels);
         Task<IList<object>> UnAssignLabelsFromAssets(Guid customerId, Guid callerId, AssetLabels assetLabels);
