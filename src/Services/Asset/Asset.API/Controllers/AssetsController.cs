@@ -274,18 +274,18 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("customers/{customerId:guid}/labels/unassign/{callerId:guid}")]
+        [Route("customers/{customerId:guid}/labels/unassign")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UnAssignLabelsToAssets(Guid customerId, Guid callerId, [FromBody] AssetLabels assetLabels)
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UnAssignLabelsToAssets(Guid customerId, [FromBody] AssetLabels assetLabels)
         {
             try
             {
                 IList<Guid> assetGuids = assetLabels.AssetGuids;
                 IList<Guid> labelGuids = assetLabels.LabelGuids;
 
-                IList<AssetServices.Models.Asset> assets = await _assetServices.UnAssignLabelsToAssetsAsync(customerId, callerId, assetGuids, labelGuids);
+                IList<AssetServices.Models.Asset> assets = await _assetServices.UnAssignLabelsToAssetsAsync(customerId, assetLabels.CallerId, assetGuids, labelGuids);
                 if (assets == null)
                     return NotFound("No assets with given Ids where found. Did you enter the correct customerId?");
                 var assetList = new List<object>();

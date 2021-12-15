@@ -430,11 +430,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<object>> UnAssignLabelsFromAssets(Guid customerId, Guid callerId, AssetLabels assetLabels)
+        public async Task<IList<object>> UnAssignLabelsFromAssets(Guid customerId, AssetLabels assetLabels)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/unassign/{callerId}";
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/unassign";
                 var response = await HttpClient.PostAsJsonAsync<AssetLabels>(requestUri, assetLabels);
                 if (!response.IsSuccessStatusCode)
                 {

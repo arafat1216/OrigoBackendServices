@@ -668,13 +668,15 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
+                // Get caller of endpoint
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 bool valid = Guid.TryParse(actor, out callerId);
                 if (!valid)
                     callerId = Guid.Empty;
+                assetLabels.CallerId = callerId;
 
-                var updatedAssets = await _assetServices.UnAssignLabelsFromAssets(organizationId, callerId, assetLabels);
+                var updatedAssets = await _assetServices.UnAssignLabelsFromAssets(organizationId, assetLabels);
                 if (updatedAssets == null)
                 {
                     return NotFound();
