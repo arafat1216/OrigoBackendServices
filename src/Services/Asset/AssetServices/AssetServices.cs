@@ -340,7 +340,7 @@ namespace AssetServices
                 if (imei.Any()) {
                     foreach (var i in imei)
                     {
-                        if (AssetValidatorUtility.ValidateImei(i.ToString()))
+                        if (!AssetValidatorUtility.ValidateImei(i.ToString()))
                         {
                             status = AssetStatus.InputRequired;
                         }
