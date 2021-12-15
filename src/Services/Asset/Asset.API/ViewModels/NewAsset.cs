@@ -52,6 +52,11 @@ namespace Asset.API.ViewModels
         public Guid? AssetHolderId { get; set; }
 
         /// <summary>
+        /// Id of user making the endpoint call.
+        /// </summary>
+        public Guid CallerId { get; set; }
+
+        /// <summary>
         /// A description of the asset.
         /// </summary>
         public string Description { get; set; }

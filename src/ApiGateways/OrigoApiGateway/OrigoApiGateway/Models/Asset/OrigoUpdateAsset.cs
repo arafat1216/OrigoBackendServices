@@ -50,5 +50,10 @@ namespace OrigoApiGateway.Models
         /// Alias for the asset.
         /// </summary>
         public string Alias { get; set; }
+
+        /// <summary>
+        /// Id of user making the endpoint call. Can be ignored by frontend.
+        /// </summary>
+        public Guid CallerId { get; set; }
     }
 }

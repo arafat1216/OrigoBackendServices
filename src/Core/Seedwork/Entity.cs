@@ -13,16 +13,22 @@ namespace Common.Seedwork
 
         public virtual int Id { get; protected set; }
 
+        [JsonInclude]
         public DateTime CreatedDate { get; protected set; } = DateTime.UtcNow;
 
+        [JsonInclude]
         public Guid CreatedBy { get; protected set; }
 
+        [JsonInclude]
         public DateTime LastUpdatedDate { get; protected set; }
 
+        [JsonInclude]
         public Guid UpdatedBy { get; protected set; }
 
+        [JsonInclude]
         public bool IsDeleted { get; protected set; }
 
+        [JsonInclude]
         public Guid DeletedBy { get; protected set; }
 
         private List<INotification> _domainEvents;
