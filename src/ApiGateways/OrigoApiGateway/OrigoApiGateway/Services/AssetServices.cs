@@ -214,11 +214,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<object>> UpdateStatusOnAssets(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
+        public async Task<IList<object>> UpdateStatusOnAssets(Guid customerId, IList<Guid> assetGuidList)
         {
             try
             {
-                var requestUri = $"{_options.ApiPath}/customers/{customerId}/assetStatus/{assetStatus.ToString().ToLower()}";
+                
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/assetStatus";
                 //TODO: Why isn't Patch supported? Dapr translates it to POST.
                 var response = await HttpClient.PostAsJsonAsync(requestUri, assetGuidList);
                 if (!response.IsSuccessStatusCode)

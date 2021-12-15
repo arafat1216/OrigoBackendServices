@@ -319,12 +319,12 @@ namespace OrigoApiGateway.Controllers
                 }
 
                 IList<Guid> assetGuidList = data.AssetGuidList;
-                int assetStatus = data.AssetStatus;
+                
 
                 if (!assetGuidList.Any())
                     return BadRequest("No assets selected.");
 
-                var updatedAssets = await _assetServices.UpdateStatusOnAssets(organizationId, assetGuidList, assetStatus);
+                var updatedAssets = await _assetServices.UpdateStatusOnAssets(organizationId, assetGuidList);
                 if (updatedAssets == null)
                 {
                     return NotFound();

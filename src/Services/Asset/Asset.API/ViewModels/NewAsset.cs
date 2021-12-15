@@ -62,12 +62,6 @@ namespace Asset.API.ViewModels
         public string AssetTag { get; set; }
 
         /// <summary>
-        /// The status of the asset.
-        /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
-        /// </summary>
-        public int AssetStatus { get; set; }
-
-        /// <summary>
         /// The imei of the asset. Applicable to assets with category Mobile Phone and Tablet.
         /// </summary>
         public IList<long> Imei { get; set; }

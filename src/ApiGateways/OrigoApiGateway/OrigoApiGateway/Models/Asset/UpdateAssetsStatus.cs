@@ -13,7 +13,6 @@ namespace OrigoApiGateway.Models.Asset
     {
         [Required]
         public IList<Guid> AssetGuidList { get; set; }
-        [Required]
-        public int AssetStatus { get; set; }
+       
     }
 }
