@@ -145,7 +145,7 @@ namespace AssetServices.UnitTests
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
 
             // Act
-            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "alias", "4543534535344", ASSET_CATEGORY_ID,
+            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
                 "iPhone", "iPhone X", LifecycleType.NoLifecycle, new DateTime(2020, 1, 1), null, new List<long>() { 993100473611389 }, "a3:21:99:5d:a7:a2", null, "Unassigned asset", "tag", "description");
             
             // Assert
@@ -161,7 +161,7 @@ namespace AssetServices.UnitTests
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
 
             // Act
-            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "alias", "4543534535344", ASSET_CATEGORY_ID,
+            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
                 "iPhone", "iPhone X", LifecycleType.Leasing, new DateTime(2020, 1, 1), null, new List<long>() { 993100473611389 }, "a3:21:99:5d:a7:a1", null, "Unassigned asset", "tag", "description");
 
             // Assert
@@ -177,7 +177,7 @@ namespace AssetServices.UnitTests
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
 
             // Act
-            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "alias", "4543534535344", ASSET_CATEGORY_ID,
+            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
                 "iPhone", "iPhone X", LifecycleType.NoLifecycle, new DateTime(2020, 1, 1), null, new List<long>() { 1234567891012 }, "a3:21:99:5d:a7:a1", null, "Unassigned asset", "tag", "description");
 
             // Assert
@@ -193,7 +193,7 @@ namespace AssetServices.UnitTests
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
 
             // Act
-            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "alias", "4543534535344", ASSET_CATEGORY_ID,
+            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
                 "iPhone", "iPhone X", LifecycleType.NoLifecycle, new DateTime(2020, 1, 1), null, new List<long>() { }, "a3:21:99:5d:a7:a1", null, "Unassigned asset", "tag", "description");
 
             // Assert
