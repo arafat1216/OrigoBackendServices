@@ -13,8 +13,6 @@ namespace Asset.API.ViewModels
     {
         [Required]
         public IList<Guid> AssetGuidList { get; set; }
-        [Required]
-        public int AssetStatus { get; set; }
 
         /// <summary>
         /// id of user making the endpoint call. Can be ignored by frontend.
