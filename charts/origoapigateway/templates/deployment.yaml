@@ -36,7 +36,6 @@ spec:
               path: /
               port: 80
           {{- end }}
-
           env:
           {{- range $ref, $value := .Values.deployment.env }}
           - name: {{ $ref | quote }}
@@ -52,8 +51,19 @@ spec:
                   key: {{ $key }}
             {{- end }}
             {{- end }}
-          resources:
-{{ toYaml .Values.resources | indent 12 }}
+          volumeMounts:
+          {{- range .Values.deployment.volumeMounts }}
+          - name: {{ .volumeMount.name }}
+            mountPath: {{ .volumeMount.mountPath }}
+            readOnly: {{ .volumeMount.readOnly }}
+          {{- end }}
+      volumes:
+      {{- range .Values.deployment.secretVolumes }}
+      - name: {{ .secretVolume.name }}
+        secret:
+          secretName: {{ .secretVolume.secretName }}
+      {{- end }}
+
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
 {{ toYaml . | indent 8 }}

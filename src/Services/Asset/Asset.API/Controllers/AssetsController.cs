@@ -14,6 +14,8 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.Net.Http;
 
 namespace Asset.API.Controllers
 {
@@ -35,6 +37,17 @@ namespace Asset.API.Controllers
             _assetServices = assetServices;
         }
 
+        [Route("customers/{customerId:guid}/count")]
+        [HttpGet]
+        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<int>> GetCount(Guid customerId)
+        {
+            var count = await _assetServices.GetAssetsCountAsync(customerId);
+
+            return Ok(count);
+        }
+
         [Route("customers/{customerId:guid}/users/{userId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
@@ -46,14 +59,266 @@ namespace Asset.API.Controllers
             {
                 return NotFound();
             }
-            var assetList = new List<ViewModels.Asset>();
+            var assetList = new List<object>();
             foreach (var asset in assets)
             {
-                var assetToReturn = new ViewModels.Asset(asset);
+                ViewModels.Asset assetToReturn;
+                var phone = asset as AssetServices.Models.MobilePhone;
+                var tablet = asset as AssetServices.Models.Tablet;
+
+                if (phone != null)
+                    assetToReturn = new MobilePhone(phone);
+                else if (tablet != null)
+                    assetToReturn = new Tablet(tablet);
+                else
+                    assetToReturn = new ViewModels.Asset(asset);
                 assetList.Add(assetToReturn);
             }
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            };
+            return Ok(JsonSerializer.Serialize<object>(assetList, options));
+        }
 
-            return Ok(assetList);
+        [Route("customers/{customerId:guid}/labels/{callerId:guid}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.Label>>> CreateLabelsForCustomer(Guid customerId, Guid callerId, [FromBody] IList<NewLabel> newLabels)//[FromBody] IList<NewLabel> newLabels)
+        {
+            try
+            {
+                List<AssetServices.Models.Label> labels = new List<AssetServices.Models.Label>();
+                foreach (NewLabel newLabel in newLabels)
+                {
+                    labels.Add(new AssetServices.Models.Label(newLabel.Text, newLabel.Color));
+                }
+
+                var labelsAdded = await _assetServices.AddLabelsForCustomerAsync(customerId, callerId, labels);
+
+                if (labelsAdded == null)
+                    return BadRequest("Unable to add labels.");
+
+                var labelsView = new List<object>();
+                foreach (AssetServices.Models.CustomerLabel label in labelsAdded)
+                {
+                    labelsView.Add(new ViewModels.Label(label));
+                }
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(labelsView, options));
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{customerId:guid}/labels")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> GetLabelsForCustomer(Guid customerId)
+        {
+            var labels = await _assetServices.GetCustomerLabelsForCustomerAsync(customerId);
+            if (labels == null)
+                return NotFound("No labels found on customer. Did you enter the correct customerId?");
+
+            var labelList = new List<object>();
+            foreach (AssetServices.Models.CustomerLabel label in labels)
+            {
+                labelList.Add(new ViewModels.Label(label));
+            }
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            };
+            return Ok(JsonSerializer.Serialize<object>(labelList, options));
+        }
+
+        [Route("customers/{customerId:guid}/labels/delete/{callerId:guid}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> DeleteLabelsForCustomer(Guid customerId, Guid callerId, IList<Guid> labelGuids)
+        {
+            try
+            {
+                var customerLabels = await _assetServices.GetCustomerLabelsAsync(labelGuids);
+                
+                var labels = await _assetServices.SoftDeleteLabelsForCustomerAsync(customerId, callerId, labelGuids);
+
+                IList<int> labelInts = new List<int>();
+                foreach (AssetServices.Models.CustomerLabel label in customerLabels)
+                {
+                    labelInts.Add(label.Id);
+                }
+
+                await _assetServices.SoftDeleteAssetLabelsAsync(callerId, labelInts);
+
+                
+                var labelList = new List<object>();
+                foreach (AssetServices.Models.CustomerLabel label in labels)
+                {
+                    labelList.Add(new ViewModels.Label(label));
+                }
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(labelList, options));
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{customerId:guid}/labels/update/{callerId:guid}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.Label>>> UpdateLabelsForCustomer(Guid customerId, Guid callerId, [FromBody] IList<Label> labels)
+        {
+            try
+            {
+                IList<AssetServices.Models.CustomerLabel> customerLabels = new List<AssetServices.Models.CustomerLabel>();
+
+                foreach (Label label in labels)
+                {
+                    customerLabels.Add(new AssetServices.Models.CustomerLabel(label.Id, customerId, callerId, new AssetServices.Models.Label(label.Text, label.Color)));
+                }
+
+                var updatedLabels = await _assetServices.UpdateLabelsForCustomerAsync(customerId, customerLabels);
+                var labelList = new List<object>();
+                foreach (AssetServices.Models.CustomerLabel label in updatedLabels)
+                {
+                    labelList.Add(new ViewModels.Label(label));
+                }
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(labelList, options));
+            }
+            catch(ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{customerId:guid}/labels/assign/{callerId:guid}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> AssignLabelsToAssets(Guid customerId, Guid callerId, [FromBody] AssetLabels assetLabels)
+        {
+            try
+            {
+                IList<Guid> assetGuids = assetLabels.AssetGuids;
+                IList<Guid> labelGuids = assetLabels.LabelGuids;
+
+                IList<AssetServices.Models.Asset> assets = await _assetServices.AssignLabelsToAssetsAsync(customerId, callerId, assetGuids, labelGuids);
+                
+                var assetList = new List<object>();
+                foreach (var asset in assets)
+                {
+                    ViewModels.Asset assetToReturn;
+                    var phone = asset as AssetServices.Models.MobilePhone;
+                    var tablet = asset as AssetServices.Models.Tablet;
+
+                    if (phone != null)
+                        assetToReturn = new MobilePhone(phone);
+                    else if (tablet != null)
+                        assetToReturn = new Tablet(tablet);
+                    else
+                        assetToReturn = new ViewModels.Asset(asset);
+                    assetList.Add(assetToReturn);
+                }
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(assetList, options));
+
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{customerId:guid}/labels/unassign/{callerId:guid}")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UnAssignLabelsToAssets(Guid customerId, Guid callerId, [FromBody] AssetLabels assetLabels)
+        {
+            try
+            {
+                IList<Guid> assetGuids = assetLabels.AssetGuids;
+                IList<Guid> labelGuids = assetLabels.LabelGuids;
+
+                IList<AssetServices.Models.Asset> assets = await _assetServices.UnAssignLabelsToAssetsAsync(customerId, callerId, assetGuids, labelGuids);
+                if (assets == null)
+                    return NotFound("No assets with given Ids where found. Did you enter the correct customerId?");
+                var assetList = new List<object>();
+                foreach (var asset in assets)
+                {
+                    ViewModels.Asset assetToReturn;
+                    var phone = asset as AssetServices.Models.MobilePhone;
+                    var tablet = asset as AssetServices.Models.Tablet;
+
+                    if (phone != null)
+                        assetToReturn = new MobilePhone(phone);
+                    else if (tablet != null)
+                        assetToReturn = new Tablet(tablet);
+                    else
+                        assetToReturn = new ViewModels.Asset(asset);
+                    assetList.Add(assetToReturn);
+                }
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(assetList, options));
+
+            }
+            catch(ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
         [Route("customers/{customerId:guid}")]
@@ -68,40 +333,69 @@ namespace Asset.API.Controllers
                 return NotFound();
             }
 
-            var assetList = new List<ViewModels.Asset>();
+            var assetList = new List<object>();
             foreach (var asset in pagedAssetResult.Items)
             {
-                var assetToReturn = new ViewModels.Asset(asset);
+                ViewModels.Asset assetToReturn;
+                var phone = asset as AssetServices.Models.MobilePhone;
+                var tablet = asset as AssetServices.Models.Tablet;
+
+                if (phone != null)
+                    assetToReturn = new MobilePhone(phone);
+                else if (tablet != null)
+                    assetToReturn = new Tablet(tablet);
+                else
+                    assetToReturn = new ViewModels.Asset(asset);
                 assetList.Add(assetToReturn);
             }
-
-            return Ok(new PagedAssetList
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true,
+            };
+            return Ok(JsonSerializer.Serialize<object>(
+            new PagedAssetList
             {
                 CurrentPage = pagedAssetResult.CurrentPage,
                 TotalItems = pagedAssetResult.TotalItems,
                 TotalPages = pagedAssetResult.TotalPages,
                 Assets = assetList
-            });
+            }, options));
         }
 
         [Route("{assetId:Guid}/customers/{customerId:guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> Get(Guid customerId, Guid assetId)
+        public async Task<ActionResult<ViewModels.Asset>> Get(Guid customerId, Guid assetId)
         {
             var asset = await _assetServices.GetAssetForCustomerAsync(customerId, assetId);
             if (asset == null)
             {
                 return NotFound();
             }
-            return Ok(new ViewModels.Asset(asset));
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true,
+            };
+
+            var phone = asset as AssetServices.Models.MobilePhone;
+            if (phone != null)
+                return Ok(JsonSerializer.Serialize<object>(new MobilePhone(phone), options));
+
+            var tablet = asset as AssetServices.Models.Tablet;
+            if (tablet != null)
+                return Ok(JsonSerializer.Serialize<object>(new Tablet(tablet), options));
+
+            return Ok(JsonSerializer.Serialize<object>(new ViewModels.Asset(asset), options));
         }
 
         [Route("customers/{customerId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.Created)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> CreateAsset(Guid customerId, [FromBody] NewAsset asset)
         {
             try
@@ -117,13 +411,21 @@ namespace Asset.API.Controllers
                     throw new InvalidAssetDataException(errorMessage.ToString());
                 }
 
-                var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.SerialNumber,
-                    asset.AssetCategoryId, asset.Brand, asset.Model, asset.LifecycleType, asset.PurchaseDate,
-                    asset.AssetHolderId, asset.IsActive, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, (AssetStatus)asset.AssetStatus, asset.Note);
+                var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.Alias, asset.SerialNumber,
+                    asset.AssetCategoryId, asset.Brand, asset.ProductName, asset.LifecycleType, asset.PurchaseDate,
+                    asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, (AssetStatus)asset.AssetStatus, asset.Note, asset.AssetTag, asset.Description);
+
+                var phone = updatedAsset as AssetServices.Models.MobilePhone;
+                if (phone != null)
+                    return CreatedAtAction(nameof(CreateAsset), new { id = phone.ExternalId }, new MobilePhone(phone));
+
+                var tablet = updatedAsset as AssetServices.Models.Tablet;
+                if (tablet != null)
+                    return CreatedAtAction(nameof(CreateAsset), new { id = tablet.ExternalId }, new Tablet(tablet));
+
                 var updatedAssetView = new ViewModels.Asset(updatedAsset);
 
-                return CreatedAtAction(nameof(CreateAsset), new { id = updatedAssetView.AssetId }, updatedAssetView);
-
+                return CreatedAtAction(nameof(CreateAsset), new { id = updatedAssetView.Id }, updatedAssetView);
             }
             catch (AssetCategoryNotFoundException)
             {
@@ -131,61 +433,72 @@ namespace Asset.API.Controllers
             }
             catch (InvalidAssetDataException ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                return BadRequest();
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
+
+        [Route("customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
         [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SetAssetStatusOnAsset(Guid customerId, Guid assetId, int assetStatus)
+        public async Task<ActionResult> SetAssetStatusOnAssets(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
         {
             try
             {
                 if (!Enum.IsDefined(typeof(AssetStatus), assetStatus))
-                    return BadRequest("Invalid AssetStatus");
-                var updatedAsset = await _assetServices.UpdateAssetStatus(customerId, assetId, (AssetStatus)assetStatus);
-                if (updatedAsset == null)
                 {
-                    return NotFound();
+                    string statusString = "";
+                    foreach (int i in Enum.GetValues(typeof(AssetStatus)))
+                    {
+                        statusString += i + " - " + Enum.GetName(typeof(AssetStatus), i) + "\n";
+                    }
+                    return BadRequest("Invalid AssetStatus, possible values are: " + statusString);
                 }
 
-                return Ok(new ViewModels.Asset(updatedAsset));
+                var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, assetGuidList, (AssetStatus)assetStatus);
+                if (updatedAssets == null)
+                {
+                    return NotFound("Given organization does not exist or none of the assets were found");
+                }
+
+                var assetList = new List<object>();
+                foreach (var asset in updatedAssets)
+                {
+                    ViewModels.Asset assetToReturn;
+                    var phone = asset as AssetServices.Models.MobilePhone;
+                    var tablet = asset as AssetServices.Models.Tablet;
+
+                    if (phone != null)
+                        assetToReturn = new MobilePhone(phone);
+                    else if (tablet != null)
+                        assetToReturn = new Tablet(tablet);
+                    else
+                        assetToReturn = new ViewModels.Asset(asset);
+                    assetList.Add(assetToReturn);
+                }
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+
+                return Ok(JsonSerializer.Serialize<object>(assetList, options));
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/Activate/{isActive:bool}")]
-        [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SetActiveStatusOnAsset(Guid customerId, Guid assetId, bool isActive)
-        {
-            try
-            {
-                var updatedAsset = await _assetServices.UpdateActiveStatus(customerId, assetId, isActive);
-                if (updatedAsset == null)
-                {
-                    return NotFound();
-                }
 
-                return Ok(new ViewModels.Asset(updatedAsset));
-
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
 
         [Route("lifecycles")]
         [HttpGet]
@@ -201,8 +514,8 @@ namespace Asset.API.Controllers
                 {
                     return NotFound();
                 }
-                var lifecycleList = new List<ViewModels.AssetLifecycle>();
-                foreach (var lifecycle in lifecycles) lifecycleList.Add(new ViewModels.AssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
+                var lifecycleList = new List<AssetLifecycle>();
+                foreach (var lifecycle in lifecycles) lifecycleList.Add(new AssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
 
                 return Ok(lifecycleList);
             }
@@ -240,14 +553,23 @@ namespace Asset.API.Controllers
                     return NotFound();
                 }
 
+                var phone = updatedAsset as AssetServices.Models.MobilePhone;
+                if (phone != null)
+                    return Ok(new MobilePhone(phone));
+
+                var tablet = updatedAsset as AssetServices.Models.Tablet;
+                if (tablet != null)
+                    return Ok(new Tablet(tablet));
+
                 return Ok(new ViewModels.Asset(updatedAsset));
             }
             catch (InvalidLifecycleTypeException ex)
             {
                 return UnprocessableEntity(ex.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
@@ -255,21 +577,35 @@ namespace Asset.API.Controllers
         [Route("{assetId:Guid}/customers/{customerId:guid}/Update")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> UpdateAsset(Guid customerId, Guid assetId, [FromBody] UpdateAsset asset)
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> UpdateAsset(Guid customerId, Guid assetId, [FromBody] UpdateAsset asset)
         {
             try
             {
-                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.SerialNumber, asset.Brand, asset.Model, asset.PurchaseDate, asset.Note, asset.Imei);
+                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.Alias, asset.SerialNumber, asset.Brand, asset.ProductName, asset.PurchaseDate, asset.Note, asset.AssetTag, asset.Description, asset.Imei);
                 if (updatedAsset == null)
                 {
                     return NotFound();
                 }
 
+                var phone = updatedAsset as AssetServices.Models.MobilePhone;
+                if (phone != null)
+                    return Ok(new MobilePhone(phone));
+
+                var tablet = updatedAsset as AssetServices.Models.Tablet;
+                if (tablet != null)
+                    return Ok(new Tablet(tablet));
+
                 return Ok(new ViewModels.Asset(updatedAsset));
             }
-            catch (Exception)
+            catch(InvalidAssetDataException ex)
             {
+                _logger?.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("{0}", ex.Message);
                 return BadRequest();
             }
         }
@@ -288,6 +624,14 @@ namespace Asset.API.Controllers
                     return NotFound();
                 }
 
+                var phone = updatedAsset as AssetServices.Models.MobilePhone;
+                if (phone != null)
+                    return Ok(new MobilePhone(phone));
+
+                var tablet = updatedAsset as AssetServices.Models.Tablet;
+                if (tablet != null)
+                    return Ok(new Tablet(tablet));
+
                 return Ok(new ViewModels.Asset(updatedAsset));
 
             }
@@ -301,17 +645,23 @@ namespace Asset.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(AssetCategory), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<AssetCategory>>> GetAssetCategories()
+        public async Task<ActionResult<IEnumerable<AssetCategory>>> GetAssetCategories(bool hierarchical = false, string language = "EN")
         {
             try
             {
-                var assetCategories = await _assetServices.GetAssetCategoriesAsync();
+                var assetCategories = await _assetServices.GetAssetCategoriesAsync(language);
                 if (assetCategories == null)
                 {
                     return NotFound();
                 }
-                IList<AssetCategory> results = assetCategories.Where(a => a.ParentAssetCategory == null).Select(ac => new AssetCategory(ac, assetCategories)).ToList();
+                else if (language.Length != 2)
+                {
+                    return BadRequest("Language code is too long or too short.");
+                }
+                if (!hierarchical)
+                    return assetCategories.Select(ac => new AssetCategory(ac)).ToList();
 
+                IList<AssetCategory> results = assetCategories.Where(a => a.ParentAssetCategory == null).Select(ac => new AssetCategory(ac, assetCategories)).ToList();
                 return Ok(results);
             }
             catch (Exception ex)

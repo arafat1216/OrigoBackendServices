@@ -4,13 +4,17 @@
 		<UserSecretsId>099c2e7d-3673-475e-abf1-d0634c0e625e</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<ApplicationInsightsResourceId>/subscriptions/bb679c65-6e2a-4559-a247-c01745f3a0a9/resourceGroups/OrigoV2/providers/microsoft.insights/components/OrigoV2AppInsights</ApplicationInsightsResourceId>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);1591</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
+		<PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
 		<PackageReference Include="Dapr.AspNetCore" Version="1.2.0" />
 		<PackageReference Include="Dapr.Client" Version="1.2.0" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.17.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Azure" Version="1.1.1" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.14" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Kubernetes.Tools.Targets" Version="1.1.0" />
@@ -20,7 +24,8 @@
 		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="5.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="5.0.1" />
 		<PackageReference Include="Okta.AspNetCore" Version="3.5.0" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.2.3" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\Core\Common.csproj" />

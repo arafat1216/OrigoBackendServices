@@ -9,7 +9,7 @@ namespace OrigoApiGateway.Models.BackendDTO
 
         public Guid OrganizationId { get; set; }
 
-        public Guid AssetCategoryId { get; set; }
+        public int AssetCategoryId { get; set; }
 
         public LifecycleType LifecycleType { get; set; }
     }
