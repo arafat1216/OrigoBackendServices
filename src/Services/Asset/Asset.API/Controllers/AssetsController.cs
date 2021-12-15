@@ -400,20 +400,9 @@ namespace Asset.API.Controllers
         {
             try
             {
-                if (!Enum.IsDefined(typeof(AssetStatus), asset.AssetStatus))
-                {
-                    Array arr = Enum.GetValues(typeof(AssetStatus));
-                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for asset status: {0} is out of bounds.\nValid options for asset statuses are:\n", asset.AssetStatus));
-                    foreach (AssetStatus e in arr)
-                    {
-                        errorMessage.Append($"    -{(int)e} ({e})\n");
-                    }
-                    throw new InvalidAssetDataException(errorMessage.ToString());
-                }
-
                 var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.Alias, asset.SerialNumber,
                     asset.AssetCategoryId, asset.Brand, asset.ProductName, asset.LifecycleType, asset.PurchaseDate,
-                    asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, (AssetStatus)asset.AssetStatus, asset.Note, asset.AssetTag, asset.Description);
+                    asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, asset.Note, asset.AssetTag, asset.Description);
 
                 var phone = updatedAsset as AssetServices.Models.MobilePhone;
                 if (phone != null)
@@ -444,25 +433,16 @@ namespace Asset.API.Controllers
         }
 
 
-        [Route("customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
+        [Route("customers/{customerId:guid}/assetStatus")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SetAssetStatusOnAssets(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
+        public async Task<ActionResult> SetAssetStatusOnAssets(Guid customerId, IList<Guid> assetGuidList)
         {
             try
             {
-                if (!Enum.IsDefined(typeof(AssetStatus), assetStatus))
-                {
-                    string statusString = "";
-                    foreach (int i in Enum.GetValues(typeof(AssetStatus)))
-                    {
-                        statusString += i + " - " + Enum.GetName(typeof(AssetStatus), i) + "\n";
-                    }
-                    return BadRequest("Invalid AssetStatus, possible values are: " + statusString);
-                }
 
-                var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, assetGuidList, (AssetStatus)assetStatus);
+                var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, assetGuidList);
                 if (updatedAssets == null)
                 {
                     return NotFound("Given organization does not exist or none of the assets were found");

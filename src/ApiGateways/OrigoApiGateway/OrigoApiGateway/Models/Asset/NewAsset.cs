@@ -52,12 +52,6 @@ namespace OrigoApiGateway.Models
         public Guid? AssetHolderId { get; set; }
 
         /// <summary>
-        /// The status of the asset.
-        /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
-        /// </summary>
-        public Common.Enums.AssetStatus AssetStatus { get; set; }
-
-        /// <summary>
         /// A description of the asset.
         /// </summary>
         public string Description { get; set; }

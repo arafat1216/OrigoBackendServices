@@ -1,5 +1,6 @@
 ﻿using AssetServices.Exceptions;
 using AssetServices.Models;
+using AssetServices.Utility;
 using Common.Enums;
 using Common.Interfaces;
 using Common.Logging;
@@ -319,24 +320,49 @@ namespace AssetServices
 
         public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string alias, string serialNumber, int assetCategoryId, string brand,
             string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<long> imei, string macAddress,
-            Guid? managedByDepartmentId, AssetStatus status, string note, string tag, string description)
+            Guid? managedByDepartmentId, string note, string tag, string description)
         {
             var assetCategory = await _assetRepository.GetAssetCategoryAsync(assetCategoryId);
             if (assetCategory == null)
             {
                 throw new AssetCategoryNotFoundException();
             }
+            AssetStatus status = AssetStatus.Active;
+
+            if (lifecycleType != LifecycleType.NoLifecycle)
+            {
+                status = AssetStatus.InputRequired;
+            } 
 
             Asset newAsset;
             if (assetCategory.Id == 1)
             {
+                if (imei.Any()) {
+                    foreach (var i in imei)
+                    {
+                        if (AssetValidatorUtility.ValidateImei(i.ToString()))
+                        {
+                            status = AssetStatus.InputRequired;
+                        }
+                    }
+                }
+                else
+                {
+                    status = AssetStatus.InputRequired;
+                }
+            
+
                 newAsset = new MobilePhone(Guid.NewGuid(), customerId, alias, assetCategory, serialNumber, brand, productName,
                 lifecycleType, purchaseDate, assetHolderId, imei?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
+            
             }
             else
             {
+                if(String.IsNullOrEmpty(serialNumber)) status = AssetStatus.InputRequired;
+
                 newAsset = new Tablet(Guid.NewGuid(), customerId, alias, assetCategory, serialNumber, brand, productName,
                 lifecycleType, purchaseDate, assetHolderId, imei?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
+                
             }
 
             if (!newAsset.AssetPropertiesAreValid)
@@ -388,7 +414,7 @@ namespace AssetServices
             return asset;
         }
 
-        public async Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, IList<Guid> assetGuidList, AssetStatus status)
+        public async Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, IList<Guid> assetGuidList)
         {
             var assets = await _assetRepository.GetAssetsFromListAsync(customerId, assetGuidList);
             if (assets == null || assets.Count == 0)
@@ -398,7 +424,21 @@ namespace AssetServices
 
             foreach (Asset asset in assets)
             {
-                asset.UpdateAssetStatus(status);
+                
+                if(asset.Status == AssetStatus.Inactive || asset.Status == AssetStatus.InputRequired)
+                {
+                    asset.UpdateAssetStatus(AssetStatus.Active);
+                }
+                else
+                {
+                    asset.UpdateAssetStatus(AssetStatus.Inactive);
+                }
+
+                if (asset.LifecycleType != LifecycleType.NoLifecycle || asset.AssetCategory == null || String.IsNullOrWhiteSpace(asset.ExternalId.ToString()))
+                {
+                    asset.UpdateAssetStatus(AssetStatus.InputRequired);
+                }
+
             }
 
             await _assetRepository.SaveEntitiesAsync();
