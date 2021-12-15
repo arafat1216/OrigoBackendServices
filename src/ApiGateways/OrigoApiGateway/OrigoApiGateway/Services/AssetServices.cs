@@ -183,11 +183,11 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
-        public async Task<OrigoAsset> AddAssetForCustomerAsync(Guid customerId, Guid callerId, NewAsset newAsset)
+        public async Task<OrigoAsset> AddAssetForCustomerAsync(Guid customerId, NewAsset newAsset)
         {
             try
             {
-                var requestUri = $"{_options.ApiPath}/customers/{customerId}/{callerId}";
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}";
                 var response = await HttpClient.PostAsJsonAsync(requestUri, newAsset);
                 if (!response.IsSuccessStatusCode)
                 {

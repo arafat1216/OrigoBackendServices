@@ -272,11 +272,10 @@ namespace OrigoApiGateway.Controllers
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
-                bool valid = Guid.TryParse(actor, out callerId);
-                if (!valid)
-                    callerId = Guid.Empty;
+                Guid.TryParse(actor, out callerId);
+                asset.CallerId = callerId; // Guid.Empty if tryparse failed.
 
-                var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, callerId, asset);
+                var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, asset);
                 if (createdAsset != null)
                 {
                     var options = new JsonSerializerOptions
