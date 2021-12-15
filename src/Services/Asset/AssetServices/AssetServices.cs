@@ -343,7 +343,7 @@ namespace AssetServices
                     {
                         if (!AssetValidatorUtility.ValidateImei(i.ToString()))
                         {
-                            status = AssetStatus.InputRequired;
+                            throw new InvalidAssetDataException($"Invalid imei: {i}");
                         }
                     }
                 }
