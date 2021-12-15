@@ -259,11 +259,11 @@ namespace OrigoApiGateway.Services
         }
 
 
-        public async Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, OrigoUpdateAsset updateAsset)
+        public async Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset)
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{assetId}/customers/{customerId}/update/{callerId}", updateAsset);
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{assetId}/customers/{customerId}/update", updateAsset);
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorDescription = await response.Content.ReadAsStringAsync();

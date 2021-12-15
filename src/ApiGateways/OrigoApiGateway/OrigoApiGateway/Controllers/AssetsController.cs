@@ -395,7 +395,9 @@ namespace OrigoApiGateway.Controllers
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
-                var updatedAsset = await _assetServices.UpdateAssetAsync(organizationId, assetId, callerId, asset);
+                asset.CallerId = callerId;
+
+                var updatedAsset = await _assetServices.UpdateAssetAsync(organizationId, assetId, asset);
                 if (updatedAsset == null)
                 {
                     return NotFound();
