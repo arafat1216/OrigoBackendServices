@@ -329,11 +329,9 @@ namespace OrigoApiGateway.Controllers
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
                 data.CallerId = callerId; // Guid.Empty if tryparse fails.
+                
 
-                IList<Guid> assetGuidList = data.AssetGuidList;
-                int assetStatus = data.AssetStatus;
-
-                if (!assetGuidList.Any())
+                if (!data.AssetGuidList.Any())
                     return BadRequest("No assets selected.");
 
                 var updatedAssets = await _assetServices.UpdateStatusOnAssets(organizationId, data);

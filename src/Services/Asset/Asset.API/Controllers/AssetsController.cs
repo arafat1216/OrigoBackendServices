@@ -400,20 +400,9 @@ namespace Asset.API.Controllers
         {
             try
             {
-                if (!Enum.IsDefined(typeof(AssetStatus), asset.AssetStatus))
-                {
-                    Array arr = Enum.GetValues(typeof(AssetStatus));
-                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for asset status: {0} is out of bounds.\nValid options for asset statuses are:\n", asset.AssetStatus));
-                    foreach (AssetStatus e in arr)
-                    {
-                        errorMessage.Append($"    -{(int)e} ({e})\n");
-                    }
-                    throw new InvalidAssetDataException(errorMessage.ToString());
-                }
-
                 var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.CallerId,  asset.Alias, asset.SerialNumber,
                     asset.AssetCategoryId, asset.Brand, asset.ProductName, asset.LifecycleType, asset.PurchaseDate,
-                    asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, (AssetStatus)asset.AssetStatus, asset.Note, asset.AssetTag, asset.Description);
+                    asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, asset.Note, asset.AssetTag, asset.Description);
 
                 var phone = updatedAsset as AssetServices.Models.MobilePhone;
                 if (phone != null)
@@ -452,17 +441,8 @@ namespace Asset.API.Controllers
         {
             try
             {
-                if (!Enum.IsDefined(typeof(AssetStatus), data.AssetStatus))
-                {
-                    string statusString = "";
-                    foreach (int i in Enum.GetValues(typeof(AssetStatus)))
-                    {
-                        statusString += i + " - " + Enum.GetName(typeof(AssetStatus), i) + "\n";
-                    }
-                    return BadRequest("Invalid AssetStatus, possible values are: " + statusString);
-                }
 
-                var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, data.CallerId, data.AssetGuidList, (AssetStatus)data.AssetStatus);
+                var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, data.CallerId, data.AssetGuidList);
                 if (updatedAssets == null)
                 {
                     return NotFound("Given organization does not exist or none of the assets were found");

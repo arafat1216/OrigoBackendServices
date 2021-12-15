@@ -173,8 +173,7 @@ namespace OrigoApiGateway.Tests
             UpdateAssetsStatus data = new UpdateAssetsStatus
             {
                 AssetGuidList = assetGuidList,
-                CallerId = Guid.Empty,
-                AssetStatus = 0
+                CallerId = Guid.Empty
             };
 
             // Act

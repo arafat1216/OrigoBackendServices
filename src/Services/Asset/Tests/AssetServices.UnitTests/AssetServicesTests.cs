@@ -34,7 +34,7 @@ namespace AssetServices.UnitTests
             var assetsFromUser = await assetService.GetAssetsForUserAsync(COMPANY_ID, ASSETHOLDER_ONE_ID);
 
             // Assert
-            Assert.Equal(2, assetsFromUser.Count);
+            Assert.Equal(3, assetsFromUser.Count);
         }
 
         [Fact]
@@ -66,12 +66,12 @@ namespace AssetServices.UnitTests
             var assetsFromUser = await assetService.GetAssetsForCustomerAsync(COMPANY_ID, string.Empty, 1, 10, new System.Threading.CancellationToken());
 
             // Assert
-            Assert.Equal(3, assetsFromUser.Items.Count);
+            Assert.Equal(4, assetsFromUser.Items.Count);
         }
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void SetAssetStatus_ForUserOne_Active()
+        public async void UpdateMultipleAssetsStatus_StatusChange_InputRequired()
         {
             // Arrange
             await using var context = new AssetsContext(ContextOptions);
@@ -86,11 +86,16 @@ namespace AssetServices.UnitTests
             }
 
             // Act
-            IList<Asset> updatedAssets = await assetService.UpdateMultipleAssetsStatus(COMPANY_ID, Guid.Empty, assetGuidList, AssetStatus.Active);
+            IList<Asset> updatedAssets = await assetService.UpdateMultipleAssetsStatus(COMPANY_ID, Guid.Empty, assetGuidList);
 
             // Assert
-            Assert.Equal(2, updatedAssets.Count);
+            Assert.Equal(3, updatedAssets.Count);
+            Assert.Equal("alias_0", updatedAssets[0].Alias);
+            Assert.Equal("alias_2", updatedAssets[1].Alias);
+            Assert.Equal("alias_3", updatedAssets[2].Alias);
             Assert.Equal(AssetStatus.Active, updatedAssets[0].Status);
+            Assert.Equal(AssetStatus.InputRequired, updatedAssets[1].Status);
+            Assert.Equal(AssetStatus.InputRequired, updatedAssets[2].Status);
         }
 
         [Fact]
@@ -105,7 +110,7 @@ namespace AssetServices.UnitTests
             // Act
             var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
                 "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), ASSETHOLDER_ONE_ID, new List<long>() { 014239898330525 }, "5e:c4:33:df:61:70",
-                Guid.NewGuid(), AssetStatus.Active, "Test note", "tag", "description");
+                Guid.NewGuid(), "Test note", "tag", "description");
             var newAssetRead = await assetService.GetAssetForCustomerAsync(COMPANY_ID, newAsset.ExternalId);
 
             // Assert
@@ -123,12 +128,78 @@ namespace AssetServices.UnitTests
 
             // Act
             var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
-                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, new List<long>() { 993100473611389 }, "a3:21:99:5d:a7:a0", null, AssetStatus.Active, "Unassigned asset", "tag", "description");
+                "iPhone", "iPhone X", LifecycleType.BYOD, new DateTime(2020, 1, 1), null, new List<long>() { 993100473611389 }, "a3:21:99:5d:a7:a0", null, "Unassigned asset", "tag", "description");
             var newAssetRead = await assetService.GetAssetForCustomerAsync(COMPANY_ID, newAsset.ExternalId);
 
             // Assert
             Assert.NotNull(newAssetRead);
         }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void AddAssetForCustomerAsync_NewAssetNoLifeCycle_AssetStatusShouldActive()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
+
+            // Act
+            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "alias", "4543534535344", ASSET_CATEGORY_ID,
+                "iPhone", "iPhone X", LifecycleType.NoLifecycle, new DateTime(2020, 1, 1), null, new List<long>() { 993100473611389 }, "a3:21:99:5d:a7:a2", null, "Unassigned asset", "tag", "description");
+            
+            // Assert
+            Assert.Equal(AssetStatus.Active, newAsset.Status);
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void AddAssetForCustomerAsync_NewAssetWithLeasingLifecycle_AssetStatusShouldInputRequired()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
+
+            // Act
+            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "alias", "4543534535344", ASSET_CATEGORY_ID,
+                "iPhone", "iPhone X", LifecycleType.Leasing, new DateTime(2020, 1, 1), null, new List<long>() { 993100473611389 }, "a3:21:99:5d:a7:a1", null, "Unassigned asset", "tag", "description");
+
+            // Assert
+            Assert.Equal(AssetStatus.InputRequired, newAsset.Status);
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void AddAssetForCustomerAsync_IMEINot15Digits_ShouldGetInputRequired()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
+
+            // Act
+            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "alias", "4543534535344", ASSET_CATEGORY_ID,
+                "iPhone", "iPhone X", LifecycleType.NoLifecycle, new DateTime(2020, 1, 1), null, new List<long>() { 1234567891012 }, "a3:21:99:5d:a7:a1", null, "Unassigned asset", "tag", "description");
+
+            // Assert
+            Assert.Equal(AssetStatus.InputRequired, newAsset.Status);
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void AddAssetForCustomerAsync_IMEIwithNoElementInList_ShouldRetrunInputRequired()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository);
+
+            // Act
+            var newAsset = await assetService.AddAssetForCustomerAsync(COMPANY_ID, "alias", "4543534535344", ASSET_CATEGORY_ID,
+                "iPhone", "iPhone X", LifecycleType.NoLifecycle, new DateTime(2020, 1, 1), null, new List<long>() { }, "a3:21:99:5d:a7:a1", null, "Unassigned asset", "tag", "description");
+
+            // Assert
+            Assert.Equal(AssetStatus.InputRequired, newAsset.Status);
+        }
+
 
         [Fact]
         [Trait("Category", "UnitTest")]

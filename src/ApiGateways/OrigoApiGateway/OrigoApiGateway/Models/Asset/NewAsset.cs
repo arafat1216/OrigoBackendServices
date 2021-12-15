@@ -56,12 +56,7 @@ namespace OrigoApiGateway.Models
         /// Filled in backend, frontend can ignore this field.
         /// </summary>
         public Guid CallerId { get; set; }
-
-        /// <summary>
-        /// The status of the asset.
-        /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
-        /// </summary>
-        public Common.Enums.AssetStatus AssetStatus { get; set; }
+     
 
         /// <summary>
         /// A description of the asset.
