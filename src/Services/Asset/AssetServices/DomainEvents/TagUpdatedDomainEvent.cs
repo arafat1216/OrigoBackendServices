@@ -1,16 +1,19 @@
 ﻿using AssetServices.Models;
 using Common.Logging;
+using System;
 
 namespace AssetServices.DomainEvents
 {
-    public class TagUpdatedDomainEvent : BaseEvent
+    public class TagUpdatedDomainEvent<T> : BaseEvent where T:Asset
     {
-        public Asset Asset { get; protected set; }
+        public T Asset { get; protected set; }
+        public Guid CallerId { get; protected set; }
         public string PreviousTag { get; protected set; }
 
-        public TagUpdatedDomainEvent(Asset asset, string previousTag) : base(asset.ExternalId)
+        public TagUpdatedDomainEvent(T asset, Guid callerId, string previousTag) : base(asset.ExternalId)
         {
             Asset = asset;
+            CallerId = callerId;
             PreviousTag = previousTag;
         }
 

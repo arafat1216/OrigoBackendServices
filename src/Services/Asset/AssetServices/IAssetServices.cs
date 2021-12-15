@@ -27,13 +27,13 @@ namespace AssetServices
         Task SoftDeleteAssetLabelsAsync(Guid callerId, IList<int> assetLabelIds);
         Task<IList<Asset>> UnAssignLabelsToAssetsAsync(Guid customerId, Guid callerId, IList<Guid> assetGuids, IList<Guid> labelGuids);
         Task UnAssignLabelsToAssetAsync(Asset asset, IList<CustomerLabel> customerLabels, Guid callerId);
-        Task<Asset> AddAssetForCustomerAsync(Guid customerId, string alias, string serialNumber, int assetCategoryId,
+        Task<Asset> AddAssetForCustomerAsync(Guid customerId, Guid callerId, string alias, string serialNumber, int assetCategoryId,
             string brand, string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
             IList<long> imei, string macAddress, Guid? managedByDepartmentId, string note, string tag, string description);
-        Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, LifecycleType newLifecycleType);
-        Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, IList<Guid> assetGuidList);
-        Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei);
-        Task<Asset> AssignAsset(Guid customerId, Guid assetId, Guid? userId);
+        Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, Guid callerId, LifecycleType newLifecycleType);
+        Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, Guid callerId, IList<Guid> assetGuidList);
+        Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei);
+        Task<Asset> AssignAsset(Guid customerId, Guid assetId, Guid? userId, Guid callerId);
         Task<IList<AssetCategory>> GetAssetCategoriesAsync(string language = "EN");
         Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId);
         IList<AssetLifecycle> GetLifecycles();
