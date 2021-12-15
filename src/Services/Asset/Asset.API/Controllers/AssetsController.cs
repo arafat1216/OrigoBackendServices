@@ -525,29 +525,29 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/ChangeLifecycleType/{newLifecycleType:int}/{callerId:guid}")]
+        [Route("{assetId:Guid}/customers/{customerId:guid}/ChangeLifecycleType")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.UnprocessableEntity)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid customerId, Guid assetId, Guid callerId, int newLifecycleType)
+        public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid customerId, Guid assetId, [FromBody] UpdateAssetLifecycleType data)
         {
             try
             {
                 // Check if given int is within valid range of values
-                if (!Enum.IsDefined(typeof(LifecycleType), newLifecycleType))
+                if (!Enum.IsDefined(typeof(LifecycleType), data.LifecycleType))
                 {
                     Array arr = Enum.GetValues(typeof(LifecycleType));
-                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", newLifecycleType));
+                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", data.LifecycleType));
                     foreach (LifecycleType e in arr)
                     {
                         errorMessage.Append($"    -{(int)e} ({e})\n");
                     }
                     throw new InvalidLifecycleTypeException(errorMessage.ToString());
                 }
-                LifecycleType lifecycleType = (LifecycleType)newLifecycleType;
-                var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, assetId, callerId, lifecycleType);
+                LifecycleType lifecycleType = (LifecycleType)data.LifecycleType;
+                var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, data.AssetId, data.CallerId, lifecycleType);
                 if (updatedAsset == null)
                 {
                     return NotFound();

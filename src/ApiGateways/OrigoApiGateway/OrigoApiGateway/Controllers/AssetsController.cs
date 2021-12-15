@@ -735,7 +735,16 @@ namespace OrigoApiGateway.Controllers
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
 
-                var updatedAsset = await _assetServices.ChangeLifecycleType(organizationId, assetId, callerId, newLifecycleType);
+                // talk to frontend and make this an input model on their part.
+                // for now, we fill this in here.
+                UpdateAssetLifecycleType data = new UpdateAssetLifecycleType
+                {
+                    AssetId = assetId,
+                    CallerId = callerId,
+                    LifecycleType = newLifecycleType
+                };
+
+                var updatedAsset = await _assetServices.ChangeLifecycleType(organizationId, data.AssetId, data);
                 if (updatedAsset == null)
                 {
                     return NotFound();

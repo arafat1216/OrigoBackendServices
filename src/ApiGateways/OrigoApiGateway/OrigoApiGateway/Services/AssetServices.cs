@@ -500,13 +500,13 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
-        public async Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, Guid callerId, int newLifecycleType)
+        public async Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, UpdateAssetLifecycleType data)
         {
             try
             {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/ChangeLifecycleType/{newLifecycleType}/{callerId}";
-                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                //var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/ChangeLifecycleType";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, data);//emptyStringBodyContent);
                 if (!response.IsSuccessStatusCode)
                 {
                     Exception exception;
