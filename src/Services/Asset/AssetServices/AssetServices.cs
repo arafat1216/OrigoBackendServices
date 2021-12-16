@@ -415,7 +415,7 @@ namespace AssetServices
             return asset;
         }
 
-        public async Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, Guid callerId, IList<Guid> assetGuidList)
+        public async Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, Guid callerId, IList<Guid> assetGuidList, AssetStatus status)
         {
             var assets = await _assetRepository.GetAssetsFromListAsync(customerId, assetGuidList);
             if (assets == null || assets.Count == 0)
@@ -425,15 +425,8 @@ namespace AssetServices
 
             foreach (Asset asset in assets)
             {
-                
-                if(asset.Status == AssetStatus.Inactive || asset.Status == AssetStatus.InputRequired)
-                {
-                    asset.UpdateAssetStatus(AssetStatus.Active, callerId);
-                }
-                else
-                {
-                    asset.UpdateAssetStatus(AssetStatus.Inactive, callerId);
-                }
+
+                asset.UpdateAssetStatus(status, callerId);
 
                 if (asset.LifecycleType != LifecycleType.NoLifecycle || asset.AssetCategory == null || String.IsNullOrWhiteSpace(asset.ExternalId.ToString()))
                 {
