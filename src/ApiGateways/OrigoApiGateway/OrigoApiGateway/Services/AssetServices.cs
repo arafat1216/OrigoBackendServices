@@ -623,6 +623,90 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
+        public IList<AssetCategoryAttribute> GetAssetCategoryAttributesForCategory(int categoryId)
+        {
+            List<AssetCategoryAttribute> defaultAttributes = new List<AssetCategoryAttribute>();
+            defaultAttributes.Add(new AssetCategoryAttribute
+            {
+                Name = "Alias",
+                Required = false
+            });
+            defaultAttributes.Add(new AssetCategoryAttribute
+            {
+                Name = "AssetCategoryId",
+                Required = true
+            });
+            defaultAttributes.Add(new AssetCategoryAttribute
+            {
+                Name = "Note",
+                Required = false
+            });
+            defaultAttributes.Add(new AssetCategoryAttribute
+            {
+                Name = "Brand",
+                Required = true
+            });
+            defaultAttributes.Add(new AssetCategoryAttribute
+            {
+                Name = "ProductName",
+                Required = true
+            });
+            defaultAttributes.Add(new AssetCategoryAttribute
+            {
+                Name = "LifecycleType",
+                Required = true
+            });
+            defaultAttributes.Add(new AssetCategoryAttribute
+            {
+                Name = "PurchaseDate",
+                Required = true
+            });
+            defaultAttributes.Add(new AssetCategoryAttribute
+            {
+                Name = "ManagedByDepartmentId",
+                Required = false
+            });
+            defaultAttributes.Add(new AssetCategoryAttribute
+            {
+                Name = "AssetHolderId",
+                Required = false
+            });
+            defaultAttributes.Add(new AssetCategoryAttribute
+            {
+                Name = "Description",
+                Required = false
+            });
+            defaultAttributes.Add(new AssetCategoryAttribute
+            {
+                Name = "AssetTag",
+                Required = false
+            });
+            defaultAttributes.Add(new AssetCategoryAttribute
+            {
+                Name = "Imei",
+                Required = false
+            });
+            defaultAttributes.Add(new AssetCategoryAttribute
+            {
+                Name = "MacAddress",
+                Required = false
+            });
+            defaultAttributes.Add(new AssetCategoryAttribute
+            {
+                Name = "SerialNumber",
+                Required = false
+            });
+            return defaultAttributes;
+            /*if (categoryId == 1) // MobilePhone - Mobiltelefon
+            {
+                defaultAttributes.Add(new AssetCategoryAttribute
+                {
+                    Name = "Imei",
+                    Required = true
+                });
+            }*/
+        }
+
         public async Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId)
         {
             try

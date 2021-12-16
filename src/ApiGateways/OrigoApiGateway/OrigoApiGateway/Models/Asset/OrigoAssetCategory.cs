@@ -14,6 +14,7 @@ namespace OrigoApiGateway.Models
             Description = assetCategory.Description;
             Language = assetCategory.Language;
             ParentId = assetCategory.ParentId;
+            AssetCategoryAttributes = null;
             ChildAssetCategory = assetCategory.ChildAssetCategory?.Select(c => new OrigoAssetCategory(c)).ToList();
         }
         public int AssetCategoryId { get; set; }
@@ -22,5 +23,6 @@ namespace OrigoApiGateway.Models
         public string Language { get; set; }
         public int? ParentId { get; set; }
         public IList<OrigoAssetCategory> ChildAssetCategory { get; set; }
+        public IList<AssetCategoryAttribute> AssetCategoryAttributes { get; set; }
     }
 }

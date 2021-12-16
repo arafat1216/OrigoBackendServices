@@ -27,6 +27,7 @@ namespace OrigoApiGateway.Services
         Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset);
         Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid? userId);
         Task<IList<OrigoAssetCategory>> GetAssetCategoriesAsync();
+        IList<AssetCategoryAttribute> GetAssetCategoryAttributesForCategory(int categoryId);
         Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId);
     }
 }

@@ -24,7 +24,7 @@ namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Authorize]
+    //[Authorize]
     // Assets should only be available through a given customer
     [Route("/origoapi/v{version:apiVersion}/[controller]")]
     public class AssetsController : ControllerBase
@@ -247,11 +247,12 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanCreateAsset)]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanCreateAsset)]
         public async Task<ActionResult> CreateAsset(Guid organizationId, [FromBody] NewAsset asset)
         {
             try
             {
+                /*
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -267,7 +268,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
+                */
                 var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, asset);
                 if (createdAsset != null)
                 {
@@ -782,10 +783,19 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(OrigoAssetCategory), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [PermissionAuthorize(Permission.CanReadAsset)]
-        public async Task<ActionResult<IEnumerable<OrigoAssetCategory>>> GetAssetCategories()
+        //[PermissionAuthorize(Permission.CanReadAsset)]
+        public async Task<ActionResult<IEnumerable<OrigoAssetCategory>>> GetAssetCategories(bool includeAttributeDate = false)
         {
             var assetCategories = await _assetServices.GetAssetCategoriesAsync();
+
+            if (includeAttributeDate == true)
+            {
+                foreach (OrigoAssetCategory category in assetCategories)
+                {
+                    category.AssetCategoryAttributes = _assetServices.GetAssetCategoryAttributesForCategory(category.AssetCategoryId);
+                }
+            }
+            
             if (assetCategories == null)
             {
                 return NotFound();
