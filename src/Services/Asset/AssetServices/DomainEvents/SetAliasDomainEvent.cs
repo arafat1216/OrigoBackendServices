@@ -8,22 +8,22 @@ using System.Threading.Tasks;
 
 namespace AssetServices.DomainEvents
 {
-    public class NoteChangedDomainEvent<T> : BaseEvent where T:Asset
+    public class SetAliasDomainEvent<T> : BaseEvent where T: Asset
     {
         public T Asset { get; protected set; }
         public Guid CallerId { get; protected set; }
-        public string PreviousNote { get; protected set; }
+        public string PreviousAlias { get; protected set; }
 
-        public NoteChangedDomainEvent(T asset, Guid callerId, string previousNote) : base(asset.ExternalId)
+        public SetAliasDomainEvent(T asset, Guid callerId, string previousAlias) : base(asset.ExternalId)
         {
             Asset = asset;
             CallerId = callerId;
-            PreviousNote = previousNote;
+            PreviousAlias = previousAlias;
         }
 
         public override string EventMessage(string languageCode = "nb-NO")
         {
-            return $"Asset note changed from {PreviousNote} to {Asset.Note}.";
+            return $"Asset alias changed from {PreviousAlias} to {Asset.Alias}.";
         }
     }
 }

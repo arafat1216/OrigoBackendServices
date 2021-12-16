@@ -1,10 +1,30 @@
 ﻿using Common.Seedwork;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace AssetServices.Models
 {
     public class AssetCategoryTranslation : Entity
     {
+        public AssetCategoryTranslation()
+        {
+
+        }
+
+        /*public AssetCategoryTranslation(string language, string name, string description, int id, DateTime createdDate, Guid createdBy, DateTime lastUpdatedDate, Guid updatedBy, bool isDeleted, Guid deletedBy)
+        {
+            Language = language;
+            Name = name;
+            Description = description;
+            Id = id;
+            CreatedDate = createdDate;
+            CreatedBy = createdBy;
+            LastUpdatedDate = lastUpdatedDate;
+            UpdatedBy = updatedBy;
+            IsDeleted = isDeleted;
+            DeletedBy = deletedBy;
+        }*/
+
         public AssetCategoryTranslation(int id, string language, string name, string description)
         {
             Id = id;

@@ -50,5 +50,10 @@ namespace Asset.API.ViewModels
         /// Alias for the asset.
         /// </summary>
         public string Alias { get; set; }
+
+        /// <summary>
+        /// Id of user making the endpoint call.
+        /// </summary>
+        public Guid CallerId { get; set; }
     }
 }

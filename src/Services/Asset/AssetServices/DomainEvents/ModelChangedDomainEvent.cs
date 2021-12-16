@@ -1,19 +1,22 @@
 ﻿using AssetServices.Models;
 using Common.Logging;
+using System;
 
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 namespace AssetServices.DomainEvents
 {
-    public class ModelChangedDomainEvent : BaseEvent
+    public class ModelChangedDomainEvent<T> : BaseEvent where T:Asset
     {
-        public Asset Asset { get; protected set; }
+        public T Asset { get; protected set; }
+        public Guid CallerId { get; protected set; }
         public string PreviousModel { get; protected set; }
 
-        public ModelChangedDomainEvent(Asset asset, string previousModel) : base(asset.ExternalId)
+        public ModelChangedDomainEvent(T asset, Guid callerId, string previousModel) : base(asset.ExternalId)
         {
             Asset = asset;
+            CallerId = callerId;
             PreviousModel = previousModel;
         }
 

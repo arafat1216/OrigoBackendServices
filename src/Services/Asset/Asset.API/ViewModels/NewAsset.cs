@@ -52,6 +52,11 @@ namespace Asset.API.ViewModels
         public Guid? AssetHolderId { get; set; }
 
         /// <summary>
+        /// Id of user making the endpoint call.
+        /// </summary>
+        public Guid CallerId { get; set; }
+
+        /// <summary>
         /// A description of the asset.
         /// </summary>
         public string Description { get; set; }
@@ -60,12 +65,6 @@ namespace Asset.API.ViewModels
         /// Tags associated with this asset.
         /// </summary>
         public string AssetTag { get; set; }
-
-        /// <summary>
-        /// The status of the asset.
-        /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
-        /// </summary>
-        public int AssetStatus { get; set; }
 
         /// <summary>
         /// The imei of the asset. Applicable to assets with category Mobile Phone and Tablet.
