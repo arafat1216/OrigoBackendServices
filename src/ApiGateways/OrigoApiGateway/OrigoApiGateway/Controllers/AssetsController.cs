@@ -841,11 +841,11 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoAssetCategory), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [PermissionAuthorize(Permission.CanReadAsset)]
-        public async Task<ActionResult<IEnumerable<OrigoAssetCategory>>> GetAssetCategories(bool includeAttributeDate = false)
+        public async Task<ActionResult<IEnumerable<OrigoAssetCategory>>> GetAssetCategories(bool includeAttributeData = false)
         {
             var assetCategories = await _assetServices.GetAssetCategoriesAsync();
 
-            if (includeAttributeDate == true)
+            if (includeAttributeData == true)
             {
                 foreach (OrigoAssetCategory category in assetCategories)
                 {
