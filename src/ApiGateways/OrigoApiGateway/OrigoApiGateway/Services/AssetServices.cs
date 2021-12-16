@@ -624,8 +624,6 @@ namespace OrigoApiGateway.Services
 
         /// <summary>
         /// Get attributes for the asset category, along with wether it is required data or not.
-        /// 
-        /// This should be rewritten at a later date to be more dynamic.
         /// </summary>
         /// <param name="categoryId">The id (int) of the asset category, where 1 is MobilePhone and 2 is Tablet</param>
         /// <returns></returns>
