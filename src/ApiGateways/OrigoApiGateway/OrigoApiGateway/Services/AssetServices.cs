@@ -622,88 +622,49 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
+        /// <summary>
+        /// Get attributes for the asset category, along with wether it is required data or not.
+        /// 
+        /// This should be rewritten at a later date to be more dynamic.
+        /// </summary>
+        /// <param name="categoryId">The id (int) of the asset category, where 1 is MobilePhone and 2 is Tablet</param>
+        /// <returns></returns>
         public IList<AssetCategoryAttribute> GetAssetCategoryAttributesForCategory(int categoryId)
         {
             List<AssetCategoryAttribute> defaultAttributes = new List<AssetCategoryAttribute>();
-            defaultAttributes.Add(new AssetCategoryAttribute
+
+            // Check valid Id
+            if (!(categoryId == 1 || categoryId == 2))
             {
-                Name = "Alias",
-                Required = false
-            });
-            defaultAttributes.Add(new AssetCategoryAttribute
-            {
-                Name = "AssetCategoryId",
-                Required = true
-            });
-            defaultAttributes.Add(new AssetCategoryAttribute
-            {
-                Name = "Note",
-                Required = false
-            });
-            defaultAttributes.Add(new AssetCategoryAttribute
-            {
-                Name = "Brand",
-                Required = true
-            });
-            defaultAttributes.Add(new AssetCategoryAttribute
-            {
-                Name = "ProductName",
-                Required = true
-            });
-            defaultAttributes.Add(new AssetCategoryAttribute
-            {
-                Name = "LifecycleType",
-                Required = true
-            });
-            defaultAttributes.Add(new AssetCategoryAttribute
-            {
-                Name = "PurchaseDate",
-                Required = true
-            });
-            defaultAttributes.Add(new AssetCategoryAttribute
-            {
-                Name = "ManagedByDepartmentId",
-                Required = false
-            });
-            defaultAttributes.Add(new AssetCategoryAttribute
-            {
-                Name = "AssetHolderId",
-                Required = false
-            });
-            defaultAttributes.Add(new AssetCategoryAttribute
-            {
-                Name = "Description",
-                Required = false
-            });
-            defaultAttributes.Add(new AssetCategoryAttribute
-            {
-                Name = "AssetTag",
-                Required = false
-            });
-            defaultAttributes.Add(new AssetCategoryAttribute
-            {
-                Name = "Imei",
-                Required = false
-            });
-            defaultAttributes.Add(new AssetCategoryAttribute
-            {
-                Name = "MacAddress",
-                Required = false
-            });
-            defaultAttributes.Add(new AssetCategoryAttribute
-            {
-                Name = "SerialNumber",
-                Required = false
-            });
+                return defaultAttributes;
+            }
+            
+            defaultAttributes.Add(new AssetCategoryAttribute {Name = "alias", Required = false});
+            defaultAttributes.Add(new AssetCategoryAttribute {Name = "assetCategoryId", Required = true});
+            defaultAttributes.Add(new AssetCategoryAttribute {Name = "note", Required = false});
+            defaultAttributes.Add(new AssetCategoryAttribute {Name = "brand", Required = true});
+            defaultAttributes.Add(new AssetCategoryAttribute {Name = "productName", Required = true});
+            defaultAttributes.Add(new AssetCategoryAttribute {Name = "lifecycleType", Required = true});
+            defaultAttributes.Add(new AssetCategoryAttribute {Name = "purchaseDate", Required = true});
+            defaultAttributes.Add(new AssetCategoryAttribute {Name = "managedByDepartmentId", Required = false});
+            defaultAttributes.Add(new AssetCategoryAttribute {Name = "assetHolderId", Required = false});
+            //defaultAttributes.Add(new AssetCategoryAttribute {Name = "description", Required = false});
+            //defaultAttributes.Add(new AssetCategoryAttribute {Name = "assetTag", Required = false}); 
+            
+            
+            
+            if (categoryId == 1) { // MobilePhone - Mobiltelefon
+                defaultAttributes.Add(new AssetCategoryAttribute {Name = "imei", Required = true});
+                defaultAttributes.Add(new AssetCategoryAttribute {Name = "serialNumber", Required = false});
+            }
+            else if (categoryId == 2) { // Tablet - Tablet? 
+                defaultAttributes.Add(new AssetCategoryAttribute {Name = "imei", Required = false});
+                defaultAttributes.Add(new AssetCategoryAttribute {Name = "serialNumber", Required = true});
+                defaultAttributes.Add(new AssetCategoryAttribute { Name = "macAddress", Required = false });
+            }
+           
+
             return defaultAttributes;
-            /*if (categoryId == 1) // MobilePhone - Mobiltelefon
-            {
-                defaultAttributes.Add(new AssetCategoryAttribute
-                {
-                    Name = "Imei",
-                    Required = true
-                });
-            }*/
         }
 
         public async Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId)
