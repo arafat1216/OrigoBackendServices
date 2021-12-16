@@ -214,14 +214,13 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<object>> UpdateStatusOnAssets(Guid customerId, IList<Guid> assetGuidList)
+        public async Task<IList<object>> UpdateStatusOnAssets(Guid customerId, UpdateAssetsStatus data, int assetStatus)
         {
             try
             {
-                
-                var requestUri = $"{_options.ApiPath}/customers/{customerId}/assetStatus";
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/assetStatus/{assetStatus.ToString().ToLower()}";
                 //TODO: Why isn't Patch supported? Dapr translates it to POST.
-                var response = await HttpClient.PostAsJsonAsync(requestUri, assetGuidList);
+                var response = await HttpClient.PostAsJsonAsync(requestUri, data);
                 if (!response.IsSuccessStatusCode)
                 {
                     string errorDescription = await response.Content.ReadAsStringAsync();
@@ -264,7 +263,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{assetId}/customers/{customerId}/update/", updateAsset);
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{assetId}/customers/{customerId}/update", updateAsset);
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorDescription = await response.Content.ReadAsStringAsync();
@@ -290,13 +289,13 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<Label>> CreateLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<NewLabel> newLabels)
+        public async Task<IList<Label>> CreateLabelsForCustomerAsync(Guid customerId, AddLabelsData data)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/{callerId}";
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels";
 
-                var response = await HttpClient.PostAsJsonAsync<IList<NewLabel>>(requestUri, newLabels);
+                var response = await HttpClient.PostAsJsonAsync(requestUri, data);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -334,12 +333,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<Label>> DeleteCustomerLabelsAsync(Guid customerId, Guid callerId, IList<Guid> labelGuids)
+        public async Task<IList<Label>> DeleteCustomerLabelsAsync(Guid customerId, DeleteCustomerLabelsData data)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/delete/{callerId}";
-                var response = await HttpClient.PostAsJsonAsync<IList<Guid>>(requestUri, labelGuids);
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/delete";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, data);
                 if (!response.IsSuccessStatusCode)
                 {
                     string errorDescription = await response.Content.ReadAsStringAsync();
@@ -361,12 +360,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<Label>> UpdateLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Label> labels)
+        public async Task<IList<Label>> UpdateLabelsForCustomerAsync(Guid customerId, UpdateCustomerLabelsData data)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/update/{callerId}";
-                var response = await HttpClient.PostAsJsonAsync<IList<Label>>(requestUri, labels);
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/update";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, data);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -389,11 +388,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<object>> AssignLabelsToAssets(Guid customerId, Guid callerId, AssetLabels assetLabels)
+        public async Task<IList<object>> AssignLabelsToAssets(Guid customerId, AssetLabels assetLabels)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/assign/{callerId}";
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/assign";
                 var response = await HttpClient.PostAsJsonAsync<AssetLabels>(requestUri, assetLabels);
                 if (!response.IsSuccessStatusCode)
                 {
@@ -431,11 +430,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<object>> UnAssignLabelsFromAssets(Guid customerId, Guid callerId, AssetLabels assetLabels)
+        public async Task<IList<object>> UnAssignLabelsFromAssets(Guid customerId, AssetLabels assetLabels)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/unassign/{callerId}";
+                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/unassign";
                 var response = await HttpClient.PostAsJsonAsync<AssetLabels>(requestUri, assetLabels);
                 if (!response.IsSuccessStatusCode)
                 {
@@ -501,13 +500,12 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
-        public async Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, int newLifecycleType)
+        public async Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, UpdateAssetLifecycleType data)
         {
             try
             {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/ChangeLifecycleType/{newLifecycleType}";
-                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/ChangeLifecycleType";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, data);
                 if (!response.IsSuccessStatusCode)
                 {
                     Exception exception;
@@ -543,15 +541,15 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid? userId)
+        public async Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, AssignAssetToUser data)
         {
             try
             {
-                if (userId != null)
+                if (data.UserId != null)
                 {
                     try
                     {
-                        var user = _userServices.GetUserAsync(customerId, userId.Value).Result;
+                        var user = _userServices.GetUserAsync(customerId, data.UserId.Value).Result;
                         if (user == null)
                             throw new BadHttpRequestException("Unable to assign asset. User not found");
                     }
@@ -562,9 +560,10 @@ namespace OrigoApiGateway.Services
                         throw exception;
                     }
                 }
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var requestUri = $"{_options.ApiPath}/{assetId}/customer/{customerId}/assign?userId={userId}";
-                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+
+
+                var requestUri = $"{_options.ApiPath}/{data.AssetId}/customer/{customerId}/assign";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, data);
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to assign asset", (int)response.StatusCode);

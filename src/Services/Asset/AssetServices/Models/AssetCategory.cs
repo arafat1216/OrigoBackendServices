@@ -7,9 +7,22 @@ namespace AssetServices.Models
     public class AssetCategory : Entity
     {
         // ReSharper disable once UnusedMember.Global
-        protected AssetCategory()
+        public AssetCategory()
         {
         }
+
+       /* public AssetCategory(AssetCategory parentAssetCategory, IList<AssetCategoryTranslation> translations, int id, DateTime createdDate, Guid createdBy, DateTime lastUpdatedDate, Guid updatedBy, bool isDeleted, Guid deletedBy)
+        {
+            ParentAssetCategory = parentAssetCategory;
+            Translations = translations;
+            Id = id;
+            CreatedDate = createdDate;
+            CreatedBy = createdBy;
+            LastUpdatedDate = lastUpdatedDate;
+            UpdatedBy = updatedBy;
+            IsDeleted = isDeleted;
+            DeletedBy = deletedBy;
+        }*/
 
         public AssetCategory(int id, AssetCategory parent, IList<AssetCategoryTranslation> translations)
         {

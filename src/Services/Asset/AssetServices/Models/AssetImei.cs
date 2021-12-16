@@ -6,7 +6,7 @@ namespace AssetServices.Models
 {
     public class AssetImei : ValueObject
     {
-        protected AssetImei() { }
+        public AssetImei() { }
 
         public AssetImei(long imei)
         {
