@@ -647,11 +647,7 @@ namespace OrigoApiGateway.Services
             defaultAttributes.Add(new AssetCategoryAttribute {Name = "lifecycleType", Required = true});
             defaultAttributes.Add(new AssetCategoryAttribute {Name = "purchaseDate", Required = true});
             defaultAttributes.Add(new AssetCategoryAttribute {Name = "managedByDepartmentId", Required = false});
-            defaultAttributes.Add(new AssetCategoryAttribute {Name = "assetHolderId", Required = false});
-            //defaultAttributes.Add(new AssetCategoryAttribute {Name = "description", Required = false});
-            //defaultAttributes.Add(new AssetCategoryAttribute {Name = "assetTag", Required = false}); 
-            
-            
+            defaultAttributes.Add(new AssetCategoryAttribute {Name = "assetHolderId", Required = false});            
             
             if (categoryId == 1) { // MobilePhone - Mobiltelefon
                 defaultAttributes.Add(new AssetCategoryAttribute {Name = "imei", Required = true});
