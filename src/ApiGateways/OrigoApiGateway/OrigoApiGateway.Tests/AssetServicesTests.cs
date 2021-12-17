@@ -2,12 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
+using OrigoApiGateway.Mappings;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Services;
@@ -17,6 +20,20 @@ namespace OrigoApiGateway.Tests
 {
     public class AssetServicesTests
     {
+        private static IMapper _mapper;
+
+        public AssetServicesTests()
+        {
+            if (_mapper == null)
+            {
+                var mappingConfig = new MapperConfiguration(mc =>
+                {
+                    mc.AddMaps(Assembly.GetAssembly(typeof(OrigoUserProfile)));
+                });
+                _mapper = mappingConfig.CreateMapper();
+            }
+        }
+
         [Fact]
         [Trait("Category", "UnitTest")]
         public async void GetAssetsForUser_ForUserOne_CheckCount()
@@ -84,7 +101,7 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService);
 
@@ -163,7 +180,7 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService);
             IList<Guid> assetGuidList = new List<Guid>();
@@ -230,7 +247,7 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService);
 
@@ -291,7 +308,7 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService);
 
@@ -364,7 +381,7 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService);
 

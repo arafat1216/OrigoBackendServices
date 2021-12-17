@@ -5,15 +5,16 @@ namespace OrigoApiGateway.Models.BackendDTO
 {
     public record UserDTO
     {
-        public Guid Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
-        public string MobileNumber { get; set; }
-        public string EmployeeId { get; set; }
-        public string OrganizationName { get; set; }
-        public bool IsActive { get; set; }
-        public List<Guid> AssignedToDepartments  { get; set; }
-        public UserPreferenceDTO UserPreference { get; set; }
+        public Guid Id { get; init; }
+        public string FirstName { get; init; }
+        public string LastName { get; init; }
+        public string Email { get; init; }
+        public string MobileNumber { get; init; }
+        public string EmployeeId { get; init; }
+        public string OrganizationName { get; init; }
+        public string Role { get; init; }
+        public bool IsActive { get; init; }
+        public List<Guid> AssignedToDepartments  { get; init; }
+        public UserPreferenceDTO UserPreference { get; init; }
     }
 }
