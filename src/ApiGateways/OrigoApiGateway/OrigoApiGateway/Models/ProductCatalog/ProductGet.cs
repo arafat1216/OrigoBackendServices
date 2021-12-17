@@ -48,7 +48,7 @@ namespace OrigoApiGateway.Models.ProductCatalog
 
         public ProductGet()
         {
-            Translations = new List<Translation>();
+            // Do not place default property initializers in here. They should be injected during the HTTP deserialization process.
         }
 
 

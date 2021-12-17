@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace AssetServices.Models
 {
@@ -15,6 +16,7 @@ namespace AssetServices.Models
         /// The unique serial number for the asset. For mobile phones and other devices
         /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
+        [JsonInclude]
         public string SerialNumber { get; protected set; }
 
         /// <summary>
@@ -30,13 +32,14 @@ namespace AssetServices.Models
         /// <summary>
         /// The mac-address of the asset
         /// </summary>
+        [JsonInclude]
         public string MacAddress { get; protected set; }
 
-        public void ChangeSerialNumber(string serialNumber)
+        public virtual void ChangeSerialNumber(string serialNumber, Guid callerId)
         {
             var previousSerialNumber = SerialNumber;
             SerialNumber = serialNumber;
-            AddDomainEvent(new SerialNumberChangedDomainEvent(this, previousSerialNumber));
+            AddDomainEvent(new SerialNumberChangedDomainEvent<HardwareAsset>(this, callerId, previousSerialNumber));
         }
 
         /// <summary>

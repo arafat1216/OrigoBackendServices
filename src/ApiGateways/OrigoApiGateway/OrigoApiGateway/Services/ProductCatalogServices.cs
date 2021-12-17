@@ -156,6 +156,9 @@ namespace OrigoApiGateway.Services
                 }
                 else
                 {
+#if DEBUG
+                    var deserialized = await response.Content.ReadAsStringAsync();
+#endif
                     TOutput result = await response.Content.ReadFromJsonAsync<TOutput>();
                     return result;
                 }

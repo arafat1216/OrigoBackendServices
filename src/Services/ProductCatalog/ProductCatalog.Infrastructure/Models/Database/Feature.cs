@@ -5,17 +5,49 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProductCatalog.Infrastructure.Models.Database
 {
+    /// <summary>
+    ///     Represents a single functionality that can be added to a Product. 
+    ///     Each feature has its own unique <see cref="AccessControlPermissionNode">access-control</see> check.
+    /// </summary>
     internal class Feature : Entity, ITranslatable<FeatureTranslation>
     {
-        // EF DB Columns
+        /*
+         * EF DB Columns
+         */
+
+        /// <summary>
+        ///     The database-generated primary key.
+        /// </summary>
         public int Id { get; init; }
+
+        /// <summary>
+        ///     A foreign-key to the corresponding <see cref="FeatureType.Id"/> that is used for this feature.
+        /// </summary>
         public int FeatureTypeId { get; set; }
+
+        /// <summary>
+        ///     A fixed and unique access-control node-name. This is used throughout the front- and back-end to enable or disable functionality for an organization,
+        ///     based on whether or not they have access to the feature through their <see cref="Product">products</see>. <para>
+        ///     
+        ///     The node-name must consist of only characters, formated in PascalCase. Example: '<c>MyPermissionNodeIdentifier</c>'. </para>
+        /// </summary>
         public string AccessControlPermissionNode { get; set; }
 
-        // EF Owned Tables
+
+        /*
+         * EF Owned Tables
+         */
+
+        /// <summary>
+        ///     Contains the internationalization (i18n) translations.
+        /// </summary>
         public virtual ICollection<FeatureTranslation> Translations { get; set; } = new HashSet<FeatureTranslation>();
 
-        // EF Navigation
+
+        /*
+         * EF Navigation
+         */
+
         public virtual ICollection<Product> Products { get; set; } = new HashSet<Product>();
         public virtual FeatureType? Type { get; set; }
 
@@ -37,9 +69,16 @@ namespace ProductCatalog.Infrastructure.Models.Database
         [NotMapped]
         public virtual ICollection<FeatureRequiresOne> HasRequiresOneDependenciesFrom { get; set; } = new HashSet<FeatureRequiresOne>();
 
-        // EF Join Tables
+        /*
+         * EF Join Tables
+         */
+
         internal virtual ICollection<ProductFeature> ProductFeatures { get; set; } = new HashSet<ProductFeature>();
 
+
+        /*
+         * Constructors
+         */
 
         [Obsolete("This is a reserved constructor that should only be utilized by the automated Entity Framework injections! Make sure you are using the correct \"base()\" constructor.", false)]
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

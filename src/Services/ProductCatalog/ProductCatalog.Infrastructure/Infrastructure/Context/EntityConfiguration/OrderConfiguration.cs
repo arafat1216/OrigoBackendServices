@@ -11,13 +11,26 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context.EntityConfigurati
         {
             builder.ToTable(t => t.IsTemporal());
 
-            builder.Property(e => e.ExternalId)
-                   .ValueGeneratedOnAdd()
-                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-
             builder.HasAlternateKey(e => e.ExternalId);
             builder.HasIndex(e => e.OrganizationId);
 
+            /*
+             * Properties
+             */
+
+            builder.Property(e => e.Id)
+                   .HasColumnOrder(0);
+
+            builder.Property(e => e.ExternalId)
+                   .ValueGeneratedOnAdd()
+                   .HasDefaultValueSql("newid()")
+                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
+
+            builder.Property(e => e.ProductId)
+                   .HasColumnOrder(2);
+
+            builder.Property(e => e.OrganizationId)
+                   .HasColumnOrder(3);
         }
     }
 }

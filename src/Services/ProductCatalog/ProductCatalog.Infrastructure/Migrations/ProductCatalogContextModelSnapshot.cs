@@ -25,10 +25,14 @@ namespace ProductCatalog.Infrastructure.Migrations
             modelBuilder.Entity("FeatureCatalog.Infrastructure.Models.Database.Joins.FeatureExcludes", b =>
                 {
                     b.Property<int>("FeatureId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(0)
+                        .HasComment("The feature that has exclusions");
 
                     b.Property<int>("ExcludesFeatureId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(1)
+                        .HasComment("The 'FeatureID' cant be combined or used with this feature. This is a one-way requirement");
 
                     b.Property<DateTime>("PeriodEnd")
                         .ValueGeneratedOnAddOrUpdate()
@@ -41,7 +45,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                         .HasColumnName("PeriodStart");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("The ID of the user that performed the last update.");
 
                     b.HasKey("FeatureId", "ExcludesFeatureId");
 
@@ -64,10 +69,14 @@ namespace ProductCatalog.Infrastructure.Migrations
             modelBuilder.Entity("FeatureCatalog.Infrastructure.Models.Database.Joins.FeatureRequiresAll", b =>
                 {
                     b.Property<int>("FeatureId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(0)
+                        .HasComment("The feature that has requirements");
 
                     b.Property<int>("RequiresFeatureId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(1)
+                        .HasComment("The 'FeatureID' requires all these features before it can be added or used. This is a one-way requirement");
 
                     b.Property<DateTime>("PeriodEnd")
                         .ValueGeneratedOnAddOrUpdate()
@@ -80,7 +89,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                         .HasColumnName("PeriodStart");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("The ID of the user that performed the last update.");
 
                     b.HasKey("FeatureId", "RequiresFeatureId");
 
@@ -103,10 +113,14 @@ namespace ProductCatalog.Infrastructure.Migrations
             modelBuilder.Entity("FeatureCatalog.Infrastructure.Models.Database.Joins.FeatureRequiresOne", b =>
                 {
                     b.Property<int>("FeatureId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(0)
+                        .HasComment("The feature that has a requirement");
 
                     b.Property<int>("RequiresFeatureId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(1)
+                        .HasComment("The 'FeatureID' requires one of these features before it can be added or used. This is a one-way requirement");
 
                     b.Property<DateTime>("PeriodEnd")
                         .ValueGeneratedOnAddOrUpdate()
@@ -119,7 +133,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                         .HasColumnName("PeriodStart");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("The ID of the user that performed the last update.");
 
                     b.HasKey("FeatureId", "RequiresFeatureId");
 
@@ -143,17 +158,21 @@ namespace ProductCatalog.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(0);
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("AccessControlPermissionNode")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("nvarchar(64)")
+                        .HasColumnOrder(2)
+                        .HasComment("A fixed and unique access-control node-name that's used by the front- and back-end to enable or disable functionality for an organization. The node-name must consist of only characters, formated in PascalCase. Example: 'MyPermissionNodeIdentifier'");
 
                     b.Property<int>("FeatureTypeId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(1);
 
                     b.Property<DateTime>("PeriodEnd")
                         .ValueGeneratedOnAddOrUpdate()
@@ -166,7 +185,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                         .HasColumnName("PeriodStart");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("The ID of the user that performed the last update.");
 
                     b.HasKey("Id");
 
@@ -223,7 +243,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                         .HasColumnName("PeriodStart");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("The ID of the user that performed the last update.");
 
                     b.HasKey("Id");
 
@@ -251,10 +272,14 @@ namespace ProductCatalog.Infrastructure.Migrations
             modelBuilder.Entity("ProductCatalog.Infrastructure.Models.Database.Joins.ProductExcludes", b =>
                 {
                     b.Property<int>("ProductId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(0)
+                        .HasComment("The product that has exclusions");
 
                     b.Property<int>("ExcludesProductId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(1)
+                        .HasComment("The 'ProductId' cant be combined or used with this product. This is a one-way requirement");
 
                     b.Property<DateTime>("PeriodEnd")
                         .ValueGeneratedOnAddOrUpdate()
@@ -267,7 +292,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                         .HasColumnName("PeriodStart");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("The ID of the user that performed the last update.");
 
                     b.HasKey("ProductId", "ExcludesProductId");
 
@@ -290,10 +316,12 @@ namespace ProductCatalog.Infrastructure.Migrations
             modelBuilder.Entity("ProductCatalog.Infrastructure.Models.Database.Joins.ProductFeature", b =>
                 {
                     b.Property<int>("FeatureId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(1);
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(0);
 
                     b.Property<DateTime>("PeriodEnd")
                         .ValueGeneratedOnAddOrUpdate()
@@ -306,7 +334,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                         .HasColumnName("PeriodStart");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("The ID of the user that performed the last update.");
 
                     b.HasKey("FeatureId", "ProductId");
 
@@ -314,9 +343,7 @@ namespace ProductCatalog.Infrastructure.Migrations
 
                     b.ToTable("ProductFeatures");
 
-                    b
-                        .HasComment("Join table")
-                        .ToTable(tb => tb.IsTemporal(ttb =>
+                    b.ToTable(tb => tb.IsTemporal(ttb =>
                         {
                             ttb
                                 .HasPeriodStart("PeriodStart")
@@ -331,10 +358,12 @@ namespace ProductCatalog.Infrastructure.Migrations
             modelBuilder.Entity("ProductCatalog.Infrastructure.Models.Database.Joins.ProductRequiresAll", b =>
                 {
                     b.Property<int>("ProductId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(0);
 
                     b.Property<int>("RequiresProductId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(1);
 
                     b.Property<DateTime>("PeriodEnd")
                         .ValueGeneratedOnAddOrUpdate()
@@ -347,7 +376,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                         .HasColumnName("PeriodStart");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("The ID of the user that performed the last update.");
 
                     b.HasKey("ProductId", "RequiresProductId");
 
@@ -370,10 +400,12 @@ namespace ProductCatalog.Infrastructure.Migrations
             modelBuilder.Entity("ProductCatalog.Infrastructure.Models.Database.Joins.ProductRequiresOne", b =>
                 {
                     b.Property<int>("ProductId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(0);
 
                     b.Property<int>("RequiresProductId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(1);
 
                     b.Property<DateTime>("PeriodEnd")
                         .ValueGeneratedOnAddOrUpdate()
@@ -386,7 +418,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                         .HasColumnName("PeriodStart");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("The ID of the user that performed the last update.");
 
                     b.HasKey("ProductId", "RequiresProductId");
 
@@ -410,16 +443,19 @@ namespace ProductCatalog.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(0);
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<Guid>("ExternalId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("newid()");
 
                     b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(3);
 
                     b.Property<DateTime>("PeriodEnd")
                         .ValueGeneratedOnAddOrUpdate()
@@ -432,10 +468,12 @@ namespace ProductCatalog.Infrastructure.Migrations
                         .HasColumnName("PeriodStart");
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(2);
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("The ID of the user that performed the last update.");
 
                     b.HasKey("Id");
 
@@ -463,12 +501,15 @@ namespace ProductCatalog.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(0);
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<Guid>("PartnerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(1)
+                        .HasComment("The partner that owns and sells this product");
 
                     b.Property<DateTime>("PeriodEnd")
                         .ValueGeneratedOnAddOrUpdate()
@@ -481,10 +522,12 @@ namespace ProductCatalog.Infrastructure.Migrations
                         .HasColumnName("PeriodStart");
 
                     b.Property<int>("ProductTypeId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(2);
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("The ID of the user that performed the last update.");
 
                     b.HasKey("Id");
 
@@ -525,7 +568,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                         .HasColumnName("PeriodStart");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("The ID of the user that performed the last update.");
 
                     b.HasKey("Id");
 
@@ -628,21 +672,28 @@ namespace ProductCatalog.Infrastructure.Migrations
                     b.OwnsMany("ProductCatalog.Infrastructure.Models.Database.FeatureTranslation", "Translations", b1 =>
                         {
                             b1.Property<int>("FeatureId")
-                                .HasColumnType("int");
+                                .HasColumnType("int")
+                                .HasColumnOrder(0);
 
                             b1.Property<string>("Language")
                                 .HasMaxLength(2)
                                 .IsUnicode(false)
                                 .HasColumnType("char(2)")
-                                .IsFixedLength();
+                                .HasColumnOrder(1)
+                                .IsFixedLength()
+                                .HasComment("The language for this translation. This should be stored in lowercase 'ISO 639-1' format");
 
                             b1.Property<string>("Description")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnOrder(3)
+                                .HasComment("An optional description");
 
                             b1.Property<string>("Name")
                                 .IsRequired()
                                 .HasMaxLength(128)
-                                .HasColumnType("nvarchar(128)");
+                                .HasColumnType("nvarchar(128)")
+                                .HasColumnOrder(2)
+                                .HasComment("A short, descriptive name");
 
                             b1.Property<DateTime>("PeriodEnd")
                                 .ValueGeneratedOnAddOrUpdate()
@@ -655,7 +706,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                                 .HasColumnName("PeriodStart");
 
                             b1.Property<Guid>("UpdatedBy")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uniqueidentifier")
+                                .HasComment("The ID of the user that performed the last update.");
 
                             b1.HasKey("FeatureId", "Language");
 
@@ -720,21 +772,28 @@ namespace ProductCatalog.Infrastructure.Migrations
                     b.OwnsMany("ProductCatalog.Infrastructure.Models.Database.FeatureTypeTranslation", "Translations", b1 =>
                         {
                             b1.Property<int>("FeatureTypeId")
-                                .HasColumnType("int");
+                                .HasColumnType("int")
+                                .HasColumnOrder(0);
 
                             b1.Property<string>("Language")
                                 .HasMaxLength(2)
                                 .IsUnicode(false)
                                 .HasColumnType("char(2)")
-                                .IsFixedLength();
+                                .HasColumnOrder(1)
+                                .IsFixedLength()
+                                .HasComment("The language for this translation. This should be stored in lowercase 'ISO 639-1' format");
 
                             b1.Property<string>("Description")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnOrder(3)
+                                .HasComment("An optional description");
 
                             b1.Property<string>("Name")
                                 .IsRequired()
                                 .HasMaxLength(128)
-                                .HasColumnType("nvarchar(128)");
+                                .HasColumnType("nvarchar(128)")
+                                .HasColumnOrder(2)
+                                .HasComment("A short, descriptive name");
 
                             b1.Property<DateTime>("PeriodEnd")
                                 .ValueGeneratedOnAddOrUpdate()
@@ -747,7 +806,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                                 .HasColumnName("PeriodStart");
 
                             b1.Property<Guid>("UpdatedBy")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uniqueidentifier")
+                                .HasComment("The ID of the user that performed the last update.");
 
                             b1.HasKey("FeatureTypeId", "Language");
 
@@ -811,15 +871,15 @@ namespace ProductCatalog.Infrastructure.Migrations
             modelBuilder.Entity("ProductCatalog.Infrastructure.Models.Database.Joins.ProductFeature", b =>
                 {
                     b.HasOne("ProductCatalog.Infrastructure.Models.Database.Feature", "Feature")
-                        .WithMany()
+                        .WithMany("ProductFeatures")
                         .HasForeignKey("FeatureId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("ProductCatalog.Infrastructure.Models.Database.Product", "Product")
-                        .WithMany()
+                        .WithMany("ProductFeatures")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Feature");
@@ -887,21 +947,28 @@ namespace ProductCatalog.Infrastructure.Migrations
                     b.OwnsMany("ProductCatalog.Infrastructure.Models.Database.ProductTranslation", "Translations", b1 =>
                         {
                             b1.Property<int>("ProductId")
-                                .HasColumnType("int");
+                                .HasColumnType("int")
+                                .HasColumnOrder(0);
 
                             b1.Property<string>("Language")
                                 .HasMaxLength(2)
                                 .IsUnicode(false)
                                 .HasColumnType("char(2)")
-                                .IsFixedLength();
+                                .HasColumnOrder(1)
+                                .IsFixedLength()
+                                .HasComment("The language for this translation. This should be stored in lowercase 'ISO 639-1' format");
 
                             b1.Property<string>("Description")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnOrder(3)
+                                .HasComment("An optional description");
 
                             b1.Property<string>("Name")
                                 .IsRequired()
                                 .HasMaxLength(128)
-                                .HasColumnType("nvarchar(128)");
+                                .HasColumnType("nvarchar(128)")
+                                .HasColumnOrder(2)
+                                .HasComment("A short, descriptive name");
 
                             b1.Property<DateTime>("PeriodEnd")
                                 .ValueGeneratedOnAddOrUpdate()
@@ -914,7 +981,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                                 .HasColumnName("PeriodStart");
 
                             b1.Property<Guid>("UpdatedBy")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uniqueidentifier")
+                                .HasComment("The ID of the user that performed the last update.");
 
                             b1.HasKey("ProductId", "Language");
 
@@ -945,21 +1013,28 @@ namespace ProductCatalog.Infrastructure.Migrations
                     b.OwnsMany("ProductCatalog.Infrastructure.Models.Database.ProductTypeTranslation", "Translations", b1 =>
                         {
                             b1.Property<int>("ProductTypeId")
-                                .HasColumnType("int");
+                                .HasColumnType("int")
+                                .HasColumnOrder(0);
 
                             b1.Property<string>("Language")
                                 .HasMaxLength(2)
                                 .IsUnicode(false)
                                 .HasColumnType("char(2)")
-                                .IsFixedLength();
+                                .HasColumnOrder(1)
+                                .IsFixedLength()
+                                .HasComment("The language for this translation. This should be stored in lowercase 'ISO 639-1' format");
 
                             b1.Property<string>("Description")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnOrder(3)
+                                .HasComment("An optional description");
 
                             b1.Property<string>("Name")
                                 .IsRequired()
                                 .HasMaxLength(128)
-                                .HasColumnType("nvarchar(128)");
+                                .HasColumnType("nvarchar(128)")
+                                .HasColumnOrder(2)
+                                .HasComment("A short, descriptive name");
 
                             b1.Property<DateTime>("PeriodEnd")
                                 .ValueGeneratedOnAddOrUpdate()
@@ -972,7 +1047,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                                 .HasColumnName("PeriodStart");
 
                             b1.Property<Guid>("UpdatedBy")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uniqueidentifier")
+                                .HasComment("The ID of the user that performed the last update.");
 
                             b1.HasKey("ProductTypeId", "Language");
 
@@ -1052,6 +1128,8 @@ namespace ProductCatalog.Infrastructure.Migrations
 
                     b.Navigation("HasRequiresOneDependenciesFrom");
 
+                    b.Navigation("ProductFeatures");
+
                     b.Navigation("RequiresAll");
 
                     b.Navigation("RequiresOne");
@@ -1073,6 +1151,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                     b.Navigation("HasRequiresOneDependenciesFrom");
 
                     b.Navigation("Orders");
+
+                    b.Navigation("ProductFeatures");
 
                     b.Navigation("RequiresAll");
 

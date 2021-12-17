@@ -2,13 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
+using OrigoApiGateway.Mappings;
 using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Services;
 using Xunit;
 
@@ -16,6 +20,20 @@ namespace OrigoApiGateway.Tests
 {
     public class AssetServicesTests
     {
+        private static IMapper _mapper;
+
+        public AssetServicesTests()
+        {
+            if (_mapper == null)
+            {
+                var mappingConfig = new MapperConfiguration(mc =>
+                {
+                    mc.AddMaps(Assembly.GetAssembly(typeof(OrigoUserProfile)));
+                });
+                _mapper = mappingConfig.CreateMapper();
+            }
+        }
+
         [Fact]
         [Trait("Category", "UnitTest")]
         public async void GetAssetsForUser_ForUserOne_CheckCount()
@@ -83,7 +101,7 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService);
 
@@ -162,15 +180,22 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService);
             IList<Guid> assetGuidList = new List<Guid>();
             assetGuidList.Add(new Guid("64add3ea-74ae-48a3-aad7-1a811f25ccdc"));
             assetGuidList.Add(new Guid("ef8710e8-ca5c-4832-ae27-139100d1ae63"));
 
+            UpdateAssetsStatus data = new UpdateAssetsStatus
+            {
+                AssetGuidList = assetGuidList,
+                CallerId = Guid.Empty,
+                AssetStatus =  1
+            };
+
             // Act
-            var updatedAssets = await assetService.UpdateStatusOnAssets(new Guid(CUSTOMER_ID), assetGuidList, 0);
+            var updatedAssets = await assetService.UpdateStatusOnAssets(new Guid(CUSTOMER_ID), data, 1);
 
             // Assert
             Assert.Equal(2, updatedAssets.Count);
@@ -222,7 +247,7 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService);
 
@@ -231,8 +256,14 @@ namespace OrigoApiGateway.Tests
             newLabels.Add(new NewLabel { Text = "Department", Color = Common.Enums.LabelColor.Orange });
             newLabels.Add(new NewLabel { Text = "Customer service", Color = Common.Enums.LabelColor.Gray });
 
+            AddLabelsData data = new AddLabelsData
+            {
+                NewLabels = newLabels,
+                CallerId = Guid.Empty
+            };
+
             // Act
-            IList<Label> createdLabels = await assetService.CreateLabelsForCustomerAsync(new Guid(CUSTOMER_ID), Guid.Empty, newLabels);
+            IList<Label> createdLabels = await assetService.CreateLabelsForCustomerAsync(new Guid(CUSTOMER_ID), data);
 
             // Assert
             Assert.Equal(3, createdLabels.Count);
@@ -277,7 +308,7 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService);
 
@@ -285,9 +316,14 @@ namespace OrigoApiGateway.Tests
             guidList.Add(new Guid(LABEL_THREE_ID));
             guidList.Add(new Guid(LABEL_TWO_ID));
 
+            DeleteCustomerLabelsData data = new DeleteCustomerLabelsData
+            {
+                LabelGuids = guidList,
+                CallerId = Guid.Empty
+            };
 
             // Act
-            IList<Label> remainingLabels = await assetService.DeleteCustomerLabelsAsync(new Guid(CUSTOMER_ID), Guid.Empty, guidList);
+            IList<Label> remainingLabels = await assetService.DeleteCustomerLabelsAsync(new Guid(CUSTOMER_ID), data);
 
             // Assert
             Assert.Equal(1, remainingLabels.Count);
@@ -345,7 +381,7 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService);
 
@@ -353,10 +389,14 @@ namespace OrigoApiGateway.Tests
             labels.Add(new Label { Id = new Guid(LABEL_ONE_ID), Text = "Administrator", Color = Common.Enums.LabelColor.Blue });
             labels.Add(new Label { Id = new Guid(LABEL_TWO_ID), Text = "Assistant", Color = Common.Enums.LabelColor.Lightblue });
 
-            
+            UpdateCustomerLabelsData data = new UpdateCustomerLabelsData
+            {
+                Labels = labels,
+                CallerId = Guid.Empty
+            };
 
             // Act
-            IList<Label> labelsResult = await assetService.UpdateLabelsForCustomerAsync(new Guid(CUSTOMER_ID), Guid.Empty, labels);
+            IList<Label> labelsResult = await assetService.UpdateLabelsForCustomerAsync(new Guid(CUSTOMER_ID), data);
 
             // Assert
             Assert.Equal(3, labelsResult.Count);
