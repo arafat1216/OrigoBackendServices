@@ -2,14 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CustomerServices.ServiceModels;
 
 namespace CustomerServices
 {
     public interface IUserServices
     {
         Task<int> GetUsersCountAsync(Guid customerId);
-        Task<IList<User>> GetAllUsersAsync(Guid customerId);
+        Task<IList<UserDTO>> GetAllUsersAsync(Guid customerId);
         Task<User> GetUserAsync(Guid customerId, Guid userId);
+        Task<UserDTO> GetUserWithRoleAsync(Guid customerId, Guid userId);
         Task<User> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
             string email, string mobileNumber, string employeeId, UserPreference userPreference);
         Task<User> UpdateUserPutAsync(Guid customerId, Guid userId, string firstName, string lastName,

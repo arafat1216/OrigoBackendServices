@@ -142,9 +142,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<int> GetUsersCount(Guid customerId)
         {
-            var users = _customerContext.Users
-                .Where(u => u.Customer.OrganizationId == customerId).Count();
-            return users;
+            return await _customerContext.Users.CountAsync(u => u.Customer.OrganizationId == customerId);
         }
 
         public async Task<IList<User>> GetAllUsersAsync(Guid customerId)
