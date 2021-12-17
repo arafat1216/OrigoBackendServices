@@ -27,7 +27,8 @@ namespace ProductCatalog.API.Controllers
         ///     Resolves all permission-nodes for a given organization.
         /// </summary>
         /// <remarks>
-        ///     Resolves and returns all permission nodes for a given organization.
+        ///     Resolves a given organizations active orders, and based upon this it returns a list of all the permission nodes that the 
+        ///     organization currently has access to.
         /// </remarks>
         /// <param name="organizationId"> The organization you are retrieving permission-nodes for. </param>
         /// <returns> A list containing all permission-nodes for the given organization. </returns>

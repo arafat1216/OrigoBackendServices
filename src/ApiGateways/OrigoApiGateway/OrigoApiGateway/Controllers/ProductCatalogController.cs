@@ -39,10 +39,10 @@ namespace OrigoApiGateway.Controllers
         #region Features
 
         /// <summary>
-        ///     Resolves all permission-nodes for a given organization.
+        ///     Retrieve all permission-nodes for a given organization.
         /// </summary>
         /// <remarks>
-        ///     Resolves and returns all permission nodes for a given organization.
+        ///     Resolves and returns all permission-nodes for a given organization.
         /// </remarks>
         /// <param name="organizationId"> The organization you are retrieving permission-nodes for. </param>
         /// <returns> A list containing all permission-nodes for the given organization. </returns>
