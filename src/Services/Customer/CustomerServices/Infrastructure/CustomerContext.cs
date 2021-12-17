@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text.Json;
 using CustomerServices.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CustomerServices.Infrastructure
 {

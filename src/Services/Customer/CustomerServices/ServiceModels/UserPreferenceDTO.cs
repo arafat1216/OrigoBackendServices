@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CustomerServices.ServiceModels
+﻿namespace CustomerServices.ServiceModels
 {
     public record UserPreferenceDTO
     {
