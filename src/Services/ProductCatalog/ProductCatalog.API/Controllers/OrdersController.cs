@@ -137,7 +137,8 @@ namespace ProductCatalog.API.Controllers
         /// <param name="organizationId"> The organization to retrieve orders for. </param>
         /// <returns> A collection containing all corresponding products. </returns>
         [HttpGet("partner/{partnerId}/organization/{organizationId}")]
-        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByPartnerAndOrganizationAsync([FromRoute] Guid partnerId, Guid organizationId)
+        [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByPartnerAndOrganizationAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId)
         {
             try
             {
@@ -164,18 +165,20 @@ namespace ProductCatalog.API.Controllers
         /// </remarks>
         /// <param name="partnerId"> The partner that is placing the order. </param>
         /// <param name="organizationId"> The organization that is updated with a new product-configuration. </param>
-        /// <param name="updateProductOrders"> The object that contains the order-details. </param>
+        /// <param name="productOrders"> The object that contains the new order-details. </param>
+        /// <returns> The <see cref="ActionResult"/>. </returns>
+        /// 
         /// <response code="404"> One or more products does not exist, or is not available using the provided details. </response>
         /// <response code="409"> One or more of the product requirements is not fulfilled. </response>
         [HttpPut("partner/{partnerId}/organization/{organizationId}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> ReplaceOrderedProductsAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId, [FromBody] UpdateProductOrders updateProductOrders)
+        public async Task<ActionResult> ReplaceOrderedProductsAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId, [FromBody] UpdateProductOrders productOrders)
         {
             try
             {
-                await new OrderService().UpdateOrderedProductsAsync(organizationId, partnerId, updateProductOrders);
+                await new OrderService().UpdateOrderedProductsAsync(organizationId, partnerId, productOrders);
 
                 return StatusCode(StatusCodes.Status204NoContent);
             }

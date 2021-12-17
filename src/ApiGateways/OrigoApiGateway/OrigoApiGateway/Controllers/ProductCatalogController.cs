@@ -19,6 +19,7 @@ namespace OrigoApiGateway.Controllers
     [ApiVersion("1.0")]
     [Route("origoapi/v{version:apiVersion}/products")]
     [SwaggerTag("Actions for handling features, permission sets and corresponding translations.")]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status504GatewayTimeout)]
     public class ProductCatalogController : ControllerBase
@@ -152,6 +153,35 @@ namespace OrigoApiGateway.Controllers
 
         #region Orders
 
+
+        /// <summary>
+        ///     Lists all products that has been ordered by an organization, filtered by a partner-ID.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves all products that is currently ordered by a specific organization. This is filtered based on 
+        ///     the provided <code><paramref name="organizationId"/></code> and <code><paramref name="partnerId"/></code>.
+        /// </remarks>
+        /// <param name="partnerId"> The partner the orders are restricted to. </param>
+        /// <param name="organizationId"> The organization to retrieve orders for. </param>
+        /// <returns> A collection containing all corresponding products. </returns>
+        [HttpGet("partner/{partnerId}/organization/{organizationId}")]
+        [SwaggerOperation(
+            Tags = new[] { "Product Catalog: Orders" }
+        )]
+        [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByPartnerAndOrganizationAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId)
+        {
+            try
+            {
+                return Ok(await _productCatalogServices.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId, organizationId));
+            }
+            catch (MicroserviceErrorResponseException e)
+            {
+                return ExceptionResponseBuilder(e);
+            }
+        }
+
+
         /// <summary>
         ///     Replaces the existing product-orders for an organization.
         /// </summary>
@@ -164,7 +194,9 @@ namespace OrigoApiGateway.Controllers
         /// </remarks>
         /// <param name="partnerId"> The partner that is placing the order. </param>
         /// <param name="organizationId"> The organization that is updated with a new product-configuration. </param>
-        /// <param name="productOrders"> The object that contains the order-details. </param>
+        /// <param name="productOrders"> The object that contains the new order-details. </param>
+        /// <returns> The <see cref="ActionResult"/>. </returns>
+        /// 
         /// <response code="404"> One or more products does not exist, or is not available using the provided details. </response>
         /// <response code="409"> One or more of the product requirements is not fulfilled. </response>
         [HttpPut("partner/{partnerId}/organization/{organizationId}")]
@@ -198,6 +230,7 @@ namespace OrigoApiGateway.Controllers
                 return ExceptionResponseBuilder(e);
             }
         }
+
 
         #endregion
 
