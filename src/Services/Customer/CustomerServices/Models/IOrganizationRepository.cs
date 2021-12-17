@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerServices.ServiceModels;
 
 namespace CustomerServices.Models
 {
