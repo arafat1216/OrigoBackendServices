@@ -84,7 +84,7 @@ namespace CustomerServices.UnitTests
             var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4799999999", "43435435", userPref);
 
             // Assert
-            var newUserRead = await userServices.GetUserAsync(CUSTOMER_ONE_ID, newUser.UserId);
+            var newUserRead = await userServices.GetUserAsync(CUSTOMER_ONE_ID, newUser.Id);
             Assert.NotNull(newUserRead);
         }
 
@@ -140,7 +140,7 @@ namespace CustomerServices.UnitTests
             const string OKTA_ID = "1234";
             oktaMock.Setup(o => o.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>())).ReturnsAsync(OKTA_ID);
-            oktaMock.Setup(o => o.UserExistsInOktaAsync(OKTA_ID)).ReturnsAsync(true);
+            oktaMock.Setup(o => o.UserExistsInOktaAsync(It.IsAny<string>())).ReturnsAsync(true);
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
             await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true); // Activate user
@@ -149,7 +149,7 @@ namespace CustomerServices.UnitTests
             var user = await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, false);
 
             // Assert
-            Assert.Equal("1234", user.OktaUserId); // Should not be changed, as user can be reactivated later
+            oktaMock.Verify(mock => mock.RemoveUserFromGroup(It.IsAny<string>()), Times.Once());
             Assert.False(user.IsActive);
         }
 
@@ -161,9 +161,7 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var oktaMock = new Mock<IOktaServices>();
-            const string OKTA_ID = "1234";
-            oktaMock.Setup(o => o.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<string>(), true, It.IsAny<string>())).ReturnsAsync(OKTA_ID);
+            oktaMock.Setup(o => o.UserExistsInOktaAsync(It.IsAny<string>())).ReturnsAsync(true);
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
 
@@ -172,30 +170,13 @@ namespace CustomerServices.UnitTests
             var user = await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true);
 
             // Assert
-            Assert.Equal("1234", user.OktaUserId); 
+            oktaMock.Verify(mock => mock.AddUserToGroup(It.IsAny<string>()), Times.Once());
             Assert.True(user.IsActive);
         }
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void UnassignDepartment_ShouldReturnUserWithTypeUser()
-        {
-            // Arrange
-            await using var context = new CustomerContext(ContextOptions);
-            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
-
-            //Act
-            var user = await userServices.UnassignDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, DEPARTMENT_ONE_ID);
-
-            //Assert
-            Assert.NotNull(user);
-            Assert.IsType<User>(user);
-        }
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async void GetAllUsers_AddAUser_ListCountPlussOne()
+        public async void GetAllUsers_AddAUser_ListCountPlusOne()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -219,7 +200,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async System.Threading.Tasks.Task AddUserForCustomer_CustomerNotFoundExeption()
+        public async System.Threading.Tasks.Task AddUserForCustomer_CustomerNotFoundException()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -236,7 +217,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void AssignManager_UserNotFound_ThrowsUserNotFoundExeption()
+        public async void AssignManager_UserNotFound_ThrowsUserNotFoundException()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -251,23 +232,5 @@ namespace CustomerServices.UnitTests
             await Assert.ThrowsAsync<UserNotFoundException>(() => userServices.AssignManagerToDepartment(new Guid(NOT_VALID_CUSTOMER_ID), USER_ONE_ID, DEPARTMENT_ONE_ID));
 
         }
-
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async void UnassignManagerFromDepartment_UserWithNoDepartment()
-        {
-            // Arrange
-            await using var context = new CustomerContext(ContextOptions);
-            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
-
-            //Act
-            var userRemoveDepartment = await userServices.UnassignDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, DEPARTMENT_ONE_ID);
-
-            //Assert
-            Assert.Equal(0, userRemoveDepartment.Departments.Count);
-        }
-
     }
 }
