@@ -1,5 +1,4 @@
 ﻿using System;
-using CustomerServices.Models;
 
 namespace CustomerServices.ServiceModels
 {

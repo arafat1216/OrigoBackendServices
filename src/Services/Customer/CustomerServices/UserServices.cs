@@ -12,6 +12,7 @@ namespace CustomerServices
 {
     public class UserServices : IUserServices
     {
+        // ReSharper disable once NotAccessedField.Local
         private readonly ILogger<UserServices> _logger;
         private readonly IOrganizationRepository _customerRepository;
         private readonly IOktaServices _oktaServices;
@@ -67,7 +68,7 @@ namespace CustomerServices
             return userDTO;
         }
 
-        public async Task<User> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
+        public async Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
             string email, string mobileNumber, string employeeId, UserPreference userPreference)
         {
             var customer = await _customerRepository.GetOrganizationAsync(customerId);
@@ -84,7 +85,7 @@ namespace CustomerServices
                 newUser.Email, newUser.MobileNumber, true);
             newUser = await AssignOktaUserIdAsync(newUser.Customer.OrganizationId, newUser.UserId, oktaUserId);
 
-            return newUser;
+            return _mapper.Map<UserDTO>(newUser);
         }
 
         private async Task<User> AssignOktaUserIdAsync(Guid customerId, Guid userId, string oktaUserId)
@@ -97,7 +98,7 @@ namespace CustomerServices
             return user;
         }
 
-        public async Task<User> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive)
+        public async Task<UserDTO> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive)
         {
             var user = await GetUserAsync(customerId, userId);
             if (user == null)
@@ -105,7 +106,7 @@ namespace CustomerServices
 
             // Do not call if there is no change
             if (isActive == user.IsActive)
-                return user;
+                return _mapper.Map<UserDTO>(user);
 
             var userExistsInOkta = await _oktaServices.UserExistsInOktaAsync(user.OktaUserId);
             if (userExistsInOkta)
@@ -137,10 +138,10 @@ namespace CustomerServices
             }
 
             await _customerRepository.SaveEntitiesAsync();
-            return user;
+            return _mapper.Map<UserDTO>(user);
         }
 
-        public async Task<User> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
+        public async Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, UserPreference userPreference)
         {
             var user = await GetUserAsync(customerId, userId);
@@ -154,10 +155,10 @@ namespace CustomerServices
                 user.ChangeUserPreferences(userPreference);
 
             await _customerRepository.SaveEntitiesAsync();
-            return user;
+            return _mapper.Map<UserDTO>(user);
         }
 
-        public async Task<User> UpdateUserPutAsync(Guid customerId, Guid userId, string firstName, string lastName,
+        public async Task<UserDTO> UpdateUserPutAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, UserPreference userPreference)
         {
             var user = await GetUserAsync(customerId, userId);
@@ -171,10 +172,10 @@ namespace CustomerServices
                 user.ChangeUserPreferences(userPreference);
 
             await _customerRepository.SaveEntitiesAsync();
-            return user;
+            return _mapper.Map<UserDTO>(user);
         }
 
-        public async Task<User> DeleteUserAsync(Guid userId, bool softDelete = true)
+        public async Task<UserDTO> DeleteUserAsync(Guid userId, bool softDelete = true)
         {
             var user = await _customerRepository.GetUserAsync(userId);
             if (user == null) return null;
@@ -185,10 +186,10 @@ namespace CustomerServices
 
             user.SetDeleteStatus(true);
             await _customerRepository.SaveEntitiesAsync();
-            return user;
+            return _mapper.Map<UserDTO>(user);
         }
 
-        public async Task<User> AssignDepartment(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<UserDTO> AssignDepartment(Guid customerId, Guid userId, Guid departmentId)
         {
             var user = await GetUserAsync(customerId, userId);
             var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
@@ -196,7 +197,7 @@ namespace CustomerServices
                 return null;
             user.AssignDepartment(department);
             await _customerRepository.SaveEntitiesAsync();
-            return user;
+            return _mapper.Map<UserDTO>(user);
         }
 
         public async Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId)
@@ -227,7 +228,7 @@ namespace CustomerServices
             await _customerRepository.SaveEntitiesAsync();
         }
 
-        public async Task<User> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<UserDTO> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId)
         {
             var user = await GetUserAsync(customerId, userId);
             var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
@@ -235,7 +236,7 @@ namespace CustomerServices
                 return null;
             user.UnassignDepartment(department);
             await _customerRepository.SaveEntitiesAsync();
-            return user;
+            return _mapper.Map<UserDTO>(user);
         }
     }
 }

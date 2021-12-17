@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CustomerServices
+﻿namespace CustomerServices
 {
     /// <summary>
     /// Okta settings are in Customer.API.Appsettings. This class is set to those values, and injected into the OktaServices class,
