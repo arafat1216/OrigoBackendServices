@@ -650,11 +650,12 @@ namespace OrigoApiGateway.Services
             if (categoryId == 1) { // MobilePhone - Mobiltelefon
                 defaultAttributes.Add(new AssetCategoryAttribute {Name = "imei", Required = true});
                 defaultAttributes.Add(new AssetCategoryAttribute {Name = "serialNumber", Required = false});
+                defaultAttributes.Add(new AssetCategoryAttribute {Name = "macAddress", Required = false });
             }
             else if (categoryId == 2) { // Tablet - Tablet? 
                 defaultAttributes.Add(new AssetCategoryAttribute {Name = "imei", Required = false});
                 defaultAttributes.Add(new AssetCategoryAttribute {Name = "serialNumber", Required = true});
-                defaultAttributes.Add(new AssetCategoryAttribute { Name = "macAddress", Required = false });
+                defaultAttributes.Add(new AssetCategoryAttribute {Name = "macAddress", Required = false });
             }
            
 
