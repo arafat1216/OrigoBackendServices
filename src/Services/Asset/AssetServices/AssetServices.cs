@@ -508,7 +508,7 @@ namespace AssetServices
                 {
                     phone.ChangeSerialNumber(serialNumber, callerId);
                 }
-                if (phone.Imeis != imei)
+                if (imei != null && phone.Imeis != imei)
                 {
                     phone.SetImei(imei);
                 }
@@ -521,7 +521,7 @@ namespace AssetServices
                 {
                     tablet.ChangeSerialNumber(serialNumber, callerId);
                 }
-                if (tablet.Imeis != imei)
+                if (imei != null && tablet.Imeis != imei)
                 {
                     tablet.SetImei(imei);
                 }
