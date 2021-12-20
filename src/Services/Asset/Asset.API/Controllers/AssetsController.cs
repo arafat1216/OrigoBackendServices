@@ -15,7 +15,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text.Json;
-using System.Net.Http;
 
 namespace Asset.API.Controllers
 {
