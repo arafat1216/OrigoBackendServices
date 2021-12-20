@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AssetServices.Migrations
 {
     [DbContext(typeof(AssetsContext))]
-    [Migration("20211217135508_AddedUTCTimeForLastUpdatedDate")]
-    partial class AddedUTCTimeForLastUpdatedDate
+    [Migration("20211220102109_LastUpdatedDate_UTCDefaultValue")]
+    partial class LastUpdatedDate_UTCDefaultValue
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -139,21 +139,21 @@ namespace AssetServices.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedBy = new Guid("b93f0bf6-1580-4861-bc6d-fd2220fa80d6"),
-                            CreatedDate = new DateTime(2021, 12, 17, 14, 55, 8, 15, DateTimeKind.Local).AddTicks(4723),
+                            CreatedBy = new Guid("ccdebe93-56da-4cff-b0b5-186086e89775"),
+                            CreatedDate = new DateTime(2021, 12, 20, 11, 21, 8, 929, DateTimeKind.Local).AddTicks(8364),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
-                            LastUpdatedDate = new DateTime(2021, 12, 17, 14, 55, 8, 17, DateTimeKind.Local).AddTicks(998),
+                            LastUpdatedDate = new DateTime(2021, 12, 20, 11, 21, 8, 931, DateTimeKind.Local).AddTicks(6170),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             Id = 2,
-                            CreatedBy = new Guid("d37db446-6005-4678-99d5-470c3d156372"),
-                            CreatedDate = new DateTime(2021, 12, 17, 14, 55, 8, 17, DateTimeKind.Local).AddTicks(8471),
+                            CreatedBy = new Guid("05910ac1-5401-47cc-b150-e0717862b761"),
+                            CreatedDate = new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(4595),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
-                            LastUpdatedDate = new DateTime(2021, 12, 17, 14, 55, 8, 17, DateTimeKind.Local).AddTicks(8484),
+                            LastUpdatedDate = new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(4614),
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
                 });
@@ -207,13 +207,13 @@ namespace AssetServices.Migrations
                         {
                             Id = 1,
                             AssetCategoryId = 1,
-                            CreatedBy = new Guid("f36b8199-f67f-4e59-86e2-0e1e4189ae06"),
-                            CreatedDate = new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(1830),
+                            CreatedBy = new Guid("925f1883-26bb-4112-bb2c-fe18edcc84e7"),
+                            CreatedDate = new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(8380),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             Description = "Mobile phone",
                             IsDeleted = false,
                             Language = "EN",
-                            LastUpdatedDate = new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(1842),
+                            LastUpdatedDate = new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(8394),
                             Name = "Mobile phone",
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
@@ -221,13 +221,13 @@ namespace AssetServices.Migrations
                         {
                             Id = 2,
                             AssetCategoryId = 1,
-                            CreatedBy = new Guid("c16af0c1-6d0d-44f4-88db-2a354e8da0b8"),
-                            CreatedDate = new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(2746),
+                            CreatedBy = new Guid("f41d380d-81ba-4a22-8a0d-840f5d2ac92d"),
+                            CreatedDate = new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(9657),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             Description = "Mobiltelefon",
                             IsDeleted = false,
                             Language = "NO",
-                            LastUpdatedDate = new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(2756),
+                            LastUpdatedDate = new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(9670),
                             Name = "Mobiltelefon",
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
@@ -235,13 +235,13 @@ namespace AssetServices.Migrations
                         {
                             Id = 3,
                             AssetCategoryId = 2,
-                            CreatedBy = new Guid("55443008-687d-4c92-a41c-9c374109078b"),
-                            CreatedDate = new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(2766),
+                            CreatedBy = new Guid("ccace718-34d6-4736-8313-13008a54f2ab"),
+                            CreatedDate = new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(9682),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             Description = "Tablet",
                             IsDeleted = false,
                             Language = "EN",
-                            LastUpdatedDate = new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(2769),
+                            LastUpdatedDate = new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(9683),
                             Name = "Tablet",
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
@@ -249,13 +249,13 @@ namespace AssetServices.Migrations
                         {
                             Id = 4,
                             AssetCategoryId = 2,
-                            CreatedBy = new Guid("ebe65417-238c-4195-a266-e3269f8a71f5"),
-                            CreatedDate = new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(2772),
+                            CreatedBy = new Guid("98f544c2-7073-4127-b9a8-0ddef3319437"),
+                            CreatedDate = new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(9688),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             Description = "Nettbrett",
                             IsDeleted = false,
                             Language = "NO",
-                            LastUpdatedDate = new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(2774),
+                            LastUpdatedDate = new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(9690),
                             Name = "Nettbrett",
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });

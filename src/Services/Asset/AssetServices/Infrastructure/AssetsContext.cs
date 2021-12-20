@@ -39,6 +39,7 @@ namespace AssetServices.Infrastructure
                 {
                     n.Property("Id").ValueGeneratedNever();
                 });
+                modelBuilder.Entity<Asset>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("date('now')");
             }
             else
             {

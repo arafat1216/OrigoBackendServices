@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace AssetServices.Migrations
 {
-    public partial class AddedUTCTimeForLastUpdatedDate : Migration
+    public partial class LastUpdatedDate_UTCDefaultValue : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -22,42 +22,42 @@ namespace AssetServices.Migrations
                 keyColumn: "Id",
                 keyValue: 1,
                 columns: new[] { "CreatedBy", "CreatedDate", "LastUpdatedDate" },
-                values: new object[] { new Guid("b93f0bf6-1580-4861-bc6d-fd2220fa80d6"), new DateTime(2021, 12, 17, 14, 55, 8, 15, DateTimeKind.Local).AddTicks(4723), new DateTime(2021, 12, 17, 14, 55, 8, 17, DateTimeKind.Local).AddTicks(998) });
+                values: new object[] { new Guid("ccdebe93-56da-4cff-b0b5-186086e89775"), new DateTime(2021, 12, 20, 11, 21, 8, 929, DateTimeKind.Local).AddTicks(8364), new DateTime(2021, 12, 20, 11, 21, 8, 931, DateTimeKind.Local).AddTicks(6170) });
 
             migrationBuilder.UpdateData(
                 table: "AssetCategory",
                 keyColumn: "Id",
                 keyValue: 2,
                 columns: new[] { "CreatedBy", "CreatedDate", "LastUpdatedDate" },
-                values: new object[] { new Guid("d37db446-6005-4678-99d5-470c3d156372"), new DateTime(2021, 12, 17, 14, 55, 8, 17, DateTimeKind.Local).AddTicks(8471), new DateTime(2021, 12, 17, 14, 55, 8, 17, DateTimeKind.Local).AddTicks(8484) });
+                values: new object[] { new Guid("05910ac1-5401-47cc-b150-e0717862b761"), new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(4595), new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(4614) });
 
             migrationBuilder.UpdateData(
                 table: "AssetCategoryTranslation",
                 keyColumn: "Id",
                 keyValue: 1,
                 columns: new[] { "CreatedBy", "CreatedDate", "LastUpdatedDate" },
-                values: new object[] { new Guid("f36b8199-f67f-4e59-86e2-0e1e4189ae06"), new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(1830), new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(1842) });
+                values: new object[] { new Guid("925f1883-26bb-4112-bb2c-fe18edcc84e7"), new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(8380), new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(8394) });
 
             migrationBuilder.UpdateData(
                 table: "AssetCategoryTranslation",
                 keyColumn: "Id",
                 keyValue: 2,
                 columns: new[] { "CreatedBy", "CreatedDate", "LastUpdatedDate" },
-                values: new object[] { new Guid("c16af0c1-6d0d-44f4-88db-2a354e8da0b8"), new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(2746), new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(2756) });
+                values: new object[] { new Guid("f41d380d-81ba-4a22-8a0d-840f5d2ac92d"), new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(9657), new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(9670) });
 
             migrationBuilder.UpdateData(
                 table: "AssetCategoryTranslation",
                 keyColumn: "Id",
                 keyValue: 3,
                 columns: new[] { "CreatedBy", "CreatedDate", "LastUpdatedDate" },
-                values: new object[] { new Guid("55443008-687d-4c92-a41c-9c374109078b"), new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(2766), new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(2769) });
+                values: new object[] { new Guid("ccace718-34d6-4736-8313-13008a54f2ab"), new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(9682), new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(9683) });
 
             migrationBuilder.UpdateData(
                 table: "AssetCategoryTranslation",
                 keyColumn: "Id",
                 keyValue: 4,
                 columns: new[] { "CreatedBy", "CreatedDate", "LastUpdatedDate" },
-                values: new object[] { new Guid("ebe65417-238c-4195-a266-e3269f8a71f5"), new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(2772), new DateTime(2021, 12, 17, 14, 55, 8, 18, DateTimeKind.Local).AddTicks(2774) });
+                values: new object[] { new Guid("98f544c2-7073-4127-b9a8-0ddef3319437"), new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(9688), new DateTime(2021, 12, 20, 11, 21, 8, 932, DateTimeKind.Local).AddTicks(9690) });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
