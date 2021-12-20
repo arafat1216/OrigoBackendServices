@@ -259,6 +259,14 @@ namespace AssetServices.Infrastructure
             //See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency            
             await ResilientTransaction.New(_assetContext).ExecuteAsync(async () =>
             {
+                var EditedEntities = _assetContext.ChangeTracker.Entries()
+                                        .Where(E => E.State == EntityState.Modified)
+                                        .ToList();
+
+                EditedEntities.ForEach(E =>
+                {
+                    E.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
+                });
                 // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
                 await _assetContext.SaveChangesAsync(cancellationToken);
                 foreach (var @event in _assetContext.GetDomainEventsAsync())
