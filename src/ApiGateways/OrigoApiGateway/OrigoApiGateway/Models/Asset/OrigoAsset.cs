@@ -22,7 +22,7 @@ namespace OrigoApiGateway.Models
             Brand = asset.Brand;
             ProductName = asset.ProductName;
             LifecycleType = asset.LifecycleType;
-            LifeCycleName = asset.LifecycleName;
+            LifecycleName = asset.LifecycleName;
             PurchaseDate = asset.PurchaseDate;
             CreatedDate = asset.CreatedDate;
             ManagedByDepartmentId = asset.ManagedByDepartmentId;
@@ -91,7 +91,7 @@ namespace OrigoApiGateway.Models
         /// <summary>
         /// The name of the lifecycle for this asset.
         /// </summary>
-        public string LifeCycleName { get; protected set; }
+        public string LifecycleName { get; protected set; }
 
         /// <summary>
         /// The date the asset was purchased.

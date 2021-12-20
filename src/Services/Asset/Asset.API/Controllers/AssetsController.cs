@@ -432,16 +432,22 @@ namespace Asset.API.Controllers
         }
 
 
-        [Route("customers/{customerId:guid}/assetStatus")]
+        [Route("customers/{customerId:guid}/assetStatus/{assetStatus:int}")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SetAssetStatusOnAssets(Guid customerId, [FromBody] UpdateAssetsStatus data)
+        public async Task<ActionResult> SetAssetStatusOnAssets(Guid customerId, [FromBody] UpdateAssetsStatus data, int assetStatus)
         {
             try
             {
+                    if (assetStatus != (int)AssetStatus.Inactive && assetStatus != (int)AssetStatus.Active)
+                    {
+                        return BadRequest("Invalid AssetStatus, possible values are: \n" + (int)AssetStatus.Active + " - " + Enum.GetName(AssetStatus.Active) + "\n" 
+                            + (int)AssetStatus.Inactive + " - " + Enum.GetName(AssetStatus.Inactive));
+                    }
+                    
 
-                var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, data.CallerId, data.AssetGuidList);
+                var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, data.CallerId, data.AssetGuidList, (AssetStatus)assetStatus);
                 if (updatedAssets == null)
                 {
                     return NotFound("Given organization does not exist or none of the assets were found");
@@ -494,7 +500,8 @@ namespace Asset.API.Controllers
                     return NotFound();
                 }
                 var lifecycleList = new List<AssetLifecycle>();
-                foreach (var lifecycle in lifecycles) lifecycleList.Add(new AssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
+                // Only NoLifecycle should be supported at the moment.
+                foreach (var lifecycle in lifecycles.Where(l => l.EnumValue == 0)) lifecycleList.Add(new AssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
 
                 return Ok(lifecycleList);
             }

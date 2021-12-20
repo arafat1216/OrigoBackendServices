@@ -99,17 +99,64 @@ namespace CustomerServices.Models
 
         public void UpdateOrganization(Organization organization)
         {
-            ParentId = organization.ParentId;
-            PrimaryLocation = (organization.PrimaryLocation == null) ? Guid.Empty : organization.PrimaryLocation;
-            Name = (organization.Name == null) ? "" : organization.Name;
-            OrganizationNumber = (organization.OrganizationNumber == null) ? "" : organization.OrganizationNumber;
-            Address = organization.Address;
-            ContactPerson = organization.ContactPerson;
-            Preferences = organization.Preferences;
-            PrimaryLocation = organization.PrimaryLocation;
-            Location = organization.Location;
-            UpdatedAt = DateTime.UtcNow;
-            UpdatedBy = organization.UpdatedBy;
+            bool isUpdated = false;
+            if (ParentId != organization.ParentId)
+            {
+                var previousparentId = ParentId.ToString();
+                ParentId = organization.ParentId;
+                AddDomainEvent(new CustomerParentIdChangedDomainEvent(this, previousparentId));
+                isUpdated = true;
+            }
+
+            if (PrimaryLocation != organization.PrimaryLocation)
+            {
+                var previousPrimaryLocation = PrimaryLocation.ToString();
+                PrimaryLocation = (organization.PrimaryLocation == null) ? Guid.Empty : organization.PrimaryLocation;
+                AddDomainEvent(new CustomerPrimaryLocationChangedDomainEvent(this, previousPrimaryLocation));
+                isUpdated = true;
+            }
+            
+            if (Name != organization.Name)
+            {
+                var oldName = Name;
+                Name = (organization.Name == null) ? "" : organization.Name;
+                AddDomainEvent(new CustomerNameChangedDomainEvent(this, oldName));
+                isUpdated = true;
+            }
+            
+            if (OrganizationNumber != organization.OrganizationNumber)
+            {
+                var oldNumber = OrganizationNumber;
+                OrganizationNumber = (organization.OrganizationNumber == null) ? "" : organization.OrganizationNumber;
+                AddDomainEvent(new OrganizationNumberChangedDomainEvent(this, oldNumber));
+                isUpdated = true;
+            }
+
+            if (Address != organization.Address)
+            {
+                var oldAddress = Address;
+                Address = organization.Address;
+                AddDomainEvent(new CustomerAddressChangedDomainEvent(this, oldAddress));
+                isUpdated = true;
+            }
+            
+            if (ContactPerson != organization.ContactPerson)
+            {
+                var oldContactPerson = ContactPerson;
+                ContactPerson = organization.ContactPerson;
+                AddDomainEvent(new ContactPersonChangedDomainEvent(this, oldContactPerson));
+                isUpdated = true;
+            }
+
+            
+            Preferences = organization.Preferences; // preferences cannot be changed here
+            Location = organization.Location; // Is either a new empty location object, or an existing one. Not modified.
+            
+            if (isUpdated)
+            {
+                UpdatedAt = DateTime.UtcNow;
+                UpdatedBy = organization.UpdatedBy;
+            }
         }
 
         public void PatchOrganization(Organization organization)
@@ -117,37 +164,49 @@ namespace CustomerServices.Models
             bool isUpdated = false;
             if (ParentId != organization.ParentId && organization.ParentId != null)
             {
+                var previousparentId = ParentId.ToString();
                 ParentId = organization.ParentId;
+                AddDomainEvent(new CustomerParentIdChangedDomainEvent(this, previousparentId));
                 isUpdated = true;
             }
 
             if (PrimaryLocation != organization.PrimaryLocation && organization.PrimaryLocation != null)
             {
+                var previousPrimaryLocation = PrimaryLocation.ToString();
                 PrimaryLocation = organization.PrimaryLocation;
+                AddDomainEvent(new CustomerPrimaryLocationChangedDomainEvent(this, previousPrimaryLocation));
                 isUpdated = true;
             }
 
             if (Name != organization.Name && organization.Name != null)
             {
+                var oldName = Name;
                 Name = organization.Name;
+                AddDomainEvent(new CustomerNameChangedDomainEvent(this, oldName));
                 isUpdated = true;
             }
 
             if (OrganizationNumber != organization.OrganizationNumber && organization.OrganizationNumber != null)
             {
+                var oldNumber = OrganizationNumber;
                 OrganizationNumber = organization.OrganizationNumber;
+                AddDomainEvent(new OrganizationNumberChangedDomainEvent(this, oldNumber));
                 isUpdated = true;
             }
 
             if (Address != organization.Address && organization.Address != null)
             {
+                var oldAddress = Address;
                 Address = organization.Address;
+                AddDomainEvent(new CustomerAddressChangedDomainEvent(this, oldAddress));
                 isUpdated = true;
             }
 
             if (ContactPerson != organization.ContactPerson && organization.ContactPerson != null)
             {
+                var oldContactPerson = ContactPerson;
                 ContactPerson = organization.ContactPerson;
+                AddDomainEvent(new ContactPersonChangedDomainEvent(this, oldContactPerson));
                 isUpdated = true;
             }
 
@@ -163,6 +222,7 @@ namespace CustomerServices.Models
             IsDeleted = true;
             UpdatedAt = DateTime.UtcNow;
             UpdatedBy = callerId;
+            AddDomainEvent(new CustomerDeletedDomainEvent(this));
         }
 
         public void AddAssetCategory(AssetCategoryType assetCategory)

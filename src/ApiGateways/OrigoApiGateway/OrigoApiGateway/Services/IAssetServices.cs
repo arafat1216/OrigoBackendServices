@@ -15,7 +15,7 @@ namespace OrigoApiGateway.Services
         Task<OrigoPagedAssets> SearchForAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 50);
         Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId);
         Task<OrigoAsset> AddAssetForCustomerAsync(Guid customerId, NewAsset newAsset);
-        Task<IList<object>> UpdateStatusOnAssets(Guid customerId, UpdateAssetsStatus data);
+        Task<IList<object>> UpdateStatusOnAssets(Guid customerId, UpdateAssetsStatus data, int assetStatus);
         Task<IList<Label>> CreateLabelsForCustomerAsync(Guid customerId, AddLabelsData data);
         Task<IList<Label>> GetCustomerLabelsAsync(Guid customerId);
         Task<IList<Label>> DeleteCustomerLabelsAsync(Guid customerId, DeleteCustomerLabelsData data);
@@ -27,6 +27,7 @@ namespace OrigoApiGateway.Services
         Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset);
         Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, AssignAssetToUser data);
         Task<IList<OrigoAssetCategory>> GetAssetCategoriesAsync();
+        IList<AssetCategoryAttribute> GetAssetCategoryAttributesForCategory(int categoryId);
         Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId);
     }
 }
