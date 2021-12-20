@@ -28,7 +28,6 @@ namespace AssetServices.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Asset>().ToTable("Asset");
-            modelBuilder.Entity<Asset>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("SYSUTCDATETIME()");
             modelBuilder.Entity<MobilePhone>().ToTable("MobilePhone");
             modelBuilder.Entity<Tablet>().ToTable("Tablet");
             modelBuilder.Entity<Subscription>().ToTable("Subscription");
@@ -44,6 +43,7 @@ namespace AssetServices.Infrastructure
             else
             {
                 modelBuilder.Entity<HardwareAsset>().OwnsMany(h => h.Imeis);
+                modelBuilder.Entity<Asset>().Property(s => s.LastUpdatedDate).HasDefaultValueSql("SYSUTCDATETIME()");
             }
             modelBuilder.Entity<SoftwareAsset>().ToTable("SoftwareAsset");
             modelBuilder.Entity<AssetCategory>().ToTable("AssetCategory");
