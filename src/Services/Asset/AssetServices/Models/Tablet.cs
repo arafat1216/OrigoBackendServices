@@ -31,14 +31,7 @@ namespace AssetServices.Models
             Description = description;
             ManagedByDepartmentId = managedByDepartmentId;
             Alias = alias;
-
-            // Store tablet created event with its serial number if applicable
-            string assetIdentifier = "id: " + ExternalId.ToString();
-            if (!string.IsNullOrEmpty(SerialNumber))
-            {
-                assetIdentifier = "serial number: " + SerialNumber;
-            }
-            AddDomainEvent(new AssetCreatedDomainEvent<Tablet>(this, assetIdentifier, callerId));
+            AddDomainEvent(new AssetCreatedDomainEvent<Tablet>(this, callerId));
         }
 
         /// <summary>

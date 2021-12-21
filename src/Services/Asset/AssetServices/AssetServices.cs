@@ -583,13 +583,13 @@ namespace AssetServices
                     }
 
                     var previousStatus = PropertyExist(@event, "PreviousStatus")
-                        ? @event.PreviousStatus
-                        : @event.Asset.Status;
+                        ? @event.PreviousStatus.ToString()
+                        : @event.Asset.Status.ToString();
                     var callerId = PropertyExist(@event, "CallerId")
                         ? @event.CallerId.ToString()
                         : "N/A";
                     var auditLog = new AssetAuditLog(transactionGuid, @event.Asset.ExternalId, logEventEntry.CreationTime, callerId,
-                        ((IEvent)@event).EventMessage(), logEventEntry.EventTypeShortName, previousStatus, @event.Asset.Status);
+                        ((IEvent)@event).EventMessage(), logEventEntry.EventTypeShortName, previousStatus, @event.Asset.Status.ToString());
                     assetLogList.Add(auditLog);
                 }
                 catch (Exception ex)
