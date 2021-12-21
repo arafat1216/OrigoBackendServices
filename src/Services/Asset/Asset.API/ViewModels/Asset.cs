@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
@@ -25,6 +26,7 @@ namespace Asset.API.ViewModels
             ProductName = asset.ProductName;
             LifecycleType = asset.LifecycleType;
             PurchaseDate = asset.PurchaseDate;
+            CreatedDate = asset.CreatedDate;
             AssetHolderId = asset.AssetHolderId;
             ManagedByDepartmentId = asset.ManagedByDepartmentId;
             AssetStatus = asset.Status;

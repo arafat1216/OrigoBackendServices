@@ -2,35 +2,23 @@
 
 namespace Customer.API.ViewModels
 {
-    public class User
+    public record User
     {
-        public User(CustomerServices.Models.User user)
-        {
-            Id = user.UserId;
-            FirstName = user.FirstName;
-            LastName = user.LastName;
-            Email = user.Email;
-            EmployeeId = user.EmployeeId;
-            MobileNumber = user.MobileNumber;
-            OrganizationName = user.Customer != null ? user.Customer.Name : string.Empty;
-            UserPreference = user.UserPreference != null ? new UserPreference(user.UserPreference) : null;
-            IsActive = user.IsActive;
-        }
-
-        public Guid Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
+        public Guid Id { get; init; }
+        public string FirstName { get; init; }
+        public string LastName { get; init; }
+        public string Email { get; init; }
         /// <summary>
         /// NB! This Will be removed in a later version
         /// </summary>
-        public string MobileNumber { get; set; }
+        public string MobileNumber { get; init; }
         /// <summary>
         /// NB! This Will be removed in a later version
         /// </summary>
-        public string EmployeeId { get; set; }
-        public UserPreference UserPreference { get; set; }
-        public string OrganizationName { get; set; }
-        public bool IsActive { get; set; }
+        public string EmployeeId { get; init; }
+        public UserPreference UserPreference { get; init; }
+        public string OrganizationName { get; init; }
+        public bool IsActive { get; init; }
+        public string Role { get; init; }
     }
 }

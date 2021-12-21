@@ -1,5 +1,6 @@
 ﻿using AssetServices.Exceptions;
 using AssetServices.Models;
+using AssetServices.Utility;
 using Common.Enums;
 using Common.Interfaces;
 using Common.Logging;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -317,26 +319,51 @@ namespace AssetServices
             }
         }
 
-        public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, string alias, string serialNumber, int assetCategoryId, string brand,
+        public async Task<Asset> AddAssetForCustomerAsync(Guid customerId, Guid callerId, string alias, string serialNumber, int assetCategoryId, string brand,
             string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<long> imei, string macAddress,
-            Guid? managedByDepartmentId, AssetStatus status, string note, string tag, string description)
+            Guid? managedByDepartmentId, string note, string tag, string description)
         {
             var assetCategory = await _assetRepository.GetAssetCategoryAsync(assetCategoryId);
             if (assetCategory == null)
             {
                 throw new AssetCategoryNotFoundException();
             }
+            AssetStatus status = AssetStatus.Active;
+
+            if (lifecycleType != LifecycleType.NoLifecycle)
+            {
+                status = AssetStatus.InputRequired;
+            } 
 
             Asset newAsset;
             if (assetCategory.Id == 1)
             {
-                newAsset = new MobilePhone(Guid.NewGuid(), customerId, alias, assetCategory, serialNumber, brand, productName,
+                if (imei.Any()) {
+                    foreach (var i in imei)
+                    {
+                        if (!AssetValidatorUtility.ValidateImei(i.ToString()))
+                        {
+                            throw new InvalidAssetDataException($"Invalid imei: {i}");
+                        }
+                    }
+                }
+                else
+                {
+                    status = AssetStatus.InputRequired;
+                }
+            
+
+                newAsset = new MobilePhone(Guid.NewGuid(), customerId, callerId, alias, assetCategory, serialNumber, brand, productName,
                 lifecycleType, purchaseDate, assetHolderId, imei?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
+            
             }
             else
             {
-                newAsset = new Tablet(Guid.NewGuid(), customerId, alias, assetCategory, serialNumber, brand, productName,
+                if(String.IsNullOrEmpty(serialNumber)) status = AssetStatus.InputRequired;
+
+                newAsset = new Tablet(Guid.NewGuid(), customerId, callerId, alias, assetCategory, serialNumber, brand, productName,
                 lifecycleType, purchaseDate, assetHolderId, imei?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
+                
             }
 
             if (!newAsset.AssetPropertiesAreValid)
@@ -375,7 +402,7 @@ namespace AssetServices
             return assetLifecycles;
         }
 
-        public async Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, LifecycleType newLifecycleType)
+        public async Task<Asset> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, Guid callerId, LifecycleType newLifecycleType)
         {
             var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
             if (asset == null)
@@ -383,12 +410,12 @@ namespace AssetServices
                 return null;
             }
 
-            asset.SetLifeCycleType(newLifecycleType);
+            asset.SetLifeCycleType(newLifecycleType, callerId);
             await _assetRepository.SaveEntitiesAsync();
             return asset;
         }
 
-        public async Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, IList<Guid> assetGuidList, AssetStatus status)
+        public async Task<IList<Asset>> UpdateMultipleAssetsStatus(Guid customerId, Guid callerId, IList<Guid> assetGuidList, AssetStatus status)
         {
             var assets = await _assetRepository.GetAssetsFromListAsync(customerId, assetGuidList);
             if (assets == null || assets.Count == 0)
@@ -398,14 +425,21 @@ namespace AssetServices
 
             foreach (Asset asset in assets)
             {
-                asset.UpdateAssetStatus(status);
+
+                asset.UpdateAssetStatus(status, callerId);
+
+                if (asset.LifecycleType != LifecycleType.NoLifecycle || asset.AssetCategory == null || String.IsNullOrWhiteSpace(asset.ExternalId.ToString()))
+                {
+                    asset.UpdateAssetStatus(AssetStatus.InputRequired, callerId);
+                }
+
             }
 
             await _assetRepository.SaveEntitiesAsync();
             return assets;
         }
 
-        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei)
+        public async Task<Asset> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei)
         {
             Asset asset = await _assetRepository.GetAssetAsync(customerId, assetId);
             if (asset == null)
@@ -414,31 +448,31 @@ namespace AssetServices
             }
             if (!string.IsNullOrWhiteSpace(brand) && asset.Brand != brand)
             {
-                asset.UpdateBrand(brand);
+                asset.UpdateBrand(brand, callerId);
             }
             if (!string.IsNullOrWhiteSpace(model) && asset.ProductName != model)
             {
-                asset.UpdateProductName(model);
+                asset.UpdateProductName(model, callerId);
             }
             if (purchaseDate != default && asset.PurchaseDate != purchaseDate)
             {
-                asset.ChangePurchaseDate(purchaseDate);
+                asset.ChangePurchaseDate(purchaseDate, callerId);
             }
             if (note != default && asset.Note != note)
             {
-                asset.UpdateNote(note);
+                asset.UpdateNote(note, callerId);
             }
             if (tag != default && asset.AssetTag != tag)
             {
-                asset.UpdateTag(tag);
+                asset.UpdateTag(tag, callerId);
             }
             if (description != default && asset.Description != description)
             {
-                asset.UpdateDescription(description);
+                asset.UpdateDescription(description, callerId);
             }
             if (!string.IsNullOrWhiteSpace(alias) && asset.Alias != alias)
             {
-                asset.SetAlias(alias);
+                asset.SetAlias(alias, callerId);
             }
 
             if (!asset.AssetPropertiesAreValid)
@@ -459,22 +493,22 @@ namespace AssetServices
                 throw new InvalidAssetDataException(exceptionMsg.ToString());
             }
 
-            UpdateDerivedAssetType(asset, serialNumber, imei);
+            UpdateDerivedAssetType(asset, serialNumber, imei, callerId);
 
             await _assetRepository.SaveEntitiesAsync();
             return asset;
         }
 
-        private void UpdateDerivedAssetType(Asset asset, string serialNumber, IList<long> imei)
+        private void UpdateDerivedAssetType(Asset asset, string serialNumber, IList<long> imei, Guid callerId)
         {
             MobilePhone phone = asset as MobilePhone;
             if (phone != null)
             {
                 if (!string.IsNullOrWhiteSpace(serialNumber) && phone.SerialNumber != serialNumber)
                 {
-                    phone.ChangeSerialNumber(serialNumber);
+                    phone.ChangeSerialNumber(serialNumber, callerId);
                 }
-                if (phone.Imeis != imei)
+                if (imei != null && phone.Imeis != imei)
                 {
                     phone.SetImei(imei);
                 }
@@ -485,23 +519,23 @@ namespace AssetServices
             {
                 if (!string.IsNullOrWhiteSpace(serialNumber) && tablet.SerialNumber != serialNumber)
                 {
-                    tablet.ChangeSerialNumber(serialNumber);
+                    tablet.ChangeSerialNumber(serialNumber, callerId);
                 }
-                if (tablet.Imeis != imei)
+                if (imei != null && tablet.Imeis != imei)
                 {
                     tablet.SetImei(imei);
                 }
             }
         }
 
-        public async Task<Asset> AssignAsset(Guid customerId, Guid assetId, Guid? userId)
+        public async Task<Asset> AssignAsset(Guid customerId, Guid assetId, Guid? userId, Guid callerId)
         {
             var asset = await _assetRepository.GetAssetAsync(customerId, assetId);
             if (asset == null)
             {
                 return null;
             }
-            asset.AssignAssetToUser(userId);
+            asset.AssignAssetToUser(userId, callerId);
             await _assetRepository.SaveEntitiesAsync();
             return asset;
         }
@@ -526,32 +560,43 @@ namespace AssetServices
 
             foreach (var logEventEntry in logEventEntries)
             {
-                if (string.IsNullOrEmpty(logEventEntry.Content) || string.IsNullOrEmpty(logEventEntry.EventTypeName))
+                try
                 {
-                    continue;
-                }
-                var eventType = Type.GetType(logEventEntry.EventTypeName);
-                if (eventType == null)
-                {
-                    continue;
-                }
-                dynamic @event = JsonSerializer.Deserialize(logEventEntry.Content, eventType) as IEvent;
-                if (@event == null)
-                {
-                    continue;
-                }
+                    if (string.IsNullOrEmpty(logEventEntry.Content) || string.IsNullOrEmpty(logEventEntry.EventTypeName))
+                    {
+                        continue;
+                    }
+                    var eventType = Type.GetType(logEventEntry.EventTypeName);
+                    if (eventType == null)
+                    {
+                        continue;
+                    }
+                    dynamic @event = JsonSerializer.Deserialize(logEventEntry.Content, eventType) as IEvent;
+                    if (@event == null)
+                    {
+                        continue;
+                    }
 
-                if (!Guid.TryParse(logEventEntry.TransactionId, out var transactionGuid))
-                {
-                    continue;
-                }
+                    if (!Guid.TryParse(logEventEntry.TransactionId, out var transactionGuid))
+                    {
+                        continue;
+                    }
 
-                var previousStatus = PropertyExist(@event, "PreviousStatus")
-                    ? @event.PreviousStatus.ToString()
-                    : @event.Asset.Status.ToString();
-                var auditLog = new AssetAuditLog(transactionGuid, @event.Id, logEventEntry.CreationTime, "N/A",
-                    ((IEvent)@event).EventMessage(), logEventEntry.EventTypeShortName, previousStatus, @event.Asset.Status.ToString());
-                assetLogList.Add(auditLog);
+                    var previousStatus = PropertyExist(@event, "PreviousStatus")
+                        ? @event.PreviousStatus.ToString()
+                        : @event.Asset.Status.ToString();
+                    var callerId = PropertyExist(@event, "CallerId")
+                        ? @event.CallerId.ToString()
+                        : "N/A";
+                    var auditLog = new AssetAuditLog(transactionGuid, @event.Asset.ExternalId, logEventEntry.CreationTime, callerId,
+                        ((IEvent)@event).EventMessage(), logEventEntry.EventTypeShortName, previousStatus, @event.Asset.Status.ToString());
+                    assetLogList.Add(auditLog);
+                }
+                catch (Exception ex)
+                {
+                    // Log error but don't stop request
+                    _logger?.LogError("{0}", ex.Message);
+                }
             }
             return assetLogList;
         }

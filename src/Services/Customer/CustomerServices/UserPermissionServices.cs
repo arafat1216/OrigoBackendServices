@@ -47,7 +47,7 @@ namespace CustomerServices
             return numberOfRecordsSaved;
         }
 
-        public async Task<IEnumerable<UserPermissions>> GetUserPermissionsAsync(string userName)
+        public async Task<IList<UserPermissions>> GetUserPermissionsAsync(string userName)
         {
             return await _customerContext.UserPermissions
                 .Include(up => up.Role).ThenInclude(r => r.GrantedPermissions).ThenInclude(p => p.Permissions)

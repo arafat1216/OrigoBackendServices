@@ -25,6 +25,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading;
+using AutoMapper;
 
 namespace OrigoApiGateway
 {
@@ -64,6 +65,8 @@ namespace OrigoApiGateway
             {
                 builder.AddBlobServiceClient(blobConnectionString);
             });
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
             services.AddTransient<IStorageService, StorageService>();
             services.Configure<AssetConfiguration>(Configuration.GetSection("Asset"));
             services.Configure<CustomerConfiguration>(Configuration.GetSection("Customer"));
@@ -104,7 +107,8 @@ namespace OrigoApiGateway
                 new UserServices(
                     x.GetRequiredService<ILogger<UserServices>>(),
                     DaprClient.CreateInvokeHttpClient("customerservices"),
-                    x.GetRequiredService<IOptions<UserConfiguration>>()
+                    x.GetRequiredService<IOptions<UserConfiguration>>(),
+                    x.GetRequiredService<IMapper>()
                 )
             ));
 
@@ -119,7 +123,8 @@ namespace OrigoApiGateway
                     new UserServices(
                             x.GetRequiredService<ILogger<UserServices>>(),
                             DaprClient.CreateInvokeHttpClient("customerservices"),
-                            x.GetRequiredService<IOptions<UserConfiguration>>()
+                            x.GetRequiredService<IOptions<UserConfiguration>>(),
+                            x.GetRequiredService<IMapper>()
                     )
                 )
             ));
@@ -133,7 +138,8 @@ namespace OrigoApiGateway
             services.AddSingleton<IUserServices>(x => new UserServices(
                 x.GetRequiredService<ILogger<UserServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<UserConfiguration>>()
+                x.GetRequiredService<IOptions<UserConfiguration>>(),
+                x.GetRequiredService<IMapper>()
             ));
 
             services.AddSingleton<IModuleServices>(x => new ModuleServices(
@@ -151,7 +157,8 @@ namespace OrigoApiGateway
                         new UserServices(
                             x.GetRequiredService<ILogger<UserServices>>(),
                             DaprClient.CreateInvokeHttpClient("customerservices"),
-                            x.GetRequiredService<IOptions<UserConfiguration>>()
+                            x.GetRequiredService<IOptions<UserConfiguration>>(),
+                            x.GetRequiredService<IMapper>()
                         )
                     )
                 )

@@ -1,9 +1,12 @@
 using System;
 using System.Reflection;
 using Common.Logging;
+using Customer.API.Mappings;
 using CustomerServices;
 using CustomerServices.Infrastructure;
+using CustomerServices.Mappings;
 using CustomerServices.Models;
+using CustomerServices.ServiceModels;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -57,9 +60,8 @@ namespace Customer.API
                     //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
                     sqlOptions.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
                 }));
-
+            services.AddAutoMapper(Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(UserDTOProfile)));
             services.Configure<OktaConfiguration>(Configuration.GetSection("Okta"));
-
             services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
             services.AddScoped<IOrganizationServices, CustomerServices.OrganizationServices>();
             services.AddScoped<IUserServices, UserServices>();

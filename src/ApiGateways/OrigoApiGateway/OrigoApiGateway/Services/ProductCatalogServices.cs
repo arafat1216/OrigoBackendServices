@@ -73,30 +73,34 @@ namespace OrigoApiGateway.Services
 
         #region Orders
 
-        public async Task<IEnumerable<ProductGet>> GetOrdersByPartnerAndOrganizationAsync(Guid organizationId)
+        public async Task<IEnumerable<ProductGet>> GetOrderedProductsByPartnerAndOrganizationAsync(Guid partnerId, Guid organizationId)
         {
-            return await GetAsync<IEnumerable<ProductGet>>($"{OrdersApiPath}/organization/{organizationId}", nameof(GetOrdersByPartnerAndOrganizationAsync));
+            return await GetAsync<IEnumerable<ProductGet>>($"{OrdersApiPath}/partner/{partnerId}/organization/{organizationId}", nameof(GetOrderedProductsByPartnerAndOrganizationAsync));
         }
 
 
-        public async Task ReplaceOrderedProductsAsync(Guid partnerId, Guid organizationId, ProductOrdersDTO updateProductOrders)
+        public async Task ReplaceOrderedProductsAsync(Guid partnerId, Guid organizationId, ProductOrdersDTO productOrders)
         {
-            await PutAsync($"{OrdersApiPath}/partner/{partnerId}/organization/{organizationId}", updateProductOrders, nameof(ReplaceOrderedProductsAsync));
+            await PutAsync($"{OrdersApiPath}/partner/{partnerId}/organization/{organizationId}", productOrders, nameof(ReplaceOrderedProductsAsync));
         }
 
         #endregion
 
 
         /// <summary>
-        /// 
+        ///     Performs a PUT request to the underlaying micro-service. If we get an error-code back, it maps it to a
+        ///     corresponding <see cref="MicroserviceErrorResponseException"/> and throws it so the controller or an interceptor can handle it.
         /// </summary>
-        /// <typeparam name="TInput"> The object that is de-serialized and used for the PUT request. </typeparam>
-        /// <param name="path"></param>
-        /// <param name="inputEntity"></param>
-        /// <param name="methodName"></param>
-        /// <returns></returns>
-        /// <exception cref="MicroserviceErrorResponseException"></exception>
-        /// <exception cref="Exception"> An unexpected exception occurred. </exception>
+        /// <typeparam name="TInput"> The type of object that is serialized and used for the PUT request. </typeparam>
+        /// <param name="path"> The URI to the endpoint. </param>
+        /// <param name="inputEntity"> The entity that is used for the request. </param>
+        /// <param name="methodName"> The name of the class that is calling this method. This is used for exception logging. <para>
+        /// 
+        ///     Example: '<c>nameof(myMethodName)</c>'. </para></param>
+        /// <returns> The <see langword="async"/> <see cref="Task"/>. </returns>
+        /// <exception cref="MicroserviceErrorResponseException"> Thrown when we had problems with the HTTP request, 
+        ///     or if the micro-service returned an error code. </exception>
+        /// <exception cref="Exception"> Thrown when an unexpected exception occurred. </exception>
         public async Task PutAsync<TInput>(string path, TInput inputEntity, string methodName) where TInput : notnull
         {
             try
@@ -128,16 +132,18 @@ namespace OrigoApiGateway.Services
 
 
         /// <summary>
-        /// 
+        ///     Performs a GET request to the underlaying micro-service. If we get an error-code back, it maps it to a
+        ///     corresponding <see cref="MicroserviceErrorResponseException"/> and throws it so the controller or an interceptor can handle it.
         /// </summary>
-        /// <typeparam name="TOutput"> The object that is serialized, and retrieved from the GET request. </typeparam>
-        /// <param name="path"></param>
-        /// <param name="methodName"></param>
-        /// <returns></returns>
-        /// <exception cref="MicroserviceErrorResponseException"></exception>
-        /// <exception cref="HttpRequestException"></exception>
-        /// <exception cref="NotSupportedException"></exception>
-        /// <exception cref="Exception"> An unexpected exception occurred. </exception>
+        /// <typeparam name="TOutput"> The type of object that is deserialized, and retrieved from the GET request. </typeparam>
+        /// <param name="path"> The URI to the endpoint. </param>
+        /// <param name="methodName"> The name of the class that is calling this method. This is used for exception logging. <para>
+        /// 
+        ///     Example: '<c>nameof(myMethodName)</c>'. </para></param>
+        /// <returns> The deserialized object as <typeparamref name="TOutput"/>. </returns>
+        /// <exception cref="MicroserviceErrorResponseException"> Thrown when we had problems with the HTTP request, 
+        ///     or if the micro-service returned an error code. </exception>
+        /// <exception cref="Exception"> Thrown when an unexpected exception occurred. </exception>
         public async Task<TOutput> GetAsync<TOutput>(string path, string methodName) where TOutput : notnull
         {
             try

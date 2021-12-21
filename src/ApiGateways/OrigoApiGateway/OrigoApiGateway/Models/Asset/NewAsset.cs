@@ -52,10 +52,11 @@ namespace OrigoApiGateway.Models
         public Guid? AssetHolderId { get; set; }
 
         /// <summary>
-        /// The status of the asset.
-        /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
+        /// Id of user making the endpoint call.
+        /// Filled in backend, frontend can ignore this field.
         /// </summary>
-        public Common.Enums.AssetStatus AssetStatus { get; set; }
+        public Guid CallerId { get; set; }
+     
 
         /// <summary>
         /// A description of the asset.

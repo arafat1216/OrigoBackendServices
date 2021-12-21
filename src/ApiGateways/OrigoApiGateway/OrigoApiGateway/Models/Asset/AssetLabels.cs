@@ -12,5 +12,7 @@ namespace OrigoApiGateway.Models.Asset
         public IList<Guid> AssetGuids { get; set; }
         [Required]
         public IList<Guid> LabelGuids { get; set; }
+
+        public Guid CallerId { get; set; }
     }
 }

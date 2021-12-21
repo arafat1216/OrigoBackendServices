@@ -15,7 +15,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text.Json;
-using System.Net.Http;
 
 namespace Asset.API.Controllers
 {
@@ -82,21 +81,21 @@ namespace Asset.API.Controllers
             return Ok(JsonSerializer.Serialize<object>(assetList, options));
         }
 
-        [Route("customers/{customerId:guid}/labels/{callerId:guid}")]
+        [Route("customers/{customerId:guid}/labels")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Label>>> CreateLabelsForCustomer(Guid customerId, Guid callerId, [FromBody] IList<NewLabel> newLabels)//[FromBody] IList<NewLabel> newLabels)
+        public async Task<ActionResult<IEnumerable<ViewModels.Label>>> CreateLabelsForCustomer(Guid customerId, [FromBody] AddLabelsData data)
         {
             try
             {
                 List<AssetServices.Models.Label> labels = new List<AssetServices.Models.Label>();
-                foreach (NewLabel newLabel in newLabels)
+                foreach (NewLabel newLabel in data.NewLabels)
                 {
                     labels.Add(new AssetServices.Models.Label(newLabel.Text, newLabel.Color));
                 }
 
-                var labelsAdded = await _assetServices.AddLabelsForCustomerAsync(customerId, callerId, labels);
+                var labelsAdded = await _assetServices.AddLabelsForCustomerAsync(customerId, data.CallerId, labels);
 
                 if (labelsAdded == null)
                     return BadRequest("Unable to add labels.");
@@ -147,17 +146,17 @@ namespace Asset.API.Controllers
             return Ok(JsonSerializer.Serialize<object>(labelList, options));
         }
 
-        [Route("customers/{customerId:guid}/labels/delete/{callerId:guid}")]
+        [Route("customers/{customerId:guid}/labels/delete")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> DeleteLabelsForCustomer(Guid customerId, Guid callerId, IList<Guid> labelGuids)
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> DeleteLabelsForCustomer(Guid customerId, [FromBody] DeleteCustomerLabelsData data)
         {
             try
             {
-                var customerLabels = await _assetServices.GetCustomerLabelsAsync(labelGuids);
+                var customerLabels = await _assetServices.GetCustomerLabelsAsync(data.LabelGuids);
                 
-                var labels = await _assetServices.SoftDeleteLabelsForCustomerAsync(customerId, callerId, labelGuids);
+                var labels = await _assetServices.SoftDeleteLabelsForCustomerAsync(customerId, data.CallerId, data.LabelGuids);
 
                 IList<int> labelInts = new List<int>();
                 foreach (AssetServices.Models.CustomerLabel label in customerLabels)
@@ -165,7 +164,7 @@ namespace Asset.API.Controllers
                     labelInts.Add(label.Id);
                 }
 
-                await _assetServices.SoftDeleteAssetLabelsAsync(callerId, labelInts);
+                await _assetServices.SoftDeleteAssetLabelsAsync(data.CallerId, labelInts);
 
                 
                 var labelList = new List<object>();
@@ -190,19 +189,19 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("customers/{customerId:guid}/labels/update/{callerId:guid}")]
+        [Route("customers/{customerId:guid}/labels/update")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Label>>> UpdateLabelsForCustomer(Guid customerId, Guid callerId, [FromBody] IList<Label> labels)
+        public async Task<ActionResult<IEnumerable<ViewModels.Label>>> UpdateLabelsForCustomer(Guid customerId, [FromBody] UpdateCustomerLabelsData data)
         {
             try
             {
                 IList<AssetServices.Models.CustomerLabel> customerLabels = new List<AssetServices.Models.CustomerLabel>();
 
-                foreach (Label label in labels)
+                foreach (Label label in data.Labels)
                 {
-                    customerLabels.Add(new AssetServices.Models.CustomerLabel(label.Id, customerId, callerId, new AssetServices.Models.Label(label.Text, label.Color)));
+                    customerLabels.Add(new AssetServices.Models.CustomerLabel(label.Id, customerId, data.CallerId, new AssetServices.Models.Label(label.Text, label.Color)));
                 }
 
                 var updatedLabels = await _assetServices.UpdateLabelsForCustomerAsync(customerId, customerLabels);
@@ -228,18 +227,18 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("customers/{customerId:guid}/labels/assign/{callerId:guid}")]
+        [Route("customers/{customerId:guid}/labels/assign")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> AssignLabelsToAssets(Guid customerId, Guid callerId, [FromBody] AssetLabels assetLabels)
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> AssignLabelsToAssets(Guid customerId, [FromBody] AssetLabels assetLabels)
         {
             try
             {
                 IList<Guid> assetGuids = assetLabels.AssetGuids;
                 IList<Guid> labelGuids = assetLabels.LabelGuids;
 
-                IList<AssetServices.Models.Asset> assets = await _assetServices.AssignLabelsToAssetsAsync(customerId, callerId, assetGuids, labelGuids);
+                IList<AssetServices.Models.Asset> assets = await _assetServices.AssignLabelsToAssetsAsync(customerId, assetLabels.CallerId, assetGuids, labelGuids);
                 
                 var assetList = new List<object>();
                 foreach (var asset in assets)
@@ -274,18 +273,18 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("customers/{customerId:guid}/labels/unassign/{callerId:guid}")]
+        [Route("customers/{customerId:guid}/labels/unassign")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UnAssignLabelsToAssets(Guid customerId, Guid callerId, [FromBody] AssetLabels assetLabels)
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UnAssignLabelsToAssets(Guid customerId, [FromBody] AssetLabels assetLabels)
         {
             try
             {
                 IList<Guid> assetGuids = assetLabels.AssetGuids;
                 IList<Guid> labelGuids = assetLabels.LabelGuids;
 
-                IList<AssetServices.Models.Asset> assets = await _assetServices.UnAssignLabelsToAssetsAsync(customerId, callerId, assetGuids, labelGuids);
+                IList<AssetServices.Models.Asset> assets = await _assetServices.UnAssignLabelsToAssetsAsync(customerId, assetLabels.CallerId, assetGuids, labelGuids);
                 if (assets == null)
                     return NotFound("No assets with given Ids where found. Did you enter the correct customerId?");
                 var assetList = new List<object>();
@@ -400,20 +399,9 @@ namespace Asset.API.Controllers
         {
             try
             {
-                if (!Enum.IsDefined(typeof(AssetStatus), asset.AssetStatus))
-                {
-                    Array arr = Enum.GetValues(typeof(AssetStatus));
-                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for asset status: {0} is out of bounds.\nValid options for asset statuses are:\n", asset.AssetStatus));
-                    foreach (AssetStatus e in arr)
-                    {
-                        errorMessage.Append($"    -{(int)e} ({e})\n");
-                    }
-                    throw new InvalidAssetDataException(errorMessage.ToString());
-                }
-
-                var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.Alias, asset.SerialNumber,
+                var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.CallerId,  asset.Alias, asset.SerialNumber,
                     asset.AssetCategoryId, asset.Brand, asset.ProductName, asset.LifecycleType, asset.PurchaseDate,
-                    asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, (AssetStatus)asset.AssetStatus, asset.Note, asset.AssetTag, asset.Description);
+                    asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, asset.Note, asset.AssetTag, asset.Description);
 
                 var phone = updatedAsset as AssetServices.Models.MobilePhone;
                 if (phone != null)
@@ -448,21 +436,18 @@ namespace Asset.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SetAssetStatusOnAssets(Guid customerId, IList<Guid> assetGuidList, int assetStatus)
+        public async Task<ActionResult> SetAssetStatusOnAssets(Guid customerId, [FromBody] UpdateAssetsStatus data, int assetStatus)
         {
             try
             {
-                if (!Enum.IsDefined(typeof(AssetStatus), assetStatus))
-                {
-                    string statusString = "";
-                    foreach (int i in Enum.GetValues(typeof(AssetStatus)))
+                    if (assetStatus != (int)AssetStatus.Inactive && assetStatus != (int)AssetStatus.Active)
                     {
-                        statusString += i + " - " + Enum.GetName(typeof(AssetStatus), i) + "\n";
+                        return BadRequest("Invalid AssetStatus, possible values are: \n" + (int)AssetStatus.Active + " - " + Enum.GetName(AssetStatus.Active) + "\n" 
+                            + (int)AssetStatus.Inactive + " - " + Enum.GetName(AssetStatus.Inactive));
                     }
-                    return BadRequest("Invalid AssetStatus, possible values are: " + statusString);
-                }
+                    
 
-                var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, assetGuidList, (AssetStatus)assetStatus);
+                var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, data.CallerId, data.AssetGuidList, (AssetStatus)assetStatus);
                 if (updatedAssets == null)
                 {
                     return NotFound("Given organization does not exist or none of the assets were found");
@@ -515,7 +500,8 @@ namespace Asset.API.Controllers
                     return NotFound();
                 }
                 var lifecycleList = new List<AssetLifecycle>();
-                foreach (var lifecycle in lifecycles) lifecycleList.Add(new AssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
+                // Only NoLifecycle should be supported at the moment.
+                foreach (var lifecycle in lifecycles.Where(l => l.EnumValue == 0)) lifecycleList.Add(new AssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
 
                 return Ok(lifecycleList);
             }
@@ -525,29 +511,29 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("{assetId:Guid}/customers/{customerId:guid}/ChangeLifecycleType/{newLifecycleType:int}")]
+        [Route("{assetId:Guid}/customers/{customerId:guid}/ChangeLifecycleType")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.UnprocessableEntity)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid customerId, Guid assetId, int newLifecycleType)
+        public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid customerId, Guid assetId, [FromBody] UpdateAssetLifecycleType data)
         {
             try
             {
                 // Check if given int is within valid range of values
-                if (!Enum.IsDefined(typeof(LifecycleType), newLifecycleType))
+                if (!Enum.IsDefined(typeof(LifecycleType), data.LifecycleType))
                 {
                     Array arr = Enum.GetValues(typeof(LifecycleType));
-                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", newLifecycleType));
+                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", data.LifecycleType));
                     foreach (LifecycleType e in arr)
                     {
                         errorMessage.Append($"    -{(int)e} ({e})\n");
                     }
                     throw new InvalidLifecycleTypeException(errorMessage.ToString());
                 }
-                LifecycleType lifecycleType = (LifecycleType)newLifecycleType;
-                var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, assetId, lifecycleType);
+                LifecycleType lifecycleType = (LifecycleType)data.LifecycleType;
+                var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, data.AssetId, data.CallerId, lifecycleType);
                 if (updatedAsset == null)
                 {
                     return NotFound();
@@ -582,7 +568,7 @@ namespace Asset.API.Controllers
         {
             try
             {
-                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.Alias, asset.SerialNumber, asset.Brand, asset.ProductName, asset.PurchaseDate, asset.Note, asset.AssetTag, asset.Description, asset.Imei);
+                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.CallerId, asset.Alias, asset.SerialNumber, asset.Brand, asset.ProductName, asset.PurchaseDate, asset.Note, asset.AssetTag, asset.Description, asset.Imei);
                 if (updatedAsset == null)
                 {
                     return NotFound();
@@ -614,11 +600,11 @@ namespace Asset.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, Guid? userId)
+        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, [FromBody] AssignAssetToUser data)
         {
             try
             {
-                var updatedAsset = await _assetServices.AssignAsset(customerId, assetId, userId);
+                var updatedAsset = await _assetServices.AssignAsset(customerId, assetId, data.UserId, data.CallerId);
                 if (updatedAsset == null)
                 {
                     return NotFound();
@@ -689,7 +675,7 @@ namespace Asset.API.Controllers
 
                 return Ok(assetLogList);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return BadRequest();
             }

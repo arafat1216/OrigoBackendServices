@@ -16,6 +16,7 @@ namespace AssetServices.Models
         public AssetLabel()
         { }
 
+
         public AssetLabel(int assetId, int customerLabelId, Guid callerId)
         {
             ExternalId = Guid.NewGuid();

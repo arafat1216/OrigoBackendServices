@@ -8,14 +8,16 @@ using System.Threading.Tasks;
 
 namespace AssetServices.DomainEvents
 {
-    class NoteChangedDomainEvent : BaseEvent
+    public class NoteChangedDomainEvent<T> : BaseEvent where T:Asset
     {
-        public Asset Asset { get; protected set; }
+        public T Asset { get; protected set; }
+        public Guid CallerId { get; protected set; }
         public string PreviousNote { get; protected set; }
 
-        public NoteChangedDomainEvent(Asset asset, string previousNote) : base(asset.ExternalId)
+        public NoteChangedDomainEvent(T asset, Guid callerId, string previousNote) : base(asset.ExternalId)
         {
             Asset = asset;
+            CallerId = callerId;
             PreviousNote = previousNote;
         }
 

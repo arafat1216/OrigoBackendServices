@@ -10,20 +10,22 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 
 namespace OrigoApiGateway.Services
 {
     public class UserServices : IUserServices
     {
-        public UserServices(ILogger<UserServices> logger, HttpClient httpClient,
-            IOptions<UserConfiguration> options)
+        public UserServices(ILogger<UserServices> logger, HttpClient httpClient, IOptions<UserConfiguration> options, IMapper mapper)
         {
             _logger = logger;
+            _mapper = mapper;
             HttpClient = httpClient;
             _options = options.Value;
         }
 
         private readonly ILogger<UserServices> _logger;
+        private readonly IMapper _mapper;
         private HttpClient HttpClient { get; }
         private readonly UserConfiguration _options;
 
@@ -51,7 +53,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 var user = await HttpClient.GetFromJsonAsync<UserDTO>($"{_options.ApiPath}/{customerId}/users/{userId}");
-                return user != null ? new OrigoUser(user) : null;
+                return user != null ?  _mapper.Map<OrigoUser>(user) : null;
             }
             catch (HttpRequestException exception)
             {
@@ -83,7 +85,7 @@ namespace OrigoApiGateway.Services
                 //{
                 //    item.AssignedToDepartments
                 //}
-                return users?.Select(user => new OrigoUser(user)).ToList();
+                return _mapper.Map<List<OrigoUser>>(users);
             }
             catch (HttpRequestException exception)
             {
@@ -113,7 +115,7 @@ namespace OrigoApiGateway.Services
                     throw new BadHttpRequestException("Unable to save user", (int)response.StatusCode);
 
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
-                return user == null ? null : new OrigoUser(user);
+                return user == null ? null : _mapper.Map<OrigoUser>(user);
             }
             catch (Exception exception)
             {
@@ -133,7 +135,7 @@ namespace OrigoApiGateway.Services
                     throw new BadHttpRequestException("Unable to save user changes", (int)response.StatusCode);
 
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
-                return user == null ? null : new OrigoUser(user);
+                return user == null ? null : _mapper.Map<OrigoUser>(user);
             }
             catch (Exception exception)
             {
@@ -153,7 +155,7 @@ namespace OrigoApiGateway.Services
                     throw new BadHttpRequestException("Unable to save user changes", (int)response.StatusCode);
 
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
-                return user == null ? null : new OrigoUser(user);
+                return user == null ? null : _mapper.Map<OrigoUser>(user);
             }
             catch (Exception exception)
             {
@@ -190,7 +192,7 @@ namespace OrigoApiGateway.Services
                     throw new BadHttpRequestException("Unable to change active status on user.", (int)response.StatusCode);
 
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
-                return user == null ? null : new OrigoUser(user);
+                return user == null ? null : _mapper.Map<OrigoUser>(user);
             }
             catch (Exception ex)
             {
@@ -213,7 +215,7 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
-                return user == null ? null : new OrigoUser(user);
+                return user == null ? null : _mapper.Map<OrigoUser>(user);
             }
             catch (Exception exception)
             {
@@ -235,7 +237,7 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
-                return user == null ? null : new OrigoUser(user);
+                return user == null ? null : _mapper.Map<OrigoUser>(user);
             }
             catch (Exception exception)
             {
