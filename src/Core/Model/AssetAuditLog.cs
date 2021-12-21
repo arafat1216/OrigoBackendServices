@@ -17,7 +17,7 @@ namespace Common.Models
         {
             AssetAuditLogId = assetAuditLogId;
             AssetId = assetId;
-            CreatedDate = DateTime.Parse(createDate.ToString());
+            CreatedDate = createDate;
             CreatedBy = createdBy;
             Message = message;
             EventType = eventType;
