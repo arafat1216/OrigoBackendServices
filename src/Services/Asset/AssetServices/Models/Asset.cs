@@ -39,7 +39,7 @@ namespace AssetServices.Models
             Note = note;
             AssetTag = assetTag;
             Description = description;
-            AddDomainEvent(new AssetCreatedDomainEvent<Asset>(this,this.ExternalId.ToString(), callerId));
+            AddDomainEvent(new AssetCreatedDomainEvent<Asset>(this, callerId));
         }
 
         /// <summary>
