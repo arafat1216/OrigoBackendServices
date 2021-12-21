@@ -12,18 +12,21 @@ namespace AssetServices.DomainEvents
     {
         public AssetCreatedDomainEvent()
         { }
-        public AssetCreatedDomainEvent(T asset, Guid callerId) : base(asset.ExternalId)
+        public AssetCreatedDomainEvent(T asset, string assetIdentifier, Guid callerId) : base(asset.ExternalId)
         {
             Asset = asset;
+            AssetIdentifier = assetIdentifier;
             CallerId = callerId;
         }
 
         public T Asset { get; set; }
+        // MobilePhone: Imeis[0] (if not empty), Tablet: SerialNumber (if not empty), Other: Asset.ExternalId
+        public string AssetIdentifier { get; set; }
         public Guid CallerId { get; set; }
 
         public override string EventMessage(string languageCode = "nb-NO")
         {
-            return $"Asset {Asset.ExternalId} created.";
+            return $"Asset created with {AssetIdentifier}.";
         }
     }
 }

@@ -3,6 +3,7 @@ using Common.Enums;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace AssetServices.Models
 {
@@ -32,7 +33,14 @@ namespace AssetServices.Models
             AssetCategory = assetCategory;
             ManagedByDepartmentId = managedByDepartmentId;
             Alias = alias;
-            AddDomainEvent(new AssetCreatedDomainEvent<MobilePhone>(this, callerId));
+
+            // Store MobilePhone with its imei, if applicable
+            string assetIdentifier = "id: " + ExternalId.ToString();
+            if (Imeis.Count > 0)
+            {
+                assetIdentifier = "imei: " + Imeis.ElementAt(0).Imei.ToString();
+            }
+            AddDomainEvent(new AssetCreatedDomainEvent<MobilePhone>(this, assetIdentifier, callerId));
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Enums;
+using System;
 
 namespace Common.Models
 {
@@ -12,7 +13,7 @@ namespace Common.Models
 
         }
 
-        public AssetAuditLog(Guid assetAuditLogId, Guid assetId, DateTime createDate, string createdBy, string message, string eventType, string lifecycleStatusBefore, string lifecycleStatusAfter)
+        public AssetAuditLog(Guid assetAuditLogId, Guid assetId, DateTime createDate, string createdBy, string message, string eventType, AssetStatus lifecycleStatusBefore, AssetStatus lifecycleStatusAfter)
         {
             AssetAuditLogId = assetAuditLogId;
             AssetId = assetId;
@@ -58,12 +59,35 @@ namespace Common.Models
         /// The lifecycle of the asset before the event.
         /// Not all events will change the lifecycle.
         /// </summary>
-        public string LifecycleStatusBefore {get; set;}
+        public AssetStatus LifecycleStatusBefore {get; set;}
+
+
+        /// <summary>
+        /// The name of the lifecycle status  -  before change.
+        /// </summary>
+        public string LifecycleStatusBeforeName
+        {
+            get
+            {
+                return Enum.GetName(LifecycleStatusBefore);
+            }
+        }
 
         /// <summary>
         /// The lifecycle of the asset after the event.
         /// Not all events will change the lifecycle.
         /// </summary>
-        public string LifecycleStatusAfter {get; set;}
+        public AssetStatus LifecycleStatusAfter {get; set;}
+
+        /// <summary>
+        /// The name of the lifecycle status  -  after change.
+        /// </summary>
+        public string LifecycleStatusAfterName
+        {
+            get
+            {
+                return Enum.GetName(LifecycleStatusAfter);
+            }
+        }
     }
 }
