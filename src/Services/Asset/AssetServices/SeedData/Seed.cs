@@ -1,0 +1,32 @@
+﻿using AssetServices.Models;
+using Common.Enums;
+using System;
+using System.Collections.Generic;
+
+namespace CustomerServices.SeedData
+{
+    public class Seed
+    {
+        private static Guid OrganizationId1 { get; set; } = new Guid("A19EA756-86F2-423C-9B10-11CB10181858");
+        private static Guid OrganizationId2 { get; set; } = new Guid("F2B5B8E5-78E1-4643-B97B-49239DAC74C2");
+        public static IList<Asset> GetCustomersData(AssetCategory phone, AssetCategory tablet)
+        {
+            IList<Asset> assets = new List<Asset>();
+            assets.Add(new Tablet(new Guid("40a488fc-9ffa-4544-887f-956f577c116e"), OrganizationId1, "", tablet, "YDMYF2LYHF0L", "Apple", "iPad Pro 11", LifecycleType.NoLifecycle, new DateTime(2021, 6, 13), new Guid("9C181422-1D23-4058-AEB8-FE3EBB33D130"), new List<AssetImei>() { new AssetImei(336327301203750) }, "60:8B:0E:EF:18:83", AssetStatus.Active, "This iPad is used to order new equipment and services for the office.", "Office", "iPad Pro 11, 2021 512 GB WiFi (stellargrå)", new Guid("8DFD4C18-A1E5-4A34-906C-FE5F25F01FAB")));
+            assets.Add(new MobilePhone(new Guid("d3f45808-d985-4cd8-895e-bde6ab9c087d"), OrganizationId1, "", phone, "RFCN80WJJ5K", "Samsung", "Galaxy S21", LifecycleType.NoLifecycle, new DateTime(2021, 6, 11), Guid.Empty, new List<AssetImei>() { new AssetImei(357879702624426), new AssetImei(103735096024176) }, "44:18:FD:C9:77:D3", AssetStatus.Active, "", "", "Samsung Galaxy S21 Ultra 5G 12/256GB (phantom black)", new Guid("8DFD4C18-A1E5-4A34-906C-FE5F25F01FAB")));
+            assets.Add(new MobilePhone(new Guid("945d827e-e2b8-4244-81db-27bfc503acc2"), OrganizationId1, "", phone, "D1PSDX7X25VJ", "Apple", "iPhone 11", LifecycleType.NoLifecycle, new DateTime(2021, 10, 8), new Guid("49F4E089-FEED-4FE3-B5BC-719EB084F2BE"), new List<AssetImei>() { new AssetImei(549536515219674) }, "FC:03:9F:5C:31:C2", AssetStatus.Active, "", "", "iPhone 11 smarttelefon 128 GB (sort)", Guid.Empty));
+            assets.Add(new Tablet(new Guid("0e1898ef-ff9c-4474-90cc-0762cf5647bc"), OrganizationId1, "", tablet, "F9FDN4NKQ1GC", "Apple", "iPad Air", LifecycleType.NoLifecycle, new DateTime(2020, 7, 28), new Guid("16D973B5-4E57-4A26-858E-7EFA5B72695E"), new List<AssetImei>() { new AssetImei(502798806423077) }, "44:18:FD:D8:11:1D", AssetStatus.Active, "", "", "iPad Air (2020) 64 GB WiFi (rosegull)", Guid.Empty));
+            assets.Add(new Tablet(new Guid("60806057-52d6-4443-bdfd-92b523e8ea98"), OrganizationId1, "", tablet, "FSD23AKGG90", "Lenovo", "Tab M10", LifecycleType.NoLifecycle, new DateTime(2020, 12, 19), new Guid("C0C178F6-0A5A-46DD-8B0B-9129BF92CE01"), new List<AssetImei>() { new AssetImei(991500210767489) }, "9C:B1:56:CF:3F:48", AssetStatus.Active, "This asset should not have a leasing cost.", "", "Lenovo Tab M10 HD (2nd Gen) 10,1'' nettbrett", Guid.Empty));
+            assets.Add(new MobilePhone(new Guid("0d5b2a2b-6482-468c-9806-e69cd554695b"), OrganizationId1, "", phone, "DEDF4JJ51GC", "Sony", "Xperia 1 III", LifecycleType.NoLifecycle, new DateTime(2021, 12, 9), Guid.Empty, new List<AssetImei>() { new AssetImei(990384170861959), new AssetImei(549122924948565) }, "5B:F3:A3:03:97:1A", AssetStatus.Active, "", "", "Sony Xperia 1 III - 5G smarttelefon 12/256GB (frosted black)", new Guid("6B748D35-21FA-491D-ACE2-B8643A26AAF2")));
+            assets.Add(new MobilePhone(new Guid("41d6e754-9758-4bda-83a0-9bcae06c7a0a"), OrganizationId1, "", phone, "F9JSSX7X81EJ", "Apple", "iPhone 11", LifecycleType.NoLifecycle, new DateTime(2021, 4, 25), Guid.Empty, new List<AssetImei>() { new AssetImei(490639762437186), new AssetImei(107845616492344) }, "E5:BC:9F:8C:B9:CD", AssetStatus.Active, "", "", "iPhone 11 smarttelefon 128 GB (hvit)", Guid.Empty));
+            assets.Add(new MobilePhone(new Guid("db3b39d9-dc78-41da-bdce-2df56c318070"), OrganizationId1, "", phone, "FJC1C0BJK5G", "Samsung", "Galaxy S21", LifecycleType.NoLifecycle, new DateTime(2021, 10, 3), new Guid("0747105E-BE51-4BB9-A7C0-976C562A8A25"), new List<AssetImei>() { new AssetImei(987727049317519), new AssetImei(535252855568516) }, "35:22:FA:F8:7F:8F", AssetStatus.Active, "", "", "Samsung Galaxy S21 5G 8/128GB (phantom pink)", new Guid("CFF07875-3E86-4834-B066-9DA308F3EF05")));
+            assets.Add(new MobilePhone(new Guid("2e9bf5cd-9d1d-43b4-84e6-c8f7632f0605"), OrganizationId1, "", phone, "V00000JW0T0", "Apple", "iPhone 12 Mini", LifecycleType.NoLifecycle, new DateTime(2021, 1, 30), Guid.Empty, new List<AssetImei>() { new AssetImei(525453578370337), new AssetImei(351592473242643) }, "B4:A8:C1:61:6D:7A", AssetStatus.Active, "Remember to order a SIM card for this phone before the 21. of January", "", "iPhone 12 Mini - 5G smarttelefon 128 GB (hvit)", Guid.Empty));
+            assets.Add(new Tablet(new Guid("eeaa0a01-c4b0-4740-879b-792e6122fa19"), OrganizationId1, "", tablet, "XX0XY1XYX2XX", "Samsung", "Galaxy Tab A7 Lite", LifecycleType.NoLifecycle, new DateTime(2021, 6, 11), new Guid("71B8C4FE-B24B-40D9-93DB-67A4AE95932D"), new List<AssetImei>() { new AssetImei(546708765777346) }, "82:0A:5D:7C:AD:AB", AssetStatus.Active, "", "", "Samsung Galaxy Tab A7 Lite WiFi 8,7'' nettbrett (32 GB)", Guid.Empty));
+            assets.Add(new MobilePhone(new Guid("dcc5dff3-a9fd-4abc-9424-9a66d828dad8"), OrganizationId1, "", phone, "4J5CXDN3", "Apple", "iPhone 12 Mini", LifecycleType.NoLifecycle, new DateTime(2021, 3,21), Guid.Empty, new List<AssetImei>() { new AssetImei(358408075666688), new AssetImei(911584253029525) }, "6E:77:55:00:FC:71", AssetStatus.Active, "This device is used by external contractors", "", "iPhone 12 Mini - 5G smarttelefon 128 GB (sort)", Guid.Empty));
+            assets.Add(new MobilePhone(new Guid("39be18fe-5549-4aa9-be13-038783286a84"), OrganizationId1, "", phone, "XpWkBPwN", "Samsung", "Galaxy S21", LifecycleType.NoLifecycle, new DateTime(2021, 9, 24), new Guid("100172A8-B885-4ABC-8F72-F37DA6F6E052"), new List<AssetImei>() { new AssetImei(357879702624426), new AssetImei(499408168621566) }, "6E:85:FC:5A:F9:1E", AssetStatus.Active, "", "", "Samsung Galaxy S21 Ultra 5G 12/256GB (phantom black)", Guid.Empty));
+            //assets.Add(new MobilePhone(new Guid("externalId"), OrganizationId1, "alias", phone, "serialNumber", "brand", "productName", LifecycleType.NoLifecycle, new DateTime(2021, 1, 12), new Guid("assetholder"), new List<AssetImei>() { },"macAddress", AssetStatus.Active, "note", "assetTag", "description", new Guid("department")))
+
+            return assets;
+        }
+    }
+}

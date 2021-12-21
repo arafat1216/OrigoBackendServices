@@ -71,7 +71,7 @@ namespace OrigoApiGateway.Services
                 {
                     return null;
                 }
-               
+
                 _logger.LogError(exception, "GetCustomerAsync failed with HttpRequestException.");
                 throw;
             }
@@ -152,12 +152,12 @@ namespace OrigoApiGateway.Services
             {
                 var response = await HttpClient.PutAsJsonAsync($"{_options.ApiPath}/{organizationToChange.OrganizationId}/organization", organizationToChange);
                 if (!response.IsSuccessStatusCode)
-                    throw new BadHttpRequestException("Unable to update organization", (int) response.StatusCode);
+                    throw new BadHttpRequestException("Unable to update organization", (int)response.StatusCode);
 
                 var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
                 return organization == null ? null : new Organization(organization);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "UpdateOrganizationAsync unknown error.");
                 throw;
@@ -470,6 +470,30 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "RemoveProductModulesAsync unknown error.");
+                throw;
+            }
+        }
+        
+        public async Task<string> CreateOrganizationSeedData()
+        {
+            try
+            {
+                var errorMessage = await HttpClient.GetFromJsonAsync<string>($"{_options.ApiPath}/seed");
+                return errorMessage;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "CreateOrganizationSeedData failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "CreateOrganizationSeedData failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "CreateOrganizationSeedData unknown error.");
                 throw;
             }
         }

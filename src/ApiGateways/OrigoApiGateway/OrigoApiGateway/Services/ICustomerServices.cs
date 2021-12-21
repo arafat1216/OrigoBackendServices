@@ -21,5 +21,6 @@ namespace OrigoApiGateway.Services
         Task<IList<OrigoProductModule>> GetCustomerProductModulesAsync(Guid customerId);
         Task<OrigoProductModule> AddProductModulesAsync(Guid customerId, NewCustomerProductModule productModule);
         Task<OrigoProductModule> RemoveProductModulesAsync(Guid customerId, NewCustomerProductModule productModule);
+        Task<string> CreateOrganizationSeedData();
     }
 }

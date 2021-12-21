@@ -169,6 +169,37 @@ namespace OrigoApiGateway
                 x.GetRequiredService<IOptions<ProductCatalogConfiguration>>()
             ));
 
+            services.AddSingleton<ISeedDatabaseService>(x => new SeedDatabaseService(
+                x.GetRequiredService<ILogger<SeedDatabaseService>>(),
+                new AssetServices(
+                    x.GetRequiredService<ILogger<AssetServices>>(),
+                    DaprClient.CreateInvokeHttpClient("assetservices"),
+                    x.GetRequiredService<IOptions<AssetConfiguration>>(),
+                    new UserServices(
+                        x.GetRequiredService<ILogger<UserServices>>(),
+                        DaprClient.CreateInvokeHttpClient("customerservices"),
+                        x.GetRequiredService<IOptions<UserConfiguration>>()
+                    )
+                ),
+                new CustomerServices(
+                        x.GetRequiredService<ILogger<CustomerServices>>(),
+                        DaprClient.CreateInvokeHttpClient("customerservices"),
+                        x.GetRequiredService<IOptions<CustomerConfiguration>>(),
+                        new AssetServices(
+                            x.GetRequiredService<ILogger<AssetServices>>(),
+                            DaprClient.CreateInvokeHttpClient("assetservices"),
+                            x.GetRequiredService<IOptions<AssetConfiguration>>(),
+                            new UserServices(
+                                x.GetRequiredService<ILogger<UserServices>>(),
+                                DaprClient.CreateInvokeHttpClient("customerservices"),
+                                x.GetRequiredService<IOptions<UserConfiguration>>()
+                            )
+                        )
+                    )
+                )
+            );
+
+
             services.AddSwaggerGen(options =>
             {
                 // Include XML documentation used for Swagger enrichment

@@ -649,5 +649,28 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+        public async Task<string> CreateAssetSeedData()
+        {
+            try
+            {
+                var errorMessage = await HttpClient.GetFromJsonAsync<string>($"{_options.ApiPath}/seed");
+                return errorMessage;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "CreateOrganizationSeedData failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "CreateOrganizationSeedData failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "CreateOrganizationSeedData unknown error.");
+                throw;
+            }
+        }
     }
 }

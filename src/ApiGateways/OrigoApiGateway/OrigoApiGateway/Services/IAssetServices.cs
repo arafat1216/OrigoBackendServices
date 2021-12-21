@@ -28,5 +28,6 @@ namespace OrigoApiGateway.Services
         Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, Guid? userId);
         Task<IList<OrigoAssetCategory>> GetAssetCategoriesAsync();
         Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId);
+        Task<string> CreateAssetSeedData();
     }
 }

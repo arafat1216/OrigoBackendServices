@@ -28,6 +28,16 @@ namespace CustomerServices.Models
             AddDomainEvent(new UserCreatedDomainEvent(this));
         }
 
+        public void UpdateUser(User user)
+        {
+            FirstName = user.FirstName;
+            LastName = user.LastName;
+            Email = user.Email;
+            MobileNumber = user.MobileNumber;
+            EmployeeId = user.EmployeeId;
+            UserPreference = user.UserPreference;
+        }
+
         protected User() { }
 
         public Guid UserId { get; set; }
@@ -64,7 +74,8 @@ namespace CustomerServices.Models
             IsActive = false;
         }
 
-        public IReadOnlyCollection<Department> Departments { 
+        public IReadOnlyCollection<Department> Departments
+        {
             get => new ReadOnlyCollection<Department>(_departments);
             protected set => _departments = new List<Department>(value);
         }
