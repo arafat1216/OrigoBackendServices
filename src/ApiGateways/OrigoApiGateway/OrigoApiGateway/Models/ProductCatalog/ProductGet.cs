@@ -38,12 +38,12 @@ namespace OrigoApiGateway.Models.ProductCatalog
         ///     A collection that contains the translations for this product.
         /// </summary>
         [Required]
-        public IEnumerable<Translation> Translations { get; init; } 
+        public IEnumerable<Translation> Translations { get; init; }
 
         /// <summary>
         ///     Contains requirements for the product.
         /// </summary>
-        public Requirement Requirements { get; init; } 
+        public Requirement Requirements { get; init; }
 
 
         public ProductGet()

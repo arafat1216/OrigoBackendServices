@@ -1,13 +1,13 @@
-﻿using OrigoApiGateway.Models.BackendDTO;
+﻿using System.Reflection.Metadata;
+using OrigoApiGateway.Models.BackendDTO;
 
 namespace OrigoApiGateway.Models
 {
     public class UserPreference
     {
-        public UserPreference() { }
-        public UserPreference(UserPreferenceDTO userPreference)
+        public UserPreference()
         {
-            Language = (userPreference == null) ? "" : userPreference.Language;
+            Language = string.Empty;
         }
         public string Language { get; set; }
     }

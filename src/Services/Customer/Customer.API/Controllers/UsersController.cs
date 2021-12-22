@@ -6,8 +6,10 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 
 namespace Customer.API.Controllers
 {
@@ -21,11 +23,13 @@ namespace Customer.API.Controllers
 
         private readonly IUserServices _userServices;
         private readonly ILogger<UsersController> _logger;
+        private readonly IMapper _mapper;
 
-        public UsersController(ILogger<UsersController> logger, IUserServices userServices)
+        public UsersController(ILogger<UsersController> logger, IUserServices userServices, IMapper mapper)
         {
             _logger = logger;
             _userServices = userServices;
+            _mapper = mapper;
         }
 
         [Route("count")]
@@ -46,13 +50,7 @@ namespace Customer.API.Controllers
         {
             var users = await _userServices.GetAllUsersAsync(customerId);
             if (users == null) return NotFound();
-            var foundUsers = new List<User>();
-            foreach (var user in users)
-            {
-                foundUsers.Add(new User(user));
-
-            }
-            return Ok(foundUsers);
+            return Ok(_mapper.Map<List<User>>(users));
         }
 
         [Route("{userId:Guid}")]
@@ -61,9 +59,9 @@ namespace Customer.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<User>> GetUser(Guid customerId, Guid userId)
         {
-            var user = await _userServices.GetUserAsync(customerId, userId);
+            var user = await _userServices.GetUserWithRoleAsync(customerId, userId);
             if (user == null) return NotFound();
-            return Ok(new User(user));
+            return Ok(_mapper.Map<User>(user));
         }
 
         [HttpPost]
@@ -75,7 +73,7 @@ namespace Customer.API.Controllers
             {
                 var updatedUser = await _userServices.AddUserForCustomerAsync(customerId, newUser.FirstName,
                     newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId, new CustomerServices.Models.UserPreference(newUser.UserPreference?.Language));
-                var updatedUserView = new User(updatedUser);
+                var updatedUserView = _mapper.Map<User>(updatedUser);
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUserView.Id }, updatedUserView);
             }
@@ -112,7 +110,7 @@ namespace Customer.API.Controllers
                 if (updatedUser == null)
                     return NotFound();
 
-                var updatedUserView = new User(updatedUser);
+                var updatedUserView = _mapper.Map<User>(updatedUser);
                 return Ok(updatedUserView);
             }
             catch (CustomerNotFoundException)
@@ -139,8 +137,7 @@ namespace Customer.API.Controllers
                 if (updatedUser == null)
                     return NotFound();
 
-                var updatedUserView = new User(updatedUser);
-                return Ok(updatedUserView);
+                return Ok(_mapper.Map<User>(updatedUser));
             }
             catch (CustomerNotFoundException)
             {
@@ -204,7 +201,7 @@ namespace Customer.API.Controllers
                 var user = await _userServices.SetUserActiveStatus(customerId, userId, isActive);
                 if (user == null)
                     return NotFound();
-                return Ok(new User(user));
+                return Ok(_mapper.Map<User>(user));
             }
             catch (UserNotFoundException exception)
             {
@@ -220,11 +217,11 @@ namespace Customer.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<User>> AssingDepartment(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<ActionResult<User>> AssignDepartment(Guid customerId, Guid userId, Guid departmentId)
         {
             var user = await _userServices.AssignDepartment(customerId, userId, departmentId);
             if (user == null) return NotFound();
-            return Ok(new User(user));
+            return Ok(_mapper.Map<User>(user));
         }
 
         [Route("{userId:Guid}/department/{departmentId:Guid}/manager")]
@@ -289,7 +286,7 @@ namespace Customer.API.Controllers
         {
             var user = await _userServices.UnassignDepartment(customerId, userId, departmentId);
             if (user == null) return NotFound();
-            return Ok(new User(user));
+            return Ok(_mapper.Map<User>(user));
         }
     }
 }

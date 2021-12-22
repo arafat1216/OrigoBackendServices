@@ -26,6 +26,7 @@ namespace Asset.API.ViewModels
             ProductName = asset.ProductName;
             LifecycleType = asset.LifecycleType;
             PurchaseDate = asset.PurchaseDate;
+            CreatedDate = asset.CreatedDate;
             AssetHolderId = asset.AssetHolderId;
             ManagedByDepartmentId = asset.ManagedByDepartmentId;
             AssetStatus = asset.Status;

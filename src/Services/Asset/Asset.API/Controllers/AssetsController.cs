@@ -15,7 +15,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text.Json;
-using System.Net.Http;
 
 namespace Asset.API.Controllers
 {
@@ -501,7 +500,8 @@ namespace Asset.API.Controllers
                     return NotFound();
                 }
                 var lifecycleList = new List<AssetLifecycle>();
-                foreach (var lifecycle in lifecycles) lifecycleList.Add(new AssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
+                // Only NoLifecycle should be supported at the moment.
+                foreach (var lifecycle in lifecycles.Where(l => l.EnumValue == 0)) lifecycleList.Add(new AssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
 
                 return Ok(lifecycleList);
             }

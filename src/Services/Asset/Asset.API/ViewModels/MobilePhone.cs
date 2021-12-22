@@ -16,6 +16,7 @@ namespace Asset.API.ViewModels
             ProductName = asset.ProductName;
             LifecycleType = asset.LifecycleType;
             PurchaseDate = asset.PurchaseDate;
+            CreatedDate = asset.CreatedDate;
             AssetHolderId = asset.AssetHolderId;
             Imei = asset.Imeis != null ? asset.Imeis.Select(i => i.Imei).ToList() : new List<long>();
             MacAddress = asset.MacAddress;

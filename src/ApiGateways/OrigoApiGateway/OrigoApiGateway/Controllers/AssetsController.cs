@@ -253,7 +253,6 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -842,9 +841,18 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoAssetCategory), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [PermissionAuthorize(Permission.CanReadAsset)]
-        public async Task<ActionResult<IEnumerable<OrigoAssetCategory>>> GetAssetCategories()
+        public async Task<ActionResult<IEnumerable<OrigoAssetCategory>>> GetAssetCategories(bool includeAttributeData = false)
         {
             var assetCategories = await _assetServices.GetAssetCategoriesAsync();
+
+            if (includeAttributeData == true)
+            {
+                foreach (OrigoAssetCategory category in assetCategories)
+                {
+                    category.AssetCategoryAttributes = _assetServices.GetAssetCategoryAttributesForCategory(category.AssetCategoryId);
+                }
+            }
+            
             if (assetCategories == null)
             {
                 return NotFound();
