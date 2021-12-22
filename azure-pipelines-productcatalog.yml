@@ -5,11 +5,11 @@
 trigger:
   branches:
     include:
-    - master
+    - release
     - develop
   paths:
     include:
-    - azure-pipelines-productcatalog
+    - azure-pipelines-productcatalog.yml
     - charts/product-catalog-api
     - src/Boilerplate/Boilerplate.EntityFramework
     - src/Boilerplate/Boilerplate.EntityFramework.UnitTest
@@ -24,8 +24,18 @@ variables:
   imageRepository: 'productcatalog'
   containerRegistry: 'origov2acr.azurecr.io'
   dockerfilePath: 'src/Services/ProductCatalog/ProductCatalog.API/Dockerfile'
-  tag: '$(Build.BuildId)'
-  namespace: develop # TODO: set by condition based on branch
+  ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
+    namespace: prod
+    tag: '$(Build.BuildId)_prod'
+    currentDbConnection: '$(ProductCatalogDbConnection)'
+  ${{ elseif eq(variables['Build.SourceBranchName'], 'release') }}:
+    namespace: test
+    tag: '$(Build.BuildId)_test'
+    currentDbConnection: '$(ProductCatalogDbConnectionTest)'
+  ${{ elseif eq(variables['Build.SourceBranchName'], 'develop') }}:
+    namespace: develop
+    tag: '$(Build.BuildId)_develop'
+    currentDbConnection: '$(ProductCatalogDbConnection)'
 
   # Agent VM image name(s)
   vmImageName: 'ubuntu-latest'
@@ -127,7 +137,6 @@ stages:
   variables:
     - group: ProductCatalogLibrary
   jobs:
-
   - deployment: Deploy
     condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
     displayName: Deploy
@@ -162,8 +171,6 @@ stages:
     dependsOn: Deploy
     environment: 'BackendServices.develop'
     displayName: Migrate database
-    variables:
-      namespace: develop
     pool:
       vmImage: $(windowsVmImageName)
     strategy:
@@ -181,7 +188,7 @@ stages:
               azureConnectionType: ConnectedServiceNameARM
               azureSubscription: OrigoV2ServiceConnection
               authenticationType: connectionString
-              connectionString: $(ProductCatalogDbConnection)
+              connectionString: $(currentDbConnection)
               deployType: SqlTask
               sqlFile: $(System.ArtifactsDirectory)/migrations/migrations.sql
 

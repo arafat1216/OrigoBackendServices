@@ -5,7 +5,8 @@
 trigger:
   branches:
     include:
-    - master
+    - main
+    - release
     - develop
   paths:
     include:
@@ -22,8 +23,18 @@ variables:
   imageRepository: 'origoapigateway'
   containerRegistry: 'origov2acr.azurecr.io'
   dockerfilePath: 'src/ApiGateways/OrigoApiGateway/Dockerfile'
-  tag: '$(Build.BuildId)'
-  namespace: develop # TODO: set by condition based on branch
+  ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
+    namespace: prod
+    tag: '$(Build.BuildId)_prod'
+    hostname: origov2dev.mytos.no
+  ${{ elseif eq(variables['Build.SourceBranchName'], 'release') }}:
+    namespace: test
+    tag: '$(Build.BuildId)_test'
+    hostname: origov2test.mytos.no
+  ${{ elseif eq(variables['Build.SourceBranchName'], 'develop') }}:
+    namespace: develop
+    tag: '$(Build.BuildId)_develop'
+    hostname: origov2prod.mytos.no
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
@@ -121,7 +132,7 @@ stages:
               chartType: FilePath
               releaseName: origoapigateway
               namespace: $(namespace)
-              overrideValues: deployment.image.tag=$(tag),namespace=$(namespace)
+              overrideValues: "deployment.image.tag=$(tag),namespace=$(namespace),ingress.hosts[0].host=$(hostname),ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=$(hostname),ingress.tls[0].secretName=letsencrypt"
               arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts
               install: true
@@ -177,7 +188,7 @@ stages:
               chartType: FilePath
               releaseName: Assets
               namespace: $(k8sNamespaceForPR)
-              overrideValues: image.tag=$(tag),namespace=$(k8sNamespaceForPR)
+              overrideValues: deployment.image.tag=$(tag),namespace=$(k8sNamespaceForPR),ingress.hosts.host=$(hostname),ingress.tls.hosts[0]=$(hostname)
               arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts/OrigoApiGateway
               install: true
