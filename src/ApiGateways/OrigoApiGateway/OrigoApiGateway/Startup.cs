@@ -1,3 +1,4 @@
+using AutoMapper;
 using Dapr.Client;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication;
@@ -25,7 +26,6 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading;
-using AutoMapper;
 
 namespace OrigoApiGateway
 {
@@ -185,7 +185,8 @@ namespace OrigoApiGateway
                     new UserServices(
                         x.GetRequiredService<ILogger<UserServices>>(),
                         DaprClient.CreateInvokeHttpClient("customerservices"),
-                        x.GetRequiredService<IOptions<UserConfiguration>>()
+                        x.GetRequiredService<IOptions<UserConfiguration>>(),
+                        x.GetRequiredService<IMapper>()
                     )
                 ),
                 new CustomerServices(
@@ -199,7 +200,8 @@ namespace OrigoApiGateway
                             new UserServices(
                                 x.GetRequiredService<ILogger<UserServices>>(),
                                 DaprClient.CreateInvokeHttpClient("customerservices"),
-                                x.GetRequiredService<IOptions<UserConfiguration>>()
+                                x.GetRequiredService<IOptions<UserConfiguration>>(),
+                                x.GetRequiredService<IMapper>()
                             )
                         )
                     )

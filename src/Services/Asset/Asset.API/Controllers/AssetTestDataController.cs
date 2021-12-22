@@ -1,5 +1,4 @@
 ﻿using AssetServices;
-using CustomerServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -37,7 +36,7 @@ namespace Asset.API.Controllers
                 {
                     _logger.LogError("CreateTestData failed");
                 }
-                return Ok(new { result });
+                return Ok(result);
             }
             catch (Exception ex)
             {

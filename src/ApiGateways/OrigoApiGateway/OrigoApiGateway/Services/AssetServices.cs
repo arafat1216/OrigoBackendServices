@@ -693,7 +693,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var errorMessage = await HttpClient.GetFromJsonAsync<string>($"{_options.ApiPath}/seed");
+                var errorMessage = await HttpClient.GetStringAsync($"{_options.ApiPath}/seed");
                 return errorMessage;
             }
             catch (HttpRequestException exception)

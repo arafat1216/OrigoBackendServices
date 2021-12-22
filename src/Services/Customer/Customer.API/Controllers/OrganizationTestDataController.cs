@@ -35,7 +35,7 @@ namespace Customer.API.Controllers
                 {
                     _logger.LogError("CreateTestData failed");
                 }
-                return Ok(new { result });
+                return Ok(result);
             }
             catch (Exception ex)
             {

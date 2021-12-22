@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using OrigoApiGateway.Models;
-using System.Threading.Tasks;
 using System;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {

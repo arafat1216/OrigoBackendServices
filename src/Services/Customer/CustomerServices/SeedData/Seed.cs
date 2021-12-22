@@ -10,6 +10,8 @@ namespace CustomerServices.SeedData
 {
     public static class Seed
     {
+        private static Guid OrganizationId1 { get; set; } = new Guid("A19EA756-86F2-423C-9B10-11CB10181858");
+        private static Guid OrganizationId2 { get; set; } = new Guid("F2B5B8E5-78E1-4643-B97B-49239DAC74C2");
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Minor Code Smell", "S1075:URIs should not be hardcoded", Justification = "Test data should be static")]
         public static IList<Organization> GetCustomersData()
         {
@@ -17,7 +19,7 @@ namespace CustomerServices.SeedData
 
             #region organizations 
             Organization organization1 = new Organization(
-                organizationId: new Guid("A19EA756-86F2-423C-9B10-11CB10181858"),
+                organizationId: OrganizationId1,
                 callerId: new Guid("00000000-0000-0000-0000-000000000000"),
                 parentId: null,
                 companyName: "Blume Corporation",
@@ -58,7 +60,7 @@ namespace CustomerServices.SeedData
                 );
 
             Organization organization2 = new Organization(
-                organizationId: new Guid("F2B5B8E5-78E1-4643-B97B-49239DAC74C2"),
+                organizationId: OrganizationId2,
                 callerId: new Guid("00000000-0000-0000-0000-000000000000"),
                 parentId: new Guid("A19EA756-86F2-423C-9B10-11CB10181858"),
                 companyName: "Umeni Security Corps",
@@ -108,7 +110,7 @@ namespace CustomerServices.SeedData
         public static IList<Department> GetDepartmentDataForOrganization(Organization organization)
         {
             IList<Department> departments = new List<Department>();
-            if (organization.OrganizationId == new Guid("A19EA756-86F2-423C-9B10-11CB10181858"))
+            if (organization.OrganizationId == OrganizationId1)
             {
                 Department departmentRoot1 = new Department("Bellwether", "9911", "", organization, new Guid("8DFD4C18-A1E5-4A34-906C-FE5F25F01FAB"), null);
                 Department departmentRoot2 = new Department("Blume Corporation", "9912", "", organization, new Guid("CFF07875-3E86-4834-B066-9DA308F3EF05"), null);
@@ -121,13 +123,14 @@ namespace CustomerServices.SeedData
                 departments.Add(new Department("Marketing", "5403", "Advertising and marketing", organization, new Guid("22661B52-6A25-4B23-A04B-33482BADEC02"), departmentRoot2));
                 departments.Add(new Department("Administration", "6012", "", organization, new Guid("F071A053-28D2-4BEB-9C7C-2DEACA2EF85E"), departmentRoot2));
             }
-            else if (organization.OrganizationId == new Guid("F2B5B8E5-78E1-4643-B97B-49239DAC74C2"))
+            else if (organization.OrganizationId == OrganizationId2)
             {
                 Department departmentRoot1 = new Department("Umeni-Zulu", "391", "", organization, new Guid("071A5D79-10F9-4A70-9CAD-7A7EA51E253A"), null);
                 Department departmentRoot2 = new Department("Umeni Security Corps", "415", "", organization, new Guid("35374FE2-CC30-49B6-8A3A-7AFF4F0DB8DB"), null);
                 departments.Add(departmentRoot1);
                 departments.Add(departmentRoot2);
                 departments.Add(new Department("Marketing", "503", "Advertising and marketing", organization, new Guid("8AEAEDD6-BD0E-4957-9053-0E9B01F1D291"), departmentRoot1));
+                departments.Add(new Department("Sales", "274", "", organization, new Guid("09ba661c-8231-42a9-9181-01b45435e8b9"), departmentRoot1));
                 departments.Add(new Department("Administration", "760", "Umeni-Zulu administration", organization, new Guid("26FC799C-4F52-4604-8123-B9A571429348"), departmentRoot1));
                 departments.Add(new Department("Technology", "804", "Cyber security and research", organization, new Guid("515924FA-E94E-4281-AE13-8E04B049ED8D"), departmentRoot2));
                 departments.Add(new Department("Administration", "712", "Umeni Security Corps administration", organization, new Guid("906944BA-CBDA-4699-B210-60E373B68A23"), departmentRoot2));
@@ -139,7 +142,7 @@ namespace CustomerServices.SeedData
         public static IList<User> GetUsersForOrganization(Organization organization)
         {
             IList<User> users = new List<User>();
-            if (organization.OrganizationId == new Guid("A19EA756-86F2-423C-9B10-11CB10181858"))
+            if (organization.OrganizationId == OrganizationId1)
             {
                 users.Add(new User(organization, new Guid("D0326090-631F-4138-9CD2-85249AD24BBB"), "Dušan", "Nemec", "Dusan.Nemec@blumecorp.com", "+4791119914", "01-4334", new UserPreference("EN")));
                 users.Add(new User(organization, new Guid("0747105E-BE51-4BB9-A7C0-976C562A8A25"), "Charlotte", "Gardner", "charlotte.gardner@blumecorp.com", "+4745391457", "01-4455", new UserPreference("EN")));
@@ -157,7 +160,7 @@ namespace CustomerServices.SeedData
                 users.Add(new User(organization, new Guid("099F7F4F-C908-49B6-91BE-5A2908A6BA3D"), "JB", "Markovicz", "defalt@blumecorp.com", "+4745771720", "01-6084", new UserPreference("EN")));
                 users.Add(new User(organization, new Guid("CC9F5DD4-FC5A-4CA2-9C96-91D40160714F"), "Aiden", "Pearce", "aiden.pearce@blumecorp.com", "+4790804545", "01-3091", new UserPreference("EN")));
             }
-            else if (organization.OrganizationId == new Guid("F2B5B8E5-78E1-4643-B97B-49239DAC74C2"))
+            else if (organization.OrganizationId == OrganizationId2)
             {
                 users.Add(new User(organization, new Guid("0A419CAA-5E5E-46A5-9F93-4C58CE57C630"), "Annette", "Noller", "annette.noller@umeni-zulu.com", "+4791145523", "01-434", new UserPreference("EN")));
                 users.Add(new User(organization, new Guid("0626E84E-B301-4714-8403-926805CB5B29"), "Brandon", "Schous", "brandon.schous@umeni-zulu.com", "+4798023450", "01-355", new UserPreference("EN")));
@@ -189,11 +192,11 @@ namespace CustomerServices.SeedData
 
         public static Guid[] GetAccessList(Guid organizationId)
         {
-            if (organizationId == new Guid("A19EA756-86F2-423C-9B10-11CB10181858"))
+            if (organizationId == OrganizationId1)
             {
                 return new Guid[] { new Guid("8DFD4C18-A1E5-4A34-906C-FE5F25F01FAB"), new Guid("CFF07875-3E86-4834-B066-9DA308F3EF05") };
             }
-            else if (organizationId == new Guid("F2B5B8E5-78E1-4643-B97B-49239DAC74C2"))
+            else if (organizationId == OrganizationId2)
             {
                 return new Guid[] { new Guid("26FC799C-4F52-4604-8123-B9A571429348"), new Guid("071A5D79-10F9-4A70-9CAD-7A7EA51E253A") };
             }
