@@ -17,7 +17,6 @@ namespace AssetServices.Models
         {
             ExternalId = externalId;
             CustomerId = customerId;
-            CreatedBy = callerId;
             SerialNumber = serialNumber;
             Brand = brand;
             ProductName = productName;
