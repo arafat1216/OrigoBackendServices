@@ -16,9 +16,6 @@ namespace OrigoApiGateway.Models.Asset
 
         [Required]
         public int AssetStatus { get; set; }
-        /// <summary>
-        /// id of user making the endpoint call. Can be ignored by frontend.
-        /// </summary>
-        public Guid CallerId { get; set; }
+       
     }
 }

@@ -27,6 +27,7 @@ namespace AssetServices.Models
             ExternalId = assetId;
             CustomerId = customerId;
             CreatedBy = callerId;
+            UpdatedBy = callerId;
             Alias = alias;
             Brand = brand;
             ProductName = productName;
@@ -135,6 +136,7 @@ namespace AssetServices.Models
         {
             var previousAlias = Alias;
             Alias = alias;
+            UpdatedBy = callerId;
             AddDomainEvent(new SetAliasDomainEvent<Asset>(this, callerId, previousAlias));
         }
 
@@ -142,6 +144,7 @@ namespace AssetServices.Models
         {
             var previousLifecycleType = LifecycleType;
             LifecycleType = newLifecycleType;
+            UpdatedBy = callerId;
             AddDomainEvent(new SetLifeCycleTypeDomainEvent<Asset>(this, callerId, previousLifecycleType));
         }
 
@@ -149,6 +152,7 @@ namespace AssetServices.Models
         {
             var previousStatus = Status;
             Status = status;
+            UpdatedBy = callerId;
             AddDomainEvent(new UpdateAssetStatusDomainEvent<Asset>(this, callerId, previousStatus));
         }
 
@@ -156,6 +160,7 @@ namespace AssetServices.Models
         {
             var previousBrand = Brand;
             Brand = brand;
+            UpdatedBy = callerId;
             AddDomainEvent(new BrandChangedDomainEvent<Asset>(this, callerId, previousBrand));
         }
 
@@ -163,6 +168,7 @@ namespace AssetServices.Models
         {
             var previousModel = ProductName;
             ProductName = model;
+            UpdatedBy = callerId;
             AddDomainEvent(new ModelChangedDomainEvent<Asset>(this, callerId, previousModel));
         }
 
@@ -170,6 +176,7 @@ namespace AssetServices.Models
         {
             var previousPurchaseDate = PurchaseDate;
             PurchaseDate = purchaseDate;
+            UpdatedBy = callerId;
             AddDomainEvent(new PurchaseDateChangedDomainEvent<Asset>(this, callerId, previousPurchaseDate));
         }
 
@@ -177,6 +184,7 @@ namespace AssetServices.Models
         {
             var oldUserId = AssetHolderId;
             AssetHolderId = userId;
+            UpdatedBy = callerId;
             AddDomainEvent(new AssignAssetToUserDomainEvent<Asset>(this, callerId, oldUserId));
         }
 
@@ -184,6 +192,7 @@ namespace AssetServices.Models
         {
             var previousNote = Note;
             Note = note;
+            UpdatedBy = callerId;
             AddDomainEvent(new NoteChangedDomainEvent<Asset>(this, callerId, previousNote));
         }
 
@@ -191,6 +200,7 @@ namespace AssetServices.Models
         {
             var previousDescription = Description;
             Description = description;
+            UpdatedBy = callerId;
             AddDomainEvent(new DescriptionChangedDomainEvent<Asset>(this, callerId, previousDescription));
         }
 
@@ -198,6 +208,7 @@ namespace AssetServices.Models
         {
             var previousTag = AssetTag;
             AssetTag = tag;
+            UpdatedBy = callerId;
             AddDomainEvent(new TagUpdatedDomainEvent<Asset>(this, callerId, previousTag));
         }
 

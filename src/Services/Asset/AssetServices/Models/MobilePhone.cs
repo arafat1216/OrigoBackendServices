@@ -17,6 +17,7 @@ namespace AssetServices.Models
         {
             ExternalId = externalId;
             CustomerId = customerId;
+            CreatedBy = callerId;
             SerialNumber = serialNumber;
             Brand = brand;
             ProductName = productName;
@@ -41,79 +42,57 @@ namespace AssetServices.Models
         /// <param name="alias"></param>
         public override void SetAlias(string alias, Guid callerId)
         {
-            var previousAlias = Alias;
-            Alias = alias;
-            AddDomainEvent(new SetAliasDomainEvent<MobilePhone>(this, callerId, previousAlias));
+            base.SetAlias(alias, callerId);
         }
 
         public override void SetLifeCycleType(LifecycleType newLifecycleType, Guid callerId)
         {
-            var previousLifecycleType = LifecycleType; 
-            LifecycleType = newLifecycleType;
-            AddDomainEvent(new SetLifeCycleTypeDomainEvent<MobilePhone>(this, callerId, previousLifecycleType));
+            base.SetLifeCycleType(newLifecycleType, callerId);
         }
 
         public override void UpdateAssetStatus(AssetStatus status, Guid callerId)
         {
-            var previousStatus = Status;
-            Status = status;
-            AddDomainEvent(new UpdateAssetStatusDomainEvent<MobilePhone>(this, callerId, previousStatus));
+            base.UpdateAssetStatus(status, callerId);
         }
 
         public override void UpdateBrand(string brand, Guid callerId)
         {
-            var previousBrand = Brand;
-            Brand = brand;
-            AddDomainEvent(new BrandChangedDomainEvent<MobilePhone>(this, callerId, previousBrand));
+            base.UpdateBrand(brand, callerId);
         }
 
         public override void UpdateProductName(string model, Guid callerId)
         {
-            var previousModel = ProductName;
-            ProductName = model;
-            AddDomainEvent(new ModelChangedDomainEvent<MobilePhone>(this, callerId, previousModel));
+            base.UpdateProductName(model, callerId);
         }
 
         public override void ChangePurchaseDate(DateTime purchaseDate, Guid callerId)
         {
-            var previousPurchaseDate = PurchaseDate;
-            PurchaseDate = purchaseDate;
-            AddDomainEvent(new PurchaseDateChangedDomainEvent<MobilePhone>(this, callerId, previousPurchaseDate));
+            base.ChangePurchaseDate(purchaseDate, callerId);
         }
 
         public override void AssignAssetToUser(Guid? userId, Guid callerId)
         {
-            var oldUserId = AssetHolderId;
-            AssetHolderId = userId;
-            AddDomainEvent(new AssignAssetToUserDomainEvent<MobilePhone>(this, callerId, oldUserId));
+            base.AssignAssetToUser(userId, callerId);
         }
 
         public override void UpdateNote(string note, Guid callerId)
         {
-            var previousNote = Note;
-            Note = note;
-            AddDomainEvent(new NoteChangedDomainEvent<MobilePhone>(this, callerId, previousNote));
+            base.UpdateNote(note, callerId);
         }
 
         public override void UpdateDescription(string description, Guid callerId)
         {
-            var previousDescription = Description;
-            Description = description;
-            AddDomainEvent(new DescriptionChangedDomainEvent<MobilePhone>(this, callerId, previousDescription));
+            base.UpdateDescription(description, callerId);
         }
 
         public override void UpdateTag(string tag, Guid callerId)
         {
-            var previousTag = AssetTag;
-            AssetTag = tag;
-            AddDomainEvent(new TagUpdatedDomainEvent<MobilePhone>(this, callerId, previousTag));
+            base.UpdateTag(tag, callerId);
         }
 
         public override void ChangeSerialNumber(string serialNumber, Guid callerId)
         {
-            var previousSerialNumber = SerialNumber;
-            SerialNumber = serialNumber;
-            AddDomainEvent(new SerialNumberChangedDomainEvent<MobilePhone>(this, callerId, previousSerialNumber));
+            base.ChangeSerialNumber(serialNumber, callerId);
         }
     }
 }
