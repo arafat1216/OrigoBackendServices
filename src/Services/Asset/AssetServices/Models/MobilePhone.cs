@@ -32,6 +32,8 @@ namespace AssetServices.Models
             AssetCategory = assetCategory;
             ManagedByDepartmentId = managedByDepartmentId;
             Alias = alias;
+            CreatedBy = callerId;
+            UpdatedBy = callerId;
             AddDomainEvent(new AssetCreatedDomainEvent<MobilePhone>(this, callerId));
         }
 
