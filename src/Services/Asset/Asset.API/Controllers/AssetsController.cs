@@ -661,7 +661,7 @@ namespace Asset.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IList<AssetAuditLog>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<AssetAuditLog>>> GetAssetAuditLogMock(Guid assetId)
+        public async Task<ActionResult<IEnumerable<AssetAuditLog>>> GetAssetAuditLog(Guid assetId)
         {
             try
             {

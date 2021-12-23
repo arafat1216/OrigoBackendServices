@@ -32,6 +32,8 @@ namespace AssetServices.Models
             Description = description;
             ManagedByDepartmentId = managedByDepartmentId;
             Alias = alias;
+            CreatedBy = callerId;
+            UpdatedBy = callerId;
             AddDomainEvent(new AssetCreatedDomainEvent<Tablet>(this, callerId));
         }
 

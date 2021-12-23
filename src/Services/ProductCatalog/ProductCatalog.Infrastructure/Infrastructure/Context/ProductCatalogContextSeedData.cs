@@ -62,7 +62,7 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
 
 
                 // Basic Asset Management
-                entity.HasData(new Feature { Id = 2, AccessControlPermissionNode = "BasicAssetManagement ", FeatureTypeId = 1, UpdatedBy = systemUserId });
+                entity.HasData(new Feature { Id = 2, AccessControlPermissionNode = "BasicAssetManagement", FeatureTypeId = 1, UpdatedBy = systemUserId });
 
                 entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 2, Language = "en", Name = "Basic Asset Management", Description = "Allows organizations to perform the basic user management tasks.", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 2, Language = "nb", Name = "Grunnleggende asset-håndtering", Description = "Lar en organisasjon utføre grunnleggende behandling av assets.", UpdatedBy = systemUserId });

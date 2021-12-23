@@ -585,10 +585,12 @@ namespace AssetServices
                     var previousStatus = PropertyExist(@event, "PreviousStatus")
                         ? @event.PreviousStatus.ToString()
                         : @event.Asset.Status.ToString();
+
+                    // All events should have callerId, but if an event forgot it, we handle it here
                     var callerId = PropertyExist(@event, "CallerId")
                         ? @event.CallerId.ToString()
                         : "N/A";
-                    var auditLog = new AssetAuditLog(transactionGuid, @event.Asset.ExternalId, logEventEntry.CreationTime, callerId,
+                    var auditLog = new AssetAuditLog(transactionGuid, @event.Asset.ExternalId, @event.Asset.CustomerId, logEventEntry.CreationTime, callerId,
                         ((IEvent)@event).EventMessage(), logEventEntry.EventTypeShortName, previousStatus, @event.Asset.Status.ToString());
                     assetLogList.Add(auditLog);
                 }

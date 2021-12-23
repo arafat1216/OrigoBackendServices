@@ -670,6 +670,18 @@ namespace OrigoApiGateway.Services
                await HttpClient.GetFromJsonAsync<IList<AssetAuditLog>>(
                    $"{_options.ApiPath}/auditlog/{assetId}");
 
+               
+                foreach(AssetAuditLog log in assetLog)
+                {
+                    Guid userId;
+                    Guid.TryParse(log.CreatedBy, out userId);
+                    OrigoUser user = await _userServices.GetUserAsync(log.CustomerId, userId);
+                    if  (user != null)
+                    {
+                        log.CreatedBy = user.DisplayName;
+                    }
+                }
+
                 return assetLog;
             }
             catch (HttpRequestException exception)
