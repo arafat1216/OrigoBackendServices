@@ -57,6 +57,8 @@ namespace OrigoApiGateway.Services
             }
             catch (HttpRequestException exception)
             {
+                if (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return null;
                 _logger.LogError(exception, "GetUserAsync failed with HttpRequestException.");
                 throw;
             }
