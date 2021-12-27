@@ -37,9 +37,7 @@ namespace AssetServices.Models
 
         public virtual void ChangeSerialNumber(string serialNumber, Guid callerId)
         {
-            var previousSerialNumber = SerialNumber;
-            SerialNumber = serialNumber;
-            AddDomainEvent(new SerialNumberChangedDomainEvent<HardwareAsset>(this, callerId, previousSerialNumber));
+            UpdatedBy = callerId;
         }
 
         /// <summary>
