@@ -33,7 +33,14 @@ namespace AssetServices.Models
             Alias = alias;
             CreatedBy = callerId;
             UpdatedBy = callerId;
-            AddDomainEvent(new AssetCreatedDomainEvent<Tablet>(this, callerId));
+
+            // Store tablet created event with its serial number if applicable
+            string text = "id: " + ExternalId.ToString();
+            if (!string.IsNullOrEmpty(SerialNumber))
+            {
+                text = "serial number: " + SerialNumber;
+            }
+            AddDomainEvent(new AssetCreatedDomainEvent<Tablet>(this, callerId, text));
         }
 
         /// <summary>
