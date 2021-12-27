@@ -1,6 +1,8 @@
-﻿namespace OrigoApiGateway.Models.BackendDTO
+﻿using OrigoApiGateway.Models.BackendDTO;
+
+namespace OrigoApiGateway.Models
 {
-    public class ContactPersonDTO
+    public class OrigoContactPerson
     {
         public string FirstName { get; init; }
 

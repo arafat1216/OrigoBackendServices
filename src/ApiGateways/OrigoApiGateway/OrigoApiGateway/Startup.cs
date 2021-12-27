@@ -1,3 +1,4 @@
+using AutoMapper;
 using Dapr.Client;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication;
@@ -25,7 +26,6 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading;
-using AutoMapper;
 
 namespace OrigoApiGateway
 {
@@ -126,7 +126,8 @@ namespace OrigoApiGateway
                             x.GetRequiredService<IOptions<UserConfiguration>>(),
                             x.GetRequiredService<IMapper>()
                     )
-                )
+                ),
+                x.GetRequiredService<IMapper>()
             ));
 
             services.AddSingleton<IUserPermissionService>(x => new UserPermissionService(
@@ -160,7 +161,8 @@ namespace OrigoApiGateway
                             x.GetRequiredService<IOptions<UserConfiguration>>(),
                             x.GetRequiredService<IMapper>()
                         )
-                    )
+                    ),
+                    x.GetRequiredService<IMapper>()
                 )
             ));
 

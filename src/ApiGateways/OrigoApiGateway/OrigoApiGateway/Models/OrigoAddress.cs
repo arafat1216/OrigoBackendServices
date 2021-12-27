@@ -1,6 +1,8 @@
-﻿namespace OrigoApiGateway.Models.BackendDTO
+﻿using OrigoApiGateway.Models.BackendDTO;
+
+namespace OrigoApiGateway.Models
 {
-    public class AddressDTO
+    public class OrigoAddress
     {
         public string Street { get; init; }
 

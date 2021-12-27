@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
+﻿using AutoMapper;
 using Common.Enums;
 using Common.Exceptions;
 using Microsoft.AspNetCore.Http;
@@ -11,34 +6,42 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {
     public class CustomerServices : ICustomerServices
     {
         public CustomerServices(ILogger<CustomerServices> logger, HttpClient httpClient,
-            IOptions<CustomerConfiguration> options, IAssetServices assetServices)
+            IOptions<CustomerConfiguration> options, IAssetServices assetServices, IMapper mapper)
         {
             _logger = logger;
             HttpClient = httpClient;
             _options = options.Value;
             _assetServices = assetServices;
+            _mapper = mapper;
         }
 
         private readonly ILogger<CustomerServices> _logger;
         private HttpClient HttpClient { get; }
         private readonly CustomerConfiguration _options;
         private readonly IAssetServices _assetServices;
+        private readonly IMapper _mapper;
 
         public async Task<IList<Organization>> GetCustomersAsync()
         {
             try
             {
                 var customers = await HttpClient.GetFromJsonAsync<IList<OrganizationDTO>>($"{_options.ApiPath}");
-                if (customers == null) return null;
-                var origoCustomers = new List<Organization>();
-                foreach (var customer in customers) origoCustomers.Add(new Organization(customer));
-                return origoCustomers;
+                if (customers == null)
+                    return null;
+
+                return _mapper.Map<List<Organization>>(customers);
             }
             catch (HttpRequestException exception)
             {
@@ -61,8 +64,8 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var customer = await HttpClient.GetFromJsonAsync<OrganizationDTO>($"{_options.ApiPath}/{customerId}");
-                return customer == null ? null : new Organization(customer);
+                var organiation = await HttpClient.GetFromJsonAsync<OrganizationDTO>($"{_options.ApiPath}/{customerId}");
+                return organiation == null ? null : _mapper.Map<Organization>(organiation);
             }
             catch (HttpRequestException exception)
             {
@@ -71,7 +74,7 @@ namespace OrigoApiGateway.Services
                 {
                     return null;
                 }
-               
+
                 _logger.LogError(exception, "GetCustomerAsync failed with HttpRequestException.");
                 throw;
             }
@@ -96,7 +99,7 @@ namespace OrigoApiGateway.Services
                     throw new BadHttpRequestException("Unable to save customer", (int)response.StatusCode);
 
                 var customer = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
-                return customer == null ? null : new Organization(customer);
+                return customer == null ? null : _mapper.Map<Organization>(customer);
             }
             catch (Exception exception)
             {
@@ -137,7 +140,7 @@ namespace OrigoApiGateway.Services
                 }
 
                 var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
-                return organization == null ? null : new Organization(organization);
+                return organization == null ? null : _mapper.Map<Organization>(organization);
             }
             catch (Exception ex)
             {
@@ -152,12 +155,12 @@ namespace OrigoApiGateway.Services
             {
                 var response = await HttpClient.PutAsJsonAsync($"{_options.ApiPath}/{organizationToChange.OrganizationId}/organization", organizationToChange);
                 if (!response.IsSuccessStatusCode)
-                    throw new BadHttpRequestException("Unable to update organization", (int) response.StatusCode);
+                    throw new BadHttpRequestException("Unable to update organization", (int)response.StatusCode);
 
                 var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
-                return organization == null ? null : new Organization(organization);
+                return organization == null ? null : _mapper.Map<Organization>(organization);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "UpdateOrganizationAsync unknown error.");
                 throw;
@@ -173,7 +176,7 @@ namespace OrigoApiGateway.Services
                     throw new BadHttpRequestException("Unable to update organization", (int)response.StatusCode);
 
                 var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
-                return organization == null ? null : new Organization(organization);
+                return organization == null ? null : _mapper.Map<Organization>(organization);
             }
             catch (Exception ex)
             {
