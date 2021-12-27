@@ -17,6 +17,7 @@ using OrigoApiGateway.Exceptions;
 using System.Text.Json;
 using Newtonsoft.Json.Linq;
 using OrigoApiGateway.Models.Asset;
+using OrigoApiGateway.Models.BackendDTO;
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 // ReSharper disable RouteTemplates.ControllerRouteParameterIsNotPassedToMethods
 
@@ -327,14 +328,18 @@ namespace OrigoApiGateway.Controllers
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
-                data.CallerId = callerId; // Guid.Empty if tryparse fails.
+                var updatedAssetStatusDTO = new UpdateAssetsStatusDTO();
+                updatedAssetStatusDTO.CallerId = callerId; // Guid.Empty if tryparse fails.
+                updatedAssetStatusDTO.AssetStatus = data.AssetStatus;
+                updatedAssetStatusDTO.AssetGuidList = new List<Guid>(data.AssetGuidList);
+
                 int assetStatus = data.AssetStatus;
 
 
                 if (!data.AssetGuidList.Any())
                     return BadRequest("No assets selected.");
 
-                var updatedAssets = await _assetServices.UpdateStatusOnAssets(organizationId, data, assetStatus);
+                var updatedAssets = await _assetServices.UpdateStatusOnAssets(organizationId, updatedAssetStatusDTO);
                 if (updatedAssets == null)
                 {
                     return NotFound();

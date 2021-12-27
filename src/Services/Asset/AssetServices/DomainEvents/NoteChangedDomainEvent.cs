@@ -23,7 +23,7 @@ namespace AssetServices.DomainEvents
 
         public override string EventMessage(string languageCode = "nb-NO")
         {
-            return $"Asset note changed from {PreviousNote} to {Asset.Note}.";
+            return $"Asset note changed from '{PreviousNote}' to '{Asset.Note}'.";
         }
     }
 }

@@ -13,6 +13,7 @@ using Moq.Protected;
 using OrigoApiGateway.Mappings;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
+using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
 using Xunit;
 
@@ -187,7 +188,7 @@ namespace OrigoApiGateway.Tests
             assetGuidList.Add(new Guid("64add3ea-74ae-48a3-aad7-1a811f25ccdc"));
             assetGuidList.Add(new Guid("ef8710e8-ca5c-4832-ae27-139100d1ae63"));
 
-            UpdateAssetsStatus data = new UpdateAssetsStatus
+            UpdateAssetsStatusDTO data = new UpdateAssetsStatusDTO
             {
                 AssetGuidList = assetGuidList,
                 CallerId = Guid.Empty,
@@ -195,7 +196,7 @@ namespace OrigoApiGateway.Tests
             };
 
             // Act
-            var updatedAssets = await assetService.UpdateStatusOnAssets(new Guid(CUSTOMER_ID), data, 1);
+            var updatedAssets = await assetService.UpdateStatusOnAssets(new Guid(CUSTOMER_ID), data);
 
             // Assert
             Assert.Equal(2, updatedAssets.Count);

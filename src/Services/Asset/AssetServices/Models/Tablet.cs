@@ -52,6 +52,7 @@ namespace AssetServices.Models
             var previousAlias = Alias;
             Alias = alias;
             AddDomainEvent(new SetAliasDomainEvent<Tablet>(this, callerId, previousAlias));
+            base.SetAlias(alias, callerId); 
         }
 
         public override void SetLifeCycleType(LifecycleType newLifecycleType, Guid callerId)
@@ -59,6 +60,7 @@ namespace AssetServices.Models
             var previousLifecycleType = LifecycleType;
             LifecycleType = newLifecycleType;
             AddDomainEvent(new SetLifeCycleTypeDomainEvent<Tablet>(this, callerId, previousLifecycleType));
+            base.SetLifeCycleType(newLifecycleType, callerId);
         }
 
         public override void UpdateAssetStatus(AssetStatus status, Guid callerId)
@@ -66,6 +68,7 @@ namespace AssetServices.Models
             var previousStatus = Status;
             Status = status;
             AddDomainEvent(new UpdateAssetStatusDomainEvent<Tablet>(this, callerId, previousStatus));
+            base.UpdateAssetStatus(status, callerId);
         }
 
         public override void UpdateBrand(string brand, Guid callerId)
@@ -73,6 +76,7 @@ namespace AssetServices.Models
             var previousBrand = Brand;
             Brand = brand;
             AddDomainEvent(new BrandChangedDomainEvent<Tablet>(this, callerId, previousBrand));
+            base.UpdateBrand(brand, callerId);
         }
 
         public override void UpdateProductName(string model, Guid callerId)
@@ -80,6 +84,7 @@ namespace AssetServices.Models
             var previousModel = ProductName;
             ProductName = model;
             AddDomainEvent(new ModelChangedDomainEvent<Tablet>(this, callerId, previousModel));
+            base.UpdateProductName(model, callerId);    
         }
 
         public override void ChangePurchaseDate(DateTime purchaseDate, Guid callerId)
@@ -87,6 +92,7 @@ namespace AssetServices.Models
             var previousPurchaseDate = PurchaseDate;
             PurchaseDate = purchaseDate;
             AddDomainEvent(new PurchaseDateChangedDomainEvent<Tablet>(this, callerId, previousPurchaseDate));
+            base.ChangePurchaseDate(purchaseDate, callerId);
         }
 
         public override void AssignAssetToUser(Guid? userId, Guid callerId)
@@ -94,6 +100,7 @@ namespace AssetServices.Models
             var oldUserId = AssetHolderId;
             AssetHolderId = userId;
             AddDomainEvent(new AssignAssetToUserDomainEvent<Tablet>(this, callerId, oldUserId));
+            base.AssignAssetToUser(userId, callerId);
         }
 
         public override void UpdateNote(string note, Guid callerId)
@@ -101,6 +108,7 @@ namespace AssetServices.Models
             var previousNote = Note;
             Note = note;
             AddDomainEvent(new NoteChangedDomainEvent<Tablet>(this, callerId, previousNote));
+            base.UpdateNote(note, callerId);
         }
 
         public override void UpdateDescription(string description, Guid callerId)
@@ -108,6 +116,7 @@ namespace AssetServices.Models
             var previousDescription = Description;
             Description = description;
             AddDomainEvent(new DescriptionChangedDomainEvent<Tablet>(this, callerId, previousDescription));
+            base.UpdateDescription(description, callerId);
         }
 
         public override void UpdateTag(string tag, Guid callerId)
@@ -115,6 +124,7 @@ namespace AssetServices.Models
             var previousTag = AssetTag;
             AssetTag = tag;
             AddDomainEvent(new TagUpdatedDomainEvent<Tablet>(this, callerId, previousTag));
+            base.UpdateTag(tag, callerId);
         }
 
         public override void ChangeSerialNumber(string serialNumber, Guid callerId)
@@ -122,6 +132,7 @@ namespace AssetServices.Models
             var previousSerialNumber = SerialNumber;
             SerialNumber = serialNumber;
             AddDomainEvent(new SerialNumberChangedDomainEvent<Tablet>(this, callerId, previousSerialNumber));
+            base.ChangeSerialNumber(serialNumber, callerId);
         }
     }
 }
