@@ -27,6 +27,7 @@ namespace AssetServices.Models
             ExternalId = assetId;
             CustomerId = customerId;
             CreatedBy = callerId;
+            UpdatedBy = callerId;
             Alias = alias;
             Brand = brand;
             ProductName = productName;
@@ -133,72 +134,52 @@ namespace AssetServices.Models
         /// <param name="alias"></param>
         public virtual void SetAlias(string alias, Guid callerId)
         {
-            var previousAlias = Alias;
-            Alias = alias;
-            AddDomainEvent(new SetAliasDomainEvent<Asset>(this, callerId, previousAlias));
+            UpdatedBy = callerId;
         }
 
         public virtual void SetLifeCycleType(LifecycleType newLifecycleType, Guid callerId)
         {
-            var previousLifecycleType = LifecycleType;
-            LifecycleType = newLifecycleType;
-            AddDomainEvent(new SetLifeCycleTypeDomainEvent<Asset>(this, callerId, previousLifecycleType));
+            UpdatedBy = callerId;   
         }
 
         public virtual void UpdateAssetStatus(AssetStatus status, Guid callerId)
         {
-            var previousStatus = Status;
-            Status = status;
-            AddDomainEvent(new UpdateAssetStatusDomainEvent<Asset>(this, callerId, previousStatus));
+            UpdatedBy = callerId;
         }
 
         public virtual void UpdateBrand(string brand, Guid callerId)
         {
-            var previousBrand = Brand;
-            Brand = brand;
-            AddDomainEvent(new BrandChangedDomainEvent<Asset>(this, callerId, previousBrand));
+            UpdatedBy = callerId;
         }
 
         public virtual void UpdateProductName(string model, Guid callerId)
         {
-            var previousModel = ProductName;
-            ProductName = model;
-            AddDomainEvent(new ModelChangedDomainEvent<Asset>(this, callerId, previousModel));
+            UpdatedBy = callerId;
         }
 
         public virtual void ChangePurchaseDate(DateTime purchaseDate, Guid callerId)
         {
-            var previousPurchaseDate = PurchaseDate;
-            PurchaseDate = purchaseDate;
-            AddDomainEvent(new PurchaseDateChangedDomainEvent<Asset>(this, callerId, previousPurchaseDate));
+            UpdatedBy = callerId;
         }
 
         public virtual void AssignAssetToUser(Guid? userId, Guid callerId)
         {
-            var oldUserId = AssetHolderId;
-            AssetHolderId = userId;
-            AddDomainEvent(new AssignAssetToUserDomainEvent<Asset>(this, callerId, oldUserId));
+            UpdatedBy = callerId;
         }
 
         public virtual void UpdateNote(string note, Guid callerId)
         {
-            var previousNote = Note;
-            Note = note;
-            AddDomainEvent(new NoteChangedDomainEvent<Asset>(this, callerId, previousNote));
+            UpdatedBy = callerId;
         }
 
         public virtual void UpdateDescription(string description, Guid callerId)
         {
-            var previousDescription = Description;
-            Description = description;
-            AddDomainEvent(new DescriptionChangedDomainEvent<Asset>(this, callerId, previousDescription));
+            UpdatedBy = callerId;
         }
 
         public virtual void UpdateTag(string tag, Guid callerId)
-        {
-            var previousTag = AssetTag;
-            AssetTag = tag;
-            AddDomainEvent(new TagUpdatedDomainEvent<Asset>(this, callerId, previousTag));
+        {   
+            UpdatedBy = callerId;
         }
 
         /// <summary>
