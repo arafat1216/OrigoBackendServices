@@ -109,7 +109,8 @@ namespace OrigoApiGateway
                     DaprClient.CreateInvokeHttpClient("customerservices"),
                     x.GetRequiredService<IOptions<UserConfiguration>>(),
                     x.GetRequiredService<IMapper>()
-                )
+                ),
+                x.GetRequiredService<IMapper>()
             ));
 
             services.AddSingleton<ICustomerServices>(x => new CustomerServices(
@@ -125,7 +126,8 @@ namespace OrigoApiGateway
                             DaprClient.CreateInvokeHttpClient("customerservices"),
                             x.GetRequiredService<IOptions<UserConfiguration>>(),
                             x.GetRequiredService<IMapper>()
-                    )
+                    ),
+                    x.GetRequiredService<IMapper>()
                 ),
                 x.GetRequiredService<IMapper>()
             ));
@@ -160,7 +162,8 @@ namespace OrigoApiGateway
                             DaprClient.CreateInvokeHttpClient("customerservices"),
                             x.GetRequiredService<IOptions<UserConfiguration>>(),
                             x.GetRequiredService<IMapper>()
-                        )
+                        ),
+                        x.GetRequiredService<IMapper>()
                     ),
                     x.GetRequiredService<IMapper>()
                 )
