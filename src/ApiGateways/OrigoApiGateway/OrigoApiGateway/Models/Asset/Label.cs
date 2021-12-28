@@ -1,22 +1,19 @@
 ﻿using Common.Enums;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Models
 {
     public class Label
     {
         [Required]
-        public Guid Id { get; set; }
+        public Guid Id { get; init; }
 
         [Required]
-        public string Text { get; set; }
+        public string Text { get; init; }
 
         [Required]
-        public LabelColor Color { get; set; }
+        public LabelColor Color { get; init; }
 
         public string ColorName
         {

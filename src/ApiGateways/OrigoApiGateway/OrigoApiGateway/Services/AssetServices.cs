@@ -1,4 +1,5 @@
-﻿using Common.Models;
+﻿using AutoMapper;
+using Common.Models;
 using Dapr.Client;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -19,16 +19,18 @@ namespace OrigoApiGateway.Services
 {
     public class AssetServices : IAssetServices
     {
-        public AssetServices(ILogger<AssetServices> logger, HttpClient httpClient, IOptions<AssetConfiguration> options, IUserServices userServices)
+        public AssetServices(ILogger<AssetServices> logger, HttpClient httpClient, IOptions<AssetConfiguration> options, IUserServices userServices, IMapper mapper)
         {
             _logger = logger;
             _daprClient = new DaprClientBuilder().Build();
             HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _options = options.Value;
             _userServices = userServices;
+            _mapper = mapper;
         }
         private readonly IUserServices _userServices;
         private readonly ILogger<AssetServices> _logger;
+        private readonly IMapper _mapper;
         private readonly DaprClient _daprClient;
         private HttpClient HttpClient { get; }
         private readonly AssetConfiguration _options;
@@ -38,7 +40,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/customers/{customerId}/count");
-                
+
                 return count;
             }
             catch (HttpRequestException exception)
@@ -63,10 +65,15 @@ namespace OrigoApiGateway.Services
                 var origoAssets = new List<object>();
                 foreach (var asset in assets)
                 {
-                    if (asset.AssetCategoryId == 1)
-                        origoAssets.Add(new OrigoMobilePhone(asset));
-                    else
-                        origoAssets.Add(new OrigoTablet(asset));
+                    OrigoAsset result = null;
+                    if (asset != null)
+                    {
+                        if (asset.AssetCategoryId == 1)
+                            result = _mapper.Map<OrigoMobilePhone>(asset);
+                        else
+                            result = _mapper.Map<OrigoTablet>(asset);
+                    }
+                    origoAssets.Add(result);
                 }
                 return origoAssets;
             }
@@ -157,13 +164,13 @@ namespace OrigoApiGateway.Services
                 var asset = await HttpClient.GetFromJsonAsync<AssetDTO>($"{_options.ApiPath}/{assetId}/customers/{customerId}");
 
                 OrigoAsset result = null;
-                if (asset == null)
-                    return result;
-                if (asset.AssetCategoryId == 1)
-                    result = new OrigoMobilePhone(asset);
-                else
-                    result = new OrigoTablet(asset);
-
+                if (asset != null)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        result = _mapper.Map<OrigoMobilePhone>(asset);
+                    else
+                        result = _mapper.Map<OrigoTablet>(asset);
+                }
                 return result;
             }
             catch (HttpRequestException exception)
@@ -198,12 +205,13 @@ namespace OrigoApiGateway.Services
                 var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
 
                 OrigoAsset result = null;
-                if (asset == null)
-                    return result;
-                if (asset.AssetCategoryId == 1)
-                    result = new OrigoMobilePhone(asset);
-                else
-                    result = new OrigoTablet(asset);
+                if (asset != null)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        result = _mapper.Map<OrigoMobilePhone>(asset);
+                    else
+                        result = _mapper.Map<OrigoTablet>(asset);
+                }
 
                 return result;
             }
@@ -239,13 +247,14 @@ namespace OrigoApiGateway.Services
 
                 foreach (AssetDTO asset in assets)
                 {
-                    if (asset == null)
-                        continue;
-                    OrigoAsset result;
-                    if (asset.AssetCategoryId == 1)
-                        result = new OrigoMobilePhone(asset);
-                    else
-                        result = new OrigoTablet(asset);
+                    OrigoAsset result = null;
+                    if (asset != null)
+                    {
+                        if (asset.AssetCategoryId == 1)
+                            result = _mapper.Map<OrigoMobilePhone>(asset);
+                        else
+                            result = _mapper.Map<OrigoTablet>(asset);
+                    }
                     origoAssets.Add(result);
                 }
 
@@ -257,7 +266,6 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-
 
         public async Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset)
         {
@@ -271,14 +279,14 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
-
                 OrigoAsset result = null;
-                if (asset == null)
-                    return result;
-                if (asset.AssetCategoryId == 1)
-                    result = new OrigoMobilePhone(asset);
-                else
-                    result = new OrigoTablet(asset);
+                if (asset != null)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        result = _mapper.Map<OrigoMobilePhone>(asset);
+                    else
+                        result = _mapper.Map<OrigoTablet>(asset);
+                }
 
                 return result;
             }
@@ -307,13 +315,13 @@ namespace OrigoApiGateway.Services
                     else
                         throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
                 }
+                var labels = await response.Content.ReadFromJsonAsync<IList<LabelDTO>>();
 
-                var labels = await response.Content.ReadFromJsonAsync<IList<Label>>();
-
-                return labels;
+                return _mapper.Map<List<Label>>(labels);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 throw;
             }
         }
@@ -323,12 +331,13 @@ namespace OrigoApiGateway.Services
             try
             {
                 string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels";
-                var labels = await HttpClient.GetFromJsonAsync<IList<Label>>(requestUri);
+                var labels = await HttpClient.GetFromJsonAsync<IList<LabelDTO>>(requestUri);
                 if (labels == null) return null;
-                return labels;
+                return _mapper.Map<List<Label>>(labels);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 throw;
             }
         }
@@ -349,13 +358,12 @@ namespace OrigoApiGateway.Services
                     else
                         throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
                 }
-
-                var labels = await response.Content.ReadFromJsonAsync<IList<Label>>();
-
-                return labels;
+                var labels = await response.Content.ReadFromJsonAsync<IList<LabelDTO>>();
+                return _mapper.Map<List<Label>>(labels);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 throw;
             }
         }
@@ -377,13 +385,12 @@ namespace OrigoApiGateway.Services
                     else
                         throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
                 }
-
-                var labelsResult = await response.Content.ReadFromJsonAsync<IList<Label>>();
-
-                return labelsResult;
+                var labelsResult = await response.Content.ReadFromJsonAsync<IList<LabelDTO>>();
+                return _mapper.Map<List<Label>>(labelsResult);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 throw;
             }
         }
@@ -393,7 +400,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/assign";
-                var response = await HttpClient.PostAsJsonAsync<AssetLabels>(requestUri, assetLabels);
+                var response = await HttpClient.PostAsJsonAsync(requestUri, assetLabels);
                 if (!response.IsSuccessStatusCode)
                 {
                     string errorDescription = await response.Content.ReadAsStringAsync();
@@ -404,7 +411,6 @@ namespace OrigoApiGateway.Services
                     else
                         throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
                 }
-
                 var assets = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
                 List<object> origoAssets = new List<object>();
                 if (assets == null)
@@ -412,20 +418,22 @@ namespace OrigoApiGateway.Services
 
                 foreach (AssetDTO asset in assets)
                 {
-                    if (asset == null)
-                        continue;
-                    OrigoAsset result;
-                    if (asset.AssetCategoryId == 1)
-                        result = new OrigoMobilePhone(asset);
-                    else
-                        result = new OrigoTablet(asset);
+                    OrigoAsset result = null;
+                    if (asset != null)
+                    {
+                        if (asset.AssetCategoryId == 1)
+                            result = _mapper.Map<OrigoMobilePhone>(asset);
+                        else
+                            result = _mapper.Map<OrigoTablet>(asset);
+                    }
                     origoAssets.Add(result);
                 }
 
                 return origoAssets;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return null;
             }
         }
@@ -435,7 +443,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/unassign";
-                var response = await HttpClient.PostAsJsonAsync<AssetLabels>(requestUri, assetLabels);
+                var response = await HttpClient.PostAsJsonAsync(requestUri, assetLabels);
                 if (!response.IsSuccessStatusCode)
                 {
                     string errorDescription = await response.Content.ReadAsStringAsync();
@@ -454,13 +462,14 @@ namespace OrigoApiGateway.Services
 
                 foreach (AssetDTO asset in assets)
                 {
-                    if (asset == null)
-                        continue;
-                    OrigoAsset result;
-                    if (asset.AssetCategoryId == 1)
-                        result = new OrigoMobilePhone(asset);
-                    else
-                        result = new OrigoTablet(asset);
+                    OrigoAsset result = null;
+                    if (asset != null)
+                    {
+                        if (asset.AssetCategoryId == 1)
+                            result = _mapper.Map<OrigoMobilePhone>(asset);
+                        else
+                            result = _mapper.Map<OrigoTablet>(asset);
+                    }
                     origoAssets.Add(result);
                 }
 
@@ -468,6 +477,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return null;
             }
         }
@@ -476,12 +486,11 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/lifecycles";
-                var lifecycles = await HttpClient.GetFromJsonAsync<IList<LifecycleDTO>>(requestUri);
-                if (lifecycles == null) return null;
-                var origoAssets = new List<OrigoAssetLifecycle>();
-                foreach (var lifecycle in lifecycles) origoAssets.Add(new OrigoAssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
-                return origoAssets;
+                var lifecycles = await HttpClient.GetFromJsonAsync<IList<LifecycleDTO>>($"{_options.ApiPath}/lifecycles");
+                if (lifecycles == null)
+                    return null;
+
+                return _mapper.Map<List<OrigoAssetLifecycle>>(lifecycles);
             }
             catch (HttpRequestException exception)
             {
@@ -525,12 +534,13 @@ namespace OrigoApiGateway.Services
                 var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
 
                 OrigoAsset result = null;
-                if (asset == null)
-                    return result;
-                if (asset.AssetCategoryId == 1)
-                    result = new OrigoMobilePhone(asset);
-                else
-                    result = new OrigoTablet(asset);
+                if (asset != null)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        result = _mapper.Map<OrigoMobilePhone>(asset);
+                    else
+                        result = _mapper.Map<OrigoTablet>(asset);
+                }
 
                 return result;
             }
@@ -561,7 +571,6 @@ namespace OrigoApiGateway.Services
                     }
                 }
 
-
                 var requestUri = $"{_options.ApiPath}/{data.AssetId}/customer/{customerId}/assign";
                 var response = await HttpClient.PostAsJsonAsync(requestUri, data);
                 if (!response.IsSuccessStatusCode)
@@ -573,12 +582,13 @@ namespace OrigoApiGateway.Services
                 var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
 
                 OrigoAsset result = null;
-                if (asset == null)
-                    return result;
-                if (asset.AssetCategoryId == 1)
-                    result = new OrigoMobilePhone(asset);
-                else
-                    result = new OrigoTablet(asset);
+                if (asset != null)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        result = _mapper.Map<OrigoMobilePhone>(asset);
+                    else
+                        result = _mapper.Map<OrigoTablet>(asset);
+                }
 
                 return result;
             }
@@ -593,13 +603,11 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var assetCategories =
-                      await HttpClient.GetFromJsonAsync<IList<AssetCategoryDTO>>(
-                          $"{_options.ApiPath}/categories");
-                if (assetCategories == null) return null;
-                var origoAssetCategories = new List<OrigoAssetCategory>();
-                foreach (var asset in assetCategories) origoAssetCategories.Add(new OrigoAssetCategory(asset));
-                return origoAssetCategories;
+                var assetCategories = await HttpClient.GetFromJsonAsync<IList<AssetCategoryDTO>>($"{_options.ApiPath}/categories");
+                if (assetCategories == null)
+                    return null;
+
+                return _mapper.Map<List<OrigoAssetCategory>>(assetCategories);
             }
             catch (HttpRequestException exception)
             {
@@ -609,7 +617,6 @@ namespace OrigoApiGateway.Services
             {
                 _logger.LogError(exception, "GetAssetCategoriesAsync failed with content type is not valid.");
             }
-
             catch (JsonException exception)
             {
                 _logger.LogError(exception, "GetAssetCategoriesAsync failed with invalid JSON.");
@@ -636,28 +643,30 @@ namespace OrigoApiGateway.Services
             {
                 return defaultAttributes;
             }
-            
-            defaultAttributes.Add(new AssetCategoryAttribute {Name = "alias", Required = false});
-            defaultAttributes.Add(new AssetCategoryAttribute {Name = "assetCategoryId", Required = true});
-            defaultAttributes.Add(new AssetCategoryAttribute {Name = "note", Required = false});
-            defaultAttributes.Add(new AssetCategoryAttribute {Name = "brand", Required = true});
-            defaultAttributes.Add(new AssetCategoryAttribute {Name = "productName", Required = true});
-            defaultAttributes.Add(new AssetCategoryAttribute {Name = "lifecycleType", Required = true});
-            defaultAttributes.Add(new AssetCategoryAttribute {Name = "purchaseDate", Required = true});
-            defaultAttributes.Add(new AssetCategoryAttribute {Name = "managedByDepartmentId", Required = false});
-            defaultAttributes.Add(new AssetCategoryAttribute {Name = "assetHolderId", Required = false});            
-            
-            if (categoryId == 1) { // MobilePhone - Mobiltelefon
-                defaultAttributes.Add(new AssetCategoryAttribute {Name = "imei", Required = true});
-                defaultAttributes.Add(new AssetCategoryAttribute {Name = "serialNumber", Required = false});
-                defaultAttributes.Add(new AssetCategoryAttribute {Name = "macAddress", Required = false });
+
+            defaultAttributes.Add(new AssetCategoryAttribute { Name = "alias", Required = false });
+            defaultAttributes.Add(new AssetCategoryAttribute { Name = "assetCategoryId", Required = true });
+            defaultAttributes.Add(new AssetCategoryAttribute { Name = "note", Required = false });
+            defaultAttributes.Add(new AssetCategoryAttribute { Name = "brand", Required = true });
+            defaultAttributes.Add(new AssetCategoryAttribute { Name = "productName", Required = true });
+            defaultAttributes.Add(new AssetCategoryAttribute { Name = "lifecycleType", Required = true });
+            defaultAttributes.Add(new AssetCategoryAttribute { Name = "purchaseDate", Required = true });
+            defaultAttributes.Add(new AssetCategoryAttribute { Name = "managedByDepartmentId", Required = false });
+            defaultAttributes.Add(new AssetCategoryAttribute { Name = "assetHolderId", Required = false });
+
+            if (categoryId == 1)
+            { // MobilePhone - Mobiltelefon
+                defaultAttributes.Add(new AssetCategoryAttribute { Name = "imei", Required = true });
+                defaultAttributes.Add(new AssetCategoryAttribute { Name = "serialNumber", Required = false });
+                defaultAttributes.Add(new AssetCategoryAttribute { Name = "macAddress", Required = false });
             }
-            else if (categoryId == 2) { // Tablet - Tablet? 
-                defaultAttributes.Add(new AssetCategoryAttribute {Name = "imei", Required = false});
-                defaultAttributes.Add(new AssetCategoryAttribute {Name = "serialNumber", Required = true});
-                defaultAttributes.Add(new AssetCategoryAttribute {Name = "macAddress", Required = false });
+            else if (categoryId == 2)
+            { // Tablet - Tablet? 
+                defaultAttributes.Add(new AssetCategoryAttribute { Name = "imei", Required = false });
+                defaultAttributes.Add(new AssetCategoryAttribute { Name = "serialNumber", Required = true });
+                defaultAttributes.Add(new AssetCategoryAttribute { Name = "macAddress", Required = false });
             }
-           
+
 
             return defaultAttributes;
         }
@@ -670,15 +679,16 @@ namespace OrigoApiGateway.Services
                await HttpClient.GetFromJsonAsync<IList<AssetAuditLog>>(
                    $"{_options.ApiPath}/auditlog/{assetId}");
 
-               
-                foreach(AssetAuditLog log in assetLog)
+
+                foreach (AssetAuditLog log in assetLog)
                 {
-                    Guid userId;
-                    Guid.TryParse(log.CreatedBy, out userId);
-                    OrigoUser user = await _userServices.GetUserAsync(log.CustomerId, userId);
-                    if  (user != null)
+                    if (Guid.TryParse(log.CreatedBy, out Guid userId))
                     {
-                        log.CreatedBy = user.DisplayName;
+                        OrigoUser user = await _userServices.GetUserAsync(log.CustomerId, userId);
+                        if (user != null)
+                        {
+                            log.CreatedBy = user.DisplayName;
+                        }
                     }
                 }
 
@@ -694,7 +704,6 @@ namespace OrigoApiGateway.Services
                 _logger.LogError(exception, "GetAssetAuditLogMock failed with content type is not valid.");
                 throw;
             }
-
             catch (JsonException exception)
             {
                 _logger.LogError(exception, "GetAssetAuditLogMock failed with invalid JSON.");

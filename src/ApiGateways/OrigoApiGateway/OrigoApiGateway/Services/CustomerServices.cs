@@ -37,11 +37,11 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var customers = await HttpClient.GetFromJsonAsync<IList<OrganizationDTO>>($"{_options.ApiPath}");
-                if (customers == null)
+                var organizations = await HttpClient.GetFromJsonAsync<IList<OrganizationDTO>>($"{_options.ApiPath}");
+                if (organizations == null)
                     return null;
 
-                return _mapper.Map<List<Organization>>(customers);
+                return _mapper.Map<List<Organization>>(organizations);
             }
             catch (HttpRequestException exception)
             {
@@ -64,8 +64,8 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var organiation = await HttpClient.GetFromJsonAsync<OrganizationDTO>($"{_options.ApiPath}/{customerId}");
-                return organiation == null ? null : _mapper.Map<Organization>(organiation);
+                var organization = await HttpClient.GetFromJsonAsync<OrganizationDTO>($"{_options.ApiPath}/{customerId}");
+                return organization == null ? null : _mapper.Map<Organization>(organization);
             }
             catch (HttpRequestException exception)
             {
@@ -98,8 +98,8 @@ namespace OrigoApiGateway.Services
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save customer", (int)response.StatusCode);
 
-                var customer = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
-                return customer == null ? null : _mapper.Map<Organization>(customer);
+                var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+                return organization == null ? null : _mapper.Map<Organization>(organization);
             }
             catch (Exception exception)
             {

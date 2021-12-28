@@ -10,109 +10,109 @@ namespace OrigoApiGateway.Models.BackendDTO
         /// <summary>
         /// External Id of the Asset
         /// </summary>
-        public Guid Id { get; set; }
+        public Guid Id { get; init; }
 
         /// <summary>
         /// Asset is linked to this customer 
         /// </summary>
-        public Guid OrganizationId { get; set; }
+        public Guid OrganizationId { get; init; }
 
         /// <summary>
         /// Alias for the asset.
         /// </summary>
-        public string Alias { get; set; }
+        public string Alias { get; init; }
 
         /// <summary>
         /// A note containing additional information or comments for the asset.
         /// </summary>
-        public string Note { get; set; }
+        public string Note { get; init; }
 
         /// <summary>
         /// Id of category this asset belongs to.
         /// </summary>
-        public int AssetCategoryId { get; set; }
+        public int AssetCategoryId { get; init; }
 
         /// <summary>
         /// The unique serial number for the asset. For mobile phones and other devices
         /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
-        public string SerialNumber { get; set; }
+        public string SerialNumber { get; init; }
 
         /// <summary>
         /// The category this asset belongs to.
         /// </summary>
-        public string AssetCategoryName { get; set; }
+        public string AssetCategoryName { get; init; }
 
         /// <summary>
         /// The asset brand (e.g. Samsung)
         /// </summary>
-        public string Brand { get; set; }
+        public string Brand { get; init; }
 
         /// <summary>
         /// The model or product name of this asset (e.g. Samsung Galaxy)
         /// </summary>
-        public string ProductName { get; set; }
+        public string ProductName { get; init; }
 
         /// <summary>
         /// The type of lifecycle for this asset.
         /// </summary>
-        public int LifecycleType { get; set; }
+        public int LifecycleType { get; init; }
 
         /// <summary>
         /// The name of the lifecycle for this asset.
         /// </summary>
-        public string LifecycleName { get; set; }
+        public string LifecycleName { get; init; }
 
         /// <summary>
         /// The date the asset was purchased.
         /// </summary>
-        public DateTime PurchaseDate { get; set; }
+        public DateTime PurchaseDate { get; init; }
 
         /// <summary>
         /// The date the asset was registered/created.
         /// </summary>
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedDate { get; init; }
 
         /// <summary>
         /// The department or cost center this asset is assigned to.
         /// </summary>
-        public Guid? ManagedByDepartmentId { get; set; }
+        public Guid? ManagedByDepartmentId { get; init; }
 
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
-        public Guid? AssetHolderId { get; set; }
+        public Guid? AssetHolderId { get; init; }
 
         /// <summary>
         /// The imei(s) of the asset.
         /// A comma separated string, where each instance is an imei.
         /// Applicable to assets with category type Mobile Phones.
         /// </summary>
-        public IList<long> Imei { get; set; }
+        public IList<long> Imei { get; init; }
 
         /// <summary>
         /// The mac address of the asset
         /// </summary>
-        public string MacAddress { get; set; }
+        public string MacAddress { get; init; }
 
         /// <summary>
         /// A description of the asset.
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; init; }
 
         /// <summary>
         /// Tags associated with this asset.
         /// </summary>
-        public string AssetTag { get; set; }
+        public string AssetTag { get; init; }
 
         /// <summary>
         /// The status of the asset.
         /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
         /// </summary>
-        public AssetStatus AssetStatus { get; set; }
+        public AssetStatus AssetStatus { get; init; }
 
-        public string AssetStatusName { get; set; }
+        public string AssetStatusName { get; init; }
 
-        public IList<Label> Labels { get; set; }
+        public IList<Label> Labels { get; init; }
     }
 }
