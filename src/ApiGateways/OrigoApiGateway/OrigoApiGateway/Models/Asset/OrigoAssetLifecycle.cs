@@ -1,6 +1,7 @@
 ﻿namespace OrigoApiGateway.Models.Asset
 {
     /// <summary>
+    /// Response object.
     /// This is an object representation of a enum value
     /// </summary>
     public class OrigoAssetLifecycle
