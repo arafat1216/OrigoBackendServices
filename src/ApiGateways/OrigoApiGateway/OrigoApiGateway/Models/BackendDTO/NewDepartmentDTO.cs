@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Customer.API.ViewModels
+namespace OrigoApiGateway.Models.BackendDTO
 {
-    public class NewDepartment
+    public record NewDepartmentDTO
     {
         public string Name { get; set; }
 
@@ -10,7 +10,8 @@ namespace Customer.API.ViewModels
 
         public string Description { get; set; }
 
-        public Guid? ParentDepartmentId { get; set; }
+        public Guid ParentDepartmentId { get; set; }
         public Guid CallerId { get; set; }
+
     }
 }
