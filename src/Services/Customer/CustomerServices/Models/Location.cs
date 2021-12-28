@@ -115,7 +115,7 @@ namespace CustomerServices.Models
         {
             IsDeleted = true;
             UpdatedAt = DateTime.UtcNow;
-            UpdatedBy = callerId;
+            DeletedBy = callerId;
         }
     }
 }

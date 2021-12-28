@@ -87,7 +87,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<Organization> CreateCustomerAsync(NewOrganization newCustomer)
+        public async Task<Organization> CreateCustomerAsync(NewOrganizationDTO newCustomer)
         {
             try
             {
@@ -105,14 +105,14 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<Organization> DeleteOrganizationAsync(Guid organizationId)
+        public async Task<Organization> DeleteOrganizationAsync(Guid organizationId, Guid callerId)
         {
             try
             {
                 DeleteOrganization delOrg = new DeleteOrganization
                 {
                     OrganizationId = organizationId,
-                    CallerId = Guid.Empty,  // change to caller of endpoint once this is implemented
+                    CallerId = callerId,
                     hardDelete = false
                 };
 
@@ -241,7 +241,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoCustomerAssetCategoryType> AddAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryType customerAssetCategoryType)
+        public async Task<OrigoCustomerAssetCategoryType> AddAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryTypeDTO customerAssetCategoryType)
         {
             try
             {
@@ -296,7 +296,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoCustomerAssetCategoryType> RemoveAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryType customerAssetCategoryType)
+        public async Task<OrigoCustomerAssetCategoryType> RemoveAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryTypeDTO customerAssetCategoryType)
         {
             try
             {
@@ -390,7 +390,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoProductModule> AddProductModulesAsync(Guid customerId, NewCustomerProductModule productModule)
+        public async Task<OrigoProductModule> AddProductModulesAsync(Guid customerId, NewCustomerProductModuleDTO productModule)
         {
             try
             {
@@ -428,7 +428,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoProductModule> RemoveProductModulesAsync(Guid customerId, NewCustomerProductModule productModule)
+        public async Task<OrigoProductModule> RemoveProductModulesAsync(Guid customerId, NewCustomerProductModuleDTO productModule)
         {
             try
             {

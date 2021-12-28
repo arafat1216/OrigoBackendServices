@@ -10,5 +10,6 @@ namespace Customer.API.ViewModels
         public Guid CustomerId { get; set; }
 
         public IList<int> LifecycleTypes { get; set; }
+        public Guid CallerId { get; set; }
     }
 }
