@@ -8,7 +8,7 @@ namespace OrigoApiGateway.Mappings
     {
         public OrganizationPreferencesProfile()
         {
-            CreateMap<NewOrganizationPreferences, OrganizationPreferencesDTO>();
+            CreateMap<OrganizationPreferencesDTO, NewOrganizationPreferences>();
         }
     }
 }

@@ -4,11 +4,11 @@ using OrigoApiGateway.Models.BackendDTO;
 
 namespace OrigoApiGateway.Mappings
 {
-    public class OrigoContactPersonProfile : Profile
+    public class OrganizationProfile : Profile
     {
-        public OrigoContactPersonProfile()
+        public OrganizationProfile()
         {
-            CreateMap<ContactPersonDTO, OrigoContactPerson>();
+            CreateMap<OrganizationDTO, Organization>();
         }
     }
 }

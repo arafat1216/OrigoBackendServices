@@ -8,7 +8,7 @@ namespace OrigoApiGateway.Mappings
     {
         public OrigoAddressProfile()
         {
-            CreateMap<OrigoAddress, AddressDTO>();
+            CreateMap<AddressDTO, OrigoAddress>();
         }
     }
 }
