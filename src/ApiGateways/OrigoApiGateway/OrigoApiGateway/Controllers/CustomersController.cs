@@ -12,6 +12,7 @@ using OrigoApiGateway.Authorization;
 using System.Linq;
 using System.Security.Claims;
 using Common.Enums;
+using OrigoApiGateway.Models.BackendDTO;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -92,7 +93,24 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                var createdCustomer = await CustomerServices.CreateCustomerAsync(newCustomer);
+
+                var newCustomerDTO = new NewOrganizationDTO();
+                newCustomerDTO.Name = newCustomer.Name;
+                newCustomerDTO.OrganizationNumber = newCustomer.OrganizationNumber;
+                newCustomerDTO.Address = newCustomer.Address;
+                newCustomerDTO.ContactPerson = newCustomer.ContactPerson;
+                newCustomerDTO.ParentId = newCustomer.ParentId;
+                newCustomerDTO.PrimaryLocation = newCustomer.PrimaryLocation;
+                newCustomerDTO.ContactEmail = newCustomer.ContactEmail;
+                newCustomerDTO.InternalNotes = newCustomer.InternalNotes;
+                newCustomerDTO.Location = newCustomer.Location;
+                newCustomerDTO.Preferences = newCustomer.Preferences;
+
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                newCustomerDTO.CallerId = callerId;
+
+                var createdCustomer = await CustomerServices.CreateCustomerAsync(newCustomerDTO);
                 if (createdCustomer == null)
                 {
                     return BadRequest();
@@ -115,6 +133,11 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                organizationToChange.CallerId = callerId;
+
                 var updateOrganization = await CustomerServices.UpdateOrganizationAsync(organizationToChange);
                 if (updateOrganization == null)
                 {
@@ -139,6 +162,11 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                organizationToChange.CallerId = callerId;
+
                 var updateOrganization = await CustomerServices.PatchOrganizationAsync(organizationToChange);
                 if (updateOrganization == null)
                 {
@@ -165,7 +193,11 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var deletedOrganization = await CustomerServices.DeleteOrganizationAsync(organizationId);
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+
+                var deletedOrganization = await CustomerServices.DeleteOrganizationAsync(organizationId, callerId);
                 if (deletedOrganization == null)
                 {
                     return NotFound();
@@ -234,7 +266,17 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var removedAssetCategory = await CustomerServices.AddAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType);
+                var customerAssetCategoryTypeDTO = new NewCustomerAssetCategoryTypeDTO();
+                customerAssetCategoryTypeDTO.OrganizationId = customerAssetCategoryType.OrganizationId;
+                customerAssetCategoryTypeDTO.AssetCategoryId = customerAssetCategoryType.AssetCategoryId;
+                customerAssetCategoryTypeDTO.LifecycleTypes = new List<int>(customerAssetCategoryType.LifecycleTypes);
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                customerAssetCategoryTypeDTO.CallerId = callerId;
+
+                var removedAssetCategory = await CustomerServices.AddAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryTypeDTO);
                 if (removedAssetCategory == null)
                 {
                     return NotFound();
@@ -272,8 +314,17 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                var customerAssetCategoryTypeDTO = new NewCustomerAssetCategoryTypeDTO();
+                customerAssetCategoryTypeDTO.OrganizationId = customerAssetCategoryType.OrganizationId;
+                customerAssetCategoryTypeDTO.AssetCategoryId = customerAssetCategoryType.AssetCategoryId;
+                customerAssetCategoryTypeDTO.LifecycleTypes = new List<int>(customerAssetCategoryType.LifecycleTypes);
 
-                var assetCategoryLifecycleTypes = await CustomerServices.RemoveAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType);
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                customerAssetCategoryTypeDTO.CallerId = callerId;
+
+                var assetCategoryLifecycleTypes = await CustomerServices.RemoveAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryTypeDTO);
                 return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();
             }
             catch (Exception)
@@ -322,8 +373,16 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                var productModuleDTO = new NewCustomerProductModuleDTO();
+                productModuleDTO.ProductModuleId = productModule.ProductModuleId;
+                productModuleDTO.ProductModuleGroupIds = new List<Guid>(productModule.ProductModuleGroupIds);
 
-                var productModules = await CustomerServices.AddProductModulesAsync(organizationId, productModule);
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                productModuleDTO.CallerId = callerId;
+
+                var productModules = await CustomerServices.AddProductModulesAsync(organizationId, productModuleDTO);
                 return productModules != null ? Ok(productModules) : NotFound();
             }
             catch
@@ -355,8 +414,16 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                var productModuleDTO = new NewCustomerProductModuleDTO();
+                productModuleDTO.ProductModuleId = productModule.ProductModuleId;
+                productModuleDTO.ProductModuleGroupIds = new List<Guid>(productModule.ProductModuleGroupIds);
 
-                var productModules = await CustomerServices.RemoveProductModulesAsync(organizationId, productModule);
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                productModuleDTO.CallerId = callerId;
+
+                var productModules = await CustomerServices.RemoveProductModulesAsync(organizationId, productModuleDTO);
                 return productModules != null ? Ok(productModules) : NoContent();
             }
             catch

@@ -12,18 +12,20 @@ namespace AssetServices.DomainEvents
     {
         public AssetCreatedDomainEvent()
         { }
-        public AssetCreatedDomainEvent(T asset, Guid callerId) : base(asset.ExternalId)
+        public AssetCreatedDomainEvent(T asset, Guid callerId, string text) : base(asset.ExternalId)
         {
             Asset = asset;
             CallerId = callerId;
+            Text = text;
         }
 
         public T Asset { get; set; }
         public Guid CallerId { get; set; }
+        public string Text { get; set; }
 
         public override string EventMessage(string languageCode = "nb-NO")
         {
-            return $"Asset {Asset.ExternalId} created.";
+            return $"{Asset.ProductName} created with {Text}";
         }
     }
 }

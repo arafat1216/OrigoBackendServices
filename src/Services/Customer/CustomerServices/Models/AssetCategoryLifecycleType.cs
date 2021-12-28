@@ -12,12 +12,13 @@ namespace CustomerServices.Models
         /// <param name="customerId"></param>
         /// <param name="assetCategoryId"></param>
         /// <param name="lifeCycleTypeId"></param>
-        public AssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId, int lifecycle)
+        public AssetCategoryLifecycleType(Guid customerId, Guid assetCategoryId, int lifecycle, Guid callerId)
         {
             AssetCategoryId = assetCategoryId;
             CustomerId = customerId;
             bool checkEnumValue = Enum.TryParse(lifecycle.ToString(), out LifecycleType lifecycleType);
             LifecycleType = checkEnumValue ? lifecycleType : LifecycleType.NoLifecycle;
+            CreatedBy = callerId;
         }
 
         protected AssetCategoryLifecycleType() { }
@@ -27,5 +28,11 @@ namespace CustomerServices.Models
         public Guid AssetCategoryId { get; protected set; }
 
         public LifecycleType LifecycleType { get; protected set; }
+
+        public void SetDeletedBy(Guid callerId) 
+        {
+            DeletedBy = callerId;
+        }
+        
     }
 }

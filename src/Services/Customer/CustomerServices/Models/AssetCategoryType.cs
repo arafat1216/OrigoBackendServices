@@ -8,11 +8,12 @@ namespace CustomerServices.Models
     {
         protected AssetCategoryType() { }
 
-        public AssetCategoryType(Guid assetCategoryId, Guid customerId, IList<AssetCategoryLifecycleType> lifecycleTypes)
+        public AssetCategoryType(Guid assetCategoryId, Guid customerId, IList<AssetCategoryLifecycleType> lifecycleTypes, Guid callerId)
         {
             AssetCategoryId = assetCategoryId;
             ExternalCustomerId = customerId;
             LifecycleTypes = lifecycleTypes;
+            CreatedBy = callerId;
         }
 
         public Guid AssetCategoryId { get; protected set; }
@@ -26,14 +27,19 @@ namespace CustomerServices.Models
             ExternalCustomerId = customerId;
         }
 
-        public void SetAssetCategoryId(Guid assetCategoryId)
+        public void SetAssetCategoryId(Guid assetCategoryId, Guid callerId)
         {
+            UpdatedBy = callerId;
             AssetCategoryId = assetCategoryId;
         }
 
         public void SetLifecycleTypes(IList<AssetCategoryLifecycleType> lifecycleTypes)
         {
             LifecycleTypes = lifecycleTypes;
+        }
+        public void SetDeletedBy(Guid callerId)
+        {
+            DeletedBy  = callerId;
         }
     }
 }

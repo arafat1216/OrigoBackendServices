@@ -221,32 +221,39 @@ namespace CustomerServices.Models
         {
             IsDeleted = true;
             UpdatedAt = DateTime.UtcNow;
-            UpdatedBy = callerId;
+            DeletedBy = callerId;
             AddDomainEvent(new CustomerDeletedDomainEvent(this));
         }
 
         public void AddAssetCategory(AssetCategoryType assetCategory)
         {
+            UpdatedBy = assetCategory.UpdatedBy;
             AddDomainEvent(new AssetCategoryAddedDomainEvent(assetCategory));
             selectedAssetCategories.Add(assetCategory);
         }
 
-        public void RemoveAssetCategory(AssetCategoryType assetCategory)
+        public void RemoveAssetCategory(AssetCategoryType assetCategory,Guid callerId)
         {
+            UpdatedBy = callerId;
+            assetCategory.SetDeletedBy(callerId);
             AddDomainEvent(new AssetCategoryRemovedDomainEvent(assetCategory));
             selectedAssetCategories.Remove(assetCategory);
         }
 
         public void AddLifecyle(AssetCategoryType assetCategory, AssetCategoryLifecycleType lifecycleType)
         {
+            UpdatedBy = lifecycleType.CreatedBy;
+            //AssetCategoryLifecycleType already has a CreatedBy - no need to set it again
             AddDomainEvent(new AssetLifecycleSettingAddedDomainEvent(lifecycleType));
             assetCategory.LifecycleTypes.Add(lifecycleType);
         }
 
-        public void RemoveLifecyle(AssetCategoryType assetCategory, AssetCategoryLifecycleType lifecycleType)
+        public void RemoveLifecyle(AssetCategoryType assetCategory, AssetCategoryLifecycleType lifecycleType, Guid callerId)
         {
             try
             {
+                UpdatedBy = callerId;
+                lifecycleType.SetDeletedBy(callerId);
                 AddDomainEvent(new AssetLifecycleSettingRemovedDomainEvent(lifecycleType));
                 assetCategory.LifecycleTypes.Remove(lifecycleType);
             }
@@ -256,26 +263,34 @@ namespace CustomerServices.Models
             }
         }
 
-        public void AddProductModule(ProductModule productModule)
+        public void AddProductModule(ProductModule productModule, Guid callerId)
         {
+            UpdatedBy = callerId;
+            productModule.SetCreatedBy(callerId);
             AddDomainEvent(new ProductModuleAddedDomainEvent(OrganizationId, productModule));
             selectedProductModules.Add(productModule);
         }
 
-        public void RemoveProductModule(ProductModule productModule)
+        public void RemoveProductModule(ProductModule productModule, Guid callerId)
         {
+            UpdatedBy = callerId;
+            productModule.SetDeletedBy(callerId);
             AddDomainEvent(new ProductModuleRemovedDomainEvent(OrganizationId, productModule));
             selectedProductModules.Remove(productModule);
         }
 
-        public void AddProductModuleGroup(ProductModuleGroup productModuleGroup)
+        public void AddProductModuleGroup(ProductModuleGroup productModuleGroup, Guid callerId)
         {
+            UpdatedBy = callerId;
+            productModuleGroup.SetCreatedBy(callerId);
             AddDomainEvent(new ProductModuleGroupAddedDomainEvent(OrganizationId, productModuleGroup));
             selectedProductModuleGroups.Add(productModuleGroup);
         }
 
-        public void RemoveProductModuleGroup(ProductModuleGroup productModuleGroup)
+        public void RemoveProductModuleGroup(ProductModuleGroup productModuleGroup,Guid callerId)
         {
+            UpdatedBy = callerId;
+            productModuleGroup.SetDeletedBy(callerId);
             AddDomainEvent(new ProductModuleGroupRemovedDomainEvent(OrganizationId, productModuleGroup));
             selectedProductModuleGroups.Remove(productModuleGroup);
         }
