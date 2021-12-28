@@ -9,7 +9,7 @@ namespace CustomerServices.Models
     {
         protected Department() { }
 
-        public Department(string name, string costCenterId, string description, Organization customer, Guid externalDepartmentId, Department parentDepartment = null)
+        public Department(string name, string costCenterId, string description, Organization customer, Guid externalDepartmentId,Guid callerId, Department parentDepartment = null)
         {
             Name = name;
             CostCenterId = costCenterId;
@@ -17,6 +17,7 @@ namespace CustomerServices.Models
             Customer = customer;
             ParentDepartment = parentDepartment;
             ExternalDepartmentId = externalDepartmentId;
+            CreatedBy = callerId;
         }
 
         public Guid ExternalDepartmentId { get; protected set; }
@@ -83,6 +84,15 @@ namespace CustomerServices.Models
                     subdepartments.Add(department);
             }
             return subdepartments;
+        }
+
+        public void SetUpdatedBy(Guid callerId)
+        {
+            UpdatedBy = callerId;
+        }
+        public void SetDeletedBy(Guid callerId)
+        {
+            DeletedBy = callerId;
         }
     }
 }

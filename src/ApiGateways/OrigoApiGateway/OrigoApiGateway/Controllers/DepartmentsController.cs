@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
 using System;
 using System.Collections.Generic;
@@ -118,7 +119,19 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var createdDepartment = await _departmentServices.AddDepartmentAsync(organizationId, newDepartment);
+                var newDepartmentDTO = new NewDepartmentDTO();
+                newDepartmentDTO.Name = newDepartment.Name;
+                newDepartmentDTO.Description = newDepartment.Description;
+                newDepartmentDTO.ParentDepartmentId = newDepartment.ParentDepartmentId;
+                newDepartmentDTO.CostCenterId = newDepartment.CostCenterId;
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+
+                newDepartmentDTO.CallerId = callerId;
+
+                var createdDepartment = await _departmentServices.AddDepartmentAsync(organizationId, newDepartmentDTO);
 
                 return CreatedAtAction(nameof(CreateDepartmentForCustomer), new { id = createdDepartment.DepartmentId }, createdDepartment);
             }
@@ -153,8 +166,19 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                var updateDepartmentDTO = new UpdateDepartmentDTO();
+                updateDepartmentDTO.DepartmentId = updateDepartment.DepartmentId;
+                updateDepartmentDTO.Name = updateDepartment.Name;
+                updateDepartmentDTO.Description = updateDepartment.Description;
+                updateDepartmentDTO.CostCenterId = updateDepartment.CostCenterId;
+                updateDepartmentDTO.ParentDepartmentId = updateDepartment.ParentDepartmentId;
 
-                var updatedDepartment = await _departmentServices.UpdateDepartmentPutAsync(organizationId, departmentId, updateDepartment);
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                updateDepartmentDTO.CallerId = callerId;
+
+                var updatedDepartment = await _departmentServices.UpdateDepartmentPutAsync(organizationId, departmentId, updateDepartmentDTO);
 
                 return Ok(updatedDepartment);
             }
@@ -189,8 +213,19 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                var updateDepartmentDTO = new UpdateDepartmentDTO();
+                updateDepartmentDTO.DepartmentId = updateDepartment.DepartmentId;
+                updateDepartmentDTO.Name = updateDepartment.Name;
+                updateDepartmentDTO.Description = updateDepartment.Description;
+                updateDepartmentDTO.CostCenterId = updateDepartment.CostCenterId;
+                updateDepartmentDTO.ParentDepartmentId = updateDepartment.ParentDepartmentId;
 
-                var updatedDepartment = await _departmentServices.UpdateDepartmentPatchAsync(organizationId, departmentId, updateDepartment);
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                updateDepartmentDTO.CallerId = callerId;
+
+                var updatedDepartment = await _departmentServices.UpdateDepartmentPatchAsync(organizationId, departmentId, updateDepartmentDTO);
 
                 return Ok(updatedDepartment);
             }
@@ -225,8 +260,11 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
 
-                var updatedDepartment = await _departmentServices.DeleteDepartmentPatchAsync(organizationId, departmentId);
+                var updatedDepartment = await _departmentServices.DeleteDepartmentPatchAsync(organizationId, departmentId,callerId);
 
                 return Ok(updatedDepartment);
             }

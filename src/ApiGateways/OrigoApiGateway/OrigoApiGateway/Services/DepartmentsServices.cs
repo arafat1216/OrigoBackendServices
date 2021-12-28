@@ -76,7 +76,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoDepartment> AddDepartmentAsync(Guid customerId, NewDepartment department)
+        public async Task<OrigoDepartment> AddDepartmentAsync(Guid customerId, NewDepartmentDTO department)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoDepartment> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, OrigoDepartment department)
+        public async Task<OrigoDepartment> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, UpdateDepartmentDTO department)
         {
             try
             {
@@ -112,7 +112,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoDepartment> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, OrigoDepartment department)
+        public async Task<OrigoDepartment> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, UpdateDepartmentDTO department)
         {
             try
             {
@@ -130,11 +130,22 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoDepartment> DeleteDepartmentPatchAsync(Guid customerId, Guid departmentId)
+        public async Task<OrigoDepartment> DeleteDepartmentPatchAsync(Guid customerId, Guid departmentId,Guid callerId)
         {
             try
             {
-                var response = await HttpClient.DeleteAsync($"{_options.ApiPath}/{customerId}/departments/{departmentId}");
+                var requestUri = $"{_options.ApiPath}/{customerId}/departments/{departmentId}";
+
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Content = JsonContent.Create(callerId),
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(requestUri, UriKind.Relative)
+                };
+
+                var response = await HttpClient.SendAsync(request);
+
+                //var response = await HttpClient.DeleteAsync($"{_options.ApiPath}/{customerId}/departments/{departmentId}");
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save department", (int)response.StatusCode);
 

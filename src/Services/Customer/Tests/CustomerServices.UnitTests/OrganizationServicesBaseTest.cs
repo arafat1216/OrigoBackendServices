@@ -66,7 +66,7 @@ namespace CustomerServices.UnitTests
             context.AddRange(customerOne, customerTwo, customerThree, customerFour);
             context.OrganizationPreferences.AddRange(customerOne.Preferences, customerTwo.Preferences, customerThree.Preferences, customerFour.Preferences);
             context.Locations.AddRange(customerOne.Location, customerTwo.Location, customerThree.Location, customerFour.Location);
-            var departmentOneForCustomerOne = new Department("Cust1Dept1", "1123", "Department one for customer one", customerOne, DEPARTMENT_ONE_ID);
+            var departmentOneForCustomerOne = new Department("Cust1Dept1", "1123", "Department one for customer one", customerOne, Guid.Empty, DEPARTMENT_ONE_ID);
             context.Add(departmentOneForCustomerOne);
 
             var userPreferences1 = new UserPreference("NO");

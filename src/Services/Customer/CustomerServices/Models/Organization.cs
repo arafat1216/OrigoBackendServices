@@ -280,41 +280,52 @@ namespace CustomerServices.Models
             selectedProductModuleGroups.Remove(productModuleGroup);
         }
 
-        public void AddDepartment(Department department)
+        public void AddDepartment(Department department, Guid callerId)
         {
+            UpdatedBy = callerId;
             AddDomainEvent(new DepartmentAddedDomainEvent(department));
             Departments.Add(department);
         }
 
-        public void RemoveDepartment(Department department)
+        public void RemoveDepartment(Department department, Guid callerId)
         {
+            UpdatedBy = callerId;
+            department.SetDeletedBy(callerId);
             AddDomainEvent(new DepartmentRemovedDomainEvent(department));
             Departments.Remove(department);
         }
 
-        public void ChangeDepartmentName(Department department, string name)
+        public void ChangeDepartmentName(Department department, string name, Guid callerId)
         {
+            UpdatedBy = callerId;
+            department.SetUpdatedBy(callerId);
             var oldDepartmentName = department.Name;
             department.Name = name;
             AddDomainEvent(new DepartmentNameChangedDomainEvent(department, oldDepartmentName));
         }
 
-        public void ChangeDepartmentDescription(Department department, string description)
+        public void ChangeDepartmentDescription(Department department, string description, Guid callerId)
         {
+            UpdatedBy = callerId;
+            department.SetUpdatedBy(callerId);
             var oldDepartmentDescription = department.Description;
             department.Description = description;
             AddDomainEvent(new DepartmentDescriptionChangedDomainEvent(department, oldDepartmentDescription));
         }
 
-        public void ChangeDepartmentCostCenterId(Department department, string costCenterId)
+        public void ChangeDepartmentCostCenterId(Department department, string costCenterId, Guid callerId)
         {
+            UpdatedBy = callerId;
+            department.SetUpdatedBy(callerId);
             var oldDepartmentCostCenterId = department.CostCenterId;
             department.CostCenterId = costCenterId;
             AddDomainEvent(new DepartmentCostCenterIdChangedDomainEvent(department, oldDepartmentCostCenterId));
         }
 
-        public void ChangeDepartmentsParentDepartment(Department department, Department parentDepartment)
+        public void ChangeDepartmentsParentDepartment(Department department, Department parentDepartment, Guid callerId)
         {
+            UpdatedBy = callerId;
+            department.SetUpdatedBy(callerId);
             var oldParentDepartmentId = department.ParentDepartment?.ExternalDepartmentId;
             department.ParentDepartment = parentDepartment;
             AddDomainEvent(new DepartmentParentDepartmentChangedDomainEvent(department, oldParentDepartmentId));
