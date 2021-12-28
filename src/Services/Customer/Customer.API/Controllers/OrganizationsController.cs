@@ -595,7 +595,7 @@ namespace Customer.API.Controllers
                         throw new InvalidLifecycleTypeException(errorMessage.ToString());
                     }
                 }
-                var assetCategories = await _organizationServices.AddAssetCategoryType(customerId, addedAssetCategory.AssetCategoryId, addedAssetCategory.LifecycleTypes);
+                var assetCategories = await _organizationServices.AddAssetCategoryType(customerId, addedAssetCategory.AssetCategoryId, addedAssetCategory.LifecycleTypes,addedAssetCategory.CallerId);
                 var assetCategoryView = new AssetCategoryType
                 {
                     CustomerId = assetCategories.ExternalCustomerId,
@@ -637,7 +637,7 @@ namespace Customer.API.Controllers
                         throw new InvalidLifecycleTypeException(errorMessage.ToString());
                     }
                 }
-                var assetCategories = await _organizationServices.RemoveAssetCategoryType(customerId, deleteAssetCategory.AssetCategoryId, deleteAssetCategory.LifecycleTypes);
+                var assetCategories = await _organizationServices.RemoveAssetCategoryType(customerId, deleteAssetCategory.AssetCategoryId, deleteAssetCategory.LifecycleTypes,deleteAssetCategory.CallerId);
                 if (assetCategories == null)
                     return NotFound();
                 var assetCategoryView = new AssetCategoryType
@@ -687,7 +687,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(ProductModule), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<ProductModule>> AddCustomerProductModules(Guid customerId, UpdateProductModule productModule)
         {
-            var productGroup = await _organizationServices.AddProductModulesAsync(customerId, productModule.ProductModuleId, productModule.ProductModuleGroupIds);
+            var productGroup = await _organizationServices.AddProductModulesAsync(customerId, productModule.ProductModuleId, productModule.ProductModuleGroupIds, productModule.CallerId);
             if (productGroup == null) return NotFound();
             var moduleGroup = new ProductModule
             {
@@ -708,7 +708,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(ProductModule), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<ProductModule>> RemoveCustomerModules(Guid customerId, UpdateProductModule productModule)
         {
-            var productGroup = await _organizationServices.RemoveProductModulesAsync(customerId, productModule.ProductModuleId, productModule.ProductModuleGroupIds);
+            var productGroup = await _organizationServices.RemoveProductModulesAsync(customerId, productModule.ProductModuleId, productModule.ProductModuleGroupIds,productModule.CallerId);
             if (productGroup == null) return NoContent();
             var moduleGroup = new ProductModule
             {

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Customer.API.ViewModels
+namespace OrigoApiGateway.Models.BackendDTO
 {
-    public class UpdateProductModule
+    public record NewCustomerProductModuleDTO
     {
         public Guid ProductModuleId { get; set; }
 
         public IList<Guid> ProductModuleGroupIds { get; set; }
+
         public Guid CallerId { get; set; }
+
     }
 }
