@@ -64,7 +64,7 @@ namespace CustomerServices
             return role;
         }
 
-        public async Task<UserPermissions> AssignUserPermissionsAsync(string userName, string roleName, IList<Guid> accessList)
+        public async Task<UserPermissions> AssignUserPermissionsAsync(string userName, string roleName, IList<Guid> accessList, Guid callerId)
         {
             if (!Enum.TryParse(roleName, out PredefinedRole roleType))
             {
@@ -92,7 +92,7 @@ namespace CustomerServices
             {
                 addNew = true;
                 var role = await GetRole(roleType);
-                userPermission = new UserPermissions(user, role, accessList);
+                userPermission = new UserPermissions(user, role, accessList, callerId);
             }
             if (addNew)
             {
@@ -104,7 +104,7 @@ namespace CustomerServices
                 {
                     if (!userPermission.AccessList.Contains(access))
                     {
-                        userPermission.AddAccess(access);
+                        userPermission.AddAccess(access,callerId);
                         _customerContext.Entry(userPermission).State = EntityState.Modified;
                     }
                 }
@@ -113,7 +113,7 @@ namespace CustomerServices
             return userPermission;
         }
 
-        public async Task<UserPermissions> RemoveUserPermissionsAsync(string userName, string roleName, IList<Guid> accessList)
+        public async Task<UserPermissions> RemoveUserPermissionsAsync(string userName, string roleName, IList<Guid> accessList, Guid callerId)
         {
             if (!Enum.TryParse(roleName, out PredefinedRole roleType))
             {
@@ -130,19 +130,19 @@ namespace CustomerServices
                 {
                     foreach (Guid access in accessList)
                     {
-                        userPermission.RemoveAccess(access);
+                        userPermission.RemoveAccess(access,callerId);
                         _customerContext.Entry(userPermission).State = EntityState.Modified;
                     }
 
                     if (roleType == PredefinedRole.DepartmentManager && !userPermission.AccessList.Any())
                     {
-                        userPermission.RemoveRole();
+                        userPermission.RemoveRole(callerId);
                         _customerContext.UserPermissions.Remove(userPermission);
                     }
                 }
                 else
                 {
-                    userPermission.RemoveRole();
+                    userPermission.RemoveRole(callerId);
                     _customerContext.UserPermissions.Remove(userPermission);
                 }
                 await SaveEntitiesAsync();

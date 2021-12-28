@@ -1,13 +1,13 @@
-﻿using Common.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace Customer.API.ViewModels
+namespace OrigoApiGateway.Models.BackendDTO
 {
-    public class NewUserPermission
+    public record NewUserPermissionsDTO
     {
         public string Role { get; set; }
         public IList<Guid> AccessList { get; set; }
         public Guid CallerId { get; set; }
+        
     }
 }
