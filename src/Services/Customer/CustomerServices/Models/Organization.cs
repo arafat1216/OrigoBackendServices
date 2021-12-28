@@ -32,6 +32,8 @@ namespace CustomerServices.Models
         public Address Address { get; protected set; }
 
         public ContactPerson ContactPerson { get; protected set; }
+        
+        public bool IsCustomer { get; protected set; }
 
         [NotMapped]
         public ICollection<Organization> ChildOrganizations { get; set; }
