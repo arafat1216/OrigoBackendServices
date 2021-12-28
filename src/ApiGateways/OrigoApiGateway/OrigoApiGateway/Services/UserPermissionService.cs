@@ -79,7 +79,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUserPermissions> AddUserPermissionsForUserAsync(string userName, NewUserPermissions userPermission)
+        public async Task<OrigoUserPermissions> AddUserPermissionsForUserAsync(string userName, NewUserPermissionsDTO userPermission)
         {
             var encodedUserName = WebUtility.UrlEncode(userName);
             var response = await _httpClient.PutAsync($"{_options.ApiPath}/users/{encodedUserName}/permissions", JsonContent.Create(userPermission));
@@ -96,7 +96,7 @@ namespace OrigoApiGateway.Services
             return userPermissions == null ? null : new OrigoUserPermissions(userPermissions);
         }
 
-        public async Task<OrigoUserPermissions> RemoveUserPermissionsForUserAsync(string userName, NewUserPermissions userPermission)
+        public async Task<OrigoUserPermissions> RemoveUserPermissionsForUserAsync(string userName, NewUserPermissionsDTO userPermission)
         {
             var encodedUserName = WebUtility.UrlEncode(userName);
             var requestUri = $"{_options.ApiPath}/users/{encodedUserName}/permissions";

@@ -13,6 +13,8 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using System.Linq;
+using OrigoApiGateway.Models.BackendDTO;
 
 namespace OrigoApiGateway.Controllers
 {
@@ -79,7 +81,16 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var addedRole = await _userPermissionServices.AddUserPermissionsForUserAsync(userName, userPermissions);
+                var userPermissionsDTO = new NewUserPermissionsDTO();
+                userPermissionsDTO.Role = userPermissions.Role;
+                userPermissionsDTO.AccessList = new List<Guid>(userPermissions.AccessList);
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                userPermissionsDTO.CallerId = callerId;
+
+                var addedRole = await _userPermissionServices.AddUserPermissionsForUserAsync(userName, userPermissionsDTO);
                 return CreatedAtAction(nameof(AddUserPermission), addedRole);
             }
             catch (BadHttpRequestException ex)
@@ -101,7 +112,16 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var removedRole = await _userPermissionServices.RemoveUserPermissionsForUserAsync(userName, userPermissions);
+                var userPermissionsDTO = new NewUserPermissionsDTO();
+                userPermissionsDTO.Role = userPermissions.Role;
+                userPermissionsDTO.AccessList = new List<Guid>(userPermissions.AccessList);
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                userPermissionsDTO.CallerId = callerId;
+
+                var removedRole = await _userPermissionServices.RemoveUserPermissionsForUserAsync(userName, userPermissionsDTO);
                 if (removedRole != null)
                 {
                     return Ok(removedRole);

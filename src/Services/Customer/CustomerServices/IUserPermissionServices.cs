@@ -8,8 +8,8 @@ namespace CustomerServices
     public interface IUserPermissionServices
     {
         Task<IList<UserPermissions>> GetUserPermissionsAsync(string userName);
-        Task<UserPermissions> AssignUserPermissionsAsync(string userName, string roleName, IList<Guid> accessList);
-        Task<UserPermissions> RemoveUserPermissionsAsync(string userName, string predefinedRole, IList<Guid> accessList);
+        Task<UserPermissions> AssignUserPermissionsAsync(string userName, string roleName, IList<Guid> accessList, Guid callerId);
+        Task<UserPermissions> RemoveUserPermissionsAsync(string userName, string predefinedRole, IList<Guid> accessList, Guid callerId);
         Task<IList<string>> GetAllRolesAsync();
     }
 }
