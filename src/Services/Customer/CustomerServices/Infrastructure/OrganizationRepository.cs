@@ -51,11 +51,39 @@ namespace CustomerServices.Infrastructure
             return await _customerContext.Organizations.Where(o => !o.IsDeleted).ToListAsync();
         }
 
+        /// <summary>
+        /// Get all organizations who has parentId as parent organization.
+        /// If parentId is null, it will find all root organizations in the database.
+        /// </summary>
+        /// <param name="parentId"></param>
+        /// <returns></returns>
         public async Task<IList<Organization>> GetOrganizationsAsync(Guid? parentId)
         {
             if (parentId == Guid.Empty)
                 parentId = null;
             return await _customerContext.Organizations.Where(p => p.ParentId == parentId && !p.IsDeleted).ToListAsync();
+        }
+
+        /// <summary>
+        /// Get all organizations who are also customers.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IList<Organization>> GetCustomersAsync()
+        {
+            return await _customerContext.Organizations.Where(o => !o.IsDeleted && o.IsCustomer == true).ToListAsync();
+        }
+
+        /// <summary>
+        /// Get all organizations who are also customers and who has parentId as parent organization.
+        /// If parentId is null, it will find all root customers in the database.
+        /// </summary>
+        /// <param name="parentId"></param>
+        /// <returns></returns>
+        public async Task<IList<Organization>> GetCustomersAsync(Guid? parentId)
+        {
+            if (parentId == Guid.Empty)
+                parentId = null;
+            return await _customerContext.Organizations.Where(p => p.ParentId == parentId && !p.IsDeleted && p.IsCustomer == true).ToListAsync();
         }
 
         public async Task<Organization> GetOrganizationAsync(Guid customerId)
@@ -68,6 +96,18 @@ namespace CustomerServices.Infrastructure
             .ThenInclude(p => p.LifecycleTypes)
             .Include(p => p.Departments)
             .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
+        }
+
+        public async Task<Organization> GetCustomerAsync(Guid customerId)
+        {
+            return await _customerContext.Organizations
+            .Include(p => p.SelectedProductModules)
+            .ThenInclude(p => p.ProductModuleGroup)
+            .Include(p => p.SelectedProductModuleGroups)
+            .Include(p => p.SelectedAssetCategories)
+            .ThenInclude(p => p.LifecycleTypes)
+            .Include(p => p.Departments)
+            .FirstOrDefaultAsync(c => c.OrganizationId == customerId && c.IsCustomer == true);
         }
 
         public async Task<OrganizationPreferences> GetOrganizationPreferencesAsync(Guid organizationId)
@@ -264,6 +304,11 @@ namespace CustomerServices.Infrastructure
         public async Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId)
         {
             var customer = await GetCustomerReadOnlyAsync(customerId);
+
+            // Customer specific service
+            if (customer.IsCustomer == false)
+                return null;
+
             var customerModuleGroups = customer.SelectedProductModuleGroups;
             var customerModules = customer.SelectedProductModules.ToList();
             foreach (var module in customerModules)

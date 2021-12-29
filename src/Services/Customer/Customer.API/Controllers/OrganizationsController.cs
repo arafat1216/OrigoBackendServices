@@ -40,8 +40,8 @@ namespace Customer.API.Controllers
         {
             try
             {
-                var organization = await _organizationServices.GetOrganizationAsync(organizationId, includeOrganizationPreferences, includeLocation);
-                if (organization == null) return NotFound();
+                var organization = await _organizationServices.GetOrganizationAsync(organizationId, includeOrganizationPreferences, includeLocation, true);
+                if (organization == null || organization.IsCustomer == false) return NotFound();
 
                 var foundCustomer = new Organization
                 {
@@ -72,7 +72,7 @@ namespace Customer.API.Controllers
         {
             try
             {
-                var organizations = await _organizationServices.GetOrganizationsAsync(hierarchical);
+                var organizations = await _organizationServices.GetCustomersAsync(hierarchical);
                 IList<Organization> list = new List<Organization>();
 
                 foreach (CustomerServices.Models.Organization org in organizations)
@@ -185,7 +185,7 @@ namespace Customer.API.Controllers
                 var newOrganization = new CustomerServices.Models.Organization(Guid.NewGuid(), organization.CallerId, parentId,
                                                                                organization.Name, organization.OrganizationNumber,
                                                                                organizationAddress, organizationContactPerson,
-                                                                               null, organizationLocation);
+                                                                               null, organizationLocation, organization.IsCustomer);
 
                 // organizationPreferences needs the OrganizationId from newOrganization, and is therefore made last
                 if (organization.Preferences != null)

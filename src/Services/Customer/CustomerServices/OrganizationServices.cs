@@ -55,6 +55,39 @@ namespace CustomerServices
         }
 
         /// <summary>
+        /// Returns all organizations. If hierarchical is true, return the organizations with no parent organization, these organizations will have their child organizations appended to them as a list.
+        /// </summary>
+        /// <param name="hierarchical"></param>
+        /// <returns></returns>
+        public async Task<IList<Organization>> GetCustomersAsync(bool hierarchical = false)
+        {
+            if (!hierarchical)
+            {
+
+                var orgs = await _customerRepository.GetCustomersAsync();
+                foreach (Organization o in orgs)
+                {
+                    o.Preferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
+                    o.Location = await _customerRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
+                }
+                return orgs;
+            }
+            else
+            {
+                Guid? p = Guid.Empty;
+                var organizations = await _customerRepository.GetCustomersAsync(p);
+                foreach (Organization o in organizations)
+                {
+                    // We fetch all children organizations of this customer, regardless of whether they are customers or not.
+                    o.ChildOrganizations = await _customerRepository.GetOrganizationsAsync(o.OrganizationId);
+                    o.Preferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
+                    o.Location = await _customerRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
+                }
+                return organizations;
+            }
+        }
+
+        /// <summary>
         /// Returns all Organization entities with the given ParentId. If the ParentId is null, return all Organizations that do not have parent entities.
         /// </summary>
         /// <param name="parentId">Guid value that points to the ExternalId of an Organization</param>
@@ -76,9 +109,9 @@ namespace CustomerServices
         /// <param name="includePreferences">Include OrganizationPreferences object of the organization if set to true</param>
         /// <param name="includeLocation">Include OrganizationLocation object of the organization if set to true</param>
         /// <returns>Organization</returns>
-        public async Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false)
+        public async Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool onlyCustomer = false)
         {
-            var organization = await _customerRepository.GetOrganizationAsync(customerId);
+            var organization = (!onlyCustomer) ? await _customerRepository.GetOrganizationAsync(customerId) : await _customerRepository.GetCustomerAsync(customerId);
 
             if (organization != null)
             {
@@ -93,6 +126,11 @@ namespace CustomerServices
             }
 
             return organization;
+        }
+
+        public async Task<Organization> GetCustomerAsync(Guid customerId)
+        {
+            return await _customerRepository.GetCustomerAsync(customerId);
         }
 
         /// <summary>
@@ -149,7 +187,7 @@ namespace CustomerServices
                 ContactPerson newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
-                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation);
+                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.IsCustomer);
 
                 organizationOriginal.UpdateOrganization(newOrganization);
 
@@ -245,7 +283,7 @@ namespace CustomerServices
                 newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
-                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation);
+                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.IsCustomer);
 
                 organizationOriginal.PatchOrganization(newOrganization);
 

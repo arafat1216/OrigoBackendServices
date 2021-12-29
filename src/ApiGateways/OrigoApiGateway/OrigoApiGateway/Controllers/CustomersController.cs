@@ -106,6 +106,9 @@ namespace OrigoApiGateway.Controllers
                 newCustomerDTO.Location = newCustomer.Location;
                 newCustomerDTO.Preferences = newCustomer.Preferences;
 
+                // This endpoint specifically creates Organizations of subtype customer
+                newCustomerDTO.IsCustomer = true; 
+
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
                 newCustomerDTO.CallerId = callerId;

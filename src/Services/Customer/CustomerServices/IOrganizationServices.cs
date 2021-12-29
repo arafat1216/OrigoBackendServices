@@ -8,7 +8,8 @@ namespace CustomerServices
     public interface IOrganizationServices
     {
         Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false);
-        Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false);
+        Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool onlyCustomer = false);
+        Task<IList<Organization>> GetCustomersAsync(bool hierarchical = false);
         Task<Organization> UpdateOrganizationAsync(Organization updateOrganization, bool usingPatch = false);
         Task<Organization> PutOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
                                                                string street, string postCode, string city, string country,
