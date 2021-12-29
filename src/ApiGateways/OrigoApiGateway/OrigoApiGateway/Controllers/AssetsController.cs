@@ -1,23 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
+﻿using Common.Enums;
 using Common.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OrigoApiGateway.Models;
-using OrigoApiGateway.Services;
 using OrigoApiGateway.Authorization;
-using System.Linq;
-using System.Security.Claims;
-using Common.Enums;
-using Microsoft.AspNetCore.Http;
 using OrigoApiGateway.Exceptions;
-using System.Text.Json;
-using Newtonsoft.Json.Linq;
+using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
-using OrigoApiGateway.Models.BackendDTO;
+using OrigoApiGateway.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Security.Claims;
+using System.Text.Json;
+using System.Threading.Tasks;
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 // ReSharper disable RouteTemplates.ControllerRouteParameterIsNotPassedToMethods
 
@@ -260,7 +258,7 @@ namespace OrigoApiGateway.Controllers
                 {
                     return Forbid();
                 }
-                
+
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
@@ -269,7 +267,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-               
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
@@ -305,7 +303,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> SetAssetStatusOnAssets(Guid organizationId, [FromBody] UpdateAssetsStatus data)
+        public async Task<ActionResult> SetAssetStatusOnAssets(Guid organizationId, [FromBody] UpdateAssetsStatus updatedAssetStatus)
         {
             try
             {
@@ -315,7 +313,7 @@ namespace OrigoApiGateway.Controllers
                 {
                     return Forbid();
                 }
-                
+
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
@@ -326,20 +324,11 @@ namespace OrigoApiGateway.Controllers
                 }
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
-                var updatedAssetStatusDTO = new UpdateAssetsStatusDTO();
-                updatedAssetStatusDTO.CallerId = callerId; // Guid.Empty if tryparse fails.
-                updatedAssetStatusDTO.AssetStatus = data.AssetStatus;
-                updatedAssetStatusDTO.AssetGuidList = new List<Guid>(data.AssetGuidList);
-
-                int assetStatus = data.AssetStatus;
-
-
-                if (!data.AssetGuidList.Any())
+                Guid.TryParse(actor, out Guid callerId);
+                if (!updatedAssetStatus.AssetGuidList.Any())
                     return BadRequest("No assets selected.");
 
-                var updatedAssets = await _assetServices.UpdateStatusOnAssets(organizationId, updatedAssetStatusDTO);
+                var updatedAssets = await _assetServices.UpdateStatusOnAssets(organizationId, updatedAssetStatus, callerId);
                 if (updatedAssets == null)
                 {
                     return NotFound();
@@ -373,7 +362,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
         public async Task<ActionResult> UpdateAsset(Guid organizationId, Guid assetId, [FromBody] OrigoUpdateAsset asset)
         {
@@ -396,8 +385,7 @@ namespace OrigoApiGateway.Controllers
                 }
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
+                Guid.TryParse(actor, out Guid callerId);
                 asset.CallerId = callerId;
 
                 var updatedAsset = await _assetServices.UpdateAssetAsync(organizationId, assetId, asset);
@@ -405,7 +393,7 @@ namespace OrigoApiGateway.Controllers
                 {
                     return NotFound();
                 }
-                
+
                 var options = new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -413,10 +401,10 @@ namespace OrigoApiGateway.Controllers
                 };
                 return Ok(JsonSerializer.Serialize<object>(updatedAsset, options));
             }
-            catch(BadHttpRequestException ex)
+            catch (BadHttpRequestException ex)
             {
-                _logger.LogError("{0}", ex.Message);      
-                return  BadRequest(ex.Message);
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
@@ -425,7 +413,6 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-      
         [Route("customers/{organizationId:guid}/labels")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
@@ -446,17 +433,17 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
-                var labels =  await _assetServices.GetCustomerLabelsAsync(organizationId);
+                var labels = await _assetServices.GetCustomerLabelsAsync(organizationId);
 
                 return Ok(labels);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Exception in GetLabelsForCustomer");
                 return BadRequest();
             }
         }
-       
+
         [Route("customers/{organizationId:guid}/labels")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
@@ -498,6 +485,7 @@ namespace OrigoApiGateway.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Exception in CreateLabelsForCustomer");
                 return BadRequest();
             }
         }
@@ -528,8 +516,7 @@ namespace OrigoApiGateway.Controllers
                 }
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                bool valid = Guid.TryParse(actor, out callerId);
+                bool valid = Guid.TryParse(actor, out Guid callerId);
                 if (!valid)
                     callerId = Guid.Empty;
 
@@ -545,6 +532,7 @@ namespace OrigoApiGateway.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Exception in DeleteLabelsForCustomer");
                 return BadRequest();
             }
         }
@@ -573,11 +561,8 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
-                
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
+                Guid.TryParse(actor, out Guid callerId);
 
                 UpdateCustomerLabelsData data = new UpdateCustomerLabelsData
                 {
@@ -622,8 +607,7 @@ namespace OrigoApiGateway.Controllers
 
                 // Get caller of endpoint
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
+                Guid.TryParse(actor, out Guid callerId);
                 assetLabels.CallerId = callerId;
 
                 var updatedAssets = await _assetServices.AssignLabelsToAssets(organizationId, assetLabels);
@@ -640,7 +624,7 @@ namespace OrigoApiGateway.Controllers
                 return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest();
             }
@@ -673,8 +657,7 @@ namespace OrigoApiGateway.Controllers
 
                 // Get caller of endpoint
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                bool valid = Guid.TryParse(actor, out callerId);
+                bool valid = Guid.TryParse(actor, out Guid callerId);
                 if (!valid)
                     callerId = Guid.Empty;
                 assetLabels.CallerId = callerId;
@@ -698,8 +681,6 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
-
-
 
         [Route("lifecycles")]
         [HttpGet]
@@ -752,8 +733,7 @@ namespace OrigoApiGateway.Controllers
                 }
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
+                Guid.TryParse(actor, out Guid callerId);
 
                 // talk to frontend and make this an input model on their part.
                 // for now, we fill this in here.
@@ -809,8 +789,7 @@ namespace OrigoApiGateway.Controllers
                 }
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
+                Guid.TryParse(actor, out Guid callerId);
 
                 // Input model for assigning asset to a user
                 // Talk to frontend about using this model.
@@ -850,14 +829,14 @@ namespace OrigoApiGateway.Controllers
         {
             var assetCategories = await _assetServices.GetAssetCategoriesAsync();
 
-            if (includeAttributeData == true)
+            if (includeAttributeData)
             {
                 foreach (OrigoAssetCategory category in assetCategories)
                 {
                     category.AssetCategoryAttributes = _assetServices.GetAssetCategoryAttributesForCategory(category.AssetCategoryId);
                 }
             }
-            
+
             if (assetCategories == null)
             {
                 return NotFound();

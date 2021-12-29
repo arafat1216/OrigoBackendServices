@@ -82,11 +82,16 @@ namespace CustomerServices
                 userPreference);
 
             newUser = await _customerRepository.AddUserAsync(newUser);
-
-            var oktaUserId = await _oktaServices.AddOktaUserAsync(newUser.UserId, newUser.FirstName, newUser.LastName,
-                newUser.Email, newUser.MobileNumber, true);
-            newUser = await AssignOktaUserIdAsync(newUser.Customer.OrganizationId, newUser.UserId, oktaUserId);
-
+            try
+            {
+                var oktaUserId = await _oktaServices.AddOktaUserAsync(newUser.UserId, newUser.FirstName, newUser.LastName,
+                    newUser.Email, newUser.MobileNumber, true);
+                newUser = await AssignOktaUserIdAsync(newUser.Customer.OrganizationId, newUser.UserId, oktaUserId);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Assign okta user id failed");
+            }
             return _mapper.Map<UserDTO>(newUser);
         }
 

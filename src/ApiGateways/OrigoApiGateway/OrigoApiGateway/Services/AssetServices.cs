@@ -100,13 +100,9 @@ namespace OrigoApiGateway.Services
             {
                 var assets = await HttpClient.GetFromJsonAsync<PagedAssetsDTO>($"{_options.ApiPath}/customers/{customerId}");
 
-                if (assets == null) return null;
-                var origoAssets = new List<object>();
-                foreach (var asset in assets.Assets)
-                {
-                    origoAssets.Add(asset);
-                }
-                return origoAssets;
+                if (assets == null)
+                    return null;
+                return assets.Assets;
             }
             catch (HttpRequestException exception)
             {
@@ -129,17 +125,10 @@ namespace OrigoApiGateway.Services
             try
             {
                 var pagedAssetsDto = await HttpClient.GetFromJsonAsync<PagedAssetsDTO>($"{_options.ApiPath}/customers/{customerId}?q={search}&page={page}&limit={limit}");
-                if (pagedAssetsDto == null) return null;
+                if (pagedAssetsDto == null)
+                    return null;
 
-                var origoPagedAssets = new OrigoPagedAssets();
-                foreach (var asset in pagedAssetsDto.Assets)
-                {
-                    origoPagedAssets.Assets.Add(asset);
-                }
-                origoPagedAssets.CurrentPage = pagedAssetsDto.CurrentPage;
-                origoPagedAssets.TotalItems = pagedAssetsDto.TotalItems;
-                origoPagedAssets.TotalPages = pagedAssetsDto.TotalPages;
-                return origoPagedAssets;
+                return _mapper.Map<OrigoPagedAssets>(pagedAssetsDto);
             }
             catch (HttpRequestException exception)
             {
@@ -222,10 +211,13 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<object>> UpdateStatusOnAssets(Guid customerId, UpdateAssetsStatusDTO updatedAssetStatusDTO)
+        public async Task<IList<object>> UpdateStatusOnAssets(Guid customerId, UpdateAssetsStatus updatedAssetStatus, Guid callerId)
         {
             try
             {
+                var updatedAssetStatusDTO = _mapper.Map<UpdateAssetsStatusDTO>(updatedAssetStatus);
+                updatedAssetStatusDTO.CallerId = callerId; // Guid.Empty if tryparse fails.
+
                 var requestUri = $"{_options.ApiPath}/customers/{customerId}/assetStatus/{updatedAssetStatusDTO.AssetStatus.ToString().ToLower()}";
                 //TODO: Why isn't Patch supported? Dapr translates it to POST.
                 var response = await HttpClient.PostAsJsonAsync(requestUri, updatedAssetStatusDTO);

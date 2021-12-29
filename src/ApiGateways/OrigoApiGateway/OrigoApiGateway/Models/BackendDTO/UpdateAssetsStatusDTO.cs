@@ -5,9 +5,9 @@ namespace OrigoApiGateway.Models.BackendDTO
 {
     public record UpdateAssetsStatusDTO
     {
-        public IList<Guid> AssetGuidList { get; set; }
+        public IList<Guid> AssetGuidList { get; init; }
 
-        public int AssetStatus { get; set; }
+        public int AssetStatus { get; init; }
         /// <summary>
         /// id of user making the endpoint call. Can be ignored by frontend.
         /// </summary>

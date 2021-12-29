@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Response object
+    /// </summary>
     public class OrigoProductModule
     {
         public Guid ProductModuleId { get; set; }
