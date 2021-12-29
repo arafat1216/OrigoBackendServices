@@ -7,22 +7,12 @@ namespace OrigoApiGateway.Models
 {
     public class OrigoAssetCategory
     {
-        public OrigoAssetCategory(AssetCategoryDTO assetCategory)
-        {
-            AssetCategoryId = assetCategory.AssetCategoryId;
-            Name = assetCategory.Name;
-            Description = assetCategory.Description;
-            Language = assetCategory.Language;
-            ParentId = assetCategory.ParentId;
-            AssetCategoryAttributes = null;
-            ChildAssetCategory = assetCategory.ChildAssetCategory?.Select(c => new OrigoAssetCategory(c)).ToList();
-        }
-        public int AssetCategoryId { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Language { get; set; }
-        public int? ParentId { get; set; }
-        public IList<OrigoAssetCategory> ChildAssetCategory { get; set; }
+        public int AssetCategoryId { get; init; }
+        public string Name { get; init; }
+        public string Description { get; init; }
+        public string Language { get; init; }
+        public int? ParentId { get; init; }
+        public IList<OrigoAssetCategory> ChildAssetCategory { get; init; }
         public IList<AssetCategoryAttribute> AssetCategoryAttributes { get; set; }
     }
 }

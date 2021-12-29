@@ -65,7 +65,7 @@ namespace Customer.API.Controllers
         {
             try
             {
-                var userPermission = await _userPermissionServices.AssignUserPermissionsAsync(userName, userRole.Role, userRole.AccessList);
+                var userPermission = await _userPermissionServices.AssignUserPermissionsAsync(userName, userRole.Role, userRole.AccessList,userRole.CallerId);
                 if (userPermission == null) return NotFound();
 
                 var permissionNames = new List<string>();
@@ -95,7 +95,7 @@ namespace Customer.API.Controllers
         {
             try
             {
-                var userPermission = await _userPermissionServices.RemoveUserPermissionsAsync(userName, userRole.Role, userRole.AccessList);
+                var userPermission = await _userPermissionServices.RemoveUserPermissionsAsync(userName, userRole.Role, userRole.AccessList,userRole.CallerId);
                 if (userPermission == null) return NotFound();
 
                 var permissionNames = new List<string>();

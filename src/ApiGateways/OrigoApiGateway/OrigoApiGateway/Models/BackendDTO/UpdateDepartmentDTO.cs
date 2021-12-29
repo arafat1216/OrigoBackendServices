@@ -1,9 +1,11 @@
 ﻿using System;
 
-namespace Customer.API.ViewModels
+namespace OrigoApiGateway.Models.BackendDTO
 {
-    public class NewDepartment
+    public class UpdateDepartmentDTO
     {
+        public Guid DepartmentId { get; set; }
+
         public string Name { get; set; }
 
         public string CostCenterId { get; set; }

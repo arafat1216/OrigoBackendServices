@@ -8,11 +8,12 @@ namespace CustomerServices.Models
 {
     public class UserPermissions : Entity
     {
-        public UserPermissions(User user, Role role, IList<Guid> accessList)
+        public UserPermissions(User user, Role role, IList<Guid> accessList, Guid callerId)
         {
             User = user;
             Role = role;
             AccessList = accessList;
+            CreatedBy = callerId;
             AddDomainEvent(new UserPermissionAddedDomainEvent(this));
         }
 
@@ -27,20 +28,23 @@ namespace CustomerServices.Models
 
         public IList<Guid> AccessList { get; protected set; }
 
-        public void RemoveAccess(Guid accessId)
+        public void RemoveAccess(Guid accessId,Guid callerId)
         {
+            UpdatedBy = callerId;
             if (AccessList.Remove(accessId))
-                AddDomainEvent(new UserAccessRemovedDomainEvent(User.UserId, accessId, AccessList));
+            AddDomainEvent(new UserAccessRemovedDomainEvent(User.UserId, accessId, AccessList));
         }
 
-        public void AddAccess(Guid accessId)
+        public void AddAccess(Guid accessId,Guid callerId)
         {
+            UpdatedBy = callerId;
             AccessList.Add(accessId);
             AddDomainEvent(new UserAccessAddedDomainEvent(User.UserId, accessId, AccessList));
         }
 
-        public void RemoveRole()
+        public void RemoveRole(Guid callerId)
         {
+            UpdatedBy = callerId;
             AddDomainEvent(new UserPermissionsRemovedDomainEvent(this));
         }
     }

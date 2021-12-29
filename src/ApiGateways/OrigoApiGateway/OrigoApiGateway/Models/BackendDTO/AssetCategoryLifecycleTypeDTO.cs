@@ -5,12 +5,12 @@ namespace OrigoApiGateway.Models.BackendDTO
 {
     public class AssetCategoryLifecycleTypeDTO
     {
-        public string Name { get; set; }
+        public string Name { get; init; }
 
-        public Guid OrganizationId { get; set; }
+        public Guid OrganizationId { get; init; }
 
-        public int AssetCategoryId { get; set; }
+        public int AssetCategoryId { get; init; }
 
-        public LifecycleType LifecycleType { get; set; }
+        public LifecycleType LifecycleType { get; init; }
     }
 }

@@ -5,11 +5,11 @@ namespace OrigoApiGateway.Models.BackendDTO
 {
     public class AssetCategoryDTO
     {
-        public int AssetCategoryId { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Language { get; set; }
-        public int? ParentId { get; set; }
-        public IList<AssetCategoryDTO> ChildAssetCategory { get; set; }
+        public int AssetCategoryId { get; init; }
+        public string Name { get; init; }
+        public string Description { get; init; }
+        public string Language { get; init; }
+        public int? ParentId { get; init; }
+        public IList<AssetCategoryDTO> ChildAssetCategory { get; init; }
     }
 }
