@@ -107,6 +107,7 @@ namespace CustomerServices.Models
             if (isUpdated)
             {
                 UpdatedAt = DateTime.UtcNow;
+                LastUpdatedDate = DateTime.UtcNow;
                 UpdatedBy = updateLocation.CreatedBy;
             }
         }
@@ -115,6 +116,7 @@ namespace CustomerServices.Models
         {
             IsDeleted = true;
             UpdatedAt = DateTime.UtcNow;
+            LastUpdatedDate = DateTime.UtcNow;
             DeletedBy = callerId;
         }
     }

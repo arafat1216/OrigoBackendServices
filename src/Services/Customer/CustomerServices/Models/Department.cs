@@ -89,10 +89,12 @@ namespace CustomerServices.Models
         public void SetUpdatedBy(Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
         }
         public void SetDeletedBy(Guid callerId)
         {
             DeletedBy = callerId;
+            LastUpdatedDate= DateTime.UtcNow;
         }
     }
 }

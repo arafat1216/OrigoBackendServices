@@ -31,6 +31,7 @@ namespace CustomerServices.Models
         public void RemoveAccess(Guid accessId,Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.Now;
             if (AccessList.Remove(accessId))
             AddDomainEvent(new UserAccessRemovedDomainEvent(User.UserId, accessId, AccessList));
         }
@@ -38,6 +39,7 @@ namespace CustomerServices.Models
         public void AddAccess(Guid accessId,Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.Now;
             AccessList.Add(accessId);
             AddDomainEvent(new UserAccessAddedDomainEvent(User.UserId, accessId, AccessList));
         }
@@ -45,6 +47,7 @@ namespace CustomerServices.Models
         public void RemoveRole(Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.Now;
             AddDomainEvent(new UserPermissionsRemovedDomainEvent(this));
         }
     }
