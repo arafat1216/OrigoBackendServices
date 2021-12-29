@@ -45,7 +45,7 @@ namespace OrigoApiGateway.Services
             var claimPermissions = userPermissions?.First()?.PermissionNames?
                 .Select(permissionName => new Claim("Permissions", permissionName)).ToList();
             var claimAccessList = userPermissions?.First()?.AccessList?
-                .Select(accessTo => new Claim("AllowedAccess", accessTo.ToString())).ToList();
+                .Select(accessTo => new Claim("AccessList", accessTo.ToString())).ToList();
 
             var permissionsIdentity = new ClaimsIdentity(claimPermissions);
             permissionsIdentity.AddClaims(claimPermissions);
@@ -81,7 +81,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUserPermissions> AddUserPermissionsForUserAsync(string userName, NewUserPermissions userPermission)
+        public async Task<OrigoUserPermissions> AddUserPermissionsForUserAsync(string userName, NewUserPermissionsDTO userPermission)
         {
             var encodedUserName = WebUtility.UrlEncode(userName);
             var response = await _httpClient.PutAsync($"{_options.ApiPath}/users/{encodedUserName}/permissions", JsonContent.Create(userPermission));
@@ -98,7 +98,7 @@ namespace OrigoApiGateway.Services
             return userPermissions == null ? null : _mapper.Map<OrigoUserPermissions>(userPermissions);
         }
 
-        public async Task<OrigoUserPermissions> RemoveUserPermissionsForUserAsync(string userName, NewUserPermissions userPermission)
+        public async Task<OrigoUserPermissions> RemoveUserPermissionsForUserAsync(string userName, NewUserPermissionsDTO userPermission)
         {
             var encodedUserName = WebUtility.UrlEncode(userName);
             var requestUri = $"{_options.ApiPath}/users/{encodedUserName}/permissions";

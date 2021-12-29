@@ -33,7 +33,7 @@ namespace OrigoApiGateway.Tests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void GetUSer_CheckDisplayName()
+        public async void GetUser_CheckDisplayName()
         {
             // Arrange
             const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";

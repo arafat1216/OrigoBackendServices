@@ -308,7 +308,6 @@ namespace OrigoApiGateway.Services
                         throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
                 }
                 var labels = await response.Content.ReadFromJsonAsync<IList<LabelDTO>>();
-
                 return _mapper.Map<List<Label>>(labels);
             }
             catch (Exception ex)
