@@ -43,7 +43,7 @@ namespace OrigoApiGateway.Services
             var claimPermissions = userPermissions.First().PermissionNames
                 .Select(permissionName => new Claim("Permissions", permissionName)).ToList();
             var claimAccessList = userPermissions.First().AccessList
-                .Select(accessTo => new Claim("AllowedAccess", accessTo.ToString())).ToList();
+                .Select(accessTo => new Claim("AccessList", accessTo.ToString())).ToList();
 
             var permissionsIdentity = new ClaimsIdentity(claimPermissions);
             permissionsIdentity.AddClaims(claimPermissions);
