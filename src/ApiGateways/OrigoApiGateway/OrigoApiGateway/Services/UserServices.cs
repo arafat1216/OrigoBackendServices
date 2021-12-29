@@ -108,7 +108,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser)
+        public async Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUserDTO newUser)
         {
             try
             {
@@ -128,7 +128,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUser> PutUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser)
+        public async Task<OrigoUser> PutUserAsync(Guid customerId, Guid userId, UpdateUserDTO updateUser)
         {
             try
             {
@@ -148,7 +148,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUser> PatchUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser)
+        public async Task<OrigoUser> PatchUserAsync(Guid customerId, Guid userId, UpdateUserDTO updateUser)
         {
             try
             {
@@ -168,11 +168,22 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<bool> DeleteUserAsync(Guid customerId, Guid userId, bool softDelete)
+        public async Task<bool> DeleteUserAsync(Guid customerId, Guid userId, bool softDelete, Guid callerId)
         {
             try
             {
-                var response = await HttpClient.DeleteAsync($"{_options.ApiPath}/{customerId}/users/{userId}?softDelete={softDelete}");
+                var requestUri = $"{_options.ApiPath}/{customerId}/users/{userId}?softDelete={softDelete}";
+
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Content = JsonContent.Create(callerId),
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(requestUri, UriKind.Relative)
+                };
+
+                var response = await HttpClient.SendAsync(request);
+
+                
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     return false;
                 if (!response.IsSuccessStatusCode)
@@ -187,11 +198,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUser> SetUserActiveStatusAsync(Guid customerId, Guid userId, bool isActive)
+        public async Task<OrigoUser> SetUserActiveStatusAsync(Guid customerId, Guid userId, bool isActive, Guid callerId)
         {
             try
             {
-                var response = await HttpClient.PostAsync($"{_options.ApiPath}/{customerId}/users/{userId}/activate/{isActive}", null);
+                var response = await HttpClient.PostAsync($"{_options.ApiPath}/{customerId}/users/{userId}/activate/{isActive}", JsonContent.Create(callerId));
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to change active status on user.", (int)response.StatusCode);
 
@@ -205,13 +216,13 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUser> AssignUserToDepartment(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<OrigoUser> AssignUserToDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
             try
             {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                
                 var requestUri = $"{_options.ApiPath}/{customerId}/users/{userId}/department/{departmentId}";
-                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                var response = await HttpClient.PostAsync(requestUri, JsonContent.Create(callerId));
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to assign department.", (int)response.StatusCode);
@@ -228,12 +239,21 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUser> UnassignUserFromDepartment(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<OrigoUser> UnassignUserFromDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
             try
             {
                 var requestUri = $"{_options.ApiPath}/{customerId}/users/{userId}/department/{departmentId}";
-                var response = await HttpClient.DeleteAsync(requestUri);
+
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Content = JsonContent.Create(callerId),
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(requestUri, UriKind.Relative)
+                };
+
+                var response = await HttpClient.SendAsync(request);
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to remove assigned department.", (int)response.StatusCode);
@@ -250,14 +270,13 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId)
+        public async Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
             const string UNABLE_TO_ASSIGN_MESSAGE = "Unable to assign manager to department.";
             try
             {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
                 var requestUri = $"{_options.ApiPath}/{customerId}/users/{userId}/department/{departmentId}/manager";
-                var response = await HttpClient.PostAsync(requestUri, emptyStringBodyContent);
+                var response = await HttpClient.PostAsync(requestUri, JsonContent.Create(callerId));
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException(UNABLE_TO_ASSIGN_MESSAGE, (int)response.StatusCode);
@@ -273,14 +292,22 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId)
+        public async Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
             const string UNABLE_TO_REMOVE_MANAGER_MESSAGE = "Unable to remove assignment of manager from department.";
             try
             {
-                var emptyStringBodyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                
                 var requestUri = $"{_options.ApiPath}/{customerId}/users/{userId}/department/{departmentId}/manager";
-                var response = await HttpClient.DeleteAsync(requestUri);
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Content = JsonContent.Create(callerId),
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(requestUri, UriKind.Relative)
+                };
+
+                var response = await HttpClient.SendAsync(request);
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException(UNABLE_TO_REMOVE_MANAGER_MESSAGE, (int)response.StatusCode);

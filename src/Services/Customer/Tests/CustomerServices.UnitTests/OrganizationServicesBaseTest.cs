@@ -22,6 +22,7 @@ namespace CustomerServices.UnitTests
         private readonly Guid LOCATION_TWO_ID = new("DDF4FDB7-B1B9-4F03-B343-2B2F38AC6138");
         private readonly Guid LOCATION_THREE_ID = new("E52D8C49-727F-49B1-8DAC-2CE1B199AE15");
         private readonly Guid LOCATION_FOUR_ID = new("8C5D801A-E7E8-45BB-B9AD-F32111D7AA8D");
+        protected readonly Guid EMPTY_CALLER_ID = Guid.Empty;
 
         protected OrganizationServicesBaseTest(DbContextOptions<CustomerContext> contextOptions)
         {
@@ -71,12 +72,12 @@ namespace CustomerServices.UnitTests
             //context.Add(department);
             context.Add(departmentOneForCustomerOne);
 
-            var userPreferences1 = new UserPreference("NO");
-            var userPreferences2 = new UserPreference("EN");
-            var userPreferences3 = new UserPreference("EN");
-            var userOne = new User(customerOne, USER_ONE_ID, "Jane", "Doe", "jane@doe.com", "+4799999999", "007", userPreferences1);
-            var userTwo = new User(customerOne, Guid.NewGuid(), "Gordon", "Freeman", "gordon@freeman.com", "+4755555555", "DH-101", userPreferences2);
-            var userThree = new User(customerTwo, USER_TWO_ID, "John", "Doe", "john@doe.com", "+4791111111", "X", userPreferences3);
+            var userPreferences1 = new UserPreference("NO", EMPTY_CALLER_ID);
+            var userPreferences2 = new UserPreference("EN", EMPTY_CALLER_ID);
+            var userPreferences3 = new UserPreference("EN", EMPTY_CALLER_ID);
+            var userOne = new User(customerOne, USER_ONE_ID, "Jane", "Doe", "jane@doe.com", "+4799999999", "007", userPreferences1, EMPTY_CALLER_ID);
+            var userTwo = new User(customerOne, Guid.NewGuid(), "Gordon", "Freeman", "gordon@freeman.com", "+4755555555", "DH-101", userPreferences2, EMPTY_CALLER_ID);
+            var userThree = new User(customerTwo, USER_TWO_ID, "John", "Doe", "john@doe.com", "+4791111111", "X", userPreferences3, EMPTY_CALLER_ID);
 
             context.AddRange(userOne, userTwo, userThree);
 
