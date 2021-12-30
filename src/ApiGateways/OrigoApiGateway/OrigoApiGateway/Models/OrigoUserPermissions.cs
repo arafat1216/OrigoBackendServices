@@ -4,25 +4,15 @@ using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Response object
+    /// </summary>
     public class OrigoUserPermissions
     {
-        public OrigoUserPermissions(UserPermissionsDTO userPermissions)
-        {
-            PermissionNames = userPermissions.PermissionNames;
-            AccessList = userPermissions.AccessList;
-            Role = userPermissions.Role;
-        }
+        public string Role { get; init; }
 
-        public OrigoUserPermissions(IList<string> permissionNames, IList<Guid> accessList, string role)
-        {
-            PermissionNames = permissionNames;
-            AccessList = accessList;
-            Role = role;
-        }
+        public IList<string> PermissionNames { get; init; }
 
-        public string Role { get; }
-        public IList<string> PermissionNames { get; }
-
-        public IList<Guid> AccessList { get; }
+        public IList<Guid> AccessList { get; init; }
     }
 }

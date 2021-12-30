@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Models.Asset
 {
+    /// <summary>
+    /// Request object
+    /// </summary>
     public class AssignAssetToUser
     {
         public Guid AssetId { get; set; }

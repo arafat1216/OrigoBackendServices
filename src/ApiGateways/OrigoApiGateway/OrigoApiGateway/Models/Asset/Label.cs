@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Request and response object
+    /// </summary>
     public class Label
     {
         [Required]

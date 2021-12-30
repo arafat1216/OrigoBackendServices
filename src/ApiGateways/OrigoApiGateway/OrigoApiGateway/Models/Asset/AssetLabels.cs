@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Models.Asset
 {
+    /// <summary>
+    /// Request object
+    /// </summary>
     public class AssetLabels
     {
         [Required]

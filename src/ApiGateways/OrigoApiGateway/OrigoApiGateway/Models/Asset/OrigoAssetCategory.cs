@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Response object
+    /// </summary>
     public class OrigoAssetCategory
     {
         public int AssetCategoryId { get; init; }
