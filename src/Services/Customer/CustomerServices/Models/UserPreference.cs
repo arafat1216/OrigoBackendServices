@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace CustomerServices.Models
@@ -7,9 +8,10 @@ namespace CustomerServices.Models
     {
         protected UserPreference() { }
 
-        public UserPreference(string language)
+        public UserPreference(string language,Guid callerId)
         {
             Language = language;
+            CreatedBy = callerId;
         }
 
         [StringLength(2, ErrorMessage = "Country code max length is 2")]

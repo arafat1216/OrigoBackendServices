@@ -30,6 +30,7 @@ namespace CustomerServices.Models
         public void SetAssetCategoryId(Guid assetCategoryId, Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
             AssetCategoryId = assetCategoryId;
         }
 
@@ -39,6 +40,7 @@ namespace CustomerServices.Models
         }
         public void SetDeletedBy(Guid callerId)
         {
+            LastUpdatedDate= DateTime.UtcNow;
             DeletedBy  = callerId;
         }
     }

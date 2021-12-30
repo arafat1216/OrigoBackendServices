@@ -1,4 +1,6 @@
-﻿namespace Customer.API.ViewModels
+﻿using System;
+
+namespace Customer.API.ViewModels
 {
     public record NewUser
     {
@@ -14,5 +16,6 @@
         /// NB! This Will be removed in a later version
         /// </summary>
         public string EmployeeId { get; set; }
+        public Guid CallerId { get; set; }
     }
 }

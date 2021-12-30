@@ -155,7 +155,8 @@ namespace CustomerServices.Models
             if (isUpdated)
             {
                 UpdatedAt = DateTime.UtcNow;
-                UpdatedBy = organization.UpdatedBy;
+                LastUpdatedDate = DateTime.UtcNow;
+                UpdatedBy = organization.CreatedBy;
             }
         }
 
@@ -213,7 +214,8 @@ namespace CustomerServices.Models
             if (isUpdated)
             {
                 UpdatedAt = DateTime.UtcNow;
-                UpdatedBy = organization.UpdatedBy;
+                LastUpdatedDate = DateTime.UtcNow;
+                UpdatedBy = organization.CreatedBy;
             }
         }
 
@@ -221,6 +223,7 @@ namespace CustomerServices.Models
         {
             IsDeleted = true;
             UpdatedAt = DateTime.UtcNow;
+            LastUpdatedDate = DateTime.UtcNow;
             DeletedBy = callerId;
             AddDomainEvent(new CustomerDeletedDomainEvent(this));
         }
@@ -228,6 +231,7 @@ namespace CustomerServices.Models
         public void AddAssetCategory(AssetCategoryType assetCategory)
         {
             UpdatedBy = assetCategory.UpdatedBy;
+            LastUpdatedDate= DateTime.UtcNow;
             AddDomainEvent(new AssetCategoryAddedDomainEvent(assetCategory));
             selectedAssetCategories.Add(assetCategory);
         }
@@ -235,6 +239,7 @@ namespace CustomerServices.Models
         public void RemoveAssetCategory(AssetCategoryType assetCategory,Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
             assetCategory.SetDeletedBy(callerId);
             AddDomainEvent(new AssetCategoryRemovedDomainEvent(assetCategory));
             selectedAssetCategories.Remove(assetCategory);
@@ -243,6 +248,7 @@ namespace CustomerServices.Models
         public void AddLifecyle(AssetCategoryType assetCategory, AssetCategoryLifecycleType lifecycleType)
         {
             UpdatedBy = lifecycleType.CreatedBy;
+            LastUpdatedDate = DateTime.UtcNow;
             //AssetCategoryLifecycleType already has a CreatedBy - no need to set it again
             AddDomainEvent(new AssetLifecycleSettingAddedDomainEvent(lifecycleType));
             assetCategory.LifecycleTypes.Add(lifecycleType);
@@ -253,6 +259,7 @@ namespace CustomerServices.Models
             try
             {
                 UpdatedBy = callerId;
+                LastUpdatedDate = DateTime.UtcNow;
                 lifecycleType.SetDeletedBy(callerId);
                 AddDomainEvent(new AssetLifecycleSettingRemovedDomainEvent(lifecycleType));
                 assetCategory.LifecycleTypes.Remove(lifecycleType);
@@ -266,6 +273,7 @@ namespace CustomerServices.Models
         public void AddProductModule(ProductModule productModule, Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate= DateTime.UtcNow;
             productModule.SetCreatedBy(callerId);
             AddDomainEvent(new ProductModuleAddedDomainEvent(OrganizationId, productModule));
             selectedProductModules.Add(productModule);
@@ -274,6 +282,7 @@ namespace CustomerServices.Models
         public void RemoveProductModule(ProductModule productModule, Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
             productModule.SetDeletedBy(callerId);
             AddDomainEvent(new ProductModuleRemovedDomainEvent(OrganizationId, productModule));
             selectedProductModules.Remove(productModule);
@@ -282,6 +291,7 @@ namespace CustomerServices.Models
         public void AddProductModuleGroup(ProductModuleGroup productModuleGroup, Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate=DateTime.UtcNow;
             productModuleGroup.SetCreatedBy(callerId);
             AddDomainEvent(new ProductModuleGroupAddedDomainEvent(OrganizationId, productModuleGroup));
             selectedProductModuleGroups.Add(productModuleGroup);
@@ -290,6 +300,7 @@ namespace CustomerServices.Models
         public void RemoveProductModuleGroup(ProductModuleGroup productModuleGroup,Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
             productModuleGroup.SetDeletedBy(callerId);
             AddDomainEvent(new ProductModuleGroupRemovedDomainEvent(OrganizationId, productModuleGroup));
             selectedProductModuleGroups.Remove(productModuleGroup);
@@ -298,6 +309,7 @@ namespace CustomerServices.Models
         public void AddDepartment(Department department, Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
             AddDomainEvent(new DepartmentAddedDomainEvent(department));
             Departments.Add(department);
         }
@@ -305,6 +317,7 @@ namespace CustomerServices.Models
         public void RemoveDepartment(Department department, Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate= DateTime.UtcNow;
             department.SetDeletedBy(callerId);
             AddDomainEvent(new DepartmentRemovedDomainEvent(department));
             Departments.Remove(department);
@@ -313,6 +326,7 @@ namespace CustomerServices.Models
         public void ChangeDepartmentName(Department department, string name, Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
             department.SetUpdatedBy(callerId);
             var oldDepartmentName = department.Name;
             department.Name = name;
@@ -322,6 +336,7 @@ namespace CustomerServices.Models
         public void ChangeDepartmentDescription(Department department, string description, Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate= DateTime.UtcNow;
             department.SetUpdatedBy(callerId);
             var oldDepartmentDescription = department.Description;
             department.Description = description;
@@ -331,6 +346,7 @@ namespace CustomerServices.Models
         public void ChangeDepartmentCostCenterId(Department department, string costCenterId, Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
             department.SetUpdatedBy(callerId);
             var oldDepartmentCostCenterId = department.CostCenterId;
             department.CostCenterId = costCenterId;
@@ -340,6 +356,7 @@ namespace CustomerServices.Models
         public void ChangeDepartmentsParentDepartment(Department department, Department parentDepartment, Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
             department.SetUpdatedBy(callerId);
             var oldParentDepartmentId = department.ParentDepartment?.ExternalDepartmentId;
             department.ParentDepartment = parentDepartment;
