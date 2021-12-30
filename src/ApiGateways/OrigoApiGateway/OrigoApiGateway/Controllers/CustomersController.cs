@@ -317,6 +317,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
                 var customerAssetCategoryTypeDTO = new NewCustomerAssetCategoryTypeDTO();
                 customerAssetCategoryTypeDTO.OrganizationId = customerAssetCategoryType.OrganizationId;
                 customerAssetCategoryTypeDTO.AssetCategoryId = customerAssetCategoryType.AssetCategoryId;
@@ -376,6 +377,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
                 var productModuleDTO = new NewCustomerProductModuleDTO();
                 productModuleDTO.ProductModuleId = productModule.ProductModuleId;
                 productModuleDTO.ProductModuleGroupIds = new List<Guid>(productModule.ProductModuleGroupIds);
@@ -417,6 +419,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
                 var productModuleDTO = new NewCustomerProductModuleDTO();
                 productModuleDTO.ProductModuleId = productModule.ProductModuleId;
                 productModuleDTO.ProductModuleGroupIds = new List<Guid>(productModule.ProductModuleGroupIds);

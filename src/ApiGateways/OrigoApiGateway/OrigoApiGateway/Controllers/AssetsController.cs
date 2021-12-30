@@ -140,7 +140,7 @@ namespace OrigoApiGateway.Controllers
                 {
                     return NotFound();
                 }
-
+                
                 var options = new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -269,7 +269,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-               
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
@@ -573,7 +573,6 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
                 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
@@ -619,7 +618,6 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
                 // Get caller of endpoint
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;

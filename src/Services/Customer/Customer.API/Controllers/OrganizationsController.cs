@@ -561,12 +561,12 @@ namespace Customer.API.Controllers
             var customerAssetCategories = new List<AssetCategoryType>();
             customerAssetCategories.AddRange(assetCategoryLifecycleTypes.Select(category => new AssetCategoryType
             {
-                CustomerId = category.ExternalCustomerId,
-                AssetCategoryId = category.AssetCategoryId,
+                OrganizationId = category.ExternalCustomerId,
+                AssetCategoryId = category.Id,
                 LifecycleTypes = category.LifecycleTypes.Select(a => new AssetCategoryLifecycleType()
                 {
                     CustomerId = a.CustomerId,
-                    AssetCategoryId = a.AssetCategoryId,
+                    AssetCategoryId = a.Id,
                     Name = Enum.GetName(typeof(LifecycleType), a.LifecycleType),
                     LifecycleType = a.LifecycleType
                 }).ToList()
@@ -581,6 +581,10 @@ namespace Customer.API.Controllers
         {
             try
             {
+                var customer = await _organizationServices.GetOrganizationAsync(customerId, false, false, true);
+                if (customer == null)
+                    return NotFound("No customer was found with that Id in the database.");
+
                 foreach (int lifecycle in addedAssetCategory.LifecycleTypes)
                 {
                     // Check if given int is within valid range of values
@@ -595,15 +599,20 @@ namespace Customer.API.Controllers
                         throw new InvalidLifecycleTypeException(errorMessage.ToString());
                     }
                 }
-                var assetCategories = await _organizationServices.AddAssetCategoryType(customerId, addedAssetCategory.AssetCategoryId, addedAssetCategory.LifecycleTypes,addedAssetCategory.CallerId);
+
+                var assetCat  = await _organizationServices.GetAssetCategoryType(customerId, addedAssetCategory.AssetCategoryId);
+                if (assetCat == null)
+                    return NotFound("Given asset category was not found.");
+                Guid assetCatId = assetCat.AssetCategoryId;
+                var assetCategories = await _organizationServices.AddAssetCategoryType(customerId, assetCatId, addedAssetCategory.LifecycleTypes,addedAssetCategory.CallerId);
                 var assetCategoryView = new AssetCategoryType
                 {
-                    CustomerId = assetCategories.ExternalCustomerId,
-                    AssetCategoryId = assetCategories.AssetCategoryId,
+                    OrganizationId = assetCategories.ExternalCustomerId,
+                    AssetCategoryId = assetCategories.Id,
                     LifecycleTypes = assetCategories.LifecycleTypes.Select(a => new AssetCategoryLifecycleType()
                     {
                         CustomerId = a.CustomerId,
-                        AssetCategoryId = a.AssetCategoryId,
+                        AssetCategoryId = a.Id,
                         Name = Enum.GetName(typeof(LifecycleType), a.LifecycleType),
                         LifecycleType = a.LifecycleType
                     }).ToList()
@@ -637,17 +646,22 @@ namespace Customer.API.Controllers
                         throw new InvalidLifecycleTypeException(errorMessage.ToString());
                     }
                 }
-                var assetCategories = await _organizationServices.RemoveAssetCategoryType(customerId, deleteAssetCategory.AssetCategoryId, deleteAssetCategory.LifecycleTypes,deleteAssetCategory.CallerId);
+
+                var category = await _organizationServices.GetAssetCategoryType(customerId, deleteAssetCategory.AssetCategoryId);
+                if (category == null)
+                    return NotFound("Given asset category was not found.");
+                Guid assetCatId = category.AssetCategoryId;
+                var assetCategories = await _organizationServices.RemoveAssetCategoryType(customerId, assetCatId, deleteAssetCategory.LifecycleTypes,deleteAssetCategory.CallerId);
                 if (assetCategories == null)
                     return NotFound();
                 var assetCategoryView = new AssetCategoryType
                 {
-                    CustomerId = assetCategories.ExternalCustomerId,
-                    AssetCategoryId = assetCategories.AssetCategoryId,
+                    OrganizationId = assetCategories.ExternalCustomerId,
+                    AssetCategoryId = assetCategories.Id,
                     LifecycleTypes = assetCategories.LifecycleTypes.Select(a => new AssetCategoryLifecycleType()
                     {
                         CustomerId = a.CustomerId,
-                        AssetCategoryId = a.AssetCategoryId,
+                        AssetCategoryId = a.Id,
                         Name = Enum.GetName(typeof(LifecycleType), a.LifecycleType),
                         LifecycleType = a.LifecycleType
                     }).ToList()

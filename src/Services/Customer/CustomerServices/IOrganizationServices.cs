@@ -27,6 +27,7 @@ namespace CustomerServices
         Task<Location> DeleteOrganizationLocationAsync(Guid locationId, Guid callerId, bool hardDelete = false);
         Task<IList<AssetCategoryLifecycleType>> RemoveAssetCategoryLifecycleTypesForCustomerAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes,Guid callerId);
         Task<AssetCategoryType> GetAssetCategoryType(Guid customerId, Guid assetCategoryId);
+        Task<AssetCategoryType> GetAssetCategoryType(Guid customerId, int assetCategoryId);
         Task<IList<AssetCategoryType>> GetAssetCategoryTypes(Guid customerId);
         Task<AssetCategoryType> AddAssetCategoryType(Guid customerId, Guid addedAssetCategoryId, IList<int> lifecycleTypes, Guid callerId);
         Task<AssetCategoryType> RemoveAssetCategoryType(Guid customerId, Guid deletedAssetCategoryId, IList<int> lifecycleTypes, Guid callerId);

@@ -226,6 +226,10 @@ namespace OrigoApiGateway.Services
             }
             catch (HttpRequestException exception)
             {
+                // Customer not found
+                if (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return null;
+
                 _logger.LogError(exception, "GetAssetCategoryForCustomerAsync failed with HttpRequestException.");
                 throw;
             }
@@ -375,6 +379,10 @@ namespace OrigoApiGateway.Services
             }
             catch (HttpRequestException exception)
             {
+                // Customer not found
+                if (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return null;
+
                 _logger.LogError(exception, "GetCustomerProductModulesAsync failed with HttpRequestException.");
                 throw;
             }

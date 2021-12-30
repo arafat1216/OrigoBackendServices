@@ -252,6 +252,11 @@ namespace CustomerServices.Infrastructure
             return assetCategoryLifecycleTypes;
         }
 
+        public async Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, int assetCategoryId)
+        {
+            return await _customerContext.AssetCategoryTypes.Include(p => p.LifecycleTypes).FirstOrDefaultAsync(p => p.Id == assetCategoryId && p.ExternalCustomerId == customerId);
+        }
+
         public async Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, Guid assetCategoryId)
         {
             return await _customerContext.AssetCategoryTypes.Include(p => p.LifecycleTypes).FirstOrDefaultAsync(p => p.AssetCategoryId == assetCategoryId && p.ExternalCustomerId == customerId);
@@ -259,7 +264,9 @@ namespace CustomerServices.Infrastructure
 
         public async Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId)
         {
-            var customer = await GetOrganizationAsync(customerId);
+            var customer = await GetCustomerAsync(customerId);
+            if (customer == null)
+                return null;
             return customer.SelectedAssetCategories.ToList();
         }
 
@@ -330,7 +337,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<ProductModule> AddProductModuleAsync(Guid customerId, Guid moduleId, Guid callerId)
         {
-            var customer = await GetOrganizationAsync(customerId);
+            var customer = await GetCustomerAsync(customerId);
             var module = await GetProductModuleAsync(moduleId);
             if (customer == null || module == null)
             {
@@ -347,7 +354,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<ProductModule> RemoveProductModuleAsync(Guid customerId, Guid moduleId, Guid callerId)
         {
-            var customer = await GetOrganizationAsync(customerId);
+            var customer = await GetCustomerAsync(customerId);
             var module = await GetProductModuleAsync(moduleId);
             if (customer == null || module == null)
             {
@@ -372,7 +379,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<ProductModuleGroup> AddProductModuleGroupAsync(Guid customerId, Guid moduleGroupId,Guid callerId)
         {
-            var customer = await GetOrganizationAsync(customerId);
+            var customer = await GetCustomerAsync(customerId);
             var moduleGroup = await GetProductModuleGroupAsync(moduleGroupId);
             if (customer == null || moduleGroup == null)
             {
@@ -388,7 +395,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<ProductModuleGroup> RemoveProductModuleGroupAsync(Guid customerId, Guid moduleGroupId,Guid callerId)
         {
-            var customer = await GetOrganizationAsync(customerId);
+            var customer = await GetCustomerAsync(customerId);
             var moduleGroup = await GetProductModuleGroupAsync(moduleGroupId);
             if (customer == null || moduleGroup == null)
             {

@@ -534,6 +534,11 @@ namespace CustomerServices
             return await _customerRepository.DeleteAssetCategoryLifecycleTypeAsync(customer, assetCategory, assetCategoryLifecycleTypes, callerId);
         }
 
+        public async Task<AssetCategoryType> GetAssetCategoryType(Guid customerId, int assetCategoryId)
+        {
+            return await _customerRepository.GetAssetCategoryTypeAsync(customerId, assetCategoryId);
+        }
+
         public async Task<AssetCategoryType> GetAssetCategoryType(Guid customerId, Guid assetCategoryId)
         {
             return await _customerRepository.GetAssetCategoryTypeAsync(customerId, assetCategoryId);
@@ -547,7 +552,7 @@ namespace CustomerServices
 
         public async Task<AssetCategoryType> AddAssetCategoryType(Guid customerId, Guid addedAssetCategoryId, IList<int> lifecycleTypes, Guid callerId)
         {
-            var customer = await GetOrganizationAsync(customerId);
+            var customer = await GetCustomerAsync(customerId);
             var assetCategory = await GetAssetCategoryType(customerId, addedAssetCategoryId);
             if (customer == null)
             {
@@ -579,7 +584,7 @@ namespace CustomerServices
 
         public async Task<AssetCategoryType> RemoveAssetCategoryType(Guid customerId, Guid deletedAssetCategoryId, IList<int> lifecycleTypes, Guid callerId)
         {
-            var customer = await GetOrganizationAsync(customerId);
+            var customer = await GetCustomerAsync(customerId);
             var assetCategory = await GetAssetCategoryType(customerId, deletedAssetCategoryId);
             if (customer == null || assetCategory == null)
             {
