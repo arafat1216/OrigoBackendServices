@@ -145,6 +145,7 @@ namespace CustomerServices
                         {
                             existingUser.UpdateUser(user);
                         }
+                        await _organizationRepository.SaveEntitiesAsync();
                         if (UserPermissions.TryGetValue(user.UserId, out PredefinedRole role))
                         {
                             var access = new List<Guid>();
@@ -160,8 +161,8 @@ namespace CustomerServices
                             await _userPermissionServices.AssignUserPermissionsAsync(user.Email, $"{PredefinedRole.EndUser}", new List<Guid>());
                         }
                     }
+                    await _organizationRepository.SaveEntitiesAsync();
                 }
-                await _organizationRepository.SaveEntitiesAsync();
             }
             catch (Exception ex)
             {
