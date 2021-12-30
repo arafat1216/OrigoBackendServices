@@ -10,6 +10,7 @@ using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Models.BackendDTO;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -674,19 +675,27 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var assetLog =
-               await HttpClient.GetFromJsonAsync<IList<AssetAuditLog>>(
-                   $"{_options.ApiPath}/auditlog/{assetId}");
-
-
-                foreach (AssetAuditLog log in assetLog)
+                var assetLog = await HttpClient.GetFromJsonAsync<IList<AssetAuditLog>>($"{_options.ApiPath}/auditlog/{assetId}");
+                if (assetLog.Any())
                 {
-                    if (Guid.TryParse(log.CreatedBy, out Guid userId))
+                    IList<OrigoUser> users = new List<OrigoUser>();
+                    var organizationId = assetLog.First().CustomerId;
+                    foreach (string createdBy in assetLog.Select(s => s.CreatedBy).Distinct())
                     {
-                        OrigoUser user = await _userServices.GetUserAsync(log.CustomerId, userId);
-                        if (user != null)
+                        if (Guid.TryParse(createdBy, out Guid userId))
                         {
-                            log.CreatedBy = user.DisplayName;
+                            var user = await _userServices.GetUserAsync(organizationId, userId);
+                            if (user == null)
+                                continue;
+                            users.Add(user);
+                        }
+                    }
+                    foreach (AssetAuditLog log in assetLog)
+                    {
+                        if (Guid.TryParse(log.CreatedBy, out Guid userId))
+                        {
+                            var user = users.FirstOrDefault(u => u.Id == userId);
+                            log.CreatedBy = user?.DisplayName ?? "";
                         }
                     }
                 }
