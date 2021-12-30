@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using CustomerServices.Exceptions;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CustomerServices
 {
@@ -76,10 +76,17 @@ namespace CustomerServices
             var customer = await _customerRepository.GetOrganizationAsync(customerId);
             if (customer == null) throw new CustomerNotFoundException();
             if (userPreference == null || userPreference.Language == null)
+            {
                 // Set a default language setting
-                userPreference = new UserPreference("EN",callerId);
+                userPreference = new UserPreference("EN", callerId);
+            }
+            // Check if email address is used by another user
+            var user = await _customerRepository.GetUserByUserName(email);
+            if (user != null)
+                throw new UserNameIsInUseException("Email address is already in use.");
+
             var newUser = new User(customer, Guid.NewGuid(), firstName, lastName, email, mobileNumber, employeeId,
-                userPreference,callerId);
+                userPreference, callerId);
 
             newUser = await _customerRepository.AddUserAsync(newUser);
 
@@ -90,7 +97,7 @@ namespace CustomerServices
             return _mapper.Map<UserDTO>(newUser);
         }
 
-        private async Task<User> AssignOktaUserIdAsync(Guid customerId, Guid userId, string oktaUserId,Guid callerId)
+        private async Task<User> AssignOktaUserIdAsync(Guid customerId, Guid userId, string oktaUserId, Guid callerId)
         {
             var user = await GetUserAsync(customerId, userId);
             if (user == null)
@@ -144,13 +151,20 @@ namespace CustomerServices
         }
 
         public async Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
-            string email, string employeeId, UserPreference userPreference,Guid callerId)
+            string email, string employeeId, UserPreference userPreference, Guid callerId)
         {
             var user = await GetUserAsync(customerId, userId);
             if (user == null) return null;
-            if (firstName != default && user.FirstName != firstName) user.ChangeFirstName(firstName,callerId);
+            if (firstName != default && user.FirstName != firstName) user.ChangeFirstName(firstName, callerId);
             if (lastName != default && user.LastName != lastName) user.ChangeLastName(lastName, callerId);
-            if (email != default && user.Email != email) user.ChangeEmailAddress(email, callerId);
+            if (email != default && user.Email != email)
+            {
+                // Check if email address is used by another user
+                var username = await _customerRepository.GetUserByUserName(email);
+                if (username != null && username.Id != user.Id)
+                    throw new UserNameIsInUseException("Email address is already in use.");
+                user.ChangeEmailAddress(email, callerId);
+            }
             if (employeeId != default && user.EmployeeId != employeeId) user.ChangeEmployeeId(employeeId, callerId);
             if (userPreference != null && userPreference.Language != null &&
                 userPreference.Language != user.UserPreference?.Language)
@@ -166,12 +180,22 @@ namespace CustomerServices
             var user = await GetUserAsync(customerId, userId);
             if (user == null) return null;
 
-            user.ChangeFirstName(firstName,callerId);
+            user.ChangeFirstName(firstName, callerId);
             user.ChangeLastName(lastName, callerId);
-            user.ChangeEmailAddress(email,callerId);
+            if (email != default && user.Email != email)
+            {
+                // Check if email address is used by another user
+                var username = await _customerRepository.GetUserByUserName(email);
+                if (username != null && username.Id != user.Id)
+                    throw new UserNameIsInUseException("Email address is already in use.");
+                user.ChangeEmailAddress(email, callerId);
+            }
+            user.ChangeEmailAddress(email, callerId);
             user.ChangeEmployeeId(employeeId, callerId);
             if (userPreference != null)
-                user.ChangeUserPreferences(userPreference,callerId);
+            {
+                user.ChangeUserPreferences(userPreference, callerId);
+            }
 
             await _customerRepository.SaveEntitiesAsync();
             return _mapper.Map<UserDTO>(user);
@@ -197,7 +221,7 @@ namespace CustomerServices
             var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
             if (user == null || department == null)
                 return null;
-            user.AssignDepartment(department,callerId);
+            user.AssignDepartment(department, callerId);
             await _customerRepository.SaveEntitiesAsync();
             return _mapper.Map<UserDTO>(user);
         }
@@ -226,7 +250,7 @@ namespace CustomerServices
                 throw new DepartmentNotFoundException($"Unable to find {departmentId}");
             }
 
-            user.UnassignManagerFromDepartment(department,callerId);
+            user.UnassignManagerFromDepartment(department, callerId);
             await _customerRepository.SaveEntitiesAsync();
         }
 
@@ -236,7 +260,7 @@ namespace CustomerServices
             var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
             if (user == null || department == null)
                 return null;
-            user.UnassignDepartment(department,callerId);
+            user.UnassignDepartment(department, callerId);
             await _customerRepository.SaveEntitiesAsync();
             return _mapper.Map<UserDTO>(user);
         }
