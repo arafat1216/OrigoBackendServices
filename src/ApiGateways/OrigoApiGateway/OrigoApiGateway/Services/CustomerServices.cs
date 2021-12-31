@@ -96,6 +96,7 @@ namespace OrigoApiGateway.Services
             {
                 var newCustomerDTO = _mapper.Map<NewOrganizationDTO>(newCustomer);
                 newCustomerDTO.CallerId = callerId;
+                newCustomerDTO.IsCustomer = true;
 
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", newCustomerDTO);
                 if (!response.IsSuccessStatusCode)
