@@ -38,6 +38,7 @@ namespace AssetServices.Models
         public virtual void ChangeSerialNumber(string serialNumber, Guid callerId)
         {
             UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -58,6 +59,7 @@ namespace AssetServices.Models
             }
             Imeis = new List<AssetImei>(imeiList.Select(i => new AssetImei(i)).ToList());
             UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
         }
 
         /// <summary>

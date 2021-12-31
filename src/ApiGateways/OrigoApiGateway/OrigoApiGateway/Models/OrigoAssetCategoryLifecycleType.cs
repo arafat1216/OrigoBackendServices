@@ -1,9 +1,11 @@
 ﻿using Common.Enums;
 using OrigoApiGateway.Models.BackendDTO;
-using System;
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Response object
+    /// </summary>
     public class OrigoAssetCategoryLifecycleType
     {
         public string Name { get; set; }

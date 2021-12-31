@@ -1,4 +1,6 @@
-﻿namespace Customer.API.ViewModels
+﻿using System;
+
+namespace Customer.API.ViewModels
 {
     public class UpdateUser
     {
@@ -10,5 +12,6 @@
         /// <summary>
         /// NB! This Will be removed in a later version
         /// </summary>
+        public Guid CallerId { get; set; }
     }
 }

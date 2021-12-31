@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Response object
+    /// </summary>
     public class OrigoCustomerAssetCategoryType
     {
         public string Name { get; set; }

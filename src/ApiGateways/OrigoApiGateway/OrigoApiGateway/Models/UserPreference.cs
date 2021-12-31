@@ -3,6 +3,9 @@ using OrigoApiGateway.Models.BackendDTO;
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Request and response object
+    /// </summary>
     public class UserPreference
     {
         public UserPreference()

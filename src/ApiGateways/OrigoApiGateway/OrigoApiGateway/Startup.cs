@@ -1,3 +1,4 @@
+using AutoMapper;
 using Dapr.Client;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication;
@@ -25,7 +26,6 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading;
-using AutoMapper;
 
 namespace OrigoApiGateway
 {
@@ -109,7 +109,8 @@ namespace OrigoApiGateway
                     DaprClient.CreateInvokeHttpClient("customerservices"),
                     x.GetRequiredService<IOptions<UserConfiguration>>(),
                     x.GetRequiredService<IMapper>()
-                )
+                ),
+                x.GetRequiredService<IMapper>()
             ));
 
             services.AddSingleton<ICustomerServices>(x => new CustomerServices(
@@ -125,14 +126,17 @@ namespace OrigoApiGateway
                             DaprClient.CreateInvokeHttpClient("customerservices"),
                             x.GetRequiredService<IOptions<UserConfiguration>>(),
                             x.GetRequiredService<IMapper>()
-                    )
-                )
+                    ),
+                    x.GetRequiredService<IMapper>()
+                ),
+                x.GetRequiredService<IMapper>()
             ));
 
             services.AddSingleton<IUserPermissionService>(x => new UserPermissionService(
                 x.GetRequiredService<ILogger<UserPermissionService>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<UserPermissionsConfigurations>>()
+                x.GetRequiredService<IOptions<UserPermissionsConfigurations>>(),
+                x.GetRequiredService<IMapper>()
             ));
 
             services.AddSingleton<IUserServices>(x => new UserServices(
@@ -159,15 +163,18 @@ namespace OrigoApiGateway
                             DaprClient.CreateInvokeHttpClient("customerservices"),
                             x.GetRequiredService<IOptions<UserConfiguration>>(),
                             x.GetRequiredService<IMapper>()
-                        )
-                    )
+                        ),
+                        x.GetRequiredService<IMapper>()
+                    ),
+                    x.GetRequiredService<IMapper>()
                 )
             ));
 
             services.AddSingleton<IDepartmentsServices>(x => new DepartmentsServices(
                 x.GetRequiredService<ILogger<DepartmentsServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<DepartmentConfiguration>>()
+                x.GetRequiredService<IOptions<DepartmentConfiguration>>(),
+                x.GetRequiredService<IMapper>()
             ));
 
             services.AddSingleton<IProductCatalogServices>(x => new ProductCatalogServices(

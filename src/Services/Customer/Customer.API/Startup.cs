@@ -1,12 +1,8 @@
-using System;
-using System.Reflection;
 using Common.Logging;
-using Customer.API.Mappings;
 using CustomerServices;
 using CustomerServices.Infrastructure;
 using CustomerServices.Mappings;
 using CustomerServices.Models;
-using CustomerServices.ServiceModels;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System;
+using System.Reflection;
 
 namespace Customer.API
 {
@@ -33,7 +31,7 @@ namespace Customer.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
+
             services.AddControllers().AddDapr();
             services.AddApiVersioning(config =>
             {
@@ -43,7 +41,7 @@ namespace Customer.API
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc($"v{_apiVersion.MajorVersion}",
-                    new OpenApiInfo {Title = "Customer Management", Version = $"v{_apiVersion.MajorVersion}"});
+                    new OpenApiInfo { Title = "Customer Management", Version = $"v{_apiVersion.MajorVersion}" });
             });
             services.AddApplicationInsightsTelemetry();
             services.AddDbContext<CustomerContext>(options => options.UseSqlServer(
@@ -63,7 +61,7 @@ namespace Customer.API
             services.AddAutoMapper(Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(UserDTOProfile)));
             services.Configure<OktaConfiguration>(Configuration.GetSection("Okta"));
             services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
-            services.AddScoped<IOrganizationServices, CustomerServices.OrganizationServices>();
+            services.AddScoped<IOrganizationServices, OrganizationServices>();
             services.AddScoped<IUserServices, UserServices>();
             services.AddScoped<IOktaServices, OktaServices>();
             services.AddScoped<IUserPermissionServices, UserPermissionServices>();

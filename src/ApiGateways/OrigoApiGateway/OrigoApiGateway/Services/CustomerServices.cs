@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
+﻿using AutoMapper;
 using Common.Enums;
 using Common.Exceptions;
 using Microsoft.AspNetCore.Http;
@@ -11,34 +6,42 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {
     public class CustomerServices : ICustomerServices
     {
         public CustomerServices(ILogger<CustomerServices> logger, HttpClient httpClient,
-            IOptions<CustomerConfiguration> options, IAssetServices assetServices)
+            IOptions<CustomerConfiguration> options, IAssetServices assetServices, IMapper mapper)
         {
             _logger = logger;
             HttpClient = httpClient;
             _options = options.Value;
             _assetServices = assetServices;
+            _mapper = mapper;
         }
 
         private readonly ILogger<CustomerServices> _logger;
         private HttpClient HttpClient { get; }
         private readonly CustomerConfiguration _options;
         private readonly IAssetServices _assetServices;
+        private readonly IMapper _mapper;
 
         public async Task<IList<Organization>> GetCustomersAsync()
         {
             try
             {
-                var customers = await HttpClient.GetFromJsonAsync<IList<OrganizationDTO>>($"{_options.ApiPath}");
-                if (customers == null) return null;
-                var origoCustomers = new List<Organization>();
-                foreach (var customer in customers) origoCustomers.Add(new Organization(customer));
-                return origoCustomers;
+                var organizations = await HttpClient.GetFromJsonAsync<IList<OrganizationDTO>>($"{_options.ApiPath}");
+                if (organizations == null)
+                    return null;
+
+                return _mapper.Map<List<Organization>>(organizations);
             }
             catch (HttpRequestException exception)
             {
@@ -61,8 +64,8 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var customer = await HttpClient.GetFromJsonAsync<OrganizationDTO>($"{_options.ApiPath}/{customerId}");
-                return customer == null ? null : new Organization(customer);
+                var organization = await HttpClient.GetFromJsonAsync<OrganizationDTO>($"{_options.ApiPath}/{customerId}");
+                return organization == null ? null : _mapper.Map<Organization>(organization);
             }
             catch (HttpRequestException exception)
             {
@@ -71,7 +74,7 @@ namespace OrigoApiGateway.Services
                 {
                     return null;
                 }
-               
+
                 _logger.LogError(exception, "GetCustomerAsync failed with HttpRequestException.");
                 throw;
             }
@@ -87,16 +90,19 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<Organization> CreateCustomerAsync(NewOrganizationDTO newCustomer)
+        public async Task<Organization> CreateCustomerAsync(NewOrganization newCustomer, Guid callerId)
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", newCustomer);
+                var newCustomerDTO = _mapper.Map<NewOrganizationDTO>(newCustomer);
+                newCustomerDTO.CallerId = callerId;
+
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", newCustomerDTO);
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save customer", (int)response.StatusCode);
 
-                var customer = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
-                return customer == null ? null : new Organization(customer);
+                var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+                return organization == null ? null : _mapper.Map<Organization>(organization);
             }
             catch (Exception exception)
             {
@@ -137,7 +143,7 @@ namespace OrigoApiGateway.Services
                 }
 
                 var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
-                return organization == null ? null : new Organization(organization);
+                return organization == null ? null : _mapper.Map<Organization>(organization);
             }
             catch (Exception ex)
             {
@@ -152,12 +158,12 @@ namespace OrigoApiGateway.Services
             {
                 var response = await HttpClient.PutAsJsonAsync($"{_options.ApiPath}/{organizationToChange.OrganizationId}/organization", organizationToChange);
                 if (!response.IsSuccessStatusCode)
-                    throw new BadHttpRequestException("Unable to update organization", (int) response.StatusCode);
+                    throw new BadHttpRequestException("Unable to update organization", (int)response.StatusCode);
 
                 var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
-                return organization == null ? null : new Organization(organization);
+                return organization == null ? null : _mapper.Map<Organization>(organization);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "UpdateOrganizationAsync unknown error.");
                 throw;
@@ -173,7 +179,7 @@ namespace OrigoApiGateway.Services
                     throw new BadHttpRequestException("Unable to update organization", (int)response.StatusCode);
 
                 var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
-                return organization == null ? null : new Organization(organization);
+                return organization == null ? null : _mapper.Map<Organization>(organization);
             }
             catch (Exception ex)
             {
@@ -245,16 +251,19 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoCustomerAssetCategoryType> AddAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryTypeDTO customerAssetCategoryType)
+        public async Task<OrigoCustomerAssetCategoryType> AddAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryType customerAssetCategoryType, Guid callerId)
         {
             try
             {
+                var customerAssetCategoryTypeDTO = _mapper.Map<NewCustomerAssetCategoryTypeDTO>(customerAssetCategoryType);
+                customerAssetCategoryTypeDTO.CallerId = callerId;
+
                 var assetCategories = await _assetServices.GetAssetCategoriesAsync();
-                var assetCategory = assetCategories.FirstOrDefault(a => a.AssetCategoryId == customerAssetCategoryType.AssetCategoryId);
+                var assetCategory = assetCategories.FirstOrDefault(a => a.AssetCategoryId == customerAssetCategoryTypeDTO.AssetCategoryId);
                 if (assetCategory == null)
                     return null;
                 var requestUri = $"{_options.ApiPath}/{customerId}/assetCategory";
-                var response = await HttpClient.PatchAsync(requestUri, JsonContent.Create(customerAssetCategoryType));
+                var response = await HttpClient.PatchAsync(requestUri, JsonContent.Create(customerAssetCategoryTypeDTO));
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to add the asset category to the customer.", (int)response.StatusCode);
@@ -300,14 +309,16 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoCustomerAssetCategoryType> RemoveAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryTypeDTO customerAssetCategoryType)
+        public async Task<OrigoCustomerAssetCategoryType> RemoveAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryType customerAssetCategoryType, Guid callerId)
         {
             try
             {
+                var customerAssetCategoryTypeDTO = _mapper.Map<NewCustomerAssetCategoryTypeDTO>(customerAssetCategoryType);
+                customerAssetCategoryTypeDTO.CallerId = callerId;
                 var requestUri = $"{_options.ApiPath}/{customerId}/assetCategory";
                 HttpRequestMessage request = new HttpRequestMessage
                 {
-                    Content = JsonContent.Create(customerAssetCategoryType),
+                    Content = JsonContent.Create(customerAssetCategoryTypeDTO),
                     Method = HttpMethod.Delete,
                     RequestUri = new Uri(requestUri, UriKind.Relative)
                 };
@@ -319,14 +330,14 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var assetCategories = await _assetServices.GetAssetCategoriesAsync();
-                var assetCategory = assetCategories.FirstOrDefault(a => a.AssetCategoryId == customerAssetCategoryType.AssetCategoryId);
+                var assetCategory = assetCategories.FirstOrDefault(a => a.AssetCategoryId == customerAssetCategoryTypeDTO.AssetCategoryId);
                 var assetLifecycles = await _assetServices.GetLifecycles();
                 var category = await response.Content.ReadFromJsonAsync<CustomerAssetCategoryDTO>();
                 var tempAssetCategory = category == null ? null : new OrigoCustomerAssetCategoryType
                 {
                     AssetCategoryId = category.AssetCategoryId,
                     Name = assetCategory?.Name,
-                    IsChecked = customerAssetCategoryType.LifecycleTypes.Any(),
+                    IsChecked = customerAssetCategoryTypeDTO.LifecycleTypes.Any(),
                     LifecycleTypes = assetLifecycles.Select(l => new OrigoAssetCategoryLifecycleType()
                     {
                         AssetCategoryId = category.AssetCategoryId,
@@ -398,12 +409,15 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoProductModule> AddProductModulesAsync(Guid customerId, NewCustomerProductModuleDTO productModule)
+        public async Task<OrigoProductModule> AddProductModulesAsync(Guid customerId, NewCustomerProductModule productModule, Guid callerId)
         {
             try
             {
+                var productModuleDTO = _mapper.Map<NewCustomerProductModuleDTO>(productModule);
+                productModuleDTO.CallerId = callerId;
+
                 var requestUri = $"{_options.ApiPath}/{customerId}/modules";
-                var response = await HttpClient.PatchAsync(requestUri, JsonContent.Create(productModule));
+                var response = await HttpClient.PatchAsync(requestUri, JsonContent.Create(productModuleDTO));
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to add the module to the customer.", (int)response.StatusCode);
@@ -436,14 +450,17 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoProductModule> RemoveProductModulesAsync(Guid customerId, NewCustomerProductModuleDTO productModule)
+        public async Task<OrigoProductModule> RemoveProductModulesAsync(Guid customerId, NewCustomerProductModule productModule, Guid callerId)
         {
             try
             {
+                var productModuleDTO = _mapper.Map<NewCustomerProductModuleDTO>(productModule);
+                productModuleDTO.CallerId = callerId;
+
                 var requestUri = $"{_options.ApiPath}/{customerId}/modules";
                 HttpRequestMessage request = new HttpRequestMessage
                 {
-                    Content = JsonContent.Create(productModule),
+                    Content = JsonContent.Create(productModuleDTO),
                     Method = HttpMethod.Delete,
                     RequestUri = new Uri(requestUri, UriKind.Relative)
                 };

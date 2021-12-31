@@ -11,5 +11,6 @@ namespace Customer.API.ViewModels
         public string Description { get; set; }
 
         public Guid? ParentDepartmentId { get; set; }
+        public Guid CallerId { get; set; }
     }
 }

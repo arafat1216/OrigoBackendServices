@@ -93,27 +93,9 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid.TryParse(actor, out Guid callerId);
 
-                var newCustomerDTO = new NewOrganizationDTO();
-                newCustomerDTO.Name = newCustomer.Name;
-                newCustomerDTO.OrganizationNumber = newCustomer.OrganizationNumber;
-                newCustomerDTO.Address = newCustomer.Address;
-                newCustomerDTO.ContactPerson = newCustomer.ContactPerson;
-                newCustomerDTO.ParentId = newCustomer.ParentId;
-                newCustomerDTO.PrimaryLocation = newCustomer.PrimaryLocation;
-                newCustomerDTO.ContactEmail = newCustomer.ContactEmail;
-                newCustomerDTO.InternalNotes = newCustomer.InternalNotes;
-                newCustomerDTO.Location = newCustomer.Location;
-                newCustomerDTO.Preferences = newCustomer.Preferences;
-
-                // This endpoint specifically creates Organizations of subtype customer
-                newCustomerDTO.IsCustomer = true; 
-
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
-                newCustomerDTO.CallerId = callerId;
-
-                var createdCustomer = await CustomerServices.CreateCustomerAsync(newCustomerDTO);
+                var createdCustomer = await CustomerServices.CreateCustomerAsync(newCustomer, callerId);
                 if (createdCustomer == null)
                 {
                     return BadRequest();
@@ -130,7 +112,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPut]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Organization>> UpdateOrganization([FromBody] UpdateOrganization organizationToChange)
         {
@@ -149,7 +131,7 @@ namespace OrigoApiGateway.Controllers
 
                 return Ok(updateOrganization);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.LogError("{0}", ex.Message);
                 return BadRequest();
@@ -159,7 +141,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Organization>> PatchOrganization([FromBody] UpdateOrganization organizationToChange)
         {
@@ -187,7 +169,7 @@ namespace OrigoApiGateway.Controllers
 
         [Route("{organizationId:Guid}")]
         [HttpDelete]
-        [ProducesResponseType(typeof(Organization), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
@@ -208,7 +190,7 @@ namespace OrigoApiGateway.Controllers
 
                 return Ok(deletedOrganization);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -255,6 +237,7 @@ namespace OrigoApiGateway.Controllers
             {
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
@@ -268,18 +251,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                Guid.TryParse(actor, out Guid callerId);
 
-                var customerAssetCategoryTypeDTO = new NewCustomerAssetCategoryTypeDTO();
-                customerAssetCategoryTypeDTO.OrganizationId = customerAssetCategoryType.OrganizationId;
-                customerAssetCategoryTypeDTO.AssetCategoryId = customerAssetCategoryType.AssetCategoryId;
-                customerAssetCategoryTypeDTO.LifecycleTypes = new List<int>(customerAssetCategoryType.LifecycleTypes);
-
-                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
-                customerAssetCategoryTypeDTO.CallerId = callerId;
-
-                var removedAssetCategory = await CustomerServices.AddAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryTypeDTO);
+                var removedAssetCategory = await CustomerServices.AddAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType, callerId);
                 if (removedAssetCategory == null)
                 {
                     return NotFound();
@@ -304,6 +278,8 @@ namespace OrigoApiGateway.Controllers
             {
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
@@ -317,18 +293,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                Guid.TryParse(actor, out Guid callerId);
 
-                var customerAssetCategoryTypeDTO = new NewCustomerAssetCategoryTypeDTO();
-                customerAssetCategoryTypeDTO.OrganizationId = customerAssetCategoryType.OrganizationId;
-                customerAssetCategoryTypeDTO.AssetCategoryId = customerAssetCategoryType.AssetCategoryId;
-                customerAssetCategoryTypeDTO.LifecycleTypes = new List<int>(customerAssetCategoryType.LifecycleTypes);
-
-                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
-                customerAssetCategoryTypeDTO.CallerId = callerId;
-
-                var assetCategoryLifecycleTypes = await CustomerServices.RemoveAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryTypeDTO);
+                var assetCategoryLifecycleTypes = await CustomerServices.RemoveAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType, callerId);
                 return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();
             }
             catch (Exception)
@@ -364,6 +331,7 @@ namespace OrigoApiGateway.Controllers
             {
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
@@ -377,17 +345,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                Guid.TryParse(actor, out Guid callerId);
 
-                var productModuleDTO = new NewCustomerProductModuleDTO();
-                productModuleDTO.ProductModuleId = productModule.ProductModuleId;
-                productModuleDTO.ProductModuleGroupIds = new List<Guid>(productModule.ProductModuleGroupIds);
-
-                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
-                productModuleDTO.CallerId = callerId;
-
-                var productModules = await CustomerServices.AddProductModulesAsync(organizationId, productModuleDTO);
+                var productModules = await CustomerServices.AddProductModulesAsync(organizationId, productModule, callerId);
                 return productModules != null ? Ok(productModules) : NotFound();
             }
             catch
@@ -406,6 +366,7 @@ namespace OrigoApiGateway.Controllers
             {
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
@@ -419,17 +380,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                Guid.TryParse(actor, out Guid callerId);
 
-                var productModuleDTO = new NewCustomerProductModuleDTO();
-                productModuleDTO.ProductModuleId = productModule.ProductModuleId;
-                productModuleDTO.ProductModuleGroupIds = new List<Guid>(productModule.ProductModuleGroupIds);
-
-                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
-                productModuleDTO.CallerId = callerId;
-
-                var productModules = await CustomerServices.RemoveProductModulesAsync(organizationId, productModuleDTO);
+                var productModules = await CustomerServices.RemoveProductModulesAsync(organizationId, productModule, callerId);
                 return productModules != null ? Ok(productModules) : NoContent();
             }
             catch

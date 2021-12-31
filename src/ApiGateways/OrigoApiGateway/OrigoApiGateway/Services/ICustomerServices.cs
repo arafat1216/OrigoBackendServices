@@ -10,17 +10,17 @@ namespace OrigoApiGateway.Services
     {
         Task<IList<Organization>> GetCustomersAsync();
         Task<Organization> GetCustomerAsync(Guid customerId);
-        Task<Organization> CreateCustomerAsync(NewOrganizationDTO newCustomer);
+        Task<Organization> CreateCustomerAsync(NewOrganization newCustomer, Guid callerId);
         Task<Organization> UpdateOrganizationAsync(UpdateOrganization organizationToChange);
         Task<Organization> PatchOrganizationAsync(UpdateOrganization organizationToChange);
         Task<Organization> DeleteOrganizationAsync(Guid organizationId, Guid callerId);
 
         Task<IList<OrigoCustomerAssetCategoryType>> GetAssetCategoryForCustomerAsync(Guid customerId);
-        Task<OrigoCustomerAssetCategoryType> AddAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryTypeDTO customerAssetCategoryType);
-        Task<OrigoCustomerAssetCategoryType> RemoveAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryTypeDTO customerAssetCategoryType);
+        Task<OrigoCustomerAssetCategoryType> AddAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryType customerAssetCategoryType, Guid callerId);
+        Task<OrigoCustomerAssetCategoryType> RemoveAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryType customerAssetCategoryType, Guid callerId);
 
         Task<IList<OrigoProductModule>> GetCustomerProductModulesAsync(Guid customerId);
-        Task<OrigoProductModule> AddProductModulesAsync(Guid customerId, NewCustomerProductModuleDTO productModule);
-        Task<OrigoProductModule> RemoveProductModulesAsync(Guid customerId, NewCustomerProductModuleDTO productModule);
+        Task<OrigoProductModule> AddProductModulesAsync(Guid customerId, NewCustomerProductModule productModule, Guid callerId);
+        Task<OrigoProductModule> RemoveProductModulesAsync(Guid customerId, NewCustomerProductModule productModule, Guid callerId);
     }
 }
