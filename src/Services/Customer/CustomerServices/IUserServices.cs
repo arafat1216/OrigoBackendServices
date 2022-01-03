@@ -13,7 +13,7 @@ namespace CustomerServices
         Task<UserDTO> GetUserWithRoleAsync(Guid customerId, Guid userId);
         Task<UserDTO> GetUserWithRoleAsync(Guid userId);
         Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
-            string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId);
+            string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId, string role);
         Task<UserDTO> UpdateUserPutAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, UserPreference userPreference, Guid callerId);
         Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,

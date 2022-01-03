@@ -80,7 +80,7 @@ namespace CustomerServices
         }
 
         public async Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
-            string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId)
+            string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId, string role)
         {
             var customer = await _customerRepository.GetOrganizationAsync(customerId);
             if (customer == null) throw new CustomerNotFoundException();
@@ -103,7 +103,26 @@ namespace CustomerServices
                 newUser.Email, newUser.MobileNumber, true);
             newUser = await AssignOktaUserIdAsync(newUser.Customer.OrganizationId, newUser.UserId, oktaUserId, callerId);
 
-            return _mapper.Map<UserDTO>(newUser);
+
+            var mappedNewUserDTO = _mapper.Map<UserDTO>(newUser);
+
+            //Add user permission if role is added in the request - type of role gets checked in AssignUserPermissionAsync
+            if (role != null)
+            {
+                try
+                {
+                    var userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid>() { customerId }, callerId);
+                    if (userPermission != null)
+                    {
+                        mappedNewUserDTO.Role = role;
+                    }
+                }
+                catch (InvalidRoleNameException) {
+                    mappedNewUserDTO.Role = null;
+                }
+            }
+
+            return mappedNewUserDTO; 
         }
 
         private async Task<User> AssignOktaUserIdAsync(Guid customerId, Guid userId, string oktaUserId, Guid callerId)
