@@ -18,6 +18,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Okta.AspNetCore;
 using OrigoApiGateway.Authorization;
+using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Helpers;
 using OrigoApiGateway.Services;
 using System;
@@ -49,7 +50,6 @@ namespace OrigoApiGateway
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers().AddDapr();
-
             services.AddApiVersioning(config =>
             {
                 config.DefaultApiVersion = _apiVersion;
@@ -176,38 +176,47 @@ namespace OrigoApiGateway
                 x.GetRequiredService<IOptions<ProductCatalogConfiguration>>()
             ));
 
-            services.AddSingleton<ISeedDatabaseService>(x => new SeedDatabaseService(
-                x.GetRequiredService<ILogger<SeedDatabaseService>>(),
-                new AssetServices(
-                    x.GetRequiredService<ILogger<AssetServices>>(),
-                    DaprClient.CreateInvokeHttpClient("assetservices"),
-                    x.GetRequiredService<IOptions<AssetConfiguration>>(),
-                    new UserServices(
-                        x.GetRequiredService<ILogger<UserServices>>(),
-                        DaprClient.CreateInvokeHttpClient("customerservices"),
-                        x.GetRequiredService<IOptions<UserConfiguration>>(),
-                        x.GetRequiredService<IMapper>()
-                    )
-                ),
-                new CustomerServices(
-                        x.GetRequiredService<ILogger<CustomerServices>>(),
-                        DaprClient.CreateInvokeHttpClient("customerservices"),
-                        x.GetRequiredService<IOptions<CustomerConfiguration>>(),
-                        new AssetServices(
-                            x.GetRequiredService<ILogger<AssetServices>>(),
-                            DaprClient.CreateInvokeHttpClient("assetservices"),
-                            x.GetRequiredService<IOptions<AssetConfiguration>>(),
-                            new UserServices(
-                                x.GetRequiredService<ILogger<UserServices>>(),
-                                DaprClient.CreateInvokeHttpClient("customerservices"),
-                                x.GetRequiredService<IOptions<UserConfiguration>>(),
-                                x.GetRequiredService<IMapper>()
+
+            if (WebHostEnvironment.EnvironmentName == "Development")
+            {
+                services.AddSingleton<ISeedDatabaseService>(x => new SeedDatabaseService(
+                    x.GetRequiredService<ILogger<SeedDatabaseService>>(),
+                    new AssetServices(
+                        x.GetRequiredService<ILogger<AssetServices>>(),
+                        DaprClient.CreateInvokeHttpClient("assetservices"),
+                        x.GetRequiredService<IOptions<AssetConfiguration>>(),
+                        new UserServices(
+                            x.GetRequiredService<ILogger<UserServices>>(),
+                            DaprClient.CreateInvokeHttpClient("customerservices"),
+                            x.GetRequiredService<IOptions<UserConfiguration>>(),
+                            x.GetRequiredService<IMapper>()
+                        )
+                    ),
+                    new CustomerServices(
+                            x.GetRequiredService<ILogger<CustomerServices>>(),
+                            DaprClient.CreateInvokeHttpClient("customerservices"),
+                            x.GetRequiredService<IOptions<CustomerConfiguration>>(),
+                            new AssetServices(
+                                x.GetRequiredService<ILogger<AssetServices>>(),
+                                DaprClient.CreateInvokeHttpClient("assetservices"),
+                                x.GetRequiredService<IOptions<AssetConfiguration>>(),
+                                new UserServices(
+                                    x.GetRequiredService<ILogger<UserServices>>(),
+                                    DaprClient.CreateInvokeHttpClient("customerservices"),
+                                    x.GetRequiredService<IOptions<UserConfiguration>>(),
+                                    x.GetRequiredService<IMapper>()
+                                )
                             )
                         )
                     )
-                )
-            );
-
+                );
+            }
+            else
+            {
+                services.AddMvc(c =>
+                    c.Conventions.Add(new HideTestControllersConvention())
+                );
+            }
 
             services.AddSwaggerGen(options =>
             {
