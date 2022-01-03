@@ -76,6 +76,34 @@ namespace OrigoApiGateway.Services
             }
         }
 
+        public async Task<OrigoUser> GetUserAsync(Guid userId)
+        {
+            try
+            {
+                var user = await HttpClient.GetFromJsonAsync<UserDTO>($"{_options.ApiPath}/users/{userId}");
+                return user != null ? _mapper.Map<OrigoUser>(user) : null;
+            }
+            catch (HttpRequestException exception)
+            {
+                // Handle this special case by writing id of user instead of users name in auditlog
+                if (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return null;
+
+                _logger.LogError(exception, "GetUserAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetUserAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetUserAsync unknown error.");
+                throw;
+            }
+        }
+
         public async Task<IEnumerable<OrigoUser>> GetAllUsersAsync(Guid customerId, IReadOnlyCollection<Guid> filteredDepartmentList = null)
         {
             try

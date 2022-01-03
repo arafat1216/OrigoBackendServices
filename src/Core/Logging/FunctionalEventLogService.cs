@@ -36,7 +36,7 @@ namespace Common.Logging
         public async Task<IList<FunctionalEventLogEntry>> RetrieveEventLogsAsync(Guid entityId)
         {
             return await _functionalEventLogContext.LogEntries
-                .Where(e => e.EventId == entityId).ToListAsync();
+                .Where(e => e.EventId == entityId).OrderByDescending(l => l.CreationTime).ToListAsync();
         }
 
         public Task SaveEventAsync(INotification @event, IDbContextTransaction transaction)
