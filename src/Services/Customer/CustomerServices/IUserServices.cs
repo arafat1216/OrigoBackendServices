@@ -12,7 +12,7 @@ namespace CustomerServices
         Task<IList<UserDTO>> GetAllUsersAsync(Guid customerId);
         Task<UserDTO> GetUserWithRoleAsync(Guid customerId, Guid userId);
         Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
-            string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId);
+            string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId, string role);
         Task<UserDTO> UpdateUserPutAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, UserPreference userPreference, Guid callerId);
         Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,

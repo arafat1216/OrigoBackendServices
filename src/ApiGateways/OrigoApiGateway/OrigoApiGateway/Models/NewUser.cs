@@ -11,5 +11,6 @@
         public string MobileNumber { get; set; }
         public string EmployeeId { get; set; }
         public UserPreference UserPreference { get; set; }
+        public string Role { get; set; }
     }
 }
