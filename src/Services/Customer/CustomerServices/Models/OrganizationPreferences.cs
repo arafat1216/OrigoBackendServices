@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using CustomerServices.DomainEvents;
 using System;
 
 namespace CustomerServices.Models
@@ -35,6 +36,7 @@ namespace CustomerServices.Models
             UpdatedAt = DateTime.UtcNow;
             CreatedBy = callerId;
             UpdatedBy = callerId;
+            AddDomainEvent(new OrganizationPreferencesAddedDomainEvent(this));
         }
 
         /// <summary>

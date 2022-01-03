@@ -18,6 +18,7 @@ namespace CustomerServices.Models
             ParentDepartment = parentDepartment;
             ExternalDepartmentId = externalDepartmentId;
             CreatedBy = callerId;
+            //AddDomainEvent(new DepartmentCreatedDomainEvent(this));
         }
 
         public Guid ExternalDepartmentId { get; protected set; }
