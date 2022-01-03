@@ -39,10 +39,10 @@ namespace AssetServices.Infrastructure
                 .FirstOrDefaultAsync(a => a.ExternalId == asset.ExternalId);
         }
 
-        public async Task<int> GetAssetsCount(Guid customerId)
+        public async Task<int> GetAssetsCountAsync(Guid customerId)
         {
-            var assets = _assetContext.Assets
-            .Where(a => a.CustomerId == customerId && a.Status == AssetStatus.Active).Count();
+            var assets = await _assetContext.Assets
+            .Where(a => a.CustomerId == customerId && a.Status == AssetStatus.Active).CountAsync();
 
             return assets;
         }

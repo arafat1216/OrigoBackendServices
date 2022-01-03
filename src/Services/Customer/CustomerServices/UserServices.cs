@@ -70,6 +70,15 @@ namespace CustomerServices
             return userDTO;
         }
 
+        public async Task<UserDTO> GetUserWithRoleAsync(Guid userId)
+        {
+            var userDTO = _mapper.Map<UserDTO>(await _customerRepository.GetUserAsync(userId));
+            if (userDTO == null)
+                return null;
+            userDTO.Role = await GetRoleNameForUser(userDTO.Email);
+            return userDTO;
+        }
+
         public async Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
             string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId)
         {

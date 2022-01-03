@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -64,6 +63,17 @@ namespace Customer.API.Controllers
             return Ok(_mapper.Map<User>(user));
         }
 
+        [Route("/api/v{version:apiVersion}/organizations/[controller]/{userId:Guid}")]
+        [HttpGet]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<User>> GetUser(Guid userId)
+        {
+            var user = await _userServices.GetUserWithRoleAsync(userId);
+            if (user == null) return NotFound();
+            return Ok(_mapper.Map<User>(user));
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -81,7 +91,7 @@ namespace Customer.API.Controllers
             {
                 return BadRequest("Customer not found");
             }
-            catch (OktaException ex)
+            catch (OktaException)
             {
                 return BadRequest("Okta failed to activate user.");
             }
@@ -151,12 +161,13 @@ namespace Customer.API.Controllers
 
         /// <summary>
         /// If this is true then the entity will only be soft-deleted (isDeleted or any equivalent value). This is the default handling that is used by all user-initiated calls.
-        /// When it is false, the entry is permanently deleted from the system.This should only be run under very spesific circumstances by the automated cleanup tools, and only on assets that is already soft-deleted.
+        /// When it is false, the entry is permanently deleted from the system.This should only be run under very specific circumstances by the automated cleanup tools, and only on assets that is already soft-deleted.
         /// Default value : true
         /// </summary>
         /// <param name="userId"></param>
+        /// <param name="callerId"></param>
         /// <param name="softDelete"></param>
-        /// <returns cref="HttpStatusCode.NoContent"></returns
+        /// <returns cref="HttpStatusCode.NoContent"></returns>
         /// <returns cref="HttpStatusCode.BadRequest"></returns>
         /// <returns cref="HttpStatusCode.NotFound"></returns>
         [Route("{userId:Guid}")]
@@ -207,7 +218,7 @@ namespace Customer.API.Controllers
             {
                 return BadRequest(exception.Message);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest("Unable to deactivate user");
             }
