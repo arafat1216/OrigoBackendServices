@@ -16,6 +16,7 @@ namespace CustomerServices.Models
         Task<Location> GetOrganizationLocationAsync(Guid? locationId);
         Task<Location> DeleteOrganizationLocationAsync(Location organizationLocation);
         Task<Organization> DeleteOrganizationAsync(Organization organization);
+        Task<User> GetUserByUserName(string emailAddress);
         Task<int> GetUsersCount(Guid customerId);
         Task<IList<User>> GetAllUsersAsync(Guid customerId);
         Task<User> GetUserAsync(Guid customerId, Guid userId);
@@ -29,19 +30,19 @@ namespace CustomerServices.Models
         Task<OrganizationPreferences> DeleteOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
 
 
-        Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes);
+        Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes,Guid callerId);
         Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId);
         Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, Guid assetCategoryId);
         Task<AssetCategoryType> DeleteAssetCategoryTypeAsync(AssetCategoryType assetCategoryType);
 
         Task<ProductModuleGroup> GetProductModuleGroupAsync(Guid moduleGroupId);
-        Task<ProductModuleGroup> AddProductModuleGroupAsync(Guid customerId, Guid moduleGroupId);
-        Task<ProductModuleGroup> RemoveProductModuleGroupAsync(Guid customerId, Guid moduleGroupId);
+        Task<ProductModuleGroup> AddProductModuleGroupAsync(Guid customerId, Guid moduleGroupId,Guid callerId);
+        Task<ProductModuleGroup> RemoveProductModuleGroupAsync(Guid customerId, Guid moduleGroupId, Guid callerId);
         Task<IList<ProductModule>> GetProductModulesAsync();
         Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId);
         Task<ProductModule> GetProductModuleAsync(Guid moduleId);
-        Task<ProductModule> AddProductModuleAsync(Guid customerId, Guid moduleId);
-        Task<ProductModule> RemoveProductModuleAsync(Guid customerId, Guid moduleId);
+        Task<ProductModule> AddProductModuleAsync(Guid customerId, Guid moduleId, Guid callerId);
+        Task<ProductModule> RemoveProductModuleAsync(Guid customerId, Guid moduleId, Guid callerId);
 
         Task<IList<Department>> GetDepartmentsAsync(Guid customerId);
         Task<Department> GetDepartmentAsync(Guid customerId, Guid departmentId);

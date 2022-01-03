@@ -8,5 +8,6 @@ namespace Customer.API.ViewModels
         public Guid ProductModuleId { get; set; }
 
         public IList<Guid> ProductModuleGroupIds { get; set; }
+        public Guid CallerId { get; set; }
     }
 }

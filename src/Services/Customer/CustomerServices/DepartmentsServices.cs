@@ -28,7 +28,7 @@ namespace CustomerServices
             return await _customerRepository.GetDepartmentsAsync(customerId);
         }
 
-        public async Task<Department> AddDepartmentAsync(Guid customerId, Guid newDepartmentId, Guid? parentDepartmentId, string name, string costCenterId, string description)
+        public async Task<Department> AddDepartmentAsync(Guid customerId, Guid newDepartmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, Guid callerId)
         {
             var customer = await _customerRepository.GetOrganizationAsync(customerId);
             if (customer == null)
@@ -37,14 +37,14 @@ namespace CustomerServices
             }
             var departments = await _customerRepository.GetDepartmentsAsync(customerId);
             var parentDepartment = departments.FirstOrDefault(dept => dept.ExternalDepartmentId == parentDepartmentId);
-            var department = new Department(name, costCenterId, description, customer, newDepartmentId, parentDepartment: parentDepartment);
-            customer.AddDepartment(department);
+            var department = new Department(name, costCenterId, description, customer, newDepartmentId, callerId, parentDepartment: parentDepartment);
+            customer.AddDepartment(department, callerId);
 
             await _customerRepository.SaveEntitiesAsync();
             return department;
         }
 
-        public async Task<Department> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description)
+        public async Task<Department> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, Guid callerId)
         {
             var customer = await _customerRepository.GetOrganizationAsync(customerId);
             if (customer == null)
@@ -58,21 +58,21 @@ namespace CustomerServices
             {
                 return null;
             }
-
-            customer.ChangeDepartmentName(departmentToUpdate, name);
-            customer.ChangeDepartmentCostCenterId(departmentToUpdate, costCenterId);
-            customer.ChangeDepartmentDescription(departmentToUpdate, description);
+           
+            customer.ChangeDepartmentName(departmentToUpdate, name, callerId);
+            customer.ChangeDepartmentCostCenterId(departmentToUpdate, costCenterId, callerId);
+            customer.ChangeDepartmentDescription(departmentToUpdate, description,callerId);
 
             if (!departmentToUpdate.HasSubdepartment(parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
             {
-                customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment);
+                customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment, callerId);
             }
 
             await _customerRepository.SaveEntitiesAsync();
             return departmentToUpdate;
         }
 
-        public async Task<Department> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description)
+        public async Task<Department> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, Guid callerId)
         {
             var customer = await _customerRepository.GetOrganizationAsync(customerId);
             if (customer == null)
@@ -88,26 +88,26 @@ namespace CustomerServices
             }
             if (name != null && name != departmentToUpdate.Name)
             {
-                customer.ChangeDepartmentName(departmentToUpdate, name);
+                customer.ChangeDepartmentName(departmentToUpdate, name, callerId);
             }
             if (costCenterId != null && costCenterId != departmentToUpdate.CostCenterId)
             {
-                customer.ChangeDepartmentCostCenterId(departmentToUpdate, costCenterId);
+                customer.ChangeDepartmentCostCenterId(departmentToUpdate, costCenterId, callerId);
             }
             if (description != null && description != departmentToUpdate.Description)
             {
-                customer.ChangeDepartmentDescription(departmentToUpdate, description);
+                customer.ChangeDepartmentDescription(departmentToUpdate, description, callerId);
             }
             if (parentDepartmentId != departmentToUpdate.ParentDepartment?.ExternalDepartmentId && // won't move this department if it already is a subdepartment of the target department
                 !departmentToUpdate.HasSubdepartment(parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
             {
-                customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment);
+                customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment, callerId);
             }
             await _customerRepository.SaveEntitiesAsync();
             return departmentToUpdate;
         }
 
-        public async Task<Department> DeleteDepartmentAsync(Guid customerId, Guid departmentId)
+        public async Task<Department> DeleteDepartmentAsync(Guid customerId, Guid departmentId, Guid callerId)
         {
             var customer = await _customerRepository.GetOrganizationAsync(customerId);
             if (customer == null)
@@ -121,7 +121,7 @@ namespace CustomerServices
             var departmentsToDelete = department.Subdepartments(departments);
             foreach (var deleteDepartment in departmentsToDelete)
             {
-                customer.RemoveDepartment(deleteDepartment);
+                customer.RemoveDepartment(deleteDepartment,callerId);
             }
             await _customerRepository.DeleteDepartmentsAsync(departmentsToDelete);
             return department;

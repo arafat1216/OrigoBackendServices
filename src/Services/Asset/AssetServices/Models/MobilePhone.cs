@@ -3,6 +3,7 @@ using Common.Enums;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace AssetServices.Models
 {
@@ -32,7 +33,17 @@ namespace AssetServices.Models
             AssetCategory = assetCategory;
             ManagedByDepartmentId = managedByDepartmentId;
             Alias = alias;
-            AddDomainEvent(new AssetCreatedDomainEvent<MobilePhone>(this, callerId));
+            CreatedBy = callerId;
+            UpdatedBy = callerId;
+
+            // Store MobilePhone with its imei, if applicable
+            string text = "id: " + ExternalId.ToString();
+            if (Imeis.Count > 0)
+            {
+                text = "imei: " + Imeis.ElementAt(0).Imei.ToString();
+            }
+
+            AddDomainEvent(new AssetCreatedDomainEvent<MobilePhone>(this, callerId, text));
         }
 
         /// <summary>
@@ -44,13 +55,15 @@ namespace AssetServices.Models
             var previousAlias = Alias;
             Alias = alias;
             AddDomainEvent(new SetAliasDomainEvent<MobilePhone>(this, callerId, previousAlias));
+            base.SetAlias(alias, callerId);
         }
 
         public override void SetLifeCycleType(LifecycleType newLifecycleType, Guid callerId)
         {
-            var previousLifecycleType = LifecycleType; 
+            var previousLifecycleType = LifecycleType;
             LifecycleType = newLifecycleType;
             AddDomainEvent(new SetLifeCycleTypeDomainEvent<MobilePhone>(this, callerId, previousLifecycleType));
+            base.SetLifeCycleType(newLifecycleType, callerId);
         }
 
         public override void UpdateAssetStatus(AssetStatus status, Guid callerId)
@@ -58,6 +71,7 @@ namespace AssetServices.Models
             var previousStatus = Status;
             Status = status;
             AddDomainEvent(new UpdateAssetStatusDomainEvent<MobilePhone>(this, callerId, previousStatus));
+            base.UpdateAssetStatus(status, callerId);
         }
 
         public override void UpdateBrand(string brand, Guid callerId)
@@ -65,6 +79,7 @@ namespace AssetServices.Models
             var previousBrand = Brand;
             Brand = brand;
             AddDomainEvent(new BrandChangedDomainEvent<MobilePhone>(this, callerId, previousBrand));
+            base.UpdateBrand(brand, callerId);
         }
 
         public override void UpdateProductName(string model, Guid callerId)
@@ -72,6 +87,7 @@ namespace AssetServices.Models
             var previousModel = ProductName;
             ProductName = model;
             AddDomainEvent(new ModelChangedDomainEvent<MobilePhone>(this, callerId, previousModel));
+            base.UpdateProductName(model, callerId);
         }
 
         public override void ChangePurchaseDate(DateTime purchaseDate, Guid callerId)
@@ -79,6 +95,7 @@ namespace AssetServices.Models
             var previousPurchaseDate = PurchaseDate;
             PurchaseDate = purchaseDate;
             AddDomainEvent(new PurchaseDateChangedDomainEvent<MobilePhone>(this, callerId, previousPurchaseDate));
+            base.ChangePurchaseDate(purchaseDate, callerId);
         }
 
         public override void AssignAssetToUser(Guid? userId, Guid callerId)
@@ -86,13 +103,16 @@ namespace AssetServices.Models
             var oldUserId = AssetHolderId;
             AssetHolderId = userId;
             AddDomainEvent(new AssignAssetToUserDomainEvent<MobilePhone>(this, callerId, oldUserId));
+            base.AssignAssetToUser(userId, callerId);
         }
 
         public override void UpdateNote(string note, Guid callerId)
         {
             var previousNote = Note;
             Note = note;
+            UpdatedBy = callerId;
             AddDomainEvent(new NoteChangedDomainEvent<MobilePhone>(this, callerId, previousNote));
+            base.UpdateNote(note, callerId);
         }
 
         public override void UpdateDescription(string description, Guid callerId)
@@ -100,6 +120,7 @@ namespace AssetServices.Models
             var previousDescription = Description;
             Description = description;
             AddDomainEvent(new DescriptionChangedDomainEvent<MobilePhone>(this, callerId, previousDescription));
+            base.UpdateDescription(description, callerId);
         }
 
         public override void UpdateTag(string tag, Guid callerId)
@@ -107,6 +128,7 @@ namespace AssetServices.Models
             var previousTag = AssetTag;
             AssetTag = tag;
             AddDomainEvent(new TagUpdatedDomainEvent<MobilePhone>(this, callerId, previousTag));
+            base.UpdateTag(tag, callerId);
         }
 
         public override void ChangeSerialNumber(string serialNumber, Guid callerId)
@@ -114,6 +136,7 @@ namespace AssetServices.Models
             var previousSerialNumber = SerialNumber;
             SerialNumber = serialNumber;
             AddDomainEvent(new SerialNumberChangedDomainEvent<MobilePhone>(this, callerId, previousSerialNumber));
+            base.ChangeSerialNumber(serialNumber, callerId);
         }
     }
 }

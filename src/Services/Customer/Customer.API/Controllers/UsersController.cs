@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -64,6 +63,17 @@ namespace Customer.API.Controllers
             return Ok(_mapper.Map<User>(user));
         }
 
+        [Route("/api/v{version:apiVersion}/organizations/[controller]/{userId:Guid}")]
+        [HttpGet]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<User>> GetUser(Guid userId)
+        {
+            var user = await _userServices.GetUserWithRoleAsync(userId);
+            if (user == null) return NotFound();
+            return Ok(_mapper.Map<User>(user));
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -72,7 +82,7 @@ namespace Customer.API.Controllers
             try
             {
                 var updatedUser = await _userServices.AddUserForCustomerAsync(customerId, newUser.FirstName,
-                    newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId, new CustomerServices.Models.UserPreference(newUser.UserPreference?.Language));
+                    newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId, new CustomerServices.Models.UserPreference(newUser.UserPreference?.Language,newUser.CallerId), newUser.CallerId);
                 var updatedUserView = _mapper.Map<User>(updatedUser);
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUserView.Id }, updatedUserView);
@@ -81,7 +91,7 @@ namespace Customer.API.Controllers
             {
                 return BadRequest("Customer not found");
             }
-            catch (OktaException ex)
+            catch (OktaException)
             {
                 return BadRequest("Okta failed to activate user.");
             }
@@ -104,9 +114,9 @@ namespace Customer.API.Controllers
         {
             try
             {
-                var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language);
+                var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language,updateUser.CallerId);
                 var updatedUser = await _userServices.UpdateUserPutAsync(customerId, userId, updateUser.FirstName,
-                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId, userPreference);
+                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId, userPreference, updateUser.CallerId);
                 if (updatedUser == null)
                     return NotFound();
 
@@ -131,9 +141,9 @@ namespace Customer.API.Controllers
         {
             try
             {
-                var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language);
+                var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language, updateUser.CallerId);
                 var updatedUser = await _userServices.UpdateUserPatchAsync(customerId, userId, updateUser.FirstName,
-                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId, userPreference);
+                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId, userPreference, updateUser.CallerId);
                 if (updatedUser == null)
                     return NotFound();
 
@@ -151,23 +161,24 @@ namespace Customer.API.Controllers
 
         /// <summary>
         /// If this is true then the entity will only be soft-deleted (isDeleted or any equivalent value). This is the default handling that is used by all user-initiated calls.
-        /// When it is false, the entry is permanently deleted from the system.This should only be run under very spesific circumstances by the automated cleanup tools, and only on assets that is already soft-deleted.
+        /// When it is false, the entry is permanently deleted from the system.This should only be run under very specific circumstances by the automated cleanup tools, and only on assets that is already soft-deleted.
         /// Default value : true
         /// </summary>
         /// <param name="userId"></param>
+        /// <param name="callerId"></param>
         /// <param name="softDelete"></param>
-        /// <returns cref="HttpStatusCode.NoContent"></returns
+        /// <returns cref="HttpStatusCode.NoContent"></returns>
         /// <returns cref="HttpStatusCode.BadRequest"></returns>
         /// <returns cref="HttpStatusCode.NotFound"></returns>
         [Route("{userId:Guid}")]
         [HttpDelete]
         [ProducesResponseType(typeof(bool), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> DeleteUser(Guid userId, bool softDelete = true)
+        public async Task<ActionResult> DeleteUser(Guid userId, [FromBody] Guid callerId, bool softDelete = true)
         {
             try
             {
-                var deletedUser = await _userServices.DeleteUserAsync(userId, softDelete);
+                var deletedUser = await _userServices.DeleteUserAsync(userId, callerId, softDelete);
                 if (deletedUser == null)
                     return NotFound("The requested resource don't exist.");
                 // TODO: Ask about this status code 302. Does this make sense??
@@ -194,11 +205,11 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive)
+        public async Task<ActionResult> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive, [FromBody] Guid callerId)
         {
             try
             {
-                var user = await _userServices.SetUserActiveStatus(customerId, userId, isActive);
+                var user = await _userServices.SetUserActiveStatus(customerId, userId, isActive, callerId);
                 if (user == null)
                     return NotFound();
                 return Ok(_mapper.Map<User>(user));
@@ -207,7 +218,7 @@ namespace Customer.API.Controllers
             {
                 return BadRequest(exception.Message);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest("Unable to deactivate user");
             }
@@ -217,9 +228,9 @@ namespace Customer.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<User>> AssignDepartment(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<ActionResult<User>> AssignDepartment(Guid customerId, Guid userId, Guid departmentId,[FromBody] Guid callerId)
         {
-            var user = await _userServices.AssignDepartment(customerId, userId, departmentId);
+            var user = await _userServices.AssignDepartment(customerId, userId, departmentId, callerId);
             if (user == null) return NotFound();
             return Ok(_mapper.Map<User>(user));
         }
@@ -228,11 +239,11 @@ namespace Customer.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<ActionResult> AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId,[FromBody] Guid callerId)
         {
             try
             {
-                await _userServices.AssignManagerToDepartment(customerId, userId, departmentId);
+                await _userServices.AssignManagerToDepartment(customerId, userId, departmentId, callerId);
                 return Ok();
             }
             catch (DepartmentNotFoundException exception)
@@ -255,11 +266,11 @@ namespace Customer.API.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<ActionResult> UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId,[FromBody] Guid callerId)
         {
             try
             {
-                await _userServices.UnassignManagerFromDepartment(customerId, userId, departmentId);
+                await _userServices.UnassignManagerFromDepartment(customerId, userId, departmentId,callerId);
                 return Ok();
             }
             catch (DepartmentNotFoundException exception)
@@ -282,9 +293,9 @@ namespace Customer.API.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<User>> RemoveAssignedDepartment(Guid customerId, Guid userId, Guid departmentId)
+        public async Task<ActionResult<User>> RemoveAssignedDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
         {
-            var user = await _userServices.UnassignDepartment(customerId, userId, departmentId);
+            var user = await _userServices.UnassignDepartment(customerId, userId, departmentId,callerId);
             if (user == null) return NotFound();
             return Ok(_mapper.Map<User>(user));
         }

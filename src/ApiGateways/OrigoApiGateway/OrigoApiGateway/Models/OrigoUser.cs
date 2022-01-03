@@ -1,9 +1,11 @@
-﻿using OrigoApiGateway.Models.BackendDTO;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Response object
+    /// </summary>
     public record OrigoUser
     {
         public Guid Id { get; init; }

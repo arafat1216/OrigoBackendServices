@@ -12,10 +12,11 @@ namespace Common.Models
 
         }
 
-        public AssetAuditLog(Guid assetAuditLogId, Guid assetId, DateTime createDate, string createdBy, string message, string eventType, string lifecycleStatusBefore, string lifecycleStatusAfter)
+        public AssetAuditLog(Guid assetAuditLogId, Guid assetId, Guid customerId, DateTime createDate, string createdBy, string message, string eventType, string lifecycleStatusBefore, string lifecycleStatusAfter)
         {
             AssetAuditLogId = assetAuditLogId;
             AssetId = assetId;
+            CustomerId = customerId;
             CreatedDate = createDate;
             CreatedBy = createdBy;
             Message = message;
@@ -33,6 +34,11 @@ namespace Common.Models
         /// External Id of the Asset this AssetAuditLog pertains to.
         /// </summary>
         public Guid AssetId { get; set; }
+
+        /// <summary>
+        /// The customer the user who caused the event belongs to. May not be the same customer as the user who owns the asset.
+        /// </summary>
+        public Guid CustomerId { get; set; }
 
         /// <summary>
         /// The date the change on the asset occured.

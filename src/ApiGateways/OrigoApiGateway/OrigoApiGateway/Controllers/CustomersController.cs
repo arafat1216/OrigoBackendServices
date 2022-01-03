@@ -12,6 +12,7 @@ using OrigoApiGateway.Authorization;
 using System.Linq;
 using System.Security.Claims;
 using Common.Enums;
+using OrigoApiGateway.Models.BackendDTO;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -92,7 +93,9 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                var createdCustomer = await CustomerServices.CreateCustomerAsync(newCustomer);
+                Guid.TryParse(actor, out Guid callerId);
+
+                var createdCustomer = await CustomerServices.CreateCustomerAsync(newCustomer, callerId);
                 if (createdCustomer == null)
                 {
                     return BadRequest();
@@ -109,12 +112,17 @@ namespace OrigoApiGateway.Controllers
         [HttpPut]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Organization>> UpdateOrganization([FromBody] UpdateOrganization organizationToChange)
         {
             try
             {
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                organizationToChange.CallerId = callerId;
+
                 var updateOrganization = await CustomerServices.UpdateOrganizationAsync(organizationToChange);
                 if (updateOrganization == null)
                 {
@@ -123,7 +131,7 @@ namespace OrigoApiGateway.Controllers
 
                 return Ok(updateOrganization);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.LogError("{0}", ex.Message);
                 return BadRequest();
@@ -133,12 +141,17 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Organization>> PatchOrganization([FromBody] UpdateOrganization organizationToChange)
         {
             try
             {
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                organizationToChange.CallerId = callerId;
+
                 var updateOrganization = await CustomerServices.PatchOrganizationAsync(organizationToChange);
                 if (updateOrganization == null)
                 {
@@ -156,7 +169,7 @@ namespace OrigoApiGateway.Controllers
 
         [Route("{organizationId:Guid}")]
         [HttpDelete]
-        [ProducesResponseType(typeof(Organization), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
@@ -165,7 +178,11 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var deletedOrganization = await CustomerServices.DeleteOrganizationAsync(organizationId);
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+
+                var deletedOrganization = await CustomerServices.DeleteOrganizationAsync(organizationId, callerId);
                 if (deletedOrganization == null)
                 {
                     return NotFound();
@@ -173,7 +190,7 @@ namespace OrigoApiGateway.Controllers
 
                 return Ok(deletedOrganization);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -220,6 +237,7 @@ namespace OrigoApiGateway.Controllers
             {
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
@@ -233,8 +251,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                Guid.TryParse(actor, out Guid callerId);
 
-                var removedAssetCategory = await CustomerServices.AddAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType);
+                var removedAssetCategory = await CustomerServices.AddAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType, callerId);
                 if (removedAssetCategory == null)
                 {
                     return NotFound();
@@ -259,6 +278,8 @@ namespace OrigoApiGateway.Controllers
             {
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
@@ -272,8 +293,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                Guid.TryParse(actor, out Guid callerId);
 
-                var assetCategoryLifecycleTypes = await CustomerServices.RemoveAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType);
+                var assetCategoryLifecycleTypes = await CustomerServices.RemoveAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType, callerId);
                 return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();
             }
             catch (Exception)
@@ -309,6 +331,7 @@ namespace OrigoApiGateway.Controllers
             {
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
@@ -322,8 +345,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                Guid.TryParse(actor, out Guid callerId);
 
-                var productModules = await CustomerServices.AddProductModulesAsync(organizationId, productModule);
+                var productModules = await CustomerServices.AddProductModulesAsync(organizationId, productModule, callerId);
                 return productModules != null ? Ok(productModules) : NotFound();
             }
             catch
@@ -342,6 +366,7 @@ namespace OrigoApiGateway.Controllers
             {
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
@@ -355,8 +380,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                Guid.TryParse(actor, out Guid callerId);
 
-                var productModules = await CustomerServices.RemoveProductModulesAsync(organizationId, productModule);
+                var productModules = await CustomerServices.RemoveProductModulesAsync(organizationId, productModule, callerId);
                 return productModules != null ? Ok(productModules) : NoContent();
             }
             catch

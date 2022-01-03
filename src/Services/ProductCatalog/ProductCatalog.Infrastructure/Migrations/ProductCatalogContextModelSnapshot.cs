@@ -218,7 +218,7 @@ namespace ProductCatalog.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            AccessControlPermissionNode = "BasicAssetManagement ",
+                            AccessControlPermissionNode = "BasicAssetManagement",
                             FeatureTypeId = 1,
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         });

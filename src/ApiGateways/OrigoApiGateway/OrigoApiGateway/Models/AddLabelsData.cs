@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Request object.
+    /// </summary>
     public class AddLabelsData
     {
         public IList<NewLabel> NewLabels { get;  set; }

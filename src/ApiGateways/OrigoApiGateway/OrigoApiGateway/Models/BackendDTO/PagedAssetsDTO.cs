@@ -4,9 +4,9 @@ namespace OrigoApiGateway.Models.BackendDTO
 {
     public record PagedAssetsDTO
     {
-        public IList<object> Assets { get; set; }
-        public int CurrentPage { get; set; }
-        public int TotalItems { get; set; }
-        public int TotalPages { get; set; }
+        public IList<object> Assets { get; init; }
+        public int CurrentPage { get; init; }
+        public int TotalItems { get; init; }
+        public int TotalPages { get; init; }
     }
 }

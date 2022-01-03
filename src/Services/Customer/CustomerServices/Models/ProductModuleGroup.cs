@@ -24,5 +24,13 @@ namespace CustomerServices.Models
 
         [JsonIgnore]
         public ICollection<Organization> Customers { get; protected set; }
+        public void SetDeletedBy(Guid callerId) 
+        {
+            DeletedBy = callerId;
+        }
+        public void SetCreatedBy(Guid callerId)
+        {
+            CreatedBy = callerId;
+        }
     }
 }

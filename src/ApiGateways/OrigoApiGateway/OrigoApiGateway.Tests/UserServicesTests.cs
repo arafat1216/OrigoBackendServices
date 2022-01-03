@@ -18,6 +18,7 @@ namespace OrigoApiGateway.Tests
     public class UserServicesTests
     {
         private static IMapper _mapper;
+        private Guid EMPTY_CALLER_ID = Guid.Empty;
 
         public UserServicesTests()
         {
@@ -33,7 +34,7 @@ namespace OrigoApiGateway.Tests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void GetUSer_CheckDisplayName()
+        public async void GetUser_CheckDisplayName()
         {
             // Arrange
             const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
@@ -111,7 +112,7 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, optionsMock.Object, _mapper);
-            var updateUser = new Models.OrigoUpdateUser { FirstName = null, LastName = null, Email = null, EmployeeId = null, UserPreference = null };
+            var updateUser = new Models.BackendDTO.UpdateUserDTO { FirstName = null, LastName = null, Email = null, EmployeeId = null, UserPreference = null,CallerId = EMPTY_CALLER_ID };
             // Act
             var user = await userService.PutUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser);
 
@@ -159,7 +160,7 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, optionsMock.Object, _mapper);
-            var updateUser = new Models.OrigoUpdateUser { FirstName = "Ada", LastName = "Lovelace", Email = "jane.doe@example.com", EmployeeId = "E1", UserPreference = null };
+            var updateUser = new Models.BackendDTO.UpdateUserDTO { FirstName = "Ada", LastName = "Lovelace", Email = "jane.doe@example.com", EmployeeId = "E1", UserPreference = null, CallerId = EMPTY_CALLER_ID };
             // Act
             var user = await userService.PutUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser);
 
@@ -207,7 +208,7 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, optionsMock.Object, _mapper);
-            var updateUser = new Models.OrigoUpdateUser { FirstName = "Ada", LastName = "Lovelace", Email = null, EmployeeId = null, UserPreference = null };
+            var updateUser = new Models.BackendDTO.UpdateUserDTO { FirstName = "Ada", LastName = "Lovelace", Email = null, EmployeeId = null, UserPreference = null, CallerId = EMPTY_CALLER_ID };
             // Act
             var user = await userService.PatchUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser);
 
@@ -258,7 +259,7 @@ namespace OrigoApiGateway.Tests
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, optionsMock.Object, _mapper);
             var updateUser = new Models.OrigoUpdateUser { FirstName = "Ada", LastName = "Lovelace", Email = null, EmployeeId = null, UserPreference = null };
             // Act
-            var userDeleted = await userService.DeleteUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), true);
+            var userDeleted = await userService.DeleteUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), true,EMPTY_CALLER_ID);
 
             // Assert
             Assert.True(userDeleted);

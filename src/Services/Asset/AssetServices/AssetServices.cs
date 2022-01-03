@@ -31,7 +31,7 @@ namespace AssetServices
 
         public async Task<int> GetAssetsCountAsync(Guid customerId)
         {
-            return await _assetRepository.GetAssetsCount(customerId);
+            return await _assetRepository.GetAssetsCountAsync(customerId);
         }
 
         public async Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId)
@@ -510,7 +510,7 @@ namespace AssetServices
                 }
                 if (imei != null && phone.Imeis != imei)
                 {
-                    phone.SetImei(imei);
+                    phone.SetImei(imei, callerId);
                 }
             }
 
@@ -523,7 +523,7 @@ namespace AssetServices
                 }
                 if (imei != null && tablet.Imeis != imei)
                 {
-                    tablet.SetImei(imei);
+                    tablet.SetImei(imei, callerId);
                 }
             }
         }
@@ -585,10 +585,12 @@ namespace AssetServices
                     var previousStatus = PropertyExist(@event, "PreviousStatus")
                         ? @event.PreviousStatus.ToString()
                         : @event.Asset.Status.ToString();
+
+                    // All events should have callerId, but if an event forgot it, we handle it here
                     var callerId = PropertyExist(@event, "CallerId")
                         ? @event.CallerId.ToString()
                         : "N/A";
-                    var auditLog = new AssetAuditLog(transactionGuid, @event.Asset.ExternalId, logEventEntry.CreationTime, callerId,
+                    var auditLog = new AssetAuditLog(transactionGuid, @event.Asset.ExternalId, @event.Asset.CustomerId, logEventEntry.CreationTime, callerId,
                         ((IEvent)@event).EventMessage(), logEventEntry.EventTypeShortName, previousStatus, @event.Asset.Status.ToString());
                     assetLogList.Add(auditLog);
                 }

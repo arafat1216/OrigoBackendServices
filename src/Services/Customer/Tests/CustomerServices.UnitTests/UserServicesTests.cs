@@ -80,8 +80,8 @@ namespace CustomerServices.UnitTests
 
             // Act
             const string EMAIL_TEST_TEST = "email@test.test";
-            var userPref = new Models.UserPreference("NO");
-            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4799999999", "43435435", userPref);
+            var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
+            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4799999999", "43435435", userPref, EMPTY_CALLER_ID);
 
             // Assert
             var newUserRead = await userServices.GetUserAsync(CUSTOMER_ONE_ID, newUser.Id);
@@ -99,7 +99,7 @@ namespace CustomerServices.UnitTests
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
 
             // Act
-            await userServices.AssignManagerToDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, DEPARTMENT_ONE_ID);
+            await userServices.AssignManagerToDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, DEPARTMENT_ONE_ID, EMPTY_CALLER_ID);
 
             // Assert
             var user = await context.Users.FirstOrDefaultAsync(u => u.UserId == USER_ONE_ID);
@@ -121,7 +121,7 @@ namespace CustomerServices.UnitTests
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
 
             // Act
-            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true);
+            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
             var user = await userServices.GetUserAsync(CUSTOMER_ONE_ID, USER_ONE_ID);
 
             // Assert
@@ -143,10 +143,10 @@ namespace CustomerServices.UnitTests
             oktaMock.Setup(o => o.UserExistsInOktaAsync(It.IsAny<string>())).ReturnsAsync(true);
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
-            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true); // Activate user
+            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true,EMPTY_CALLER_ID); // Activate user
 
             // Act
-            var user = await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, false);
+            var user = await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, false, EMPTY_CALLER_ID);
 
             // Assert
             oktaMock.Verify(mock => mock.RemoveUserFromGroup(It.IsAny<string>()), Times.Once());
@@ -166,8 +166,8 @@ namespace CustomerServices.UnitTests
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
 
             // Act
-            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, false);
-            var user = await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true);
+            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, false, EMPTY_CALLER_ID);
+            var user = await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
 
             // Assert
             oktaMock.Verify(mock => mock.AddUserToGroup(It.IsAny<string>()), Times.Once());
@@ -185,7 +185,7 @@ namespace CustomerServices.UnitTests
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
 
             // Act
-            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "TEST", "TEST", "hello@mail.com", "+479898989", "hhhh", new UserPreference("EN"));
+            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "TEST", "TEST", "hello@mail.com", "+479898989", "hhhh", new UserPreference("EN", EMPTY_CALLER_ID), EMPTY_CALLER_ID);
             var user = await userServices.GetAllUsersAsync(CUSTOMER_ONE_ID);
 
             Assert.Equal(3, user.Count);
@@ -212,7 +212,7 @@ namespace CustomerServices.UnitTests
             const string NOT_VALID_CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
             
             //Assert
-            await Assert.ThrowsAsync<CustomerNotFoundException>(() => userServices.AddUserForCustomerAsync(new Guid(NOT_VALID_CUSTOMER_ID), "TEST", "TEST", "hello@mail.com", "+479898989", "90909090", new UserPreference("EN")));
+            await Assert.ThrowsAsync<CustomerNotFoundException>(() => userServices.AddUserForCustomerAsync(new Guid(NOT_VALID_CUSTOMER_ID), "TEST", "TEST", "hello@mail.com", "+479898989", "90909090", new UserPreference("EN", EMPTY_CALLER_ID), EMPTY_CALLER_ID));
         }
 
         [Fact]
@@ -229,7 +229,7 @@ namespace CustomerServices.UnitTests
             const string NOT_VALID_CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
 
             //Assert
-            await Assert.ThrowsAsync<UserNotFoundException>(() => userServices.AssignManagerToDepartment(new Guid(NOT_VALID_CUSTOMER_ID), USER_ONE_ID, DEPARTMENT_ONE_ID));
+            await Assert.ThrowsAsync<UserNotFoundException>(() => userServices.AssignManagerToDepartment(new Guid(NOT_VALID_CUSTOMER_ID), USER_ONE_ID, DEPARTMENT_ONE_ID, EMPTY_CALLER_ID));
 
         }
     }

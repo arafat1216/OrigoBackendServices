@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Request object
+    /// </summary>
     public class NewDepartment
     {
         public string Name { get; set; }

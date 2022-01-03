@@ -56,7 +56,7 @@ namespace Customer.API.Controllers
         public async Task<ActionResult<Department>> CreateDepartment(Guid customerId, [FromBody] NewDepartment department)
         {
             Guid newDepartmentId = Guid.NewGuid();
-            var createdDepartment = await _departmentServices.AddDepartmentAsync(customerId, newDepartmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description);
+            var createdDepartment = await _departmentServices.AddDepartmentAsync(customerId, newDepartmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description,department.CallerId);
             var departmentView = new Department(createdDepartment);
 
             return CreatedAtAction(nameof(CreateDepartment), new { id = departmentView.DepartmentId }, departmentView);
@@ -67,7 +67,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<Department>> UpdateDepartmentPut(Guid customerId, Guid departmentId, [FromBody] Department department)
         {
-            var updatedDepartment = await _departmentServices.UpdateDepartmentPutAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description);
+            var updatedDepartment = await _departmentServices.UpdateDepartmentPutAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description, department.CallerId);
             var departmentView = new Department(updatedDepartment);
 
             return Ok(departmentView);
@@ -78,7 +78,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<Department>> UpdateDepartmentPatch(Guid customerId, Guid departmentId, [FromBody] Department department)
         {
-            var updatedDepartment = await _departmentServices.UpdateDepartmentPatchAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description);
+            var updatedDepartment = await _departmentServices.UpdateDepartmentPatchAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description, department.CallerId);
             var departmentView = new Department(updatedDepartment);
 
             return Ok(departmentView);
@@ -87,9 +87,9 @@ namespace Customer.API.Controllers
         [Route("{departmentId:Guid}")]
         [HttpDelete]
         [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Department>> DeleteDepartment(Guid customerId, Guid departmentId)
+        public async Task<ActionResult<Department>> DeleteDepartment(Guid customerId, Guid departmentId, [FromBody] Guid callerId)
         {
-            var updatedDepartment = await _departmentServices.DeleteDepartmentAsync(customerId, departmentId);
+            var updatedDepartment = await _departmentServices.DeleteDepartmentAsync(customerId, departmentId, callerId);
             var departmentView = new Department(updatedDepartment);
 
             return Ok(departmentView);

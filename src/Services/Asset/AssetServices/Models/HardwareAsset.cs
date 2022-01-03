@@ -36,9 +36,8 @@ namespace AssetServices.Models
 
         public virtual void ChangeSerialNumber(string serialNumber, Guid callerId)
         {
-            var previousSerialNumber = SerialNumber;
-            SerialNumber = serialNumber;
-            AddDomainEvent(new SerialNumberChangedDomainEvent<HardwareAsset>(this, callerId, previousSerialNumber));
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -48,7 +47,7 @@ namespace AssetServices.Models
         /// Imei is a comma separated string, and can hold multiple imei values
         /// </summary>
         /// <param name="imeiList"></param>
-        public void SetImei(IList<long> imeiList)
+        public void SetImei(IList<long> imeiList, Guid callerId)
         {
             foreach (long imei in imeiList)
             {
@@ -58,6 +57,8 @@ namespace AssetServices.Models
                 }
             }
             Imeis = new List<AssetImei>(imeiList.Select(i => new AssetImei(i)).ToList());
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
         }
 
         /// <summary>

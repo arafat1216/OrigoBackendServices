@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
@@ -8,24 +9,24 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using System.Linq;
 
 namespace OrigoApiGateway.Services
 {
     public class DepartmentsServices : IDepartmentsServices
     {
         private readonly ILogger<DepartmentsServices> _logger;
-
+        private readonly IMapper _mapper;
         private readonly DepartmentConfiguration _options;
 
         private HttpClient HttpClient { get; }
 
         public DepartmentsServices(ILogger<DepartmentsServices> logger, HttpClient httpClient,
-         IOptions<DepartmentConfiguration> options)
+         IOptions<DepartmentConfiguration> options, IMapper mapper)
         {
             _logger = logger;
             HttpClient = httpClient;
             _options = options.Value;
+            _mapper = mapper;
         }
 
         public async Task<OrigoDepartment> GetDepartment(Guid customerId, Guid departmentId)
@@ -33,7 +34,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 var response = await HttpClient.GetFromJsonAsync<DepartmentDTO>($"{_options.ApiPath}/{customerId}/departments/{departmentId}");
-                return response == null ? null : new OrigoDepartment(response);
+                return response == null ? null : _mapper.Map<OrigoDepartment>(response);
             }
             catch (HttpRequestException exception)
             {
@@ -57,7 +58,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 var response = await HttpClient.GetFromJsonAsync<IList<DepartmentDTO>>($"{_options.ApiPath}/{customerId}/departments");
-                return response?.Select(d => new OrigoDepartment(d)).ToList();
+                return _mapper.Map<List<OrigoDepartment>>(response);
             }
             catch (HttpRequestException exception)
             {
@@ -76,7 +77,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoDepartment> AddDepartmentAsync(Guid customerId, NewDepartment department)
+        public async Task<OrigoDepartment> AddDepartmentAsync(Guid customerId, NewDepartmentDTO department)
         {
             try
             {
@@ -84,8 +85,8 @@ namespace OrigoApiGateway.Services
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save department", (int)response.StatusCode);
 
-                var user = await response.Content.ReadFromJsonAsync<DepartmentDTO>();
-                return user == null ? null : new OrigoDepartment(user);
+                var newDepartment = await response.Content.ReadFromJsonAsync<DepartmentDTO>();
+                return newDepartment == null ? null : _mapper.Map<OrigoDepartment>(newDepartment);
             }
             catch (Exception exception)
             {
@@ -94,7 +95,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoDepartment> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, OrigoDepartment department)
+        public async Task<OrigoDepartment> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, UpdateDepartmentDTO department)
         {
             try
             {
@@ -102,8 +103,8 @@ namespace OrigoApiGateway.Services
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save department", (int)response.StatusCode);
 
-                var user = await response.Content.ReadFromJsonAsync<DepartmentDTO>();
-                return user == null ? null : new OrigoDepartment(user);
+                var updatedDepartment = await response.Content.ReadFromJsonAsync<DepartmentDTO>();
+                return updatedDepartment == null ? null : _mapper.Map<OrigoDepartment>(updatedDepartment);
             }
             catch (Exception exception)
             {
@@ -112,7 +113,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoDepartment> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, OrigoDepartment department)
+        public async Task<OrigoDepartment> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, UpdateDepartmentDTO department)
         {
             try
             {
@@ -120,8 +121,8 @@ namespace OrigoApiGateway.Services
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save department", (int)response.StatusCode);
 
-                var user = await response.Content.ReadFromJsonAsync<DepartmentDTO>();
-                return user == null ? null : new OrigoDepartment(user);
+                var updatedDepartment = await response.Content.ReadFromJsonAsync<DepartmentDTO>();
+                return updatedDepartment == null ? null : _mapper.Map<OrigoDepartment>(updatedDepartment);
             }
             catch (Exception exception)
             {
@@ -130,16 +131,27 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoDepartment> DeleteDepartmentPatchAsync(Guid customerId, Guid departmentId)
+        public async Task<OrigoDepartment> DeleteDepartmentPatchAsync(Guid customerId, Guid departmentId,Guid callerId)
         {
             try
             {
-                var response = await HttpClient.DeleteAsync($"{_options.ApiPath}/{customerId}/departments/{departmentId}");
+                var requestUri = $"{_options.ApiPath}/{customerId}/departments/{departmentId}";
+
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Content = JsonContent.Create(callerId),
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(requestUri, UriKind.Relative)
+                };
+
+                var response = await HttpClient.SendAsync(request);
+
+                //var response = await HttpClient.DeleteAsync($"{_options.ApiPath}/{customerId}/departments/{departmentId}");
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save department", (int)response.StatusCode);
 
-                var user = await response.Content.ReadFromJsonAsync<DepartmentDTO>();
-                return user == null ? null : new OrigoDepartment(user);
+                var deletedDepartment = await response.Content.ReadFromJsonAsync<DepartmentDTO>();
+                return deletedDepartment == null ? null : _mapper.Map<OrigoDepartment>(deletedDepartment);
             }
             catch (Exception exception)
             {
