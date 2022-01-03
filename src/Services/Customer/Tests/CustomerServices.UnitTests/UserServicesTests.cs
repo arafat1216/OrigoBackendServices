@@ -81,7 +81,7 @@ namespace CustomerServices.UnitTests
             // Act
             const string EMAIL_TEST_TEST = "email@test.test";
             var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
-            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4799999999", "43435435", userPref, EMPTY_CALLER_ID, "Role");
+            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, "Role");
 
             // Assert
             var newUserRead = await userServices.GetUserAsync(CUSTOMER_ONE_ID, newUser.Id);
@@ -231,6 +231,39 @@ namespace CustomerServices.UnitTests
             //Assert
             await Assert.ThrowsAsync<UserNotFoundException>(() => userServices.AssignManagerToDepartment(new Guid(NOT_VALID_CUSTOMER_ID), USER_ONE_ID, DEPARTMENT_ONE_ID, EMPTY_CALLER_ID));
 
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void AddUserForCustomerAsync_WithExistingMail_ShouldThrowInvalidEmailException()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userPermissionServices = Mock.Of<IUserPermissionServices>();
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+            // Act
+            const string EMAIL_THAT_EXIST = "john@doe.com";
+            var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
+
+            // Assert
+            await Assert.ThrowsAsync<UserNameIsInUseException>(() => userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", EMAIL_THAT_EXIST, "+479000000", "43435435", userPref, EMPTY_CALLER_ID, "Role"));
+
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void AddUserForCustomerAsync_WithExistingPhoneNumber_ShouldThrowInvalidPhoneNumberException()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userPermissionServices = Mock.Of<IUserPermissionServices>();
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+            // Act
+            const string PHONE_NUMBER_THAT_EXIST = "+4799999999";
+            var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
+            // Assert
+            await Assert.ThrowsAsync<InvalidPhoneNumberException>(() => userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", "mail@testmail.com", PHONE_NUMBER_THAT_EXIST, "43435435", userPref, EMPTY_CALLER_ID,"Role"));
         }
     }
 }
