@@ -2,6 +2,9 @@
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Request object
+    /// </summary>
     public record UpdateOrganization
     {
         public Guid OrganizationId { get; set; }

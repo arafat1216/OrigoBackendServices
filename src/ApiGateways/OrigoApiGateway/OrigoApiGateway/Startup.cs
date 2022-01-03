@@ -135,7 +135,8 @@ namespace OrigoApiGateway
             services.AddSingleton<IUserPermissionService>(x => new UserPermissionService(
                 x.GetRequiredService<ILogger<UserPermissionService>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<UserPermissionsConfigurations>>()
+                x.GetRequiredService<IOptions<UserPermissionsConfigurations>>(),
+                x.GetRequiredService<IMapper>()
             ));
 
             services.AddSingleton<IUserServices>(x => new UserServices(
@@ -172,7 +173,8 @@ namespace OrigoApiGateway
             services.AddSingleton<IDepartmentsServices>(x => new DepartmentsServices(
                 x.GetRequiredService<ILogger<DepartmentsServices>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<DepartmentConfiguration>>()
+                x.GetRequiredService<IOptions<DepartmentConfiguration>>(),
+                x.GetRequiredService<IMapper>()
             ));
 
             services.AddSingleton<IProductCatalogServices>(x => new ProductCatalogServices(

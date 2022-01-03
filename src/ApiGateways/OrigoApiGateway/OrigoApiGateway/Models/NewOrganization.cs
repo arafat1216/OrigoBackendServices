@@ -2,6 +2,9 @@
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Request object
+    /// </summary>
     public record NewOrganization
     {
         public string Name { get; init; }

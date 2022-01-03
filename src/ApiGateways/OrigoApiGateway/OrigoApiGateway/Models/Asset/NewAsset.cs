@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Request object
+    /// </summary>
     public class NewAsset
     {
         /// <summary>

@@ -2,6 +2,9 @@
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Request and response object
+    /// </summary>
     public class OrigoAddress
     {
         public string Street { get; init; }

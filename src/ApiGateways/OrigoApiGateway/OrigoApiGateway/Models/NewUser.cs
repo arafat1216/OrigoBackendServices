@@ -1,5 +1,8 @@
 ﻿namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Request object
+    /// </summary>
     public record NewUser
     {
         public string FirstName { get; set; }

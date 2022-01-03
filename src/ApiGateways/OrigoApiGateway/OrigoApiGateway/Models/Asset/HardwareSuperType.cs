@@ -2,6 +2,9 @@
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Response object
+    /// </summary>
     public abstract class HardwareSuperType : OrigoAsset
     {
         /// <summary>

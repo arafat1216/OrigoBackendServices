@@ -2,6 +2,9 @@
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Request and response object
+    /// </summary>
     public class OrigoContactPerson
     {
         public string FirstName { get; init; }
