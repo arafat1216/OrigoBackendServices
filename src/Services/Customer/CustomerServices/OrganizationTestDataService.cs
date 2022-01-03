@@ -15,7 +15,7 @@ namespace CustomerServices
         private readonly ILogger<OrganizationTestDataService> _logger;
         private readonly IOrganizationRepository _organizationRepository;
         private readonly IUserPermissionServices _userPermissionServices;
-
+        private readonly Guid _callerId = new Guid("D0326090-631F-4138-9CD2-85249AD24BBB");
         protected IList<Organization> Organizations { get; set; }
         protected List<Department> Departments { get; set; } = new List<Department>();
         protected List<User> Users { get; set; } = new List<User>();
@@ -98,16 +98,16 @@ namespace CustomerServices
                             if (department.ParentDepartment != null)
                             {
                                 var parent = await _organizationRepository.GetDepartmentAsync(organization.OrganizationId, department.ParentDepartment.ExternalDepartmentId);
-                                organization.ChangeDepartmentsParentDepartment(department, parent);
+                                organization.ChangeDepartmentsParentDepartment(department, parent, _callerId);
                             }
-                            organization.AddDepartment(department);
+                            organization.AddDepartment(department, _callerId);
                         }
                         else
                         {
                             if (department.ParentDepartment != null)
                             {
                                 var parent = await _organizationRepository.GetDepartmentAsync(organization.OrganizationId, department.ParentDepartment.ExternalDepartmentId);
-                                organization.ChangeDepartmentsParentDepartment(department, parent);
+                                organization.ChangeDepartmentsParentDepartment(department, parent, _callerId);
                             }
                             dept.UpdateDepartment(department);
                         }
@@ -153,12 +153,12 @@ namespace CustomerServices
                                 access.AddRange(accessList);
 
                             // Give both end user role and specified role
-                            await _userPermissionServices.AssignUserPermissionsAsync(user.Email, $"{PredefinedRole.EndUser}", new List<Guid>());
-                            await _userPermissionServices.AssignUserPermissionsAsync(user.Email, role.ToString(), access);
+                            await _userPermissionServices.AssignUserPermissionsAsync(user.Email, $"{PredefinedRole.EndUser}", new List<Guid>(), _callerId);
+                            await _userPermissionServices.AssignUserPermissionsAsync(user.Email, role.ToString(), access, _callerId);
                         }
                         else
                         {
-                            await _userPermissionServices.AssignUserPermissionsAsync(user.Email, $"{PredefinedRole.EndUser}", new List<Guid>());
+                            await _userPermissionServices.AssignUserPermissionsAsync(user.Email, $"{PredefinedRole.EndUser}", new List<Guid>(), _callerId);
                         }
                     }
                     await _organizationRepository.SaveEntitiesAsync();

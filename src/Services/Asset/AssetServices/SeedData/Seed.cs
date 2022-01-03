@@ -9,7 +9,7 @@ namespace CustomerServices.SeedData
     {
         private static Guid OrganizationId1 { get; set; } = new Guid("A19EA756-86F2-423C-9B10-11CB10181858");
         private static Guid OrganizationId2 { get; set; } = new Guid("F2B5B8E5-78E1-4643-B97B-49239DAC74C2");
-        private static Guid CallerId { get; set; } = new Guid("cb756b16-fdf6-418e-8ca3-c0ff7f8c7347");
+        private static Guid CallerId { get; set; } = new Guid("D0326090-631F-4138-9CD2-85249AD24BBB");
 
         public static IList<Asset> GetAssetData(AssetCategory phone, AssetCategory tablet)
         {

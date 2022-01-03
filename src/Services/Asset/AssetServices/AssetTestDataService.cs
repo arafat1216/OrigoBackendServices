@@ -15,7 +15,7 @@ namespace AssetServices
         private readonly ILogger<AssetTestDataService> _logger;
         private static Guid OrganizationId1 { get; set; } = new Guid("A19EA756-86F2-423C-9B10-11CB10181858");
         private static Guid OrganizationId2 { get; set; } = new Guid("F2B5B8E5-78E1-4643-B97B-49239DAC74C2");
-        private Guid CallerId { get; } = new Guid("cb756b16-fdf6-418e-8ca3-c0ff7f8c7347");
+        private readonly Guid _callerId = new("D0326090-631F-4138-9CD2-85249AD24BBB");
 
         public AssetTestDataService(ILogger<AssetTestDataService> logger, IAssetRepository assetRepository)
         {
@@ -87,28 +87,28 @@ namespace AssetServices
                     }
                     else
                     {
-                        existingAsset.UpdateBrand(asset.Brand, CallerId);
-                        existingAsset.UpdateProductName(asset.ProductName, CallerId);
-                        existingAsset.ChangePurchaseDate(asset.PurchaseDate, CallerId);
-                        existingAsset.UpdateNote(asset.Note, CallerId);
-                        existingAsset.UpdateTag(asset.AssetTag, CallerId);
-                        existingAsset.UpdateDescription(asset.Description, CallerId);
-                        existingAsset.AssignAssetToUser(asset.AssetHolderId, CallerId);
-                        existingAsset.UpdateAssetStatus(asset.Status, CallerId);
-                        existingAsset.SetLifeCycleType(asset.LifecycleType, CallerId);
+                        existingAsset.UpdateBrand(asset.Brand, _callerId);
+                        existingAsset.UpdateProductName(asset.ProductName, _callerId);
+                        existingAsset.ChangePurchaseDate(asset.PurchaseDate, _callerId);
+                        existingAsset.UpdateNote(asset.Note, _callerId);
+                        existingAsset.UpdateTag(asset.AssetTag, _callerId);
+                        existingAsset.UpdateDescription(asset.Description, _callerId);
+                        existingAsset.AssignAssetToUser(asset.AssetHolderId, _callerId);
+                        existingAsset.UpdateAssetStatus(asset.Status, _callerId);
+                        existingAsset.SetLifeCycleType(asset.LifecycleType, _callerId);
                         if (asset.AssetCategory.Id == 1)
                         {
                             MobilePhone phone = existingAsset as MobilePhone;
                             var a = asset as MobilePhone;
-                            phone.ChangeSerialNumber(a.SerialNumber, CallerId);
-                            phone.SetImei(a.Imeis.Select(i => i.Imei).ToList());
+                            phone.ChangeSerialNumber(a.SerialNumber, _callerId);
+                            phone.SetImei(a.Imeis.Select(i => i.Imei).ToList(), _callerId);
                         }
                         else if (asset.AssetCategory.Id == 2)
                         {
                             Tablet tablet = existingAsset as Tablet;
                             var a = asset as Tablet;
-                            tablet.ChangeSerialNumber(a.SerialNumber, CallerId);
-                            tablet.SetImei(a.Imeis.Select(i => i.Imei).ToList());
+                            tablet.ChangeSerialNumber(a.SerialNumber, _callerId);
+                            tablet.SetImei(a.Imeis.Select(i => i.Imei).ToList(), _callerId);
                         }
                     }
                 }
@@ -140,7 +140,7 @@ namespace AssetServices
                         var assetLabel = await _assetRepository.GetAssetLabelForAssetAsync(asset.Id, customerLabel.Id);
                         if (assetLabel == null)
                         {
-                            newLabels.Add(new AssetLabel(asset.Id, customerLabel.Id, CallerId));
+                            newLabels.Add(new AssetLabel(asset.Id, customerLabel.Id, _callerId));
                         }
                     }
                 }
