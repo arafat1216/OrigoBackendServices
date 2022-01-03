@@ -149,6 +149,11 @@ namespace CustomerServices.Infrastructure
                 .Where(u => u.Email.ToLower() == emailAddress.ToLower())
                 .FirstOrDefaultAsync();
         }
+        public async Task<User> GetUserByMobileNumber(string mobileNumber)
+        {
+            return await _customerContext.Users.Where(u => u.MobileNumber == mobileNumber)
+                .FirstOrDefaultAsync();
+        }
 
         public async Task<int> GetUsersCount(Guid customerId)
         {

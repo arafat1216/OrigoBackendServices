@@ -90,9 +90,13 @@ namespace CustomerServices
                 userPreference = new UserPreference("EN", callerId);
             }
             // Check if email address is used by another user
-            var user = await _customerRepository.GetUserByUserName(email);
-            if (user != null)
+            var emailInUse = await _customerRepository.GetUserByUserName(email);
+            if (emailInUse != null)
                 throw new UserNameIsInUseException("Email address is already in use.");
+            
+            //Check if mobile number is used by another user
+            var mobileNumberInUse = await _customerRepository.GetUserByMobileNumber(mobileNumber);
+            if (mobileNumberInUse != null) throw new InvalidPhoneNumberException("Phone number already in use.");
 
             var newUser = new User(customer, Guid.NewGuid(), firstName, lastName, email, mobileNumber, employeeId,
                 userPreference, callerId);

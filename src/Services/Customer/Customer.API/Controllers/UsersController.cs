@@ -99,6 +99,14 @@ namespace Customer.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+            catch (UserNameIsInUseException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (InvalidPhoneNumberException exception)
+            {
+                return BadRequest(exception.Message);
+            }
             catch (Exception ex)
             {
                 _logger.LogError("{0}", ex);
