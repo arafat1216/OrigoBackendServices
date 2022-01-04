@@ -17,5 +17,6 @@ namespace Customer.API.ViewModels
         /// </summary>
         public string EmployeeId { get; set; }
         public Guid CallerId { get; set; }
+        public string Role { get; set; }
     }
 }

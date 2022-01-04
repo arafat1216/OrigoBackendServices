@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Request object.
+    /// </summary>
     public class DeleteCustomerLabelsData
     {
         public IList<Guid> LabelGuids { get; set; }

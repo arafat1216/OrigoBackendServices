@@ -1,5 +1,8 @@
 ﻿namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Request object
+    /// </summary>
     public class OrigoUpdateUser
     {
         public string FirstName { get; set; }

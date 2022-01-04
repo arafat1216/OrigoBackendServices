@@ -10,6 +10,7 @@ using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Models.BackendDTO;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -100,13 +101,9 @@ namespace OrigoApiGateway.Services
             {
                 var assets = await HttpClient.GetFromJsonAsync<PagedAssetsDTO>($"{_options.ApiPath}/customers/{customerId}");
 
-                if (assets == null) return null;
-                var origoAssets = new List<object>();
-                foreach (var asset in assets.Assets)
-                {
-                    origoAssets.Add(asset);
-                }
-                return origoAssets;
+                if (assets == null)
+                    return null;
+                return assets.Assets;
             }
             catch (HttpRequestException exception)
             {
@@ -129,17 +126,10 @@ namespace OrigoApiGateway.Services
             try
             {
                 var pagedAssetsDto = await HttpClient.GetFromJsonAsync<PagedAssetsDTO>($"{_options.ApiPath}/customers/{customerId}?q={search}&page={page}&limit={limit}");
-                if (pagedAssetsDto == null) return null;
+                if (pagedAssetsDto == null)
+                    return null;
 
-                var origoPagedAssets = new OrigoPagedAssets();
-                foreach (var asset in pagedAssetsDto.Assets)
-                {
-                    origoPagedAssets.Assets.Add(asset);
-                }
-                origoPagedAssets.CurrentPage = pagedAssetsDto.CurrentPage;
-                origoPagedAssets.TotalItems = pagedAssetsDto.TotalItems;
-                origoPagedAssets.TotalPages = pagedAssetsDto.TotalPages;
-                return origoPagedAssets;
+                return _mapper.Map<OrigoPagedAssets>(pagedAssetsDto);
             }
             catch (HttpRequestException exception)
             {
@@ -222,10 +212,13 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<object>> UpdateStatusOnAssets(Guid customerId, UpdateAssetsStatusDTO updatedAssetStatusDTO)
+        public async Task<IList<object>> UpdateStatusOnAssets(Guid customerId, UpdateAssetsStatus updatedAssetStatus, Guid callerId)
         {
             try
             {
+                var updatedAssetStatusDTO = _mapper.Map<UpdateAssetsStatusDTO>(updatedAssetStatus);
+                updatedAssetStatusDTO.CallerId = callerId; // Guid.Empty if tryparse fails.
+
                 var requestUri = $"{_options.ApiPath}/customers/{customerId}/assetStatus/{updatedAssetStatusDTO.AssetStatus.ToString().ToLower()}";
                 //TODO: Why isn't Patch supported? Dapr translates it to POST.
                 var response = await HttpClient.PostAsJsonAsync(requestUri, updatedAssetStatusDTO);
@@ -674,21 +667,23 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var assetLog =
-               await HttpClient.GetFromJsonAsync<IList<AssetAuditLog>>(
-                   $"{_options.ApiPath}/auditlog/{assetId}");
-
-
-                foreach (AssetAuditLog log in assetLog)
+                var assetLog = await HttpClient.GetFromJsonAsync<IList<AssetAuditLog>>($"{_options.ApiPath}/auditlog/{assetId}");
+                if (assetLog == null || !assetLog.Any()) return assetLog;
+                IList<OrigoUser> users = new List<OrigoUser>();
+                var organizationId = assetLog.First().CustomerId;
+                foreach (var createdBy in assetLog.Select(s => s.CreatedBy).Distinct())
                 {
-                    if (Guid.TryParse(log.CreatedBy, out Guid userId))
-                    {
-                        OrigoUser user = await _userServices.GetUserAsync(log.CustomerId, userId);
-                        if (user != null)
-                        {
-                            log.CreatedBy = user.DisplayName;
-                        }
-                    }
+                    if (!Guid.TryParse(createdBy, out var userId)) continue;
+                    var user = await _userServices.GetUserAsync(userId);
+                    if (user == null)
+                        continue;
+                    users.Add(user);
+                }
+                foreach (var log in assetLog)
+                {
+                    if (!Guid.TryParse(log.CreatedBy, out var userId)) continue;
+                    var user = users.FirstOrDefault(u => u.Id == userId);
+                    log.CreatedBy = user?.DisplayName ?? "";
                 }
 
                 return assetLog;

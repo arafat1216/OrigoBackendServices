@@ -11,5 +11,6 @@ namespace OrigoApiGateway.Models.BackendDTO
         public string EmployeeId { get; set; }
         public UserPreference UserPreference { get; set; }
         public Guid CallerId { get; set; }
+        public string Role { get; set; }
     }
 }

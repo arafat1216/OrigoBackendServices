@@ -2,7 +2,10 @@
 using System;
 
 namespace OrigoApiGateway.Models
-{
+{   
+    /// <summary>
+    /// Response object
+    /// </summary>
     public class OrigoProductModuleGroup
     {
         public OrigoProductModuleGroup(ModuleGroupDTO moduleGroup)

@@ -1,6 +1,9 @@
 ﻿
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Request object
+    /// </summary>
     public class NewOrganizationPreferences
     {
         public string WebPage { get; set; }

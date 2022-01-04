@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models
 {
+    /// <summary>
+    /// Response object
+    /// </summary>
     public abstract class OrigoAsset
     {
         /// <summary>
