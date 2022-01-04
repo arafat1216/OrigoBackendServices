@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using CustomerServices.DomainEvents;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -18,6 +19,7 @@ namespace CustomerServices.Models
             ParentDepartment = parentDepartment;
             ExternalDepartmentId = externalDepartmentId;
             CreatedBy = callerId;
+            AddDomainEvent(new DepartmentCreatedDomainEvent(this));
         }
 
         public Guid ExternalDepartmentId { get; protected set; }

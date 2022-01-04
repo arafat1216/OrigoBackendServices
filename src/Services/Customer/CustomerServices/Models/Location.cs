@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using CustomerServices.DomainEvents;
 using System;
 
 namespace CustomerServices.Models
@@ -36,6 +37,7 @@ namespace CustomerServices.Models
             UpdatedAt = DateTime.UtcNow;
             CreatedBy = callerId;
             UpdatedBy = callerId;
+            AddDomainEvent(new LocationCreatedDomainEvent(this));
         }
 
         /// <summary>
@@ -64,6 +66,7 @@ namespace CustomerServices.Models
             Country = (updateLocation.Country == null) ? "" : updateLocation.Country;
             UpdatedAt = DateTime.UtcNow;
             UpdatedBy = updateLocation.CreatedBy;
+            AddDomainEvent(new LocationUpdatedDomainEvent(this));
         }
 
         public void PatchLocation(Location updateLocation)
@@ -71,38 +74,52 @@ namespace CustomerServices.Models
             bool isUpdated = false;
             if (Name != updateLocation.Name && updateLocation.Name != null)
             {
+                string oldName = Name;
                 Name = updateLocation.Name;
                 isUpdated = true;
+                AddDomainEvent(new LocationUpdateNameDomainEvent(this, oldName));
             }
             if (Description != updateLocation.Description && updateLocation.Description != null)
             {
+                string OldDescription = Description;
                 Description = updateLocation.Description;
                 isUpdated = true;
+                AddDomainEvent(new LocationUpdateDescriptionDomainEvent(this,OldDescription));
             }
             if (Address1 != updateLocation.Address1 && updateLocation.Address1 != null)
             {
+                string OldAddress1 = Address1;
                 Address1 = updateLocation.Address1;
                 isUpdated = true;
+                AddDomainEvent(new LocationUpdateAddressDomainEvent(this,1, OldAddress1));
             }
             if (Address2 != updateLocation.Address2 && updateLocation.Address2 != null)
             {
+                string OldAddress2 = Address2;
                 Address2 = updateLocation.Address2;
                 isUpdated = true;
+                AddDomainEvent(new LocationUpdateAddressDomainEvent(this,2,OldAddress2));
             }
             if (PostalCode != updateLocation.PostalCode && updateLocation.PostalCode != null)
             {
+                string OldPostalCode = PostalCode;
                 PostalCode = updateLocation.PostalCode;
                 isUpdated = true;
+                AddDomainEvent(new LocationUpdatePostalCodeDomainEvent(this, OldPostalCode));
             }
             if (City != updateLocation.City && updateLocation.City != null)
             {
+                string OldCity = City;
                 City = updateLocation.City;
                 isUpdated = true;
+                AddDomainEvent(new LocationUpdateCityDomainEvent(this,OldCity));
             }
             if (Country != updateLocation.Country && updateLocation.Country != null)
             {
+                string OldCountry = Country;
                 Country = updateLocation.Country;
                 isUpdated = true;
+                AddDomainEvent(new LocationUpdateCountryDomainEvent(this, OldCountry)); 
             }
             if (isUpdated)
             {
@@ -118,6 +135,7 @@ namespace CustomerServices.Models
             UpdatedAt = DateTime.UtcNow;
             LastUpdatedDate = DateTime.UtcNow;
             DeletedBy = callerId;
+            AddDomainEvent(new LocationDeletedDomainEvent(this));
         }
     }
 }
