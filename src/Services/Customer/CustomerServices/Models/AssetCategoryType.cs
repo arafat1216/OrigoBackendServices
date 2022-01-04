@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using CustomerServices.DomainEvents;
 using System;
 using System.Collections.Generic;
 
@@ -14,6 +15,7 @@ namespace CustomerServices.Models
             ExternalCustomerId = customerId;
             LifecycleTypes = lifecycleTypes;
             CreatedBy = callerId;
+            AddDomainEvent(new AssetCategoryTypeCreatedDomainEvent(this));
         }
 
         public Guid AssetCategoryId { get; protected set; }
@@ -24,11 +26,13 @@ namespace CustomerServices.Models
 
         public void UpdateCustomerId(Guid customerId)
         {
+            AddDomainEvent(new AssetCategoryTypeUpdatedAssetCustomerIdDomainEvent(this,ExternalCustomerId.ToString()));
             ExternalCustomerId = customerId;
         }
 
         public void SetAssetCategoryId(Guid assetCategoryId, Guid callerId)
         {
+            AddDomainEvent(new AssetCategoryTypeUpdatedAssetCategoryIdDomainEvent(this, AssetCategoryId.ToString()));
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
             AssetCategoryId = assetCategoryId;
@@ -36,12 +40,14 @@ namespace CustomerServices.Models
 
         public void SetLifecycleTypes(IList<AssetCategoryLifecycleType> lifecycleTypes)
         {
+            AddDomainEvent(new AssetCategoryTypeUpdatedLifecycleTypesDomainEvent(this));
             LifecycleTypes = lifecycleTypes;
         }
         public void SetDeletedBy(Guid callerId)
         {
-            LastUpdatedDate= DateTime.UtcNow;
+            LastUpdatedDate = DateTime.UtcNow;
             DeletedBy  = callerId;
+            AddDomainEvent(new AssetCategoryTypeDeletedDomainEvent(this));
         }
     }
 }

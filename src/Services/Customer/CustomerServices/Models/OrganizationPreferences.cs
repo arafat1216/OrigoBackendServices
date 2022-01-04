@@ -53,14 +53,56 @@ namespace CustomerServices.Models
 
         public void UpdatePreferences(OrganizationPreferences newPreferences)
         {
-            WebPage = newPreferences.WebPage;
-            LogoUrl = newPreferences.LogoUrl;
-            OrganizationNotes = newPreferences.OrganizationNotes;
-            EnforceTwoFactorAuth = newPreferences.EnforceTwoFactorAuth;
-            PrimaryLanguage = newPreferences.PrimaryLanguage;
-            DefaultDepartmentClassification = newPreferences.DefaultDepartmentClassification;
-            UpdatedAt = DateTime.UtcNow;
-            UpdatedBy = newPreferences.UpdatedBy;
+            bool isUpdated = false;
+
+            if (WebPage != newPreferences.WebPage)
+            {
+                AddDomainEvent(new OrganizationPreferencesChangedWebPageDomainEvent(this, WebPage));
+                WebPage = newPreferences.WebPage;
+                isUpdated = true;
+            }
+
+            if (LogoUrl != newPreferences.LogoUrl)
+            {
+                AddDomainEvent(new OrganizationPreferencesChangedLogoUrlDomainEvent(this, LogoUrl));
+                LogoUrl = newPreferences.LogoUrl;
+                isUpdated = true;
+            }
+
+            if (OrganizationNotes != newPreferences.OrganizationNotes)
+            {
+                AddDomainEvent(new OrganizationPreferencesChangedOrganizationNotesDomainEvent(this, OrganizationNotes));
+                OrganizationNotes = newPreferences.OrganizationNotes;
+                isUpdated = true;
+            }
+
+            if (EnforceTwoFactorAuth != newPreferences.EnforceTwoFactorAuth)
+            {
+                AddDomainEvent(new OrganizationPreferencesChangedEnforceTwoFactorAuthDomainEvent(this, EnforceTwoFactorAuth.ToString()));
+                EnforceTwoFactorAuth = newPreferences.EnforceTwoFactorAuth;
+                isUpdated = true;
+            }
+
+            if (PrimaryLanguage != newPreferences.PrimaryLanguage)
+            {
+                AddDomainEvent(new OrganizationPreferencesChangedPrimaryLanguageDomainEvent(this, PrimaryLanguage));
+                PrimaryLanguage = newPreferences.PrimaryLanguage;
+                isUpdated = true;
+            }
+
+            if (DefaultDepartmentClassification != newPreferences.DefaultDepartmentClassification)
+            {
+                AddDomainEvent(new OrganizationPreferencesChangedDefaultDepartmentClassificationDomainEvent(this, DefaultDepartmentClassification.ToString()));
+                DefaultDepartmentClassification = newPreferences.DefaultDepartmentClassification;
+                isUpdated = true;
+            }
+
+            if (isUpdated)
+            {
+                UpdatedAt = DateTime.UtcNow;
+                LastUpdatedDate = DateTime.UtcNow;
+                UpdatedBy = newPreferences.UpdatedBy;
+            }
         }
 
         public void PatchPreferences(OrganizationPreferences newPreferences)
@@ -68,31 +110,38 @@ namespace CustomerServices.Models
             bool isUpdated = false;
             if (WebPage != newPreferences.WebPage && newPreferences.WebPage != null)
             {
+                AddDomainEvent(new OrganizationPreferencesChangedWebPageDomainEvent(this, WebPage));
                 WebPage = newPreferences.WebPage;
                 isUpdated = true;
+                
             }
             if (LogoUrl != newPreferences.LogoUrl && newPreferences.LogoUrl != null)
             {
+                AddDomainEvent(new OrganizationPreferencesChangedLogoUrlDomainEvent(this, LogoUrl));
                 LogoUrl = newPreferences.LogoUrl;
                 isUpdated = true;
             }
             if (OrganizationNotes != newPreferences.OrganizationNotes && newPreferences.OrganizationNotes != null)
             {
+                AddDomainEvent(new OrganizationPreferencesChangedOrganizationNotesDomainEvent(this, OrganizationNotes));
                 OrganizationNotes = newPreferences.OrganizationNotes;
                 isUpdated = true;
             }
             if (EnforceTwoFactorAuth != newPreferences.EnforceTwoFactorAuth)
             {
+                AddDomainEvent(new OrganizationPreferencesChangedEnforceTwoFactorAuthDomainEvent(this, EnforceTwoFactorAuth.ToString()));
                 EnforceTwoFactorAuth = newPreferences.EnforceTwoFactorAuth;
                 isUpdated = true;
             }
             if (PrimaryLanguage != newPreferences.PrimaryLanguage && newPreferences.PrimaryLanguage != null)
             {
+                AddDomainEvent(new OrganizationPreferencesChangedPrimaryLanguageDomainEvent(this, PrimaryLanguage));
                 PrimaryLanguage = newPreferences.PrimaryLanguage;
                 isUpdated = true;
             }
             if (DefaultDepartmentClassification != newPreferences.DefaultDepartmentClassification)
             {
+                AddDomainEvent(new OrganizationPreferencesChangedDefaultDepartmentClassificationDomainEvent(this, DefaultDepartmentClassification.ToString()));
                 DefaultDepartmentClassification = newPreferences.DefaultDepartmentClassification;
                 isUpdated = true;
             }
@@ -110,6 +159,7 @@ namespace CustomerServices.Models
             UpdatedAt = DateTime.UtcNow;
             LastUpdatedDate = DateTime.UtcNow;
             UpdatedBy = callerId;
+            AddDomainEvent(new OrganizationPreferencesDeletedDomainEvent(this));
         }
     }
 }
