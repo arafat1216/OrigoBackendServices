@@ -9,7 +9,6 @@
 		<DockerfileContext>..\..\..\..</DockerfileContext>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
-		<LangVersion>preview</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
