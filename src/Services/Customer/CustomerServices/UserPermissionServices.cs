@@ -81,7 +81,7 @@ namespace CustomerServices
                 return null;
             }
             if (roleType == PredefinedRole.DepartmentManager &&
-                     (departments.Any(d => accessList.Contains(d.ExternalDepartmentId)) || 
+                     (!departments.Any(d => accessList.Contains(d.ExternalDepartmentId)) || 
                       (userPermission != null && departments.Any(d => userPermission.AccessList.Contains(d.ExternalDepartmentId))))) // Check if the lists contains at least one department id.
             {
                 return null;

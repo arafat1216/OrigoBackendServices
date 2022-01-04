@@ -22,6 +22,14 @@ namespace CustomerServices.Models
             AddDomainEvent(new DepartmentCreatedDomainEvent(this));
         }
 
+        public void UpdateDepartment(Department department)
+        {
+            Name = department.Name;
+            CostCenterId = department.CostCenterId;
+            Description = department.Description;
+            ParentDepartment = department.ParentDepartment;
+        }
+
         public Guid ExternalDepartmentId { get; protected set; }
 
         public string Name { get; set; }
