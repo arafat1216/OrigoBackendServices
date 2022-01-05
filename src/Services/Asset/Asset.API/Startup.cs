@@ -62,6 +62,7 @@ namespace Asset.API
             });
             services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
             services.AddScoped<IAssetServices, AssetServices.AssetServices>();
+            services.AddScoped<IAssetTestDataService, AssetTestDataService>();
             services.AddScoped<IAssetRepository, AssetRepository>();
             services.AddMediatR(typeof(Startup));
 

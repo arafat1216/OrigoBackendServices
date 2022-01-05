@@ -310,7 +310,7 @@ namespace CustomerServices.Models
         {
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
-            AddDomainEvent(new DepartmentAddedDomainEvent(department));
+            AddDomainEvent(new DepartmentAddedToCustomerDomainEvent(department));
             Departments.Add(department);
         }
 
