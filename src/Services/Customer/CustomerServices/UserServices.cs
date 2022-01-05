@@ -211,6 +211,9 @@ namespace CustomerServices
         {
             var user = await GetUserAsync(customerId, userId);
             if (user == null) return null;
+            //Need to fetch the role based on the mail already registered on the user in the case there is a change in email from put and then resulting in no role for mail
+            //The role assignment for response get assign after mapping to user DTO
+            var role = await GetRoleNameForUser(user.Email);
 
             user.ChangeFirstName(firstName, callerId);
             user.ChangeLastName(lastName, callerId);
@@ -228,9 +231,17 @@ namespace CustomerServices
             {
                 user.ChangeUserPreferences(userPreference, callerId);
             }
+            
+            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            if (userDTO == null)
+            {
+                return null;
+            }
+            
+            userDTO.Role = role;
 
             await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<UserDTO>(user);
+            return userDTO;
         }
 
         public async Task<UserDTO> DeleteUserAsync(Guid userId, Guid callerId, bool softDelete = true)
