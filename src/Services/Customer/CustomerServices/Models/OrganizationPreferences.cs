@@ -57,44 +57,50 @@ namespace CustomerServices.Models
 
             if (WebPage != newPreferences.WebPage)
             {
-                AddDomainEvent(new OrganizationPreferencesChangedWebPageDomainEvent(this, WebPage));
+               string oldWebPage = WebPage;
                 WebPage = newPreferences.WebPage;
                 isUpdated = true;
+                AddDomainEvent(new OrganizationPreferencesChangedWebPageDomainEvent(this, oldWebPage));
             }
 
             if (LogoUrl != newPreferences.LogoUrl)
             {
-                AddDomainEvent(new OrganizationPreferencesChangedLogoUrlDomainEvent(this, LogoUrl));
+                string oldLogoUrl = LogoUrl;
                 LogoUrl = newPreferences.LogoUrl;
                 isUpdated = true;
+                AddDomainEvent(new OrganizationPreferencesChangedLogoUrlDomainEvent(this, oldLogoUrl));
             }
 
             if (OrganizationNotes != newPreferences.OrganizationNotes)
             {
-                AddDomainEvent(new OrganizationPreferencesChangedOrganizationNotesDomainEvent(this, OrganizationNotes));
+                string oldOrganizationNotes = OrganizationNotes;
                 OrganizationNotes = newPreferences.OrganizationNotes;
                 isUpdated = true;
+                AddDomainEvent(new OrganizationPreferencesChangedOrganizationNotesDomainEvent(this, oldOrganizationNotes));
             }
 
             if (EnforceTwoFactorAuth != newPreferences.EnforceTwoFactorAuth)
             {
-                AddDomainEvent(new OrganizationPreferencesChangedEnforceTwoFactorAuthDomainEvent(this, EnforceTwoFactorAuth.ToString()));
+                string oldEnforceTwoFactorAuth = EnforceTwoFactorAuth.ToString();
                 EnforceTwoFactorAuth = newPreferences.EnforceTwoFactorAuth;
                 isUpdated = true;
+                AddDomainEvent(new OrganizationPreferencesChangedEnforceTwoFactorAuthDomainEvent(this, oldEnforceTwoFactorAuth));
             }
 
             if (PrimaryLanguage != newPreferences.PrimaryLanguage)
             {
-                AddDomainEvent(new OrganizationPreferencesChangedPrimaryLanguageDomainEvent(this, PrimaryLanguage));
+                string oldPrimaryLanguage = PrimaryLanguage;
                 PrimaryLanguage = newPreferences.PrimaryLanguage;
                 isUpdated = true;
+                AddDomainEvent(new OrganizationPreferencesChangedPrimaryLanguageDomainEvent(this, oldPrimaryLanguage));
             }
 
             if (DefaultDepartmentClassification != newPreferences.DefaultDepartmentClassification)
             {
-                AddDomainEvent(new OrganizationPreferencesChangedDefaultDepartmentClassificationDomainEvent(this, DefaultDepartmentClassification.ToString()));
+                string oldDefaultDepartmentClassification = DefaultDepartmentClassification.ToString();
                 DefaultDepartmentClassification = newPreferences.DefaultDepartmentClassification;
                 isUpdated = true;
+                AddDomainEvent(new OrganizationPreferencesChangedDefaultDepartmentClassificationDomainEvent(this, oldDefaultDepartmentClassification));
             }
 
             if (isUpdated)
@@ -110,40 +116,46 @@ namespace CustomerServices.Models
             bool isUpdated = false;
             if (WebPage != newPreferences.WebPage && newPreferences.WebPage != null)
             {
-                AddDomainEvent(new OrganizationPreferencesChangedWebPageDomainEvent(this, WebPage));
+                string oldWebPage = WebPage;
                 WebPage = newPreferences.WebPage;
                 isUpdated = true;
-                
+                AddDomainEvent(new OrganizationPreferencesChangedWebPageDomainEvent(this, oldWebPage));
+
             }
             if (LogoUrl != newPreferences.LogoUrl && newPreferences.LogoUrl != null)
             {
-                AddDomainEvent(new OrganizationPreferencesChangedLogoUrlDomainEvent(this, LogoUrl));
+                string oldLogoUrl = LogoUrl;
                 LogoUrl = newPreferences.LogoUrl;
                 isUpdated = true;
+                AddDomainEvent(new OrganizationPreferencesChangedLogoUrlDomainEvent(this, oldLogoUrl));
             }
             if (OrganizationNotes != newPreferences.OrganizationNotes && newPreferences.OrganizationNotes != null)
             {
-                AddDomainEvent(new OrganizationPreferencesChangedOrganizationNotesDomainEvent(this, OrganizationNotes));
+                string oldOrganizationNotes = OrganizationNotes;
                 OrganizationNotes = newPreferences.OrganizationNotes;
                 isUpdated = true;
+                AddDomainEvent(new OrganizationPreferencesChangedOrganizationNotesDomainEvent(this, oldOrganizationNotes));
             }
             if (EnforceTwoFactorAuth != newPreferences.EnforceTwoFactorAuth)
             {
-                AddDomainEvent(new OrganizationPreferencesChangedEnforceTwoFactorAuthDomainEvent(this, EnforceTwoFactorAuth.ToString()));
+                string oldEnforceTwoFactorAuth = EnforceTwoFactorAuth.ToString();
                 EnforceTwoFactorAuth = newPreferences.EnforceTwoFactorAuth;
                 isUpdated = true;
+                AddDomainEvent(new OrganizationPreferencesChangedEnforceTwoFactorAuthDomainEvent(this, oldEnforceTwoFactorAuth));
             }
             if (PrimaryLanguage != newPreferences.PrimaryLanguage && newPreferences.PrimaryLanguage != null)
             {
-                AddDomainEvent(new OrganizationPreferencesChangedPrimaryLanguageDomainEvent(this, PrimaryLanguage));
+                string oldPrimaryLanguage = PrimaryLanguage;
                 PrimaryLanguage = newPreferences.PrimaryLanguage;
                 isUpdated = true;
+                AddDomainEvent(new OrganizationPreferencesChangedPrimaryLanguageDomainEvent(this, oldPrimaryLanguage));
             }
             if (DefaultDepartmentClassification != newPreferences.DefaultDepartmentClassification)
             {
-                AddDomainEvent(new OrganizationPreferencesChangedDefaultDepartmentClassificationDomainEvent(this, DefaultDepartmentClassification.ToString()));
+                string oldDefaultDepartmentClassification = DefaultDepartmentClassification.ToString();
                 DefaultDepartmentClassification = newPreferences.DefaultDepartmentClassification;
                 isUpdated = true;
+                AddDomainEvent(new OrganizationPreferencesChangedDefaultDepartmentClassificationDomainEvent(this, oldDefaultDepartmentClassification));
             }
             if (isUpdated)
             {

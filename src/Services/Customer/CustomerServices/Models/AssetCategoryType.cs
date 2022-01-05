@@ -26,16 +26,18 @@ namespace CustomerServices.Models
 
         public void UpdateCustomerId(Guid customerId)
         {
-            AddDomainEvent(new AssetCategoryTypeUpdatedAssetCustomerIdDomainEvent(this,ExternalCustomerId.ToString()));
+            string oldCustomerId = ExternalCustomerId.ToString();
             ExternalCustomerId = customerId;
+            AddDomainEvent(new AssetCategoryTypeUpdatedAssetCustomerIdDomainEvent(this, oldCustomerId));
         }
 
         public void SetAssetCategoryId(Guid assetCategoryId, Guid callerId)
         {
-            AddDomainEvent(new AssetCategoryTypeUpdatedAssetCategoryIdDomainEvent(this, AssetCategoryId.ToString()));
+            string oldAssetCategoryId = AssetCategoryId.ToString();
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
             AssetCategoryId = assetCategoryId;
+            AddDomainEvent(new AssetCategoryTypeUpdatedAssetCategoryIdDomainEvent(this, oldAssetCategoryId));
         }
 
         public void SetLifecycleTypes(IList<AssetCategoryLifecycleType> lifecycleTypes)
