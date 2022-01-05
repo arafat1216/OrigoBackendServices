@@ -68,13 +68,16 @@ namespace CustomerServices.Models
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
             OktaUserId = oktaUserId;
+            AddDomainEvent(new UserActivateDeactivateDomainEvent(this, IsActive));
             IsActive = true;
+            
         }
 
         public void DeactivateUser(Guid callerId)
         {
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
+            AddDomainEvent(new UserActivateDeactivateDomainEvent(this, IsActive));
             IsActive = false;
         }
 
@@ -171,17 +174,21 @@ namespace CustomerServices.Models
 
         internal void ChangeEmailAddress(string email, Guid callerId)
         {
+            var oldEmail = Email;
             Email = email;
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
+            AddDomainEvent(new UserUpdateEmailDomainEvent(this, oldEmail));
         }
 
         // TODO: this will be remove in a later version
         internal void ChangeEmployeeId(string employeeId, Guid callerId)
         {
+            var oldEmployeeId = EmployeeId;
             EmployeeId = employeeId;
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
+            AddDomainEvent(new UserUpdateEmployeeIdDomainEvent(this,oldEmployeeId));
         }
     }
 }
