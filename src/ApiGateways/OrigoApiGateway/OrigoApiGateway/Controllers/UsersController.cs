@@ -136,6 +136,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
@@ -155,9 +156,9 @@ namespace OrigoApiGateway.Controllers
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUser.Id }, updatedUser);
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
