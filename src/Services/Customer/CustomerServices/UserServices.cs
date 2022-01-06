@@ -186,6 +186,9 @@ namespace CustomerServices
             string email, string employeeId, UserPreference userPreference, Guid callerId)
         {
             var user = await GetUserAsync(customerId, userId);
+            //get role from current email
+            var role = await GetRoleNameForUser(user.Email);
+
             if (user == null) return null;
             if (firstName != default && user.FirstName != firstName) user.ChangeFirstName(firstName, callerId);
             if (lastName != default && user.LastName != lastName) user.ChangeLastName(lastName, callerId);
@@ -202,8 +205,16 @@ namespace CustomerServices
                 userPreference.Language != user.UserPreference?.Language)
                 user.ChangeUserPreferences(userPreference, callerId);
 
+            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            if (userDTO == null)
+            {
+                return null;
+            }
+
+            userDTO.Role = role;
+
             await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<UserDTO>(user);
+            return userDTO;
         }
 
         public async Task<UserDTO> UpdateUserPutAsync(Guid customerId, Guid userId, string firstName, string lastName,
