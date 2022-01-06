@@ -83,9 +83,8 @@ namespace OrigoApiGateway
                 options.DefaultSignInScheme = OktaDefaults.ApiAuthenticationScheme;
             }).AddOktaWebApi(new OktaWebApiOptions
             {
-                OktaDomain = "https://techstepportal.okta-emea.com",// "https://origoidp.mytos.no", // Configuration["Authentication:Okta:OktaDomain"],
-                //AuthorizationServerId = "aus4hxjo6b4FH7i3s0i7",// Configuration["Authentication:Okta:AuthorizationServerId"],
-                Audience = "0oa4zl5i8wGJW2jon0i7"
+                OktaDomain = Configuration["Authentication:Okta:OktaDomain"],
+                Audience = Configuration["Authentication:Okta:Audience"]
             });
 
             services.AddAuthorization(options =>
