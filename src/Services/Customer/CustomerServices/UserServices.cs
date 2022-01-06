@@ -93,7 +93,7 @@ namespace CustomerServices
             var emailInUse = await _customerRepository.GetUserByUserName(email);
             if (emailInUse != null)
                 throw new UserNameIsInUseException("Email address is already in use.");
-            
+
             //Check if mobile number is used by another user
             var mobileNumberInUse = await _customerRepository.GetUserByMobileNumber(mobileNumber);
             if (mobileNumberInUse != null) throw new InvalidPhoneNumberException("Phone number already in use.");
@@ -121,12 +121,13 @@ namespace CustomerServices
                         mappedNewUserDTO.Role = role;
                     }
                 }
-                catch (InvalidRoleNameException) {
+                catch (InvalidRoleNameException)
+                {
                     mappedNewUserDTO.Role = null;
                 }
             }
 
-            return mappedNewUserDTO; 
+            return mappedNewUserDTO;
         }
 
         private async Task<User> AssignOktaUserIdAsync(Guid customerId, Guid userId, string oktaUserId, Guid callerId)
@@ -183,13 +184,13 @@ namespace CustomerServices
         }
 
         public async Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
-            string email, string employeeId, UserPreference userPreference, Guid callerId)
+            string email, string employeeId, string mobileNumber, UserPreference userPreference, Guid callerId)
         {
             var user = await GetUserAsync(customerId, userId);
             if (user == null) return null;
             if (firstName != default && user.FirstName != firstName) user.ChangeFirstName(firstName, callerId);
             if (lastName != default && user.LastName != lastName) user.ChangeLastName(lastName, callerId);
-            if (email != default && user.Email != email)
+            if (email != default && user.Email?.ToLower().Trim() != email?.ToLower().Trim())
             {
                 // Check if email address is used by another user
                 var username = await _customerRepository.GetUserByUserName(email);
@@ -198,6 +199,13 @@ namespace CustomerServices
                 user.ChangeEmailAddress(email, callerId);
             }
             if (employeeId != default && user.EmployeeId != employeeId) user.ChangeEmployeeId(employeeId, callerId);
+            if (mobileNumber != default && user.MobileNumber?.Trim() != mobileNumber?.Trim())
+            {
+                // Check if mobile address is used by another user
+                var mobileNumberInUse = await _customerRepository.GetUserByMobileNumber(mobileNumber);
+                if (mobileNumberInUse != null) throw new InvalidPhoneNumberException("Phone number already in use.");
+                user.ChangeMobileNumber(mobileNumber, callerId);
+            }
             if (userPreference != null && userPreference.Language != null &&
                 userPreference.Language != user.UserPreference?.Language)
                 user.ChangeUserPreferences(userPreference, callerId);
@@ -207,7 +215,7 @@ namespace CustomerServices
         }
 
         public async Task<UserDTO> UpdateUserPutAsync(Guid customerId, Guid userId, string firstName, string lastName,
-            string email, string employeeId, UserPreference userPreference, Guid callerId)
+            string email, string employeeId, string mobileNumber, UserPreference userPreference, Guid callerId)
         {
             var user = await GetUserAsync(customerId, userId);
             if (user == null) return null;
@@ -217,27 +225,33 @@ namespace CustomerServices
 
             user.ChangeFirstName(firstName, callerId);
             user.ChangeLastName(lastName, callerId);
-            if (email != default && user.Email != email)
+            if (email != default && user.Email?.ToLower().Trim() != email?.ToLower().Trim())
             {
                 // Check if email address is used by another user
                 var username = await _customerRepository.GetUserByUserName(email);
                 if (username != null && username.Id != user.Id)
                     throw new UserNameIsInUseException("Email address is already in use.");
-                user.ChangeEmailAddress(email, callerId);
             }
             user.ChangeEmailAddress(email, callerId);
             user.ChangeEmployeeId(employeeId, callerId);
+            if (mobileNumber != default && user.MobileNumber?.Trim() != mobileNumber?.Trim())
+            {
+                // Check if mobile address is used by another user
+                var mobileNumberInUse = await _customerRepository.GetUserByMobileNumber(mobileNumber);
+                if (mobileNumberInUse != null) throw new InvalidPhoneNumberException("Phone number already in use.");
+            }
+            user.ChangeMobileNumber(mobileNumber, callerId);
             if (userPreference != null)
             {
                 user.ChangeUserPreferences(userPreference, callerId);
             }
-            
+
             UserDTO userDTO = _mapper.Map<UserDTO>(user);
             if (userDTO == null)
             {
                 return null;
             }
-            
+
             userDTO.Role = role;
 
             await _customerRepository.SaveEntitiesAsync();

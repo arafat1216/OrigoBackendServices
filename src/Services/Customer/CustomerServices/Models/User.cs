@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Common.Seedwork;
+using CustomerServices.DomainEvents;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
-using Common.Seedwork;
-using CustomerServices.DomainEvents;
 
 namespace CustomerServices.Models
 {
@@ -63,14 +63,14 @@ namespace CustomerServices.Models
         [JsonIgnore]
         public Organization Customer { get; set; }
 
-        public void ActivateUser(string oktaUserId,Guid callerId)
+        public void ActivateUser(string oktaUserId, Guid callerId)
         {
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
             OktaUserId = oktaUserId;
             AddDomainEvent(new UserActivateDeactivateDomainEvent(this, IsActive));
             IsActive = true;
-            
+
         }
 
         public void DeactivateUser(Guid callerId)
@@ -109,7 +109,7 @@ namespace CustomerServices.Models
             _departments.Remove(department);
         }
 
-        public void AssignManagerToDepartment(Department department,Guid callerId)
+        public void AssignManagerToDepartment(Department department, Guid callerId)
         {
             if (_managesDepartments == null)
             {
@@ -121,7 +121,7 @@ namespace CustomerServices.Models
             _managesDepartments.Add(department);
         }
 
-        public void UnassignManagerFromDepartment(Department department,Guid callerId)
+        public void UnassignManagerFromDepartment(Department department, Guid callerId)
         {
             if (_managesDepartments == null)
             {
@@ -139,7 +139,7 @@ namespace CustomerServices.Models
 
             // Allow old users with no preference object ot be updated.
             if (UserPreference == null)
-                UserPreference = new UserPreference("EN",callerId);
+                UserPreference = new UserPreference("EN", callerId);
             UserPreference.Language = userPreference.Language;
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
@@ -154,7 +154,7 @@ namespace CustomerServices.Models
             UserPreference.SetDeleteStatus(true);
         }
 
-        internal void ChangeFirstName(string firstName,Guid callerId)
+        internal void ChangeFirstName(string firstName, Guid callerId)
         {
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
@@ -181,6 +181,15 @@ namespace CustomerServices.Models
             AddDomainEvent(new UserUpdateEmailDomainEvent(this, oldEmail));
         }
 
+        internal void ChangeMobileNumber(string mobileNumber, Guid callerId)
+        {
+            var oldMobileNumber = MobileNumber;
+            Email = mobileNumber;
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
+            AddDomainEvent(new UserUpdateMobileNumberDomainEvent(this, oldMobileNumber, callerId));
+        }
+
         // TODO: this will be remove in a later version
         internal void ChangeEmployeeId(string employeeId, Guid callerId)
         {
@@ -188,7 +197,7 @@ namespace CustomerServices.Models
             EmployeeId = employeeId;
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
-            AddDomainEvent(new UserUpdateEmployeeIdDomainEvent(this,oldEmployeeId));
+            AddDomainEvent(new UserUpdateEmployeeIdDomainEvent(this, oldEmployeeId));
         }
     }
 }

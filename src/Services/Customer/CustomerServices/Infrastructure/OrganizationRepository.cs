@@ -142,15 +142,19 @@ namespace CustomerServices.Infrastructure
 
         public async Task<User> GetUserByUserName(string emailAddress)
         {
+            if (emailAddress == null)
+                return null;
             return await _customerContext.Users
                 .Include(u => u.Customer)
                 .Include(u => u.Departments)
                 .Include(u => u.UserPreference)
-                .Where(u => u.Email.ToLower() == emailAddress.ToLower())
+                .Where(u => u.Email == emailAddress)
                 .FirstOrDefaultAsync();
         }
         public async Task<User> GetUserByMobileNumber(string mobileNumber)
         {
+            if (mobileNumber == null)
+                return null;
             return await _customerContext.Users.Where(u => u.MobileNumber == mobileNumber)
                 .FirstOrDefaultAsync();
         }
@@ -215,7 +219,7 @@ namespace CustomerServices.Infrastructure
             {
                 foreach (var assetLifecycle in assetCategoryLifecycleTypes)
                 {
-                    customer.RemoveLifecyle(assetCategory, assetLifecycle,callerId);
+                    customer.RemoveLifecyle(assetCategory, assetLifecycle, callerId);
                 }
                 _customerContext.AssetCategoryLifecycleTypes.RemoveRange(assetCategoryLifecycleTypes);
             }
@@ -340,7 +344,7 @@ namespace CustomerServices.Infrastructure
             return await _customerContext.ProductModuleGroups.FirstOrDefaultAsync(p => p.ProductModuleGroupId == moduleGroupId);
         }
 
-        public async Task<ProductModuleGroup> AddProductModuleGroupAsync(Guid customerId, Guid moduleGroupId,Guid callerId)
+        public async Task<ProductModuleGroup> AddProductModuleGroupAsync(Guid customerId, Guid moduleGroupId, Guid callerId)
         {
             var customer = await GetOrganizationAsync(customerId);
             var moduleGroup = await GetProductModuleGroupAsync(moduleGroupId);
@@ -350,13 +354,13 @@ namespace CustomerServices.Infrastructure
             }
             if (!customer.SelectedProductModuleGroups.Contains(moduleGroup))
             {
-                customer.AddProductModuleGroup(moduleGroup,callerId);
+                customer.AddProductModuleGroup(moduleGroup, callerId);
             }
             await SaveEntitiesAsync();
             return moduleGroup;
         }
 
-        public async Task<ProductModuleGroup> RemoveProductModuleGroupAsync(Guid customerId, Guid moduleGroupId,Guid callerId)
+        public async Task<ProductModuleGroup> RemoveProductModuleGroupAsync(Guid customerId, Guid moduleGroupId, Guid callerId)
         {
             var customer = await GetOrganizationAsync(customerId);
             var moduleGroup = await GetProductModuleGroupAsync(moduleGroupId);
@@ -366,7 +370,7 @@ namespace CustomerServices.Infrastructure
             }
             try
             {
-                customer.RemoveProductModuleGroup(moduleGroup,callerId);
+                customer.RemoveProductModuleGroup(moduleGroup, callerId);
             }
             catch
             {

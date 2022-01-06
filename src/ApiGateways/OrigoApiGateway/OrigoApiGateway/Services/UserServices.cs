@@ -1,16 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Threading.Tasks;
-using AutoMapper;
 
 namespace OrigoApiGateway.Services
 {
@@ -34,7 +33,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/{customerId}/users/count");
-                return count ;
+                return count;
             }
             catch (HttpRequestException exception)
             {
@@ -53,7 +52,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 var user = await HttpClient.GetFromJsonAsync<UserDTO>($"{_options.ApiPath}/{customerId}/users/{userId}");
-                return user != null ?  _mapper.Map<OrigoUser>(user) : null;
+                return user != null ? _mapper.Map<OrigoUser>(user) : null;
             }
             catch (HttpRequestException exception)
             {
@@ -136,18 +135,26 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUserDTO newUser)
+        public async Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser, Guid callerId)
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users", newUser);
+                var newUserDTO = _mapper.Map<NewUserDTO>(newUser);
+                newUserDTO.CallerId = callerId;
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users", newUserDTO);
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     return null;
+                if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+                    throw new InvalidUserValueException(await response.Content.ReadAsStringAsync());
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save user", (int)response.StatusCode);
 
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
                 return user == null ? null : _mapper.Map<OrigoUser>(user);
+            }
+            catch (InvalidUserValueException)
+            {
+                throw;
             }
             catch (Exception exception)
             {
@@ -156,18 +163,26 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUser> PutUserAsync(Guid customerId, Guid userId, UpdateUserDTO updateUser)
+        public async Task<OrigoUser> PutUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser, Guid callerId)
         {
             try
             {
-                var response = await HttpClient.PutAsJsonAsync($"{_options.ApiPath}/{customerId}/users/{userId}", updateUser);
+                var updateUserDTO = _mapper.Map<UpdateUserDTO>(updateUser);
+                updateUserDTO.CallerId = callerId;
+                var response = await HttpClient.PutAsJsonAsync($"{_options.ApiPath}/{customerId}/users/{userId}", updateUserDTO);
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     return null;
+                if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+                    throw new InvalidUserValueException(await response.Content.ReadAsStringAsync());
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save user changes", (int)response.StatusCode);
 
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
                 return user == null ? null : _mapper.Map<OrigoUser>(user);
+            }
+            catch (InvalidUserValueException)
+            {
+                throw;
             }
             catch (Exception exception)
             {
@@ -176,18 +191,26 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUser> PatchUserAsync(Guid customerId, Guid userId, UpdateUserDTO updateUser)
+        public async Task<OrigoUser> PatchUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser, Guid callerId)
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users/{userId}", updateUser);
+                var updateUserDTO = _mapper.Map<UpdateUserDTO>(updateUser);
+                updateUserDTO.CallerId = callerId;
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users/{userId}", updateUserDTO);
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     return null;
+                if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+                    throw new InvalidUserValueException(await response.Content.ReadAsStringAsync());
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save user changes", (int)response.StatusCode);
 
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
                 return user == null ? null : _mapper.Map<OrigoUser>(user);
+            }
+            catch (InvalidUserValueException)
+            {
+                throw;
             }
             catch (Exception exception)
             {
@@ -211,7 +234,7 @@ namespace OrigoApiGateway.Services
 
                 var response = await HttpClient.SendAsync(request);
 
-                
+
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     return false;
                 if (!response.IsSuccessStatusCode)
@@ -248,7 +271,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                
+
                 var requestUri = $"{_options.ApiPath}/{customerId}/users/{userId}/department/{departmentId}";
                 var response = await HttpClient.PostAsync(requestUri, JsonContent.Create(callerId));
                 if (!response.IsSuccessStatusCode)
@@ -325,7 +348,7 @@ namespace OrigoApiGateway.Services
             const string UNABLE_TO_REMOVE_MANAGER_MESSAGE = "Unable to remove assignment of manager from department.";
             try
             {
-                
+
                 var requestUri = $"{_options.ApiPath}/{customerId}/users/{userId}/department/{departmentId}/manager";
                 HttpRequestMessage request = new HttpRequestMessage
                 {

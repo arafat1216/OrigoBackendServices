@@ -1,8 +1,8 @@
 ﻿using CustomerServices.Models;
+using CustomerServices.ServiceModels;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CustomerServices.ServiceModels;
 
 namespace CustomerServices
 {
@@ -15,9 +15,9 @@ namespace CustomerServices
         Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
             string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId, string role);
         Task<UserDTO> UpdateUserPutAsync(Guid customerId, Guid userId, string firstName, string lastName,
-            string email, string employeeId, UserPreference userPreference, Guid callerId);
+            string email, string employeeId, string mobileNumber, UserPreference userPreference, Guid callerId);
         Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
-            string email, string employeeId, UserPreference userPreference, Guid callerId);
+            string email, string employeeId, string mobileNumber, UserPreference userPreference, Guid callerId);
         Task<UserDTO> DeleteUserAsync(Guid userId, Guid callerId, bool softDelete = true);
         Task<UserDTO> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive, Guid callerId);
         Task<UserDTO> AssignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);

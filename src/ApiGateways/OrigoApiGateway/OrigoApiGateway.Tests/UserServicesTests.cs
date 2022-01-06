@@ -112,9 +112,9 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, optionsMock.Object, _mapper);
-            var updateUser = new Models.BackendDTO.UpdateUserDTO { FirstName = null, LastName = null, Email = null, EmployeeId = null, UserPreference = null,CallerId = EMPTY_CALLER_ID };
+            var updateUser = new Models.OrigoUpdateUser { FirstName = null, LastName = null, Email = null, EmployeeId = null, UserPreference = null };
             // Act
-            var user = await userService.PutUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser);
+            var user = await userService.PutUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser, EMPTY_CALLER_ID);
 
             // Assert
             Assert.Equal("", user.FirstName);
@@ -160,9 +160,9 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, optionsMock.Object, _mapper);
-            var updateUser = new Models.BackendDTO.UpdateUserDTO { FirstName = "Ada", LastName = "Lovelace", Email = "jane.doe@example.com", EmployeeId = "E1", UserPreference = null, CallerId = EMPTY_CALLER_ID };
+            var updateUser = new Models.OrigoUpdateUser { FirstName = "Ada", LastName = "Lovelace", Email = "jane.doe@example.com", EmployeeId = "E1", UserPreference = null };
             // Act
-            var user = await userService.PutUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser);
+            var user = await userService.PutUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser, EMPTY_CALLER_ID);
 
             // Assert
             Assert.Equal("Ada Lovelace", user.DisplayName);
@@ -208,9 +208,9 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, optionsMock.Object, _mapper);
-            var updateUser = new Models.BackendDTO.UpdateUserDTO { FirstName = "Ada", LastName = "Lovelace", Email = null, EmployeeId = null, UserPreference = null, CallerId = EMPTY_CALLER_ID };
+            var updateUser = new Models.OrigoUpdateUser { FirstName = "Ada", LastName = "Lovelace", Email = null, EmployeeId = null, UserPreference = null };
             // Act
-            var user = await userService.PatchUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser);
+            var user = await userService.PatchUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser, EMPTY_CALLER_ID);
 
             // Assert
             Assert.Equal("Ada Lovelace", user.DisplayName);
@@ -259,7 +259,7 @@ namespace OrigoApiGateway.Tests
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, optionsMock.Object, _mapper);
             var updateUser = new Models.OrigoUpdateUser { FirstName = "Ada", LastName = "Lovelace", Email = null, EmployeeId = null, UserPreference = null };
             // Act
-            var userDeleted = await userService.DeleteUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), true,EMPTY_CALLER_ID);
+            var userDeleted = await userService.DeleteUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), true, EMPTY_CALLER_ID);
 
             // Assert
             Assert.True(userDeleted);
