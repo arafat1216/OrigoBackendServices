@@ -145,9 +145,17 @@ namespace CustomerServices
             if (user == null)
                 throw new UserNotFoundException($"Unable to find {userId}");
 
+            //get role from current email
+            var role = await GetRoleNameForUser(user.Email);
+            UserDTO userDTO;
+
             // Do not call if there is no change
             if (isActive == user.IsActive)
-                return _mapper.Map<UserDTO>(user);
+            { 
+                userDTO = _mapper.Map<UserDTO>(user);
+                userDTO.Role = role;
+                return userDTO;
+            }
 
             var userExistsInOkta = await _oktaServices.UserExistsInOktaAsync(user.OktaUserId);
             if (userExistsInOkta)
@@ -178,8 +186,11 @@ namespace CustomerServices
                 }
             }
 
+            userDTO = _mapper.Map<UserDTO>(user);
+            userDTO.Role = role;
+
             await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<UserDTO>(user);
+            return userDTO;
         }
 
         public async Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
