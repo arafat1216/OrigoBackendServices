@@ -27,12 +27,12 @@ namespace CustomerServices
         /// </summary>
         /// <param name="hierarchical"></param>
         /// <returns></returns>
-        public async Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false)
+        public async Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false)
         {
             if (!hierarchical)
             {
 
-                var orgs = await _customerRepository.GetOrganizationsAsync();
+                var orgs = (customersOnly) ? await _customerRepository.GetCustomersAsync() : await _customerRepository.GetOrganizationsAsync();
                 foreach (Organization o in orgs)
                 {
                     o.Preferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
@@ -43,42 +43,9 @@ namespace CustomerServices
             else
             {
                 Guid? p = Guid.Empty;
-                var organizations = await _customerRepository.GetOrganizationsAsync(p);
+                var organizations = (customersOnly) ? await _customerRepository.GetCustomersAsync(p) : await _customerRepository.GetOrganizationsAsync(p);
                 foreach (Organization o in organizations)
                 {
-                    o.ChildOrganizations = await _customerRepository.GetOrganizationsAsync(o.OrganizationId);
-                    o.Preferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
-                    o.Location = await _customerRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
-                }
-                return organizations;
-            }
-        }
-
-        /// <summary>
-        /// Returns all organizations. If hierarchical is true, return the organizations with no parent organization, these organizations will have their child organizations appended to them as a list.
-        /// </summary>
-        /// <param name="hierarchical"></param>
-        /// <returns></returns>
-        public async Task<IList<Organization>> GetCustomersAsync(bool hierarchical = false)
-        {
-            if (!hierarchical)
-            {
-
-                var orgs = await _customerRepository.GetCustomersAsync();
-                foreach (Organization o in orgs)
-                {
-                    o.Preferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
-                    o.Location = await _customerRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
-                }
-                return orgs;
-            }
-            else
-            {
-                Guid? p = Guid.Empty;
-                var organizations = await _customerRepository.GetCustomersAsync(p);
-                foreach (Organization o in organizations)
-                {
-                    // We fetch all children organizations of this customer, regardless of whether they are customers or not.
                     o.ChildOrganizations = await _customerRepository.GetOrganizationsAsync(o.OrganizationId);
                     o.Preferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
                     o.Location = await _customerRepository.GetOrganizationLocationAsync(o.PrimaryLocation);

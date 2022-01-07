@@ -31,17 +31,17 @@ namespace Customer.API.Controllers
             _organizationServices = customerServices;
         }
 
-        [Route("{organizationId:Guid}")]
+        [Route("{organizationId:Guid}/{customerOnly:Bool}")]
         [HttpGet]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.Gone)]
-        public async Task<ActionResult<Organization>> Get(Guid organizationId, bool includeOrganizationPreferences = true, bool includeLocation = true)
+        public async Task<ActionResult<Organization>> Get(Guid organizationId, bool includeOrganizationPreferences = true, bool includeLocation = true, bool customerOnly = false)
         {
             try
             {
-                var organization = await _organizationServices.GetOrganizationAsync(organizationId, includeOrganizationPreferences, includeLocation, true);
-                if (organization == null || organization.IsCustomer == false) return NotFound();
+                var organization = await _organizationServices.GetOrganizationAsync(organizationId, includeOrganizationPreferences, includeLocation, customerOnly);
+                if (organization == null) return NotFound();
 
                 var foundCustomer = new Organization
                 {
@@ -67,12 +67,13 @@ namespace Customer.API.Controllers
         }
 
         [HttpGet]
+        [Route("{customersOnly:Bool}")]
         [ProducesResponseType(typeof(IEnumerable<Organization>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<Organization>>> Get(bool hierarchical = false)
+        public async Task<ActionResult<IEnumerable<Organization>>> Get(bool hierarchical = false, bool customersOnly = false)
         {
             try
             {
-                var organizations = await _organizationServices.GetCustomersAsync(hierarchical);
+                var organizations = await _organizationServices.GetOrganizationsAsync(hierarchical, customersOnly);
                 IList<Organization> list = new List<Organization>();
 
                 foreach (CustomerServices.Models.Organization org in organizations)
@@ -565,7 +566,7 @@ namespace Customer.API.Controllers
                 AssetCategoryId = category.Id,
                 LifecycleTypes = category.LifecycleTypes.Select(a => new AssetCategoryLifecycleType()
                 {
-                    CustomerId = a.CustomerId,
+                    OrganizationId = a.CustomerId,
                     AssetCategoryId = a.Id,
                     Name = Enum.GetName(typeof(LifecycleType), a.LifecycleType),
                     LifecycleType = a.LifecycleType
@@ -611,7 +612,7 @@ namespace Customer.API.Controllers
                     AssetCategoryId = assetCategories.Id,
                     LifecycleTypes = assetCategories.LifecycleTypes.Select(a => new AssetCategoryLifecycleType()
                     {
-                        CustomerId = a.CustomerId,
+                        OrganizationId = a.CustomerId,
                         AssetCategoryId = a.Id,
                         Name = Enum.GetName(typeof(LifecycleType), a.LifecycleType),
                         LifecycleType = a.LifecycleType
@@ -660,7 +661,7 @@ namespace Customer.API.Controllers
                     AssetCategoryId = assetCategories.Id,
                     LifecycleTypes = assetCategories.LifecycleTypes.Select(a => new AssetCategoryLifecycleType()
                     {
-                        CustomerId = a.CustomerId,
+                        OrganizationId = a.CustomerId,
                         AssetCategoryId = a.Id,
                         Name = Enum.GetName(typeof(LifecycleType), a.LifecycleType),
                         LifecycleType = a.LifecycleType

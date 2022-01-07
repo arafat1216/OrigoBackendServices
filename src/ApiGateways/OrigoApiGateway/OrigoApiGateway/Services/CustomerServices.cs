@@ -37,7 +37,8 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var organizations = await HttpClient.GetFromJsonAsync<IList<OrganizationDTO>>($"{_options.ApiPath}");
+                bool customersOnly = true;
+                var organizations = await HttpClient.GetFromJsonAsync<IList<OrganizationDTO>>($"{_options.ApiPath}/{customersOnly}");
                 if (organizations == null)
                     return null;
 
@@ -64,7 +65,8 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var organization = await HttpClient.GetFromJsonAsync<OrganizationDTO>($"{_options.ApiPath}/{customerId}");
+                bool customerOnly = true;
+                var organization = await HttpClient.GetFromJsonAsync<OrganizationDTO>($"{_options.ApiPath}/{customerId}/{customerOnly}");
                 return organization == null ? null : _mapper.Map<Organization>(organization);
             }
             catch (HttpRequestException exception)
