@@ -157,7 +157,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<int> GetUsersCount(Guid customerId)
         {
-            return await _customerContext.Users.Where(u => u.Customer.OrganizationId == customerId && u.IsActive == true).CountAsync();
+            return await _customerContext.Users.Where(u => u.Customer.OrganizationId == customerId && u.IsActive).CountAsync();
         }
 
         public async Task<IList<User>> GetAllUsersAsync(Guid customerId)
