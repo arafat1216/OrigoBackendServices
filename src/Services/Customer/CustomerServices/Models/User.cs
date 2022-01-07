@@ -28,6 +28,16 @@ namespace CustomerServices.Models
             AddDomainEvent(new UserCreatedDomainEvent(this));
         }
 
+        public void UpdateUser(User user)
+        {
+            FirstName = user.FirstName;
+            LastName = user.LastName;
+            Email = user.Email;
+            MobileNumber = user.MobileNumber;
+            EmployeeId = user.EmployeeId;
+            UserPreference = user.UserPreference;
+        }
+
         protected User() { }
 
         public Guid UserId { get; set; }
@@ -58,17 +68,21 @@ namespace CustomerServices.Models
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
             OktaUserId = oktaUserId;
+            AddDomainEvent(new UserActivateDeactivateDomainEvent(this, IsActive));
             IsActive = true;
+            
         }
 
         public void DeactivateUser(Guid callerId)
         {
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
+            AddDomainEvent(new UserActivateDeactivateDomainEvent(this, IsActive));
             IsActive = false;
         }
 
-        public IReadOnlyCollection<Department> Departments { 
+        public IReadOnlyCollection<Department> Departments
+        {
             get => new ReadOnlyCollection<Department>(_departments);
             protected set => _departments = new List<Department>(value);
         }
@@ -160,17 +174,21 @@ namespace CustomerServices.Models
 
         internal void ChangeEmailAddress(string email, Guid callerId)
         {
+            var oldEmail = Email;
             Email = email;
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
+            AddDomainEvent(new UserUpdateEmailDomainEvent(this, oldEmail));
         }
 
         // TODO: this will be remove in a later version
         internal void ChangeEmployeeId(string employeeId, Guid callerId)
         {
+            var oldEmployeeId = EmployeeId;
             EmployeeId = employeeId;
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
+            AddDomainEvent(new UserUpdateEmployeeIdDomainEvent(this,oldEmployeeId));
         }
     }
 }

@@ -4,7 +4,6 @@ using AssetServices.Utility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.Json.Serialization;
 
@@ -39,6 +38,7 @@ namespace AssetServices.Models
         {
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
+
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace AssetServices.Models
         /// Imei is a comma separated string, and can hold multiple imei values
         /// </summary>
         /// <param name="imeiList"></param>
-        public void SetImei(IList<long> imeiList, Guid callerId)
+        public virtual void SetImei(IList<long> imeiList, Guid callerId)
         {
             foreach (long imei in imeiList)
             {

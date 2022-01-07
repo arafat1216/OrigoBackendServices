@@ -148,6 +148,7 @@ namespace OrigoApiGateway.Controllers
                 newUserDTO.MobileNumber = newUser.MobileNumber;
                 newUserDTO.UserPreference = newUser.UserPreference;
                 newUserDTO.CallerId = callerId;
+                newUserDTO.Role = newUser.Role;
 
 
                 var updatedUser = await _userServices.AddUserForCustomerAsync(organizationId, newUserDTO);

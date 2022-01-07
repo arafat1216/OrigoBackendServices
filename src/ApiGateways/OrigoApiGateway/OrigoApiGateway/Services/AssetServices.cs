@@ -668,28 +668,22 @@ namespace OrigoApiGateway.Services
             try
             {
                 var assetLog = await HttpClient.GetFromJsonAsync<IList<AssetAuditLog>>($"{_options.ApiPath}/auditlog/{assetId}");
-                if (assetLog.Any())
+                if (assetLog == null || !assetLog.Any()) return assetLog;
+                IList<OrigoUser> users = new List<OrigoUser>();
+                var organizationId = assetLog.First().CustomerId;
+                foreach (var createdBy in assetLog.Select(s => s.CreatedBy).Distinct())
                 {
-                    IList<OrigoUser> users = new List<OrigoUser>();
-                    var organizationId = assetLog.First().CustomerId;
-                    foreach (string createdBy in assetLog.Select(s => s.CreatedBy).Distinct())
-                    {
-                        if (Guid.TryParse(createdBy, out Guid userId))
-                        {
-                            var user = await _userServices.GetUserAsync(organizationId, userId);
-                            if (user == null)
-                                continue;
-                            users.Add(user);
-                        }
-                    }
-                    foreach (AssetAuditLog log in assetLog)
-                    {
-                        if (Guid.TryParse(log.CreatedBy, out Guid userId))
-                        {
-                            var user = users.FirstOrDefault(u => u.Id == userId);
-                            log.CreatedBy = user?.DisplayName ?? "";
-                        }
-                    }
+                    if (!Guid.TryParse(createdBy, out var userId)) continue;
+                    var user = await _userServices.GetUserAsync(userId);
+                    if (user == null)
+                        continue;
+                    users.Add(user);
+                }
+                foreach (var log in assetLog)
+                {
+                    if (!Guid.TryParse(log.CreatedBy, out var userId)) continue;
+                    var user = users.FirstOrDefault(u => u.Id == userId);
+                    log.CreatedBy = user?.DisplayName ?? "";
                 }
 
                 return assetLog;
@@ -707,6 +701,29 @@ namespace OrigoApiGateway.Services
             catch (JsonException exception)
             {
                 _logger.LogError(exception, "GetAssetAuditLogMock failed with invalid JSON.");
+                throw;
+            }
+        }
+        public async Task<string> CreateAssetSeedData()
+        {
+            try
+            {
+                var errorMessage = await HttpClient.GetStringAsync($"{_options.ApiPath}/seed");
+                return errorMessage;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "CreateOrganizationSeedData failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "CreateOrganizationSeedData failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "CreateOrganizationSeedData unknown error.");
                 throw;
             }
         }

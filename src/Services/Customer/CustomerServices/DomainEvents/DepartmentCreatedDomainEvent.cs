@@ -3,9 +3,9 @@ using CustomerServices.Models;
 
 namespace CustomerServices.DomainEvents
 {
-    class DepartmentAddedDomainEvent : BaseEvent
+    class DepartmentCreatedDomainEvent : BaseEvent
     {
-        public DepartmentAddedDomainEvent(Department department) : base(department.ExternalDepartmentId)
+        public DepartmentCreatedDomainEvent(Department department) : base(department.ExternalDepartmentId)
         {
             NewDepartment = department;
         }
@@ -14,7 +14,7 @@ namespace CustomerServices.DomainEvents
 
         public override string EventMessage(string languageCode = "nb-NO")
         {
-            return $"Department {Id} created.";
+            return $"Department {NewDepartment.ExternalDepartmentId} created.";
         }
     }
 }

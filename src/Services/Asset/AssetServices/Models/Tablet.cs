@@ -134,5 +134,10 @@ namespace AssetServices.Models
             AddDomainEvent(new SerialNumberChangedDomainEvent<Tablet>(this, callerId, previousSerialNumber));
             base.ChangeSerialNumber(serialNumber, callerId);
         }
+        public override void SetImei(IList<long> imeiList, Guid callerId)
+        {
+            AddDomainEvent(new IMEIChangedDomainEvent<Tablet>(this, imeiList));
+            base.SetImei(imeiList, callerId);
+        }
     }
 }

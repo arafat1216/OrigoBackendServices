@@ -180,6 +180,21 @@ namespace CustomerServices.Infrastructure
                 .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
         }
 
+        public async Task<User> GetUserByUserName(string emailAddress)
+        {
+            return await _customerContext.Users
+                .Include(u => u.Customer)
+                .Include(u => u.Departments)
+                .Include(u => u.UserPreference)
+                .Where(u => u.Email.ToLower() == emailAddress.ToLower())
+                .FirstOrDefaultAsync();
+        }
+        public async Task<User> GetUserByMobileNumber(string mobileNumber)
+        {
+            return await _customerContext.Users.Where(u => u.MobileNumber == mobileNumber)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<int> GetUsersCount(Guid customerId)
         {
             return await _customerContext.Users.CountAsync(u => u.Customer.OrganizationId == customerId);

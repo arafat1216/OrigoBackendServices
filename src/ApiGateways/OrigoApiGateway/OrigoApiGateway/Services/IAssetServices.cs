@@ -30,5 +30,6 @@ namespace OrigoApiGateway.Services
         Task<IList<OrigoAssetCategory>> GetAssetCategoriesAsync();
         IList<AssetCategoryAttribute> GetAssetCategoryAttributesForCategory(int categoryId);
         Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId);
+        Task<string> CreateAssetSeedData();
     }
 }

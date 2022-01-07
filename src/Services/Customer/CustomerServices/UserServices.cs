@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using CustomerServices.Exceptions;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CustomerServices
 {
@@ -70,29 +70,63 @@ namespace CustomerServices
             return userDTO;
         }
 
+        public async Task<UserDTO> GetUserWithRoleAsync(Guid userId)
+        {
+            var userDTO = _mapper.Map<UserDTO>(await _customerRepository.GetUserAsync(userId));
+            if (userDTO == null)
+                return null;
+            userDTO.Role = await GetRoleNameForUser(userDTO.Email);
+            return userDTO;
+        }
+
         public async Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
-            string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId)
+            string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId, string role)
         {
             var customer = await _customerRepository.GetOrganizationAsync(customerId);
             if (customer == null) throw new CustomerNotFoundException();
             if (userPreference == null || userPreference.Language == null)
+            {
                 // Set a default language setting
                 userPreference = new UserPreference("EN", callerId);
+            }
+            // Check if email address is used by another user
+            var emailInUse = await _customerRepository.GetUserByUserName(email);
+            if (emailInUse != null)
+                throw new UserNameIsInUseException("Email address is already in use.");
+            
+            //Check if mobile number is used by another user
+            var mobileNumberInUse = await _customerRepository.GetUserByMobileNumber(mobileNumber);
+            if (mobileNumberInUse != null) throw new InvalidPhoneNumberException("Phone number already in use.");
+
             var newUser = new User(customer, Guid.NewGuid(), firstName, lastName, email, mobileNumber, employeeId,
                 userPreference, callerId);
 
             newUser = await _customerRepository.AddUserAsync(newUser);
-            try
+
+            var oktaUserId = await _oktaServices.AddOktaUserAsync(newUser.UserId, newUser.FirstName, newUser.LastName,
+                newUser.Email, newUser.MobileNumber, true);
+            newUser = await AssignOktaUserIdAsync(newUser.Customer.OrganizationId, newUser.UserId, oktaUserId, callerId);
+
+
+            var mappedNewUserDTO = _mapper.Map<UserDTO>(newUser);
+
+            //Add user permission if role is added in the request - type of role gets checked in AssignUserPermissionAsync
+            if (role != null)
             {
-                var oktaUserId = await _oktaServices.AddOktaUserAsync(newUser.UserId, newUser.FirstName, newUser.LastName,
-                    newUser.Email, newUser.MobileNumber, true);
-                newUser = await AssignOktaUserIdAsync(newUser.Customer.OrganizationId, newUser.UserId, oktaUserId, callerId);
+                try
+                {
+                    var userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid>() { customerId }, callerId);
+                    if (userPermission != null)
+                    {
+                        mappedNewUserDTO.Role = role;
+                    }
+                }
+                catch (InvalidRoleNameException) {
+                    mappedNewUserDTO.Role = null;
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Assign okta user id failed");
-            }
-            return _mapper.Map<UserDTO>(newUser);
+
+            return mappedNewUserDTO; 
         }
 
         private async Task<User> AssignOktaUserIdAsync(Guid customerId, Guid userId, string oktaUserId, Guid callerId)
@@ -111,9 +145,17 @@ namespace CustomerServices
             if (user == null)
                 throw new UserNotFoundException($"Unable to find {userId}");
 
+            //get role from current email
+            var role = await GetRoleNameForUser(user.Email);
+            UserDTO userDTO;
+
             // Do not call if there is no change
             if (isActive == user.IsActive)
-                return _mapper.Map<UserDTO>(user);
+            { 
+                userDTO = _mapper.Map<UserDTO>(user);
+                userDTO.Role = role;
+                return userDTO;
+            }
 
             var userExistsInOkta = await _oktaServices.UserExistsInOktaAsync(user.OktaUserId);
             if (userExistsInOkta)
@@ -144,25 +186,46 @@ namespace CustomerServices
                 }
             }
 
+            userDTO = _mapper.Map<UserDTO>(user);
+            userDTO.Role = role;
+
             await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<UserDTO>(user);
+            return userDTO;
         }
 
         public async Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, UserPreference userPreference, Guid callerId)
         {
             var user = await GetUserAsync(customerId, userId);
+            //get role from current email
+            var role = await GetRoleNameForUser(user.Email);
+
             if (user == null) return null;
             if (firstName != default && user.FirstName != firstName) user.ChangeFirstName(firstName, callerId);
             if (lastName != default && user.LastName != lastName) user.ChangeLastName(lastName, callerId);
-            if (email != default && user.Email != email) user.ChangeEmailAddress(email, callerId);
+            if (email != default && user.Email != email)
+            {
+                // Check if email address is used by another user
+                var username = await _customerRepository.GetUserByUserName(email);
+                if (username != null && username.Id != user.Id)
+                    throw new UserNameIsInUseException("Email address is already in use.");
+                user.ChangeEmailAddress(email, callerId);
+            }
             if (employeeId != default && user.EmployeeId != employeeId) user.ChangeEmployeeId(employeeId, callerId);
             if (userPreference != null && userPreference.Language != null &&
                 userPreference.Language != user.UserPreference?.Language)
                 user.ChangeUserPreferences(userPreference, callerId);
 
+            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            if (userDTO == null)
+            {
+                return null;
+            }
+
+            userDTO.Role = role;
+
             await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<UserDTO>(user);
+            return userDTO;
         }
 
         public async Task<UserDTO> UpdateUserPutAsync(Guid customerId, Guid userId, string firstName, string lastName,
@@ -170,16 +233,37 @@ namespace CustomerServices
         {
             var user = await GetUserAsync(customerId, userId);
             if (user == null) return null;
+            //Need to fetch the role based on the mail already registered on the user in the case there is a change in email from put and then resulting in no role for mail
+            //The role assignment for response get assign after mapping to user DTO
+            var role = await GetRoleNameForUser(user.Email);
 
             user.ChangeFirstName(firstName, callerId);
             user.ChangeLastName(lastName, callerId);
+            if (email != default && user.Email != email)
+            {
+                // Check if email address is used by another user
+                var username = await _customerRepository.GetUserByUserName(email);
+                if (username != null && username.Id != user.Id)
+                    throw new UserNameIsInUseException("Email address is already in use.");
+                user.ChangeEmailAddress(email, callerId);
+            }
             user.ChangeEmailAddress(email, callerId);
             user.ChangeEmployeeId(employeeId, callerId);
             if (userPreference != null)
+            {
                 user.ChangeUserPreferences(userPreference, callerId);
+            }
+            
+            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            if (userDTO == null)
+            {
+                return null;
+            }
+            
+            userDTO.Role = role;
 
             await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<UserDTO>(user);
+            return userDTO;
         }
 
         public async Task<UserDTO> DeleteUserAsync(Guid userId, Guid callerId, bool softDelete = true)
