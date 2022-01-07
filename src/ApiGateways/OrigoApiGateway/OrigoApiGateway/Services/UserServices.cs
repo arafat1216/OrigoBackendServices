@@ -11,6 +11,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using OrigoApiGateway.Exceptions;
 
 namespace OrigoApiGateway.Services
 {
@@ -146,7 +147,10 @@ namespace OrigoApiGateway.Services
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorDescription = await response.Content.ReadAsStringAsync();
-                    throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                    if (errorDescription.Contains("Okta"))
+                        throw new OktaException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
                 }
                     
 

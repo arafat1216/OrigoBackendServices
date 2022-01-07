@@ -1,7 +1,9 @@
 ﻿using Common.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
+using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
@@ -156,9 +158,13 @@ namespace OrigoApiGateway.Controllers
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUser.Id }, updatedUser);
             }
-            catch (Exception ex)
+            catch (OktaException ex)
             {
                 return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
             }
         }
 
