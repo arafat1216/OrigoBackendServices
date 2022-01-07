@@ -17,6 +17,7 @@ namespace CustomerServices.UnitTests
 
         protected readonly Guid USER_ONE_ID = new Guid("42803f8e-5608-4beb-a3e6-029b8e229d91");
         private readonly Guid USER_TWO_ID = new Guid("39349c24-6e47-4a5e-9bab-7b65f438fac5");
+        protected readonly Guid USER_THREE_ID = new Guid("08DB1C4F-FAA3-436A-9598-90822649B793");
 
         protected readonly Guid LOCATION_ONE_ID = new("8080A5F0-57C6-4D72-B164-82D54A94C776");
         private readonly Guid LOCATION_TWO_ID = new("DDF4FDB7-B1B9-4F03-B343-2B2F38AC6138");
@@ -76,9 +77,9 @@ namespace CustomerServices.UnitTests
             var userPreferences2 = new UserPreference("EN", EMPTY_CALLER_ID);
             var userPreferences3 = new UserPreference("EN", EMPTY_CALLER_ID);
             var userOne = new User(customerOne, USER_ONE_ID, "Jane", "Doe", "jane@doe.com", "+4799999999", "007", userPreferences1, EMPTY_CALLER_ID);
-            var userTwo = new User(customerOne, Guid.NewGuid(), "Gordon", "Freeman", "gordon@freeman.com", "+4755555555", "DH-101", userPreferences2, EMPTY_CALLER_ID);
+            var userTwo = new User(customerOne, USER_THREE_ID, "Gordon", "Freeman", "gordon@freeman.com", "+4755555555", "DH-101", userPreferences2, EMPTY_CALLER_ID);
             var userThree = new User(customerTwo, USER_TWO_ID, "John", "Doe", "john@doe.com", "+4791111111", "X", userPreferences3, EMPTY_CALLER_ID);
-
+ 
             context.AddRange(userOne, userTwo, userThree);
 
             context.SaveChanges();
