@@ -32,17 +32,29 @@ namespace CustomerServices.Migrations
                 b.Property<int?>("AssetCategoryTypeId")
                     .HasColumnType("int");
 
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<DateTime>("CreatedDate")
                     .HasColumnType("datetime2");
 
                 b.Property<Guid>("CustomerId")
                     .HasColumnType("uniqueidentifier");
 
+                b.Property<Guid>("DeletedBy")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<bool>("IsDeleted")
+                    .HasColumnType("bit");
+
                 b.Property<DateTime>("LastUpdatedDate")
                     .HasColumnType("datetime2");
 
                 b.Property<int>("LifecycleType")
                     .HasColumnType("int");
+
+                b.Property<Guid>("UpdatedBy")
+                    .HasColumnType("uniqueidentifier");
 
                 b.HasKey("Id");
 
@@ -61,17 +73,29 @@ namespace CustomerServices.Migrations
                 b.Property<Guid>("AssetCategoryId")
                     .HasColumnType("uniqueidentifier");
 
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<DateTime>("CreatedDate")
                     .HasColumnType("datetime2");
 
+                b.Property<Guid>("DeletedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<Guid>("ExternalCustomerId")
                     .HasColumnType("uniqueidentifier");
+
+                b.Property<bool>("IsDeleted")
+                    .HasColumnType("bit");
 
                 b.Property<DateTime>("LastUpdatedDate")
                     .HasColumnType("datetime2");
 
                 b.Property<int?>("OrganizationId")
                     .HasColumnType("int");
+
+                b.Property<Guid>("UpdatedBy")
+                    .HasColumnType("uniqueidentifier");
 
                 b.HasKey("Id");
 
@@ -90,17 +114,26 @@ namespace CustomerServices.Migrations
                 b.Property<string>("CostCenterId")
                     .HasColumnType("nvarchar(max)");
 
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<DateTime>("CreatedDate")
                     .HasColumnType("datetime2");
 
                 b.Property<int?>("CustomerId")
                     .HasColumnType("int");
 
+                b.Property<Guid>("DeletedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<string>("Description")
                     .HasColumnType("nvarchar(max)");
 
                 b.Property<Guid>("ExternalDepartmentId")
                     .HasColumnType("uniqueidentifier");
+
+                b.Property<bool>("IsDeleted")
+                    .HasColumnType("bit");
 
                 b.Property<DateTime>("LastUpdatedDate")
                     .HasColumnType("datetime2");
@@ -110,6 +143,9 @@ namespace CustomerServices.Migrations
 
                 b.Property<int?>("ParentDepartmentId")
                     .HasColumnType("int");
+
+                b.Property<Guid>("UpdatedBy")
+                    .HasColumnType("uniqueidentifier");
 
                 b.HasKey("Id");
 
@@ -147,6 +183,9 @@ namespace CustomerServices.Migrations
 
                 b.Property<DateTime>("CreatedDate")
                     .HasColumnType("datetime2");
+
+                b.Property<Guid>("DeletedBy")
+                    .HasColumnType("uniqueidentifier");
 
                 b.Property<string>("Description")
                     .HasColumnType("nvarchar(max)");
@@ -192,6 +231,9 @@ namespace CustomerServices.Migrations
 
                 b.Property<DateTime>("CreatedDate")
                     .HasColumnType("datetime2");
+
+                b.Property<Guid>("DeletedBy")
+                    .HasColumnType("uniqueidentifier");
 
                 b.Property<bool>("IsDeleted")
                     .HasColumnType("bit");
@@ -246,6 +288,9 @@ namespace CustomerServices.Migrations
                 b.Property<short>("DefaultDepartmentClassification")
                     .HasColumnType("smallint");
 
+                b.Property<Guid>("DeletedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<bool>("EnforceTwoFactorAuth")
                     .HasColumnType("bit");
 
@@ -288,14 +333,26 @@ namespace CustomerServices.Migrations
                     .HasColumnType("int")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<DateTime>("CreatedDate")
                     .HasColumnType("datetime2");
+
+                b.Property<Guid>("DeletedBy")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<bool>("IsDeleted")
+                    .HasColumnType("bit");
 
                 b.Property<DateTime>("LastUpdatedDate")
                     .HasColumnType("datetime2");
 
                 b.Property<string>("Name")
                     .HasColumnType("nvarchar(max)");
+
+                b.Property<Guid>("UpdatedBy")
+                    .HasColumnType("uniqueidentifier");
 
                 b.HasKey("Id");
 
@@ -305,30 +362,46 @@ namespace CustomerServices.Migrations
                     new
                     {
                         Id = 1,
-                        CreatedDate = new DateTime(2021, 11, 4, 20, 16, 32, 295, DateTimeKind.Utc).AddTicks(6905),
+                        CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        CreatedDate = new DateTime(2021, 10, 25, 7, 57, 10, 825, DateTimeKind.Utc).AddTicks(7136),
+                        DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        IsDeleted = false,
                         LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                        Name = "CanCreateCustomer"
+                        Name = "CanCreateCustomer",
+                        UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                     },
                     new
                     {
                         Id = 2,
-                        CreatedDate = new DateTime(2021, 11, 4, 20, 16, 32, 295, DateTimeKind.Utc).AddTicks(7927),
+                        CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        CreatedDate = new DateTime(2021, 10, 25, 7, 57, 10, 825, DateTimeKind.Utc).AddTicks(7996),
+                        DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        IsDeleted = false,
                         LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                        Name = "CanReadCustomer"
+                        Name = "CanReadCustomer",
+                        UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                     },
                     new
                     {
                         Id = 3,
-                        CreatedDate = new DateTime(2021, 11, 4, 20, 16, 32, 295, DateTimeKind.Utc).AddTicks(7931),
+                        CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        CreatedDate = new DateTime(2021, 10, 25, 7, 57, 10, 825, DateTimeKind.Utc).AddTicks(8001),
+                        DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        IsDeleted = false,
                         LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                        Name = "CanUpdateCustomer"
+                        Name = "CanUpdateCustomer",
+                        UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                     },
                     new
                     {
                         Id = 4,
-                        CreatedDate = new DateTime(2021, 11, 4, 20, 16, 32, 295, DateTimeKind.Utc).AddTicks(7933),
+                        CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        CreatedDate = new DateTime(2021, 10, 25, 7, 57, 10, 825, DateTimeKind.Utc).AddTicks(8002),
+                        DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        IsDeleted = false,
                         LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                        Name = "CanDeleteCustomer"
+                        Name = "CanDeleteCustomer",
+                        UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                     });
             });
 
@@ -339,14 +412,26 @@ namespace CustomerServices.Migrations
                     .HasColumnType("int")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<DateTime>("CreatedDate")
                     .HasColumnType("datetime2");
+
+                b.Property<Guid>("DeletedBy")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<bool>("IsDeleted")
+                    .HasColumnType("bit");
 
                 b.Property<DateTime>("LastUpdatedDate")
                     .HasColumnType("datetime2");
 
                 b.Property<string>("Name")
                     .HasColumnType("nvarchar(max)");
+
+                b.Property<Guid>("UpdatedBy")
+                    .HasColumnType("uniqueidentifier");
 
                 b.HasKey("Id");
 
@@ -356,9 +441,13 @@ namespace CustomerServices.Migrations
                     new
                     {
                         Id = 1,
-                        CreatedDate = new DateTime(2021, 11, 4, 20, 16, 32, 296, DateTimeKind.Utc).AddTicks(9989),
+                        CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        CreatedDate = new DateTime(2021, 10, 25, 7, 57, 10, 826, DateTimeKind.Utc).AddTicks(9138),
+                        DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        IsDeleted = false,
                         LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                        Name = "FullCustomerAccess"
+                        Name = "FullCustomerAccess",
+                        UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                     });
             });
 
@@ -369,8 +458,17 @@ namespace CustomerServices.Migrations
                     .HasColumnType("int")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<DateTime>("CreatedDate")
                     .HasColumnType("datetime2");
+
+                b.Property<Guid>("DeletedBy")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<bool>("IsDeleted")
+                    .HasColumnType("bit");
 
                 b.Property<DateTime>("LastUpdatedDate")
                     .HasColumnType("datetime2");
@@ -379,6 +477,9 @@ namespace CustomerServices.Migrations
                     .HasColumnType("nvarchar(max)");
 
                 b.Property<Guid>("ProductModuleId")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<Guid>("UpdatedBy")
                     .HasColumnType("uniqueidentifier");
 
                 b.HasKey("Id");
@@ -393,8 +494,17 @@ namespace CustomerServices.Migrations
                     .HasColumnType("int")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<DateTime>("CreatedDate")
                     .HasColumnType("datetime2");
+
+                b.Property<Guid>("DeletedBy")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<bool>("IsDeleted")
+                    .HasColumnType("bit");
 
                 b.Property<DateTime>("LastUpdatedDate")
                     .HasColumnType("datetime2");
@@ -411,6 +521,9 @@ namespace CustomerServices.Migrations
                 b.Property<int?>("ProductModuleId")
                     .HasColumnType("int");
 
+                b.Property<Guid>("UpdatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.HasKey("Id");
 
                 b.HasIndex("ProductModuleId");
@@ -425,14 +538,26 @@ namespace CustomerServices.Migrations
                     .HasColumnType("int")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<DateTime>("CreatedDate")
                     .HasColumnType("datetime2");
+
+                b.Property<Guid>("DeletedBy")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<bool>("IsDeleted")
+                    .HasColumnType("bit");
 
                 b.Property<DateTime>("LastUpdatedDate")
                     .HasColumnType("datetime2");
 
                 b.Property<string>("Name")
                     .HasColumnType("nvarchar(max)");
+
+                b.Property<Guid>("UpdatedBy")
+                    .HasColumnType("uniqueidentifier");
 
                 b.HasKey("Id");
 
@@ -442,44 +567,68 @@ namespace CustomerServices.Migrations
                     new
                     {
                         Id = 1,
-                        CreatedDate = new DateTime(2021, 11, 4, 20, 16, 32, 297, DateTimeKind.Utc).AddTicks(1405),
+                        CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        CreatedDate = new DateTime(2021, 10, 25, 7, 57, 10, 827, DateTimeKind.Utc).AddTicks(569),
+                        DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        IsDeleted = false,
                         LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                        Name = "EndUser"
+                        Name = "EndUser",
+                        UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                     },
                     new
                     {
                         Id = 2,
-                        CreatedDate = new DateTime(2021, 11, 4, 20, 16, 32, 297, DateTimeKind.Utc).AddTicks(1901),
+                        CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        CreatedDate = new DateTime(2021, 10, 25, 7, 57, 10, 827, DateTimeKind.Utc).AddTicks(980),
+                        DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        IsDeleted = false,
                         LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                        Name = "DepartmentManager"
+                        Name = "DepartmentManager",
+                        UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                     },
                     new
                     {
                         Id = 3,
-                        CreatedDate = new DateTime(2021, 11, 4, 20, 16, 32, 297, DateTimeKind.Utc).AddTicks(1905),
+                        CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        CreatedDate = new DateTime(2021, 10, 25, 7, 57, 10, 827, DateTimeKind.Utc).AddTicks(984),
+                        DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        IsDeleted = false,
                         LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                        Name = "CustomerAdmin"
+                        Name = "CustomerAdmin",
+                        UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                     },
                     new
                     {
                         Id = 4,
-                        CreatedDate = new DateTime(2021, 11, 4, 20, 16, 32, 297, DateTimeKind.Utc).AddTicks(1906),
+                        CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        CreatedDate = new DateTime(2021, 10, 25, 7, 57, 10, 827, DateTimeKind.Utc).AddTicks(985),
+                        DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        IsDeleted = false,
                         LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                        Name = "GroupAdmin"
+                        Name = "GroupAdmin",
+                        UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                     },
                     new
                     {
                         Id = 5,
-                        CreatedDate = new DateTime(2021, 11, 4, 20, 16, 32, 297, DateTimeKind.Utc).AddTicks(1907),
+                        CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        CreatedDate = new DateTime(2021, 10, 25, 7, 57, 10, 827, DateTimeKind.Utc).AddTicks(986),
+                        DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        IsDeleted = false,
                         LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                        Name = "PartnerAdmin"
+                        Name = "PartnerAdmin",
+                        UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                     },
                     new
                     {
                         Id = 6,
-                        CreatedDate = new DateTime(2021, 11, 4, 20, 16, 32, 297, DateTimeKind.Utc).AddTicks(1908),
+                        CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        CreatedDate = new DateTime(2021, 10, 25, 7, 57, 10, 827, DateTimeKind.Utc).AddTicks(988),
+                        DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                        IsDeleted = false,
                         LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                        Name = "SystemAdmin"
+                        Name = "SystemAdmin",
+                        UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                     });
             });
 
@@ -490,11 +639,17 @@ namespace CustomerServices.Migrations
                     .HasColumnType("int")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<DateTime>("CreatedDate")
                     .HasColumnType("datetime2");
 
                 b.Property<int?>("CustomerId")
                     .HasColumnType("int");
+
+                b.Property<Guid>("DeletedBy")
+                    .HasColumnType("uniqueidentifier");
 
                 b.Property<string>("Email")
                     .HasColumnType("nvarchar(max)");
@@ -504,6 +659,9 @@ namespace CustomerServices.Migrations
 
                 b.Property<string>("FirstName")
                     .HasColumnType("nvarchar(max)");
+
+                b.Property<bool>("IsDeleted")
+                    .HasColumnType("bit");
 
                 b.Property<string>("LastName")
                     .HasColumnType("nvarchar(max)");
@@ -516,12 +674,20 @@ namespace CustomerServices.Migrations
                 b.Property<string>("MobileNumber")
                     .HasColumnType("nvarchar(max)");
 
+                b.Property<Guid>("UpdatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<Guid>("UserId")
                     .HasColumnType("uniqueidentifier");
+
+                b.Property<int?>("UserPreferenceId")
+                    .HasColumnType("int");
 
                 b.HasKey("Id");
 
                 b.HasIndex("CustomerId");
+
+                b.HasIndex("UserPreferenceId");
 
                 b.ToTable("User");
             });
@@ -536,14 +702,26 @@ namespace CustomerServices.Migrations
                 b.Property<string>("AccessList")
                     .HasColumnType("nvarchar(max)");
 
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
                 b.Property<DateTime>("CreatedDate")
                     .HasColumnType("datetime2");
+
+                b.Property<Guid>("DeletedBy")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<bool>("IsDeleted")
+                    .HasColumnType("bit");
 
                 b.Property<DateTime>("LastUpdatedDate")
                     .HasColumnType("datetime2");
 
                 b.Property<int?>("RoleId")
                     .HasColumnType("int");
+
+                b.Property<Guid>("UpdatedBy")
+                    .HasColumnType("uniqueidentifier");
 
                 b.Property<int?>("UserId")
                     .HasColumnType("int");
@@ -555,6 +733,40 @@ namespace CustomerServices.Migrations
                 b.HasIndex("UserId");
 
                 b.ToTable("UserPermissions");
+            });
+
+            modelBuilder.Entity("CustomerServices.Models.UserPreference", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int")
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                b.Property<Guid>("CreatedBy")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<DateTime>("CreatedDate")
+                    .HasColumnType("datetime2");
+
+                b.Property<Guid>("DeletedBy")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<bool>("IsDeleted")
+                    .HasColumnType("bit");
+
+                b.Property<string>("Language")
+                    .HasMaxLength(2)
+                    .HasColumnType("nvarchar(2)");
+
+                b.Property<DateTime>("LastUpdatedDate")
+                    .HasColumnType("datetime2");
+
+                b.Property<Guid>("UpdatedBy")
+                    .HasColumnType("uniqueidentifier");
+
+                b.HasKey("Id");
+
+                b.ToTable("UserPreference");
             });
 
             modelBuilder.Entity("DepartmentUser", b =>
@@ -715,10 +927,7 @@ namespace CustomerServices.Migrations
                     b1.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
-                    b1.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b1.Property<string>("LastName")
+                    b1.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
 
                     b1.Property<string>("PhoneNumber")
@@ -750,7 +959,13 @@ namespace CustomerServices.Migrations
                     .WithMany("Users")
                     .HasForeignKey("CustomerId");
 
+                b.HasOne("CustomerServices.Models.UserPreference", "UserPreference")
+                    .WithMany()
+                    .HasForeignKey("UserPreferenceId");
+
                 b.Navigation("Customer");
+
+                b.Navigation("UserPreference");
             });
 
             modelBuilder.Entity("CustomerServices.Models.UserPermissions", b =>
