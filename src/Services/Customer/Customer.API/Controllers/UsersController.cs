@@ -101,11 +101,11 @@ namespace Customer.API.Controllers
             }
             catch (UserNameIsInUseException exception)
             {
-                return BadRequest(exception.Message);
+                return BadRequest("Okta: Email or phonenumber is already in use.");
             }
             catch (InvalidPhoneNumberException exception)
             {
-                return BadRequest(exception.Message);
+                return BadRequest("Okta: Email or phonenumber is already in use."); 
             }
             catch (Exception ex)
             {

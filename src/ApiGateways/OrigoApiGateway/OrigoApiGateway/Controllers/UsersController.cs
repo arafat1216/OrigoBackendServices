@@ -1,7 +1,9 @@
 ﻿using Common.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
+using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
@@ -136,6 +138,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
@@ -155,7 +158,11 @@ namespace OrigoApiGateway.Controllers
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUser.Id }, updatedUser);
             }
-            catch
+            catch (OktaException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
             {
                 return BadRequest();
             }
