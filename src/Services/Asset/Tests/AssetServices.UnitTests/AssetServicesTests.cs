@@ -179,7 +179,7 @@ namespace AssetServices.UnitTests
 
            
             // Act and assert
-            Assert.ThrowsAsync<InvalidAssetDataException>(() => assetService.AddAssetForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
+            await Assert.ThrowsAsync<InvalidAssetDataException>(() => assetService.AddAssetForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
                 "iPhone", "iPhone X", LifecycleType.NoLifecycle, new DateTime(2020, 1, 1), null, new List<long>() { 458718920164666 }, "a3:21:99:5d:a7:a1", null, "Unassigned asset", "tag", "description"));
            
         }
@@ -203,8 +203,24 @@ namespace AssetServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public void CreateAsset_ValidateAssetCategoryData()
+        public void MakeUniqueIMEIList_WithDuplicatedValues_OnlyReturn2()
         {
+            long number1 = 106699671963280;
+            long number2 = 102274227461256;
+            List<long> listOfImeis = new List<long>
+            {
+                number1,
+                number2,
+                number1,
+                number1,
+                number2
+                
+            };
+
+            var uniqueIMEIList = AssetValidatorUtility.MakeUniqueIMEIList(listOfImeis);
+            Assert.Equal(2, uniqueIMEIList.Count);
+            Assert.Equal(uniqueIMEIList[0],number1);
+            Assert.Equal(uniqueIMEIList[1], number2);
         }
 
         [Fact]
