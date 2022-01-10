@@ -276,8 +276,13 @@ namespace CustomerServices
                 throw new UserDeletedException();
 
             user.SetDeleteStatus(true, callerId);
+
+            //Get the users role and assign it to the users DTO
+            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            userDTO.Role = await GetRoleNameForUser(user.Email);
+
             await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<UserDTO>(user);
+            return userDTO;
         }
 
         public async Task<UserDTO> AssignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
@@ -287,8 +292,13 @@ namespace CustomerServices
             if (user == null || department == null)
                 return null;
             user.AssignDepartment(department, callerId);
+
+            //Get the users role and assign it to the users DTO
+            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            userDTO.Role = await GetRoleNameForUser(user.Email);
+
             await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<UserDTO>(user);
+            return userDTO;
         }
 
         public async Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
@@ -326,8 +336,13 @@ namespace CustomerServices
             if (user == null || department == null)
                 return null;
             user.UnassignDepartment(department, callerId);
+
+            //Get the users role and assign it to the users DTO
+            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            userDTO.Role = await GetRoleNameForUser(user.Email);
+
             await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<UserDTO>(user);
+            return userDTO;
         }
     }
 }
