@@ -333,12 +333,18 @@ namespace AssetServices
             if (lifecycleType != LifecycleType.NoLifecycle)
             {
                 status = AssetStatus.InputRequired;
-            } 
-
+            }
+            
             Asset newAsset;
             if (assetCategory.Id == 1)
             {
                 if (imei.Any()) {
+                    
+                    if (!AssetValidatorUtility.AllIMEIForUserIsUnique(imei))
+                    {
+                        throw new InvalidAssetDataException($"imei is not unique");
+                    }
+
                     foreach (var i in imei)
                     {
                         if (!AssetValidatorUtility.ValidateImei(i.ToString()))
@@ -510,6 +516,10 @@ namespace AssetServices
                 }
                 if (imei != null && phone.Imeis != imei)
                 {
+                    if (!AssetValidatorUtility.AllIMEIForUserIsUnique(imei))
+                    {
+                        throw new InvalidAssetDataException($"imei is not unique");
+                    }
                     phone.SetImei(imei, callerId);
                 }
             }
@@ -523,6 +533,10 @@ namespace AssetServices
                 }
                 if (imei != null && tablet.Imeis != imei)
                 {
+                    if (!AssetValidatorUtility.AllIMEIForUserIsUnique(imei))
+                    {
+                        throw new InvalidAssetDataException($"imei is not unique");
+                    }
                     tablet.SetImei(imei, callerId);
                 }
             }
