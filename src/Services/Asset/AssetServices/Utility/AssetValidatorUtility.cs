@@ -83,14 +83,9 @@ namespace AssetServices.Utility
             return diffValue == validationDigit;
         }
 
-        public static bool AllIMEIForUserIsUnique(IList<long> imei) 
+        public static List<long> MakeUniqueIMEIList(IList<long> imei)
         {
-            var noImeiShouldBeTheSame = imei.Distinct().Count();
-            if (noImeiShouldBeTheSame == imei.Count)
-            {
-                return true;
-            }
-            return false; 
+            return imei.Distinct().ToList();
         }
     }
 }

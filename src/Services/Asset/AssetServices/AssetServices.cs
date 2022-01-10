@@ -336,16 +336,19 @@ namespace AssetServices
             }
             
             Asset newAsset;
+            List<long> uniqueIMEIList = new List<long>();
+
             if (assetCategory.Id == 1)
             {
                 if (imei.Any()) {
-                    
-                    if (!AssetValidatorUtility.AllIMEIForUserIsUnique(imei))
+
+                    uniqueIMEIList = AssetValidatorUtility.MakeUniqueIMEIList(imei);
+                    if (uniqueIMEIList == null)
                     {
-                        throw new InvalidAssetDataException($"imei is not unique");
+                       return null;
                     }
 
-                    foreach (var i in imei)
+                    foreach (var i in uniqueIMEIList)
                     {
                         if (!AssetValidatorUtility.ValidateImei(i.ToString()))
                         {
@@ -360,7 +363,7 @@ namespace AssetServices
             
 
                 newAsset = new MobilePhone(Guid.NewGuid(), customerId, callerId, alias, assetCategory, serialNumber, brand, productName,
-                lifecycleType, purchaseDate, assetHolderId, imei?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
+                lifecycleType, purchaseDate, assetHolderId, uniqueIMEIList?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
             
             }
             else
@@ -368,7 +371,7 @@ namespace AssetServices
                 if(String.IsNullOrEmpty(serialNumber)) status = AssetStatus.InputRequired;
 
                 newAsset = new Tablet(Guid.NewGuid(), customerId, callerId, alias, assetCategory, serialNumber, brand, productName,
-                lifecycleType, purchaseDate, assetHolderId, imei?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
+                lifecycleType, purchaseDate, assetHolderId, uniqueIMEIList?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
                 
             }
 
@@ -516,11 +519,11 @@ namespace AssetServices
                 }
                 if (imei != null && phone.Imeis != imei)
                 {
-                    if (!AssetValidatorUtility.AllIMEIForUserIsUnique(imei))
+                    var uniqueListOfImeis = AssetValidatorUtility.MakeUniqueIMEIList(imei);
+                    if (uniqueListOfImeis != null)
                     {
-                        throw new InvalidAssetDataException($"imei is not unique");
+                        phone.SetImei(uniqueListOfImeis, callerId);
                     }
-                    phone.SetImei(imei, callerId);
                 }
             }
 
@@ -533,11 +536,12 @@ namespace AssetServices
                 }
                 if (imei != null && tablet.Imeis != imei)
                 {
-                    if (!AssetValidatorUtility.AllIMEIForUserIsUnique(imei))
+                    var uniqueListOfImeis = AssetValidatorUtility.MakeUniqueIMEIList(imei);
+                    if (uniqueListOfImeis != null)
                     {
-                        throw new InvalidAssetDataException($"imei is not unique");
+                        tablet.SetImei(uniqueListOfImeis, callerId);
                     }
-                    tablet.SetImei(imei, callerId);
+                    
                 }
             }
         }
