@@ -27,12 +27,12 @@ namespace CustomerServices
         /// </summary>
         /// <param name="hierarchical"></param>
         /// <returns></returns>
-        public async Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false)
+        public async Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false)
         {
             if (!hierarchical)
             {
 
-                var orgs = await _customerRepository.GetOrganizationsAsync();
+                var orgs = (customersOnly) ? await _customerRepository.GetCustomersAsync() : await _customerRepository.GetOrganizationsAsync();
                 foreach (Organization o in orgs)
                 {
                     o.Preferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
@@ -43,7 +43,7 @@ namespace CustomerServices
             else
             {
                 Guid? p = Guid.Empty;
-                var organizations = await _customerRepository.GetOrganizationsAsync(p);
+                var organizations = (customersOnly) ? await _customerRepository.GetCustomersAsync(p) : await _customerRepository.GetOrganizationsAsync(p);
                 foreach (Organization o in organizations)
                 {
                     o.ChildOrganizations = await _customerRepository.GetOrganizationsAsync(o.OrganizationId);
@@ -76,9 +76,9 @@ namespace CustomerServices
         /// <param name="includePreferences">Include OrganizationPreferences object of the organization if set to true</param>
         /// <param name="includeLocation">Include OrganizationLocation object of the organization if set to true</param>
         /// <returns>Organization</returns>
-        public async Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false)
+        public async Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool onlyCustomer = false)
         {
-            var organization = await _customerRepository.GetOrganizationAsync(customerId);
+            var organization = (!onlyCustomer) ? await _customerRepository.GetOrganizationAsync(customerId) : await _customerRepository.GetCustomerAsync(customerId);
 
             if (organization != null)
             {
@@ -93,6 +93,11 @@ namespace CustomerServices
             }
 
             return organization;
+        }
+
+        public async Task<Organization> GetCustomerAsync(Guid customerId)
+        {
+            return await _customerRepository.GetCustomerAsync(customerId);
         }
 
         /// <summary>
@@ -149,7 +154,7 @@ namespace CustomerServices
                 ContactPerson newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
-                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation);
+                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.IsCustomer);
 
                 organizationOriginal.UpdateOrganization(newOrganization);
 
@@ -245,7 +250,7 @@ namespace CustomerServices
                 newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
-                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation);
+                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.IsCustomer);
 
                 organizationOriginal.PatchOrganization(newOrganization);
 
@@ -496,6 +501,11 @@ namespace CustomerServices
             return await _customerRepository.DeleteAssetCategoryLifecycleTypeAsync(customer, assetCategory, assetCategoryLifecycleTypes, callerId);
         }
 
+        public async Task<AssetCategoryType> GetAssetCategoryType(Guid customerId, int assetCategoryId)
+        {
+            return await _customerRepository.GetAssetCategoryTypeAsync(customerId, assetCategoryId);
+        }
+
         public async Task<AssetCategoryType> GetAssetCategoryType(Guid customerId, Guid assetCategoryId)
         {
             return await _customerRepository.GetAssetCategoryTypeAsync(customerId, assetCategoryId);
@@ -509,7 +519,7 @@ namespace CustomerServices
 
         public async Task<AssetCategoryType> AddAssetCategoryType(Guid customerId, Guid addedAssetCategoryId, IList<int> lifecycleTypes, Guid callerId)
         {
-            var customer = await GetOrganizationAsync(customerId);
+            var customer = await GetCustomerAsync(customerId);
             var assetCategory = await GetAssetCategoryType(customerId, addedAssetCategoryId);
             if (customer == null)
             {
@@ -541,7 +551,7 @@ namespace CustomerServices
 
         public async Task<AssetCategoryType> RemoveAssetCategoryType(Guid customerId, Guid deletedAssetCategoryId, IList<int> lifecycleTypes, Guid callerId)
         {
-            var customer = await GetOrganizationAsync(customerId);
+            var customer = await GetCustomerAsync(customerId);
             var assetCategory = await GetAssetCategoryType(customerId, deletedAssetCategoryId);
             if (customer == null || assetCategory == null)
             {

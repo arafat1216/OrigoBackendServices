@@ -22,6 +22,8 @@ namespace Customer.API.ViewModels
 
         public string InternalNotes { get; set; }
 
+        public bool IsCustomer { get; set; }
+
         public NewOrganizationPreferences Preferences { get; set; }
     }
 }

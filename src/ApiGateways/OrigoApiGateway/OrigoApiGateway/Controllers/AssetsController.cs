@@ -142,7 +142,7 @@ namespace OrigoApiGateway.Controllers
                 {
                     return NotFound();
                 }
-
+                
                 var options = new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -571,6 +571,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
 

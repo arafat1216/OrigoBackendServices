@@ -203,8 +203,24 @@ namespace AssetServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public void CreateAsset_ValidateAssetCategoryData()
+        public void MakeUniqueIMEIList_WithDuplicatedValues_OnlyReturn2()
         {
+            long number1 = 106699671963280;
+            long number2 = 102274227461256;
+            List<long> listOfImeis = new List<long>
+            {
+                number1,
+                number2,
+                number1,
+                number1,
+                number2
+                
+            };
+
+            var uniqueIMEIList = AssetValidatorUtility.MakeUniqueIMEIList(listOfImeis);
+            Assert.Equal(2, uniqueIMEIList.Count);
+            Assert.Equal(uniqueIMEIList[0],number1);
+            Assert.Equal(uniqueIMEIList[1], number2);
         }
 
         [Fact]

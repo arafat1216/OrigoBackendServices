@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AssetServices.Utility
 {
@@ -79,6 +81,11 @@ namespace AssetServices.Utility
             diffValue = sumRounded - sumDigits;
 
             return diffValue == validationDigit;
+        }
+
+        public static List<long> MakeUniqueIMEIList(IList<long> imei)
+        {
+            return imei.Distinct().ToList();
         }
     }
 }
