@@ -32,6 +32,8 @@ namespace CustomerServices.Models
         public Address Address { get; protected set; }
 
         public ContactPerson ContactPerson { get; protected set; }
+        
+        public bool IsCustomer { get; protected set; }
 
         [NotMapped]
         public ICollection<Organization> ChildOrganizations { get; set; }
@@ -78,7 +80,7 @@ namespace CustomerServices.Models
         }
 
         public Organization(Guid organizationId, Guid callerId, Guid? parentId, string companyName, string orgNumber, Address companyAddress,
-            ContactPerson organizationContactPerson, OrganizationPreferences organizationPreferences, Location organizationLocation)
+            ContactPerson organizationContactPerson, OrganizationPreferences organizationPreferences, Location organizationLocation, bool isCustomer)
         {
             Name = companyName;
             ParentId = parentId;
@@ -94,6 +96,7 @@ namespace CustomerServices.Models
             UpdatedAt = DateTime.UtcNow;
             UpdatedBy = callerId;
             IsDeleted = false;
+            IsCustomer = isCustomer;
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
 

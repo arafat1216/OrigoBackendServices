@@ -31,16 +31,16 @@ namespace Customer.API.Controllers
             _organizationServices = customerServices;
         }
 
-        [Route("{organizationId:Guid}")]
+        [Route("{organizationId:Guid}/{customerOnly:Bool}")]
         [HttpGet]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.Gone)]
-        public async Task<ActionResult<Organization>> Get(Guid organizationId, bool includeOrganizationPreferences = true, bool includeLocation = true)
+        public async Task<ActionResult<Organization>> Get(Guid organizationId, bool includeOrganizationPreferences = true, bool includeLocation = true, bool customerOnly = false)
         {
             try
             {
-                var organization = await _organizationServices.GetOrganizationAsync(organizationId, includeOrganizationPreferences, includeLocation);
+                var organization = await _organizationServices.GetOrganizationAsync(organizationId, includeOrganizationPreferences, includeLocation, customerOnly);
                 if (organization == null) return NotFound();
 
                 var foundCustomer = new Organization
@@ -67,12 +67,13 @@ namespace Customer.API.Controllers
         }
 
         [HttpGet]
+        [Route("{customersOnly:Bool}")]
         [ProducesResponseType(typeof(IEnumerable<Organization>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<Organization>>> Get(bool hierarchical = false)
+        public async Task<ActionResult<IEnumerable<Organization>>> Get(bool hierarchical = false, bool customersOnly = false)
         {
             try
             {
-                var organizations = await _organizationServices.GetOrganizationsAsync(hierarchical);
+                var organizations = await _organizationServices.GetOrganizationsAsync(hierarchical, customersOnly);
                 IList<Organization> list = new List<Organization>();
 
                 foreach (CustomerServices.Models.Organization org in organizations)
@@ -185,7 +186,7 @@ namespace Customer.API.Controllers
                 var newOrganization = new CustomerServices.Models.Organization(Guid.NewGuid(), organization.CallerId, parentId,
                                                                                organization.Name, organization.OrganizationNumber,
                                                                                organizationAddress, organizationContactPerson,
-                                                                               null, organizationLocation);
+                                                                               null, organizationLocation, organization.IsCustomer);
 
                 // organizationPreferences needs the OrganizationId from newOrganization, and is therefore made last
                 if (organization.Preferences != null)
@@ -561,12 +562,12 @@ namespace Customer.API.Controllers
             var customerAssetCategories = new List<AssetCategoryType>();
             customerAssetCategories.AddRange(assetCategoryLifecycleTypes.Select(category => new AssetCategoryType
             {
-                CustomerId = category.ExternalCustomerId,
-                AssetCategoryId = category.AssetCategoryId,
+                OrganizationId = category.ExternalCustomerId,
+                AssetCategoryId = category.Id,
                 LifecycleTypes = category.LifecycleTypes.Select(a => new AssetCategoryLifecycleType()
                 {
-                    CustomerId = a.CustomerId,
-                    AssetCategoryId = a.AssetCategoryId,
+                    OrganizationId = a.CustomerId,
+                    AssetCategoryId = a.Id,
                     Name = Enum.GetName(typeof(LifecycleType), a.LifecycleType),
                     LifecycleType = a.LifecycleType
                 }).ToList()
@@ -581,6 +582,10 @@ namespace Customer.API.Controllers
         {
             try
             {
+                var customer = await _organizationServices.GetOrganizationAsync(customerId, false, false, true);
+                if (customer == null)
+                    return NotFound("No customer was found with that Id in the database.");
+
                 foreach (int lifecycle in addedAssetCategory.LifecycleTypes)
                 {
                     // Check if given int is within valid range of values
@@ -595,15 +600,20 @@ namespace Customer.API.Controllers
                         throw new InvalidLifecycleTypeException(errorMessage.ToString());
                     }
                 }
-                var assetCategories = await _organizationServices.AddAssetCategoryType(customerId, addedAssetCategory.AssetCategoryId, addedAssetCategory.LifecycleTypes,addedAssetCategory.CallerId);
+
+                var assetCat  = await _organizationServices.GetAssetCategoryType(customerId, addedAssetCategory.AssetCategoryId);
+                if (assetCat == null)
+                    return NotFound("Given asset category was not found.");
+                Guid assetCatId = assetCat.AssetCategoryId;
+                var assetCategories = await _organizationServices.AddAssetCategoryType(customerId, assetCatId, addedAssetCategory.LifecycleTypes,addedAssetCategory.CallerId);
                 var assetCategoryView = new AssetCategoryType
                 {
-                    CustomerId = assetCategories.ExternalCustomerId,
-                    AssetCategoryId = assetCategories.AssetCategoryId,
+                    OrganizationId = assetCategories.ExternalCustomerId,
+                    AssetCategoryId = assetCategories.Id,
                     LifecycleTypes = assetCategories.LifecycleTypes.Select(a => new AssetCategoryLifecycleType()
                     {
-                        CustomerId = a.CustomerId,
-                        AssetCategoryId = a.AssetCategoryId,
+                        OrganizationId = a.CustomerId,
+                        AssetCategoryId = a.Id,
                         Name = Enum.GetName(typeof(LifecycleType), a.LifecycleType),
                         LifecycleType = a.LifecycleType
                     }).ToList()
@@ -637,17 +647,22 @@ namespace Customer.API.Controllers
                         throw new InvalidLifecycleTypeException(errorMessage.ToString());
                     }
                 }
-                var assetCategories = await _organizationServices.RemoveAssetCategoryType(customerId, deleteAssetCategory.AssetCategoryId, deleteAssetCategory.LifecycleTypes,deleteAssetCategory.CallerId);
+
+                var category = await _organizationServices.GetAssetCategoryType(customerId, deleteAssetCategory.AssetCategoryId);
+                if (category == null)
+                    return NotFound("Given asset category was not found.");
+                Guid assetCatId = category.AssetCategoryId;
+                var assetCategories = await _organizationServices.RemoveAssetCategoryType(customerId, assetCatId, deleteAssetCategory.LifecycleTypes,deleteAssetCategory.CallerId);
                 if (assetCategories == null)
                     return NotFound();
                 var assetCategoryView = new AssetCategoryType
                 {
-                    CustomerId = assetCategories.ExternalCustomerId,
-                    AssetCategoryId = assetCategories.AssetCategoryId,
+                    OrganizationId = assetCategories.ExternalCustomerId,
+                    AssetCategoryId = assetCategories.Id,
                     LifecycleTypes = assetCategories.LifecycleTypes.Select(a => new AssetCategoryLifecycleType()
                     {
-                        CustomerId = a.CustomerId,
-                        AssetCategoryId = a.AssetCategoryId,
+                        OrganizationId = a.CustomerId,
+                        AssetCategoryId = a.Id,
                         Name = Enum.GetName(typeof(LifecycleType), a.LifecycleType),
                         LifecycleType = a.LifecycleType
                     }).ToList()

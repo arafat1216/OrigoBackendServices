@@ -293,6 +293,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
                 Guid.TryParse(actor, out Guid callerId);
 
                 var assetCategoryLifecycleTypes = await CustomerServices.RemoveAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType, callerId);

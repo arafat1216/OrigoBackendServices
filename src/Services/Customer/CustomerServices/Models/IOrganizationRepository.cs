@@ -11,7 +11,10 @@ namespace CustomerServices.Models
         Task<Organization> AddAsync(Organization customer);
         Task<IList<Organization>> GetOrganizationsAsync();
         Task<IList<Organization>> GetOrganizationsAsync(Guid? parentId);
+        Task<IList<Organization>> GetCustomersAsync();
+        Task<IList<Organization>> GetCustomersAsync(Guid? parentId);
         Task<Organization> GetOrganizationAsync(Guid customerId);
+        Task<Organization> GetCustomerAsync(Guid customerId);
         Task<OrganizationPreferences> GetOrganizationPreferencesAsync(Guid organizationId);
         Task<Location> GetOrganizationLocationAsync(Guid? locationId);
         Task<Location> DeleteOrganizationLocationAsync(Location organizationLocation);
@@ -34,6 +37,7 @@ namespace CustomerServices.Models
         Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes,Guid callerId);
         Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId);
         Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, Guid assetCategoryId);
+        Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, int assetCategoryId);
         Task<AssetCategoryType> DeleteAssetCategoryTypeAsync(AssetCategoryType assetCategoryType);
 
         Task<ProductModuleGroup> GetProductModuleGroupAsync(Guid moduleGroupId);

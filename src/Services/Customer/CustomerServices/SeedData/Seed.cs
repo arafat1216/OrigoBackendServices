@@ -57,7 +57,8 @@ namespace CustomerServices.SeedData
                     postalCode: "IL 60607", // postalCode
                     city: "Chicago", // city 
                     country: "United States of America" // country
-                    )
+                    ),
+                 true
                 );
 
             Organization organization2 = new Organization(
@@ -98,7 +99,8 @@ namespace CustomerServices.SeedData
                     postalCode: "IL 60607",
                     city: "Chicago",
                     country: "United States of America"
-                    )
+                    ),
+                true
                 );
             #endregion
 
