@@ -13,6 +13,7 @@ using System.Linq;
 using System.Security.Claims;
 using Common.Enums;
 using OrigoApiGateway.Models.BackendDTO;
+using AutoMapper;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -28,11 +29,13 @@ namespace OrigoApiGateway.Controllers
     {
         private ILogger<CustomersController> Logger { get; }
         private ICustomerServices CustomerServices { get; }
+        private readonly IMapper Mapper;
 
-        public CustomersController(ILogger<CustomersController> logger, ICustomerServices customerServices)
+        public CustomersController(ILogger<CustomersController> logger, ICustomerServices customerServices, IMapper mapper)
         {
             Logger = logger;
             CustomerServices = customerServices;
+            Mapper = mapper;
         }
 
         [HttpGet]
@@ -118,15 +121,9 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var organizationToChangeDTO = new UpdateOrganizationDTO();
-                organizationToChangeDTO.OrganizationId = organizationToChange.OrganizationId;
-                organizationToChangeDTO.Name = organizationToChange.Name;
-                organizationToChangeDTO.OrganizationNumber = organizationToChange.OrganizationNumber;
-                organizationToChangeDTO.Address = organizationToChange.Address;
-                organizationToChangeDTO.ContactPerson = organizationToChange.ContactPerson;
-                organizationToChangeDTO.PrimaryLocation = organizationToChange.PrimaryLocation;
-                organizationToChangeDTO.ParentId = organizationToChange.ParentId;
-                
+                var organizationToChangeDTO = Mapper.Map<UpdateOrganizationDTO>(organizationToChange);
+
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
@@ -156,14 +153,7 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var organizationToChangeDTO = new UpdateOrganizationDTO();
-                organizationToChangeDTO.OrganizationId = organizationToChange.OrganizationId;
-                organizationToChangeDTO.Name = organizationToChange.Name;
-                organizationToChangeDTO.OrganizationNumber = organizationToChange.OrganizationNumber;
-                organizationToChangeDTO.Address = organizationToChange.Address;
-                organizationToChangeDTO.ContactPerson = organizationToChange.ContactPerson;
-                organizationToChangeDTO.PrimaryLocation = organizationToChange.PrimaryLocation;
-                organizationToChangeDTO.ParentId = organizationToChange.ParentId;
+                var organizationToChangeDTO = Mapper.Map<UpdateOrganizationDTO>(organizationToChange);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;

@@ -1,4 +1,5 @@
-﻿using Common.Enums;
+﻿using AutoMapper;
+using Common.Enums;
 using Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -33,12 +34,14 @@ namespace OrigoApiGateway.Controllers
         private readonly ILogger<AssetsController> _logger;
         private readonly IAssetServices _assetServices;
         private readonly IStorageService _storageService;
+        private readonly IMapper _mapper;
 
-        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices, IStorageService storageService)
+        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices, IStorageService storageService, IMapper mapper)
         {
             _logger = logger;
             _assetServices = assetServices;
             _storageService = storageService;
+            _mapper = mapper;
         }
 
         [Route("customers/{organizationId:guid}/count")]
@@ -268,21 +271,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-                var newAssetDTO = new NewAssetDTO();
-                newAssetDTO.AssetCategoryId = asset.AssetCategoryId;
-                newAssetDTO.Description = asset.Description;
-                newAssetDTO.Brand = asset.Brand;
-                newAssetDTO.LifecycleType = asset.LifecycleType;
-                newAssetDTO.Alias = asset.Alias;
-                newAssetDTO.AssetHolderId = asset.AssetHolderId;
-                newAssetDTO.Imei = asset.Imei;
-                newAssetDTO.AssetTag = asset.AssetTag;
-                newAssetDTO.MacAddress = asset.MacAddress;
-                newAssetDTO.ManagedByDepartmentId = asset.ManagedByDepartmentId;
-                newAssetDTO.Note = asset.Note;
-                newAssetDTO.ProductName = asset.ProductName;
-                newAssetDTO.SerialNumber = asset.SerialNumber;
-                newAssetDTO.PurchaseDate = asset.PurchaseDate;
+
+                //Mapping from frontend model to a backend DTO
+                var newAssetDTO = _mapper.Map<NewAssetDTO>(asset);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
@@ -400,16 +391,8 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var origoUpdateAssetDTO = new OrigoUpdateAssetDTO();
-                origoUpdateAssetDTO.Brand = asset.Brand;
-                origoUpdateAssetDTO.ProductName = asset.ProductName;
-                origoUpdateAssetDTO.PurchaseDate = asset.PurchaseDate;
-                origoUpdateAssetDTO.Note = asset.Note;
-                origoUpdateAssetDTO.Description = asset.Description;
-                origoUpdateAssetDTO.AssetTag = asset.AssetTag;
-                origoUpdateAssetDTO.Imei = asset.Imei;
-                origoUpdateAssetDTO.SerialNumber = asset.SerialNumber;
-                origoUpdateAssetDTO.Alias = asset.Alias;
+                //Mapping from frontend model to a backend DTO
+                var origoUpdateAssetDTO = _mapper.Map<OrigoUpdateAssetDTO>(asset);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
@@ -631,9 +614,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-                var assetLabelsDTO = new AssetLabelsDTO();
-                assetLabelsDTO.LabelGuids = assetLabels.LabelGuids;
-                assetLabelsDTO.AssetGuids = assetLabels.AssetGuids;
+
+                //Mapping from frontend model to a backend DTO
+                var assetLabelsDTO = _mapper.Map<AssetLabelsDTO>(assetLabels);
 
                 // Get caller of endpoint
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
@@ -684,10 +667,8 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-                
-                var assetLabelsDTO = new AssetLabelsDTO();
-                assetLabelsDTO.LabelGuids = assetLabels.LabelGuids;
-                assetLabelsDTO.AssetGuids = assetLabels.AssetGuids;
+
+                var assetLabelsDTO = _mapper.Map<AssetLabelsDTO>(assetLabels);
 
                 // Get caller of endpoint
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
