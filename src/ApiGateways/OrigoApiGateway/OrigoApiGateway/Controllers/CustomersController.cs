@@ -13,6 +13,7 @@ using System.Linq;
 using System.Security.Claims;
 using Common.Enums;
 using OrigoApiGateway.Models.BackendDTO;
+using AutoMapper;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -28,11 +29,13 @@ namespace OrigoApiGateway.Controllers
     {
         private ILogger<CustomersController> Logger { get; }
         private ICustomerServices CustomerServices { get; }
+        private readonly IMapper Mapper;
 
-        public CustomersController(ILogger<CustomersController> logger, ICustomerServices customerServices)
+        public CustomersController(ILogger<CustomersController> logger, ICustomerServices customerServices, IMapper mapper)
         {
             Logger = logger;
             CustomerServices = customerServices;
+            Mapper = mapper;
         }
 
         [HttpGet]
@@ -118,12 +121,15 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                var organizationToChangeDTO = Mapper.Map<UpdateOrganizationDTO>(organizationToChange);
+
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
-                organizationToChange.CallerId = callerId;
+                organizationToChangeDTO.CallerId = callerId;
 
-                var updateOrganization = await CustomerServices.UpdateOrganizationAsync(organizationToChange);
+                var updateOrganization = await CustomerServices.UpdateOrganizationAsync(organizationToChangeDTO);
                 if (updateOrganization == null)
                 {
                     return BadRequest();
@@ -147,12 +153,14 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                var organizationToChangeDTO = Mapper.Map<UpdateOrganizationDTO>(organizationToChange);
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
-                organizationToChange.CallerId = callerId;
+                organizationToChangeDTO.CallerId = callerId;
 
-                var updateOrganization = await CustomerServices.PatchOrganizationAsync(organizationToChange);
+                var updateOrganization = await CustomerServices.PatchOrganizationAsync(organizationToChangeDTO);
                 if (updateOrganization == null)
                 {
                     return BadRequest();

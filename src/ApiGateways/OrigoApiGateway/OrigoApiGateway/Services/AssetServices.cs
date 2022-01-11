@@ -180,7 +180,7 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
-        public async Task<OrigoAsset> AddAssetForCustomerAsync(Guid customerId, NewAsset newAsset)
+        public async Task<OrigoAsset> AddAssetForCustomerAsync(Guid customerId, NewAssetDTO newAsset)
         {
             try
             {
@@ -260,7 +260,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAsset updateAsset)
+        public async Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAssetDTO updateAsset)
         {
             try
             {
@@ -387,7 +387,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<object>> AssignLabelsToAssets(Guid customerId, AssetLabels assetLabels)
+        public async Task<IList<object>> AssignLabelsToAssets(Guid customerId, AssetLabelsDTO assetLabels)
         {
             try
             {
@@ -430,7 +430,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<object>> UnAssignLabelsFromAssets(Guid customerId, AssetLabels assetLabels)
+        public async Task<IList<object>> UnAssignLabelsFromAssets(Guid customerId, AssetLabelsDTO assetLabels)
         {
             try
             {

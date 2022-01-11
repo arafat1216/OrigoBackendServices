@@ -1,4 +1,5 @@
-﻿using Common.Enums;
+﻿using AutoMapper;
+using Common.Enums;
 using Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -8,6 +9,7 @@ using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
+using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
 using System;
 using System.Collections.Generic;
@@ -32,12 +34,14 @@ namespace OrigoApiGateway.Controllers
         private readonly ILogger<AssetsController> _logger;
         private readonly IAssetServices _assetServices;
         private readonly IStorageService _storageService;
+        private readonly IMapper _mapper;
 
-        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices, IStorageService storageService)
+        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices, IStorageService storageService, IMapper mapper)
         {
             _logger = logger;
             _assetServices = assetServices;
             _storageService = storageService;
+            _mapper = mapper;
         }
 
         [Route("customers/{organizationId:guid}/count")]
@@ -268,12 +272,15 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
+                //Mapping from frontend model to a backend DTO
+                var newAssetDTO = _mapper.Map<NewAssetDTO>(asset);
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
-                asset.CallerId = callerId; // Guid.Empty if tryparse failed.
+                newAssetDTO.CallerId = callerId; // Guid.Empty if tryparse failed.
 
-                var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, asset);
+                var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, newAssetDTO);
                 if (createdAsset != null)
                 {
                     var options = new JsonSerializerOptions
@@ -384,11 +391,14 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
+                //Mapping from frontend model to a backend DTO
+                var origoUpdateAssetDTO = _mapper.Map<OrigoUpdateAssetDTO>(asset);
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
-                asset.CallerId = callerId;
+                origoUpdateAssetDTO.CallerId = callerId;
 
-                var updatedAsset = await _assetServices.UpdateAssetAsync(organizationId, assetId, asset);
+                var updatedAsset = await _assetServices.UpdateAssetAsync(organizationId, assetId, origoUpdateAssetDTO);
                 if (updatedAsset == null)
                 {
                     return NotFound();
@@ -605,12 +615,16 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
+                //Mapping from frontend model to a backend DTO
+                var assetLabelsDTO = _mapper.Map<AssetLabelsDTO>(assetLabels);
+
                 // Get caller of endpoint
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
-                assetLabels.CallerId = callerId;
+                assetLabelsDTO.CallerId = callerId;
 
-                var updatedAssets = await _assetServices.AssignLabelsToAssets(organizationId, assetLabels);
+                var updatedAssets = await _assetServices.AssignLabelsToAssets(organizationId, assetLabelsDTO);
                 if (updatedAssets == null)
                 {
                     return NotFound();
@@ -655,14 +669,16 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
+                var assetLabelsDTO = _mapper.Map<AssetLabelsDTO>(assetLabels);
+
                 // Get caller of endpoint
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 bool valid = Guid.TryParse(actor, out Guid callerId);
                 if (!valid)
                     callerId = Guid.Empty;
-                assetLabels.CallerId = callerId;
+                assetLabelsDTO.CallerId = callerId;
 
-                var updatedAssets = await _assetServices.UnAssignLabelsFromAssets(organizationId, assetLabels);
+                var updatedAssets = await _assetServices.UnAssignLabelsFromAssets(organizationId, assetLabelsDTO);
                 if (updatedAssets == null)
                 {
                     return NotFound();
