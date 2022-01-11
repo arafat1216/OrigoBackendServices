@@ -1,4 +1,5 @@
-﻿using Common.Enums;
+﻿using AutoMapper;
+using Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
@@ -25,11 +26,13 @@ namespace OrigoApiGateway.Controllers
     {
         private readonly ILogger<DepartmentsController> _logger;
         private readonly IDepartmentsServices _departmentServices;
+        private readonly IMapper _mapper;
 
-        public DepartmentsController(ILogger<DepartmentsController> logger, IDepartmentsServices departmentServices)
+        public DepartmentsController(ILogger<DepartmentsController> logger, IDepartmentsServices departmentServices,IMapper mapper)
         {
             _logger = logger;
             _departmentServices = departmentServices;
+            _mapper = mapper;
         }
 
         [Route("{departmentId:Guid}")]
@@ -119,16 +122,12 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var newDepartmentDTO = new NewDepartmentDTO();
-                newDepartmentDTO.Name = newDepartment.Name;
-                newDepartmentDTO.Description = newDepartment.Description;
-                newDepartmentDTO.ParentDepartmentId = newDepartment.ParentDepartmentId;
-                newDepartmentDTO.CostCenterId = newDepartment.CostCenterId;
+                //Mapping the frontend model to backend dto and assigning a caller id
+                var newDepartmentDTO = _mapper.Map<NewDepartmentDTO>(newDepartment);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
-
                 newDepartmentDTO.CallerId = callerId;
 
                 var createdDepartment = await _departmentServices.AddDepartmentAsync(organizationId, newDepartmentDTO);
@@ -166,12 +165,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-                var updateDepartmentDTO = new UpdateDepartmentDTO();
-                updateDepartmentDTO.DepartmentId = updateDepartment.DepartmentId;
-                updateDepartmentDTO.Name = updateDepartment.Name;
-                updateDepartmentDTO.Description = updateDepartment.Description;
-                updateDepartmentDTO.CostCenterId = updateDepartment.CostCenterId;
-                updateDepartmentDTO.ParentDepartmentId = updateDepartment.ParentDepartmentId;
+
+                //Mapping the frontend model to backend dto and assigning a caller id
+                var updateDepartmentDTO = _mapper.Map<UpdateDepartmentDTO>(updateDepartment);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
@@ -213,12 +209,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-                var updateDepartmentDTO = new UpdateDepartmentDTO();
-                updateDepartmentDTO.DepartmentId = updateDepartment.DepartmentId;
-                updateDepartmentDTO.Name = updateDepartment.Name;
-                updateDepartmentDTO.Description = updateDepartment.Description;
-                updateDepartmentDTO.CostCenterId = updateDepartment.CostCenterId;
-                updateDepartmentDTO.ParentDepartmentId = updateDepartment.ParentDepartmentId;
+
+                //Mapping the frontend model to backend dto and assigning a caller id
+                var updateDepartmentDTO = _mapper.Map<UpdateDepartmentDTO>(updateDepartment);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;

@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 using OrigoApiGateway.Models.BackendDTO;
+using AutoMapper;
 
 namespace OrigoApiGateway.Controllers
 {
@@ -28,11 +29,13 @@ namespace OrigoApiGateway.Controllers
     {
         private readonly ILogger<UserPermissionsController> _logger;
         private readonly IUserPermissionService _userPermissionServices;
+        private readonly IMapper _mapper;
 
-        public UserPermissionsController(ILogger<UserPermissionsController> logger, IUserPermissionService customerServices)
+        public UserPermissionsController(ILogger<UserPermissionsController> logger, IUserPermissionService customerServices,IMapper mapper)
         {
             _logger = logger;
             _userPermissionServices = customerServices;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -81,9 +84,7 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var userPermissionsDTO = new NewUserPermissionsDTO();
-                userPermissionsDTO.Role = userPermissions.Role;
-                userPermissionsDTO.AccessList = new List<Guid>(userPermissions.AccessList);
+                var userPermissionsDTO = _mapper.Map<NewUserPermissionsDTO>(userPermissions);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
@@ -112,9 +113,7 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var userPermissionsDTO = new NewUserPermissionsDTO();
-                userPermissionsDTO.Role = userPermissions.Role;
-                userPermissionsDTO.AccessList = new List<Guid>(userPermissions.AccessList);
+                var userPermissionsDTO = _mapper.Map<NewUserPermissionsDTO>(userPermissions);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
