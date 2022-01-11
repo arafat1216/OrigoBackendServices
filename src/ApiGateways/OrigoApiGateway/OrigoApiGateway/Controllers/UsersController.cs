@@ -1,4 +1,5 @@
-﻿using Common.Enums;
+﻿using AutoMapper;
+using Common.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -27,11 +28,13 @@ namespace OrigoApiGateway.Controllers
     {
         private readonly ILogger<UsersController> _logger;
         private readonly IUserServices _userServices;
+        private readonly IMapper _mapper;
 
-        public UsersController(ILogger<UsersController> logger, IUserServices userServices)
+        public UsersController(ILogger<UsersController> logger, IUserServices userServices, IMapper mapper)
         {
             _logger = logger;
             _userServices = userServices;
+            _mapper = mapper;
         }
 
         [Route("count")]
@@ -139,20 +142,14 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
+                //Mapping the frontend model to backend dto and assigning a caller id
+                var newUserDTO = _mapper.Map<NewUserDTO>(newUser);
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
 
-                var newUserDTO = new NewUserDTO();
-                newUserDTO.EmployeeId = newUser.EmployeeId;
-                newUserDTO.Email = newUser.Email;
-                newUserDTO.LastName = newUser.LastName;
-                newUserDTO.FirstName = newUser.FirstName;
-                newUserDTO.MobileNumber = newUser.MobileNumber;
-                newUserDTO.UserPreference = newUser.UserPreference;
                 newUserDTO.CallerId = callerId;
-                newUserDTO.Role = newUser.Role;
-
 
                 var updatedUser = await _userServices.AddUserForCustomerAsync(organizationId, newUserDTO);
 
@@ -229,18 +226,14 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
+                //Mapping the frontend model to backend dto and assigning a caller id
+                var updateUserDTO = _mapper.Map<UpdateUserDTO>(updateUser);
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
-
-                var updateUserDTO = new UpdateUserDTO();
-                updateUserDTO.EmployeeId = updateUser.EmployeeId;
-                updateUserDTO.Email = updateUser.Email;
-                updateUserDTO.LastName = updateUser.LastName;
-                updateUserDTO.FirstName = updateUser.FirstName;
-                updateUserDTO.UserPreference = updateUser.UserPreference;
                 updateUserDTO.CallerId = callerId;
-
 
                 var updatedUser = await _userServices.PutUserAsync(organizationId, userId, updateUserDTO);
                 if (updatedUser == null)
@@ -278,16 +271,12 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
+                //Mapping the frontend model to backend dto and assigning a caller id
+                var updateUserDTO = _mapper.Map<UpdateUserDTO>(updateUser);
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
-
-                var updateUserDTO = new UpdateUserDTO();
-                updateUserDTO.EmployeeId = updateUser.EmployeeId;
-                updateUserDTO.Email = updateUser.Email;
-                updateUserDTO.LastName = updateUser.LastName;
-                updateUserDTO.FirstName = updateUser.FirstName;
-                updateUserDTO.UserPreference = updateUser.UserPreference;
                 updateUserDTO.CallerId = callerId;
 
 
