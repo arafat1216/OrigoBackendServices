@@ -1,11 +1,8 @@
 ﻿using System;
 
-namespace OrigoApiGateway.Models
+namespace OrigoApiGateway.Models.BackendDTO
 {
-    /// <summary>
-    /// Request object
-    /// </summary>
-    public record UpdateOrganization
+    public record UpdateOrganizationDTO
     {
         public Guid OrganizationId { get; set; }
         public string Name { get; set; }
@@ -14,5 +11,6 @@ namespace OrigoApiGateway.Models
         public OrigoContactPerson ContactPerson { get; set; }
         public Guid? PrimaryLocation { get; set; }
         public Guid? ParentId { get; set; }
+        public Guid CallerId { get; set; }
     }
 }

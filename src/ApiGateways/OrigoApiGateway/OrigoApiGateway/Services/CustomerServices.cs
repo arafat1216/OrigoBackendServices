@@ -152,7 +152,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<Organization> UpdateOrganizationAsync(UpdateOrganization organizationToChange)
+        public async Task<Organization> UpdateOrganizationAsync(UpdateOrganizationDTO organizationToChange)
         {
             try
             {
@@ -170,7 +170,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<Organization> PatchOrganizationAsync(UpdateOrganization organizationToChange)
+        public async Task<Organization> PatchOrganizationAsync(UpdateOrganizationDTO organizationToChange)
         {
             try
             {

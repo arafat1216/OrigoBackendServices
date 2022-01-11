@@ -118,12 +118,21 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                var organizationToChangeDTO = new UpdateOrganizationDTO();
+                organizationToChangeDTO.OrganizationId = organizationToChange.OrganizationId;
+                organizationToChangeDTO.Name = organizationToChange.Name;
+                organizationToChangeDTO.OrganizationNumber = organizationToChange.OrganizationNumber;
+                organizationToChangeDTO.Address = organizationToChange.Address;
+                organizationToChangeDTO.ContactPerson = organizationToChange.ContactPerson;
+                organizationToChangeDTO.PrimaryLocation = organizationToChange.PrimaryLocation;
+                organizationToChangeDTO.ParentId = organizationToChange.ParentId;
+                
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
-                organizationToChange.CallerId = callerId;
+                organizationToChangeDTO.CallerId = callerId;
 
-                var updateOrganization = await CustomerServices.UpdateOrganizationAsync(organizationToChange);
+                var updateOrganization = await CustomerServices.UpdateOrganizationAsync(organizationToChangeDTO);
                 if (updateOrganization == null)
                 {
                     return BadRequest();
@@ -147,12 +156,21 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                var organizationToChangeDTO = new UpdateOrganizationDTO();
+                organizationToChangeDTO.OrganizationId = organizationToChange.OrganizationId;
+                organizationToChangeDTO.Name = organizationToChange.Name;
+                organizationToChangeDTO.OrganizationNumber = organizationToChange.OrganizationNumber;
+                organizationToChangeDTO.Address = organizationToChange.Address;
+                organizationToChangeDTO.ContactPerson = organizationToChange.ContactPerson;
+                organizationToChangeDTO.PrimaryLocation = organizationToChange.PrimaryLocation;
+                organizationToChangeDTO.ParentId = organizationToChange.ParentId;
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
-                organizationToChange.CallerId = callerId;
+                organizationToChangeDTO.CallerId = callerId;
 
-                var updateOrganization = await CustomerServices.PatchOrganizationAsync(organizationToChange);
+                var updateOrganization = await CustomerServices.PatchOrganizationAsync(organizationToChangeDTO);
                 if (updateOrganization == null)
                 {
                     return BadRequest();

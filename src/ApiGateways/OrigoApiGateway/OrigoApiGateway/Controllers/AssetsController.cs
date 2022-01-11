@@ -8,6 +8,7 @@ using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
+using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
 using System;
 using System.Collections.Generic;
@@ -267,13 +268,28 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                var newAssetDTO = new NewAssetDTO();
+                newAssetDTO.AssetCategoryId = asset.AssetCategoryId;
+                newAssetDTO.Description = asset.Description;
+                newAssetDTO.Brand = asset.Brand;
+                newAssetDTO.LifecycleType = asset.LifecycleType;
+                newAssetDTO.Alias = asset.Alias;
+                newAssetDTO.AssetHolderId = asset.AssetHolderId;
+                newAssetDTO.Imei = asset.Imei;
+                newAssetDTO.AssetTag = asset.AssetTag;
+                newAssetDTO.MacAddress = asset.MacAddress;
+                newAssetDTO.ManagedByDepartmentId = asset.ManagedByDepartmentId;
+                newAssetDTO.Note = asset.Note;
+                newAssetDTO.ProductName = asset.ProductName;
+                newAssetDTO.SerialNumber = asset.SerialNumber;
+                newAssetDTO.PurchaseDate = asset.PurchaseDate;
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
-                asset.CallerId = callerId; // Guid.Empty if tryparse failed.
+                newAssetDTO.CallerId = callerId; // Guid.Empty if tryparse failed.
 
-                var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, asset);
+                var createdAsset = await _assetServices.AddAssetForCustomerAsync(organizationId, newAssetDTO);
                 if (createdAsset != null)
                 {
                     var options = new JsonSerializerOptions
@@ -384,11 +400,22 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
+                var origoUpdateAssetDTO = new OrigoUpdateAssetDTO();
+                origoUpdateAssetDTO.Brand = asset.Brand;
+                origoUpdateAssetDTO.ProductName = asset.ProductName;
+                origoUpdateAssetDTO.PurchaseDate = asset.PurchaseDate;
+                origoUpdateAssetDTO.Note = asset.Note;
+                origoUpdateAssetDTO.Description = asset.Description;
+                origoUpdateAssetDTO.AssetTag = asset.AssetTag;
+                origoUpdateAssetDTO.Imei = asset.Imei;
+                origoUpdateAssetDTO.SerialNumber = asset.SerialNumber;
+                origoUpdateAssetDTO.Alias = asset.Alias;
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
-                asset.CallerId = callerId;
+                origoUpdateAssetDTO.CallerId = callerId;
 
-                var updatedAsset = await _assetServices.UpdateAssetAsync(organizationId, assetId, asset);
+                var updatedAsset = await _assetServices.UpdateAssetAsync(organizationId, assetId, origoUpdateAssetDTO);
                 if (updatedAsset == null)
                 {
                     return NotFound();
@@ -604,13 +631,16 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                var assetLabelsDTO = new AssetLabelsDTO();
+                assetLabelsDTO.LabelGuids = assetLabels.LabelGuids;
+                assetLabelsDTO.AssetGuids = assetLabels.AssetGuids;
 
                 // Get caller of endpoint
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
-                assetLabels.CallerId = callerId;
+                assetLabelsDTO.CallerId = callerId;
 
-                var updatedAssets = await _assetServices.AssignLabelsToAssets(organizationId, assetLabels);
+                var updatedAssets = await _assetServices.AssignLabelsToAssets(organizationId, assetLabelsDTO);
                 if (updatedAssets == null)
                 {
                     return NotFound();
@@ -654,15 +684,19 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                
+                var assetLabelsDTO = new AssetLabelsDTO();
+                assetLabelsDTO.LabelGuids = assetLabels.LabelGuids;
+                assetLabelsDTO.AssetGuids = assetLabels.AssetGuids;
 
                 // Get caller of endpoint
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 bool valid = Guid.TryParse(actor, out Guid callerId);
                 if (!valid)
                     callerId = Guid.Empty;
-                assetLabels.CallerId = callerId;
+                assetLabelsDTO.CallerId = callerId;
 
-                var updatedAssets = await _assetServices.UnAssignLabelsFromAssets(organizationId, assetLabels);
+                var updatedAssets = await _assetServices.UnAssignLabelsFromAssets(organizationId, assetLabelsDTO);
                 if (updatedAssets == null)
                 {
                     return NotFound();
