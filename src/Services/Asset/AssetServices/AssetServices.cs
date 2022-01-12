@@ -338,29 +338,31 @@ namespace AssetServices
             Asset newAsset;
             List<long> uniqueIMEIList = new List<long>();
 
-            if (assetCategory.Id == 1)
+            //Validate list of IMEI and making sure that they are not duplicated for both MOBILE AND TABLET 
+            if (imei.Any())
             {
-                if (imei.Any()) {
 
-                    uniqueIMEIList = AssetValidatorUtility.MakeUniqueIMEIList(imei);
-                    if (uniqueIMEIList == null)
-                    {
-                       return null;
-                    }
+                uniqueIMEIList = AssetValidatorUtility.MakeUniqueIMEIList(imei);
+                if (uniqueIMEIList == null)
+                {
+                    return null;
+                }
 
-                    foreach (var i in uniqueIMEIList)
+                foreach (var i in uniqueIMEIList)
+                {
+                    if (!AssetValidatorUtility.ValidateImei(i.ToString()))
                     {
-                        if (!AssetValidatorUtility.ValidateImei(i.ToString()))
-                        {
-                            throw new InvalidAssetDataException($"Invalid imei: {i}");
-                        }
+                        throw new InvalidAssetDataException($"Invalid imei: {i}");
                     }
                 }
-                else
+            }
+
+            if (assetCategory.Id == 1)
+            {
+                if(!imei.Any())
                 {
                     status = AssetStatus.InputRequired;
                 }
-            
 
                 newAsset = new MobilePhone(Guid.NewGuid(), customerId, callerId, alias, assetCategory, serialNumber, brand, productName,
                 lifecycleType, purchaseDate, assetHolderId, uniqueIMEIList?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
