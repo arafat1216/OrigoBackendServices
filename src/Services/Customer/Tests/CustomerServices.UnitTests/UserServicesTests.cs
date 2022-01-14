@@ -41,14 +41,21 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var oktaMock = new Mock<IOktaServices>();
+            const string OKTA_ID = "1234";
+            oktaMock.Setup(o => o.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), true, It.IsAny<string>())).ReturnsAsync(OKTA_ID);
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
-
+            
             // Act
-            int user = await userServices.GetUsersCountAsync(CUSTOMER_ONE_ID);
+            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
+            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_THREE_ID, false, EMPTY_CALLER_ID);
+
+            int users = await userServices.GetUsersCountAsync(CUSTOMER_ONE_ID);
 
             // Assert
-            Assert.Equal(2, user);
+            Assert.Equal(1, users);
         }
 
         [Fact]

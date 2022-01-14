@@ -37,7 +37,8 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var organizations = await HttpClient.GetFromJsonAsync<IList<OrganizationDTO>>($"{_options.ApiPath}");
+                bool customersOnly = true;
+                var organizations = await HttpClient.GetFromJsonAsync<IList<OrganizationDTO>>($"{_options.ApiPath}/{customersOnly}");
                 if (organizations == null)
                     return null;
 
@@ -64,7 +65,8 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var organization = await HttpClient.GetFromJsonAsync<OrganizationDTO>($"{_options.ApiPath}/{customerId}");
+                bool customerOnly = true;
+                var organization = await HttpClient.GetFromJsonAsync<OrganizationDTO>($"{_options.ApiPath}/{customerId}/{customerOnly}");
                 return organization == null ? null : _mapper.Map<Organization>(organization);
             }
             catch (HttpRequestException exception)
@@ -96,6 +98,7 @@ namespace OrigoApiGateway.Services
             {
                 var newCustomerDTO = _mapper.Map<NewOrganizationDTO>(newCustomer);
                 newCustomerDTO.CallerId = callerId;
+                newCustomerDTO.IsCustomer = true;
 
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", newCustomerDTO);
                 if (!response.IsSuccessStatusCode)
@@ -152,7 +155,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<Organization> UpdateOrganizationAsync(UpdateOrganization organizationToChange)
+        public async Task<Organization> UpdateOrganizationAsync(UpdateOrganizationDTO organizationToChange)
         {
             try
             {
@@ -170,7 +173,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<Organization> PatchOrganizationAsync(UpdateOrganization organizationToChange)
+        public async Task<Organization> PatchOrganizationAsync(UpdateOrganizationDTO organizationToChange)
         {
             try
             {
@@ -232,6 +235,10 @@ namespace OrigoApiGateway.Services
             }
             catch (HttpRequestException exception)
             {
+                // Customer not found
+                if (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return null;
+
                 _logger.LogError(exception, "GetAssetCategoryForCustomerAsync failed with HttpRequestException.");
                 throw;
             }
@@ -386,6 +393,10 @@ namespace OrigoApiGateway.Services
             }
             catch (HttpRequestException exception)
             {
+                // Customer not found
+                if (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return null;
+
                 _logger.LogError(exception, "GetCustomerProductModulesAsync failed with HttpRequestException.");
                 throw;
             }

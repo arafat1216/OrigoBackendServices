@@ -1,4 +1,6 @@
-﻿using Common.Enums;
+﻿using AutoMapper;
+using Common.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
@@ -26,11 +28,13 @@ namespace OrigoApiGateway.Controllers
     {
         private readonly ILogger<UsersController> _logger;
         private readonly IUserServices _userServices;
+        private readonly IMapper _mapper;
 
-        public UsersController(ILogger<UsersController> logger, IUserServices userServices)
+        public UsersController(ILogger<UsersController> logger, IUserServices userServices, IMapper mapper)
         {
             _logger = logger;
             _userServices = userServices;
+            _mapper = mapper;
         }
 
         [Route("count")]
@@ -137,12 +141,20 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
+                //Mapping the frontend model to backend dto and assigning a caller id
+                var newUserDTO = _mapper.Map<NewUserDTO>(newUser);
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 _ = Guid.TryParse(actor, out Guid callerId);
 
                 var updatedUser = await _userServices.AddUserForCustomerAsync(organizationId, newUser, callerId);
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUser.Id }, updatedUser);
+            }
+            catch (OktaException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidUserValueException ex)
             {
@@ -216,6 +228,10 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
+                //Mapping the frontend model to backend dto and assigning a caller id
+                var updateUserDTO = _mapper.Map<UpdateUserDTO>(updateUser);
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 _ = Guid.TryParse(actor, out Guid callerId);
 
@@ -259,6 +275,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
+                //Mapping the frontend model to backend dto and assigning a caller id
+                var updateUserDTO = _mapper.Map<UpdateUserDTO>(updateUser);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 _ = Guid.TryParse(actor, out Guid callerId);

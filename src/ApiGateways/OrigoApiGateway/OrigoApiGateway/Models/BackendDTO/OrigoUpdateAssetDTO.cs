@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace OrigoApiGateway.Models
+namespace OrigoApiGateway.Models.BackendDTO
 {
     /// <summary>
-    /// Request object
+    /// Model based on OrigoUpdateAsset for internal use
     /// </summary>
-    public class OrigoUpdateAsset
+    public record OrigoUpdateAssetDTO
     {
         /// <summary>
         /// The asset brand (e.g. Samsung)
@@ -53,5 +53,11 @@ namespace OrigoApiGateway.Models
         /// Alias for the asset.
         /// </summary>
         public string Alias { get; set; }
+
+        /// <summary>
+        /// Id of user making the endpoint call. Can be ignored by frontend.
+        /// </summary>
+        public Guid CallerId { get; set; }
     }
 }
+

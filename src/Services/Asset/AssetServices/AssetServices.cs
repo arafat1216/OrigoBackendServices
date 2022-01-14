@@ -333,28 +333,39 @@ namespace AssetServices
             if (lifecycleType != LifecycleType.NoLifecycle)
             {
                 status = AssetStatus.InputRequired;
-            } 
-
+            }
+            
             Asset newAsset;
-            if (assetCategory.Id == 1)
+            List<long> uniqueIMEIList = new List<long>();
+
+            //Validate list of IMEI and making sure that they are not duplicated for both MOBILE AND TABLET 
+            if (imei.Any())
             {
-                if (imei.Any()) {
-                    foreach (var i in imei)
+
+                uniqueIMEIList = AssetValidatorUtility.MakeUniqueIMEIList(imei);
+                if (uniqueIMEIList == null)
+                {
+                    return null;
+                }
+
+                foreach (var i in uniqueIMEIList)
+                {
+                    if (!AssetValidatorUtility.ValidateImei(i.ToString()))
                     {
-                        if (!AssetValidatorUtility.ValidateImei(i.ToString()))
-                        {
-                            throw new InvalidAssetDataException($"Invalid imei: {i}");
-                        }
+                        throw new InvalidAssetDataException($"Invalid imei: {i}");
                     }
                 }
-                else
+            }
+
+            if (assetCategory.Id == 1)
+            {
+                if(!imei.Any())
                 {
                     status = AssetStatus.InputRequired;
                 }
-            
 
                 newAsset = new MobilePhone(Guid.NewGuid(), customerId, callerId, alias, assetCategory, serialNumber, brand, productName,
-                lifecycleType, purchaseDate, assetHolderId, imei?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
+                lifecycleType, purchaseDate, assetHolderId, uniqueIMEIList?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
             
             }
             else
@@ -362,7 +373,7 @@ namespace AssetServices
                 if(String.IsNullOrEmpty(serialNumber)) status = AssetStatus.InputRequired;
 
                 newAsset = new Tablet(Guid.NewGuid(), customerId, callerId, alias, assetCategory, serialNumber, brand, productName,
-                lifecycleType, purchaseDate, assetHolderId, imei?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
+                lifecycleType, purchaseDate, assetHolderId, uniqueIMEIList?.Select(i => new AssetImei(i)).ToList(), macAddress, status, note, tag, description, managedByDepartmentId);
                 
             }
 
@@ -510,7 +521,11 @@ namespace AssetServices
                 }
                 if (imei != null && phone.Imeis != imei)
                 {
-                    phone.SetImei(imei, callerId);
+                    var uniqueListOfImeis = AssetValidatorUtility.MakeUniqueIMEIList(imei);
+                    if (uniqueListOfImeis != null)
+                    {
+                        phone.SetImei(uniqueListOfImeis, callerId);
+                    }
                 }
             }
 
@@ -523,7 +538,12 @@ namespace AssetServices
                 }
                 if (imei != null && tablet.Imeis != imei)
                 {
-                    tablet.SetImei(imei, callerId);
+                    var uniqueListOfImeis = AssetValidatorUtility.MakeUniqueIMEIList(imei);
+                    if (uniqueListOfImeis != null)
+                    {
+                        tablet.SetImei(uniqueListOfImeis, callerId);
+                    }
+                    
                 }
             }
         }

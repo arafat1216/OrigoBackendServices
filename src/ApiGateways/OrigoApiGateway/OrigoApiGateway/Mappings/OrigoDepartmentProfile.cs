@@ -9,6 +9,7 @@ namespace OrigoApiGateway.Mappings
         public OrigoDepartmentProfile()
         {
             CreateMap<DepartmentDTO, OrigoDepartment>();
+            CreateMap<OrigoDepartment, UpdateDepartmentDTO>();
         }
     }
 }

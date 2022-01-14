@@ -146,9 +146,17 @@ namespace CustomerServices
             if (user == null)
                 throw new UserNotFoundException($"Unable to find {userId}");
 
+            //get role from current email
+            var role = await GetRoleNameForUser(user.Email);
+            UserDTO userDTO;
+
             // Do not call if there is no change
             if (isActive == user.IsActive)
-                return _mapper.Map<UserDTO>(user);
+            { 
+                userDTO = _mapper.Map<UserDTO>(user);
+                userDTO.Role = role;
+                return userDTO;
+            }
 
             var userExistsInOkta = await _oktaServices.UserExistsInOktaAsync(user.OktaUserId);
             if (userExistsInOkta)
@@ -179,14 +187,20 @@ namespace CustomerServices
                 }
             }
 
+            userDTO = _mapper.Map<UserDTO>(user);
+            userDTO.Role = role;
+
             await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<UserDTO>(user);
+            return userDTO;
         }
 
         public async Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, string mobileNumber, UserPreference userPreference, Guid callerId)
         {
             var user = await GetUserAsync(customerId, userId);
+            //get role from current email
+            var role = await GetRoleNameForUser(user.Email);
+
             if (user == null) return null;
             if (firstName != default && user.FirstName != firstName) user.ChangeFirstName(firstName, callerId);
             if (lastName != default && user.LastName != lastName) user.ChangeLastName(lastName, callerId);
@@ -210,8 +224,16 @@ namespace CustomerServices
                 userPreference.Language != user.UserPreference?.Language)
                 user.ChangeUserPreferences(userPreference, callerId);
 
+            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            if (userDTO == null)
+            {
+                return null;
+            }
+
+            userDTO.Role = role;
+
             await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<UserDTO>(user);
+            return userDTO;
         }
 
         public async Task<UserDTO> UpdateUserPutAsync(Guid customerId, Guid userId, string firstName, string lastName,
@@ -268,8 +290,13 @@ namespace CustomerServices
                 throw new UserDeletedException();
 
             user.SetDeleteStatus(true, callerId);
+
+            //Get the users role and assign it to the users DTO
+            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            userDTO.Role = await GetRoleNameForUser(user.Email);
+
             await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<UserDTO>(user);
+            return userDTO;
         }
 
         public async Task<UserDTO> AssignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
@@ -279,8 +306,13 @@ namespace CustomerServices
             if (user == null || department == null)
                 return null;
             user.AssignDepartment(department, callerId);
+
+            //Get the users role and assign it to the users DTO
+            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            userDTO.Role = await GetRoleNameForUser(user.Email);
+
             await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<UserDTO>(user);
+            return userDTO;
         }
 
         public async Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
@@ -318,8 +350,13 @@ namespace CustomerServices
             if (user == null || department == null)
                 return null;
             user.UnassignDepartment(department, callerId);
+
+            //Get the users role and assign it to the users DTO
+            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            userDTO.Role = await GetRoleNameForUser(user.Email);
+
             await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<UserDTO>(user);
+            return userDTO;
         }
     }
 }

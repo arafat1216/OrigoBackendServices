@@ -11,8 +11,8 @@ namespace OrigoApiGateway.Services
         Task<IList<Organization>> GetCustomersAsync();
         Task<Organization> GetCustomerAsync(Guid customerId);
         Task<Organization> CreateCustomerAsync(NewOrganization newCustomer, Guid callerId);
-        Task<Organization> UpdateOrganizationAsync(UpdateOrganization organizationToChange);
-        Task<Organization> PatchOrganizationAsync(UpdateOrganization organizationToChange);
+        Task<Organization> UpdateOrganizationAsync(UpdateOrganizationDTO organizationToChange);
+        Task<Organization> PatchOrganizationAsync(UpdateOrganizationDTO organizationToChange);
         Task<Organization> DeleteOrganizationAsync(Guid organizationId, Guid callerId);
 
         Task<IList<OrigoCustomerAssetCategoryType>> GetAssetCategoryForCustomerAsync(Guid customerId);

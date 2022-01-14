@@ -147,13 +147,25 @@ namespace OrigoApiGateway.Services
                 if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
                     throw new InvalidUserValueException(await response.Content.ReadAsStringAsync());
                 if (!response.IsSuccessStatusCode)
-                    throw new BadHttpRequestException("Unable to save user", (int)response.StatusCode);
+                {
+                    var errorDescription = await response.Content.ReadAsStringAsync();
+                    if (errorDescription.Contains("Okta"))
+                        throw new OktaException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+                    
 
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
                 return user == null ? null : _mapper.Map<OrigoUser>(user);
             }
             catch (InvalidUserValueException)
             {
+                throw;
+            }
+            catch (BadHttpRequestException exception)
+            {
+                _logger.LogError(exception, "AddUserForCustomerAsync - " + exception.Message);
                 throw;
             }
             catch (Exception exception)
