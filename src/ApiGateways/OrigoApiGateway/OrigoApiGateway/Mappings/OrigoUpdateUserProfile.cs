@@ -4,7 +4,7 @@ using OrigoApiGateway.Models.BackendDTO;
 
 namespace OrigoApiGateway.Mappings
 {
-    public class OrigoUpdateUserProfile : Profile
+    public class OrigoUpdateUserProfile :Profile
     {
         public OrigoUpdateUserProfile()
         {

@@ -1,4 +1,5 @@
-﻿using Customer.API.ViewModels;
+﻿using AutoMapper;
+using Customer.API.ViewModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Threading.Tasks;
-using AutoMapper;
 
 namespace Customer.API.Controllers
 {
@@ -38,7 +38,7 @@ namespace Customer.API.Controllers
         public async Task<ActionResult<int>> GetUsersCount(Guid customerId)
         {
             var count = await _userServices.GetUsersCountAsync(customerId);
-            
+
             return Ok(count);
         }
 
@@ -82,7 +82,7 @@ namespace Customer.API.Controllers
             try
             {
                 var updatedUser = await _userServices.AddUserForCustomerAsync(customerId, newUser.FirstName,
-                    newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId, new CustomerServices.Models.UserPreference(newUser.UserPreference?.Language,newUser.CallerId), newUser.CallerId, newUser.Role);
+                    newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId, new CustomerServices.Models.UserPreference(newUser.UserPreference?.Language, newUser.CallerId), newUser.CallerId, newUser.Role);
                 var updatedUserView = _mapper.Map<User>(updatedUser);
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUserView.Id }, updatedUserView);
@@ -99,13 +99,13 @@ namespace Customer.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch (UserNameIsInUseException exception)
+            catch (InvalidPhoneNumberException ex)
             {
-                return BadRequest("Okta: Email or phonenumber is already in use.");
+                return Conflict(ex.Message);
             }
-            catch (InvalidPhoneNumberException exception)
+            catch (UserNameIsInUseException ex)
             {
-                return BadRequest("Okta: Email or phonenumber is already in use."); 
+                return Conflict(ex.Message);
             }
             catch (Exception ex)
             {
@@ -122,9 +122,9 @@ namespace Customer.API.Controllers
         {
             try
             {
-                var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language,updateUser.CallerId);
+                var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language, updateUser.CallerId);
                 var updatedUser = await _userServices.UpdateUserPutAsync(customerId, userId, updateUser.FirstName,
-                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId, userPreference, updateUser.CallerId);
+                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId, updateUser.MobileNumber, userPreference, updateUser.CallerId);
                 if (updatedUser == null)
                     return NotFound();
 
@@ -134,6 +134,14 @@ namespace Customer.API.Controllers
             catch (CustomerNotFoundException)
             {
                 return BadRequest("Customer not found");
+            }
+            catch (InvalidPhoneNumberException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (UserNameIsInUseException ex)
+            {
+                return Conflict(ex.Message);
             }
             catch
             {
@@ -151,7 +159,7 @@ namespace Customer.API.Controllers
             {
                 var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language, updateUser.CallerId);
                 var updatedUser = await _userServices.UpdateUserPatchAsync(customerId, userId, updateUser.FirstName,
-                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId, userPreference, updateUser.CallerId);
+                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId, updateUser.MobileNumber, userPreference, updateUser.CallerId);
                 if (updatedUser == null)
                     return NotFound();
 
@@ -160,6 +168,14 @@ namespace Customer.API.Controllers
             catch (CustomerNotFoundException)
             {
                 return BadRequest("Customer not found");
+            }
+            catch (InvalidPhoneNumberException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (UserNameIsInUseException ex)
+            {
+                return Conflict(ex.Message);
             }
             catch
             {
@@ -236,7 +252,7 @@ namespace Customer.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<User>> AssignDepartment(Guid customerId, Guid userId, Guid departmentId,[FromBody] Guid callerId)
+        public async Task<ActionResult<User>> AssignDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
         {
             var user = await _userServices.AssignDepartment(customerId, userId, departmentId, callerId);
             if (user == null) return NotFound();
@@ -247,7 +263,7 @@ namespace Customer.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId,[FromBody] Guid callerId)
+        public async Task<ActionResult> AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
         {
             try
             {
@@ -274,11 +290,11 @@ namespace Customer.API.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId,[FromBody] Guid callerId)
+        public async Task<ActionResult> UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
         {
             try
             {
-                await _userServices.UnassignManagerFromDepartment(customerId, userId, departmentId,callerId);
+                await _userServices.UnassignManagerFromDepartment(customerId, userId, departmentId, callerId);
                 return Ok();
             }
             catch (DepartmentNotFoundException exception)
@@ -303,7 +319,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<User>> RemoveAssignedDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
         {
-            var user = await _userServices.UnassignDepartment(customerId, userId, departmentId,callerId);
+            var user = await _userServices.UnassignDepartment(customerId, userId, departmentId, callerId);
             if (user == null) return NotFound();
             return Ok(_mapper.Map<User>(user));
         }

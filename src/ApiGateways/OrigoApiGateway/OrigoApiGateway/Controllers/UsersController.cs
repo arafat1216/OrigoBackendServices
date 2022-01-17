@@ -146,12 +146,9 @@ namespace OrigoApiGateway.Controllers
                 var newUserDTO = _mapper.Map<NewUserDTO>(newUser);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
+                _ = Guid.TryParse(actor, out Guid callerId);
 
-                newUserDTO.CallerId = callerId;
-
-                var updatedUser = await _userServices.AddUserForCustomerAsync(organizationId, newUserDTO);
+                var updatedUser = await _userServices.AddUserForCustomerAsync(organizationId, newUser, callerId);
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUser.Id }, updatedUser);
             }
@@ -159,8 +156,13 @@ namespace OrigoApiGateway.Controllers
             {
                 return BadRequest(ex.Message);
             }
+            catch (InvalidUserValueException ex)
+            {
+                return Conflict(ex.Message);
+            }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return BadRequest();
             }
         }
@@ -189,16 +191,16 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
+                _ = Guid.TryParse(actor, out Guid callerId);
 
-                var user = await _userServices.SetUserActiveStatusAsync(organizationId, userId, isActive,callerId);
+                var user = await _userServices.SetUserActiveStatusAsync(organizationId, userId, isActive, callerId);
                 if (user == null)
                     return NotFound();
                 return Ok(user);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return BadRequest(ex.Message);
             }
         }
@@ -231,18 +233,21 @@ namespace OrigoApiGateway.Controllers
                 var updateUserDTO = _mapper.Map<UpdateUserDTO>(updateUser);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
-                updateUserDTO.CallerId = callerId;
+                _ = Guid.TryParse(actor, out Guid callerId);
 
-                var updatedUser = await _userServices.PutUserAsync(organizationId, userId, updateUserDTO);
+                var updatedUser = await _userServices.PutUserAsync(organizationId, userId, updateUser, callerId);
                 if (updatedUser == null)
                     return NotFound();
 
                 return Ok(updatedUser);
             }
-            catch
+            catch (InvalidUserValueException ex)
             {
+                return Conflict(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
                 return BadRequest();
             }
         }
@@ -275,19 +280,21 @@ namespace OrigoApiGateway.Controllers
                 var updateUserDTO = _mapper.Map<UpdateUserDTO>(updateUser);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
-                updateUserDTO.CallerId = callerId;
+                _ = Guid.TryParse(actor, out Guid callerId);
 
-
-                var updatedUser = await _userServices.PatchUserAsync(organizationId, userId, updateUserDTO);
+                var updatedUser = await _userServices.PatchUserAsync(organizationId, userId, updateUser, callerId);
                 if (updatedUser == null)
                     return NotFound();
 
                 return Ok(updatedUser);
             }
-            catch
+            catch (InvalidUserValueException ex)
             {
+                return Conflict(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
                 return BadRequest();
             }
         }
@@ -317,8 +324,7 @@ namespace OrigoApiGateway.Controllers
                 }
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
+                _ = Guid.TryParse(actor, out Guid callerId);
 
                 var deletedUser = await _userServices.DeleteUserAsync(organizationId, userId, softDelete, callerId);
                 if (!deletedUser)
@@ -326,8 +332,9 @@ namespace OrigoApiGateway.Controllers
 
                 return NoContent();
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return BadRequest();
             }
         }
@@ -357,15 +364,15 @@ namespace OrigoApiGateway.Controllers
                 }
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
+                _ = Guid.TryParse(actor, out Guid callerId);
 
                 var updatedUser = await _userServices.AssignUserToDepartment(organizationId, userId, departmentId, callerId);
 
                 return Ok(updatedUser);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return BadRequest();
             }
         }
@@ -394,15 +401,15 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
+                _ = Guid.TryParse(actor, out Guid callerId);
 
                 var updatedUser = await _userServices.UnassignUserFromDepartment(organizationId, userId, departmentId, callerId);
 
                 return Ok(updatedUser);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return BadRequest();
             }
         }
@@ -431,15 +438,15 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
+                _ = Guid.TryParse(actor, out Guid callerId);
 
-                await _userServices.AssignManagerToDepartment(organizationId, userId, departmentId,callerId);
+                await _userServices.AssignManagerToDepartment(organizationId, userId, departmentId, callerId);
                 return Ok();
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                return BadRequest(exception.Message);
+                _logger.LogError(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -467,15 +474,15 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                Guid callerId;
-                Guid.TryParse(actor, out callerId);
+                _ = Guid.TryParse(actor, out Guid callerId);
 
-                await _userServices.UnassignManagerFromDepartment(organizationId, userId, departmentId,callerId);
+                await _userServices.UnassignManagerFromDepartment(organizationId, userId, departmentId, callerId);
                 return Ok();
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                return BadRequest(exception.Message);
+                _logger.LogError(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
     }
