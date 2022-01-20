@@ -66,6 +66,12 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
 
                 entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 2, Language = "en", Name = "Basic Asset Management", Description = "Allows organizations to perform the basic user management tasks.", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 2, Language = "nb", Name = "Grunnleggende asset-håndtering", Description = "Lar en organisasjon utføre grunnleggende behandling av assets.", UpdatedBy = systemUserId });
+
+                // Basic Subscription Management
+                entity.HasData(new Feature { Id = 3, AccessControlPermissionNode = "BasicSubscriptionManagement", FeatureTypeId = 1, UpdatedBy = systemUserId });
+
+                entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 3, Language = "en", Name = "Basic Subscription Management", Description = "Allows organizations to perform the basic subscription management tasks.", UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 3, Language = "nb", Name = "Grunnleggende abonnement-håndtering", Description = "Lar en organisasjon utføre grunnleggende behandling av abonnomenter.", UpdatedBy = systemUserId });
             });
 
         }
