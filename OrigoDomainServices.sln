@@ -101,10 +101,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 		charts\origoapigateway\templates\service.yaml = charts\origoapigateway\templates\service.yaml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Email", "Email", "{315A279F-D0FF-429D-8F33-C39751D83AB2}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Email.API", "src\Services\Email\Email.API\Email.API.csproj", "{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{DDAD494B-7538-4083-A574-D6F6A7B9A168}"
 	ProjectSection(SolutionItems) = preProject
 		src\ApiGateways\OrigoApiGateway\OrigoApiGateway.IntegrationTests\OrigoV2IntegrationTests-DevEnvironment.postman_environment.json = src\ApiGateways\OrigoApiGateway\OrigoApiGateway.IntegrationTests\OrigoV2IntegrationTests-DevEnvironment.postman_environment.json
@@ -156,6 +152,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 		charts\customer-api\templates\service.yaml = charts\customer-api\templates\service.yaml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SubscriptionManagement", "SubscriptionManagement", "{FB3F2ABC-6AA4-482C-B6DD-E6E82290BDCD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E9B1BA7B-3FD6-4058-B015-40BE86FF3323}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionManagement.API", "src\Services\SubscriptionManagement\SubscriptionManagement.API\SubscriptionManagement.API.csproj", "{7D875656-1973-4005-BC70-A82F2A47BB83}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionManagementServices", "src\Services\SubscriptionManagement\SubscriptionManagementServices\SubscriptionManagementServices.csproj", "{F5931EAB-AF63-40EA-AA92-9FD7A15DF70D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionManagement.UnitTests", "src\Services\SubscriptionManagement\Tests\SubscriptionManagement.UnitTests\SubscriptionManagement.UnitTests\SubscriptionManagement.UnitTests.csproj", "{A27F814B-9B45-443A-935B-2306D767A57A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -198,10 +204,6 @@ Global
 		{78DB531E-0B8E-4C52-A233-35488E436D4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78DB531E-0B8E-4C52-A233-35488E436D4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78DB531E-0B8E-4C52-A233-35488E436D4C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FFFDAEAD-5472-4FB8-AC9F-5B7E18183FD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FFFDAEAD-5472-4FB8-AC9F-5B7E18183FD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFFDAEAD-5472-4FB8-AC9F-5B7E18183FD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -222,6 +224,18 @@ Global
 		{5585CA98-0A63-414E-8C4E-76C8A3350C39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5585CA98-0A63-414E-8C4E-76C8A3350C39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5585CA98-0A63-414E-8C4E-76C8A3350C39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D875656-1973-4005-BC70-A82F2A47BB83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D875656-1973-4005-BC70-A82F2A47BB83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D875656-1973-4005-BC70-A82F2A47BB83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D875656-1973-4005-BC70-A82F2A47BB83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5931EAB-AF63-40EA-AA92-9FD7A15DF70D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5931EAB-AF63-40EA-AA92-9FD7A15DF70D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5931EAB-AF63-40EA-AA92-9FD7A15DF70D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5931EAB-AF63-40EA-AA92-9FD7A15DF70D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A27F814B-9B45-443A-935B-2306D767A57A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A27F814B-9B45-443A-935B-2306D767A57A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A27F814B-9B45-443A-935B-2306D767A57A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A27F814B-9B45-443A-935B-2306D767A57A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -250,8 +264,6 @@ Global
 		{78DB531E-0B8E-4C52-A233-35488E436D4C} = {1D6FE7EF-D120-4993-BD84-39701AB88B5B}
 		{23F495F5-BB43-4A62-B3F5-096174995E42} = {8D5A9903-F29E-457C-A27C-199EF34B1933}
 		{DE0A244E-6997-43B7-B187-E97D4847AAC1} = {23F495F5-BB43-4A62-B3F5-096174995E42}
-		{315A279F-D0FF-429D-8F33-C39751D83AB2} = {7618C1FC-2AFA-468A-92C5-74DC94CCCA8E}
-		{0DBDCE35-D5BF-431E-8DF7-BCE518F67C38} = {315A279F-D0FF-429D-8F33-C39751D83AB2}
 		{DDAD494B-7538-4083-A574-D6F6A7B9A168} = {1D6FE7EF-D120-4993-BD84-39701AB88B5B}
 		{9D515A05-713E-4722-A511-AD593B4C609F} = {7618C1FC-2AFA-468A-92C5-74DC94CCCA8E}
 		{FFFDAEAD-5472-4FB8-AC9F-5B7E18183FD3} = {9D515A05-713E-4722-A511-AD593B4C609F}
@@ -264,6 +276,11 @@ Global
 		{75574DA2-242D-4E80-A691-F588AC483972} = {8D5A9903-F29E-457C-A27C-199EF34B1933}
 		{C1E2A43E-79A8-402F-8B7B-BA220EF2A58C} = {75574DA2-242D-4E80-A691-F588AC483972}
 		{8C6EE1D2-3BC6-4CCF-AD12-4D07D585F5D0} = {45217BC1-D812-44F3-AF44-732C89E8496D}
+		{FB3F2ABC-6AA4-482C-B6DD-E6E82290BDCD} = {7618C1FC-2AFA-468A-92C5-74DC94CCCA8E}
+		{E9B1BA7B-3FD6-4058-B015-40BE86FF3323} = {FB3F2ABC-6AA4-482C-B6DD-E6E82290BDCD}
+		{7D875656-1973-4005-BC70-A82F2A47BB83} = {FB3F2ABC-6AA4-482C-B6DD-E6E82290BDCD}
+		{F5931EAB-AF63-40EA-AA92-9FD7A15DF70D} = {FB3F2ABC-6AA4-482C-B6DD-E6E82290BDCD}
+		{A27F814B-9B45-443A-935B-2306D767A57A} = {E9B1BA7B-3FD6-4058-B015-40BE86FF3323}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DAEDEBBF-933A-4FFE-B734-B9E748AF86E1}
