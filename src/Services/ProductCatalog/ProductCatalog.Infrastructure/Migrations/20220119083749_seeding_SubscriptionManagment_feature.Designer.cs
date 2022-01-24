@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProductCatalog.Infrastructure.Infrastructure.Context;
 
@@ -11,9 +12,10 @@ using ProductCatalog.Infrastructure.Infrastructure.Context;
 namespace ProductCatalog.Infrastructure.Migrations
 {
     [DbContext(typeof(ProductCatalogContext))]
-    partial class ProductCatalogContextModelSnapshot : ModelSnapshot
+    [Migration("20220119083749_seeding_SubscriptionManagment_feature")]
+    partial class seeding_SubscriptionManagment_feature
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -360,14 +362,6 @@ namespace ProductCatalog.Infrastructure.Migrations
                                 .HasColumnName("PeriodEnd");
                         }
                     ));
-
-                    b.HasData(
-                        new
-                        {
-                            FeatureId = 3,
-                            ProductId = 1,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        });
                 });
 
             modelBuilder.Entity("ProductCatalog.Infrastructure.Models.Database.Joins.ProductRequiresAll", b =>
@@ -562,15 +556,6 @@ namespace ProductCatalog.Infrastructure.Migrations
                                 .HasColumnName("PeriodEnd");
                         }
                     ));
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            PartnerId = new Guid("00000000-0000-0000-0000-000000000001"),
-                            ProductTypeId = 3,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        });
                 });
 
             modelBuilder.Entity("ProductCatalog.Infrastructure.Models.Database.ProductType", b =>
@@ -1041,24 +1026,6 @@ namespace ProductCatalog.Infrastructure.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("ProductId");
-
-                            b1.HasData(
-                                new
-                                {
-                                    ProductId = 1,
-                                    Language = "en",
-                                    Description = "A partner product based subscription managment",
-                                    Name = "Product subscription managment",
-                                    UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
-                                },
-                                new
-                                {
-                                    ProductId = 1,
-                                    Language = "nb",
-                                    Description = "Ett partner spesifikk abonnement-håndtering produkt",
-                                    Name = "Produkt abonnement-håndtering",
-                                    UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
-                                });
                         });
 
                     b.Navigation("ProductType");

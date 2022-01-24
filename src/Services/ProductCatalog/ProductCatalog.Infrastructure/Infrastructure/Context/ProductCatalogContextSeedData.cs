@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProductCatalog.Infrastructure.Models.Database;
+using ProductCatalog.Infrastructure.Models.Database.Joins;
 
 namespace ProductCatalog.Infrastructure.Infrastructure.Context
 {
@@ -51,6 +52,7 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTypeTranslation { ProductTypeId = 3, Language = "nb", Name = "Opsjon", UpdatedBy = systemUserId });
             });
 
+            
 
             modelBuilder.Entity<Feature>(entity =>
             {
@@ -66,7 +68,27 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
 
                 entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 2, Language = "en", Name = "Basic Asset Management", Description = "Allows organizations to perform the basic user management tasks.", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 2, Language = "nb", Name = "Grunnleggende asset-håndtering", Description = "Lar en organisasjon utføre grunnleggende behandling av assets.", UpdatedBy = systemUserId });
+
+                // Basic Subscription Management
+                entity.HasData(new Feature { Id = 3, AccessControlPermissionNode = "BasicSubscriptionManagement", FeatureTypeId = 1, UpdatedBy = systemUserId });
+
+                entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 3, Language = "en", Name = "Basic Subscription Management", Description = "Allows organizations to perform the basic subscription management tasks.", UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 3, Language = "nb", Name = "Grunnleggende abonnement-håndtering", Description = "Lar en organisasjon utføre grunnleggende behandling av abonnomenter.", UpdatedBy = systemUserId });
             });
+
+            modelBuilder.Entity<Product>(entity => 
+            {
+                entity.HasData(new Product { Id = 1, PartnerId = systemUserId, ProductTypeId = 3 });
+
+                entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 1, Language = "en", Name = "Product subscription managment", Description = "A partner product based subscription managment", UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 1, Language = "nb", Name = "Produkt abonnement-håndtering", Description = "Ett partner spesifikk abonnement-håndtering produkt", UpdatedBy = systemUserId });
+
+            });
+            modelBuilder.Entity<ProductFeature>(entity =>{
+
+                entity.HasData(new ProductFeature { ProductId = 1, FeatureId = 3});
+            });
+            
 
         }
     }
