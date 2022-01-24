@@ -16,7 +16,7 @@ namespace ProductCatalog.Infrastructure.Models.Database
         /// <summary>
         ///     The database-generated primary key.
         /// </summary>
-        public int Id { get; private set; }
+        public int Id { get; init; }
 
         /// <summary>
         ///     The partner that owns and sells this product.
