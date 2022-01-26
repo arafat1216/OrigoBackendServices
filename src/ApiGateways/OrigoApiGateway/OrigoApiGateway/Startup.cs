@@ -76,6 +76,8 @@ namespace OrigoApiGateway
             services.Configure<DepartmentConfiguration>(Configuration.GetSection("Department"));
             services.Configure<ProductCatalogConfiguration>(Configuration.GetSection("ProductCatalog"));
 
+            services.Configure<SubscriptionManagementConfiguration>(Configuration.GetSection("SubscriptionManagement"));
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = OktaDefaults.ApiAuthenticationScheme;
@@ -181,6 +183,13 @@ namespace OrigoApiGateway
                 DaprClient.CreateInvokeHttpClient("productcatalogservices"),
                 x.GetRequiredService<IOptions<ProductCatalogConfiguration>>()
             ));
+
+            
+            services.AddSingleton<ISubscriptionManagementService>(x=> new SubscriptionManagementService(
+                x.GetRequiredService<ILogger<SubscriptionManagementService>>(),
+                    x.GetRequiredService<IOptions<SubscriptionManagementConfiguration>>(), 
+                    DaprClient.CreateInvokeHttpClient("subscriptionmanagementservice")
+                ));
 
 
             if (WebHostEnvironment.EnvironmentName == "Development")
