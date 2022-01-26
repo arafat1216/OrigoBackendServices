@@ -399,5 +399,15 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
+
+        [Route("{organizationId:Guid}/webshopUrl")]
+        [HttpGet]
+        [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public ActionResult<IList<OrigoCustomerAssetCategoryType>> GetCustomerWebshopUrl(Guid organizationId)
+        {
+            return Ok("https://www.google.com/");
+        }
     }
 }

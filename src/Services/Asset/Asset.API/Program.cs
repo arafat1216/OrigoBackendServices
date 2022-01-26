@@ -16,6 +16,7 @@ namespace Asset.API
                 .ConfigureAppConfiguration((_, config) =>
                 {
                     config.AddJsonFile("secrets/appsettings.secrets.json", optional: true);
+                    config.AddUserSecrets<Startup>();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

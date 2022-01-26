@@ -14,6 +14,7 @@ namespace CustomerServices.Infrastructure
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
+                .AddUserSecrets<CustomerContextFactory>()
                 .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<CustomerContext>();
