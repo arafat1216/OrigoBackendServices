@@ -400,12 +400,11 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{organizationId:Guid}/webshopUrl")]
+        [Route("webshopUrl")]
         [HttpGet]
-        [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
-        public ActionResult<IList<OrigoCustomerAssetCategoryType>> GetCustomerWebshopUrl(Guid organizationId)
+        public ActionResult<string> GetCustomerWebshopUrl()
         {
             return Ok("https://www.google.com/");
         }
