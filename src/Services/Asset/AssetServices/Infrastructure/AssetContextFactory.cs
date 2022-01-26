@@ -15,6 +15,7 @@ namespace AssetServices.Infrastructure
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
+                .AddUserSecrets<AssetContextFactory>()
                 .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<AssetsContext> ();

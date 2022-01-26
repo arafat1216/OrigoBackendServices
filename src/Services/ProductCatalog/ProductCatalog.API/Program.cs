@@ -22,6 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("secrets/appsettings.secrets.json", optional: true);
 
+builder.Configuration.AddUserSecrets<Program>();
 
 // Configuration for the NuGet package: 'Microsoft.AspNetCore.Mvc.Versioning'
 builder.Services.AddApiVersioning(options =>

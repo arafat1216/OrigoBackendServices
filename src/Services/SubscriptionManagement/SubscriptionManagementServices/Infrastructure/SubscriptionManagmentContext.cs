@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SubscriptionManagementServices.Infrastructure.EntityConfiguration;
 using SubscriptionManagementServices.Models;
+using System.Reflection;
 
 namespace SubscriptionManagementServices.Infrastructure
 {
@@ -23,24 +23,7 @@ namespace SubscriptionManagementServices.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Operator type tables
-            modelBuilder.ApplyConfiguration(new OperatorConfiguration());
-
-            // OperatorAccount tables
-            modelBuilder.ApplyConfiguration(new OperatorAccountConfiguration());
-
-            // Subscription type tables
-            modelBuilder.ApplyConfiguration(new SubscriptionProductConfiguration());
-
-            // Subscription tables
-            modelBuilder.ApplyConfiguration(new SubscriptionOrderConfiguration());
-
-            // Datapackage tables
-            modelBuilder.ApplyConfiguration(new DatapackageConfiguration());
-            // Datapackage tables
-            modelBuilder.ApplyConfiguration(new SubscriptionAddOnProductConfiguration());
-
-            //modelBuilder.SeedSubscriptionManagementDb();
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
 }
