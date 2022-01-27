@@ -29,6 +29,7 @@ namespace OrigoApiGateway.Controllers
 
         //All avalible operators 
         [HttpGet]
+        [Route("operator")]
         //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
         public async Task<ActionResult<IEnumerable<string>>> Get()
         {
@@ -37,11 +38,11 @@ namespace OrigoApiGateway.Controllers
         }
 
         //All avalible operators by country
-        [Route("{countryCode}")]
+        [Route("operator/{operatorName}")]
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get(string countryCode)
+        public ActionResult<string> Get(string operatorName)
         {
-            return new string[] { "Telia - Norge", "Telenor - Norge" };
+            return "Telia - NO";
         }
 
         //All avalible operators by organization - this is for form
@@ -49,27 +50,30 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get(Guid organizationId)
         {
-            return new string[] { "Telenor" };
+            return new string[] { "Telenor - NO", "Telia - NO" };
         }
 
-        [Route("operator/{organizationId:Guid}")]
+        [Route("{organizationId:Guid}/operator/{operatorName}")]
         [HttpPost]
-        public ActionResult CreateOperatorListForCustomer([FromBody] NewOperatorList operatorList)
-        {
-            return NoContent();
-        }
-        [Route("subscription/{organizationId:Guid}")]
-        [HttpPost]
-        public ActionResult CreateOrderForTransferSubscription(Guid organizationId,[FromBody] OrderTransferSubscription order)
+        public ActionResult CreateOperatorListForCustomer(Guid organizationId, [FromBody] NewOperatorList operatorList)
         {
             return NoContent();
         }
 
-        [Route("{organizationId:Guid}")]
+        [Route("{organizationId:Guid}/operator/{operatorName}")]
         [HttpDelete]
-        public ActionResult DeleteFromCustomersOperatorList(int operatorId)
+        public ActionResult DeleteFromCustomersOperatorList(Guid organizationId, string operatorName)
         {
             return Ok();
         }
+
+        [Route("{organizationId:Guid}/subscription")]
+        [HttpPost]
+        public ActionResult CreateOrderForTransferSubscription(Guid organizationId, [FromBody] OrderTransferSubscription order)
+        {
+            return NoContent();
+        }
+
+     
     }
 }

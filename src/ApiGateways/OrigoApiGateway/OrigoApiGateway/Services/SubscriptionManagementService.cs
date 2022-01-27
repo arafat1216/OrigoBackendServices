@@ -22,7 +22,7 @@ namespace OrigoApiGateway.Services
         public Task<IList<string>> GetAllOperatorList()
         {
             //var operators = await HttpClient.GetFromJsonAsync<IList<OperatorDTO>>($"{_options.ApiPath}");
-            IList<string> list = new string[] { "Telenor - Norge", "Telia - Norge", "Telenor - Sverige", "Telia - Sverige" };
+            IList<string> list = new string[] { "Telenor - NO", "Telia - NO", "Telenor - SE", "Telia - SE" };
             return Task.FromResult(list);
         }
     }
