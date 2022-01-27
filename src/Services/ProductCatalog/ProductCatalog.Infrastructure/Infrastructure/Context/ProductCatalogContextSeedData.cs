@@ -78,15 +78,26 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
 
             modelBuilder.Entity<Product>(entity => 
             {
-                entity.HasData(new Product { Id = 1, PartnerId = systemUserId, ProductTypeId = 3 });
+                entity.HasData(new Product { Id = 1, PartnerId = Guid.Empty, ProductTypeId = 3 });
 
-                entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 1, Language = "en", Name = "Product subscription managment", Description = "A partner product based subscription managment", UpdatedBy = systemUserId });
-                entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 1, Language = "nb", Name = "Produkt abonnement-håndtering", Description = "Ett partner spesifikk abonnement-håndtering produkt", UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 1, Language = "en", Name = "Subscription management", Description = "A partner product based subscription management", UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 1, Language = "nb", Name = "Abonnement-håndtering", Description = "Ett partner spesifikk abonnement-håndtering produkt", UpdatedBy = systemUserId });
+
+                entity.HasData(new Product { Id = 2, PartnerId = Guid.Empty, ProductTypeId = 2 });
+
+                entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 2, Language = "en", Name = "Entry", Description = "Simple Asset Management for units purchased transactionally in Techstep's own WebShop.", UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 2, Language = "nb", Name = "Entry", Description = "Enkel Asset Management for enheter kjøpt transaksjonelt i Techstep egen nettbutikk.", UpdatedBy = systemUserId });
 
             });
             modelBuilder.Entity<ProductFeature>(entity =>{
 
                 entity.HasData(new ProductFeature { ProductId = 1, FeatureId = 3});
+                entity.HasData(new ProductFeature { ProductId = 2, FeatureId = 1});
+                entity.HasData(new ProductFeature { ProductId = 2, FeatureId = 2});
+            });
+
+            modelBuilder.Entity<ProductRequiresOne>(entity =>{
+                entity.HasData(new ProductRequiresOne { ProductId = 1, RequiresProductId = 2});
             });
             
 
