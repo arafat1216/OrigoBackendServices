@@ -8,6 +8,6 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
         /// <summary>
         /// A list of avalible operators for customer
         /// </summary>
-        public IList<Guid> OperatorIds{ get; set; }
+        public IList<string> Operators{ get; set; }
     }
 }
