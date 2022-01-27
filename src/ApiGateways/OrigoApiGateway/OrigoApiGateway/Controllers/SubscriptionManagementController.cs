@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Models.SubscriptionManagement;
+using OrigoApiGateway.Services;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Controllers
 {
@@ -14,13 +17,24 @@ namespace OrigoApiGateway.Controllers
     [Route("/origoapi/v{version:apiVersion}/[controller]")]
     public class SubscriptionManagementController : ControllerBase
     {
-        //All avalible operators
-        [Route("operator")]
-        [HttpGet]
-        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public ActionResult<IEnumerable<string>> Get()
+        private readonly ISubscriptionManagementService _subscriptionManagementService;
+        private readonly ILogger<SubscriptionManagementController> _logger;
+
+        public SubscriptionManagementController(ISubscriptionManagementService subscriptionManagementService, ILogger<SubscriptionManagementController> logger)
         {
-            return new string[] { "Telenor - NO", "Telia - NO", "Telenor - SE", "Telia - SE" };
+            _subscriptionManagementService = subscriptionManagementService;
+            _logger = logger;
+        }
+
+
+        //All avalible operators 
+        [HttpGet]
+        [Route("operator")]
+        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult<IEnumerable<string>>> Get()
+        {
+            var operatorList = await _subscriptionManagementService.GetAllOperatorList();
+            return Ok(operatorList);
         }
 
         //All avalible operators by country
