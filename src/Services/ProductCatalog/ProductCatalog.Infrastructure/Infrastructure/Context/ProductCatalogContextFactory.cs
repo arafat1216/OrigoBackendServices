@@ -12,7 +12,7 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                                                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                                                    .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
                                                    .AddJsonFile("secrets/appsettings.secrets.json", optional: true)
-                                                   .AddUserSecrets<ProductCatalogContextFactory>()
+                                                   .AddUserSecrets<ProductCatalogContextFactory>(optional: true)
                                                    .AddEnvironmentVariables()
                                                    .Build();
 

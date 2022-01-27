@@ -19,7 +19,7 @@ namespace Customer.API
                     config.AddJsonFile("secrets/appsettings.secrets.json", optional: true);
                     if (hostContext.HostingEnvironment.IsDevelopment())
                     {
-                        config.AddUserSecrets<Program>();
+                        config.AddUserSecrets<Program>(optional: true);
                     }
                 }).ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
     }
