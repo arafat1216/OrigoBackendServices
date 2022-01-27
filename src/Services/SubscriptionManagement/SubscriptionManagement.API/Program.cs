@@ -44,7 +44,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    builder.Configuration.AddUserSecrets<Program>();
+    builder.Configuration.AddUserSecrets<Program>(optional: true);
 }
 
 // Configure the HTTP request pipeline.

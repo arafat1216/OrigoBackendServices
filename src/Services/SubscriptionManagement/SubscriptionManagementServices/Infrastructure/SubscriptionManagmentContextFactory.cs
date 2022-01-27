@@ -13,7 +13,7 @@ namespace SubscriptionManagementServices.Infrastructure
                                                    .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
                                                    .AddJsonFile("secrets/appsettings.secrets.json", optional: true)
                                                    .AddEnvironmentVariables()
-                                                   .AddUserSecrets<SubscriptionManagmentContextFactory>()
+                                                   .AddUserSecrets<SubscriptionManagmentContextFactory>(optional: true)
                                                    .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<SubscriptionManagmentContext>();
