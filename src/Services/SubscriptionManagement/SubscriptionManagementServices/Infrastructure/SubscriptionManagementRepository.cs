@@ -10,5 +10,10 @@ namespace SubscriptionManagementServices.Infrastructure
         {
             _subscriptionContext = subscriptionContext;
         }
+
+        public async Task<string> GetOperatorAsync(string name)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
