@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace SubscriptionManagementServices.Models
 {
-    public class ISubscriptionManagementRepository
+    public interface ISubscriptionManagementRepository
     {
+        Task<string> GetOperatorAsync(string name);
     }
 }
