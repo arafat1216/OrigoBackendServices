@@ -14,13 +14,20 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql("SYSUTCDATETIME()");
 
             //Relationships
-            builder.HasOne(e => e.OperatorAccount);
+            builder.HasOne(e => e.OperatorAccount)
+                .WithMany(e => e.SubscriptionOrders)
+                .HasForeignKey(m => m.OperatorAccountId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(e => e.DataPackage);
+            builder.HasOne(e => e.DataPackage)
+                .WithMany(m => m.SubscriptionOrders)
+                .HasForeignKey(m => m.DatapackageId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(e => e.SubscriptionType);
-
-            builder.OwnsMany(e=> e.SubscriptionAddOnProducts);
+            builder.HasOne(e => e.SubscriptionType)
+                .WithMany(m => m.SubscriptionOrders)
+                .HasForeignKey(m => m.SubscriptionProductId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
