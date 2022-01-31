@@ -33,44 +33,61 @@ namespace OrigoApiGateway.Controllers
         //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
         public async Task<ActionResult<IEnumerable<string>>> Get()
         {
-            var operatorList = await _subscriptionManagementService.GetAllOperatorList();
+            var operatorList = await _subscriptionManagementService.GetAllOperators();
             return Ok(operatorList);
         }
 
-        //All avalible operators by country
+        //Operator by name
         [Route("operator/{operatorName}")]
         [HttpGet]
-        public ActionResult<string> Get(string operatorName)
+        public async Task<ActionResult<IEnumerable<string>>> Get(string operatorName)
         {
-            return "Telia - NO";
+            var operatorObject = await _subscriptionManagementService.GetOperator(operatorName);
+            return Ok(operatorObject);
         }
 
         //All avalible operators by organization - this is for form
-        [Route("operator/{organizationId:Guid}")]
+        [Route("{organizationId:Guid}/operator")]
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get(Guid organizationId)
+        public async Task<ActionResult<IEnumerable<string>>> Get(Guid organizationId)
         {
-            return new string[] { "Telenor - NO", "Telia - NO" };
+            var customersOperators = await _subscriptionManagementService.GetAllOperatorsForCustomer(organizationId);
+            return Ok(customersOperators);
         }
 
-        [Route("{organizationId:Guid}/operator/{operatorName}")]
+        [Route("{organizationId:Guid}/operator")]
         [HttpPost]
-        public ActionResult CreateOperatorListForCustomer(Guid organizationId, [FromBody] NewOperatorList operatorList)
+        public async Task<ActionResult> CreateOperatorListForCustomerAsync(Guid organizationId, [FromBody] NewOperatorList operatorList)
         {
+            var addOperatorListForCustomer = await _subscriptionManagementService.AddOperatorForCustomerAsync(organizationId, operatorList.Operators);
+            if (!addOperatorListForCustomer)
+            {
+                
+            }
             return NoContent();
         }
 
         [Route("{organizationId:Guid}/operator/{operatorName}")]
         [HttpDelete]
-        public ActionResult DeleteFromCustomersOperatorList(Guid organizationId, string operatorName)
+        public async Task<ActionResult> DeleteFromCustomersOperatorList(Guid organizationId, string operatorName)
         {
-            return Ok();
+            var deleteFromCustomerOperators = await _subscriptionManagementService.DeleteOperatorForCustomerAsync(organizationId, operatorName);
+            if (!deleteFromCustomerOperators)
+            {
+
+            }
+            return NoContent();
         }
 
         [Route("{organizationId:Guid}/subscription")]
         [HttpPost]
-        public ActionResult CreateOrderForTransferSubscription(Guid organizationId, [FromBody] OrderTransferSubscription order)
+        public async Task<ActionResult> CreateOrderForTransferSubscriptionAsync(Guid organizationId, [FromBody] OrderTransferSubscription order)
         {
+            var transeferSubscriptionOrder = await _subscriptionManagementService.AddSubscriptionForCustomerAsync(organizationId, order);
+            if (!transeferSubscriptionOrder)
+            {
+
+            }
             return NoContent();
         }
 

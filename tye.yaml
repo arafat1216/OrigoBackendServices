@@ -28,3 +28,7 @@ services:
     project: src/Services/ProductCatalog/ProductCatalog.API/ProductCatalog.API.csproj
     bindings:
     - port: 58891
+  - name: subscriptionmanagementservices
+    project: src/Services/SubscriptionManagement/SubscriptionManagement.API/SubscriptionManagement.API.csproj
+    bindings:
+    - port: 58892
