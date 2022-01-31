@@ -9,15 +9,11 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
         public void Configure(EntityTypeBuilder<Operator> builder)
         {
             builder.ToTable("Operator");
-            
+
             //Properties
             builder.Property(x => x.OperatorName).HasMaxLength(50);
             builder.Property(x => x.Country).HasMaxLength(2).HasColumnType("char");
             builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql("SYSUTCDATETIME()");
-
-
-            //Relationships
-            builder.OwnsMany(h => h.SubscriptionTypes);
 
         }
     }
