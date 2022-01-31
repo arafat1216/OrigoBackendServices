@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
+using SubscriptionManagementServices.Models;
 using System.Reflection;
 
 var apiVersion = new ApiVersion(1, 0);
@@ -39,6 +41,8 @@ builder.Services.AddSwaggerGen(config =>
 
 
 builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
+//builder.Services.AddScoped<ISubscriptionManagementRepository, SubscriptionManagementRepository>();
 
 var app = builder.Build();
 
