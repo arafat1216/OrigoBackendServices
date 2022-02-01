@@ -22,7 +22,7 @@ variables:
   dockerRegistryServiceConnection: '09ee8083-2a55-4731-876c-d6df7059bd8f'
   imageRepository: 'subscriptionmanagement'
   containerRegistry: 'origov2acr.azurecr.io'
-  dockerfilePath: 'src/Services/subscriptionmanagement/subscriptionmanagement.API/Dockerfile'
+  dockerfilePath: 'src/Services/SubscriptionManagement/SubscriptionManagement.API/Dockerfile'
   ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
     namespace: prod
     tag: '$(Build.BuildId)_prod'
@@ -68,7 +68,7 @@ stages:
     - script: 'dotnet tool install --global dotnet-ef'
       displayName: Install EF Core Console Tools
 
-    - script: 'dotnet ef migrations script --context SubscriptionManagementContext --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/SubscriptionManagement/SubscriptionManagementServices/SubscriptionManagement.csproj'
+    - script: 'dotnet ef migrations script --context SubscriptionManagementContext --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/SubscriptionManagement/SubscriptionManagementServices.csproj'
       displayName: Create EF --> .SQL migration scripts
 
     - task: PublishPipelineArtifact@1
