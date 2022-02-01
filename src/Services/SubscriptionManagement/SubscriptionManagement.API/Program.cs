@@ -14,11 +14,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers().AddDapr();
 
-builder.Services.AddDbContext<SubscriptionManagmentContext>(options => options.UseSqlServer(
+builder.Services.AddDbContext<SubscriptionManagementContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("SubscriptionManagmentConnectionString"), sqlOption =>
     {
         sqlOption.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
-        sqlOption.MigrationsAssembly(typeof(SubscriptionManagmentContext).GetTypeInfo().Assembly.GetName().Name);
+        sqlOption.MigrationsAssembly(typeof(SubscriptionManagementContext).GetTypeInfo().Assembly.GetName().Name);
     }));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

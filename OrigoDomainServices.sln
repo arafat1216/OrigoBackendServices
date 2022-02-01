@@ -63,6 +63,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		azure-pipelines-customers.yml = azure-pipelines-customers.yml
 		azure-pipelines-origoapigateway.yml = azure-pipelines-origoapigateway.yml
 		azure-pipelines-productcatalog.yml = azure-pipelines-productcatalog.yml
+		azure-pipelines-subscriptionmanagement.yml = azure-pipelines-subscriptionmanagement.yml
 		tye.yaml = tye.yaml
 	EndProjectSection
 EndProject
@@ -156,11 +157,29 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SubscriptionManagement", "S
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E9B1BA7B-3FD6-4058-B015-40BE86FF3323}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionManagement.API", "src\Services\SubscriptionManagement\SubscriptionManagement.API\SubscriptionManagement.API.csproj", "{7D875656-1973-4005-BC70-A82F2A47BB83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubscriptionManagement.API", "src\Services\SubscriptionManagement\SubscriptionManagement.API\SubscriptionManagement.API.csproj", "{7D875656-1973-4005-BC70-A82F2A47BB83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionManagementServices", "src\Services\SubscriptionManagement\SubscriptionManagementServices\SubscriptionManagementServices.csproj", "{F5931EAB-AF63-40EA-AA92-9FD7A15DF70D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubscriptionManagementServices", "src\Services\SubscriptionManagement\SubscriptionManagementServices\SubscriptionManagementServices.csproj", "{F5931EAB-AF63-40EA-AA92-9FD7A15DF70D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionManagement.UnitTests", "src\Services\SubscriptionManagement\Tests\SubscriptionManagement.UnitTests\SubscriptionManagement.UnitTests\SubscriptionManagement.UnitTests.csproj", "{A27F814B-9B45-443A-935B-2306D767A57A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "subscriptionmanagement-api", "subscriptionmanagement-api", "{B119C4F4-8C76-4A78-9339-6A375613D2DD}"
+	ProjectSection(SolutionItems) = preProject
+		charts\subscriptionmanagement-api\.helmignore = charts\subscriptionmanagement-api\.helmignore
+		charts\subscriptionmanagement-api\Chart.yaml = charts\subscriptionmanagement-api\Chart.yaml
+		charts\subscriptionmanagement-api\values.yaml = charts\subscriptionmanagement-api\values.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{BB6D93F7-D6F3-4371-8A24-861F55818C65}"
+	ProjectSection(SolutionItems) = preProject
+		charts\subscriptionmanagement-api\templates\_helpers.tpl = charts\subscriptionmanagement-api\templates\_helpers.tpl
+		charts\subscriptionmanagement-api\templates\collector-config.yaml = charts\subscriptionmanagement-api\templates\collector-config.yaml
+		charts\subscriptionmanagement-api\templates\deployment.yaml = charts\subscriptionmanagement-api\templates\deployment.yaml
+		charts\subscriptionmanagement-api\templates\ingress.yaml = charts\subscriptionmanagement-api\templates\ingress.yaml
+		charts\subscriptionmanagement-api\templates\NOTES.txt = charts\subscriptionmanagement-api\templates\NOTES.txt
+		charts\subscriptionmanagement-api\templates\secrets.yaml = charts\subscriptionmanagement-api\templates\secrets.yaml
+		charts\subscriptionmanagement-api\templates\service.yaml = charts\subscriptionmanagement-api\templates\service.yaml
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubscriptionManagement.UnitTests", "src\Services\SubscriptionManagement\Tests\SubscriptionManagement.UnitTests\SubscriptionManagement.UnitTests.csproj", "{7AD902AC-65A6-4CCF-A32D-6F8DB84FDDF2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -232,10 +251,10 @@ Global
 		{F5931EAB-AF63-40EA-AA92-9FD7A15DF70D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5931EAB-AF63-40EA-AA92-9FD7A15DF70D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5931EAB-AF63-40EA-AA92-9FD7A15DF70D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A27F814B-9B45-443A-935B-2306D767A57A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A27F814B-9B45-443A-935B-2306D767A57A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A27F814B-9B45-443A-935B-2306D767A57A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A27F814B-9B45-443A-935B-2306D767A57A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AD902AC-65A6-4CCF-A32D-6F8DB84FDDF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AD902AC-65A6-4CCF-A32D-6F8DB84FDDF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AD902AC-65A6-4CCF-A32D-6F8DB84FDDF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AD902AC-65A6-4CCF-A32D-6F8DB84FDDF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -280,7 +299,9 @@ Global
 		{E9B1BA7B-3FD6-4058-B015-40BE86FF3323} = {FB3F2ABC-6AA4-482C-B6DD-E6E82290BDCD}
 		{7D875656-1973-4005-BC70-A82F2A47BB83} = {FB3F2ABC-6AA4-482C-B6DD-E6E82290BDCD}
 		{F5931EAB-AF63-40EA-AA92-9FD7A15DF70D} = {FB3F2ABC-6AA4-482C-B6DD-E6E82290BDCD}
-		{A27F814B-9B45-443A-935B-2306D767A57A} = {E9B1BA7B-3FD6-4058-B015-40BE86FF3323}
+		{B119C4F4-8C76-4A78-9339-6A375613D2DD} = {8D5A9903-F29E-457C-A27C-199EF34B1933}
+		{BB6D93F7-D6F3-4371-8A24-861F55818C65} = {B119C4F4-8C76-4A78-9339-6A375613D2DD}
+		{7AD902AC-65A6-4CCF-A32D-6F8DB84FDDF2} = {E9B1BA7B-3FD6-4058-B015-40BE86FF3323}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DAEDEBBF-933A-4FFE-B734-B9E748AF86E1}

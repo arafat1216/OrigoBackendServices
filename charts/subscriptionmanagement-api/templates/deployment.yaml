@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "subscriptionmanagerservices.fullname" . }}
+  labels:
+    {{- include "subscriptionmanagerservices.labels" . | nindent 4 }}
+spec:
+  revisionHistoryLimit: 0
+  replicas: {{ .Values.deployment.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "subscriptionmanagerservices.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "subscriptionmanagerservices.selectorLabels" . | nindent 8 }}
+      {{- with .Values.deployment.annotations }}
+      annotations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.deployment.containerPort }}
+              protocol: TCP
+          {{- if .Values.deployment.probes.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+          {{- end }}
+          env:
+          {{- range $ref, $value := .Values.deployment.env }}
+          - name: {{ $ref | quote }}
+            value: {{ $value | quote }}
+          {{- end }}
+            {{- $root := . }}
+            {{- range $ref, $values := .Values.secrets }}
+            {{- range $key, $value := $values }}
+            - name: {{ $ref }}_{{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "subscriptionmanagerservices.fullname" $root }}-{{ $ref | lower }}
+                  key: {{ $key }}
+            {{- end }}
+            {{- end }}
+          volumeMounts:
+          {{- range .Values.deployment.volumeMounts }}
+          - name: {{ .volumeMount.name }}
+            mountPath: {{ .volumeMount.mountPath }}
+            readOnly: {{ .volumeMount.readOnly }}
+          {{- end }}
+      volumes:
+      {{- range .Values.deployment.secretVolumes }}
+      - name: {{ .secretVolume.name }}
+        secret:
+          secretName: {{ .secretVolume.secretName }}
+      {{- end }}
+
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
