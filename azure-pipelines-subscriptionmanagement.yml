@@ -68,7 +68,7 @@ stages:
     - script: 'dotnet tool install --global dotnet-ef'
       displayName: Install EF Core Console Tools
 
-    - script: 'dotnet ef migrations script --context SubscriptionManagementContext --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/SubscriptionManagement/SubscriptionManagementServices.csproj'
+    - script: 'dotnet ef migrations script --context SubscriptionManagementContext --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/SubscriptionManagement/SubscriptionManagementServices/SubscriptionManagementServices.csproj'
       displayName: Create EF --> .SQL migration scripts
 
     - task: PublishPipelineArtifact@1
