@@ -20,7 +20,7 @@ deployment:
     "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true"
 
   image:
-    repository: origov2acr.azurecr.io/subscriptionmanagersbackend
+    repository: origov2acr.azurecr.io/subscriptionmanagement
     tag: 3642
     pullPolicy: IfNotPresent
 
