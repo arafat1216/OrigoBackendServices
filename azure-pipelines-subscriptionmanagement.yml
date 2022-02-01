@@ -138,7 +138,7 @@ stages:
   displayName: Deploy stage
   dependsOn: Build
   variables:
-    - group: CustomerLibrary
+    - group: SubscriptionManagementLibrary
   jobs:
   - deployment: MigrateDatabase
     environment: 'BackendServices.develop'
@@ -163,15 +163,6 @@ stages:
               connectionString: $(currentDbConnection)
               deployType: SqlTask
               sqlFile: $(System.ArtifactsDirectory)/migrations/migrations.sql
-          - task: SqlAzureDacpacDeployment@1
-            displayName: Run sql migrations
-            inputs:
-              azureConnectionType: ConnectedServiceNameARM
-              azureSubscription: OrigoV2ServiceConnection
-              authenticationType: connectionString
-              connectionString: $(currentDbConnection)
-              deployType: SqlTask
-              sqlFile: $(System.ArtifactsDirectory)/migrations/logging_migrations.sql
 
   - deployment: Deploy
     condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
@@ -196,7 +187,7 @@ stages:
             inputs:
               command: upgrade
               chartType: FilePath
-              releaseName: customerservices
+              releaseName: subscriptionmanagementservices
               namespace: $(namespace)
               overrideValues: deployment.image.tag=$(tag),namespace=$(namespace)
               arguments: --version $(tag)
