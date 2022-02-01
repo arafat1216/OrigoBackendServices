@@ -4,11 +4,11 @@ using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
-    internal class OperatorAccountConfiguration : IEntityTypeConfiguration<OperatorAccount>
+    internal class OperatorAccountConfiguration : IEntityTypeConfiguration<CustomerOperatorAccount>
     {
-        public void Configure(EntityTypeBuilder<OperatorAccount> builder)
+        public void Configure(EntityTypeBuilder<CustomerOperatorAccount> builder)
         {
-            builder.ToTable("OperatorAccount");
+            builder.ToTable("CustomerOperatorAccount");
 
             //Properties
             builder.Property(x => x.AccountName).HasMaxLength(50);
@@ -17,7 +17,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 
             //Relationships
             builder.HasOne(e => e.Operator)
-                .WithMany(m => m.OperatorAccounts)
+                .WithMany(m => m.CustomerOperatorAccounts)
                 .HasForeignKey(m => m.OperatorId)
                 .OnDelete(DeleteBehavior.Restrict);
         }

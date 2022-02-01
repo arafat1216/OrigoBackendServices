@@ -29,6 +29,11 @@ namespace SubscriptionManagementServices
             return Task.FromResult(true);
         }
 
+        public Task<IList<string>> GetAllOperatorAccountsForCustomerAsync(Guid customerId)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<IList<string>> GetAllOperators()
         {
             var operators = new List<string> { "Telenor - NO", "Telia - NO", "Telenor - SE", "Telia - SE" };

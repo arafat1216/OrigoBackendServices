@@ -11,7 +11,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             builder.ToTable("SubscriptionAddOnProduct");
 
             //Properties
-            builder.Property(s=>s.AddOnProductName).HasMaxLength(50);
+            builder.Property(s=>s.AddOnProductName).HasMaxLength(50).IsRequired();
             builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql("SYSUTCDATETIME()");
 
         }

@@ -8,14 +8,11 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public SubscriptionProduct(string subscriptionName, Operator operatorType, IList<Datapackage>? dataPackages, IList<SubscriptionOrder>? subscriptions)
+        public SubscriptionProduct(string subscriptionName, int operatorId)
         {
 
             SubscriptionName = subscriptionName;
-            Operator = operatorType;
-            DataPackages = dataPackages;
-            SubscriptionOrders = subscriptions;
-
+            OperatorId = operatorId;
         }
 
         public string SubscriptionName { get; set; }
