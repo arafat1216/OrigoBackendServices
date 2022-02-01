@@ -5,6 +5,10 @@ namespace SubscriptionManagementServices.Models
 {
     public class SubscriptionOrder : Entity
     {
+        public SubscriptionOrder()
+        {
+
+        }
         public SubscriptionOrder(SubscriptionProduct subscriptionType, Guid organizationId, OperatorAccount operatorAccount, Datapackage? dataPackage, IList<SubscriptionAddOnProduct> subscriptionAddOnProducts)
         {
             SubscriptionType = subscriptionType;
@@ -13,12 +17,16 @@ namespace SubscriptionManagementServices.Models
             DataPackage = dataPackage;
             SubscriptionAddOnProducts = subscriptionAddOnProducts;
         }
+        
+        public virtual SubscriptionProduct SubscriptionType { get; set; }
+        public int SubscriptionProductId { get; set; }
 
-        public SubscriptionProduct SubscriptionType { get; set; }
         [Required]
         public Guid OrganizationId { get; set; }
-        public OperatorAccount OperatorAccount { get; set; }
-        public Datapackage? DataPackage { get; set; } 
-        public IList<SubscriptionAddOnProduct> SubscriptionAddOnProducts { get; set; }
+        public virtual OperatorAccount OperatorAccount { get; set; }
+        public int OperatorAccountId { get; set; }
+        public virtual Datapackage? DataPackage { get; set; }
+        public int DatapackageId { get; set; }
+        public virtual ICollection<SubscriptionAddOnProduct> SubscriptionAddOnProducts { get; set; }
     }
 }

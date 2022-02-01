@@ -6,19 +6,24 @@ namespace SubscriptionManagementServices.Models
 {
     public class OperatorAccount : Entity
     {
-        public OperatorAccount(string accountNumber, string? accountName, Operator operatorTypeId, IList<SubscriptionOrder>? subscriptions)
+        public OperatorAccount()
+        {
+
+        }
+        public OperatorAccount(string accountNumber, string? accountName, Operator operatorTypeId, IList<SubscriptionOrder>? subscriptionOrders)
         {
             AccountNumber = accountNumber;
             AccountName = accountName;
-            OperatorTypeId = operatorTypeId;
-            Subscriptions = subscriptions;
+            Operator = operatorTypeId;
+            SubscriptionOrders = subscriptionOrders;
         }
-
         public Guid OrganizationId { get; set; }
         public string AccountNumber { get; set; }
         public string? AccountName { get; set;}
         [Required]
-        public Operator OperatorTypeId { get; set; }
-        public IList<SubscriptionOrder>? Subscriptions { get; set; }
+        public virtual Operator Operator { get; set; }
+        public int OperatorId { get; set; }
+
+        public virtual ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
     }
 }

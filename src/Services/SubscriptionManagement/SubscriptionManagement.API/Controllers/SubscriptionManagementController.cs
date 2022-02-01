@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SubscriptionManagementServices;
+using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagement.API.Controllers
 {
@@ -21,16 +22,49 @@ namespace SubscriptionManagement.API.Controllers
         [Route("operator")]
         public async Task<ActionResult<IEnumerable<string>>> GetAllOperators()
         {
-            var operators = await _subscriptionServices.GetOperator();
+            var operatorList = await _subscriptionServices.GetAllOperators();
 
-            return Ok(operators);
+            return Ok(operatorList);
         }
         [HttpGet]
-        [Route("operator/{customerId:Guid}")]
+        [Route("operator/{operatorName}")]
+        public async Task<ActionResult<IEnumerable<string>>> GetOperator(string operatorName)
+        {
+            var operatorObject = await _subscriptionServices.GetOperator(operatorName);
+
+            return Ok(operatorObject);
+        }
+        [HttpGet]
+        [Route("{customerId:Guid}/operator")]
         public async Task<ActionResult<IEnumerable<string>>> GetOperatorForCustomer(Guid customerId)
         {
-            var operatorForCustomer = await _subscriptionServices.GetOperator();
-            return Ok();
+            var customerOperator = await _subscriptionServices.GetAllOperatorsForCustomer(customerId);
+
+            return Ok(customerOperator);
+        }
+        [HttpPost]
+        [Route("{customerId:Guid}/operator")]
+        public async Task<ActionResult<bool>> AddOperatorsForCustomer(Guid customerId,[FromBody] IList<string> operators)
+        {
+            var addOperatorForCustomer = await _subscriptionServices.AddOperatorForCustomerAsync(customerId,operators);
+
+            return Ok(addOperatorForCustomer);
+        }
+        [HttpDelete]
+        [Route("{customerId:Guid}/operator/{operatorName}")]
+        public async Task<ActionResult<bool>> DeleteOperatorsForCustomer(Guid customerId, string operatorName)
+        {
+            var deleteOperatorForCustomer = await _subscriptionServices.DeleteOperatorForCustomerAsync(customerId,operatorName);
+
+            return Ok(deleteOperatorForCustomer);
+        }
+        [HttpPost]
+        [Route("{customerId:Guid}/subscription")]
+        public async Task<ActionResult<bool>> AddSubscriptionToCustomer(Guid customerId, [FromBody] SubscriptionOrder subscriptionOrder)
+        {
+            var addSubscriptionForCustomer = await _subscriptionServices.AddSubscriptionForCustomerAsync(customerId);
+            
+            return Ok(addSubscriptionForCustomer);
         }
     }
 }

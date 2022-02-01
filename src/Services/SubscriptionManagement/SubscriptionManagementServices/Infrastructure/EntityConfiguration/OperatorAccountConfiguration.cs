@@ -16,10 +16,10 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 
 
             //Relationships
-            builder.HasOne(e => e.OperatorTypeId);
-
-            builder.HasMany(e=>e.Subscriptions)
-                    .WithOne(e =>e.OperatorAccount);
+            builder.HasOne(e => e.Operator)
+                .WithMany(m => m.OperatorAccounts)
+                .HasForeignKey(m => m.OperatorId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

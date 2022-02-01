@@ -17,9 +17,10 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 
 
             //Relationships
-            builder.HasOne(e=>e.OperatorType);
-
-            builder.HasMany(e=>e.DataPackages);
+            builder.HasOne(e => e.Operator)
+                .WithMany(m => m.SubscriptionProducts)
+                .HasForeignKey(m => m.OperatorId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

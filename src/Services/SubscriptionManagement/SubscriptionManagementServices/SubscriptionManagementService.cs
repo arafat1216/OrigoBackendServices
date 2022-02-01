@@ -1,16 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
+using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices
 {
     public class SubscriptionManagementService : ISubscriptionManagementService
     {
-        public Task<string> GetOperator()
+        //private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
+        //private readonly ILogger<SubscriptionManagementService> _logger;
+
+        //public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository, ILogger<SubscriptionManagementService> logger)
+        //{
+        //    _subscriptionManagementRepository = subscriptionManagementRepository;
+        //    _logger = logger;
+        //}
+
+        public Task<bool> AddOperatorForCustomerAsync(Guid organizationId, IList<string> operators)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(true);
+        }
+
+        public Task<bool> AddSubscriptionForCustomerAsync(Guid organizationId)
+        {
+            return Task.FromResult(true);
+        }
+
+        public Task<bool> DeleteOperatorForCustomerAsync(Guid organizationId, string operatorName)
+        {
+            return Task.FromResult(true);
+        }
+
+        public Task<IList<string>> GetAllOperators()
+        {
+            var operators = new List<string> { "Telenor - NO", "Telia - NO", "Telenor - SE", "Telia - SE" };
+            return Task.FromResult<IList<string>>(operators);
+        }
+
+        public Task<IList<string>> GetAllOperatorsForCustomer(Guid organizationId)
+        {
+            var operatorsForCustomer = new List<string> { "Telenor - NO", "Telia - NO" };
+            return Task.FromResult<IList<string>>(operatorsForCustomer);
+    }
+
+        public Task<IList<string>> GetOperator(string operatorName)
+        {
+
+            //var test = await _subscriptionManagementRepository.GetOperatorAsync(operatorName);
+            var operatorObject = new List<string> { "Telenor - NO" };
+
+            return Task.FromResult<IList<string>>(operatorObject);
         }
     }
 }
