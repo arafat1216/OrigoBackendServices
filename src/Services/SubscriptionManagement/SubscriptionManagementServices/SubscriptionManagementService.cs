@@ -39,7 +39,7 @@ namespace SubscriptionManagementServices
         {
             var operatorsForCustomer = new List<string> { "Telenor - NO", "Telia - NO" };
             return Task.FromResult<IList<string>>(operatorsForCustomer);
-    }
+        }
 
         public Task<IList<string>> GetOperator(string operatorName)
         {
@@ -49,5 +49,15 @@ namespace SubscriptionManagementServices
 
             return Task.FromResult<IList<string>>(operatorObject);
         }
+
+        public Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages)
+        {
+           
+            Operator newOperator = new Operator(operatorName, "EN");
+            SubscriptionProduct subscriptionProduct = new SubscriptionProduct(productName, newOperator, datapackages?.Select(i => new Datapackage(i)).ToList(), null);
+
+            return Task.FromResult(subscriptionProduct);
+        }
+
     }
 }

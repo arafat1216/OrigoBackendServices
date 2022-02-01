@@ -1,4 +1,5 @@
-﻿
+﻿using SubscriptionManagementServices.Models;
+
 namespace SubscriptionManagementServices
 {
     public interface ISubscriptionManagementService
@@ -9,5 +10,6 @@ namespace SubscriptionManagementServices
         Task<bool> AddOperatorForCustomerAsync(Guid customerId, IList<string> operators);
         Task<bool> DeleteOperatorForCustomerAsync(Guid customerId, string operatorName);
         Task<bool> AddSubscriptionForCustomerAsync(Guid customerId);
+        Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> Datapackages);
     }
 }
