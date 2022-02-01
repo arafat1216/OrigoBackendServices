@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Common.Enums;
 using Common.Exceptions;
+using Common.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -88,6 +89,36 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "GetCustomerAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<IList<CustomerItemCount>> GetCustomerUsersAsync()
+        {
+            try
+            {
+                var customerUserCounts = await HttpClient.GetFromJsonAsync<IList<CustomerItemCount>>($"{_options.ApiPath}/userCount");
+                return customerUserCounts == null ? null : _mapper.Map<IList<CustomerItemCount>>(customerUserCounts);
+            }
+            catch (HttpRequestException exception)
+            {
+                // Not found
+                if ((int)exception.StatusCode == 404)
+                {
+                    return null;
+                }
+
+                _logger.LogError(exception, "GetCustomerUsersAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetCustomerUsersAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetCustomerUsersAsync unknown error.");
                 throw;
             }
         }

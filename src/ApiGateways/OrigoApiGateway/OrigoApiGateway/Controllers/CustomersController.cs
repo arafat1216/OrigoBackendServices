@@ -14,6 +14,7 @@ using System.Security.Claims;
 using Common.Enums;
 using OrigoApiGateway.Models.BackendDTO;
 using AutoMapper;
+using Common.Models;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -140,6 +141,32 @@ namespace OrigoApiGateway.Controllers
             catch (Exception ex)
             {
                 Logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
+        [Route("userCount")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<CustomerItemCount>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<IList<CustomerItemCount>>> GetOrganizationUsers()
+        {
+            try
+            {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+
+                    // Only SystemAdmin has access to all organization user counts
+                    return Forbid();
+                }
+
+                var organizationUserCounts = await CustomerServices.GetCustomerUsersAsync();
+                return organizationUserCounts != null ? Ok(organizationUserCounts) : NotFound();
+            }
+            catch (Exception)
+            {
                 return BadRequest();
             }
         }

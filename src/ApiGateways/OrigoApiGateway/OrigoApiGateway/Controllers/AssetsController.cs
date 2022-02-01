@@ -44,13 +44,41 @@ namespace OrigoApiGateway.Controllers
             _mapper = mapper;
         }
 
+        [Route("customers/count")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<CustomerItemCount>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult<IList<CustomerItemCount>>> GetAllCustomerItemCount()
+        {
+            try
+            {
+                // only SystemAdmin has access
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                   return Forbid();
+                }
+
+                IList<CustomerItemCount> assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync();
+                return Ok(assetCountList);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
         [Route("customers/{organizationId:guid}/count")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult<IList<OrigoAsset>>> GetAssetCount(Guid organizationId)
+        public async Task<ActionResult<IList<OrigoAsset>>> GetCustomerItemCount(Guid organizationId)
         {
             try
             {
@@ -64,7 +92,6 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
                 var count = await _assetServices.GetAssetsCountAsync(organizationId);
                 return Ok(new { organizationId, count });
             }

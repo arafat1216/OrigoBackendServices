@@ -1,4 +1,5 @@
-﻿using CustomerServices.Models;
+﻿using Common.Models;
+using CustomerServices.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace CustomerServices
     public interface IOrganizationServices
     {
         Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false);
+        Task<IList<CustomerItemCount>> GetCustomerUsersAsync();
         Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool onlyCustomer = false);
         Task<Organization> UpdateOrganizationAsync(Organization updateOrganization, bool usingPatch = false);
         Task<Organization> PutOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,

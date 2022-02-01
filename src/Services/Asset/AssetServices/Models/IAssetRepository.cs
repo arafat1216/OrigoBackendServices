@@ -1,4 +1,5 @@
 ﻿using Common.Interfaces;
+using Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -10,6 +11,7 @@ namespace AssetServices.Models
     public interface IAssetRepository
     {
         Task<Asset> AddAsync(Asset asset);
+        Task<IList<CustomerItemCount>> GetAssetsCountsAsync();
         Task<int> GetAssetsCountAsync(Guid customerId);
         Task<PagedModel<Asset>> GetAssetsAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken);
         Task<IList<Asset>> GetAssetsFromListAsync(Guid customerId, IList<Guid> assetGuidList);

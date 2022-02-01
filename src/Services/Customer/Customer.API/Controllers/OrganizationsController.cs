@@ -1,5 +1,6 @@
 ﻿using Common.Enums;
 using Common.Exceptions;
+using Common.Models;
 using Customer.API.ViewModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
@@ -114,6 +115,27 @@ namespace Customer.API.Controllers
             catch (Exception ex)
             {
                 return BadRequest("Unknown error (OrganizationsController - Get Organizations (multiple): " + ex.Message);
+            }
+        }
+
+        [Route("userCount")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<CustomerItemCount>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.Gone)]
+        public async Task<ActionResult<IList<CustomerItemCount>>> GetOrganizationUsers()
+        {
+            try
+            {
+                var customerUserCounts = await _organizationServices.GetCustomerUsersAsync();
+                if (customerUserCounts == null)
+                    return NotFound();
+
+                return Ok(customerUserCounts);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Unknown error - Get Customer User counts (multiple): " + ex.Message + ex.StackTrace);
             }
         }
 

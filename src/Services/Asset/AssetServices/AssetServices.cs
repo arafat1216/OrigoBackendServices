@@ -29,6 +29,11 @@ namespace AssetServices
             _assetRepository = assetRepository;
         }
 
+        public async Task<IList<CustomerItemCount>> GetAllCustomerAssetsCountAsync()
+        {
+            return await _assetRepository.GetAssetsCountsAsync();
+        }
+
         public async Task<int> GetAssetsCountAsync(Guid customerId)
         {
             return await _assetRepository.GetAssetsCountAsync(customerId);
