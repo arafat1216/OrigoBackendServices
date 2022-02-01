@@ -19,8 +19,9 @@ RUN dotnet build "SubscriptionManagement.API.csproj" -c Release  --no-restore -o
 FROM build AS publish
 RUN dotnet publish "SubscriptionManagement.API.csproj" -c Release -o /app/publish
 
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-buster-slim AS final
 WORKDIR /app
+
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "SubscriptionManagement.API.dll"]
 
