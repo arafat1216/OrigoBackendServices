@@ -18,7 +18,7 @@ RUN dotnet restore "Services/SubscriptionManagement/SubscriptionManagement.API/S
 RUN dotnet restore "Services/SubscriptionManagement/Tests/SubscriptionManagement.UnitTests/SubscriptionManagement.UnitTests.csproj"
 COPY . .
 WORKDIR "/src/Services/SubscriptionManagement/SubscriptionManagement.API"
-RUN dotnet build "SubscriptionManagement.API.csproj" -c Release -o /app/build
+RUN dotnet build "SubscriptionManagement.API.csproj" -c Release  --no-restore -o /app/build
 
 FROM build AS publish
 RUN dotnet publish "SubscriptionManagement.API.csproj" -c Release -o /app/publish
