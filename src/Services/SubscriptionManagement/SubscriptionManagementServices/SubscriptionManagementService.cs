@@ -1,18 +1,16 @@
-﻿using Microsoft.Extensions.Logging;
-using SubscriptionManagementServices.Models;
+﻿using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices
 {
     public class SubscriptionManagementService : ISubscriptionManagementService
     {
-        //private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
+        private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
         //private readonly ILogger<SubscriptionManagementService> _logger;
 
-        //public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository, ILogger<SubscriptionManagementService> logger)
-        //{
-        //    _subscriptionManagementRepository = subscriptionManagementRepository;
-        //    _logger = logger;
-        //}
+        public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository)
+        {
+            _subscriptionManagementRepository = subscriptionManagementRepository;
+        }
 
         public Task<bool> AddOperatorForCustomerAsync(Guid organizationId, IList<string> operators)
         {
@@ -29,9 +27,9 @@ namespace SubscriptionManagementServices
             return Task.FromResult(true);
         }
 
-        public Task<IList<string>> GetAllOperatorAccountsForCustomerAsync(Guid customerId)
-        {
-            throw new NotImplementedException();
+        public async Task<IEnumerable<CustomerOperatorAccount>> GetAllOperatorAccountsForCustomerAsync(Guid customerId)
+        {      
+            return await _subscriptionManagementRepository.GetAllCustomerOperatorAccountsAsync(customerId);
         }
 
         public Task<IList<string>> GetAllOperators()
@@ -44,7 +42,7 @@ namespace SubscriptionManagementServices
         {
             var operatorsForCustomer = new List<string> { "Telenor - NO", "Telia - NO" };
             return Task.FromResult<IList<string>>(operatorsForCustomer);
-    }
+        }
 
         public Task<IList<string>> GetOperator(string operatorName)
         {
