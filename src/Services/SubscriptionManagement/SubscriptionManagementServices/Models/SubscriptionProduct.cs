@@ -4,16 +4,24 @@ namespace SubscriptionManagementServices.Models
 {
     public class SubscriptionProduct : Entity
     {
+        public SubscriptionProduct()
+        {
+
+        }
         public SubscriptionProduct(string subscriptionName, Operator operatorType, IList<Datapackage>? dataPackages, IList<SubscriptionOrder>? subscriptions)
         {
-           
+
             SubscriptionName = subscriptionName;
-            OperatorType = operatorType;
+            Operator = operatorType;
             DataPackages = dataPackages;
-            
+            SubscriptionOrders = subscriptions;
+
         }
+
         public string SubscriptionName { get; set; }
-        public Operator OperatorType { get; set; }
-        public IList<Datapackage>? DataPackages { get; set; }
+        public virtual Operator Operator { get; set; }
+        public int OperatorId { get; set; }
+        public virtual ICollection<Datapackage>? DataPackages { get; set; }
+        public virtual ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }  
     }
 }

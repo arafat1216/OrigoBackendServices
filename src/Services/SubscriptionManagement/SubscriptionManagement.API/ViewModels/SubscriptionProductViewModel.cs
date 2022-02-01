@@ -6,7 +6,7 @@
         {
 
             ProductName = subscriptionProduct.SubscriptionName;
-            OperatorName = subscriptionProduct.OperatorType.OperatorName;
+            OperatorName = subscriptionProduct.Operator.OperatorName;
             DataPackages = subscriptionProduct.DataPackages != null ? subscriptionProduct.DataPackages.Select(i => i.DatapackageName).ToList() : new List<string>();
         }
     }

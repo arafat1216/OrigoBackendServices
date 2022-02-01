@@ -53,7 +53,9 @@ namespace SubscriptionManagementServices
         public Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages)
         {
            
-            Operator newOperator = new Operator(operatorName, "EN");
+            Operator newOperator = new Operator();
+            newOperator.OperatorName = operatorName;
+
             SubscriptionProduct subscriptionProduct = new SubscriptionProduct(productName, newOperator, datapackages?.Select(i => new Datapackage(i)).ToList(), null);
 
             return Task.FromResult(subscriptionProduct);
