@@ -82,6 +82,12 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
+    - task: UseDotNet@2
+      displayName: Use .NET 6.0
+      inputs:
+        packageType: 'sdk'
+        version: '6.0.x'
+
     - task: Docker@2 # Can't use buildAndPush since arguments are needed
       displayName: Build image
       inputs:
