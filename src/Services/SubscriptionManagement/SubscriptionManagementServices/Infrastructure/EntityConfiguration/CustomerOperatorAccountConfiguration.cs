@@ -4,7 +4,7 @@ using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
-    internal class OperatorAccountConfiguration : IEntityTypeConfiguration<CustomerOperatorAccount>
+    internal class CustomerOperatorAccountConfiguration : IEntityTypeConfiguration<CustomerOperatorAccount>
     {
         public void Configure(EntityTypeBuilder<CustomerOperatorAccount> builder)
         {
