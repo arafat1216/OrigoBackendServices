@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "subscriptionmanagerservices.fullname" . }}
+  name: {{ include "subscriptionmanagementservices.fullname" . }}
   labels:
-    {{- include "subscriptionmanagerservices.labels" . | nindent 4 }}
+    {{- include "subscriptionmanagementservices.labels" . | nindent 4 }}
 spec:
   revisionHistoryLimit: 0
   replicas: {{ .Values.deployment.replicaCount }}
   selector:
     matchLabels:
-      {{- include "subscriptionmanagerservices.selectorLabels" . | nindent 6 }}
+      {{- include "subscriptionmanagementservices.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "subscriptionmanagerservices.selectorLabels" . | nindent 8 }}
+        {{- include "subscriptionmanagementservices.selectorLabels" . | nindent 8 }}
       {{- with .Values.deployment.annotations }}
       annotations:
 {{ toYaml . | indent 8 }}
@@ -47,7 +47,7 @@ spec:
             - name: {{ $ref }}_{{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "subscriptionmanagerservices.fullname" $root }}-{{ $ref | lower }}
+                  name: {{ template "subscriptionmanagementservices.fullname" $root }}-{{ $ref | lower }}
                   key: {{ $key }}
             {{- end }}
             {{- end }}

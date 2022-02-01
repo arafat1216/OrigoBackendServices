@@ -1,7 +1,7 @@
 apiVersion: dapr.io/v1alpha1
 kind: Configuration
 metadata:
-  name: appconfig-subscriptionmanagerservices
+  name: appconfig-subscriptionmanagementservices
   namespace: {{ .Values.namespace}}
 spec:
   tracing:
