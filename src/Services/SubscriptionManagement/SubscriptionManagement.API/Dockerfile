@@ -6,7 +6,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM origov2acr.azurecr.io/baseimage-dotnetcore6-sonarcloud:latest AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
 WORKDIR /src
 COPY ["src/Core/Common.csproj", "Core/Common.csproj"]
