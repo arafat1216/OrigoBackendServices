@@ -4,9 +4,9 @@ using System.Reflection;
 
 namespace SubscriptionManagementServices.Infrastructure
 {
-    public class SubscriptionManagmentContext : DbContext
+    public class SubscriptionManagementContext : DbContext
     {
-        public SubscriptionManagmentContext(DbContextOptions<SubscriptionManagmentContext> options) : base(options)
+        public SubscriptionManagementContext(DbContextOptions<SubscriptionManagementContext> options) : base(options)
         {
 
         }

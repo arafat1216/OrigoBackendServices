@@ -4,9 +4,9 @@ namespace SubscriptionManagementServices.Infrastructure
 {
     public class SubscriptionManagementRepository : ISubscriptionManagementRepository
     {
-        private readonly SubscriptionManagmentContext _subscriptionContext;
+        private readonly SubscriptionManagementContext _subscriptionContext;
 
-        public SubscriptionManagementRepository(SubscriptionManagmentContext subscriptionContext)
+        public SubscriptionManagementRepository(SubscriptionManagementContext subscriptionContext)
         {
             _subscriptionContext = subscriptionContext;
         }

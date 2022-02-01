@@ -10,7 +10,7 @@ using SubscriptionManagementServices.Infrastructure;
 
 namespace SubscriptionManagementServices.Migrations
 {
-    [DbContext(typeof(SubscriptionManagmentContext))]
+    [DbContext(typeof(SubscriptionManagementContext))]
     partial class SubscriptionManagmentContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
