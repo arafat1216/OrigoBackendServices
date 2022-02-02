@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SubscriptionManagement.API.ViewModels;
 using SubscriptionManagementServices;
@@ -13,11 +14,13 @@ namespace SubscriptionManagement.API.Controllers
     {
         private readonly ILogger<SubscriptionManagementController> _logger;
         private readonly ISubscriptionManagementService _subscriptionServices;
+        private readonly IMapper _mapper;
 
-        public SubscriptionManagementController(ILogger<SubscriptionManagementController> logger, ISubscriptionManagementService subscriptionServices)
+        public SubscriptionManagementController(ILogger<SubscriptionManagementController> logger, ISubscriptionManagementService subscriptionServices,IMapper mapper)
         {
             _logger = logger;
             _subscriptionServices = subscriptionServices;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -78,9 +81,10 @@ namespace SubscriptionManagement.API.Controllers
             try
             {
                 var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(customerId, subscriptionProduct.OperatorName, subscriptionProduct.ProductName, subscriptionProduct.DataPackages);
-                var newSubscriptionProduct = new ViewModels.SubscriptionProductViewModel(addSubscriptionProduct);
+                
+                var mappedSubscriptionProduct = _mapper.Map<SubscriptionProductViewModel>(addSubscriptionProduct);
 
-                return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), newSubscriptionProduct);
+                return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), mappedSubscriptionProduct);
             }
             catch (Exception ex)
             {
