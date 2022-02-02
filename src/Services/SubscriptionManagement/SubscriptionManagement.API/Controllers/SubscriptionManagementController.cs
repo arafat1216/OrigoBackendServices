@@ -99,7 +99,9 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{customerId:Guid}/operator-accounts")]
         public async Task<IActionResult> AddOperatorAccountForCustomer(Guid customerId, [FromBody] CustomerOperatorAccount customerOperatorAccount)
         {
-            return Ok();
+            var newCustomerOperatorAccount = await _subscriptionServices.AddOperatorAccountForCustomerAsync(customerId, customerOperatorAccount.OrganizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName, customerOperatorAccount.OperatorId);
+
+            return Ok(new CustomerOperatorAccount(newCustomerOperatorAccount));
         }
     }
 }

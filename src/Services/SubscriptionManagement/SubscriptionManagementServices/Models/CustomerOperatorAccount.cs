@@ -21,7 +21,7 @@ namespace SubscriptionManagementServices.Models
         public Guid OrganizationId { get; set; }
         public Guid CustomerId { get; set; }
         public string AccountNumber { get; set; }
-        public string? AccountName { get; set; }
+        public string AccountName { get; set; }
         public virtual Operator Operator { get; set; }
         public int OperatorId { get; set; }
         public virtual ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }

@@ -12,6 +12,13 @@ namespace SubscriptionManagementServices.Infrastructure
             _subscriptionContext = subscriptionContext;
         }
 
+        public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(CustomerOperatorAccount customerOperatorAccount)
+        {
+            var added = await _subscriptionContext.AddAsync(customerOperatorAccount);
+            await _subscriptionContext.SaveChangesAsync();
+            return added.Entity;
+        }
+
         public async Task<IEnumerable<CustomerOperatorAccount>> GetAllCustomerOperatorAccountsAsync(Guid customerId)
         {
             return await _subscriptionContext.CustomerOperatorAccounts.Where(m => m.CustomerId == customerId).ToListAsync();
