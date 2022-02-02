@@ -36,6 +36,26 @@ namespace OrigoApiGateway.Services
         private HttpClient HttpClient { get; }
         private readonly AssetConfiguration _options;
 
+        public async Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync()
+        {
+            try
+            {
+                IList<CustomerAssetCount> assetCountList = await HttpClient.GetFromJsonAsync<IList<CustomerAssetCount>>($"{_options.ApiPath}/customers/count");
+
+                return assetCountList;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAllCustomerAssetsCountAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetAllCustomerAssetsCountAsync failed with unknown error.");
+                throw;
+            }
+        }
+
         public async Task<int> GetAssetsCountAsync(Guid customerId)
         {
             try

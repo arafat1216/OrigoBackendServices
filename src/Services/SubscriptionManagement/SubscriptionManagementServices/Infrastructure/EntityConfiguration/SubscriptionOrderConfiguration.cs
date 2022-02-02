@@ -24,7 +24,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
                 .HasForeignKey(m => m.DatapackageId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(e => e.SubscriptionType)
+            builder.HasOne(e => e.SubscriptionProduct)
                 .WithMany(m => m.SubscriptionOrders)
                 .HasForeignKey(m => m.SubscriptionProductId)
                 .OnDelete(DeleteBehavior.Restrict);
