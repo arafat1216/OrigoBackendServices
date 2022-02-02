@@ -12,5 +12,6 @@ namespace CustomerServices
         Task<bool> UserHasAppLinks(string userOktaId);
         Task DeleteUserInOkta(string userOktaId);
         Task DeactivateUserInOkta(string userOktaId);
+        Task<string> GetOktaUserProfileByLoginEmailAsync(string userOktaId);
     }
 }

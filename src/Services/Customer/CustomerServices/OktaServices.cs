@@ -34,7 +34,7 @@ namespace CustomerServices
         public async Task<string> AddOktaUserAsync(Guid? mytosSubsGuid, string firstName, string lastName, string email, string mobilePhone, bool activate, string countryCode = "+47")
         {
             // Group to add user to ( and by extension - assign to OrigoV2 app)
-            string[] groupIds = new string[] { _oktaOptions.OktaGroupId};
+            string[] groupIds = new string[] { _oktaOptions.OktaGroupId };
 
             if (null == mytosSubsGuid)
                 throw new OktaException("New Okta users needs to have a valid SubsId", HttpStatusCode.BadRequest);
@@ -180,6 +180,19 @@ namespace CustomerServices
             return resMsg.IsSuccessStatusCode;
         }
 
+        public async Task<string> GetOktaUserProfileByLoginEmailAsync(string userLoginEmail)
+        {
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+            client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+
+            var url = _oktaOptions.OktaUrl + "users/" + WebUtility.UrlEncode(userLoginEmail);
+            var resMsg = await client.GetAsync(url);
+            var msg = await resMsg.Content.ReadAsStringAsync();
+
+            return msg;
+        }
+
         public async Task<bool> UserHasAppLinks(string userOktaId)
         {
             using (var client = new HttpClient())
@@ -200,12 +213,12 @@ namespace CustomerServices
             }
         }
 
-            /// <summary>
-            /// Enforces the +47 country code on all phone-numbers. If the alternative number 0047 is used, it is replaced.
-            /// </summary>
-            /// <param name="phoneNumber">The number we want to enforce</param>
-            /// <returns>The phone-number with the enforced country code</returns>
-            private string EnforcePhoneNumberCountryCode(string phoneNumber, string countryCode)
+        /// <summary>
+        /// Enforces the +47 country code on all phone-numbers. If the alternative number 0047 is used, it is replaced.
+        /// </summary>
+        /// <param name="phoneNumber">The number we want to enforce</param>
+        /// <returns>The phone-number with the enforced country code</returns>
+        private string EnforcePhoneNumberCountryCode(string phoneNumber, string countryCode)
         {
             phoneNumber = phoneNumber.Trim();
 
