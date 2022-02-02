@@ -106,52 +106,6 @@ namespace SubscriptionManagementServices.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Operator", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Country = "nb",
-                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 2, 1, 13, 15, 30, 863, DateTimeKind.Local).AddTicks(7540),
-                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            IsDeleted = false,
-                            OperatorName = "Telia - NO",
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Country = "se",
-                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 2, 1, 13, 15, 30, 863, DateTimeKind.Local).AddTicks(7587),
-                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            IsDeleted = false,
-                            OperatorName = "Telia - SE",
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Country = "nb",
-                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 2, 1, 13, 15, 30, 863, DateTimeKind.Local).AddTicks(7591),
-                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            IsDeleted = false,
-                            OperatorName = "Telenor - NO",
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Country = "se",
-                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 2, 1, 13, 15, 30, 863, DateTimeKind.Local).AddTicks(7594),
-                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            IsDeleted = false,
-                            OperatorName = "Telenor - SE",
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        });
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.OperatorAccount", b =>
