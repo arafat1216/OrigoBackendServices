@@ -8,6 +8,6 @@ namespace SubscriptionManagementServices.Models
 {
     public interface ISubscriptionManagementRepository
     {
-        Task<string> GetOperatorAsync(string name);
+        Task<Operator> GetOperatorAsync(string name);
     }
 }

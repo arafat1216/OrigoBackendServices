@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using System;
 using System.Collections.Generic;
@@ -15,12 +17,14 @@ namespace OrigoApiGateway.Services
       
         private readonly ILogger<SubscriptionManagementService> _logger;
         private readonly SubscriptionManagementConfiguration _options;
+        private readonly IMapper _mapper;
         private HttpClient HttpClient { get; }
-        public SubscriptionManagementService(ILogger<SubscriptionManagementService> logger, IOptions<SubscriptionManagementConfiguration> options, HttpClient httpClient)
+        public SubscriptionManagementService(ILogger<SubscriptionManagementService> logger, IOptions<SubscriptionManagementConfiguration> options, HttpClient httpClient, IMapper mapper)
         {
             _logger = logger;
             _options = options.Value;
             HttpClient = httpClient;
+            _mapper = mapper;
         }
 
         public async Task<IList<string>> GetAllOperators()
@@ -40,11 +44,11 @@ namespace OrigoApiGateway.Services
            
         }
 
-        public async Task<IList<string>> GetOperator(string operatorName)
+        public async Task<OrigoOperator> GetOperator(string operatorName)
         {
             try
             {
-                var operatorObject = await HttpClient.GetFromJsonAsync<IList<string>>($"{_options.ApiPath}/operator/{operatorName}");
+                var operatorObject = await HttpClient.GetFromJsonAsync<OrigoOperator>($"{_options.ApiPath}/operator/{operatorName}");
 
                 return operatorObject;
             }

@@ -5,14 +5,14 @@ namespace SubscriptionManagementServices
 {
     public class SubscriptionManagementService : ISubscriptionManagementService
     {
-        //private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
-        //private readonly ILogger<SubscriptionManagementService> _logger;
+        private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
+        private readonly ILogger<SubscriptionManagementService> _logger;
 
-        //public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository, ILogger<SubscriptionManagementService> logger)
-        //{
-        //    _subscriptionManagementRepository = subscriptionManagementRepository;
-        //    _logger = logger;
-        //}
+        public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository, ILogger<SubscriptionManagementService> logger)
+        {
+            _subscriptionManagementRepository = subscriptionManagementRepository;
+            _logger = logger;
+        }
 
         public Task<bool> AddOperatorForCustomerAsync(Guid organizationId, IList<string> operators)
         {
@@ -39,15 +39,13 @@ namespace SubscriptionManagementServices
         {
             var operatorsForCustomer = new List<string> { "Telenor - NO", "Telia - NO" };
             return Task.FromResult<IList<string>>(operatorsForCustomer);
-    }
+        }
 
-        public Task<IList<string>> GetOperator(string operatorName)
+        public async Task<Operator> GetOperator(string operatorName)
         {
 
-            //var test = await _subscriptionManagementRepository.GetOperatorAsync(operatorName);
-            var operatorObject = new List<string> { "Telenor - NO" };
-
-            return Task.FromResult<IList<string>>(operatorObject);
+            var operatorObject = await _subscriptionManagementRepository.GetOperatorAsync(operatorName);
+            return operatorObject;
         }
     }
 }

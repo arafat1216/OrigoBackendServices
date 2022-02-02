@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SubscriptionManagementServices;
 using SubscriptionManagementServices.Models;
+using System.Text.Json;
 
 namespace SubscriptionManagement.API.Controllers
 {
@@ -28,11 +29,16 @@ namespace SubscriptionManagement.API.Controllers
         }
         [HttpGet]
         [Route("operator/{operatorName}")]
-        public async Task<ActionResult<IEnumerable<string>>> GetOperator(string operatorName)
+        public async Task<ActionResult<ViewModels.OperatorViewModel>> GetOperator(string operatorName)
         {
             var operatorObject = await _subscriptionServices.GetOperator(operatorName);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true,
+            };
 
-            return Ok(operatorObject);
+            return Ok(JsonSerializer.Serialize<object>(new ViewModels.OperatorViewModel(operatorObject), options));
         }
         [HttpGet]
         [Route("{customerId:Guid}/operator")]

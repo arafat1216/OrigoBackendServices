@@ -42,7 +42,7 @@ builder.Services.AddSwaggerGen(config =>
 
 builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
-//builder.Services.AddScoped<ISubscriptionManagementRepository, SubscriptionManagementRepository>();
+builder.Services.AddScoped<ISubscriptionManagementRepository, SubscriptionManagementRepository>();
 
 var app = builder.Build();
 

@@ -1,4 +1,5 @@
-﻿using SubscriptionManagementServices.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices.Infrastructure
 {
@@ -11,9 +12,10 @@ namespace SubscriptionManagementServices.Infrastructure
             _subscriptionContext = subscriptionContext;
         }
 
-        public async Task<string> GetOperatorAsync(string name)
+        public async Task<Operator> GetOperatorAsync(string name)
         {
-            throw new NotImplementedException();
+            return await _subscriptionContext.Operator.Where(o => o.OperatorName == name).FirstOrDefaultAsync();
+            
         }
     }
 }

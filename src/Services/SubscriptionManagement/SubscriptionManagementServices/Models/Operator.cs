@@ -9,6 +9,12 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
+        public Operator(int id, string operatorName,string country)
+        {
+            Id = id;
+            OperatorName = operatorName;
+            Country = country;
+        }
         public Operator(string operatorName, string country, IList<SubscriptionProduct>? subscriptionProducts, IList<OperatorAccount>? operatorAccounts)
         {
             OperatorName = operatorName;
