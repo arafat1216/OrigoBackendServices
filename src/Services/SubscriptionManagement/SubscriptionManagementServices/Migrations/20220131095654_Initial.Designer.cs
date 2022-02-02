@@ -11,7 +11,7 @@ using SubscriptionManagementServices.Infrastructure;
 
 namespace SubscriptionManagementServices.Migrations
 {
-    [DbContext(typeof(SubscriptionManagmentContext))]
+    [DbContext(typeof(SubscriptionManagementContext))]
     [Migration("20220131095654_Initial")]
     partial class Initial
     {

@@ -5,11 +5,23 @@ namespace SubscriptionManagementServices.Infrastructure
 {
     public class SubscriptionManagementRepository : ISubscriptionManagementRepository
     {
-        private readonly SubscriptionManagmentContext _subscriptionContext;
+        private readonly SubscriptionManagementContext _subscriptionContext;
 
-        public SubscriptionManagementRepository(SubscriptionManagmentContext subscriptionContext)
+        public SubscriptionManagementRepository(SubscriptionManagementContext subscriptionContext)
         {
             _subscriptionContext = subscriptionContext;
+        }
+
+        public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(CustomerOperatorAccount customerOperatorAccount)
+        {
+            var added = await _subscriptionContext.AddAsync(customerOperatorAccount);
+            await _subscriptionContext.SaveChangesAsync();
+            return added.Entity;
+        }
+
+        public async Task<IEnumerable<CustomerOperatorAccount>> GetAllCustomerOperatorAccountsAsync(Guid customerId)
+        {
+            return await _subscriptionContext.CustomerOperatorAccounts.Where(m => m.CustomerId == customerId).ToListAsync();
         }
 
         public async Task<Operator> GetOperatorAsync(string name)
@@ -17,5 +29,7 @@ namespace SubscriptionManagementServices.Infrastructure
             return await _subscriptionContext.Operator.Where(o => o.OperatorName == name).FirstOrDefaultAsync();
             
         }
+
+
     }
 }

@@ -13,5 +13,6 @@ namespace OrigoApiGateway.Services
         Task<bool> AddOperatorForCustomerAsync(Guid organizationId, IList<string> operators);
         Task<bool> DeleteOperatorForCustomerAsync(Guid organizationId, string operatorName);
         Task<bool> AddSubscriptionForCustomerAsync(Guid organizationId, OrderTransferSubscription subscription);
+        Task<OrigoSubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid organizationId, NewSubscriptionProduct subscriptionProduct);        
     }
 }

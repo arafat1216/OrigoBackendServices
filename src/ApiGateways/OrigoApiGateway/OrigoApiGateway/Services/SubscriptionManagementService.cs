@@ -122,5 +122,24 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<OrigoSubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid organizationId, NewSubscriptionProduct subscriptionProduct)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/{organizationId}/subscriptionProduct";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, subscriptionProduct);
+
+                var newSubscriptionProduct = await response.Content.ReadFromJsonAsync<OrigoSubscriptionProduct>();
+
+                return newSubscriptionProduct;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "AddSubscriptionProductForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
+
     }
 }
