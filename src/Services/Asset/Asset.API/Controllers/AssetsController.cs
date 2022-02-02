@@ -36,6 +36,17 @@ namespace Asset.API.Controllers
             _assetServices = assetServices;
         }
 
+        [Route("customers/count")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<AssetServices.Models.CustomerAssetCount>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IList<AssetServices.Models.CustomerAssetCount>>> GetAllCount()
+        {
+            var assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync();
+
+            return Ok(assetCountList);
+        }
+
         [Route("customers/{customerId:guid}/count")]
         [HttpGet]
         [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
