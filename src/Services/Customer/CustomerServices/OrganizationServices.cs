@@ -1,6 +1,5 @@
 ﻿using Common.Cryptography;
 using Common.Enums;
-using Common.Models;
 using CustomerServices.Exceptions;
 using CustomerServices.Models;
 using Microsoft.Extensions.Logging;
@@ -101,7 +100,7 @@ namespace CustomerServices
             return await _customerRepository.GetCustomerAsync(customerId);
         }
 
-        public async Task<IList<CustomerItemCount>> GetCustomerUsersAsync()
+        public async Task<IList<CustomerUserCount>> GetCustomerUsersAsync()
         {
             return await _customerRepository.GetOrganizationUserCountsAsync();
         }

@@ -93,12 +93,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<CustomerItemCount>> GetCustomerUsersAsync()
+        public async Task<IList<CustomerUserCount>> GetCustomerUsersAsync()
         {
             try
             {
-                var customerUserCounts = await HttpClient.GetFromJsonAsync<IList<CustomerItemCount>>($"{_options.ApiPath}/userCount");
-                return customerUserCounts == null ? null : _mapper.Map<IList<CustomerItemCount>>(customerUserCounts);
+                var customerUserCounts = await HttpClient.GetFromJsonAsync<IList<CustomerUserCount>>($"{_options.ApiPath}/userCount");
+                return customerUserCounts == null ? null : _mapper.Map<IList<CustomerUserCount>>(customerUserCounts);
             }
             catch (HttpRequestException exception)
             {

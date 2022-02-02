@@ -1,5 +1,4 @@
-﻿using Common.Models;
-using OrigoApiGateway.Models;
+﻿using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using System;
 using System.Collections.Generic;
@@ -11,7 +10,7 @@ namespace OrigoApiGateway.Services
     {
         Task<IList<Organization>> GetCustomersAsync();
         Task<Organization> GetCustomerAsync(Guid customerId);
-        Task<IList<CustomerItemCount>> GetCustomerUsersAsync();
+        Task<IList<CustomerUserCount>> GetCustomerUsersAsync();
         Task<Organization> CreateCustomerAsync(NewOrganization newCustomer, Guid callerId);
         Task<Organization> UpdateOrganizationAsync(UpdateOrganizationDTO organizationToChange);
         Task<Organization> PatchOrganizationAsync(UpdateOrganizationDTO organizationToChange);

@@ -36,11 +36,11 @@ namespace OrigoApiGateway.Services
         private HttpClient HttpClient { get; }
         private readonly AssetConfiguration _options;
 
-        public async Task<IList<CustomerItemCount>> GetAllCustomerAssetsCountAsync()
+        public async Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync()
         {
             try
             {
-                IList<CustomerItemCount> assetCountList = await HttpClient.GetFromJsonAsync<IList<CustomerItemCount>>($"{_options.ApiPath}/customers/count");
+                IList<CustomerAssetCount> assetCountList = await HttpClient.GetFromJsonAsync<IList<CustomerAssetCount>>($"{_options.ApiPath}/customers/count");
 
                 return assetCountList;
             }

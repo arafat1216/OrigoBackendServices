@@ -4,7 +4,6 @@ using Common.Extensions;
 using Common.Interfaces;
 using Common.Logging;
 using Common.Utilities;
-using Common.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -40,12 +39,12 @@ namespace AssetServices.Infrastructure
                 .FirstOrDefaultAsync(a => a.ExternalId == asset.ExternalId);
         }
 
-        public async Task<IList<CustomerItemCount>> GetAssetsCountsAsync()
+        public async Task<IList<CustomerAssetCount>> GetAssetsCountsAsync()
         {
             var assetCountList = await _assetContext.Assets
             .Where(a => a.Status == AssetStatus.Active)
             .GroupBy(a => a.CustomerId)
-            .Select(group => new CustomerItemCount(){
+            .Select(group => new CustomerAssetCount(){
                 OrganizationId = group.Key,
                 Count = group.Count()
             })

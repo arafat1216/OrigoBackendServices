@@ -1,6 +1,5 @@
 ﻿using Common.Extensions;
 using Common.Logging;
-using Common.Models;
 using Common.Utilities;
 using CustomerServices.Models;
 using MediatR;
@@ -52,12 +51,12 @@ namespace CustomerServices.Infrastructure
             return await _customerContext.Organizations.Where(o => !o.IsDeleted).ToListAsync();
         }
 
-        public async Task<IList<CustomerItemCount>> GetOrganizationUserCountsAsync()
+        public async Task<IList<CustomerUserCount>> GetOrganizationUserCountsAsync()
         {
             return await _customerContext.Users
             .Where(u => u.IsActive)
             .GroupBy(u => u.Customer.OrganizationId)
-            .Select(group => new CustomerItemCount(){
+            .Select(group => new CustomerUserCount(){
                 OrganizationId = group.Key,
                 Count = group.Count()
             })

@@ -1,6 +1,5 @@
 ﻿using Common.Enums;
 using Common.Exceptions;
-using Common.Models;
 using Customer.API.ViewModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
@@ -120,10 +119,10 @@ namespace Customer.API.Controllers
 
         [Route("userCount")]
         [HttpGet]
-        [ProducesResponseType(typeof(IList<CustomerItemCount>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<CustomerServices.Models.CustomerUserCount>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.Gone)]
-        public async Task<ActionResult<IList<CustomerItemCount>>> GetOrganizationUsers()
+        public async Task<ActionResult<IList<CustomerServices.Models.CustomerUserCount>>> GetOrganizationUsers()
         {
             try
             {

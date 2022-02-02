@@ -46,11 +46,11 @@ namespace OrigoApiGateway.Controllers
 
         [Route("customers/count")]
         [HttpGet]
-        [ProducesResponseType(typeof(IList<CustomerItemCount>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<CustomerAssetCount>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult<IList<CustomerItemCount>>> GetAllCustomerItemCount()
+        public async Task<ActionResult<IList<CustomerAssetCount>>> GetAllCustomerItemCount()
         {
             try
             {
@@ -61,7 +61,7 @@ namespace OrigoApiGateway.Controllers
                    return Forbid();
                 }
 
-                IList<CustomerItemCount> assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync();
+                IList<CustomerAssetCount> assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync();
                 return Ok(assetCountList);
 
             }

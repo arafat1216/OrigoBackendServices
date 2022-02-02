@@ -1,12 +1,12 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Common.Models
+namespace OrigoApiGateway.Models.Asset
 {
     /// <summary>
     /// Request object
     /// </summary>
-    public class CustomerItemCount
+    public class CustomerAssetCount
     {
         [Required]
         public Guid OrganizationId { get; set; }

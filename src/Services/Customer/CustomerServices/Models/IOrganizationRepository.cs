@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Models;
 
 namespace CustomerServices.Models
 {
@@ -10,7 +9,7 @@ namespace CustomerServices.Models
     {
         Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default);
         Task<Organization> AddAsync(Organization customer);
-        Task<IList<CustomerItemCount>> GetOrganizationUserCountsAsync();
+        Task<IList<CustomerUserCount>> GetOrganizationUserCountsAsync();
         Task<IList<Organization>> GetOrganizationsAsync();
         Task<IList<Organization>> GetOrganizationsAsync(Guid? parentId);
         Task<IList<Organization>> GetCustomersAsync();

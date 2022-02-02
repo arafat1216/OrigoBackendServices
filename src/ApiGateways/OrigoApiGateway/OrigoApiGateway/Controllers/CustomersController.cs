@@ -147,10 +147,10 @@ namespace OrigoApiGateway.Controllers
 
         [Route("userCount")]
         [HttpGet]
-        [ProducesResponseType(typeof(IList<CustomerItemCount>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<CustomerUserCount>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
-        public async Task<ActionResult<IList<CustomerItemCount>>> GetOrganizationUsers()
+        public async Task<ActionResult<IList<CustomerUserCount>>> GetOrganizationUsers()
         {
             try
             {

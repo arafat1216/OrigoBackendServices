@@ -11,7 +11,7 @@ namespace AssetServices
 {
     public interface IAssetServices
     {
-        Task<IList<CustomerItemCount>> GetAllCustomerAssetsCountAsync();
+        Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync();
         Task<int> GetAssetsCountAsync(Guid customerId);
         Task<IList<Asset>> GetAssetsForUserAsync(Guid customerId, Guid userId);
         Task<PagedModel<Asset>> GetAssetsForCustomerAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken);

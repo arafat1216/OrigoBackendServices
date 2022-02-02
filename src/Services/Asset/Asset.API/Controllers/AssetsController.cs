@@ -38,9 +38,9 @@ namespace Asset.API.Controllers
 
         [Route("customers/count")]
         [HttpGet]
-        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<AssetServices.Models.CustomerAssetCount>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IList<CustomerItemCount>>> GetAllCount()
+        public async Task<ActionResult<IList<AssetServices.Models.CustomerAssetCount>>> GetAllCount()
         {
             var assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync();
 
