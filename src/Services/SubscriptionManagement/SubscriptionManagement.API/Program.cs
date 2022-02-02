@@ -11,11 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 //https://andrewlock.net/exploring-dotnet-6-part-1-looking-inside-configurationmanager-in-dotnet-6/
 
+builder.Configuration.AddJsonFile("secrets/appsettings.secrets.json", optional: true);
+
+builder.Configuration.AddUserSecrets<Program>(optional: true);
 
 builder.Services.AddControllers().AddDapr();
 
 builder.Services.AddDbContext<SubscriptionManagementContext>(options => options.UseSqlServer(
-    builder.Configuration.GetConnectionString("SubscriptionManagmentConnectionString"), sqlOption =>
+    builder.Configuration.GetConnectionString("SubscriptionManagementConnectionString"), sqlOption =>
     {
         sqlOption.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
         sqlOption.MigrationsAssembly(typeof(SubscriptionManagementContext).GetTypeInfo().Assembly.GetName().Name);
@@ -37,12 +40,15 @@ builder.Services.AddSwaggerGen(config =>
         Title = "Subscription Management",
         Version = $"v{apiVersion.MajorVersion}"
     });
+
+    var xmlComments = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    config.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlComments));
 });
 
 
 builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
-//builder.Services.AddScoped<ISubscriptionManagementRepository, SubscriptionManagementRepository>();
+builder.Services.AddScoped<ISubscriptionManagementRepository, SubscriptionManagementRepository>();
 
 var app = builder.Build();
 

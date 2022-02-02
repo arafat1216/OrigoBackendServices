@@ -11,8 +11,8 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             builder.ToTable("Operator");
 
             //Properties
-            builder.Property(x => x.OperatorName).HasMaxLength(50);
-            builder.Property(x => x.Country).HasMaxLength(2).HasColumnType("char");
+            builder.Property(x => x.OperatorName).HasMaxLength(50).IsRequired();
+            builder.Property(x => x.Country).HasMaxLength(2).IsRequired().HasColumnType("char");
             builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql("SYSUTCDATETIME()");
 
         }

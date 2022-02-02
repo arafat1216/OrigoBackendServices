@@ -1,5 +1,4 @@
 ﻿using Common.Seedwork;
-using System.ComponentModel.DataAnnotations;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -9,21 +8,18 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public SubscriptionOrder(SubscriptionProduct subscriptionType, Guid organizationId, OperatorAccount operatorAccount, Datapackage? dataPackage, IList<SubscriptionAddOnProduct> subscriptionAddOnProducts)
+        public SubscriptionOrder(int subscriptionProductId, Guid organizationId, int operatorAccountId, int datapackageId)
         {
-            SubscriptionType = subscriptionType;
             OrganizationId = organizationId;
-            OperatorAccount = operatorAccount;
-            DataPackage = dataPackage;
-            SubscriptionAddOnProducts = subscriptionAddOnProducts;
+            SubscriptionProductId = subscriptionProductId;
+            OperatorAccountId = operatorAccountId;
+            DatapackageId = datapackageId;
         }
         
-        public virtual SubscriptionProduct SubscriptionType { get; set; }
+        public virtual SubscriptionProduct SubscriptionProduct { get; set; }
         public int SubscriptionProductId { get; set; }
-
-        [Required]
         public Guid OrganizationId { get; set; }
-        public virtual OperatorAccount OperatorAccount { get; set; }
+        public virtual CustomerOperatorAccount OperatorAccount { get; set; }
         public int OperatorAccountId { get; set; }
         public virtual Datapackage? DataPackage { get; set; }
         public int DatapackageId { get; set; }

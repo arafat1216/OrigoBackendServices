@@ -1,18 +1,22 @@
-﻿using Microsoft.Extensions.Logging;
-using SubscriptionManagementServices.Models;
+﻿using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices
 {
     public class SubscriptionManagementService : ISubscriptionManagementService
     {
-        //private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
-        //private readonly ILogger<SubscriptionManagementService> _logger;
+        private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
 
-        //public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository, ILogger<SubscriptionManagementService> logger)
-        //{
-        //    _subscriptionManagementRepository = subscriptionManagementRepository;
-        //    _logger = logger;
-        //}
+        public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository)
+        {
+            _subscriptionManagementRepository = subscriptionManagementRepository;
+        }
+
+        public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, Guid organizationId, string accountNumber, string accountName, int operatorId)
+        {
+            var newCustomerOperatorAccount = new CustomerOperatorAccount(organizationId, customerId, accountNumber, accountName, operatorId);
+            
+            return await _subscriptionManagementRepository.AddOperatorAccountForCustomerAsync(newCustomerOperatorAccount);
+        }
 
         public Task<bool> AddOperatorForCustomerAsync(Guid organizationId, IList<string> operators)
         {
@@ -29,6 +33,11 @@ namespace SubscriptionManagementServices
             return Task.FromResult(true);
         }
 
+        public async Task<IEnumerable<CustomerOperatorAccount>> GetAllOperatorAccountsForCustomerAsync(Guid customerId)
+        {
+            return await _subscriptionManagementRepository.GetAllCustomerOperatorAccountsAsync(customerId);
+        }
+
         public Task<IList<string>> GetAllOperators()
         {
             var operators = new List<string> { "Telenor - NO", "Telia - NO", "Telenor - SE", "Telia - SE" };
@@ -39,7 +48,7 @@ namespace SubscriptionManagementServices
         {
             var operatorsForCustomer = new List<string> { "Telenor - NO", "Telia - NO" };
             return Task.FromResult<IList<string>>(operatorsForCustomer);
-    }
+        }
 
         public Task<IList<string>> GetOperator(string operatorName)
         {

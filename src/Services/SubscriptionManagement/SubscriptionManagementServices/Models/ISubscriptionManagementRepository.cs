@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SubscriptionManagementServices.Models
+﻿namespace SubscriptionManagementServices.Models
 {
     public interface ISubscriptionManagementRepository
     {
         Task<string> GetOperatorAsync(string name);
+
+        Task<IEnumerable<CustomerOperatorAccount>> GetAllCustomerOperatorAccountsAsync(Guid customerId);
+        Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(CustomerOperatorAccount customerOperatorAccount);
     }
 }
