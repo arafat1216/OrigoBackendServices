@@ -82,6 +82,12 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
+    - task: UseDotNet@2
+      displayName: Use .NET 6.0
+      inputs:
+        packageType: 'sdk'
+        version: '6.0.x'
+
     - task: Docker@2 # Can't use buildAndPush since arguments are needed
       displayName: Build image
       inputs:
@@ -105,25 +111,25 @@ stages:
         tags: |
           $(tag)
 
-    - pwsh: |
-        $id=docker images --filter "label=test=$(Build.BuildId)" -q | Select-Object -First 1
-        docker create --name testcontainer $id
-        docker cp testcontainer:/TestResults $(Build.SourcesDirectory)/TestResults
-        docker cp testcontainer:/CodeCoverage $(Build.SourcesDirectory)/CodeCoverage
-        docker rm testcontainer
-      displayName: 'Copy test results' 
+    #- pwsh: |
+    #    $id=docker images --filter "label=test=$(Build.BuildId)" -q | Select-Object -First 1
+    #    docker create --name testcontainer $id
+    #    docker cp testcontainer:/TestResults $(Build.SourcesDirectory)/TestResults
+    #    docker cp testcontainer:/CodeCoverage $(Build.SourcesDirectory)/CodeCoverage
+    #    docker rm testcontainer
+    #  displayName: 'Copy test results' 
 
-    - task: PublishCodeCoverageResults@1
-      inputs:
-        codeCoverageTool: Cobertura
-        summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/coverage.cobertura.xml'
-      displayName: 'Publish code coverage'
+    #- task: PublishCodeCoverageResults@1
+    #  inputs:
+    #    codeCoverageTool: Cobertura
+    #    summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/coverage.cobertura.xml'
+    #  displayName: 'Publish code coverage'
 
-    - task: PublishTestResults@2
-      inputs:
-        testRunner: VSTest
-        testResultsFiles: '**/*.trx'
-      displayName: 'Publish test results'
+    #- task: PublishTestResults@2
+    #  inputs:
+    #    testRunner: VSTest
+    #    testResultsFiles: '**/*.trx'
+    #  displayName: 'Publish test results'
 
     - publish: charts/subscriptionmanagement-api
       artifact: helmcharts
@@ -132,7 +138,7 @@ stages:
   displayName: Deploy stage
   dependsOn: Build
   variables:
-    - group: CustomerLibrary
+    - group: SubscriptionManagementLibrary
   jobs:
   - deployment: MigrateDatabase
     environment: 'BackendServices.develop'
@@ -157,15 +163,6 @@ stages:
               connectionString: $(currentDbConnection)
               deployType: SqlTask
               sqlFile: $(System.ArtifactsDirectory)/migrations/migrations.sql
-          - task: SqlAzureDacpacDeployment@1
-            displayName: Run sql migrations
-            inputs:
-              azureConnectionType: ConnectedServiceNameARM
-              azureSubscription: OrigoV2ServiceConnection
-              authenticationType: connectionString
-              connectionString: $(currentDbConnection)
-              deployType: SqlTask
-              sqlFile: $(System.ArtifactsDirectory)/migrations/logging_migrations.sql
 
   - deployment: Deploy
     condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
@@ -190,7 +187,7 @@ stages:
             inputs:
               command: upgrade
               chartType: FilePath
-              releaseName: customerservices
+              releaseName: subscriptionmanagementservices
               namespace: $(namespace)
               overrideValues: deployment.image.tag=$(tag),namespace=$(namespace)
               arguments: --version $(tag)

@@ -1,11 +1,3 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
-
-WORKDIR /app
-EXPOSE 80
-EXPOSE 443
-
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
 WORKDIR /src
@@ -16,14 +8,21 @@ COPY ["src/Services/SubscriptionManagement/Tests/SubscriptionManagement.UnitTest
 
 RUN dotnet restore "Services/SubscriptionManagement/SubscriptionManagement.API/SubscriptionManagement.API.csproj"
 RUN dotnet restore "Services/SubscriptionManagement/Tests/SubscriptionManagement.UnitTests/SubscriptionManagement.UnitTests.csproj"
-COPY . .
+
+COPY /src/Core/. Core/.
+COPY /src/Services/SubscriptionManagement/. Services/SubscriptionManagement/.
+COPY /src/Services/SubscriptionManagement/Tests/SubscriptionManagement.UnitTests/. Services/SubscriptionManagement/Tests/SubscriptionManagement.UnitTests/.
+
 WORKDIR "/src/Services/SubscriptionManagement/SubscriptionManagement.API"
-RUN dotnet build "SubscriptionManagement.API.csproj" -c Release -o /app/build
+RUN dotnet build "SubscriptionManagement.API.csproj" -c Release  --no-restore -o /app/build
 
 FROM build AS publish
 RUN dotnet publish "SubscriptionManagement.API.csproj" -c Release -o /app/publish
 
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim AS final
 WORKDIR /app
+
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "SubscriptionManagement.API.dll"]
+
+EXPOSE 80

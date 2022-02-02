@@ -1,33 +1,33 @@
-fullnameOverride: subscriptionmanagerservices
+fullnameOverride: subscriptionmanagementservices
 namespace: develop
 
 service:
   type: ClusterIP
-  port: 3810
+  port: 3840
 
 deployment:
   containerPort: 80
   replicaCount: 2
   annotations:
     dapr.io/enabled: "true"
-    dapr.io/app-id: "subscriptionmanagerservices"
+    dapr.io/app-id: "subscriptionmanagementservices"
     dapr.io/app-port: "80"
     dapr.io/log-level: "debug"
-    dapr.io/config: "appconfig-subscriptionmanagerservices"
+    dapr.io/config: "appconfig-subscriptionmanagementservices"
 
   env:
     "ASPNETCORE_ENVIRONMENT": "Staging"
     "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true"
 
   image:
-    repository: origov2acr.azurecr.io/subscriptionmanagersbackend
+    repository: origov2acr.azurecr.io/subscriptionmanagement
     tag: 3642
     pullPolicy: IfNotPresent
 
   secretVolumes:
     - secretVolume:
        name: "secrets"
-       secretName: "secret-subscriptionmanager-appsettings"
+       secretName: "secret-subscriptionmanagement-appsettings"
 
   volumeMounts:
     - volumeMount:
