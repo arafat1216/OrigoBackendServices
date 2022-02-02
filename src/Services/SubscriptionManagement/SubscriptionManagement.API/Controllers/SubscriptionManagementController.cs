@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SubscriptionManagement.API.ViewModels;
 using SubscriptionManagementServices;
@@ -12,11 +13,13 @@ namespace SubscriptionManagement.API.Controllers
     {
         private readonly ILogger<SubscriptionManagementController> _logger;
         private readonly ISubscriptionManagementService _subscriptionServices;
+        private readonly IMapper _mapper;
 
-        public SubscriptionManagementController(ILogger<SubscriptionManagementController> logger, ISubscriptionManagementService subscriptionServices)
+        public SubscriptionManagementController(ILogger<SubscriptionManagementController> logger, ISubscriptionManagementService subscriptionServices,IMapper mapper)
         {
             _logger = logger;
             _subscriptionServices = subscriptionServices;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -102,6 +105,27 @@ namespace SubscriptionManagement.API.Controllers
             var newCustomerOperatorAccount = await _subscriptionServices.AddOperatorAccountForCustomerAsync(customerId, customerOperatorAccount.OrganizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName, customerOperatorAccount.OperatorId);
 
             return Ok(new CustomerOperatorAccount(newCustomerOperatorAccount));
+        }
+
+        [HttpPost]
+        [Route("{customerId:Guid}/subscriptionProduct")]
+        [ProducesResponseType(typeof(ViewModels.SubscriptionProductViewModel), (int)HttpStatusCode.Created)]
+         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<ViewModels.SubscriptionProductViewModel>> AddSubscriptionProductForCustomer(Guid customerId, [FromBody] NewSubscriptionProduct subscriptionProduct)
+        {
+            try
+            {
+                var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(customerId, subscriptionProduct.OperatorName, subscriptionProduct.ProductName, subscriptionProduct.DataPackages);
+                
+                var mappedSubscriptionProduct = _mapper.Map<SubscriptionProductViewModel>(addSubscriptionProduct);
+
+                return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), mappedSubscriptionProduct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("AddSubscriptionProductForCustomer backend ", ex);
+                return BadRequest("Unable to save create subscription product");
+            }
         }
     }
 }

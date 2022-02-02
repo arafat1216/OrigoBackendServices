@@ -19,6 +19,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+	<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
@@ -27,9 +29,10 @@
 	<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.19.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Mappings\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="Mappings\" />
+		<Folder Include="ViewModels\" />
+	</ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SubscriptionManagementServices\SubscriptionManagementServices.csproj" />
