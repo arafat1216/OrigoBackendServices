@@ -2,7 +2,6 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SubscriptionManagement.API.ViewModels;
 using SubscriptionManagementServices;
-using SubscriptionManagementServices.Models;
 using System.Text.Json;
 using System.Net;
 

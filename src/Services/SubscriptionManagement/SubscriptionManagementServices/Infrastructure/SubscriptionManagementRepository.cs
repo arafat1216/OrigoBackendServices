@@ -26,7 +26,7 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task<Operator> GetOperatorAsync(string name)
         {
-            return await _subscriptionContext.Operator.Where(o => o.OperatorName == name).FirstOrDefaultAsync();
+            return await _subscriptionContext.Operators.Where(o => o.OperatorName == name).FirstOrDefaultAsync();
             
         }
 

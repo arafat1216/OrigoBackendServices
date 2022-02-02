@@ -1,7 +1,5 @@
 ﻿using SubscriptionManagementServices.Models;
 
-using SubscriptionManagementServices.Models;
-
 namespace SubscriptionManagementServices
 {
     public interface ISubscriptionManagementService

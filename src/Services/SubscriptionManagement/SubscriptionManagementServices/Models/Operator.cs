@@ -19,7 +19,7 @@ namespace SubscriptionManagementServices.Models
             OperatorName = operatorName;
             Country = country;
         }
-        public Operator(string operatorName, string country, IList<SubscriptionProduct>? subscriptionProducts, IList<OperatorAccount>? operatorAccounts)
+        public Operator(string operatorName, string country, IList<SubscriptionProduct>? subscriptionProducts, IList<CustomerOperatorAccount>? operatorAccounts)
         {
             OperatorName = operatorName;
             Country = country;

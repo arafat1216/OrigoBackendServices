@@ -1,4 +1,5 @@
-﻿using SubscriptionManagementServices.Models;
+﻿using Microsoft.Extensions.Logging;
+using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices
 {
@@ -20,10 +21,10 @@ namespace SubscriptionManagementServices
             return await _subscriptionManagementRepository.AddOperatorAccountForCustomerAsync(newCustomerOperatorAccount);
         }
 
-        //public Task<bool> AddOperatorForCustomerAsync(Guid organizationId, IList<string> operators)
-        //{
-        //    return Task.FromResult(true);
-        //}
+        public Task<bool> AddOperatorForCustomerAsync(Guid organizationId, IList<string> operators)
+        {
+            return Task.FromResult(true);
+        }
 
         public Task<bool> AddSubscriptionForCustomerAsync(Guid organizationId)
         {
