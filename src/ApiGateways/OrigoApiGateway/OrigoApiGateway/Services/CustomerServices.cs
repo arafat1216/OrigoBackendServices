@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Common.Enums;
 using Common.Exceptions;
-using Common.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
