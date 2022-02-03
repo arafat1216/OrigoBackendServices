@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SubscriptionManagement.API.Filters;
 using SubscriptionManagement.API.ViewModels;
 using SubscriptionManagementServices;
 using System.Net;
@@ -9,13 +10,14 @@ namespace SubscriptionManagement.API.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class SubscriptionManagementController : ControllerBase
     {
         private readonly ILogger<SubscriptionManagementController> _logger;
         private readonly ISubscriptionManagementService _subscriptionServices;
         private readonly IMapper _mapper;
 
-        public SubscriptionManagementController(ILogger<SubscriptionManagementController> logger, ISubscriptionManagementService subscriptionServices,IMapper mapper)
+        public SubscriptionManagementController(ILogger<SubscriptionManagementController> logger, ISubscriptionManagementService subscriptionServices, IMapper mapper)
         {
             _logger = logger;
             _subscriptionServices = subscriptionServices;
@@ -110,13 +112,13 @@ namespace SubscriptionManagement.API.Controllers
         [HttpPost]
         [Route("{customerId:Guid}/subscriptionProduct")]
         [ProducesResponseType(typeof(ViewModels.SubscriptionProductViewModel), (int)HttpStatusCode.Created)]
-         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<ViewModels.SubscriptionProductViewModel>> AddSubscriptionProductForCustomer(Guid customerId, [FromBody] NewSubscriptionProduct subscriptionProduct)
         {
             try
             {
                 var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(customerId, subscriptionProduct.OperatorName, subscriptionProduct.ProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
-                
+
                 var mappedSubscriptionProduct = _mapper.Map<SubscriptionProductViewModel>(addSubscriptionProduct);
 
                 return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), mappedSubscriptionProduct);
