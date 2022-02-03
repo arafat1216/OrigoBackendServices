@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using System;
@@ -15,12 +16,14 @@ namespace OrigoApiGateway.Services
       
         private readonly ILogger<SubscriptionManagementService> _logger;
         private readonly SubscriptionManagementConfiguration _options;
+        private readonly IMapper _mapper;
         private HttpClient HttpClient { get; }
-        public SubscriptionManagementService(ILogger<SubscriptionManagementService> logger, IOptions<SubscriptionManagementConfiguration> options, HttpClient httpClient)
+        public SubscriptionManagementService(ILogger<SubscriptionManagementService> logger, IOptions<SubscriptionManagementConfiguration> options, HttpClient httpClient, IMapper mapper)
         {
             _logger = logger;
             _options = options.Value;
             HttpClient = httpClient;
+            _mapper = mapper;
         }
 
         public async Task<IList<string>> GetAllOperators()
@@ -118,5 +121,24 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<OrigoSubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid organizationId, NewSubscriptionProduct subscriptionProduct)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/{organizationId}/subscriptionProduct";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, subscriptionProduct);
+
+                var newSubscriptionProduct = await response.Content.ReadFromJsonAsync<OrigoSubscriptionProduct>();
+
+                return newSubscriptionProduct;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "AddSubscriptionProductForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
+
     }
 }

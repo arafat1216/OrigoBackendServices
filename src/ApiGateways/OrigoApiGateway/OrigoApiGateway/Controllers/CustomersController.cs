@@ -144,6 +144,32 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("userCount")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<CustomerUserCount>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<IList<CustomerUserCount>>> GetOrganizationUsers()
+        {
+            try
+            {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+
+                    // Only SystemAdmin has access to all organization user counts
+                    return Forbid();
+                }
+
+                var organizationUserCounts = await CustomerServices.GetCustomerUsersAsync();
+                return organizationUserCounts != null ? Ok(organizationUserCounts) : NotFound();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
         [HttpPatch]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

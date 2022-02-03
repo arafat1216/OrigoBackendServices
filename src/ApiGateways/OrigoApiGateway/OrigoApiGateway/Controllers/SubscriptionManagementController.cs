@@ -78,6 +78,14 @@ namespace OrigoApiGateway.Controllers
             }
             return NoContent();
         }
+        [Route("{organizationId:Guid}/subscriptionProduct")]
+        [HttpPost]
+        public async Task<ActionResult<OrigoSubscriptionProduct>> CreateSubscriptionProducts(Guid organizationId, [FromBody] NewSubscriptionProduct newSubscriptionProduct)
+        {
+            OrigoSubscriptionProduct NewSubscriptionProduct = await _subscriptionManagementService.AddSubscriptionProductForCustomerAsync(organizationId, newSubscriptionProduct);
+
+            return CreatedAtAction(nameof(CreateSubscriptionProducts), newSubscriptionProduct);
+        }
 
         [Route("{organizationId:Guid}/subscription")]
         [HttpPost]
@@ -91,6 +99,6 @@ namespace OrigoApiGateway.Controllers
             return NoContent();
         }
 
-     
+
     }
 }
