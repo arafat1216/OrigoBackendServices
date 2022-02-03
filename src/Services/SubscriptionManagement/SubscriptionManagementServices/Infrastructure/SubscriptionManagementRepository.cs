@@ -32,9 +32,29 @@ namespace SubscriptionManagementServices.Infrastructure
         public async Task<Operator> GetOperatorAsync(string name)
         {
             return await _subscriptionContext.Operators.Where(o => o.OperatorName == name).FirstOrDefaultAsync();
-            
+
         }
 
+        public async Task<SubscriptionOrder> AddSubscriptionOrderAsync(SubscriptionOrder subscriptionOrder)
+        {
+            var added = await _subscriptionContext.AddAsync(subscriptionOrder);
+            await _subscriptionContext.SaveChangesAsync();
+            return added.Entity;
+        }
 
+        public async Task<SubscriptionProduct?> GetSubscriptionProductAsync(int id)
+        {
+            return await _subscriptionContext.SubscriptionProducts.FindAsync(id);
+        }
+
+        public async Task<Datapackage?> GetDatapackageAsync(int id)
+        {
+            return await _subscriptionContext.Datapackages.FindAsync(id);
+        }
+
+        public async Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(int id)
+        {
+            return await _subscriptionContext.CustomerOperatorAccounts.FindAsync(id);
+        }
     }
 }
