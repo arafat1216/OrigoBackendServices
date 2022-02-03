@@ -11,7 +11,8 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             builder.ToTable("SubscriptionOrder");
 
             //Properties
-            builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql("SYSUTCDATETIME()");
+            builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Property(s => s.CreatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             //Relationships
             builder.HasOne(e => e.OperatorAccount)

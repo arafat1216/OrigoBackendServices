@@ -11,10 +11,14 @@ namespace SubscriptionManagementServices
             _subscriptionManagementRepository = subscriptionManagementRepository;
         }
 
-        public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, Guid organizationId, string accountNumber, string accountName, int operatorId)
+        public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, Guid organizationId, string accountNumber, string accountName, int operatorId, Guid callerId)
         {
-            var newCustomerOperatorAccount = new CustomerOperatorAccount(organizationId, customerId, accountNumber, accountName, operatorId);
-            
+            var customerOperator = await _subscriptionManagementRepository.GetOperatorAsync(operatorId);
+
+            if (customerOperator == null)
+                throw new ArgumentException($"No operator exists with ID {operatorId}");
+
+            var newCustomerOperatorAccount = new CustomerOperatorAccount(organizationId, customerId, accountNumber, accountName, operatorId, callerId);
             return await _subscriptionManagementRepository.AddOperatorAccountForCustomerAsync(newCustomerOperatorAccount);
         }
 

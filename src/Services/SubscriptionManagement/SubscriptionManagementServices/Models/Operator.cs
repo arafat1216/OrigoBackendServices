@@ -8,10 +8,12 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public Operator(string operatorName, string country)
+        public Operator(string operatorName, string country, Guid callerId)
         {
             OperatorName = operatorName;
             Country = country;
+            CreatedBy = callerId;
+            UpdatedBy = callerId;
         }
 
         public string OperatorName { get; set; }

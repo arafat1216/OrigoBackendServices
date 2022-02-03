@@ -12,6 +12,6 @@ namespace SubscriptionManagementServices
         Task<bool> DeleteOperatorForCustomerAsync(Guid customerId, string operatorName);
         Task<bool> AddSubscriptionForCustomerAsync(Guid customerId);
         Task<IEnumerable<CustomerOperatorAccount>> GetAllOperatorAccountsForCustomerAsync(Guid customerId);
-        Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, Guid organizationId, string accountNumber, string accountName, int operatorId);
+        Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, Guid organizationId, string accountNumber, string accountName, int operatorId, Guid CallerId);
     }
 }

@@ -19,6 +19,11 @@ namespace SubscriptionManagementServices.Infrastructure
             return added.Entity;
         }
 
+        public async Task<Operator?> GetOperatorAsync(int id)
+        {
+            return await _subscriptionContext.Operators.FindAsync(id);
+        }
+
         public async Task<IEnumerable<CustomerOperatorAccount>> GetAllCustomerOperatorAccountsAsync(Guid customerId)
         {
             return await _subscriptionContext.CustomerOperatorAccounts.Where(m => m.CustomerId == customerId).ToListAsync();

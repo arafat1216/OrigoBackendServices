@@ -9,13 +9,15 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public CustomerOperatorAccount(Guid organizationId, Guid customerId, string accountNumber, string accountName, int operatorId)
+        public CustomerOperatorAccount(Guid organizationId, Guid customerId, string accountNumber, string accountName, int operatorId, Guid callerId)
         {
             OrganizationId = organizationId;
             CustomerId = customerId;
             AccountNumber = accountNumber;
             AccountName = accountName;
             OperatorId = operatorId;
+            CreatedBy = callerId;
+            UpdatedBy = callerId;
         }
 
         public Guid OrganizationId { get; set; }

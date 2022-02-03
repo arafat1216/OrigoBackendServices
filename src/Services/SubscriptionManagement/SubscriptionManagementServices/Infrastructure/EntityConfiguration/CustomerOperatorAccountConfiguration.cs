@@ -13,7 +13,8 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             //Properties
             builder.Property(x => x.AccountName).HasMaxLength(50);
             builder.Property(x => x.AccountNumber).HasMaxLength(50).IsRequired();
-
+            builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Property(s => s.CreatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             //Relationships
             builder.HasOne(e => e.Operator)

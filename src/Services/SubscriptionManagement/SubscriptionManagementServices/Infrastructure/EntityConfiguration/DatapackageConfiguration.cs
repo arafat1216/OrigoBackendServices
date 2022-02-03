@@ -12,7 +12,8 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 
             //Properties
             builder.Property(x => x.DatapackageName).IsRequired().HasMaxLength(50);
-            builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql("SYSUTCDATETIME()");
+            builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Property(s => s.CreatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
         }
     }
 }

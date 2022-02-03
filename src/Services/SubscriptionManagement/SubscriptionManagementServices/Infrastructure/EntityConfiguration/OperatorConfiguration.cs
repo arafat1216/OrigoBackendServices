@@ -13,7 +13,8 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             //Properties
             builder.Property(x => x.OperatorName).HasMaxLength(50).IsRequired();
             builder.Property(x => x.Country).HasMaxLength(2).IsRequired().HasColumnType("char");
-            builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql("SYSUTCDATETIME()");
+            builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Property(s => s.CreatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         }
     }
