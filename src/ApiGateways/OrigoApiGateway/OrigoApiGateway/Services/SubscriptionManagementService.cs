@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using System;
 using System.Collections.Generic;
@@ -43,11 +44,11 @@ namespace OrigoApiGateway.Services
            
         }
 
-        public async Task<IList<string>> GetOperator(string operatorName)
+        public async Task<OrigoOperator> GetOperator(string operatorName)
         {
             try
             {
-                var operatorObject = await HttpClient.GetFromJsonAsync<IList<string>>($"{_options.ApiPath}/operator/{operatorName}");
+                var operatorObject = await HttpClient.GetFromJsonAsync<OrigoOperator>($"{_options.ApiPath}/operator/{operatorName}");
 
                 return operatorObject;
             }

@@ -24,9 +24,10 @@ namespace SubscriptionManagementServices.Infrastructure
             return await _subscriptionContext.CustomerOperatorAccounts.Where(m => m.CustomerId == customerId).ToListAsync();
         }
 
-        public async Task<string> GetOperatorAsync(string name)
+        public async Task<Operator> GetOperatorAsync(string name)
         {
-            throw new NotImplementedException();
+            return await _subscriptionContext.Operators.Where(o => o.OperatorName == name).FirstOrDefaultAsync();
+            
         }
 
 

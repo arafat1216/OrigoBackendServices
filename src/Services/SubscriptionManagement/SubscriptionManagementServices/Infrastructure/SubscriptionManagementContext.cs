@@ -19,7 +19,20 @@ namespace SubscriptionManagementServices.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            Guid createdById = Guid.Parse("00000000-0000-0000-0000-000000000000");
+
+
+
+            modelBuilder.Entity<Operator>(entity =>
+            {
+                
+                entity.HasData(new { Id = 1, OperatorName = "Telia - NO", Country = "nb", CreatedBy= createdById, CreatedDate = DateTime.Now, DeletedBy = Guid.Empty,UpdatedBy = Guid.Empty, IsDeleted = false});
+                entity.HasData(new { Id = 2, OperatorName = "Telia - SE", Country = "se", CreatedBy = createdById, CreatedDate = DateTime.Now, DeletedBy = Guid.Empty, UpdatedBy = Guid.Empty, IsDeleted = false });
+                entity.HasData(new { Id = 3, OperatorName = "Telenor - NO", Country = "nb", CreatedBy = createdById, CreatedDate = DateTime.Now, DeletedBy = Guid.Empty, UpdatedBy = Guid.Empty, IsDeleted = false });
+                entity.HasData(new { Id = 4, OperatorName = "Telenor - SE", Country = "se", CreatedBy = createdById, CreatedDate = DateTime.Now, DeletedBy = Guid.Empty, UpdatedBy = Guid.Empty, IsDeleted = false });
+
+            });
+                modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
 }
