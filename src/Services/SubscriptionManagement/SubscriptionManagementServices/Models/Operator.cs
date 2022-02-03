@@ -8,11 +8,7 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        //public Operator(string operatorName, string country)
-        //{
-        //    OperatorName = operatorName;
-        //    Country = country;
-        //}
+
         public Operator(int id, string operatorName,string country)
         {
             Id = id;
