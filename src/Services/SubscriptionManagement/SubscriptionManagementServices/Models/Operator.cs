@@ -19,6 +19,13 @@ namespace SubscriptionManagementServices.Models
             OperatorName = operatorName;
             Country = country;
         }
+        public Operator(string operatorName, string country, Guid callerId)
+        {
+            OperatorName = operatorName;
+            Country = country;
+            CreatedBy = callerId;
+            UpdatedBy = callerId;
+        }
         public Operator(string operatorName, string country, IList<SubscriptionProduct>? subscriptionProducts, IList<CustomerOperatorAccount>? operatorAccounts)
         {
             OperatorName = operatorName;

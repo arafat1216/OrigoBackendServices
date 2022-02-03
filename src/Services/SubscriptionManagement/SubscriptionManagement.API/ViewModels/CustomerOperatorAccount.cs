@@ -31,5 +31,6 @@
         /// Operator identifier
         /// </summary>
         public int OperatorId { get; set; }
+        public Guid CallerId { get; set; }
     }
 }

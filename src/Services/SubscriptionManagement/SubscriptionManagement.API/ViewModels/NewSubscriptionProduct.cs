@@ -14,5 +14,6 @@
         /// The datapacakges that is offered by the product
         /// </summary>
         public IList<string>? DataPackages { get; set; }
+        public Guid CallerId { get; set; }
     }
 }

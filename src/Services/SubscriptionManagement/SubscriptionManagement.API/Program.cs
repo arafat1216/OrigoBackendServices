@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SubscriptionManagement.API.Filters;
 using SubscriptionManagement.API.Mappings;
 using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
@@ -37,6 +38,8 @@ builder.Services.AddApiVersioning(config =>
     config.AssumeDefaultVersionWhenUnspecified = true;
 });
 
+builder.Services.AddMvc();
+
 builder.Services.AddSwaggerGen(config =>
 {
     config.SwaggerDoc($"v{apiVersion.MajorVersion}", new Microsoft.OpenApi.Models.OpenApiInfo
@@ -53,7 +56,7 @@ builder.Services.AddSwaggerGen(config =>
 builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
 builder.Services.AddScoped<ISubscriptionManagementRepository, SubscriptionManagementRepository>();
-
+builder.Services.AddScoped<ErrorExceptionFilter>();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

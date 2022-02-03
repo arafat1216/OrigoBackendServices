@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SubscriptionManagementServices.Infrastructure;
 
@@ -11,9 +12,10 @@ using SubscriptionManagementServices.Infrastructure;
 namespace SubscriptionManagementServices.Migrations
 {
     [DbContext(typeof(SubscriptionManagementContext))]
-    partial class SubscriptionManagmentContextModelSnapshot : ModelSnapshot
+    [Migration("20220203031342_CreateAndUpdatedDate")]
+    partial class CreateAndUpdatedDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,7 +48,7 @@ namespace SubscriptionManagementServices.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
@@ -60,7 +62,7 @@ namespace SubscriptionManagementServices.Migrations
                     b.Property<DateTime>("LastUpdatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int>("OperatorId")
                         .HasColumnType("int");
@@ -92,7 +94,7 @@ namespace SubscriptionManagementServices.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("DatapackageName")
                         .IsRequired()
@@ -108,7 +110,7 @@ namespace SubscriptionManagementServices.Migrations
                     b.Property<DateTime>("LastUpdatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int?>("SubscriptionProductId")
                         .HasColumnType("int");
@@ -142,7 +144,7 @@ namespace SubscriptionManagementServices.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<Guid>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -153,7 +155,7 @@ namespace SubscriptionManagementServices.Migrations
                     b.Property<DateTime>("LastUpdatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("OperatorName")
                         .IsRequired()
@@ -166,52 +168,6 @@ namespace SubscriptionManagementServices.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Operator", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Country = "nb",
-                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 2, 2, 19, 43, 10, 527, DateTimeKind.Local).AddTicks(7887),
-                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            IsDeleted = false,
-                            OperatorName = "Telia - NO",
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Country = "se",
-                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 2, 2, 19, 43, 10, 527, DateTimeKind.Local).AddTicks(7930),
-                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            IsDeleted = false,
-                            OperatorName = "Telia - SE",
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Country = "nb",
-                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 2, 2, 19, 43, 10, 527, DateTimeKind.Local).AddTicks(7933),
-                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            IsDeleted = false,
-                            OperatorName = "Telenor - NO",
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Country = "se",
-                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 2, 2, 19, 43, 10, 527, DateTimeKind.Local).AddTicks(7936),
-                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            IsDeleted = false,
-                            OperatorName = "Telenor - SE",
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        });
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.SubscriptionAddOnProduct", b =>
@@ -233,7 +189,7 @@ namespace SubscriptionManagementServices.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<Guid>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -244,7 +200,7 @@ namespace SubscriptionManagementServices.Migrations
                     b.Property<DateTime>("LastUpdatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int?>("SubscriptionOrderId")
                         .HasColumnType("int");
@@ -273,7 +229,7 @@ namespace SubscriptionManagementServices.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int>("DatapackageId")
                         .HasColumnType("int");
@@ -287,7 +243,7 @@ namespace SubscriptionManagementServices.Migrations
                     b.Property<DateTime>("LastUpdatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int>("OperatorAccountId")
                         .HasColumnType("int");
@@ -326,7 +282,7 @@ namespace SubscriptionManagementServices.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<Guid>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -337,7 +293,7 @@ namespace SubscriptionManagementServices.Migrations
                     b.Property<DateTime>("LastUpdatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int>("OperatorId")
                         .HasColumnType("int");
