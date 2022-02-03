@@ -8,7 +8,18 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public Operator(string operatorName, string country, Guid callerId)
+        //public Operator(string operatorName, string country)
+        //{
+        //    OperatorName = operatorName;
+        //    Country = country;
+        //}
+        public Operator(int id, string operatorName,string country)
+        {
+            Id = id;
+            OperatorName = operatorName;
+            Country = country;
+        }
+        public Operator(string operatorName, string country, IList<SubscriptionProduct>? subscriptionProducts, IList<CustomerOperatorAccount>? operatorAccounts)
         {
             OperatorName = operatorName;
             Country = country;

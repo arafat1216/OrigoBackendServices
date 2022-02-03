@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SubscriptionManagement.API.Filters;
 using SubscriptionManagement.API.ViewModels;
 using SubscriptionManagementServices;
+using System.Text.Json;
 using System.Net;
 
 namespace SubscriptionManagement.API.Controllers
@@ -35,11 +36,21 @@ namespace SubscriptionManagement.API.Controllers
 
         [HttpGet]
         [Route("operator/{operatorName}")]
-        public async Task<ActionResult<IEnumerable<string>>> GetOperator(string operatorName)
+        public async Task<ActionResult<OperatorViewModel>> GetOperator(string operatorName)
         {
-            var operatorObject = await _subscriptionServices.GetOperator(operatorName);
+            try 
+            { 
+                var operatorObject = await _subscriptionServices.GetOperator(operatorName);
+                var mappedOperator = _mapper.Map<OperatorViewModel>(operatorObject);
 
-            return Ok(operatorObject);
+                return Ok(mappedOperator);
+
+            } 
+            catch (Exception ex)
+            {
+                _logger.LogError("GetOperator backend ", ex);
+                return BadRequest("Unable to get the operator");
+            }
         }
 
         [HttpGet]
