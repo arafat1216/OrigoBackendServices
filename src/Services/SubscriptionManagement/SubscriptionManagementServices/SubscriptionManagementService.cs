@@ -1,17 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
-using SubscriptionManagementServices.Models;
+﻿using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices
 {
     public class SubscriptionManagementService : ISubscriptionManagementService
     {
         private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
-        private readonly ILogger<SubscriptionManagementService> _logger;
 
-        public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository, ILogger<SubscriptionManagementService> logger)
+        public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository)
         {
             _subscriptionManagementRepository = subscriptionManagementRepository;
-            _logger = logger;
         }
 
         public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, Guid organizationId, string accountNumber, string accountName, int operatorId, Guid callerId)
