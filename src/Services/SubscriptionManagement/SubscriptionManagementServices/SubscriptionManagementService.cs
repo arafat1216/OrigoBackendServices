@@ -1,14 +1,17 @@
-﻿using SubscriptionManagementServices.Models;
+﻿using Microsoft.Extensions.Logging;
+using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices
 {
     public class SubscriptionManagementService : ISubscriptionManagementService
     {
         private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
+        private readonly ILogger<SubscriptionManagementService> _logger;
 
-        public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository)
+        public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository, ILogger<SubscriptionManagementService> logger)
         {
             _subscriptionManagementRepository = subscriptionManagementRepository;
+            _logger = logger;
         }
 
         public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, Guid organizationId, string accountNumber, string accountName, int operatorId)
@@ -50,13 +53,11 @@ namespace SubscriptionManagementServices
             return Task.FromResult<IList<string>>(operatorsForCustomer);
         }
 
-        public Task<IList<string>> GetOperator(string operatorName)
+        public async Task<Operator> GetOperator(string operatorName)
         {
 
-            //var test = await _subscriptionManagementRepository.GetOperatorAsync(operatorName);
-            var operatorObject = new List<string> { "Telenor - NO" };
-
-            return Task.FromResult<IList<string>>(operatorObject);
+            var operatorObject = await _subscriptionManagementRepository.GetOperatorAsync(operatorName);
+            return operatorObject;
         }
 
         public Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages)
