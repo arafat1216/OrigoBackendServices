@@ -34,16 +34,21 @@ namespace SubscriptionManagement.API.Controllers
 
         [HttpGet]
         [Route("operator/{operatorName}")]
-        public async Task<ActionResult<ViewModels.OperatorViewModel>> GetOperator(string operatorName)
+        public async Task<ActionResult<OperatorViewModel>> GetOperator(string operatorName)
         {
-            var operatorObject = await _subscriptionServices.GetOperator(operatorName);
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true,
-            };
+            try 
+            { 
+                var operatorObject = await _subscriptionServices.GetOperator(operatorName);
+                var mappedOperator = _mapper.Map<OperatorViewModel>(operatorObject);
 
-            return Ok(JsonSerializer.Serialize<object>(new ViewModels.OperatorViewModel(operatorObject), options));
+                return Ok(mappedOperator);
+
+            } 
+            catch (Exception ex)
+            {
+                _logger.LogError("GetOperator backend ", ex);
+                return BadRequest("Unable to get the operator");
+            }
         }
 
         [HttpGet]
