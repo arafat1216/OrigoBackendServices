@@ -7,9 +7,11 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public Datapackage(string datapackageName)
+        public Datapackage(string datapackageName, Guid callerId)
         {
             DatapackageName = datapackageName;
+            CreatedBy = callerId;
+            UpdatedBy = callerId;
         }
 
         public string DatapackageName { get; set; }

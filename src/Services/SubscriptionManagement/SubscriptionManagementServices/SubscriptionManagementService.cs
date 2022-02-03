@@ -1,23 +1,24 @@
-﻿using Microsoft.Extensions.Logging;
-using SubscriptionManagementServices.Models;
+﻿using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices
 {
     public class SubscriptionManagementService : ISubscriptionManagementService
     {
         private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
-        private readonly ILogger<SubscriptionManagementService> _logger;
 
-        public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository, ILogger<SubscriptionManagementService> logger)
+        public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository)
         {
             _subscriptionManagementRepository = subscriptionManagementRepository;
-            _logger = logger;
         }
 
-        public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, Guid organizationId, string accountNumber, string accountName, int operatorId)
+        public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, Guid organizationId, string accountNumber, string accountName, int operatorId, Guid callerId)
         {
-            var newCustomerOperatorAccount = new CustomerOperatorAccount(organizationId, customerId, accountNumber, accountName, operatorId);
-            
+            var customerOperator = await _subscriptionManagementRepository.GetOperatorAsync(operatorId);
+
+            if (customerOperator == null)
+                throw new ArgumentException($"No operator exists with ID {operatorId}");
+
+            var newCustomerOperatorAccount = new CustomerOperatorAccount(organizationId, customerId, accountNumber, accountName, operatorId, callerId);
             return await _subscriptionManagementRepository.AddOperatorAccountForCustomerAsync(newCustomerOperatorAccount);
         }
 
@@ -60,7 +61,7 @@ namespace SubscriptionManagementServices
             return operatorObject;
         }
 
-        public async Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages)
+        public Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages, Guid callerId)
         {
             return await _subscriptionManagementRepository.AddSubscriptionProductForCustomerAsync(customerId, operatorName,productName,datapackages);
         }

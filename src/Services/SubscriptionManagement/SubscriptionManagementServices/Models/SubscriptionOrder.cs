@@ -8,12 +8,14 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public SubscriptionOrder(int subscriptionProductId, Guid organizationId, int operatorAccountId, int datapackageId)
+        public SubscriptionOrder(int subscriptionProductId, Guid organizationId, int operatorAccountId, int datapackageId, Guid callerId)
         {
             OrganizationId = organizationId;
             SubscriptionProductId = subscriptionProductId;
             OperatorAccountId = operatorAccountId;
             DatapackageId = datapackageId;
+            CreatedBy = callerId;
+            UpdatedBy = callerId;   
         }
         
         public virtual SubscriptionProduct SubscriptionProduct { get; set; }

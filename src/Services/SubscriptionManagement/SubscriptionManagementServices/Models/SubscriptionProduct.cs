@@ -8,12 +8,14 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public SubscriptionProduct(string subscriptionName, int operatorId, IList<Datapackage>? dataPackages)
+        public SubscriptionProduct(string subscriptionName, int operatorId, IList<Datapackage>? dataPackages, Guid callerId)
         {
 
             SubscriptionName = subscriptionName;
             OperatorId = operatorId;
             DataPackages = dataPackages;
+            CreatedBy = callerId;
+            UpdatedBy = callerId;
         }
 
         public string SubscriptionName { get; set; }
