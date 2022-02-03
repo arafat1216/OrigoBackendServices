@@ -63,13 +63,13 @@ namespace SubscriptionManagementServices
             return Task.FromResult<IList<string>>(operatorObject);
         }
 
-        public Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages)
+        public Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages, Guid callerId)
         {
            
             Operator newOperator = new Operator();
             newOperator.OperatorName = operatorName;
 
-            SubscriptionProduct subscriptionProduct = new SubscriptionProduct(productName, 1, datapackages?.Select(i => new Datapackage(i)).ToList());
+            SubscriptionProduct subscriptionProduct = new SubscriptionProduct(productName, 1, datapackages?.Select(i => new Datapackage(i, callerId)).ToList(), callerId);
 
             return Task.FromResult(subscriptionProduct);
         }
