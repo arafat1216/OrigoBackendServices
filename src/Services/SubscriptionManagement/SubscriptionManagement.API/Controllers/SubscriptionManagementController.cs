@@ -166,7 +166,7 @@ namespace SubscriptionManagement.API.Controllers
             }
         }
         [HttpDelete]
-        [Route("{customerId:Guid}/subscriptionProducts/{subscriptionProductId}")]
+        [Route("{customerId:Guid}/subscriptionProducts/{subscriptionProductId:int}")]
         [ProducesResponseType(typeof(SubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<SubscriptionProduct>> DeleteOperatorSubscriptionProductForCustomer(Guid customerId, int subscriptionProductId)
@@ -185,7 +185,7 @@ namespace SubscriptionManagement.API.Controllers
                 return BadRequest("Unable to delete subscription product");
             }
         }
-        [HttpPatch]
+        [HttpPost]
         [Route("{customerId:Guid}/subscriptionProducts/{subscriptionProductId}")]
         [ProducesResponseType(typeof(SubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
