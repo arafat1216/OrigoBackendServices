@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using SubscriptionManagement.API.ViewModels;
-using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
 
 namespace SubscriptionManagement.API.Mappings
@@ -9,8 +7,8 @@ namespace SubscriptionManagement.API.Mappings
     {
         public OperatorProfile()
         {
-            CreateMap<Operator, OperatorDTO>();
-            CreateMap<Operator, OperatorViewModel>();
+            CreateMap<SubscriptionManagementServices.Models.Operator, OperatorDTO>();
+            CreateMap<SubscriptionManagementServices.Models.Operator, ViewModels.Operator >();
         }
     }
 }

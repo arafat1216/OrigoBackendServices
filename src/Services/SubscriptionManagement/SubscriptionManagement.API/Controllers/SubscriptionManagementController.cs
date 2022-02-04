@@ -35,12 +35,12 @@ namespace SubscriptionManagement.API.Controllers
 
         [HttpGet]
         [Route("operator/{operatorName}")]
-        public async Task<ActionResult<OperatorViewModel>> GetOperator(string operatorName)
+        public async Task<ActionResult<Operator>> GetOperator(string operatorName)
         {
             try 
             { 
                 var operatorObject = await _subscriptionServices.GetOperator(operatorName);
-                var mappedOperator = _mapper.Map<OperatorViewModel>(operatorObject);
+                var mappedOperator = _mapper.Map<Operator>(operatorObject);
 
                 return Ok(mappedOperator);
 
@@ -128,15 +128,15 @@ namespace SubscriptionManagement.API.Controllers
 
         [HttpPost]
         [Route("{customerId:Guid}/subscriptionProducts")]
-        [ProducesResponseType(typeof(SubscriptionProductViewModel), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(SubscriptionProduct), (int)HttpStatusCode.Created)]
          [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<SubscriptionProductViewModel>> AddSubscriptionProductForCustomer(Guid customerId, [FromBody] NewSubscriptionProduct subscriptionProduct)
+        public async Task<ActionResult<SubscriptionProduct>> AddSubscriptionProductForCustomer(Guid customerId, [FromBody] NewSubscriptionProduct subscriptionProduct)
         {
             try
             {
                 var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(customerId, subscriptionProduct.OperatorName, subscriptionProduct.ProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
 
-                var mappedSubscriptionProduct = _mapper.Map<SubscriptionProductViewModel>(addSubscriptionProduct);
+                var mappedSubscriptionProduct = _mapper.Map<SubscriptionProduct>(addSubscriptionProduct);
 
                 return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), mappedSubscriptionProduct);
             }
@@ -148,9 +148,9 @@ namespace SubscriptionManagement.API.Controllers
         }
         [HttpGet]
         [Route("{customerId:Guid}/subscriptionProducts/{operatorName}")]
-        [ProducesResponseType(typeof(IList<SubscriptionProductViewModel>), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(IList<SubscriptionProduct>), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<IEnumerable<SubscriptionProductViewModel>>> GetOperatorSubscriptionProductForCustomer(Guid customerId, string operatorName)
+        public async Task<ActionResult<IEnumerable<SubscriptionProduct>>> GetOperatorSubscriptionProductForCustomer(Guid customerId, string operatorName)
         {
             try
             {
@@ -167,15 +167,15 @@ namespace SubscriptionManagement.API.Controllers
         }
         [HttpDelete]
         [Route("{customerId:Guid}/subscriptionProducts/{subscriptionProductId}")]
-        [ProducesResponseType(typeof(SubscriptionProductViewModel), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(SubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<SubscriptionProductViewModel>> DeleteOperatorSubscriptionProductForCustomer(Guid customerId, int subscriptionProductId)
+        public async Task<ActionResult<SubscriptionProduct>> DeleteOperatorSubscriptionProductForCustomer(Guid customerId, int subscriptionProductId)
         {
             try
             {
                 var deletedSubscriptionProducts = await _subscriptionServices.DeleteOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionProductId);
                 
-                var mappedSubscriptionProduct = _mapper.Map<SubscriptionProductViewModel>(deletedSubscriptionProducts);
+                var mappedSubscriptionProduct = _mapper.Map<SubscriptionProduct>(deletedSubscriptionProducts);
                 //return the deleted subscription product
                 return Ok();
             }
@@ -187,15 +187,15 @@ namespace SubscriptionManagement.API.Controllers
         }
         [HttpPatch]
         [Route("{customerId:Guid}/subscriptionProducts/{subscriptionProductId}")]
-        [ProducesResponseType(typeof(IList<SubscriptionProductViewModel>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(SubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<SubscriptionProductViewModel>> UpdateOperatorSubscriptionProductForCustomer(Guid customerId, int subscriptionProductId)
+        public async Task<ActionResult<SubscriptionProduct>> UpdateOperatorSubscriptionProductForCustomer(Guid customerId, int subscriptionProductId, [FromBody] SubscriptionProduct subscription)
         {
             try
             {
                 var updatedSubscriptionProducts = await _subscriptionServices.UpdateOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionProductId);
 
-                var mappedSubscriptionProduct = _mapper.Map<SubscriptionProductViewModel>(updatedSubscriptionProducts);
+                var mappedSubscriptionProduct = _mapper.Map<SubscriptionProduct>(updatedSubscriptionProducts);
 
                 //return the updated subscription product
                 return Ok();
