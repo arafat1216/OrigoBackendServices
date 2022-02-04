@@ -95,14 +95,6 @@ namespace OrigoApiGateway.Controllers
             }
             return NoContent();
         }
-        [Route("{organizationId:Guid}/subscriptionProduct")]
-        [HttpPost]
-        public async Task<ActionResult<OrigoSubscriptionProduct>> CreateSubscriptionProducts(Guid organizationId, [FromBody] NewSubscriptionProduct newSubscriptionProduct)
-        {
-            OrigoSubscriptionProduct NewSubscriptionProduct = await _subscriptionManagementService.AddSubscriptionProductForCustomerAsync(organizationId, newSubscriptionProduct);
-
-            return CreatedAtAction(nameof(CreateSubscriptionProducts), newSubscriptionProduct);
-        }
 
         [Route("{organizationId:Guid}/subscription")]
         [HttpPost]
@@ -114,6 +106,52 @@ namespace OrigoApiGateway.Controllers
 
             }
             return NoContent();
+        }
+
+        [Route("{organizationId:Guid}/subscriptionProducts")]
+        [HttpPost]
+        [ProducesResponseType(typeof(OrigoSubscriptionProduct), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoSubscriptionProduct>> CreateSubscriptionProductForCustomer(Guid organizationId, [FromBody] NewSubscriptionProduct newSubscriptionProduct)
+        {
+            try 
+            {
+                var subscriptionProduct = await _subscriptionManagementService.AddSubscriptionProductForCustomerAsync(organizationId, newSubscriptionProduct);
+                //if (subscriptionProduct == null)
+                //{
+                //    return BadRequest();
+                //}
+                return CreatedAtAction(nameof(CreateSubscriptionProductForCustomer), newSubscriptionProduct);
+            }
+            catch (Exception ex) 
+            {
+
+                _logger.LogError("CreateSubscriptionProductForCustomer gateway", ex.Message);
+                return BadRequest();
+            }
+           
+        }
+
+        [Route("{organizationId:Guid}/subscriptionProducts/{operatorName}")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<OrigoSubscriptionProduct>), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<IList<OrigoSubscriptionProduct>>> GetSubscriptionProductsForCustomer(Guid organizationId, string operatorName)
+        {
+            try
+            {
+                var subscriptionProductList = await _subscriptionManagementService.GetSubscriptionProductForCustomerAsync(organizationId, operatorName);
+                //if (subscriptionProductList == null)
+                //{
+                //    return BadRequest();
+                //}
+                return Ok(subscriptionProductList);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetSubscriptionProductsForCustomer gateway", ex.Message);
+                return BadRequest();
+            }
         }
 
 
