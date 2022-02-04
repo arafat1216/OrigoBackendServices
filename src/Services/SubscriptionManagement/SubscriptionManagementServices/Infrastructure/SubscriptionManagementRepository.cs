@@ -34,6 +34,18 @@ namespace SubscriptionManagementServices.Infrastructure
             return await _subscriptionContext.Operators.Where(o => o.OperatorName == name).FirstOrDefaultAsync();
 
         }
+        public Task<IList<SubscriptionProduct>> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
+        {
+            //Needs implementing - Rolf should supply the model for setting
+            //var hello = _subscriptionContext.CustomerOperatorSettings.Where(o => o.OperatorName == operatorName).ToListAsync();
+            throw new NotImplementedException();
+        }
+
+        public Task<SubscriptionProduct> DeleteOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
+        {
+            //Needs implementing - Rolf should supply the model for setting
+            throw new NotImplementedException();
+        }
 
         public async Task<SubscriptionOrder> AddSubscriptionOrderAsync(SubscriptionOrder subscriptionOrder)
         {
@@ -51,10 +63,20 @@ namespace SubscriptionManagementServices.Infrastructure
         {
             return await _subscriptionContext.Datapackages.FindAsync(id);
         }
+        public Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages)
+        {
+            //Needs implementing - Rolf should supply the model for setting
+            throw new NotImplementedException();
+        }
 
         public async Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(int id)
         {
             return await _subscriptionContext.CustomerOperatorAccounts.FindAsync(id);
+        }
+        public Task<SubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
+        {
+            //Needs implementing - Rolf should supply the model for setting
+            throw new NotImplementedException();
         }
     }
 }

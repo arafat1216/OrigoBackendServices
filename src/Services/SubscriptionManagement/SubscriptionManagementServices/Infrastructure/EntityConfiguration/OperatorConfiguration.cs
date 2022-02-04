@@ -20,7 +20,6 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             builder.Property(x => x.Country).HasMaxLength(2).IsRequired().HasColumnType("char");
             builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
             builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
-
         }
     }
 }
