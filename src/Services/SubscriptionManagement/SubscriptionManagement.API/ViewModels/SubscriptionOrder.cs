@@ -7,6 +7,7 @@
             SubscriptionProductId = subscriptionOrder.SubscriptionProductId;
             OperatorAccountId = subscriptionOrder.OperatorAccountId;
             DatapackageId = subscriptionOrder.DatapackageId;
+            CustomerId = subscriptionOrder.CustomerId;
         }
         /// <summary>
         /// Subscription product identifier
@@ -20,6 +21,10 @@
         /// Datapackage identifier
         /// </summary>
         public int DatapackageId { get; set; }
+        /// <summary>
+        /// Customer identifer
+        /// </summary>
+        public Guid CustomerId { get; set; }
         public Guid CallerId { get; set; }
     }
 }

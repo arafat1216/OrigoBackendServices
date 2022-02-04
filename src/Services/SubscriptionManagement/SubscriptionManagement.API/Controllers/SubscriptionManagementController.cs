@@ -86,7 +86,7 @@ namespace SubscriptionManagement.API.Controllers
         /// <param name="subscriptionOrder">Details of the subscription order</param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(IList<SubscriptionOrder>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(SubscriptionOrder), (int)HttpStatusCode.OK)]
         [Route("{customerId:Guid}/subscription")]
         public async Task<ActionResult<bool>> AddSubscriptionToCustomer(Guid customerId, [FromBody] SubscriptionOrder subscriptionOrder)
         {
