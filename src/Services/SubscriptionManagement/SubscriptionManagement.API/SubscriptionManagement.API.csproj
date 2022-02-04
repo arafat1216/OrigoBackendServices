@@ -31,7 +31,6 @@
 
 	<ItemGroup>
 		<Folder Include="Mappings\" />
-		<Folder Include="ViewModels\" />
 	</ItemGroup>
 
   <ItemGroup>

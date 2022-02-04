@@ -2,7 +2,7 @@
 
 namespace SubscriptionManagement.API.ViewModels
 {
-    public record OperatorViewModel
+    public record Operator
     {
 
         public string OperatorName { get; set; }
