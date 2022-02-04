@@ -10,5 +10,6 @@
         Task<SubscriptionProduct?> GetSubscriptionProductAsync(int id);
         Task<Datapackage?> GetDatapackageAsync(int id);
         Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(int id);
+        Task<IList<Operator>> GetAllOperatorsForCustomerAsync(Guid customerId);
     }
 }

@@ -25,44 +25,36 @@ namespace SubscriptionManagement.API.Controllers
         }
 
         [HttpGet]
-        [Route("operator")]
+        [Route("operators")]
         public async Task<ActionResult<IEnumerable<string>>> GetAllOperators()
         {
-            var operatorList = await _subscriptionServices.GetAllOperators();
+            var operatorList = await _subscriptionServices.GetAllOperatorsAsync();
 
             return Ok(operatorList);
         }
 
         [HttpGet]
-        [Route("operator/{operatorName}")]
+        [Route("operators/{operatorName}")]
         public async Task<ActionResult<OperatorViewModel>> GetOperator(string operatorName)
         {
-            try 
-            { 
-                var operatorObject = await _subscriptionServices.GetOperator(operatorName);
-                var mappedOperator = _mapper.Map<OperatorViewModel>(operatorObject);
+            var operatorObject = await _subscriptionServices.GetOperator(operatorName);
+            var mappedOperator = _mapper.Map<OperatorViewModel>(operatorObject);
 
-                return Ok(mappedOperator);
-
-            } 
-            catch (Exception ex)
-            {
-                _logger.LogError("GetOperator backend ", ex);
-                return BadRequest("Unable to get the operator");
-            }
+            return Ok(mappedOperator);
         }
 
         [HttpGet]
-        [Route("{customerId:Guid}/operator")]
-        public async Task<ActionResult<IEnumerable<string>>> GetOperatorForCustomer(Guid customerId)
+        [Route("{customerId:Guid}/operators")]
+        [ProducesResponseType(typeof(IEnumerable<string>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetOperatorForCustomer(Guid customerId)
         {
-            var customerOperator = await _subscriptionServices.GetAllOperatorsForCustomer(customerId);
+            var customerOperators = await _subscriptionServices.GetAllOperatorsForCustomerAsync(customerId);
 
-            return Ok(customerOperator);
+            return Ok(customerOperators);
         }
 
         [HttpPost]
-        [Route("{customerId:Guid}/operator")]
+        [Route("{customerId:Guid}/operators")]
         public async Task<ActionResult<bool>> AddOperatorsForCustomer(Guid customerId, [FromBody] IList<string> operators)
         {
             var addOperatorForCustomer = await _subscriptionServices.AddOperatorForCustomerAsync(customerId, operators);
@@ -71,7 +63,7 @@ namespace SubscriptionManagement.API.Controllers
         }
 
         [HttpDelete]
-        [Route("{customerId:Guid}/operator/{operatorName}")]
+        [Route("{customerId:Guid}/operators/{operatorName}")]
         public async Task<ActionResult<bool>> DeleteOperatorsForCustomer(Guid customerId, string operatorName)
         {
             var deleteOperatorForCustomer = await _subscriptionServices.DeleteOperatorForCustomerAsync(customerId, operatorName);
@@ -126,25 +118,23 @@ namespace SubscriptionManagement.API.Controllers
             return Ok(new CustomerOperatorAccount(newCustomerOperatorAccount));
         }
 
+        /// <summary>
+        /// Add subscription product
+        /// </summary>
+        /// <param name="customerId">Customer identifier</param>
+        /// <param name="subscriptionProduct">Details of the subscription product</param>
+        /// <returns></returns>
         [HttpPost]
-        [Route("{customerId:Guid}/subscriptionProduct")]
-        [ProducesResponseType(typeof(ViewModels.SubscriptionProductViewModel), (int)HttpStatusCode.Created)]
+        [Route("{customerId:Guid}/subscription-products")]
+        [ProducesResponseType(typeof(SubscriptionProductViewModel), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<ViewModels.SubscriptionProductViewModel>> AddSubscriptionProductForCustomer(Guid customerId, [FromBody] NewSubscriptionProduct subscriptionProduct)
+        public async Task<ActionResult<SubscriptionProductViewModel>> AddSubscriptionProductForCustomer(Guid customerId, [FromBody] NewSubscriptionProduct subscriptionProduct)
         {
-            try
-            {
-                var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(customerId, subscriptionProduct.OperatorName, subscriptionProduct.ProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
+            var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(customerId, subscriptionProduct.OperatorName, subscriptionProduct.ProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
 
-                var mappedSubscriptionProduct = _mapper.Map<SubscriptionProductViewModel>(addSubscriptionProduct);
+            var mappedSubscriptionProduct = _mapper.Map<SubscriptionProductViewModel>(addSubscriptionProduct);
 
-                return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), mappedSubscriptionProduct);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("AddSubscriptionProductForCustomer backend ", ex);
-                return BadRequest("Unable to save create subscription product");
-            }
+            return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), mappedSubscriptionProduct);
         }
     }
 }

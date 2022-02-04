@@ -106,5 +106,13 @@ namespace SubscriptionManagement.UnitTests
             Assert.IsType<ArgumentException>(exception);
             Assert.Equal("No Datapackage exists with ID 10", exception.Message);
         }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task GetAllOperatorsForCustomer()
+        {
+            var customerOperators = await _subscriptionManagementService.GetAllOperatorsForCustomerAsync(CUSTOMER_ONE_ID);
+            Assert.Equal(3, customerOperators.Count());
+        }
     }
 }

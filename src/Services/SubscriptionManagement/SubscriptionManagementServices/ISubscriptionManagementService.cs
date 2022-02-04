@@ -4,9 +4,9 @@ namespace SubscriptionManagementServices
 {
     public interface ISubscriptionManagementService
     {
-        Task<IList<string>> GetAllOperators();
+        Task<IList<string>> GetAllOperatorsAsync();
         Task<Operator> GetOperator(string operatorName);
-        Task<IList<string>> GetAllOperatorsForCustomer(Guid customerId);
+        Task<IList<string>> GetAllOperatorsForCustomerAsync(Guid customerId);
         Task<bool> AddOperatorForCustomerAsync(Guid customerId, IList<string> operators);
         Task<bool> DeleteOperatorForCustomerAsync(Guid customerId, string operatorName);
         Task<SubscriptionOrder> AddSubscriptionOrderForCustomerAsync(Guid customerId, int subscriptionProductId, int operatorAccountId, int datapackageId, Guid callerId);

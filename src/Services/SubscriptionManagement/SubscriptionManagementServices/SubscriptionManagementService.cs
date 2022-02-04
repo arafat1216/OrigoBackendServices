@@ -54,16 +54,16 @@ namespace SubscriptionManagementServices
             return await _subscriptionManagementRepository.GetAllCustomerOperatorAccountsAsync(customerId);
         }
 
-        public Task<IList<string>> GetAllOperators()
+        public Task<IList<string>> GetAllOperatorsAsync()
         {
             var operators = new List<string> { "Telenor - NO", "Telia - NO", "Telenor - SE", "Telia - SE" };
             return Task.FromResult<IList<string>>(operators);
         }
 
-        public Task<IList<string>> GetAllOperatorsForCustomer(Guid organizationId)
+        public async Task<IList<string>> GetAllOperatorsForCustomerAsync(Guid customerId)
         {
-            var operatorsForCustomer = new List<string> { "Telenor - NO", "Telia - NO" };
-            return Task.FromResult<IList<string>>(operatorsForCustomer);
+            var operatorsForCustomer = await _subscriptionManagementRepository.GetAllOperatorsForCustomerAsync(customerId);
+            return operatorsForCustomer.Select(m => m.OperatorName).ToList();
         }
 
         public async Task<Operator> GetOperator(string operatorName)
