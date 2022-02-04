@@ -131,84 +131,49 @@ namespace SubscriptionManagement.API.Controllers
         public async Task<ActionResult<SubscriptionProductViewModel>> AddSubscriptionProductForCustomer(Guid customerId, [FromBody] NewSubscriptionProduct subscriptionProduct)
         {
             var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(customerId, subscriptionProduct.OperatorName, subscriptionProduct.ProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
-        [Route("{customerId:Guid}/subscriptionProducts")]
-        [ProducesResponseType(typeof(SubscriptionProductViewModel), (int)HttpStatusCode.Created)]
-         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<SubscriptionProductViewModel>> AddSubscriptionProductForCustomer(Guid customerId, [FromBody] NewSubscriptionProduct subscriptionProduct)
-        {
-            try
-            {
-                var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(customerId, subscriptionProduct.OperatorName, subscriptionProduct.ProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
 
-                var mappedSubscriptionProduct = _mapper.Map<SubscriptionProductViewModel>(addSubscriptionProduct);
+            var mappedSubscriptionProduct = _mapper.Map<SubscriptionProductViewModel>(addSubscriptionProduct);
 
-                return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), mappedSubscriptionProduct);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("AddSubscriptionProductForCustomer backend ", ex);
-                return BadRequest("Unable to create subscription product");
-            }
+            return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), mappedSubscriptionProduct);
         }
+
         [HttpGet]
-        [Route("{customerId:Guid}/subscriptionProducts/{operatorName}")]
+        [Route("{customerId:Guid}/subscription-products/{operatorName}")]
         [ProducesResponseType(typeof(IList<SubscriptionProductViewModel>), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<IEnumerable<SubscriptionProductViewModel>>> GetOperatorSubscriptionProductForCustomer(Guid customerId, string operatorName)
         {
-            try
-            {
-                var subscriptionProducts = await _subscriptionServices.GetOperatorSubscriptionProductForCustomerAsync(customerId,operatorName);
-                
-                //return the list
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("GetOperatorSubscriptionProductForCustomer backend ", ex);
-                return BadRequest("Unable to get subscription product");
-            }
+            var subscriptionProducts = await _subscriptionServices.GetOperatorSubscriptionProductForCustomerAsync(customerId, operatorName);
+
+            //return the list
+            return Ok();
         }
+
         [HttpDelete]
-        [Route("{customerId:Guid}/subscriptionProducts/{subscriptionProductId}")]
+        [Route("{customerId:Guid}/subscription-products/{subscriptionProductId}")]
         [ProducesResponseType(typeof(SubscriptionProductViewModel), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<SubscriptionProductViewModel>> DeleteOperatorSubscriptionProductForCustomer(Guid customerId, int subscriptionProductId)
         {
-            try
-            {
-                var deletedSubscriptionProducts = await _subscriptionServices.DeleteOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionProductId);
-                
-                var mappedSubscriptionProduct = _mapper.Map<SubscriptionProductViewModel>(deletedSubscriptionProducts);
-                //return the deleted subscription product
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("DeleteOperatorSubscriptionProductForCustomer backend ", ex);
-                return BadRequest("Unable to delete subscription product");
-            }
+            var deletedSubscriptionProducts = await _subscriptionServices.DeleteOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionProductId);
+
+            var mappedSubscriptionProduct = _mapper.Map<SubscriptionProductViewModel>(deletedSubscriptionProducts);
+            //return the deleted subscription product
+            return Ok();
         }
+
         [HttpPatch]
-        [Route("{customerId:Guid}/subscriptionProducts/{subscriptionProductId}")]
+        [Route("{customerId:Guid}/subscription-products/{subscriptionProductId}")]
         [ProducesResponseType(typeof(IList<SubscriptionProductViewModel>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<SubscriptionProductViewModel>> UpdateOperatorSubscriptionProductForCustomer(Guid customerId, int subscriptionProductId)
         {
-            try
-            {
-                var updatedSubscriptionProducts = await _subscriptionServices.UpdateOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionProductId);
+            var updatedSubscriptionProducts = await _subscriptionServices.UpdateOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionProductId);
 
-                var mappedSubscriptionProduct = _mapper.Map<SubscriptionProductViewModel>(updatedSubscriptionProducts);
+            var mappedSubscriptionProduct = _mapper.Map<SubscriptionProductViewModel>(updatedSubscriptionProducts);
 
-                //return the updated subscription product
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("UpdateOperatorSubscriptionProductForCustomer backend ", ex);
-                return BadRequest("Unable to update subscription product");
-            }
+            //return the updated subscription product
+            return Ok();
         }
     }
 }
