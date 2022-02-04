@@ -27,9 +27,21 @@ namespace SubscriptionManagementServices
             return Task.FromResult(true);
         }
 
-        public Task<bool> AddSubscriptionForCustomerAsync(Guid organizationId)
+        public async Task<SubscriptionOrder> AddSubscriptionOrderForCustomerAsync(Guid customerId, int subscriptionProductId, int operatorAccountId, int datapackageId, Guid callerId)
         {
-            return Task.FromResult(true);
+            var customerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(operatorAccountId);
+            if (customerOperatorAccount == null)
+                throw new ArgumentException($"No operator account exists with ID {operatorAccountId}");
+
+            var subscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductAsync(subscriptionProductId);
+            if (subscriptionProduct == null)
+                throw new ArgumentException($"No subscription product exists with ID {subscriptionProductId}");
+
+            var dataPackage = await _subscriptionManagementRepository.GetDatapackageAsync(datapackageId);
+            if (dataPackage == null)
+                throw new ArgumentException($"No Datapackage exists with ID {datapackageId}");
+
+            return await _subscriptionManagementRepository.AddSubscriptionOrderAsync(new SubscriptionOrder(customerId, subscriptionProductId, operatorAccountId, datapackageId, callerId));
         }
 
         public Task<bool> DeleteOperatorForCustomerAsync(Guid organizationId, string operatorName)
@@ -61,16 +73,25 @@ namespace SubscriptionManagementServices
             return operatorObject;
         }
 
-        public Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages, Guid callerId)
+        public async Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages, Guid callerId)
         {
-           
-            Operator newOperator = new Operator();
-            newOperator.OperatorName = operatorName;
-
-            SubscriptionProduct subscriptionProduct = new SubscriptionProduct(productName, 1, datapackages?.Select(i => new Datapackage(i, callerId)).ToList(), callerId);
-
-            return Task.FromResult(subscriptionProduct);
+            return await _subscriptionManagementRepository.AddSubscriptionProductForCustomerAsync(customerId, operatorName,productName,datapackages);
         }
 
+        public async Task<IList<SubscriptionProduct>> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
+        {
+            return await _subscriptionManagementRepository.GetOperatorSubscriptionProductForCustomerAsync(customerId,operatorName);
+
+        }
+
+        public async Task<SubscriptionProduct> DeleteOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
+        {
+            return await _subscriptionManagementRepository.DeleteOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionId);
+        }
+
+        public async Task<SubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
+        {
+            return await _subscriptionManagementRepository.UpdateOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionId);
+        }
     }
 }
