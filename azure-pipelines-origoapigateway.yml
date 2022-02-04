@@ -34,7 +34,7 @@ variables:
   ${{ elseif eq(variables['Build.SourceBranchName'], 'develop') }}:
     namespace: develop
     tag: '$(Build.BuildId)_develop'
-    hostname: origov2prod.mytos.no
+    hostname: origov2dev.mytos.no
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'

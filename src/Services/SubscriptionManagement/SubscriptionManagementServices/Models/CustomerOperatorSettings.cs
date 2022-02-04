@@ -4,12 +4,18 @@ namespace SubscriptionManagementServices.Models
 {
     public class CustomerOperatorSettings : Entity
     {
-        public CustomerOperatorSettings()
+        public CustomerOperatorSettings(Operator @operator, IReadOnlyCollection<SubscriptionProduct>? subscriptionProducts, IReadOnlyCollection<CustomerOperatorAccount>? customerOperatorAccounts)
         {
+            Operator = @operator;
+            SubscriptionProducts = subscriptionProducts;
+            CustomerOperatorAccounts = customerOperatorAccounts;
         }
-        public int CustomerOperatorSettingsId { get; protected set; }
+
+        public CustomerOperatorSettings() { }
+
         public Operator Operator { get; protected set; }
         public IReadOnlyCollection<SubscriptionProduct>? SubscriptionProducts { get; protected set; }
-        public virtual CustomerSettings CustomerSetting { get; set; }
+
+        public IReadOnlyCollection<CustomerOperatorAccount>? CustomerOperatorAccounts { get; protected set; }
     }
 }
