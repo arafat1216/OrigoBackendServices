@@ -9,7 +9,7 @@ namespace SubscriptionManagement.API.Mappings
     {
         public SubscriptionProductProfile()
         {
-            CreateMap<SubscriptionProduct, SubscriptionProductViewModel>();
+            CreateMap<SubscriptionManagementServices.Models.SubscriptionProduct, ViewModels.SubscriptionProduct>();
 
         }
     }

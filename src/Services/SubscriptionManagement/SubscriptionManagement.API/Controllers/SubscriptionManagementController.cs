@@ -141,7 +141,7 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{customerId:Guid}/subscription-products/{operatorName}")]
         [ProducesResponseType(typeof(IList<SubscriptionProductViewModel>), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<IEnumerable<SubscriptionProductViewModel>>> GetOperatorSubscriptionProductForCustomer(Guid customerId, string operatorName)
+        public async Task<ActionResult<IEnumerable<SubscriptionProduct>>> GetOperatorSubscriptionProductForCustomer(Guid customerId, string operatorName)
         {
             var subscriptionProducts = await _subscriptionServices.GetOperatorSubscriptionProductForCustomerAsync(customerId, operatorName);
 
@@ -153,7 +153,7 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{customerId:Guid}/subscription-products/{subscriptionProductId}")]
         [ProducesResponseType(typeof(SubscriptionProductViewModel), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<SubscriptionProductViewModel>> DeleteOperatorSubscriptionProductForCustomer(Guid customerId, int subscriptionProductId)
+        public async Task<ActionResult<SubscriptionProduct>> DeleteOperatorSubscriptionProductForCustomer(Guid customerId, int subscriptionProductId)
         {
             var deletedSubscriptionProducts = await _subscriptionServices.DeleteOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionProductId);
 
@@ -166,7 +166,7 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{customerId:Guid}/subscription-products/{subscriptionProductId}")]
         [ProducesResponseType(typeof(IList<SubscriptionProductViewModel>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<SubscriptionProductViewModel>> UpdateOperatorSubscriptionProductForCustomer(Guid customerId, int subscriptionProductId)
+        public async Task<ActionResult<SubscriptionProduct>> UpdateOperatorSubscriptionProductForCustomer(Guid customerId, int subscriptionProductId, [FromBody] SubscriptionProduct subscription)
         {
             var updatedSubscriptionProducts = await _subscriptionServices.UpdateOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionProductId);
 
