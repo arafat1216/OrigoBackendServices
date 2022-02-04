@@ -31,6 +31,7 @@ namespace SubscriptionManagementServices.Models
         public string Country { get; set; }
         public virtual ICollection<SubscriptionProduct>? SubscriptionProducts { get; set; }
         public virtual ICollection<CustomerOperatorAccount>? CustomerOperatorAccounts { get; set; }
+        public virtual ICollection<CustomerOperatorSettings>? CustomerOperatorSettings { get; set; }
 
     }
 }

@@ -61,7 +61,7 @@ namespace SubscriptionManagementServices
             return operatorObject;
         }
 
-        public Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages, Guid callerId)
+        public async Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages, Guid callerId)
         {
             return await _subscriptionManagementRepository.AddSubscriptionProductForCustomerAsync(customerId, operatorName,productName,datapackages);
         }

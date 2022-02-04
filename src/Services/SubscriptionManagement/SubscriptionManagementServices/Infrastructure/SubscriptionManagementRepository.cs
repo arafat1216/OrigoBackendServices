@@ -37,6 +37,7 @@ namespace SubscriptionManagementServices.Infrastructure
         public Task<IList<SubscriptionProduct>> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
         {
             //Needs implementing - Rolf should supply the model for setting
+            //var hello = _subscriptionContext.CustomerOperatorSettings.Where(o => o.OperatorName == operatorName).ToListAsync();
             throw new NotImplementedException();
         }
 
