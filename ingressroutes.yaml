@@ -11,4 +11,4 @@ spec:
     - name: {{ include "origoapigateway.fullname" . }}
       port: {{ .Values.service.port }}
   tls:
-    certResolver: {{ .Values.ingress.tls.secretName }}
+    certResolver: letsencrypt
