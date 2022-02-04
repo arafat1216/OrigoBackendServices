@@ -73,6 +73,15 @@ namespace SubscriptionManagementServices.Infrastructure
         {
             return await _subscriptionContext.CustomerOperatorAccounts.FindAsync(id);
         }
+
+        public async Task<IList<Operator>> GetAllOperatorsForCustomerAsync(Guid customerId)
+        {
+            var customerOperators = await _subscriptionContext.CustomerOperatorAccounts
+                .Include(m => m.Operator)
+                .Where(m => m.CustomerId == customerId).Select(m => m.Operator).ToListAsync();
+
+            return customerOperators;
+        }
         public Task<SubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
         {
             //Needs implementing - Rolf should supply the model for setting

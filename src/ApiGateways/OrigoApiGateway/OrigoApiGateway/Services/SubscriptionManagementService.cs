@@ -127,7 +127,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/{organizationId}/subscriptionProduct";
+                string requestUri = $"{_options.ApiPath}/{organizationId}/subscriptionProducts";
                 var response = await HttpClient.PostAsJsonAsync(requestUri, subscriptionProduct);
 
                 var newSubscriptionProduct = await response.Content.ReadFromJsonAsync<OrigoSubscriptionProduct>();
@@ -141,5 +141,67 @@ namespace OrigoApiGateway.Services
             }
         }
 
+        public async Task<IList<OrigoSubscriptionProduct>> GetSubscriptionProductForCustomerAsync(Guid organizationId, string operatorName)
+        {
+            try
+            {
+                var subscriptionProduct = await HttpClient.GetFromJsonAsync<IList<OrigoSubscriptionProduct>>($"{_options.ApiPath}/{organizationId}/subscriptionProducts/{operatorName}");
+
+                return subscriptionProduct;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "GetSubscriptionProductForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoSubscriptionProduct> DeleteSubscriptionProductForCustomerAsync(Guid organizationId, int subscriptionProductId)
+        {
+            try
+            {
+
+                var requestUri = $"{_options.ApiPath}/{organizationId}/subscriptionProducts/{subscriptionProductId}";
+
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Content = new StringContent(string.Empty),
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(requestUri, UriKind.Relative)
+                };
+
+                var response = await HttpClient.SendAsync(request);
+                var deletedSubscriptionProduct = await response.Content.ReadFromJsonAsync<OrigoSubscriptionProduct>();
+                if (deletedSubscriptionProduct == null)
+                {
+                    return null;
+                }
+
+                return deletedSubscriptionProduct;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "GetSubscriptionProductForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoSubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionProductId, UpdateSubscriptionProduct subscriptionProduct)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/{customerId}/subscriptionProducts/{subscriptionProductId}";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, subscriptionProduct);
+
+                var newSubscriptionProduct = await response.Content.ReadFromJsonAsync<OrigoSubscriptionProduct>();
+
+                return newSubscriptionProduct;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "AddSubscriptionProductForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
     }
 }
