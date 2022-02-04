@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using SubscriptionManagement.API.Filters;
 using SubscriptionManagement.API.ViewModels;
 using SubscriptionManagementServices;
-using System.Text.Json;
 using System.Net;
 
 namespace SubscriptionManagement.API.Controllers
@@ -80,13 +79,20 @@ namespace SubscriptionManagement.API.Controllers
             return Ok(deleteOperatorForCustomer);
         }
 
+        /// <summary>
+        /// Submit subscription order
+        /// </summary>
+        /// <param name="customerId">Customer identifier</param>
+        /// <param name="subscriptionOrder">Details of the subscription order</param>
+        /// <returns></returns>
         [HttpPost]
+        [ProducesResponseType(typeof(SubscriptionOrder), (int)HttpStatusCode.OK)]
         [Route("{customerId:Guid}/subscription")]
         public async Task<ActionResult<bool>> AddSubscriptionToCustomer(Guid customerId, [FromBody] SubscriptionOrder subscriptionOrder)
         {
-            var addSubscriptionForCustomer = await _subscriptionServices.AddSubscriptionForCustomerAsync(customerId);
+            var addSubscriptionForCustomer = await _subscriptionServices.AddSubscriptionOrderForCustomerAsync(customerId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DatapackageId, subscriptionOrder.CallerId);
 
-            return Ok(addSubscriptionForCustomer);
+            return CreatedAtAction(nameof(AddSubscriptionToCustomer), new SubscriptionOrder(addSubscriptionForCustomer));
         }
 
         /// <summary>
