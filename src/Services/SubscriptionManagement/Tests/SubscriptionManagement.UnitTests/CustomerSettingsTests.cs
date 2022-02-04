@@ -29,7 +29,7 @@ namespace SubscriptionManagement.UnitTests
             _customerSettingsService = new CustomerSettingsService(_customerSettingsRepository);
         }
 
-        [Fact]
+        //[Fact]
         [Trait("Category", "UnitTest")]
         public async Task GetAllOperatorAccountsForCustomer_Check_Total()
         {

@@ -19,19 +19,13 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 
         public void Configure(EntityTypeBuilder<CustomerSettings> builder)
         {
-            builder.ToTable("CustomerSettings");
-            builder.HasKey(x => x.Id);
+            //builder.ToTable("CustomerSettings");
+            //builder.HasKey(x => x.Id);
 
-            //Properties
+            ////Properties
 
-            //Relationships
-            builder.HasMany(e => e.CustomerOperatorSettings)
-                .WithOne(e => e.CustomerSetting)
-                .HasForeignKey(e => e.CustomerOperatorSettingsId);
-
-
-
-
+            ////Relationships
+            //builder.HasMany(e => e.CustomerOperatorSettings);
         }
     }
 }
