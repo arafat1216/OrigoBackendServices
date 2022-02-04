@@ -27,9 +27,21 @@ namespace SubscriptionManagementServices
             return Task.FromResult(true);
         }
 
-        public Task<bool> AddSubscriptionForCustomerAsync(Guid organizationId)
+        public async Task<SubscriptionOrder> AddSubscriptionOrderForCustomerAsync(Guid customerId, int subscriptionProductId, int operatorAccountId, int datapackageId, Guid callerId)
         {
-            return Task.FromResult(true);
+            var customerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(operatorAccountId);
+            if (customerOperatorAccount == null)
+                throw new ArgumentException($"No operator account exists with ID {operatorAccountId}");
+
+            var subscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductAsync(subscriptionProductId);
+            if (subscriptionProduct == null)
+                throw new ArgumentException($"No subscription product exists with ID {subscriptionProductId}");
+
+            var dataPackage = await _subscriptionManagementRepository.GetDatapackageAsync(datapackageId);
+            if (dataPackage == null)
+                throw new ArgumentException($"No Datapackage exists with ID {datapackageId}");
+
+            return await _subscriptionManagementRepository.AddSubscriptionOrderAsync(new SubscriptionOrder(customerId, subscriptionProductId, operatorAccountId, datapackageId, callerId));
         }
 
         public Task<bool> DeleteOperatorForCustomerAsync(Guid organizationId, string operatorName)

@@ -35,6 +35,15 @@ namespace SubscriptionManagement.UnitTests
                 new CustomerOperatorAccount(ORGANIZATION_ONE_ID, CUSTOMER_ONE_ID, "AC_NUM3", "AC_NAME3", operatorOne.Id, CALLER_ONE_ID));
 
             context.SaveChanges();
+
+            var subscriptionProductOne = new SubscriptionProduct("SubscriptionName", operatorOne.Id, null, CALLER_ONE_ID);
+
+            context.AddRange(subscriptionProductOne);
+
+            var dataPackageOne = new Datapackage("Data Package", CALLER_ONE_ID);
+            context.AddRange(dataPackageOne);
+
+            context.SaveChanges();
         }
     }
 }

@@ -9,10 +9,9 @@ namespace SubscriptionManagementServices
         Task<IList<string>> GetAllOperatorsForCustomer(Guid customerId);
         Task<bool> AddOperatorForCustomerAsync(Guid customerId, IList<string> operators);
         Task<bool> DeleteOperatorForCustomerAsync(Guid customerId, string operatorName);
-        Task<bool> AddSubscriptionForCustomerAsync(Guid customerId);
+        Task<SubscriptionOrder> AddSubscriptionOrderForCustomerAsync(Guid customerId, int subscriptionProductId, int operatorAccountId, int datapackageId, Guid callerId);
         Task<IEnumerable<CustomerOperatorAccount>> GetAllOperatorAccountsForCustomerAsync(Guid customerId);
         Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, Guid organizationId, string accountNumber, string accountName, int operatorId, Guid CallerId);
-       
         Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> Datapackages, Guid callerId);
         Task<IList<SubscriptionProduct>> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName);
         Task<SubscriptionProduct> DeleteOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId);

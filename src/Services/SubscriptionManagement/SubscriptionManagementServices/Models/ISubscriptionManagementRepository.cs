@@ -10,5 +10,9 @@
         Task<SubscriptionProduct> DeleteOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId);
         Task<SubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId);
         Task<Operator> GetOperatorAsync(string name);
+        Task<SubscriptionOrder> AddSubscriptionOrderAsync(SubscriptionOrder subscriptionOrder);
+        Task<SubscriptionProduct?> GetSubscriptionProductAsync(int id);
+        Task<Datapackage?> GetDatapackageAsync(int id);
+        Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(int id);
     }
 }
