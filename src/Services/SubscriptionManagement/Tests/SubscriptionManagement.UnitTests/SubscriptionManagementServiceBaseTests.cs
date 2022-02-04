@@ -25,14 +25,16 @@ namespace SubscriptionManagement.UnitTests
 
             //Add operator
             var operatorOne = new Operator("Op1", "No", CALLER_ONE_ID);
-            context.Add(operatorOne);
+            var operatorTwo = new Operator("Op2", "No", CALLER_ONE_ID);
+            var operatorThree = new Operator("Op3", "No", CALLER_ONE_ID);
+            context.AddRange(operatorOne, operatorTwo, operatorThree);
             context.SaveChanges();
 
             //Add customer operator acount
             context.AddRange(
                 new CustomerOperatorAccount(ORGANIZATION_ONE_ID, CUSTOMER_ONE_ID, "AC_NUM1", "AC_NAME1", operatorOne.Id, CALLER_ONE_ID),
-                new CustomerOperatorAccount(ORGANIZATION_ONE_ID, CUSTOMER_ONE_ID, "AC_NUM2", "AC_NAME2", operatorOne.Id, CALLER_ONE_ID),
-                new CustomerOperatorAccount(ORGANIZATION_ONE_ID, CUSTOMER_ONE_ID, "AC_NUM3", "AC_NAME3", operatorOne.Id, CALLER_ONE_ID));
+                new CustomerOperatorAccount(ORGANIZATION_ONE_ID, CUSTOMER_ONE_ID, "AC_NUM2", "AC_NAME2", operatorTwo.Id, CALLER_ONE_ID),
+                new CustomerOperatorAccount(ORGANIZATION_ONE_ID, CUSTOMER_ONE_ID, "AC_NUM3", "AC_NAME3", operatorThree.Id, CALLER_ONE_ID));
 
             context.SaveChanges();
 
