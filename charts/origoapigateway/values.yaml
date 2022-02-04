@@ -56,9 +56,12 @@ ingress:
       paths:
         - /origoapi
   tls:
-   - secretName: letsencrypt
+   - secretName: letsencrypt-origov2dev
      hosts:
        - origov2dev.mytos.no
+
+ingressRoute:
+  match: Host(`origov2dev.mytos.no`) && PathPrefix(`/origoapi`)
 
 secrets: {}
   # Optionally specify a set of secret objects whose values

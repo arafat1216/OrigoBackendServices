@@ -97,6 +97,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 		charts\origoapigateway\templates\collector-config.yaml = charts\origoapigateway\templates\collector-config.yaml
 		charts\origoapigateway\templates\deployment.yaml = charts\origoapigateway\templates\deployment.yaml
 		charts\origoapigateway\templates\ingress.yaml = charts\origoapigateway\templates\ingress.yaml
+		ingressroutes.yaml = ingressroutes.yaml
 		charts\origoapigateway\templates\NOTES.txt = charts\origoapigateway\templates\NOTES.txt
 		charts\origoapigateway\templates\secrets.yaml = charts\origoapigateway\templates\secrets.yaml
 		charts\origoapigateway\templates\service.yaml = charts\origoapigateway\templates\service.yaml
