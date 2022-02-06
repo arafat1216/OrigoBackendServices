@@ -685,5 +685,25 @@ namespace CustomerServices
             }
             return true;
         }
+
+        public async Task<Partner> CreatePartnerAsync(Partner partner)
+        {
+           return await _customerRepository.AddPartnerAsync(partner);
+        }
+
+        /// <summary>
+        /// Returns all partner objects along with their corresponding Organization entities
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IList<Partner>> GetPartnersAsync()
+        {
+            var partners = await _customerRepository.GetPartnersAsync();
+            foreach (Partner partner in partners)
+            {
+                partner.Organization.Preferences = await _customerRepository.GetOrganizationPreferencesAsync(partner.Organization.OrganizationId);
+                partner.Organization.Location = await _customerRepository.GetOrganizationLocationAsync(partner.Organization.PrimaryLocation);
+            }
+            return partners;
+        }
     }
 }

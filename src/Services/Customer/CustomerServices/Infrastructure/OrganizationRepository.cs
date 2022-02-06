@@ -455,5 +455,19 @@ namespace CustomerServices.Infrastructure
             await SaveEntitiesAsync();
             return department;
         }
+
+        public async Task<Partner> AddPartnerAsync(Partner partner)
+        {
+            _customerContext.Partners.Add(partner);
+            await SaveEntitiesAsync();
+            return partner;
+        }
+
+        public async Task<IList<Partner>> GetPartnersAsync()
+        {
+            return await _customerContext.Partners.Where(partner => !partner.IsDeleted)
+                .Include(partner => partner.Organization).ToListAsync();
+                
+        }
     }
 }

@@ -23,5 +23,7 @@ namespace OrigoApiGateway.Services
         Task<OrigoProductModule> AddProductModulesAsync(Guid customerId, NewCustomerProductModule productModule, Guid callerId);
         Task<OrigoProductModule> RemoveProductModulesAsync(Guid customerId, NewCustomerProductModule productModule, Guid callerId);
         Task<string> CreateOrganizationSeedData();
+        Task<Partner> CreatePartnerAsync(Guid organizationId, Guid callerId);
+        Task<IList<Partner>> GetPartnersAsync();
     }
 }

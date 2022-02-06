@@ -133,7 +133,7 @@ namespace Customer.API.Controllers
                     {
                         return BadRequest("Parent organization cannot itself have a parent organization.");
                     }
-                } 
+                }
 
                 // Location
                 CustomerServices.Models.Location organizationLocation;
@@ -182,7 +182,7 @@ namespace Customer.API.Controllers
                 var organizationAddress = new CustomerServices.Models.Address(organization.Address?.Street, organization.Address?.PostCode,
                                                                               organization.Address?.City, organization.Address?.Country);
 
-                Guid? parentId = (organization.ParentId == Guid.Empty) ? null : organization.ParentId; 
+                Guid? parentId = (organization.ParentId == Guid.Empty) ? null : organization.ParentId;
                 var newOrganization = new CustomerServices.Models.Organization(Guid.NewGuid(), organization.CallerId, parentId,
                                                                                organization.Name, organization.OrganizationNumber,
                                                                                organizationAddress, organizationContactPerson,
@@ -262,7 +262,8 @@ namespace Customer.API.Controllers
                 var updatedOrganization = await _organizationServices.PutOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
                                                            organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber);
 
-                var updatedOrganizationView = new Organization {
+                var updatedOrganizationView = new Organization
+                {
                     OrganizationId = updatedOrganization.OrganizationId,
                     Name = updatedOrganization.Name,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
@@ -327,7 +328,7 @@ namespace Customer.API.Controllers
                 // Update
                 var updatedOrganization = await _organizationServices.PatchOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
                                                            organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber);
-                
+
                 var updatedOrganizationView = new Organization
                 {
                     OrganizationId = updatedOrganization.OrganizationId,
@@ -601,11 +602,11 @@ namespace Customer.API.Controllers
                     }
                 }
 
-                var assetCat  = await _organizationServices.GetAssetCategoryType(customerId, addedAssetCategory.AssetCategoryId);
+                var assetCat = await _organizationServices.GetAssetCategoryType(customerId, addedAssetCategory.AssetCategoryId);
                 if (assetCat == null)
                     return NotFound("Given asset category was not found.");
                 Guid assetCatId = assetCat.AssetCategoryId;
-                var assetCategories = await _organizationServices.AddAssetCategoryType(customerId, assetCatId, addedAssetCategory.LifecycleTypes,addedAssetCategory.CallerId);
+                var assetCategories = await _organizationServices.AddAssetCategoryType(customerId, assetCatId, addedAssetCategory.LifecycleTypes, addedAssetCategory.CallerId);
                 var assetCategoryView = new AssetCategoryType
                 {
                     OrganizationId = assetCategories.ExternalCustomerId,
@@ -652,7 +653,7 @@ namespace Customer.API.Controllers
                 if (category == null)
                     return NotFound("Given asset category was not found.");
                 Guid assetCatId = category.AssetCategoryId;
-                var assetCategories = await _organizationServices.RemoveAssetCategoryType(customerId, assetCatId, deleteAssetCategory.LifecycleTypes,deleteAssetCategory.CallerId);
+                var assetCategories = await _organizationServices.RemoveAssetCategoryType(customerId, assetCatId, deleteAssetCategory.LifecycleTypes, deleteAssetCategory.CallerId);
                 if (assetCategories == null)
                     return NotFound();
                 var assetCategoryView = new AssetCategoryType
@@ -723,7 +724,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(ProductModule), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<ProductModule>> RemoveCustomerModules(Guid customerId, UpdateProductModule productModule)
         {
-            var productGroup = await _organizationServices.RemoveProductModulesAsync(customerId, productModule.ProductModuleId, productModule.ProductModuleGroupIds,productModule.CallerId);
+            var productGroup = await _organizationServices.RemoveProductModulesAsync(customerId, productModule.ProductModuleId, productModule.ProductModuleGroupIds, productModule.CallerId);
             if (productGroup == null) return NoContent();
             var moduleGroup = new ProductModule
             {
@@ -737,6 +738,104 @@ namespace Customer.API.Controllers
             };
 
             return Ok(moduleGroup);
+        }
+
+        [Route("partner")]
+        [HttpPost]
+        [ProducesResponseType(typeof(Partner), (int)HttpStatusCode.Created)]
+        public async Task<ActionResult<Partner>> CreatePartner([FromBody] NewPartner newPartner)
+        {
+            try
+            {
+                var organization = await _organizationServices.GetOrganizationAsync(newPartner.OrganizationId, true, true, false);
+                if (organization == null) return NotFound();
+
+                // if org already stored as fk in partner table?
+
+                var partner = new CustomerServices.Models.Partner(organization, newPartner.CallerId);
+
+                var partnerCreated = await _organizationServices.CreatePartnerAsync(partner);
+
+                var updatedOrganizationView = new Organization
+                {
+                    OrganizationId = organization.OrganizationId,
+                    Name = organization.Name,
+                    OrganizationNumber = organization.OrganizationNumber,
+                    Address = new Address(organization.Address),
+                    ContactPerson = new ContactPerson(organization.ContactPerson),
+                    Preferences = (organization.Preferences == null) ? null : new OrganizationPreferences(organization.Preferences),
+                    Location = (organization.Location == null) ? null : new Location(organization.Location)
+                };
+
+                var partnerView = new Partner
+                {
+                    ExternalId = partnerCreated.ExternalId,
+                    //OrganizationId = updatedOrganizationView.OrganizationId,
+                    Organization = updatedOrganizationView
+                };
+
+                return partnerView;
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("partner")]
+        [ProducesResponseType(typeof(IEnumerable<Partner>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IEnumerable<Partner>>> GetPartners()
+        {
+            try
+            {
+                var partners = await _organizationServices.GetPartnersAsync();
+                IList<Partner> list = new List<Partner>();
+
+                foreach (CustomerServices.Models.Partner partner in partners)
+                {
+                    var organizationView = new Organization
+                    {
+                        OrganizationId = partner.Organization.OrganizationId,
+                        Name = partner.Organization.Name,
+                        OrganizationNumber = partner.Organization.OrganizationNumber,
+                        Address = new Address(partner.Organization.Address),
+                        ContactPerson = new ContactPerson(partner.Organization.ContactPerson),
+                        Preferences = (partner.Organization.Preferences == null) ? null : new OrganizationPreferences(partner.Organization.Preferences),
+                        Location = (partner.Organization.Location == null) ? null : new Location(partner.Organization.Location),
+                        ChildOrganizations = new List<Organization>()
+                    };
+                    if (partner.Organization.ChildOrganizations != null)
+                    {
+                        foreach (CustomerServices.Models.Organization childOrg in partner.Organization.ChildOrganizations)
+                        {
+                            var childOrgView = new Organization
+                            {
+                                OrganizationId = childOrg.OrganizationId,
+                                Name = childOrg.Name,
+                                OrganizationNumber = childOrg.OrganizationNumber,
+                                Address = new Address(childOrg.Address),
+                                ContactPerson = new ContactPerson(childOrg.ContactPerson),
+                                Preferences = (childOrg.Preferences == null) ? null : new OrganizationPreferences(childOrg.Preferences),
+                                Location = (childOrg.Location == null) ? null : new Location(childOrg.Location)
+                            };
+                            organizationView.ChildOrganizations.Add(childOrgView);
+                        }
+                    }
+                    var partnerView = new Partner
+                    {
+                        ExternalId = partner.ExternalId,
+                        Organization = organizationView
+                    };
+                    list.Add(partnerView);
+                }
+
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Unknown error (OrganizationsController - Get Organizations (multiple): " + ex.Message);
+            }
         }
     }
 }
