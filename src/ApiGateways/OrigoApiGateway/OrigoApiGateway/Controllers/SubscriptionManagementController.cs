@@ -64,11 +64,12 @@ namespace OrigoApiGateway.Controllers
         }
 
         //All avalible operators by organization - this is for form
-        [Route("{organizationId:Guid}/operator")]
+        [Route("{organizationId:Guid}/operators")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<string>>> Get(Guid organizationId)
+        [ProducesResponseType(typeof(IEnumerable<OrigoOperator>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult> Get(Guid organizationId)
         {
-            var customersOperators = await _subscriptionManagementService.GetAllOperatorsForCustomer(organizationId);
+            var customersOperators = await _subscriptionManagementService.GetAllOperatorsForCustomerAsync(organizationId);
             return Ok(customersOperators);
         }
 
