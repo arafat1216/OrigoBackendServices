@@ -14,6 +14,7 @@ using System.Security.Claims;
 using Common.Enums;
 using OrigoApiGateway.Models.BackendDTO;
 using AutoMapper;
+using OrigoApiGateway.Models.SubscriptionManagement;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -29,13 +30,20 @@ namespace OrigoApiGateway.Controllers
     {
         private ILogger<CustomersController> Logger { get; }
         private ICustomerServices CustomerServices { get; }
+        private ISubscriptionManagementService SubscriptionManagementService { get; }
         private readonly IMapper Mapper;
 
-        public CustomersController(ILogger<CustomersController> logger, ICustomerServices customerServices, IMapper mapper)
+        public CustomersController(
+            ILogger<CustomersController> logger, 
+            ICustomerServices customerServices, 
+            IMapper mapper,
+            ISubscriptionManagementService subscriptionManagementService
+            )
         {
             Logger = logger;
             CustomerServices = customerServices;
             Mapper = mapper;
+            SubscriptionManagementService = subscriptionManagementService;
         }
 
         [HttpGet]
@@ -433,6 +441,15 @@ namespace OrigoApiGateway.Controllers
         public ActionResult<string> GetCustomerWebshopUrl()
         {
             return Ok("https://www.google.com/");
+        }
+
+        [Route("{organizationId:Guid}/operators")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<OrigoOperator>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult> GetAllOperatorsForCustomer(Guid organizationId)
+        {
+            var customersOperators = await SubscriptionManagementService.GetAllOperatorsForCustomerAsync(organizationId);
+            return Ok(customersOperators);
         }
     }
 }

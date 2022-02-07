@@ -60,10 +60,10 @@ namespace SubscriptionManagementServices
             return Task.FromResult<IList<string>>(operators);
         }
 
-        public async Task<IList<string>> GetAllOperatorsForCustomerAsync(Guid customerId)
+        public async Task<IList<Operator>> GetAllOperatorsForCustomerAsync(Guid customerId)
         {
             var operatorsForCustomer = await _subscriptionManagementRepository.GetAllOperatorsForCustomerAsync(customerId);
-            return operatorsForCustomer.Select(m => m.OperatorName).ToList();
+            return operatorsForCustomer;
         }
 
         public async Task<Operator> GetOperator(string operatorName)
@@ -75,12 +75,12 @@ namespace SubscriptionManagementServices
 
         public async Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages, Guid callerId)
         {
-            return await _subscriptionManagementRepository.AddSubscriptionProductForCustomerAsync(customerId, operatorName,productName,datapackages);
+            return await _subscriptionManagementRepository.AddSubscriptionProductForCustomerAsync(customerId, operatorName, productName, datapackages);
         }
 
         public async Task<IList<SubscriptionProduct>> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
         {
-            return await _subscriptionManagementRepository.GetOperatorSubscriptionProductForCustomerAsync(customerId,operatorName);
+            return await _subscriptionManagementRepository.GetOperatorSubscriptionProductForCustomerAsync(customerId, operatorName);
 
         }
 

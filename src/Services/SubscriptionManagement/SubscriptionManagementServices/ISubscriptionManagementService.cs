@@ -6,7 +6,7 @@ namespace SubscriptionManagementServices
     {
         Task<IList<string>> GetAllOperatorsAsync();
         Task<Operator> GetOperator(string operatorName);
-        Task<IList<string>> GetAllOperatorsForCustomerAsync(Guid customerId);
+        Task<IList<Operator>> GetAllOperatorsForCustomerAsync(Guid customerId);
         Task<bool> AddOperatorForCustomerAsync(Guid customerId, IList<string> operators);
         Task<bool> DeleteOperatorForCustomerAsync(Guid customerId, string operatorName);
         Task<SubscriptionOrder> AddSubscriptionOrderForCustomerAsync(Guid customerId, int subscriptionProductId, int operatorAccountId, int datapackageId, Guid callerId);

@@ -14,7 +14,7 @@ namespace OrigoApiGateway.Services
 {
     public class SubscriptionManagementService : ISubscriptionManagementService
     {
-      
+
         private readonly ILogger<SubscriptionManagementService> _logger;
         private readonly SubscriptionManagementConfiguration _options;
         private readonly IMapper _mapper;
@@ -40,8 +40,8 @@ namespace OrigoApiGateway.Services
                 _logger.LogError(ex, "GetAllOperators failed with HttpRequestException.");
                 throw;
             }
-            
-           
+
+
         }
 
         public async Task<OrigoOperator> GetOperator(string operatorName)
@@ -59,11 +59,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<string>> GetAllOperatorsForCustomer(Guid organizationId)
+        public async Task<IList<OrigoOperator>> GetAllOperatorsForCustomerAsync(Guid organizationId)
         {
             try
             {
-                var customersOperator = await HttpClient.GetFromJsonAsync<IList<string>>($"{_options.ApiPath}/{organizationId}/operator");
+                var customersOperator = await HttpClient.GetFromJsonAsync<IList<OrigoOperator>>($"{_options.ApiPath}/{organizationId}/operators");
 
                 return customersOperator;
             }

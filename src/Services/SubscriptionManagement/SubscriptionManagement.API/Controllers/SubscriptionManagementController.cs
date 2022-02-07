@@ -45,12 +45,12 @@ namespace SubscriptionManagement.API.Controllers
 
         [HttpGet]
         [Route("{customerId:Guid}/operators")]
-        [ProducesResponseType(typeof(IEnumerable<string>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<Operator>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetOperatorForCustomer(Guid customerId)
         {
             var customerOperators = await _subscriptionServices.GetAllOperatorsForCustomerAsync(customerId);
 
-            return Ok(customerOperators);
+            return Ok(customerOperators.Select(m => new Operator(m)));
         }
 
         [HttpPost]
