@@ -25,6 +25,7 @@ namespace SubscriptionManagementServices.Models
         public int OperatorAccountId { get; set; }
         public virtual Datapackage? DataPackage { get; set; }
         public int DatapackageId { get; set; }
+        public DateTime OrderExecutionDate { get; set; }
         public virtual ICollection<SubscriptionAddOnProduct> SubscriptionAddOnProducts { get; set; }
     }
 }
