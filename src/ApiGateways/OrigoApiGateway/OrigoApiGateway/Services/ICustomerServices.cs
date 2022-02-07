@@ -23,5 +23,8 @@ namespace OrigoApiGateway.Services
         Task<OrigoProductModule> AddProductModulesAsync(Guid customerId, NewCustomerProductModule productModule, Guid callerId);
         Task<OrigoProductModule> RemoveProductModulesAsync(Guid customerId, NewCustomerProductModule productModule, Guid callerId);
         Task<string> CreateOrganizationSeedData();
+
+        Task<string> GetOktaUserProfileByEmail(string email);
+        Task<bool> CheckAndProvisionWebShopUser(string email, string orgnumber);
     }
 }

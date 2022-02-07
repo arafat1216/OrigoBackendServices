@@ -14,6 +14,7 @@ using System.Security.Claims;
 using Common.Enums;
 using OrigoApiGateway.Models.BackendDTO;
 using AutoMapper;
+using System.IdentityModel.Tokens.Jwt;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -407,6 +408,54 @@ namespace OrigoApiGateway.Controllers
         public ActionResult<string> GetCustomerWebshopUrl()
         {
             return Ok("https://www.google.com/");
+        }
+
+        [Route("webshopUserCheck")]
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<ActionResult> CheckAndProvisionWebShopUser()
+        {
+            // TODO: revisit security of this endpoint
+            try
+            {
+                if (!HttpContext.Request.Headers.ContainsKey("Authorization"))
+                    return Forbid();
+
+                string email = "";
+
+                if (string.IsNullOrWhiteSpace(HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value))
+                {
+                    var bearerToken = HttpContext.Request.Headers["Authorization"];
+                    if (System.Net.Http.Headers.AuthenticationHeaderValue.TryParse(bearerToken, out var headerValue))
+                    {
+                        var scheme = headerValue.Scheme; // "Bearer"
+                        var parameter = headerValue.Parameter; // Token
+
+                        var handler = new JwtSecurityTokenHandler();
+
+                        var jsonToken = ((JwtSecurityToken)handler.ReadToken(parameter);
+
+                        email = jsonToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+                    }
+                }
+                else
+                    email = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+                if (string.IsNullOrWhiteSpace(email))
+                    return Forbid();
+
+                // Get Okta user profile
+                var oktaProfile = await CustomerServices.GetOktaUserProfileByEmail(email);
+                // Okta user profile: https://developer.okta.com/docs/reference/api/users/#response-example-12
+                // org number from organizationNumber attribute in profile.
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
