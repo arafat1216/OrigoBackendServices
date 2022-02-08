@@ -13,9 +13,9 @@ namespace SubscriptionManagementServices.Models
 
         public CustomerOperatorSettings() { }
 
+        public int OperatorId { get; set; }
         public Operator Operator { get; protected set; }
         public IReadOnlyCollection<SubscriptionProduct>? SubscriptionProducts { get; protected set; }
-
         public IReadOnlyCollection<CustomerOperatorAccount>? CustomerOperatorAccounts { get; protected set; }
     }
 }

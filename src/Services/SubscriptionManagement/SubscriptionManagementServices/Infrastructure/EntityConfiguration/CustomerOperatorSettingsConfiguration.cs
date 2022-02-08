@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SubscriptionManagementServices.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
@@ -20,11 +15,25 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
         public void Configure(EntityTypeBuilder<CustomerOperatorSettings> builder)
         {
             builder.ToTable("CustomerOperatorSettings");
+            builder.HasKey(e => e.Id).HasName("CustomerOperatorSettingsId");
+
+            builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
+            builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
 
             //Relationships
-            builder.HasMany(e => e.SubscriptionProducts)
-                .WithMany(e => e.CustomerOperatorSettings).UsingEntity(join => join.ToTable("CustomerOperatorSettingsJoin"));
+            builder
+                .HasMany(e => e.SubscriptionProducts)
+                .WithMany(e => e.CustomerOperatorSettings)
+                .UsingEntity(join => join.ToTable("CustomersOperatorSubscriptionProduct"));
 
+            builder
+                .HasOne(e => e.Operator)
+                .WithMany(e => e.CustomerOperatorSettings)
+                .HasForeignKey(e => e.OperatorId);
+
+            builder.HasMany(e => e.CustomerOperatorAccounts)
+                .WithMany(e => e.CustomerOperatorSettings)
+                .UsingEntity(join => join.ToTable("CustomersOperatorAccounts"));
 
         }
     }

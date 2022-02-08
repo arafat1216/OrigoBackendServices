@@ -35,15 +35,15 @@ namespace SubscriptionManagementServices.Infrastructure
 
 
 
-            modelBuilder.Entity<Operator>(entity =>
-            {
+            //modelBuilder.Entity<Operator>(entity =>
+            //{
 
-                entity.HasData(new { Id = 1, OperatorName = "Telia - NO", Country = "nb", CreatedBy = createdById, CreatedDate = DateTime.Now, DeletedBy = Guid.Empty, UpdatedBy = Guid.Empty, IsDeleted = false });
-                entity.HasData(new { Id = 2, OperatorName = "Telia - SE", Country = "se", CreatedBy = createdById, CreatedDate = DateTime.Now, DeletedBy = Guid.Empty, UpdatedBy = Guid.Empty, IsDeleted = false });
-                entity.HasData(new { Id = 3, OperatorName = "Telenor - NO", Country = "nb", CreatedBy = createdById, CreatedDate = DateTime.Now, DeletedBy = Guid.Empty, UpdatedBy = Guid.Empty, IsDeleted = false });
-                entity.HasData(new { Id = 4, OperatorName = "Telenor - SE", Country = "se", CreatedBy = createdById, CreatedDate = DateTime.Now, DeletedBy = Guid.Empty, UpdatedBy = Guid.Empty, IsDeleted = false });
+            //    entity.HasData(new { Id = 1, OperatorName = "Telia - NO", Country = "nb", CreatedBy = createdById, CreatedDate = DateTime.Now, DeletedBy = Guid.Empty, UpdatedBy = Guid.Empty, IsDeleted = false });
+            //    entity.HasData(new { Id = 2, OperatorName = "Telia - SE", Country = "se", CreatedBy = createdById, CreatedDate = DateTime.Now, DeletedBy = Guid.Empty, UpdatedBy = Guid.Empty, IsDeleted = false });
+            //    entity.HasData(new { Id = 3, OperatorName = "Telenor - NO", Country = "nb", CreatedBy = createdById, CreatedDate = DateTime.Now, DeletedBy = Guid.Empty, UpdatedBy = Guid.Empty, IsDeleted = false });
+            //    entity.HasData(new { Id = 4, OperatorName = "Telenor - SE", Country = "se", CreatedBy = createdById, CreatedDate = DateTime.Now, DeletedBy = Guid.Empty, UpdatedBy = Guid.Empty, IsDeleted = false });
 
-            });
+            //});
 
             modelBuilder.ApplyConfiguration(new CustomerOperatorAccountConfiguration(isSqlLite));
             modelBuilder.ApplyConfiguration(new DatapackageConfiguration(isSqlLite));
@@ -53,6 +53,8 @@ namespace SubscriptionManagementServices.Infrastructure
             modelBuilder.ApplyConfiguration(new SubscriptionProductConfiguration(isSqlLite));
             modelBuilder.ApplyConfiguration(new CustomerSettingsConfiguration(isSqlLite));
             modelBuilder.ApplyConfiguration(new CustomerOperatorSettingsConfiguration(isSqlLite));
+
+           
 
         }
     }
