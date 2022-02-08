@@ -2,6 +2,7 @@
 using CustomerServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 
 namespace Customer.API.Controllers
@@ -31,6 +32,7 @@ namespace Customer.API.Controllers
         public async Task<IActionResult> CheckAndProvisionWebShopUser([FromBody] string email)
         {
             await _webshopService.CheckAndProvisionWebShopUserAsync(email);
+
             _logger.LogInformation($"A user with email {email} has been successfully provisioned.");
             return Ok();
         }
