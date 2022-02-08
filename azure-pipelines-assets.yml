@@ -27,7 +27,7 @@ variables:
   ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
     namespace: prod
     tag: '$(Build.BuildId)_prod'
-    currentDbConnection: '$(AssetsDbConnection)'
+    currentDbConnection: '$(AssetsDbConnectionProd)'
   ${{ elseif eq(variables['Build.SourceBranchName'], 'release') }}:
     namespace: test
     tag: '$(Build.BuildId)_test'
