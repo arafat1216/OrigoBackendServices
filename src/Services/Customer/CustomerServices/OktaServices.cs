@@ -182,15 +182,23 @@ namespace CustomerServices
 
         public async Task<string> GetOktaUserProfileByLoginEmailAsync(string userLoginEmail)
         {
-            using var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Accept", "application/json");
-            client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+            try
+            {
+                using var client = new HttpClient();
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
 
-            var url = _oktaOptions.OktaUrl + "users/" + WebUtility.UrlEncode(userLoginEmail);
-            var resMsg = await client.GetAsync(url);
-            var msg = await resMsg.Content.ReadAsStringAsync();
+                var url = _oktaOptions.OktaUrl + "users/" + WebUtility.UrlEncode(userLoginEmail);
+                var resMsg = await client.GetAsync(url);
+                var msg = await resMsg.Content.ReadAsStringAsync();
 
-            return msg;
+                return msg;
+            }
+            catch (Exception)
+            {
+
+                return string.Empty;
+            }
         }
 
         public async Task<bool> UserHasAppLinks(string userOktaId)

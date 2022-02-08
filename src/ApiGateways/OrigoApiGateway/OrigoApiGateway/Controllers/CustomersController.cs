@@ -433,7 +433,7 @@ namespace OrigoApiGateway.Controllers
 
                         var handler = new JwtSecurityTokenHandler();
 
-                        var jsonToken = ((JwtSecurityToken)handler.ReadToken(parameter);
+                        var jsonToken = ((JwtSecurityToken)handler.ReadToken(parameter));
 
                         email = jsonToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
                     }

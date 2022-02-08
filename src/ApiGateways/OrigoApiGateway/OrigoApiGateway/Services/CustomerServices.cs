@@ -530,7 +530,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var result = await HttpClient.GetStringAsync($"{_options.ApiPath}/{email}/oktaUserProfile");
+                var result = await HttpClient.GetStringAsync($"{_options.ApiPath}/{email}/webshopUser");
 
                 return result;
             }
@@ -539,6 +539,11 @@ namespace OrigoApiGateway.Services
                 _logger.LogError(ex, "GetOktaUserProfileByEmail error.");
                 throw;
             }
+        }
+
+        public Task<bool> CheckAndProvisionWebShopUser(string email, string orgnumber)
+        {
+            throw new NotImplementedException();
         }
 
         //public async Task<string> CheckAndProvisionWebShopUser(string email, string orgnumber); //$"{_options.ApiPath}/webshopUser
