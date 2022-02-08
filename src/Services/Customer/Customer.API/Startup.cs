@@ -61,6 +61,7 @@ namespace Customer.API
                 }));
             services.AddAutoMapper(Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(UserDTOProfile)));
             services.Configure<OktaConfiguration>(Configuration.GetSection("Okta"));
+            services.Configure<WebshopConfiguration>(Configuration.GetSection("Webshop"));
             services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
             services.AddScoped<IOrganizationServices, OrganizationServices>();
             services.AddScoped<IUserServices, UserServices>();
