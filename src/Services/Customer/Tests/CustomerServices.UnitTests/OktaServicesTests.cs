@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Moq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -7,17 +9,32 @@ namespace CustomerServices.UnitTests
     public class OktaServicesTests
     {
         private IOktaServices _oktaServices;
+        bool _isIntegrationTest = false;
         public OktaServicesTests()
         {
-            var oktaOptions = Options.Create(new OktaConfiguration
+            if (_isIntegrationTest)
             {
-                OktaAppId = "0oa4zl5i8wGJW2jon0i7",
-                OktaAuth = "00hHhWmBMgxeHV19AGOAXbCFIarKEWYQAvfia75Tcp",
-                OktaGroupId = "00g6o97kdhlojNtZb0i7",
-                OktaUrl = "https://techstepportal-admin.okta-emea.com/api/v1/"
-            });
-
-            _oktaServices = new OktaServices(oktaOptions);
+                IConfiguration configuration = new ConfigurationBuilder()
+                .AddUserSecrets<OktaServicesTests>(optional: true)
+                .Build();
+                _oktaServices = new OktaServices(Options.Create(configuration.GetSection("Okta").Get<OktaConfiguration>()));
+            }
+            else
+            {
+                var mockOktaService = new Mock<IOktaServices>();
+                mockOktaService.Setup(x => x.GetOktaUserProfileByLoginEmailAsync(It.IsAny<string>()))
+                    .ReturnsAsync(new ServiceModels.OktaUserDTO
+                    {
+                        Id = "[ID]",
+                        Status = "[Active]",
+                        Profile = new ServiceModels.OktaUserProfile
+                        {
+                            AgentSalesId = "[AgentSalesId]",
+                            OrganizationNumber = "[OrganizationNumber]"
+                        }
+                    });
+                _oktaServices = mockOktaService.Object;
+            }
         }
 
         [Fact]
