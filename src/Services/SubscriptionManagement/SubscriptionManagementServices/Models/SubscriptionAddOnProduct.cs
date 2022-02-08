@@ -8,9 +8,11 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public SubscriptionAddOnProduct(string addOnProductName)
+        public SubscriptionAddOnProduct(string addOnProductName, Guid callerId)
         {
             AddOnProductName = addOnProductName;
+            UpdatedBy = callerId;
+            CreatedBy = callerId;
         }
 
         public string AddOnProductName { get; set; }

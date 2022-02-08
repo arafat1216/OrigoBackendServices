@@ -15,6 +15,7 @@ using Common.Enums;
 using OrigoApiGateway.Models.BackendDTO;
 using AutoMapper;
 using System.IdentityModel.Tokens.Jwt;
+using OrigoApiGateway.Models.SubscriptionManagement;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -30,13 +31,20 @@ namespace OrigoApiGateway.Controllers
     {
         private ILogger<CustomersController> Logger { get; }
         private ICustomerServices CustomerServices { get; }
+        private ISubscriptionManagementService SubscriptionManagementService { get; }
         private readonly IMapper Mapper;
 
-        public CustomersController(ILogger<CustomersController> logger, ICustomerServices customerServices, IMapper mapper)
+        public CustomersController(
+            ILogger<CustomersController> logger, 
+            ICustomerServices customerServices, 
+            IMapper mapper,
+            ISubscriptionManagementService subscriptionManagementService
+            )
         {
             Logger = logger;
             CustomerServices = customerServices;
             Mapper = mapper;
+            SubscriptionManagementService = subscriptionManagementService;
         }
 
         [HttpGet]
@@ -141,6 +149,32 @@ namespace OrigoApiGateway.Controllers
             catch (Exception ex)
             {
                 Logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
+        [Route("userCount")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<CustomerUserCount>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<IList<CustomerUserCount>>> GetOrganizationUsers()
+        {
+            try
+            {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+
+                    // Only SystemAdmin has access to all organization user counts
+                    return Forbid();
+                }
+
+                var organizationUserCounts = await CustomerServices.GetCustomerUsersAsync();
+                return organizationUserCounts != null ? Ok(organizationUserCounts) : NotFound();
+            }
+            catch (Exception)
+            {
                 return BadRequest();
             }
         }
@@ -408,6 +442,15 @@ namespace OrigoApiGateway.Controllers
         public ActionResult<string> GetCustomerWebshopUrl()
         {
             return Ok("https://www.google.com/");
+        }
+
+        [Route("{organizationId:Guid}/operators")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<OrigoOperator>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult> GetAllOperatorsForCustomer(Guid organizationId)
+        {
+            var customersOperators = await SubscriptionManagementService.GetAllOperatorsForCustomerAsync(organizationId);
+            return Ok(customersOperators);
         }
     }
 }

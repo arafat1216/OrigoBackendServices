@@ -100,6 +100,11 @@ namespace CustomerServices
             return await _customerRepository.GetCustomerAsync(customerId);
         }
 
+        public async Task<IList<CustomerUserCount>> GetCustomerUsersAsync()
+        {
+            return await _customerRepository.GetOrganizationUserCountsAsync();
+        }
+
         /// <summary>
         /// Add the given Organization to the database.
         /// </summary>

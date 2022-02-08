@@ -1,0 +1,14 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: origoapigateway-ingressroute
+  namespace: {{ .Values.namespace}}
+spec:
+  routes:
+  - match: {{ .Values.ingressRoute.match }}
+    kind: Rule
+    services:
+    - name: {{ include "origoapigateway.fullname" . }}
+      port: {{ .Values.service.port }}
+  tls:
+    certResolver: letsencrypt

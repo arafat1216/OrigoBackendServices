@@ -8,20 +8,21 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public SubscriptionProduct(string subscriptionName, Operator operatorType, IList<Datapackage>? dataPackages, IList<SubscriptionOrder>? subscriptions)
+        public SubscriptionProduct(string subscriptionName, int operatorId, IList<Datapackage>? dataPackages, Guid callerId)
         {
 
             SubscriptionName = subscriptionName;
-            Operator = operatorType;
+            OperatorId = operatorId;
             DataPackages = dataPackages;
-            SubscriptionOrders = subscriptions;
-
+            CreatedBy = callerId;
+            UpdatedBy = callerId;
         }
 
         public string SubscriptionName { get; set; }
         public virtual Operator Operator { get; set; }
         public int OperatorId { get; set; }
         public virtual ICollection<Datapackage>? DataPackages { get; set; }
-        public virtual ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }  
+        public virtual ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
+        public virtual ICollection<CustomerOperatorSettings>? CustomerOperatorSettings { get; protected set; }
     }
 }

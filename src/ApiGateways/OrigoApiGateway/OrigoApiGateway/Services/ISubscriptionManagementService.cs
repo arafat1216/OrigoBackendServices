@@ -7,11 +7,15 @@ namespace OrigoApiGateway.Services
 {
     public interface ISubscriptionManagementService
     {
-        Task<IList<string>> GetOperator(string operatorName);
+        Task<OrigoOperator> GetOperator(string operatorName);
         Task<IList<string>> GetAllOperators();
-        Task<IList<string>> GetAllOperatorsForCustomer(Guid organizationId);
+        Task<IList<OrigoOperator>> GetAllOperatorsForCustomerAsync(Guid organizationId);
         Task<bool> AddOperatorForCustomerAsync(Guid organizationId, IList<string> operators);
         Task<bool> DeleteOperatorForCustomerAsync(Guid organizationId, string operatorName);
         Task<bool> AddSubscriptionForCustomerAsync(Guid organizationId, OrderTransferSubscription subscription);
+        Task<OrigoSubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid organizationId, NewSubscriptionProduct subscriptionProduct);
+        Task<IList<OrigoSubscriptionProduct>> GetSubscriptionProductForCustomerAsync(Guid organizationId, string operatorName);
+        Task<OrigoSubscriptionProduct> DeleteSubscriptionProductForCustomerAsync(Guid organizationId, int subscriptionProductId);
+        Task<OrigoSubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionProductId, UpdateSubscriptionProduct subscriptionProduct);
     }
 }

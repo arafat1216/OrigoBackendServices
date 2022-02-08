@@ -9,6 +9,7 @@ namespace CustomerServices.Models
     {
         Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default);
         Task<Organization> AddAsync(Organization customer);
+        Task<IList<CustomerUserCount>> GetOrganizationUserCountsAsync();
         Task<IList<Organization>> GetOrganizationsAsync();
         Task<IList<Organization>> GetOrganizationsAsync(Guid? parentId);
         Task<IList<Organization>> GetCustomersAsync();

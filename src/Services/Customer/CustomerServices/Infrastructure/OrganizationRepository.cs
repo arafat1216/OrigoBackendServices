@@ -51,6 +51,18 @@ namespace CustomerServices.Infrastructure
             return await _customerContext.Organizations.Where(o => !o.IsDeleted).ToListAsync();
         }
 
+        public async Task<IList<CustomerUserCount>> GetOrganizationUserCountsAsync()
+        {
+            return await _customerContext.Users
+            .Where(u => u.IsActive)
+            .GroupBy(u => u.Customer.OrganizationId)
+            .Select(group => new CustomerUserCount(){
+                OrganizationId = group.Key,
+                Count = group.Count()
+            })
+            .ToListAsync();
+        }
+
         /// <summary>
         /// Get all organizations who has parentId as parent organization.
         /// If parentId is null, it will find all root organizations in the database.

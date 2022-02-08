@@ -10,7 +10,7 @@ using SubscriptionManagementServices.Infrastructure;
 
 namespace SubscriptionManagementServices.Migrations
 {
-    [DbContext(typeof(SubscriptionManagmentContext))]
+    [DbContext(typeof(SubscriptionManagementContext))]
     partial class SubscriptionManagmentContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -21,6 +21,62 @@ namespace SubscriptionManagementServices.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("SubscriptionManagementServices.Models.CustomerOperatorAccount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("AccountName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("AccountNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastUpdatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<int>("OperatorId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OperatorId");
+
+                    b.ToTable("CustomerOperatorAccount", (string)null);
+                });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.Datapackage", b =>
                 {
@@ -34,7 +90,9 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
 
                     b.Property<string>("DatapackageName")
                         .IsRequired()
@@ -82,7 +140,9 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
 
                     b.Property<Guid>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -108,54 +168,6 @@ namespace SubscriptionManagementServices.Migrations
                     b.ToTable("Operator", (string)null);
                 });
 
-            modelBuilder.Entity("SubscriptionManagementServices.Models.OperatorAccount", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("AccountName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("AccountNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastUpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("OperatorId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OperatorId");
-
-                    b.ToTable("OperatorAccount", (string)null);
-                });
-
             modelBuilder.Entity("SubscriptionManagementServices.Models.SubscriptionAddOnProduct", b =>
                 {
                     b.Property<int>("Id")
@@ -173,7 +185,9 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
 
                     b.Property<Guid>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -211,7 +225,9 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
 
                     b.Property<int>("DatapackageId")
                         .HasColumnType("int");
@@ -262,7 +278,9 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
 
                     b.Property<Guid>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -293,22 +311,22 @@ namespace SubscriptionManagementServices.Migrations
                     b.ToTable("SubscriptionProduct", (string)null);
                 });
 
-            modelBuilder.Entity("SubscriptionManagementServices.Models.Datapackage", b =>
-                {
-                    b.HasOne("SubscriptionManagementServices.Models.SubscriptionProduct", null)
-                        .WithMany("DataPackages")
-                        .HasForeignKey("SubscriptionProductId");
-                });
-
-            modelBuilder.Entity("SubscriptionManagementServices.Models.OperatorAccount", b =>
+            modelBuilder.Entity("SubscriptionManagementServices.Models.CustomerOperatorAccount", b =>
                 {
                     b.HasOne("SubscriptionManagementServices.Models.Operator", "Operator")
-                        .WithMany("OperatorAccounts")
+                        .WithMany("CustomerOperatorAccounts")
                         .HasForeignKey("OperatorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Operator");
+                });
+
+            modelBuilder.Entity("SubscriptionManagementServices.Models.Datapackage", b =>
+                {
+                    b.HasOne("SubscriptionManagementServices.Models.SubscriptionProduct", null)
+                        .WithMany("DataPackages")
+                        .HasForeignKey("SubscriptionProductId");
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.SubscriptionAddOnProduct", b =>
@@ -326,13 +344,13 @@ namespace SubscriptionManagementServices.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SubscriptionManagementServices.Models.OperatorAccount", "OperatorAccount")
+                    b.HasOne("SubscriptionManagementServices.Models.CustomerOperatorAccount", "OperatorAccount")
                         .WithMany("SubscriptionOrders")
                         .HasForeignKey("OperatorAccountId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SubscriptionManagementServices.Models.SubscriptionProduct", "SubscriptionType")
+                    b.HasOne("SubscriptionManagementServices.Models.SubscriptionProduct", "SubscriptionProduct")
                         .WithMany("SubscriptionOrders")
                         .HasForeignKey("SubscriptionProductId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -342,7 +360,7 @@ namespace SubscriptionManagementServices.Migrations
 
                     b.Navigation("OperatorAccount");
 
-                    b.Navigation("SubscriptionType");
+                    b.Navigation("SubscriptionProduct");
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.SubscriptionProduct", b =>
@@ -356,6 +374,11 @@ namespace SubscriptionManagementServices.Migrations
                     b.Navigation("Operator");
                 });
 
+            modelBuilder.Entity("SubscriptionManagementServices.Models.CustomerOperatorAccount", b =>
+                {
+                    b.Navigation("SubscriptionOrders");
+                });
+
             modelBuilder.Entity("SubscriptionManagementServices.Models.Datapackage", b =>
                 {
                     b.Navigation("SubscriptionOrders");
@@ -363,14 +386,9 @@ namespace SubscriptionManagementServices.Migrations
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.Operator", b =>
                 {
-                    b.Navigation("OperatorAccounts");
+                    b.Navigation("CustomerOperatorAccounts");
 
                     b.Navigation("SubscriptionProducts");
-                });
-
-            modelBuilder.Entity("SubscriptionManagementServices.Models.OperatorAccount", b =>
-                {
-                    b.Navigation("SubscriptionOrders");
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.SubscriptionOrder", b =>

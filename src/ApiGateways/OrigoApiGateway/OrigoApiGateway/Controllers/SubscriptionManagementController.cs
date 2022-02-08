@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
@@ -6,6 +7,7 @@ using OrigoApiGateway.Models.SubscriptionManagement;
 using OrigoApiGateway.Services;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Controllers
@@ -19,11 +21,13 @@ namespace OrigoApiGateway.Controllers
     {
         private readonly ISubscriptionManagementService _subscriptionManagementService;
         private readonly ILogger<SubscriptionManagementController> _logger;
+        private readonly IMapper _mapper;
 
-        public SubscriptionManagementController(ISubscriptionManagementService subscriptionManagementService, ILogger<SubscriptionManagementController> logger)
+        public SubscriptionManagementController(ISubscriptionManagementService subscriptionManagementService, ILogger<SubscriptionManagementController> logger, IMapper mapper)
         {
             _subscriptionManagementService = subscriptionManagementService;
             _logger = logger;
+            _mapper = mapper;
         }
 
 
@@ -40,18 +44,32 @@ namespace OrigoApiGateway.Controllers
         //Operator by name
         [Route("operator/{operatorName}")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<string>>> Get(string operatorName)
+        [ProducesResponseType(typeof(OrigoOperator), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoOperator>> Get(string operatorName)
         {
-            var operatorObject = await _subscriptionManagementService.GetOperator(operatorName);
-            return Ok(operatorObject);
+            try
+            {
+                var operatorObject = await _subscriptionManagementService.GetOperator(operatorName);
+                
+                return Ok(operatorObject);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Get with operator name ", ex.Message);
+                return BadRequest();
+            }
+            
         }
 
         //All avalible operators by organization - this is for form
-        [Route("{organizationId:Guid}/operator")]
+        [Route("{organizationId:Guid}/operators")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<string>>> Get(Guid organizationId)
+        [ProducesResponseType(typeof(IEnumerable<OrigoOperator>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult> Get(Guid organizationId)
         {
-            var customersOperators = await _subscriptionManagementService.GetAllOperatorsForCustomer(organizationId);
+            var customersOperators = await _subscriptionManagementService.GetAllOperatorsForCustomerAsync(organizationId);
             return Ok(customersOperators);
         }
 
@@ -91,6 +109,95 @@ namespace OrigoApiGateway.Controllers
             return NoContent();
         }
 
-     
+        [Route("{organizationId:Guid}/subscriptionProducts")]
+        [HttpPost]
+        [ProducesResponseType(typeof(OrigoSubscriptionProduct), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoSubscriptionProduct>> CreateSubscriptionProductForCustomer(Guid organizationId, [FromBody] NewSubscriptionProduct newSubscriptionProduct)
+        {
+            try 
+            {
+                var subscriptionProduct = await _subscriptionManagementService.AddSubscriptionProductForCustomerAsync(organizationId, newSubscriptionProduct);
+                //if (subscriptionProduct == null)
+                //{
+                //    return BadRequest();
+                //}
+                return CreatedAtAction(nameof(CreateSubscriptionProductForCustomer), newSubscriptionProduct);
+            }
+            catch (Exception ex) 
+            {
+
+                _logger.LogError("CreateSubscriptionProductForCustomer gateway", ex.Message);
+                return BadRequest();
+            }
+           
+        }
+
+        [Route("{organizationId:Guid}/subscriptionProducts/{operatorName}")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<OrigoSubscriptionProduct>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<IList<OrigoSubscriptionProduct>>> GetSubscriptionProductsForCustomer(Guid organizationId, string operatorName)
+        {
+            try
+            {
+                var subscriptionProductList = await _subscriptionManagementService.GetSubscriptionProductForCustomerAsync(organizationId, operatorName);
+                //if (subscriptionProductList == null)
+                //{
+                //    return BadRequest();
+                //}
+                return Ok(subscriptionProductList);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetSubscriptionProductsForCustomer gateway", ex.Message);
+                return BadRequest();
+            }
+        }
+
+        [Route("{organizationId:Guid}/subscriptionProducts/{subscriptionProductId}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(IList<OrigoSubscriptionProduct>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<OrigoSubscriptionProduct>> DeleteSubscriptionProductsForCustomer(Guid organizationId, int subscriptionProductId)
+        {
+            try
+            {
+                var subscriptionProductList = await _subscriptionManagementService.DeleteSubscriptionProductForCustomerAsync(organizationId, subscriptionProductId);
+                //if (subscriptionProductList == null)
+                //{
+                //    return BadRequest();
+                //}
+                return Ok(subscriptionProductList);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("DeleteSubscriptionProductsForCustomer gateway", ex.Message);
+                return BadRequest();
+            }
+        }
+        [HttpPatch]
+        [Route("{customerId:Guid}/subscriptionProducts/{subscriptionProductId}")]
+        [ProducesResponseType(typeof(OrigoSubscriptionProduct), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<OrigoSubscriptionProduct>> UpdateOperatorSubscriptionProductForCustomer(Guid customerId, int subscriptionProductId, [FromBody] UpdateSubscriptionProduct subscriptionProduct)
+        {
+            try
+            {
+                var updatedSubscriptionProducts = await _subscriptionManagementService.UpdateOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionProductId,subscriptionProduct);
+
+               
+
+                //return the updated subscription product
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("UpdateOperatorSubscriptionProductForCustomer gateway ", ex);
+                return BadRequest("Unable to update subscription product");
+            }
+        }
+
+
     }
 }

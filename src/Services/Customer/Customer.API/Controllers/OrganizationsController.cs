@@ -117,6 +117,27 @@ namespace Customer.API.Controllers
             }
         }
 
+        [Route("userCount")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<CustomerServices.Models.CustomerUserCount>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.Gone)]
+        public async Task<ActionResult<IList<CustomerServices.Models.CustomerUserCount>>> GetOrganizationUsers()
+        {
+            try
+            {
+                var customerUserCounts = await _organizationServices.GetCustomerUsersAsync();
+                if (customerUserCounts == null)
+                    return NotFound();
+
+                return Ok(customerUserCounts);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Unknown error - Get Customer User counts (multiple): " + ex.Message + ex.StackTrace);
+            }
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         public async Task<ActionResult<Organization>> CreateOrganization([FromBody] NewOrganization organization)

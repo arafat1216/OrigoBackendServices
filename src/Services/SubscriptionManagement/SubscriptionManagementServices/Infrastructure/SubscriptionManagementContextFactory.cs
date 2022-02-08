@@ -4,24 +4,24 @@ using Microsoft.Extensions.Configuration;
 
 namespace SubscriptionManagementServices.Infrastructure
 {
-    public class SubscriptionManagmentContextFactory : IDesignTimeDbContextFactory<SubscriptionManagmentContext>
+    public class SubscriptionManagementContextFactory : IDesignTimeDbContextFactory<SubscriptionManagementContext>
     {
-        public SubscriptionManagmentContext CreateDbContext(string[] args)
+        public SubscriptionManagementContext CreateDbContext(string[] args)
         {
             var config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
                                                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                                                    .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
                                                    .AddJsonFile("secrets/appsettings.secrets.json", optional: true)
                                                    .AddEnvironmentVariables()
-                                                   .AddUserSecrets<SubscriptionManagmentContextFactory>(optional: true)
+                                                   .AddUserSecrets<SubscriptionManagementContextFactory>(optional: true)
                                                    .Build();
 
-            var optionsBuilder = new DbContextOptionsBuilder<SubscriptionManagmentContext>();
-            string connectionString = config.GetConnectionString("SubscriptionManagmentConnectionString");
+            var optionsBuilder = new DbContextOptionsBuilder<SubscriptionManagementContext>();
+            string connectionString = config.GetConnectionString("SubscriptionManagementConnectionString");
 
             optionsBuilder.UseSqlServer(connectionString);
 
-            return new SubscriptionManagmentContext(optionsBuilder.Options);
+            return new SubscriptionManagementContext(optionsBuilder.Options);
         }
     }
 }

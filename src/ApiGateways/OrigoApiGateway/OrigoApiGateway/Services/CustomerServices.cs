@@ -92,6 +92,36 @@ namespace OrigoApiGateway.Services
             }
         }
 
+        public async Task<IList<CustomerUserCount>> GetCustomerUsersAsync()
+        {
+            try
+            {
+                var customerUserCounts = await HttpClient.GetFromJsonAsync<IList<CustomerUserCount>>($"{_options.ApiPath}/userCount");
+                return customerUserCounts == null ? null : _mapper.Map<IList<CustomerUserCount>>(customerUserCounts);
+            }
+            catch (HttpRequestException exception)
+            {
+                // Not found
+                if ((int)exception.StatusCode == 404)
+                {
+                    return null;
+                }
+
+                _logger.LogError(exception, "GetCustomerUsersAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetCustomerUsersAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetCustomerUsersAsync unknown error.");
+                throw;
+            }
+        }
+
         public async Task<Organization> CreateCustomerAsync(NewOrganization newCustomer, Guid callerId)
         {
             try

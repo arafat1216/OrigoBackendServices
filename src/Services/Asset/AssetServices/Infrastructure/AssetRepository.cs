@@ -39,6 +39,20 @@ namespace AssetServices.Infrastructure
                 .FirstOrDefaultAsync(a => a.ExternalId == asset.ExternalId);
         }
 
+        public async Task<IList<CustomerAssetCount>> GetAssetsCountsAsync()
+        {
+            var assetCountList = await _assetContext.Assets
+            .Where(a => a.Status == AssetStatus.Active)
+            .GroupBy(a => a.CustomerId)
+            .Select(group => new CustomerAssetCount(){
+                OrganizationId = group.Key,
+                Count = group.Count()
+            })
+            .ToListAsync();
+
+            return assetCountList;
+        }
+
         public async Task<int> GetAssetsCountAsync(Guid customerId)
         {
             var assets = await _assetContext.Assets

@@ -34,7 +34,7 @@ variables:
   ${{ elseif eq(variables['Build.SourceBranchName'], 'develop') }}:
     namespace: develop
     tag: '$(Build.BuildId)_develop'
-    hostname: origov2prod.mytos.no
+    hostname: origov2dev.mytos.no
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
@@ -132,7 +132,7 @@ stages:
               chartType: FilePath
               releaseName: origoapigateway
               namespace: $(namespace)
-              overrideValues: "deployment.image.tag=$(tag),namespace=$(namespace),ingress.hosts[0].host=$(hostname),ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=$(hostname),ingress.tls[0].secretName=letsencrypt"
+              overrideValues: "deployment.image.tag=$(tag),namespace=$(namespace),ingress.hosts[0].host=$(hostname),ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=$(hostname),ingress.tls[0].secretName=letsencrypt-origov2dev"
               arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts
               install: true
