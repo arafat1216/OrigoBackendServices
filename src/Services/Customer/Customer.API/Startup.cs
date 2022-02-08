@@ -1,4 +1,5 @@
 using Common.Logging;
+using Customer.API.Filters;
 using CustomerServices;
 using CustomerServices.Infrastructure;
 using CustomerServices.Mappings;
@@ -69,6 +70,8 @@ namespace Customer.API
             services.AddScoped<IDepartmentsServices, DepartmentsServices>();
             services.AddScoped<IOrganizationTestDataService, OrganizationTestDataService>();
             services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+            services.AddScoped<IWebshopService, WebshopService>();
+            services.AddScoped<ErrorExceptionFilter>();
             services.AddMediatR(typeof(Startup));
         }
 

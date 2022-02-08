@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomerServices.ServiceModels;
+using System;
 using System.Threading.Tasks;
 
 namespace CustomerServices
@@ -12,6 +13,7 @@ namespace CustomerServices
         Task<bool> UserHasAppLinks(string userOktaId);
         Task DeleteUserInOkta(string userOktaId);
         Task DeactivateUserInOkta(string userOktaId);
-        Task<string> GetOktaUserProfileByLoginEmailAsync(string userOktaId);
+        //https://developer.okta.com/docs/reference/api/users/#response-example-12
+        Task<OktaUserDTO> GetOktaUserProfileByLoginEmailAsync(string userOktaId);
     }
 }

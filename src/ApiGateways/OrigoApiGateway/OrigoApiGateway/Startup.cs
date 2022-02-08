@@ -19,6 +19,7 @@ using Microsoft.OpenApi.Models;
 using Okta.AspNetCore;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Controllers;
+using OrigoApiGateway.Filters;
 using OrigoApiGateway.Helpers;
 using OrigoApiGateway.Services;
 using System;
@@ -75,8 +76,8 @@ namespace OrigoApiGateway
             services.Configure<ModuleConfiguration>(Configuration.GetSection("Module"));
             services.Configure<DepartmentConfiguration>(Configuration.GetSection("Department"));
             services.Configure<ProductCatalogConfiguration>(Configuration.GetSection("ProductCatalog"));
-
             services.Configure<SubscriptionManagementConfiguration>(Configuration.GetSection("SubscriptionManagement"));
+            services.Configure<WebshopConfiguration>(Configuration.GetSection("Webshop"));
 
             services.AddAuthentication(options =>
             {
@@ -97,9 +98,18 @@ namespace OrigoApiGateway
                     .Build();
             });
 
+            //Filters
+            services.AddScoped<ErrorExceptionFilter>();
+
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
             services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+
+            services.AddSingleton<IWebshopService>(s => new WebshopService(
+                s.GetRequiredService<ILogger<WebshopService>>(),
+                s.GetRequiredService<IOptions<WebshopConfiguration>>(),
+                DaprClient.CreateInvokeHttpClient("customerservices")
+                ));
 
             services.AddSingleton<IAssetServices>(x => new AssetServices(
                 x.GetRequiredService<ILogger<AssetServices>>(),
@@ -184,10 +194,10 @@ namespace OrigoApiGateway
                 x.GetRequiredService<IOptions<ProductCatalogConfiguration>>()
             ));
 
-            
-            services.AddSingleton<ISubscriptionManagementService>(x=> new SubscriptionManagementService(
+
+            services.AddSingleton<ISubscriptionManagementService>(x => new SubscriptionManagementService(
                 x.GetRequiredService<ILogger<SubscriptionManagementService>>(),
-                    x.GetRequiredService<IOptions<SubscriptionManagementConfiguration>>(), 
+                    x.GetRequiredService<IOptions<SubscriptionManagementConfiguration>>(),
                     DaprClient.CreateInvokeHttpClient("subscriptionmanagementservices")
                 ));
 

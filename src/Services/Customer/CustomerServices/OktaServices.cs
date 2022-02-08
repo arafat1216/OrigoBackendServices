@@ -1,4 +1,5 @@
 ﻿using CustomerServices.Exceptions;
+using CustomerServices.ServiceModels;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -180,7 +181,7 @@ namespace CustomerServices
             return resMsg.IsSuccessStatusCode;
         }
 
-        public async Task<string> GetOktaUserProfileByLoginEmailAsync(string userLoginEmail)
+        public async Task<OktaUserDTO> GetOktaUserProfileByLoginEmailAsync(string userLoginEmail)
         {
             try
             {
@@ -189,15 +190,17 @@ namespace CustomerServices
                 client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
 
                 var url = _oktaOptions.OktaUrl + "users/" + WebUtility.UrlEncode(userLoginEmail);
-                var resMsg = await client.GetAsync(url);
-                var msg = await resMsg.Content.ReadAsStringAsync();
+                var response = await client.GetAsync(url);
 
-                return msg;
+                response.EnsureSuccessStatusCode();
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                return JsonConvert.DeserializeObject<OktaUserDTO>(responseContent);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                return string.Empty;
+                return null;
             }
         }
 
