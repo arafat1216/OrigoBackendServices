@@ -15,7 +15,6 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
         public void Configure(EntityTypeBuilder<CustomerOperatorSettings> builder)
         {
             builder.ToTable("CustomerOperatorSettings");
-            builder.HasKey(e => e.Id).HasName("CustomerOperatorSettingsId");
 
             builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
             builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
