@@ -171,8 +171,8 @@ namespace CustomerServices
             if (string.IsNullOrWhiteSpace(token))
                 return null;
 
-            if (string.IsNullOrWhiteSpace(person.PhoneNumber))
-                throw new ArgumentException("The phone-number is missing for the provided user.");
+            // if (string.IsNullOrWhiteSpace(person.PhoneNumber))
+            //     throw new ArgumentException("The phone-number is missing for the provided user.");
 
             person.PhoneNumber = EnforcePhoneNumberCountryCode(person.PhoneNumber);
 
