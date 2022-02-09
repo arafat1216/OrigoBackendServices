@@ -26,7 +26,7 @@ variables:
     tag: '$(Build.BuildId)_prod'
     hostname: smart.techstep.no
     environment: 'BackendServices.prod'
-    letsencryptsecretname: 'letsencrypt-entrytechstepno'
+    letsencryptsecretname: 'letsencrypt-smart-techstepno'
   ${{ elseif eq(variables['Build.SourceBranchName'], 'release') }}:
     namespace: test
     tag: '$(Build.BuildId)_test'
