@@ -7,14 +7,14 @@ namespace SubscriptionManagementServices.Models
         public CustomerOperatorSettings(Operator @operator, IReadOnlyCollection<SubscriptionProduct>? subscriptionProducts, IReadOnlyCollection<CustomerOperatorAccount>? customerOperatorAccounts)
         {
             Operator = @operator;
-            SubscriptionProducts = subscriptionProducts;
+            AvailableSubscriptionProducts = subscriptionProducts;
             CustomerOperatorAccounts = customerOperatorAccounts;
         }
 
         public CustomerOperatorSettings() { }
 
         public Operator Operator { get; protected set; }
-        public IReadOnlyCollection<SubscriptionProduct>? SubscriptionProducts { get; protected set; }
+        public IReadOnlyCollection<SubscriptionProduct>? AvailableSubscriptionProducts { get; protected set; }
 
         public IReadOnlyCollection<CustomerOperatorAccount>? CustomerOperatorAccounts { get; protected set; }
     }

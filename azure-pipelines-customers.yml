@@ -27,15 +27,18 @@ variables:
   ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
     namespace: prod
     tag: '$(Build.BuildId)_prod'
-    currentDbConnection: '$(CustomerDbConnection)'
+    currentDbConnection: '$(CustomerDbConnectionProd)'
+    environment: 'BackendServices.prod'
   ${{ elseif eq(variables['Build.SourceBranchName'], 'release') }}:
     namespace: test
     tag: '$(Build.BuildId)_test'
     currentDbConnection: '$(CustomerDbConnectionTest)'
+    environment: 'BackendServices.develop'
   ${{ elseif eq(variables['Build.SourceBranchName'], 'develop') }}:
     namespace: develop
     tag: '$(Build.BuildId)_develop'
     currentDbConnection: '$(CustomerDbConnection)'
+    environment: 'BackendServices.develop'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
@@ -160,7 +163,7 @@ stages:
     displayName: Deploy
     pool:
       vmImage: $(vmImageName)
-    environment: 'BackendServices.develop'
+    environment: $(environment)
     strategy:
       runOnce:
         deploy:

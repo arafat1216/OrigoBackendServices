@@ -27,15 +27,18 @@ variables:
   ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
     namespace: prod
     tag: '$(Build.BuildId)_prod'
-    currentDbConnection: '$(ProductCatalogDbConnection)'
+    currentDbConnection: '$(ProductCatalogDbConnectionProd)'
+    environment: 'BackendServices.prod'
   ${{ elseif eq(variables['Build.SourceBranchName'], 'release') }}:
     namespace: test
     tag: '$(Build.BuildId)_test'
     currentDbConnection: '$(ProductCatalogDbConnectionTest)'
+    environment: 'BackendServices.develop'
   ${{ elseif eq(variables['Build.SourceBranchName'], 'develop') }}:
     namespace: develop
     tag: '$(Build.BuildId)_develop'
     currentDbConnection: '$(ProductCatalogDbConnection)'
+    environment: 'BackendServices.develop'
 
   # Agent VM image name(s)
   vmImageName: 'ubuntu-latest'
@@ -169,7 +172,7 @@ stages:
 
   - deployment: MigrateDatabase
     dependsOn: Deploy
-    environment: 'BackendServices.develop'
+    environment: $(environment)
     displayName: Migrate database
     pool:
       vmImage: $(windowsVmImageName)
