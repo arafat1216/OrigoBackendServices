@@ -21,15 +21,10 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 
             //Relationships
 
-            //builder.HasMany(e => e.AvailableSubscriptionProducts)
-            //    .WithMany(e => e.CustomerOperatorSettings)
-            //    .UsingEntity(join => join.ToTable("CustomerOperatorSettingsJoin"));
-
-
-            builder
-                .HasMany(e => e.SubscriptionProducts)
+            builder.HasMany(e => e.AvailableSubscriptionProducts)
                 .WithMany(e => e.CustomerOperatorSettings)
-                .UsingEntity(join => join.ToTable("CustomersOperatorSubscriptionProduct"));
+                .UsingEntity(join => join.ToTable("CustomerOperatorSettingsJoin"));
+
 
             builder
                 .HasOne(e => e.Operator)
