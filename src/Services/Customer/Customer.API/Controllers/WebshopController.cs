@@ -31,10 +31,18 @@ namespace Customer.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CheckAndProvisionWebShopUser([FromBody] string email)
         {
-            await _webshopService.CheckAndProvisionWebShopUserAsync(email);
-
-            _logger.LogInformation($"A user with email {email} has been successfully provisioned.");
-            return Ok();
+            try
+            {
+                await _webshopService.CheckAndProvisionWebShopUserAsync(email);
+                _logger.LogInformation($"A user with email {email} has been successfully provisioned.");
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogInformation($"Webshop user provisioning failed: " + ex.Message);
+                return BadRequest("Unknown error in WebshopController - Check and Provision Webshop User (single): " + ex.Message);
+            }
+            
         }
     }
 }
