@@ -144,7 +144,7 @@ stages:
     displayName: Deploy
     pool:
       vmImage: $(vmImageName)
-    environment: 'BackendServices.develop'
+    environment: $(environment)
     strategy:
       runOnce:
         deploy:
