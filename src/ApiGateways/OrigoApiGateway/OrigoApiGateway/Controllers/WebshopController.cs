@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using OrigoApiGateway.Filters;
 using OrigoApiGateway.Services;
+using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -38,11 +41,27 @@ namespace OrigoApiGateway.Controllers
             {
                 var scheme = headerValue.Scheme; // "Bearer"
                 var parameter = headerValue.Parameter; // Token
+                var issuer = "https://origoidp.mytos.no/oauth2/aus4zl6rw8yihu7k60i7";
+                var audiences = (IEnumerable<String>) new String[] {"0oa78f6tkat5lg1qn0i7", "0oa752p55ihmtFo4p0i7"};
 
                 var handler = new JwtSecurityTokenHandler();
+                try
+                {
+                    handler.ValidateToken(parameter, new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidIssuer = issuer,
+                        ValidAudiences = audiences
+                    }, out SecurityToken validatedToken);
+                }
+                catch
+                {
+                    return Forbid();
+                }
 
                 var jsonToken = (JwtSecurityToken)handler.ReadToken(parameter);
-
                 var email = jsonToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
 
                 if (string.IsNullOrWhiteSpace(email))
