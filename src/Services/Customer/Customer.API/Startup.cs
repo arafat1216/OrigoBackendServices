@@ -1,4 +1,5 @@
 using Common.Logging;
+using Customer.API.Filters;
 using CustomerServices;
 using CustomerServices.Infrastructure;
 using CustomerServices.Mappings;
@@ -60,6 +61,7 @@ namespace Customer.API
                 }));
             services.AddAutoMapper(Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(UserDTOProfile)));
             services.Configure<OktaConfiguration>(Configuration.GetSection("Okta"));
+            services.Configure<WebshopConfiguration>(Configuration.GetSection("Webshop"));
             services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
             services.AddScoped<IOrganizationServices, OrganizationServices>();
             services.AddScoped<IUserServices, UserServices>();
@@ -69,6 +71,8 @@ namespace Customer.API
             services.AddScoped<IDepartmentsServices, DepartmentsServices>();
             services.AddScoped<IOrganizationTestDataService, OrganizationTestDataService>();
             services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+            services.AddScoped<IWebshopService, WebshopService>();
+            services.AddScoped<ErrorExceptionFilter>();
             services.AddMediatR(typeof(Startup));
         }
 

@@ -555,5 +555,27 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<string> GetOktaUserProfileByEmail(string email)
+        {
+            try
+            {
+                var result = await HttpClient.GetStringAsync($"{_options.ApiPath}/{email}/webshopUser");
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetOktaUserProfileByEmail error.");
+                throw;
+            }
+        }
+
+        public Task<bool> CheckAndProvisionWebShopUser(string email, string orgnumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        //public async Task<string> CheckAndProvisionWebShopUser(string email, string orgnumber); //$"{_options.ApiPath}/webshopUser
     }
 }
