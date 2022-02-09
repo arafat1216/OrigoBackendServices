@@ -32,6 +32,9 @@ namespace CustomerServices
         /// <returns>The phone-number with the enforced country code</returns>
         private string EnforcePhoneNumberCountryCode(string phoneNumber, string countryCode = "+47")
         {
+            if (string.IsNullOrEmpty(phoneNumber))
+                return "";
+
             phoneNumber = phoneNumber.Trim();
 
             if (countryCode.Length == 4 && countryCode.StartsWith("004"))
@@ -48,7 +51,7 @@ namespace CustomerServices
 
             return phoneNumber;
         }
-        
+
         public async Task<string> GetLitiumTokenAsync()
         {
             if (TokenExpireTime >= DateTime.UtcNow.AddMinutes(3))
@@ -67,7 +70,8 @@ namespace CustomerServices
                 });
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded"));
 
-                try {
+                try
+                {
                     var resMsg = client.PostAsync(_webshopConfig.AccessTokenUri, content).GetAwaiter().GetResult();
 
                     if (!resMsg.IsSuccessStatusCode)
@@ -86,7 +90,8 @@ namespace CustomerServices
                     TokenExpireTime = DateTime.UtcNow.AddSeconds((int)deserializedToken.expires_in);
                     return Token;
                 }
-                catch (Exception) {
+                catch (Exception)
+                {
                     return null;
                 }
             }
@@ -107,12 +112,14 @@ namespace CustomerServices
 
                 var resMsg = client.GetAsync($"{_webshopConfig.PersonSearchByEmailUri}{email}").GetAwaiter().GetResult();
 
-                try {
+                try
+                {
                     string json = await resMsg.Content.ReadAsStringAsync();
                     LitiumPerson person = JsonConvert.DeserializeObject<LitiumPerson>(json);
                     return person;
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     return null;
                 }
             }
@@ -149,8 +156,8 @@ namespace CustomerServices
                 }
 
                 var maasOrganizations = organizations.Where(o => o.OrganizationName.ToLower()
-                    .Contains("maas") 
-                    || o.OrganizationName.ToLower().Contains("flow") 
+                    .Contains("maas")
+                    || o.OrganizationName.ToLower().Contains("flow")
                     || o.OrganizationName.ToLower().Contains("prioritet")
                 );
 
@@ -198,13 +205,14 @@ namespace CustomerServices
 
         public async Task CheckAndProvisionWebShopUserAsync(string email)
         {
-            try {
+            try
+            {
                 var oktaUser = await _oktaServices.GetOktaUserProfileByLoginEmailAsync(email);
 
                 if (oktaUser == null)
                     throw new ArgumentException("General request towards web shop failed.");
 
-                if (string.IsNullOrEmpty(oktaUser.Profile?.OrganizationNumber)) 
+                if (string.IsNullOrEmpty(oktaUser.Profile?.OrganizationNumber))
                     throw new ArgumentException("User missing organization number.");
 
                 LitiumOrganization organization = await GetLitiumOrganizationByOrgnumberAsync(oktaUser.Profile.OrganizationNumber);
@@ -212,17 +220,19 @@ namespace CustomerServices
                     throw new ArgumentException("Okta Organization not found in webshop");
 
                 LitiumPerson person = await GetLitiumPersonByEmail(email);
-                if(person == null) 
+                if (person == null)
                 {
-                    person = new LitiumPerson() {
+                    person = new LitiumPerson()
+                    {
                         FirstName = oktaUser.Profile.FirstName,
                         LastName = oktaUser.Profile.LastName,
                         PhoneNumber = oktaUser.Profile.MobilePhone,
                         Email = oktaUser.Profile.Email,
                         OrganizationRoles = new List<LitiumOrganizationRole>()
                     };
-                    
-                    person.OrganizationRoles.Add(new LitiumOrganizationRole() {
+
+                    person.OrganizationRoles.Add(new LitiumOrganizationRole()
+                    {
                         Organization = organization,
                         Role = "Ansatt"
                     });
@@ -232,28 +242,30 @@ namespace CustomerServices
 
                 var isRoleCorrectlySetup = person.OrganizationRoles.Any(x => x.Organization.LegalRegistrationNumber == organization.LegalRegistrationNumber && x.Role == "Ansatt");
 
-                if(!isRoleCorrectlySetup) 
+                if (!isRoleCorrectlySetup)
                 {
-                    LitiumOrganizationRole newOrganizationRole = new LitiumOrganizationRole() {
+                    LitiumOrganizationRole newOrganizationRole = new LitiumOrganizationRole()
+                    {
                         Organization = organization,
                         Role = "Ansatt"
                     };
                     var idx = person.OrganizationRoles.FindIndex(x => x.Organization.LegalRegistrationNumber == organization.LegalRegistrationNumber);
-                    
-                    if(idx < 0) 
+
+                    if (idx < 0)
                     {
                         person.OrganizationRoles.Add(newOrganizationRole);
                     }
-                    else 
+                    else
                     {
                         person.OrganizationRoles[idx] = newOrganizationRole;
                     }
 
                     await PostLitiumPerson(person);
                 }
-                
+
             }
-            catch(Exception e) {
+            catch (Exception e)
+            {
                 throw e;
             }
         }
