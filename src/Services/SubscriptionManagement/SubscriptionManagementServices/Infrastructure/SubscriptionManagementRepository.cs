@@ -87,5 +87,12 @@ namespace SubscriptionManagementServices.Infrastructure
             //Needs implementing - Rolf should supply the model for setting
             throw new NotImplementedException();
         }
+
+        public async Task<TransferSubscriptionOrder> TransferSubscriptionOrderAsync(TransferSubscriptionOrder subscriptionOrder)
+        {
+            var added = await _subscriptionContext.AddAsync(subscriptionOrder);
+            await _subscriptionContext.SaveChangesAsync();
+            return added.Entity;
+        }
     }
 }

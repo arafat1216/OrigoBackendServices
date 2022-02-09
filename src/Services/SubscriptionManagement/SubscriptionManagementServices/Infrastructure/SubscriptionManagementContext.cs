@@ -24,6 +24,7 @@ namespace SubscriptionManagementServices.Infrastructure
         public DbSet<CustomerOperatorAccount> CustomerOperatorAccounts { get; set; }
         public DbSet<SubscriptionProduct> SubscriptionProducts { get; set; }
         public DbSet<SubscriptionOrder> SubscriptionOrders { get; set; }
+        public DbSet<TransferSubscriptionOrder> TransferSubscriptionOrders { get; set; }
         public DbSet<Datapackage> Datapackages { get; set; }
         public DbSet<SubscriptionAddOnProduct> SubscriptionAddOnProducts { get; set; }
         public DbSet<CustomerSettings> CustomerSettings { get; set; }
@@ -32,9 +33,6 @@ namespace SubscriptionManagementServices.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             Guid createdById = Guid.Parse("00000000-0000-0000-0000-000000000000");
-
-
-
             modelBuilder.Entity<Operator>(entity =>
             {
 
@@ -53,7 +51,7 @@ namespace SubscriptionManagementServices.Infrastructure
             modelBuilder.ApplyConfiguration(new SubscriptionProductConfiguration(isSqlLite));
             modelBuilder.ApplyConfiguration(new CustomerSettingsConfiguration(isSqlLite));
             modelBuilder.ApplyConfiguration(new CustomerOperatorSettingsConfiguration(isSqlLite));
-
+            modelBuilder.ApplyConfiguration(new TransferSubscriptionOrderConfiguration(isSqlLite));
         }
     }
 }

@@ -82,7 +82,23 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{customerId:Guid}/subscription")]
         public async Task<ActionResult<bool>> AddSubscriptionToCustomer(Guid customerId, [FromBody] SubscriptionOrder subscriptionOrder)
         {
-            var addSubscriptionForCustomer = await _subscriptionServices.AddSubscriptionOrderForCustomerAsync(customerId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DatapackageId, subscriptionOrder.CallerId);
+            var addSubscriptionForCustomer = await _subscriptionServices.AddSubscriptionOrderForCustomerAsync(customerId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DatapackageId, subscriptionOrder.CallerId, subscriptionOrder.SIMCardNumber);
+
+            return CreatedAtAction(nameof(AddSubscriptionToCustomer), new SubscriptionOrder(addSubscriptionForCustomer));
+        }
+
+        /// <summary>
+        /// Submit subscription order
+        /// </summary>
+        /// <param name="customerId">Customer identifier</param>
+        /// <param name="subscriptionOrder">Details of the subscription order</param>
+        /// <returns></returns>
+        [HttpPost]
+        [ProducesResponseType(typeof(SubscriptionOrder), (int)HttpStatusCode.OK)]
+        [Route("{customerId:Guid}/subscription-transfer")]
+        public async Task<ActionResult<bool>> TransferSubscription(Guid customerId, [FromBody] TransferSubscriptionOrder subscriptionOrder)
+        {
+            var addSubscriptionForCustomer = await _subscriptionServices.TransferSubscriptionOrderAsync(customerId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DatapackageId, subscriptionOrder.CallerId, subscriptionOrder.SIMCardNumber, subscriptionOrder.OrderExecutionDate, subscriptionOrder.NewOperatorAccountId);
 
             return CreatedAtAction(nameof(AddSubscriptionToCustomer), new SubscriptionOrder(addSubscriptionForCustomer));
         }

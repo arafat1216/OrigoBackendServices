@@ -8,13 +8,15 @@
             OperatorAccountId = subscriptionOrder.OperatorAccountId;
             DatapackageId = subscriptionOrder.DatapackageId;
             CustomerId = subscriptionOrder.CustomerId;
+            OrderExecutionDate = subscriptionOrder.OrderExecutionDate;
+            SIMCardNumber = subscriptionOrder.SIMCardNumber;
         }
         /// <summary>
         /// Subscription product identifier
         /// </summary>
         public int SubscriptionProductId { get; set; }
         /// <summary>
-        /// Operator account identifier
+        /// Current operator account identifier
         /// </summary>
         public int OperatorAccountId { get; set; }
         /// <summary>
@@ -26,5 +28,13 @@
         /// </summary>
         public Guid CustomerId { get; set; }
         public Guid CallerId { get; set; }
+        /// <summary>
+        /// SIM card number
+        /// </summary>
+        public string SIMCardNumber { get; set; }
+        /// <summary>
+        /// Date of transfer
+        /// </summary>
+        public DateTime OrderExecutionDate { get; set; }
     }
 }

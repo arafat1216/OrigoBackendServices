@@ -8,7 +8,7 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public SubscriptionOrder(Guid customerId, int subscriptionProductId, int operatorAccountId, int datapackageId, Guid callerId)
+        public SubscriptionOrder(Guid customerId, int subscriptionProductId, int operatorAccountId, int datapackageId, Guid callerId, string simCardNumber)
         {
             CustomerId = customerId;
             SubscriptionProductId = subscriptionProductId;
@@ -16,9 +16,11 @@ namespace SubscriptionManagementServices.Models
             DatapackageId = datapackageId;
             CreatedBy = callerId;
             UpdatedBy = callerId;
+            SIMCardNumber = simCardNumber;
         }
 
         public virtual SubscriptionProduct SubscriptionProduct { get; set; }
+        public string SIMCardNumber { get; set; }
         public int SubscriptionProductId { get; set; }
         public Guid CustomerId { get; set; }
         public virtual CustomerOperatorAccount OperatorAccount { get; set; }
