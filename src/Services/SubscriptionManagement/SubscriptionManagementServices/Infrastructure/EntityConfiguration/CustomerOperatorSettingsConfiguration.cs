@@ -20,6 +20,12 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
 
             //Relationships
+
+            //builder.HasMany(e => e.AvailableSubscriptionProducts)
+            //    .WithMany(e => e.CustomerOperatorSettings)
+            //    .UsingEntity(join => join.ToTable("CustomerOperatorSettingsJoin"));
+
+
             builder
                 .HasMany(e => e.SubscriptionProducts)
                 .WithMany(e => e.CustomerOperatorSettings)
