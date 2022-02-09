@@ -62,6 +62,7 @@ namespace Customer.API
             services.Configure<OktaConfiguration>(Configuration.GetSection("Okta"));
             services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
             services.AddScoped<IOrganizationServices, OrganizationServices>();
+            services.AddScoped<IPartnerServices, PartnerServices>();
             services.AddScoped<IUserServices, UserServices>();
             services.AddScoped<IOktaServices, OktaServices>();
             services.AddScoped<IUserPermissionServices, UserPermissionServices>();

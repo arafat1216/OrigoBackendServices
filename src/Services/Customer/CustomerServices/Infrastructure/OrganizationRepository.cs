@@ -463,6 +463,11 @@ namespace CustomerServices.Infrastructure
             return partner;
         }
 
+        public async Task<Partner> GetPartnerAsync(Guid partnerId)
+        {
+            return await _customerContext.Partners.Where(partner => !partner.IsDeleted && partner.ExternalId == partnerId).Include(partner => partner.Organization).FirstOrDefaultAsync();
+        }
+
         public async Task<IList<Partner>> GetPartnersAsync()
         {
             return await _customerContext.Partners.Where(partner => !partner.IsDeleted)

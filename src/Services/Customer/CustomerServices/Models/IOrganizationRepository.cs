@@ -53,6 +53,7 @@ namespace CustomerServices.Models
         Task<Department> GetDepartmentAsync(Guid customerId, Guid departmentId);
         Task<IList<Department>> DeleteDepartmentsAsync(IList<Department> department);
         Task<Partner> AddPartnerAsync(Partner partner);
+        Task<Partner> GetPartnerAsync(Guid partnerId);
         Task<IList<Partner>> GetPartnersAsync();
     }
 }

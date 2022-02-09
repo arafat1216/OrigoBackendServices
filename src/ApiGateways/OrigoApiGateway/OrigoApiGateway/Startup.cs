@@ -70,6 +70,7 @@ namespace OrigoApiGateway
             services.AddTransient<IStorageService, StorageService>();
             services.Configure<AssetConfiguration>(Configuration.GetSection("Asset"));
             services.Configure<CustomerConfiguration>(Configuration.GetSection("Customer"));
+            services.Configure<PartnerConfiguration>(Configuration.GetSection("Partner"));
             services.Configure<UserConfiguration>(Configuration.GetSection("User"));
             services.Configure<UserPermissionsConfigurations>(Configuration.GetSection("UserPermissions"));
             services.Configure<ModuleConfiguration>(Configuration.GetSection("Module"));
@@ -130,6 +131,13 @@ namespace OrigoApiGateway
                     ),
                     x.GetRequiredService<IMapper>()
                 ),
+                x.GetRequiredService<IMapper>()
+            ));
+
+            services.AddSingleton<IPartnerServices>(x => new PartnerServices(
+                x.GetRequiredService<ILogger<PartnerServices>>(),
+                DaprClient.CreateInvokeHttpClient("customerservices"),
+                x.GetRequiredService<IOptions<PartnerConfiguration>>(),
                 x.GetRequiredService<IMapper>()
             ));
 
