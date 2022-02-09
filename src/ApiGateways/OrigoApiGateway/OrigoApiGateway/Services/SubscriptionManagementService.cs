@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using System;
 using System.Collections.Generic;
-using System.Net;
+
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -78,7 +77,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/{organizationId}/operator";
+                string requestUri = $"{_options.ApiPath}/{organizationId}/operators";
                 var postOperator = await HttpClient.PostAsJsonAsync(requestUri, operators);
 
                 return postOperator.IsSuccessStatusCode;
@@ -95,10 +94,17 @@ namespace OrigoApiGateway.Services
             try
             {
 
-                string requestUri = $"{_options.ApiPath}/{organizationId}/operator/{operatorName}";
-                var deleteOperator = await HttpClient.PostAsJsonAsync(requestUri, new StringContent(string.Empty));
+                string requestUri = $"{_options.ApiPath}/{organizationId}/operators/{operatorName}";
+              
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Content = new StringContent(string.Empty),
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(requestUri, UriKind.Relative)
+                };
 
-                return deleteOperator.IsSuccessStatusCode;
+                var response = await HttpClient.SendAsync(request);
+                return response.IsSuccessStatusCode;
             }
             catch (HttpRequestException ex)
             {
@@ -127,7 +133,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/{organizationId}/subscriptionProducts";
+                string requestUri = $"{_options.ApiPath}/{organizationId}/subscription-products";
                 var response = await HttpClient.PostAsJsonAsync(requestUri, subscriptionProduct);
 
                 var newSubscriptionProduct = await response.Content.ReadFromJsonAsync<OrigoSubscriptionProduct>();
@@ -145,7 +151,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var subscriptionProduct = await HttpClient.GetFromJsonAsync<IList<OrigoSubscriptionProduct>>($"{_options.ApiPath}/{organizationId}/subscriptionProducts/{operatorName}");
+                var subscriptionProduct = await HttpClient.GetFromJsonAsync<IList<OrigoSubscriptionProduct>>($"{_options.ApiPath}/{organizationId}/subscription-products/{operatorName}");
 
                 return subscriptionProduct;
             }
@@ -161,7 +167,7 @@ namespace OrigoApiGateway.Services
             try
             {
 
-                var requestUri = $"{_options.ApiPath}/{organizationId}/subscriptionProducts/{subscriptionProductId}";
+                var requestUri = $"{_options.ApiPath}/{organizationId}/subscription-products/{subscriptionProductId}";
 
                 HttpRequestMessage request = new HttpRequestMessage
                 {
@@ -190,7 +196,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/{customerId}/subscriptionProducts/{subscriptionProductId}";
+                string requestUri = $"{_options.ApiPath}/{customerId}/subscription-products/{subscriptionProductId}";
                 var response = await HttpClient.PostAsJsonAsync(requestUri, subscriptionProduct);
 
                 var newSubscriptionProduct = await response.Content.ReadFromJsonAsync<OrigoSubscriptionProduct>();
