@@ -24,7 +24,7 @@ variables:
   ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
     namespace: prod
     tag: '$(Build.BuildId)_prod'
-    hostname: entry.techstep.no
+    hostname: smart.techstep.no
     environment: 'BackendServices.prod'
     letsencryptsecretname: 'letsencrypt-entrytechstepno'
   ${{ elseif eq(variables['Build.SourceBranchName'], 'release') }}:
