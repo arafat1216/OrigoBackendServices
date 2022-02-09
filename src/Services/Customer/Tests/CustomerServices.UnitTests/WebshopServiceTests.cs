@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Options;
+using Moq;
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -13,10 +14,11 @@ namespace CustomerServices.UnitTests
         {
             ServiceModels.OktaUserDTO oktaUserDTO = null;
             var oktaMock = new Mock<IOktaServices>();
+            var webshopConFigMock = new Mock<IOptions<WebshopConfiguration>>();
             oktaMock.Setup(m => m.GetOktaUserProfileByLoginEmailAsync(It.IsAny<string>()))
                 .ReturnsAsync(oktaUserDTO);
 
-            var webshopService = new WebshopService(oktaMock.Object);
+            var webshopService = new WebshopService(oktaMock.Object, webshopConFigMock.Object);
             
             var exception = await Record.ExceptionAsync(() =>
                 webshopService.CheckAndProvisionWebShopUserAsync(It.IsAny<string>())
@@ -39,10 +41,11 @@ namespace CustomerServices.UnitTests
             };
 
             var oktaMock = new Mock<IOktaServices>();
+            var webshopConFigMock = new Mock<IOptions<WebshopConfiguration>>();
             oktaMock.Setup(m => m.GetOktaUserProfileByLoginEmailAsync(It.IsAny<string>()))
                 .ReturnsAsync(oktaUserDTO);
 
-            var webshopService = new WebshopService(oktaMock.Object);
+            var webshopService = new WebshopService(oktaMock.Object, webshopConFigMock.Object);
 
             var exception = await Record.ExceptionAsync(() =>
                 webshopService.CheckAndProvisionWebShopUserAsync(It.IsAny<string>())
