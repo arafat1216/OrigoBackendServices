@@ -31,6 +31,7 @@ namespace CustomerServices.Infrastructure
         public DbSet<UserPermissions> UserPermissions { get; set; }
         public DbSet<OrganizationPreferences> OrganizationPreferences { get; set; }
         public DbSet<Location> Locations { get; set; }
+        public DbSet<Partner> Partners { get; set; }
 
 
         public CustomerContext(DbContextOptions<CustomerContext> options) : base(options)
@@ -46,6 +47,7 @@ namespace CustomerServices.Infrastructure
             modelBuilder.Entity<AssetCategoryLifecycleType>().ToTable("AssetCategoryLifecycleType");
             modelBuilder.Entity<AssetCategoryType>().ToTable("AssetCategory");
             modelBuilder.Entity<ProductModule>().ToTable("ProductModule");
+            modelBuilder.Entity<Partner>().ToTable("Partner");
             modelBuilder.Entity<Organization>().HasMany<ProductModuleGroup>(o => o.SelectedProductModuleGroups).WithMany(p => p.Customers).UsingEntity(join=>join.ToTable("CustomerProductModuleGroup"));
             modelBuilder.Entity<Organization>().HasMany<ProductModule>(o => o.SelectedProductModules).WithMany(p => p.Customers).UsingEntity(join => join.ToTable("CustomerProductModule"));
 
