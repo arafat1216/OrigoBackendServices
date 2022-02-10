@@ -19,6 +19,7 @@ using Microsoft.OpenApi.Models;
 using Okta.AspNetCore;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Controllers;
+using OrigoApiGateway.Filters;
 using OrigoApiGateway.Helpers;
 using OrigoApiGateway.Services;
 using System;
@@ -70,13 +71,14 @@ namespace OrigoApiGateway
             services.AddTransient<IStorageService, StorageService>();
             services.Configure<AssetConfiguration>(Configuration.GetSection("Asset"));
             services.Configure<CustomerConfiguration>(Configuration.GetSection("Customer"));
+            services.Configure<PartnerConfiguration>(Configuration.GetSection("Partner"));
             services.Configure<UserConfiguration>(Configuration.GetSection("User"));
             services.Configure<UserPermissionsConfigurations>(Configuration.GetSection("UserPermissions"));
             services.Configure<ModuleConfiguration>(Configuration.GetSection("Module"));
             services.Configure<DepartmentConfiguration>(Configuration.GetSection("Department"));
             services.Configure<ProductCatalogConfiguration>(Configuration.GetSection("ProductCatalog"));
-
             services.Configure<SubscriptionManagementConfiguration>(Configuration.GetSection("SubscriptionManagement"));
+            services.Configure<WebshopConfiguration>(Configuration.GetSection("Webshop"));
 
             services.AddAuthentication(options =>
             {
@@ -97,9 +99,18 @@ namespace OrigoApiGateway
                     .Build();
             });
 
+            //Filters
+            services.AddScoped<ErrorExceptionFilter>();
+
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
             services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+
+            services.AddSingleton<IWebshopService>(s => new WebshopService(
+                s.GetRequiredService<ILogger<WebshopService>>(),
+                s.GetRequiredService<IOptions<WebshopConfiguration>>(),
+                DaprClient.CreateInvokeHttpClient("customerservices")
+                ));
 
             services.AddSingleton<IAssetServices>(x => new AssetServices(
                 x.GetRequiredService<ILogger<AssetServices>>(),
@@ -130,6 +141,13 @@ namespace OrigoApiGateway
                     ),
                     x.GetRequiredService<IMapper>()
                 ),
+                x.GetRequiredService<IMapper>()
+            ));
+
+            services.AddSingleton<IPartnerServices>(x => new PartnerServices(
+                x.GetRequiredService<ILogger<PartnerServices>>(),
+                DaprClient.CreateInvokeHttpClient("customerservices"),
+                x.GetRequiredService<IOptions<PartnerConfiguration>>(),
                 x.GetRequiredService<IMapper>()
             ));
 
@@ -184,8 +202,8 @@ namespace OrigoApiGateway
                 x.GetRequiredService<IOptions<ProductCatalogConfiguration>>()
             ));
 
-            
-            services.AddSingleton<ISubscriptionManagementService>(x=> new SubscriptionManagementService(
+
+            services.AddSingleton<ISubscriptionManagementService>(x => new SubscriptionManagementService(
                 x.GetRequiredService<ILogger<SubscriptionManagementService>>(),
                     x.GetRequiredService<IOptions<SubscriptionManagementConfiguration>>(), 
                     DaprClient.CreateInvokeHttpClient("subscriptionmanagementservices"),
