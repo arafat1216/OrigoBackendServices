@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
@@ -24,7 +25,13 @@ namespace SubscriptionManagement.UnitTests
         {
             _subscriptionManagementContext = new SubscriptionManagementContext(ContextOptions);
             _subscriptionManagementRepository = new SubscriptionManagementRepository(_subscriptionManagementContext);
-            _subscriptionManagementService = new SubscriptionManagementService(_subscriptionManagementRepository);
+            _subscriptionManagementService = new SubscriptionManagementService(_subscriptionManagementRepository, Options.Create(new TransferSubscriptionDateConfiguration
+            {
+                MinDaysForNewOperatorWithSIM = 10,
+                MinDaysForNewOperator = 4,
+                MaxDaysForAll = 30,
+                MinDaysForCurrentOperator = 1
+            }));
         }
 
         [Fact]
@@ -120,7 +127,7 @@ namespace SubscriptionManagement.UnitTests
         public async Task TransferSubscription_Same_Operator_EmptySIM()
         {
             var exception_one_day = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID,1,1,1,CALLER_ONE_ID,"", DateTime.UtcNow,1)
+            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "", DateTime.UtcNow, 1)
             );
 
             Assert.NotNull(exception_one_day);

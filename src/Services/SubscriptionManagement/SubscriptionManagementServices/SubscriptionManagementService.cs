@@ -1,14 +1,17 @@
-﻿using SubscriptionManagementServices.Models;
+﻿using Microsoft.Extensions.Options;
+using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices
 {
     public class SubscriptionManagementService : ISubscriptionManagementService
     {
         private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
+        private readonly TransferSubscriptionDateConfiguration _transferSubscriptionDateConfiguration;
 
-        public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository)
+        public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository, IOptions<TransferSubscriptionDateConfiguration> transferSubscriptionOrderConfigurationOptions)
         {
             _subscriptionManagementRepository = subscriptionManagementRepository;
+            _transferSubscriptionDateConfiguration = transferSubscriptionOrderConfigurationOptions.Value;
         }
 
         public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, Guid organizationId, string accountNumber, string accountName, int operatorId, Guid callerId)
@@ -101,20 +104,20 @@ namespace SubscriptionManagementServices
                 if (string.IsNullOrEmpty(simCardNumber))
                     throw new ArgumentException("SIM card number is required.");
 
-                if (orderExecutionDate < DateTime.UtcNow.AddDays(1) || orderExecutionDate > DateTime.UtcNow.AddDays(30))
-                    throw new ArgumentException("Invalid transfer date. 1 workday ahead or more is allowed.");
+                if (orderExecutionDate < DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator) || orderExecutionDate > DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
+                    throw new ArgumentException($"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workday ahead or more is allowed.");
             }
             else
             {
                 if (!string.IsNullOrEmpty(simCardNumber))
                 {
-                    if (orderExecutionDate < DateTime.UtcNow.AddDays(4) || orderExecutionDate > DateTime.UtcNow.AddDays(30))
-                        throw new ArgumentException("Invalid transfer date. 4 workdays ahead or more allowed.");
+                    if (orderExecutionDate < DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperator) || orderExecutionDate > DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
+                        throw new ArgumentException($"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForNewOperator} workdays ahead or more allowed.");
                 }
                 else
                 {
-                    if (orderExecutionDate < DateTime.UtcNow.AddDays(10) || orderExecutionDate > DateTime.UtcNow.AddDays(30))
-                        throw new ArgumentException("Invalid transfer date. 10 workdays ahead or more is allowed.");
+                    if (orderExecutionDate < DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM) || orderExecutionDate > DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
+                        throw new ArgumentException($"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM} workdays ahead or more is allowed.");
                 }
             }
 
