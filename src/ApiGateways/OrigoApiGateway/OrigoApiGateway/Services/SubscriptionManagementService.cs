@@ -95,7 +95,7 @@ namespace OrigoApiGateway.Services
             {
 
                 string requestUri = $"{_options.ApiPath}/{organizationId}/operators/{operatorName}";
-              
+
                 HttpRequestMessage request = new HttpRequestMessage
                 {
                     Content = new StringContent(string.Empty),
@@ -206,6 +206,22 @@ namespace OrigoApiGateway.Services
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "AddSubscriptionProductForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
+
+        public async Task TransferSubscriptionOrderForCustomerAsync(Guid customerId, TransferSubscriptionOrder order)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/{customerId}/subscription-transfer";
+                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, order);
+
+                postSubscription.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "AddSubscriptionForCustomerAsync failed with HttpRequestException.");
                 throw;
             }
         }

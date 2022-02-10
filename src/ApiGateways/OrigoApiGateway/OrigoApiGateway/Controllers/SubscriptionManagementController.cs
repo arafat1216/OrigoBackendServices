@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using OrigoApiGateway.Services;
 using System;
@@ -52,7 +50,7 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var operatorObject = await _subscriptionManagementService.GetOperator(operatorName);
-                
+
                 return Ok(operatorObject);
             }
             catch (Exception ex)
@@ -60,7 +58,7 @@ namespace OrigoApiGateway.Controllers
                 _logger.LogError("Get with operator name ", ex.Message);
                 return BadRequest();
             }
-            
+
         }
 
         [Route("{organizationId:Guid}/subscription")]
@@ -72,6 +70,14 @@ namespace OrigoApiGateway.Controllers
             {
 
             }
+            return NoContent();
+        }
+
+        [Route("{customerId:Guid}/subscription-transfer")]
+        [HttpPost]
+        public async Task<ActionResult> TransferSubscription(Guid customerId, [FromBody] TransferSubscriptionOrder order)
+        {
+            await _subscriptionManagementService.TransferSubscriptionOrderForCustomerAsync(customerId, order);
             return NoContent();
         }
     }

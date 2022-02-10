@@ -2,6 +2,10 @@
 {
     public class TransferSubscriptionOrder : SubscriptionOrder
     {
+        public TransferSubscriptionOrder() : base()
+        {
+
+        }
         public TransferSubscriptionOrder(SubscriptionManagementServices.Models.SubscriptionOrder subscriptionOrder) : base(subscriptionOrder)
         {
 

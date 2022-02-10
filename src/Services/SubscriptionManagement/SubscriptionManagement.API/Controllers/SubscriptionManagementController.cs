@@ -96,11 +96,11 @@ namespace SubscriptionManagement.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(SubscriptionOrder), (int)HttpStatusCode.OK)]
         [Route("{customerId:Guid}/subscription-transfer")]
-        public async Task<ActionResult<bool>> TransferSubscription(Guid customerId, [FromBody] TransferSubscriptionOrder subscriptionOrder)
+        public async Task<IActionResult> TransferSubscription(Guid customerId, [FromBody] TransferSubscriptionOrder subscriptionOrder)
         {
-            var addSubscriptionForCustomer = await _subscriptionServices.TransferSubscriptionOrderAsync(customerId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DatapackageId, subscriptionOrder.CallerId, subscriptionOrder.SIMCardNumber, subscriptionOrder.OrderExecutionDate, subscriptionOrder.NewOperatorAccountId);
+            await _subscriptionServices.TransferSubscriptionOrderAsync(customerId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DatapackageId, subscriptionOrder.CallerId, subscriptionOrder.SIMCardNumber, subscriptionOrder.OrderExecutionDate, subscriptionOrder.NewOperatorAccountId);
 
-            return CreatedAtAction(nameof(AddSubscriptionToCustomer), new SubscriptionOrder(addSubscriptionForCustomer));
+            return Ok();
         }
 
         /// <summary>
