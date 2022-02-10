@@ -29,22 +29,10 @@ namespace SubscriptionManagementServices.Infrastructure
             return await _subscriptionContext.CustomerOperatorAccounts.Where(m => m.CustomerId == customerId).ToListAsync();
         }
 
-        public async Task<Operator> GetOperatorAsync(string name)
+        public async Task<Operator?> GetOperatorAsync(string name)
         {
             return await _subscriptionContext.Operators.Where(o => o.OperatorName == name).FirstOrDefaultAsync();
 
-        }
-        public Task<IList<SubscriptionProduct>> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
-        {
-            //Needs implementing - Rolf should supply the model for setting
-            //var hello = _subscriptionContext.CustomerOperatorSettings.Where(o => o.OperatorName == operatorName).ToListAsync();
-            throw new NotImplementedException();
-        }
-
-        public Task<SubscriptionProduct> DeleteOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
-        {
-            //Needs implementing - Rolf should supply the model for setting
-            throw new NotImplementedException();
         }
 
         public async Task<SubscriptionOrder> AddSubscriptionOrderAsync(SubscriptionOrder subscriptionOrder)
@@ -63,11 +51,6 @@ namespace SubscriptionManagementServices.Infrastructure
         {
             return await _subscriptionContext.Datapackages.FindAsync(id);
         }
-        public Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages)
-        {
-            //Needs implementing - Rolf should supply the model for setting
-            throw new NotImplementedException();
-        }
 
         public async Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(int id)
         {
@@ -82,9 +65,58 @@ namespace SubscriptionManagementServices.Infrastructure
 
             return customerOperators;
         }
+
+        //Kasser denne
+        public async Task<IList<SubscriptionProduct>?> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, int operatorId)
+        {
+            var subscriptionProduct = await _subscriptionContext.CustomerOperatorSettings
+                .Include(m => m.AvailableSubscriptionProducts.Where(a => a.OperatorId == operatorId))
+                .ThenInclude(m => m.DataPackages)
+                .Include(m => m.Operator)
+                .Where(c => c.CustomerId == customerId)
+                .Select(c => c.AvailableSubscriptionProducts)
+                .ToListAsync();
+
+              
+
+            IList<SubscriptionProduct> result = new List<SubscriptionProduct>();
+            foreach (var product in subscriptionProduct)
+            {
+                var pro = product.AsEnumerable();
+                foreach (var p in pro)
+                {
+                    result.Add(p);
+                }
+
+            }
+            return result;
+        }
+
+        public async Task<IList<CustomerOperatorSettings>> GetCustomerOperatorSettings(Guid customerId)
+        {
+
+            return await _subscriptionContext.CustomerOperatorSettings
+                .Where(c => c.CustomerId == customerId)
+                .ToListAsync();
+
+        }
+
+        public async Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, SubscriptionProduct subscriptionProduct)
+        {
+            //_subscriptionContext.SubscriptionProducts.Add(subscriptionProduct);
+           
+            //_subscriptionContext.CustomerOperatorSettings.Add(subscriptionProduct);
+            //return await Task.CompletedTask;
+            throw new NotImplementedException();
+        }
+
+        public Task<SubscriptionProduct> DeleteOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<SubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
         {
-            //Needs implementing - Rolf should supply the model for setting
             throw new NotImplementedException();
         }
     }

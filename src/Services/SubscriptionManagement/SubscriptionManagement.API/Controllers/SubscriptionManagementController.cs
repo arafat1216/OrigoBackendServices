@@ -144,9 +144,14 @@ namespace SubscriptionManagement.API.Controllers
         public async Task<ActionResult<IEnumerable<SubscriptionProduct>>> GetOperatorSubscriptionProductForCustomer(Guid customerId, string operatorName)
         {
             var subscriptionProducts = await _subscriptionServices.GetOperatorSubscriptionProductForCustomerAsync(customerId, operatorName);
-
+            var subscriptionProductList = new List<object>();
+            //foreach (var subscriptionProduct in subscriptionProducts)
+            //{
+            //    subscriptionProductList.Add(new SubscriptionProduct(subscriptionProduct.SubscriptionName));
+            //}
+            var list = _mapper.Map<IEnumerable<SubscriptionProduct>>(subscriptionProducts);
             //return the list
-            return Ok();
+            return Ok(list);
         }
 
         [HttpDelete]

@@ -75,12 +75,24 @@ namespace SubscriptionManagementServices
 
         public async Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages, Guid callerId)
         {
-            return await _subscriptionManagementRepository.AddSubscriptionProductForCustomerAsync(customerId, operatorName, productName, datapackages);
+            var operatorObject = _subscriptionManagementRepository.GetOperatorAsync(operatorName);
+            var subscriptionProduct = new SubscriptionProduct(productName, operatorObject.Id, datapackages?.Select(i => new Datapackage(i,customerId)).ToList(),customerId);
+            return await _subscriptionManagementRepository.AddSubscriptionProductForCustomerAsync(customerId, subscriptionProduct);
         }
 
         public async Task<IList<SubscriptionProduct>> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
         {
-            return await _subscriptionManagementRepository.GetOperatorSubscriptionProductForCustomerAsync(customerId, operatorName);
+            var operatorObject = await _subscriptionManagementRepository.GetOperatorAsync(operatorName);
+            if (operatorObject == null)
+            {
+                throw new ArgumentException($"No operator exists with name {operatorName}");
+            }
+            var subscriptionProduct = await _subscriptionManagementRepository.GetOperatorSubscriptionProductForCustomerAsync(customerId, operatorObject.Id);
+            if (subscriptionProduct == null)
+            {
+                throw new ArgumentException($"No subscription products for customer with ID {customerId}");
+            }
+            return subscriptionProduct;
 
         }
 
