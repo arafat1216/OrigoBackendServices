@@ -1,12 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SubscriptionManagementServices.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
     internal class CustomerSettingsConfiguration : IEntityTypeConfiguration<CustomerSettings>
@@ -19,13 +13,12 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 
         public void Configure(EntityTypeBuilder<CustomerSettings> builder)
         {
-            //builder.ToTable("CustomerSettings");
-            //builder.HasKey(x => x.Id);
+            builder.ToTable("CustomerSettings");
 
-            ////Properties
-
-            ////Relationships
-            //builder.HasMany(e => e.CustomerOperatorSettings);
+            builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
+            builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
+            
+            builder.HasMany(e => e.CustomerOperatorSettings);
         }
     }
 }

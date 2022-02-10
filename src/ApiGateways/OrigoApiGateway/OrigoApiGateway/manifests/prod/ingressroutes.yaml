@@ -1,0 +1,20 @@
+﻿apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: origoapigateway-ingressroute
+  namespace: prod
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt
+
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`smart.techstep.no`) && PathPrefix(`/origoapi`)
+    kind: Rule
+    services:
+    - name: origoapigateway
+      port: 8090
+  tls:
+    certResolver: letsencrypt
