@@ -6,7 +6,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
     public record OrigoSubscriptionProduct
     {
         public string SubscriptionName { get; set; }
-        public OperatorDTO OperatorType { get; set; }
+        public OperatorDTO Operator { get; set; }
         public IList<string>? DataPackages { get; set; }
     }
 }
