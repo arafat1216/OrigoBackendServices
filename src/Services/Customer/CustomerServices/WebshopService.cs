@@ -62,10 +62,11 @@ namespace CustomerServices
             using (HttpClient client = new HttpClient())
             {
                 var clientSecret = _webshopConfig.ClientSecret;
+                var clientId = _webshopConfig.ClientId;
                 var content = new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "grant_type", "client_credentials" },
-                    { "client_id", "Mytos" },
+                    { "client_id", clientId },
                     { "client_secret", clientSecret }
                 });
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded"));

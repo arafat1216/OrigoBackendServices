@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
@@ -24,11 +25,15 @@ namespace OrigoApiGateway.Controllers
     {
         private readonly IWebshopService _webshopService;
         private ILogger<WebshopController> _logger { get; }
-        public WebshopController(IWebshopService webshopService, ILogger<WebshopController> logger)
+        private readonly WebshopConfiguration _webshopConfiguration;
+
+        public WebshopController(IWebshopService webshopService, IOptions<WebshopConfiguration> options, ILogger<WebshopController> logger)
         {
+            _webshopConfiguration = options.Value;
             _webshopService = webshopService;
             _logger = logger;
         }
+
         private static async Task<JwtSecurityToken> ValidateToken(
             string token,
             string issuer,
@@ -51,7 +56,7 @@ namespace OrigoApiGateway.Controllers
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKeys = signingKeys,
                 ValidateAudience = true,
-                ValidAudiences = audiences,                
+                ValidAudiences = audiences,
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.FromMinutes(2) // Allow for some drift in server time
             };
@@ -84,10 +89,10 @@ namespace OrigoApiGateway.Controllers
                 var scheme = headerValue.Scheme; // "Bearer"
                 var parameter = headerValue.Parameter; // Token
 
-                var issuer = "https://techstepportal.okta-emea.com/oauth2/default";
-                var audiences = (IEnumerable<String>) new String[] {"0oa78f6tkat5lg1qn0i7", "0oa752p55ihmtFo4p0i7"};
+                var issuer = _webshopConfiguration.Issuer;
+                var audiences = _webshopConfiguration.Audiences;
                 var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
-                    "https://techstepportal.okta-emea.com/oauth2/default/.well-known/oauth-authorization-server",
+                    $"{issuer}/.well-known/oauth-authorization-server",
                     new OpenIdConnectConfigurationRetriever(),
                     new HttpDocumentRetriever());
 
@@ -97,7 +102,7 @@ namespace OrigoApiGateway.Controllers
                     _logger.LogInformation("Invalid ID Token recieved");
                     return Forbid();
                 }
-                
+
                 var expectedAlg = SecurityAlgorithms.RsaSha256; //Okta uses RS256
                 if (jsonToken.Header?.Alg == null || jsonToken.Header?.Alg != expectedAlg)
                 {
@@ -117,7 +122,7 @@ namespace OrigoApiGateway.Controllers
                     await _webshopService.ProvisionUserAsync(email);
                     return Ok();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError("{0}", ex.Message);
                     return BadRequest();
