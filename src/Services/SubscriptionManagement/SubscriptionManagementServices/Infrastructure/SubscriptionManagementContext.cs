@@ -32,9 +32,6 @@ namespace SubscriptionManagementServices.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
-            });
-
             modelBuilder.ApplyConfiguration(new CustomerOperatorAccountConfiguration(isSqlLite));
             modelBuilder.ApplyConfiguration(new DatapackageConfiguration(isSqlLite));
             modelBuilder.ApplyConfiguration(new OperatorConfiguration(isSqlLite));
