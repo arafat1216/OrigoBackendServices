@@ -18,7 +18,7 @@ namespace CustomerServices
         public OktaServices(IOptions<OktaConfiguration> options)
         {
             _oktaOptions = options.Value;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
         }
 
         /// <summary>
