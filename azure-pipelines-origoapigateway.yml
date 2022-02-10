@@ -1,6 +1,4 @@
 # Deploy to Azure Kubernetes Service
-# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
 trigger:
   branches:
@@ -26,15 +24,21 @@ variables:
   ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
     namespace: prod
     tag: '$(Build.BuildId)_prod'
-    hostname: origov2dev.mytos.no
+    hostname: smart.techstep.no
+    environment: 'BackendServices.prod'
+    letsencryptsecretname: 'letsencrypt-smart-techstepno'
   ${{ elseif eq(variables['Build.SourceBranchName'], 'release') }}:
     namespace: test
     tag: '$(Build.BuildId)_test'
     hostname: origov2test.mytos.no
+    environment: 'BackendServices.develop'
+    letsencryptsecretname: 'letsencrypt-origov2dev'
   ${{ elseif eq(variables['Build.SourceBranchName'], 'develop') }}:
     namespace: develop
     tag: '$(Build.BuildId)_develop'
     hostname: origov2dev.mytos.no
+    environment: 'BackendServices.develop'
+    letsencryptsecretname: 'letsencrypt-origov2dev'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
@@ -112,7 +116,7 @@ stages:
     displayName: Deploy
     pool:
       vmImage: $(vmImageName)
-    environment: 'BackendServices.develop'
+    environment: $(environment)
     strategy:
       runOnce:
         deploy:
@@ -132,7 +136,7 @@ stages:
               chartType: FilePath
               releaseName: origoapigateway
               namespace: $(namespace)
-              overrideValues: "deployment.image.tag=$(tag),namespace=$(namespace),ingress.hosts[0].host=$(hostname),ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=$(hostname),ingress.tls[0].secretName=letsencrypt-origov2dev"
+              overrideValues: "deployment.image.tag=$(tag),namespace=$(namespace),ingress.hosts[0].host=$(hostname),ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=$(hostname),ingress.tls[0].secretName=$(letsencryptsecretname)"
               arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts
               install: true
