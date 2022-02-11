@@ -28,6 +28,7 @@ namespace SubscriptionManagementServices.Infrastructure
         public DbSet<SubscriptionAddOnProduct> SubscriptionAddOnProducts { get; set; }
         public DbSet<CustomerSettings> CustomerSettings { get; set; }
         public DbSet<CustomerOperatorSettings> CustomerOperatorSettings { get; set; }
+        public DbSet<CustomerSubscriptionProduct> CustomerSubscriptionProducts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,6 +40,7 @@ namespace SubscriptionManagementServices.Infrastructure
             modelBuilder.ApplyConfiguration(new SubscriptionProductConfiguration(isSqlLite));
             modelBuilder.ApplyConfiguration(new CustomerSettingsConfiguration(isSqlLite));
             modelBuilder.ApplyConfiguration(new CustomerOperatorSettingsConfiguration(isSqlLite));
+            modelBuilder.ApplyConfiguration(new CustomerSubscriptionProductConfiguration(isSqlLite));
 
         }
     }

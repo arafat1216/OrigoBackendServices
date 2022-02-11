@@ -66,27 +66,30 @@ namespace SubscriptionManagementServices.Infrastructure
             return customerOperators;
         }
 
-        //Kasser denne
-        public async Task<IList<SubscriptionProduct>?> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, int operatorId)
+        public async Task<IList<SubscriptionProduct>?> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
         {
-            var subscriptionProduct = await _subscriptionContext.CustomerOperatorSettings
-                .Include(m => m.AvailableSubscriptionProducts.Where(a => a.OperatorId == operatorId))
-                .ThenInclude(m => m.DataPackages)
-                .Include(m => m.Operator)
+            var subscriptionProuctsForCustomer = await _subscriptionContext.CustomerSettings
+                .Include(m => m.CustomerOperatorSettings)
+                    .ThenInclude(m => m.AvailableSubscriptionProducts)
+                        .ThenInclude(m => m.DataPackages)
+                .Include(m => m.CustomerOperatorSettings)
+                    .ThenInclude(m => m.AvailableSubscriptionProducts)
+                        .ThenInclude(m => m.Operator)
                 .Where(c => c.CustomerId == customerId)
-                .Select(c => c.AvailableSubscriptionProducts)
-                .ToListAsync();
+                .SelectMany(m => m.CustomerOperatorSettings.Where(m => m.Operator.OperatorName == operatorName))
+                .Select(m => m.AvailableSubscriptionProducts)
+                        .FirstOrDefaultAsync();
 
-              
+            if (subscriptionProuctsForCustomer == null)
+            {
+                return null;
+            }
 
             IList<SubscriptionProduct> result = new List<SubscriptionProduct>();
-            foreach (var product in subscriptionProduct)
+            foreach (var subscriptionProuct in subscriptionProuctsForCustomer)
             {
-                var pro = product.AsEnumerable();
-                foreach (var p in pro)
-                {
-                    result.Add(p);
-                }
+                
+                result.Add(subscriptionProuct);
 
             }
             return result;
@@ -95,9 +98,10 @@ namespace SubscriptionManagementServices.Infrastructure
         public async Task<IList<CustomerOperatorSettings>> GetCustomerOperatorSettings(Guid customerId)
         {
 
-            return await _subscriptionContext.CustomerOperatorSettings
-                .Where(c => c.CustomerId == customerId)
-                .ToListAsync();
+            //return await _subscriptionContext.CustomerOperatorSettings
+            //    .Where(c => c.CustomerId == customerId)
+            //    .ToListAsync();
+            throw new NotImplementedException();
 
         }
 

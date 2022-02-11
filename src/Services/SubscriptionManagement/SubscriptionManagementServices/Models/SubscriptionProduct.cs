@@ -23,6 +23,6 @@ namespace SubscriptionManagementServices.Models
         public int OperatorId { get; set; }
         public virtual ICollection<Datapackage>? DataPackages { get; set; }
         public virtual ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
-        public virtual ICollection<CustomerOperatorSettings>? CustomerOperatorSettings { get; protected set; }
+        
     }
 }
