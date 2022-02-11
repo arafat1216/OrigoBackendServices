@@ -54,6 +54,7 @@ builder.Services.AddSwaggerGen(config =>
 
 
 builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.Configure<TransferSubscriptionDateConfiguration>(builder.Configuration.GetSection("TransferSubscriptionOrderConfiguration"));
 builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
 builder.Services.AddScoped<ISubscriptionManagementRepository, SubscriptionManagementRepository>();
 builder.Services.AddScoped<ErrorExceptionFilter>();

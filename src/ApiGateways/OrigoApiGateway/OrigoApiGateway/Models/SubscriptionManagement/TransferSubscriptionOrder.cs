@@ -1,20 +1,13 @@
-﻿namespace SubscriptionManagement.API.ViewModels
-{
-    public class SubscriptionOrder
-    {
-        public SubscriptionOrder()
-        {
+﻿using System;
 
-        }
-        public SubscriptionOrder(SubscriptionManagementServices.Models.SubscriptionOrder subscriptionOrder)
-        {
-            SubscriptionProductId = subscriptionOrder.SubscriptionProductId;
-            OperatorAccountId = subscriptionOrder.OperatorAccountId;
-            DatapackageId = subscriptionOrder.DatapackageId;
-            CustomerId = subscriptionOrder.CustomerId;
-            OrderExecutionDate = subscriptionOrder.OrderExecutionDate;
-            SIMCardNumber = subscriptionOrder.SIMCardNumber;
-        }
+namespace OrigoApiGateway.Models.SubscriptionManagement
+{
+    public class TransferSubscriptionOrder
+    {
+        /// <summary>
+        /// New operator account identifier
+        /// </summary>
+        public int NewOperatorAccountId { get; set; }
         /// <summary>
         /// Subscription product identifier
         /// </summary>
