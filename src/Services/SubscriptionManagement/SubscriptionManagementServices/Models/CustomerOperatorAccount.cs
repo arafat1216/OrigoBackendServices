@@ -28,5 +28,6 @@ namespace SubscriptionManagementServices.Models
         public int OperatorId { get; set; }
         public virtual ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
         public virtual ICollection<CustomerOperatorSettings>? CustomerOperatorSettings { get; set; }
+        public virtual ICollection<TransferSubscriptionOrder>? TransferSubscriptionOrders { get; set; }
     }
 }

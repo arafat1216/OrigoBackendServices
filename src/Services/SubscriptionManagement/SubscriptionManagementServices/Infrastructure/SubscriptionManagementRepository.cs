@@ -123,5 +123,12 @@ namespace SubscriptionManagementServices.Infrastructure
         {
             throw new NotImplementedException();
         }
+
+        public async Task<TransferSubscriptionOrder> TransferSubscriptionOrderAsync(TransferSubscriptionOrder subscriptionOrder)
+        {
+            var added = await _subscriptionContext.AddAsync(subscriptionOrder);
+            await _subscriptionContext.SaveChangesAsync();
+            return added.Entity;
+        }
     }
 }
