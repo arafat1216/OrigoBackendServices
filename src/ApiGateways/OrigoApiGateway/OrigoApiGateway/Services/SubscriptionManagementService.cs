@@ -225,5 +225,35 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<IEnumerable<OrigoCustomerOperatorAccount>> GetAllOperatorAccountsForCustomerAsync(Guid customerId)
+        {
+            try
+            {
+                var customersOperatorAccounts = await HttpClient.GetFromJsonAsync<IList<OrigoCustomerOperatorAccount>>($"{_options.ApiPath}/{customerId}/operator-accounts");
+
+                return customersOperatorAccounts;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "GetAllOperatorsForCustomer failed with HttpRequestException.");
+                throw;
+            }
+        }
+
+        public async Task AddOperatorAccountForCustomerAsync(Guid customerId, OrigoCustomerOperatorAccount origoCustomerOperatorAccount)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/{customerId}/operator-accounts";
+
+                await HttpClient.PostAsJsonAsync(requestUri, origoCustomerOperatorAccount);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "AddSubscriptionForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
     }
 }
