@@ -9,10 +9,9 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public CustomerOperatorAccount(Guid organizationId, Guid customerId, string accountNumber, string accountName, int operatorId, Guid callerId)
+        public CustomerOperatorAccount(Guid organizationId, string accountNumber, string accountName, int operatorId, Guid callerId)
         {
             OrganizationId = organizationId;
-            CustomerId = customerId;
             AccountNumber = accountNumber;
             AccountName = accountName;
             OperatorId = operatorId;
@@ -21,7 +20,6 @@ namespace SubscriptionManagementServices.Models
         }
 
         public Guid OrganizationId { get; set; }
-        public Guid CustomerId { get; set; }
         public string AccountNumber { get; set; }
         public string AccountName { get; set; }
         public virtual Operator Operator { get; set; }
