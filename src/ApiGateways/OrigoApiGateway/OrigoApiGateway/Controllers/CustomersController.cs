@@ -568,14 +568,14 @@ namespace OrigoApiGateway.Controllers
         /// <summary>
         /// Get list of customer operator accounts
         /// </summary>
-        /// <param name="customerId">Customer identifier</param>
+        /// <param name="organizationId">Organization identifier</param>
         /// <returns>list of customer operator accounts</returns>
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoCustomerOperatorAccount>), (int)HttpStatusCode.OK)]
-        [Route("{customerId:Guid}/operator-accounts")]
-        public async Task<IActionResult> GetAllOperatorAccountsForCustomer(Guid customerId)
+        [Route("{organizationId:Guid}/operator-accounts")]
+        public async Task<IActionResult> GetAllOperatorAccountsForCustomer(Guid organizationId)
         {
-            var customerOperatorAccounts = await SubscriptionManagementService.GetAllOperatorAccountsForCustomerAsync(customerId);
+            var customerOperatorAccounts = await SubscriptionManagementService.GetAllOperatorAccountsForCustomerAsync(organizationId);
 
             return Ok(customerOperatorAccounts);
         }
@@ -583,15 +583,15 @@ namespace OrigoApiGateway.Controllers
         /// <summary>
         /// Setup customer account
         /// </summary>
-        /// <param name="customerId">Customer identifier</param>
+        /// <param name="organizationId">Organization identifier</param>
         /// <param name="customerOperatorAccount">Details of customer operator account</param>
         /// <returns>new customer operator account</returns>
         [HttpPost]
         [ProducesResponseType(typeof(OrigoCustomerOperatorAccount), (int)HttpStatusCode.OK)]
-        [Route("{customerId:Guid}/operator-accounts")]
-        public async Task<IActionResult> AddOperatorAccountForCustomer(Guid customerId, [FromBody] OrigoCustomerOperatorAccount customerOperatorAccount)
+        [Route("{organizationId:Guid}/operator-accounts")]
+        public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] OrigoCustomerOperatorAccount customerOperatorAccount)
         {
-            await SubscriptionManagementService.AddOperatorAccountForCustomerAsync(customerId, customerOperatorAccount);
+            await SubscriptionManagementService.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount);
 
             return Ok();
         }
