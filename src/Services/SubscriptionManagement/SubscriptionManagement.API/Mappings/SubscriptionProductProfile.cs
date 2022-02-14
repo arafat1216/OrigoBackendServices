@@ -10,7 +10,7 @@ namespace SubscriptionManagement.API.Mappings
         public SubscriptionProductProfile()
         {
             CreateMap<SubscriptionManagementServices.Models.SubscriptionProduct, ViewModels.SubscriptionProduct>()
-                .ForMember(destination => destination.Datapackages, opt => opt.MapFrom(src => src.DataPackages.Select(s=>s.DatapackageName)));
+                .ForMember(destination => destination.Datapackages, opt => opt.MapFrom(src => src.DataPackages.Select(s=>s.DataPackageName)));
 
         }
     }

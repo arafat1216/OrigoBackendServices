@@ -42,7 +42,7 @@ namespace SubscriptionManagement.UnitTests
 
             context.AddRange(subscriptionProductOne);
 
-            var dataPackageOne = new Datapackage("Data Package", CALLER_ONE_ID);
+            var dataPackageOne = new DataPackage("Data Package", CALLER_ONE_ID);
             context.AddRange(dataPackageOne);
 
             context.SaveChanges();

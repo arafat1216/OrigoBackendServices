@@ -47,9 +47,9 @@ namespace SubscriptionManagementServices.Infrastructure
             return await _subscriptionContext.SubscriptionProducts.FindAsync(id);
         }
 
-        public async Task<Datapackage?> GetDatapackageAsync(int id)
+        public async Task<DataPackage?> GetDatapackageAsync(int id)
         {
-            return await _subscriptionContext.Datapackages.FindAsync(id);
+            return await _subscriptionContext.DataPackages.FindAsync(id);
         }
 
         public async Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(int id)

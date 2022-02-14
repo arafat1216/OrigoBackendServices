@@ -42,7 +42,7 @@ namespace SubscriptionManagementServices
 
             var dataPackage = await _subscriptionManagementRepository.GetDatapackageAsync(datapackageId);
             if (dataPackage == null)
-                throw new ArgumentException($"No Datapackage exists with ID {datapackageId}");
+                throw new ArgumentException($"No DataPackage exists with ID {datapackageId}");
 
             return await _subscriptionManagementRepository.AddSubscriptionOrderAsync(new SubscriptionOrder(customerId, subscriptionProductId, operatorAccountId, datapackageId, callerId, simCardNumber));
         }
@@ -79,7 +79,7 @@ namespace SubscriptionManagementServices
         public async Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages, Guid callerId)
         {
             var operatorObject = _subscriptionManagementRepository.GetOperatorAsync(operatorName);
-            var subscriptionProduct = new SubscriptionProduct(productName, operatorObject.Id, datapackages?.Select(i => new Datapackage(i,customerId)).ToList(),customerId);
+            var subscriptionProduct = new SubscriptionProduct(productName, operatorObject.Id, datapackages?.Select(i => new DataPackage(i,customerId)).ToList(),customerId);
             return await _subscriptionManagementRepository.AddSubscriptionProductForCustomerAsync(customerId, subscriptionProduct);
         }
 
@@ -147,7 +147,7 @@ namespace SubscriptionManagementServices
 
             var dataPackage = await _subscriptionManagementRepository.GetDatapackageAsync(datapackageId);
             if (dataPackage == null)
-                throw new ArgumentException($"No Datapackage exists with ID {datapackageId}");
+                throw new ArgumentException($"No DataPackage exists with ID {datapackageId}");
 
             return await _subscriptionManagementRepository.TransferSubscriptionOrderAsync(new TransferSubscriptionOrder(customerId, subscriptionProductId, currentOperatorAccountId, datapackageId, callerId, simCardNumber, orderExecutionDate, newOperatorAccountId));
         }

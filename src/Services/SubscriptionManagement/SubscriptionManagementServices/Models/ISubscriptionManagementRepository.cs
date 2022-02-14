@@ -13,7 +13,7 @@
         Task<SubscriptionOrder> AddSubscriptionOrderAsync(SubscriptionOrder subscriptionOrder);
         Task<TransferSubscriptionOrder> TransferSubscriptionOrderAsync(TransferSubscriptionOrder subscriptionOrder);
         Task<SubscriptionProduct?> GetSubscriptionProductAsync(int id);
-        Task<Datapackage?> GetDatapackageAsync(int id);
+        Task<DataPackage?> GetDatapackageAsync(int id);
         Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(int id);
         Task<IList<Operator>> GetAllOperatorsForCustomerAsync(Guid customerId);
         Task<IList<CustomerOperatorSettings>> GetCustomerOperatorSettings(Guid customerId);

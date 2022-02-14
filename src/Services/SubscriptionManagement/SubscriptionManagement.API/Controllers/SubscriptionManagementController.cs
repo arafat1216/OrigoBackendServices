@@ -82,7 +82,7 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{customerId:Guid}/subscription")]
         public async Task<ActionResult<bool>> AddSubscriptionToCustomer(Guid customerId, [FromBody] SubscriptionOrder subscriptionOrder)
         {
-            var addSubscriptionForCustomer = await _subscriptionServices.AddSubscriptionOrderForCustomerAsync(customerId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DatapackageId, subscriptionOrder.CallerId, subscriptionOrder.SIMCardNumber);
+            var addSubscriptionForCustomer = await _subscriptionServices.AddSubscriptionOrderForCustomerAsync(customerId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DataPackageId, subscriptionOrder.CallerId, subscriptionOrder.SimCardNumber);
 
             return CreatedAtAction(nameof(AddSubscriptionToCustomer), new SubscriptionOrder(addSubscriptionForCustomer));
         }
@@ -98,7 +98,7 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{customerId:Guid}/subscription-transfer")]
         public async Task<IActionResult> TransferSubscription(Guid customerId, [FromBody] TransferSubscriptionOrder subscriptionOrder)
         {
-            await _subscriptionServices.TransferSubscriptionOrderAsync(customerId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DatapackageId, subscriptionOrder.CallerId, subscriptionOrder.SIMCardNumber, subscriptionOrder.OrderExecutionDate, subscriptionOrder.NewOperatorAccountId);
+            await _subscriptionServices.TransferSubscriptionOrderAsync(customerId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DataPackageId, subscriptionOrder.CallerId, subscriptionOrder.SimCardNumber, subscriptionOrder.OrderExecutionDate, subscriptionOrder.NewOperatorAccountId);
 
             return Ok();
         }

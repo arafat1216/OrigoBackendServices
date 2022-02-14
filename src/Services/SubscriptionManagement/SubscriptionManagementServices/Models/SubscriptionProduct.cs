@@ -8,7 +8,7 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public SubscriptionProduct(string subscriptionName, int operatorId, IList<Datapackage>? dataPackages, Guid callerId)
+        public SubscriptionProduct(string subscriptionName, int operatorId, IReadOnlyCollection<DataPackage>? dataPackages, Guid callerId)
         {
 
             SubscriptionName = subscriptionName;
@@ -21,8 +21,7 @@ namespace SubscriptionManagementServices.Models
         public string SubscriptionName { get; set; }
         public virtual Operator Operator { get; set; }
         public int OperatorId { get; set; }
-        public virtual ICollection<Datapackage>? DataPackages { get; set; }
-        public virtual ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
-        
+        public virtual IReadOnlyCollection<DataPackage>? DataPackages { get; set; }
+        public virtual IReadOnlyCollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
     }
 }

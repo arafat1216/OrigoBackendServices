@@ -8,7 +8,7 @@ namespace SubscriptionManagement.API.Mappings
     {
         public DatapackageProfile()
         {
-            CreateMap<Datapackage,DatapackageDTO>();
+            CreateMap<DataPackage,DatapackageDTO>();
         }
     }
 }

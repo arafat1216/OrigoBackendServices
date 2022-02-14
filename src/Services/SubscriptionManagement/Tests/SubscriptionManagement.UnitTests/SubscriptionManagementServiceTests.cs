@@ -111,7 +111,7 @@ namespace SubscriptionManagement.UnitTests
             Assert.Equal(0, _subscriptionManagementContext.SubscriptionOrders.Count());
             Assert.NotNull(exception);
             Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("No Datapackage exists with ID 10", exception.Message);
+            Assert.Equal("No DataPackage exists with ID 10", exception.Message);
         }
 
         [Fact]
@@ -140,7 +140,7 @@ namespace SubscriptionManagement.UnitTests
         public async Task TransferSubscription_Same_Operator_InvalidDate()
         {
             var exception = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "[SIMCardNumber]", DateTime.UtcNow, 1)
+            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "[SimCardNumber]", DateTime.UtcNow, 1)
             );
 
             Assert.NotNull(exception);
@@ -148,7 +148,7 @@ namespace SubscriptionManagement.UnitTests
             Assert.Equal("Invalid transfer date. 1 workday ahead or more is allowed.", exception.Message);
 
             var exception_thirty_day = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "[SIMCardNumber]", DateTime.UtcNow.AddDays(30.5), 1)
+            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "[SimCardNumber]", DateTime.UtcNow.AddDays(30.5), 1)
             );
 
             Assert.NotNull(exception_thirty_day);
@@ -161,7 +161,7 @@ namespace SubscriptionManagement.UnitTests
         public async Task TransferSubscription_Diff_Operator_InvalidDate()
         {
             var exception = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "[SIMCardNumber]", DateTime.UtcNow, 2)
+            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "[SimCardNumber]", DateTime.UtcNow, 2)
             );
 
             Assert.NotNull(exception);
@@ -169,7 +169,7 @@ namespace SubscriptionManagement.UnitTests
             Assert.Equal("Invalid transfer date. 4 workdays ahead or more allowed.", exception.Message);
 
             var exception_thirty_day = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "[SIMCardNumber]", DateTime.UtcNow.AddDays(30.5), 2)
+            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "[SimCardNumber]", DateTime.UtcNow.AddDays(30.5), 2)
             );
 
             Assert.NotNull(exception_thirty_day);

@@ -17,6 +17,8 @@ namespace SubscriptionManagementServices.Models
             GlobalSubscriptionProduct = globalSubscriptionProduct;
         }
 
+        public string Name { get; set; }
+
         public SubscriptionProduct? GlobalSubscriptionProduct { get; set; }
     }
 }

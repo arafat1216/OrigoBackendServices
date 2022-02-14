@@ -18,7 +18,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             //Properties
             builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
             builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
-            builder.Property(s => s.SIMCardNumber).HasMaxLength(20);
+            builder.Property(s => s.SimCardNumber).HasMaxLength(20);
 
             //Relationships
             builder.HasOne(e => e.OperatorAccount)
@@ -28,7 +28,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 
             builder.HasOne(e => e.DataPackage)
                 .WithMany(m => m.SubscriptionOrders)
-                .HasForeignKey(m => m.DatapackageId)
+                .HasForeignKey(m => m.DataPackageId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(e => e.SubscriptionProduct)

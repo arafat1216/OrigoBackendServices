@@ -8,26 +8,26 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public SubscriptionOrder(Guid customerId, int subscriptionProductId, int operatorAccountId, int datapackageId, Guid callerId, string simCardNumber)
+        public SubscriptionOrder(Guid customerId, int subscriptionProductId, int operatorAccountId, int dataPackageId, Guid callerId, string simCardNumber)
         {
             CustomerId = customerId;
             SubscriptionProductId = subscriptionProductId;
             OperatorAccountId = operatorAccountId;
-            DatapackageId = datapackageId;
+            DataPackageId = dataPackageId;
             CreatedBy = callerId;
             UpdatedBy = callerId;
-            SIMCardNumber = simCardNumber;
+            SimCardNumber = simCardNumber;
         }
 
         public virtual SubscriptionProduct SubscriptionProduct { get; set; }
-        public string SIMCardNumber { get; set; }
+        public virtual IReadOnlyCollection<SubscriptionAddOnProduct> SubscriptionAddOnProducts { get; set; }
+        public string SimCardNumber { get; set; }
         public int SubscriptionProductId { get; set; }
         public Guid CustomerId { get; set; }
         public virtual CustomerOperatorAccount OperatorAccount { get; set; }
         public int OperatorAccountId { get; set; }
-        public virtual Datapackage? DataPackage { get; set; }
-        public int DatapackageId { get; set; }
+        public virtual DataPackage? DataPackage { get; set; }
+        public int DataPackageId { get; set; }
         public DateTime OrderExecutionDate { get; set; }
-        public virtual ICollection<SubscriptionAddOnProduct> SubscriptionAddOnProducts { get; set; }
     }
 }

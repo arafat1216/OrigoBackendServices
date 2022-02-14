@@ -4,20 +4,20 @@ using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
-    internal class DatapackageConfiguration : IEntityTypeConfiguration<Datapackage>
+    internal class DataPackageConfiguration : IEntityTypeConfiguration<DataPackage>
     {
-        private bool _isSqlLite;
-        public DatapackageConfiguration(bool isSqlLite)
+        private readonly bool _isSqlLite;
+        public DataPackageConfiguration(bool isSqlLite)
         {
             _isSqlLite = isSqlLite;
         }
 
-        public void Configure(EntityTypeBuilder<Datapackage> builder)
+        public void Configure(EntityTypeBuilder<DataPackage> builder)
         {
-            builder.ToTable("Datapackage");
+            builder.ToTable("DataPackage");
 
             //Properties
-            builder.Property(x => x.DatapackageName).IsRequired().HasMaxLength(50);
+            builder.Property(x => x.DataPackageName).IsRequired().HasMaxLength(50);
             builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
             builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
         }
