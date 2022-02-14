@@ -5,15 +5,15 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+
 # Install Azure Artifacts Credential Provider, and inject the authentication credentials for our internal NuGet package-well
 # Sources:
 # https://stackoverflow.com/a/65788814 (and their linked references) 
 # https://github.com/dotnet/dotnet-docker/blob/main/documentation/scenarios/nuget-credentials.md#using-the-azure-artifact-credential-provider
 RUN curl -L https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh | sh
 ARG FEED_ACCESSTOKEN
-ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json\", \"password\":\"${FEED_ACCESSTOKEN}\"}]}"
-
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json\", \"username\":\"docker\", \"password\":\"${FEED_ACCESSTOKEN}\"}]}"
 
 WORKDIR /src/Boilerplate/
 COPY ["src/Boilerplate/Boilerplate.EntityFramework", "Boilerplate.EntityFramework/"]
@@ -24,6 +24,10 @@ COPY ["src/Services/ProductCatalog/", "."]
 COPY ["nuget.config", "ProductCatalog.API/"]
 COPY ["nuget.config", "ProductCatalog.Common/"]
 COPY ["nuget.config", "ProductCatalog.Infrastructure/"]
+
+# Credential Provider Troubleshooting
+ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{`"endpointCredentials`": [{`"endpoint`":`"https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json`", `"username`":`"docker`", `"password`":`"${FEED_ACCESSTOKEN}`"}]}"
+RUN echo $VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
 
 RUN dotnet restore "ProductCatalog.API/ProductCatalog.API.csproj"
 
