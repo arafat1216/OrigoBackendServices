@@ -35,8 +35,8 @@ namespace OrigoApiGateway.Controllers
         private readonly IMapper Mapper;
 
         public CustomersController(
-            ILogger<CustomersController> logger, 
-            ICustomerServices customerServices, 
+            ILogger<CustomersController> logger,
+            ICustomerServices customerServices,
             IMapper mapper,
             ISubscriptionManagementService subscriptionManagementService
             )
@@ -563,6 +563,37 @@ namespace OrigoApiGateway.Controllers
                 Logger.LogError("DeleteSubscriptionProductsForCustomer gateway", ex.Message);
                 return BadRequest();
             }
+        }
+
+        /// <summary>
+        /// Get list of customer operator accounts
+        /// </summary>
+        /// <param name="organizationId">Organization identifier</param>
+        /// <returns>list of customer operator accounts</returns>
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<OrigoCustomerOperatorAccount>), (int)HttpStatusCode.OK)]
+        [Route("{organizationId:Guid}/operator-accounts")]
+        public async Task<IActionResult> GetAllOperatorAccountsForCustomer(Guid organizationId)
+        {
+            var customerOperatorAccounts = await SubscriptionManagementService.GetAllOperatorAccountsForCustomerAsync(organizationId);
+
+            return Ok(customerOperatorAccounts);
+        }
+
+        /// <summary>
+        /// Setup customer account
+        /// </summary>
+        /// <param name="organizationId">Organization identifier</param>
+        /// <param name="customerOperatorAccount">Details of customer operator account</param>
+        /// <returns>new customer operator account</returns>
+        [HttpPost]
+        [ProducesResponseType(typeof(OrigoCustomerOperatorAccount), (int)HttpStatusCode.OK)]
+        [Route("{organizationId:Guid}/operator-accounts")]
+        public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] OrigoCustomerOperatorAccount customerOperatorAccount)
+        {
+            await SubscriptionManagementService.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount);
+
+            return Ok();
         }
     }
 }

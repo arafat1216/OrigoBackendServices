@@ -24,9 +24,9 @@ namespace SubscriptionManagementServices.Infrastructure
             return await _subscriptionContext.Operators.FindAsync(id);
         }
 
-        public async Task<IEnumerable<CustomerOperatorAccount>> GetAllCustomerOperatorAccountsAsync(Guid customerId)
+        public async Task<IEnumerable<CustomerOperatorAccount>> GetAllCustomerOperatorAccountsAsync(Guid organizationId)
         {
-            return await _subscriptionContext.CustomerOperatorAccounts.Where(m => m.CustomerId == customerId).ToListAsync();
+            return await _subscriptionContext.CustomerOperatorAccounts.Where(m => m.OrganizationId == organizationId).ToListAsync();
         }
 
         public async Task<Operator?> GetOperatorAsync(string name)
@@ -57,11 +57,11 @@ namespace SubscriptionManagementServices.Infrastructure
             return await _subscriptionContext.CustomerOperatorAccounts.FindAsync(id);
         }
 
-        public async Task<IList<Operator>> GetAllOperatorsForCustomerAsync(Guid customerId)
+        public async Task<IList<Operator>> GetAllOperatorsForCustomerAsync(Guid organizationId)
         {
             var customerOperators = await _subscriptionContext.CustomerOperatorAccounts
                 .Include(m => m.Operator)
-                .Where(m => m.CustomerId == customerId).Select(m => m.Operator).ToListAsync();
+                .Where(m => m.OrganizationId == organizationId).Select(m => m.Operator).ToListAsync();
 
             return customerOperators;
         }

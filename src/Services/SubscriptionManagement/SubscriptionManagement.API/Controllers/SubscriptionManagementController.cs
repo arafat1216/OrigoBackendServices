@@ -106,14 +106,14 @@ namespace SubscriptionManagement.API.Controllers
         /// <summary>
         /// Get list of customer operator accounts
         /// </summary>
-        /// <param name="customerId">Customer identifier</param>
+        /// <param name="organizationId">Organization identifier</param>
         /// <returns>list of customer operator accounts</returns>
         [HttpGet]
         [ProducesResponseType(typeof(IList<CustomerOperatorAccount>), (int)HttpStatusCode.OK)]
-        [Route("{customerId:Guid}/operator-accounts")]
-        public async Task<IActionResult> GetAllOperatorAccountsForCustomer(Guid customerId)
+        [Route("{organizationId:Guid}/operator-accounts")]
+        public async Task<IActionResult> GetAllOperatorAccountsForCustomer(Guid organizationId)
         {
-            var customerOperatorAccounts = await _subscriptionServices.GetAllOperatorAccountsForCustomerAsync(customerId);
+            var customerOperatorAccounts = await _subscriptionServices.GetAllOperatorAccountsForCustomerAsync(organizationId);
 
             return Ok(customerOperatorAccounts.Select(m => new CustomerOperatorAccount(m)));
         }
@@ -121,15 +121,15 @@ namespace SubscriptionManagement.API.Controllers
         /// <summary>
         /// Setup customer account
         /// </summary>
-        /// <param name="customerId">Customer identifier</param>
+        /// <param name="organizationId">Organization identifier</param>
         /// <param name="customerOperatorAccount">Details of customer operator account</param>
         /// <returns>new customer operator account</returns>
         [HttpPost]
         [ProducesResponseType(typeof(CustomerOperatorAccount), (int)HttpStatusCode.OK)]
-        [Route("{customerId:Guid}/operator-accounts")]
-        public async Task<IActionResult> AddOperatorAccountForCustomer(Guid customerId, [FromBody] CustomerOperatorAccount customerOperatorAccount)
+        [Route("{organizationId:Guid}/operator-accounts")]
+        public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] CustomerOperatorAccount customerOperatorAccount)
         {
-            var newCustomerOperatorAccount = await _subscriptionServices.AddOperatorAccountForCustomerAsync(customerId, customerOperatorAccount.OrganizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName, customerOperatorAccount.OperatorId, customerOperatorAccount.CallerId);
+            var newCustomerOperatorAccount = await _subscriptionServices.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName, customerOperatorAccount.OperatorId, customerOperatorAccount.CallerId);
 
             return Ok(new CustomerOperatorAccount(newCustomerOperatorAccount));
         }

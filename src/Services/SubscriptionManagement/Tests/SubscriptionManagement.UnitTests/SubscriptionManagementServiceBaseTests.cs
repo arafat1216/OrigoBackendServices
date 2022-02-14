@@ -32,9 +32,9 @@ namespace SubscriptionManagement.UnitTests
 
             //Add customer operator acount
             context.AddRange(
-                new CustomerOperatorAccount(ORGANIZATION_ONE_ID, CUSTOMER_ONE_ID, "AC_NUM1", "AC_NAME1", operatorOne.Id, CALLER_ONE_ID),
-                new CustomerOperatorAccount(ORGANIZATION_ONE_ID, CUSTOMER_ONE_ID, "AC_NUM2", "AC_NAME2", operatorTwo.Id, CALLER_ONE_ID),
-                new CustomerOperatorAccount(ORGANIZATION_ONE_ID, CUSTOMER_ONE_ID, "AC_NUM3", "AC_NAME3", operatorThree.Id, CALLER_ONE_ID));
+                new CustomerOperatorAccount(ORGANIZATION_ONE_ID, "AC_NUM1", "AC_NAME1", operatorOne.Id, CALLER_ONE_ID),
+                new CustomerOperatorAccount(ORGANIZATION_ONE_ID, "AC_NUM2", "AC_NAME2", operatorTwo.Id, CALLER_ONE_ID),
+                new CustomerOperatorAccount(ORGANIZATION_ONE_ID, "AC_NUM3", "AC_NAME3", operatorThree.Id, CALLER_ONE_ID));
 
             context.SaveChanges();
 

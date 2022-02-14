@@ -14,14 +14,14 @@ namespace SubscriptionManagementServices
             _transferSubscriptionDateConfiguration = transferSubscriptionOrderConfigurationOptions.Value;
         }
 
-        public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, Guid organizationId, string accountNumber, string accountName, int operatorId, Guid callerId)
+        public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid organizationId, string accountNumber, string accountName, int operatorId, Guid callerId)
         {
             var customerOperator = await _subscriptionManagementRepository.GetOperatorAsync(operatorId);
 
             if (customerOperator == null)
                 throw new ArgumentException($"No operator exists with ID {operatorId}");
 
-            var newCustomerOperatorAccount = new CustomerOperatorAccount(organizationId, customerId, accountNumber, accountName, operatorId, callerId);
+            var newCustomerOperatorAccount = new CustomerOperatorAccount(organizationId, accountNumber, accountName, operatorId, callerId);
             return await _subscriptionManagementRepository.AddOperatorAccountForCustomerAsync(newCustomerOperatorAccount);
         }
 
