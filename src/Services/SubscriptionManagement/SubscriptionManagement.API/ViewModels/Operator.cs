@@ -4,14 +4,21 @@
     {
         public Operator(SubscriptionManagementServices.Models.Operator @operator)
         {
-            OperatorName = @operator.OperatorName;
+            Name = @operator.OperatorName;
             Country = @operator.Country;
+            Id = @operator.Id;
         }
-        public string OperatorName { get; set; }
+        /// <summary>
+        /// Operator's name
+        /// </summary>
+        public string Name { get; set; }
+        /// <summary>
+        /// Operator's name
+        /// </summary>
         public string Country { get; set; }
-
-        public DateTime CreatedDate { get; protected set; }
-        public Guid CreatedBy { get; protected set; }
-
+        /// <summary>
+        /// Operator's identifer
+        /// </summary>
+        public int Id { get; set; }
     }
 }
