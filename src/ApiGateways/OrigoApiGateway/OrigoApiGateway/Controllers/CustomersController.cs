@@ -595,5 +595,21 @@ namespace OrigoApiGateway.Controllers
 
             return Ok();
         }
+
+        /// <summary>
+        /// Delete customer operator account
+        /// </summary>
+        /// <param name="organizationId">Organization identifier</param>
+        /// <param name="accountNumber">Account number</param>
+        /// <returns></returns>
+        [HttpDelete]
+        [ProducesResponseType(typeof(OrigoCustomerOperatorAccount), (int)HttpStatusCode.OK)]
+        [Route("{organizationId:Guid}/operator-accounts/{accountNumber}")]
+        public async Task<IActionResult> DeleteOperatorAccountForCustomer(Guid organizationId, string accountNumber)
+        {
+            await SubscriptionManagementService.DeleteOperatorAccountForCustomerAsync(organizationId, accountNumber);
+
+            return Ok();
+        }
     }
 }

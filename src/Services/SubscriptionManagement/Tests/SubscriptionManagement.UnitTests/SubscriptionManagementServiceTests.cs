@@ -52,6 +52,41 @@ namespace SubscriptionManagement.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
+        public async Task DeleteCustomerOperatorAccount_Valid()
+        {
+            await _subscriptionManagementService.DeleteCustomerOperatorAccountAsync(ORGANIZATION_ONE_ID, "AC_NUM1");
+            Assert.Equal(2, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task DeleteCustomerOperatorAccount_InValid()
+        {
+            var exception = await Record.ExceptionAsync(() =>
+                _subscriptionManagementService.DeleteCustomerOperatorAccountAsync(ORGANIZATION_ONE_ID, "AC_NUM11")
+            );
+
+            Assert.NotNull(exception);
+            Assert.IsType<ArgumentException>(exception);
+            Assert.Equal($"No customer operator account with organization ID ({ORGANIZATION_ONE_ID}) and account name AC_NUM11 exists.", exception.Message);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task AddCustomerOperatorAccount_SameObject()
+        {
+            var exception = await Record.ExceptionAsync(() =>
+                _subscriptionManagementService.AddOperatorAccountForCustomerAsync(ORGANIZATION_ONE_ID, "AC_NUM1", "AC_NUM1", 1, Guid.NewGuid())
+            );
+
+            Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
+            Assert.NotNull(exception);
+            Assert.IsType<ArgumentException>(exception);
+            Assert.Equal($"A customer operator account with organization ID ({ORGANIZATION_ONE_ID}) and account name AC_NUM1 already exists.", exception.Message);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
         public async Task AddCustomerOperatorAccount_InValid()
         {
             var exception = await Record.ExceptionAsync(() =>
