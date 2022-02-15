@@ -6,11 +6,23 @@ EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /src
-COPY ["src/Services/ProductCatalog/ProductCatalog.API/ProductCatalog.API.csproj", "src/Services/ProductCatalog/ProductCatalog.API/"]
-RUN dotnet restore "src/Services/ProductCatalog/ProductCatalog.API/ProductCatalog.API.csproj"
-COPY . .
-WORKDIR "/src/src/Services/ProductCatalog/ProductCatalog.API"
+
+# Define build arguments
+ARG FEED_SOURCE
+ARG FEED_ACCESSTOKEN
+
+# Copy dependencies
+WORKDIR /src/Boilerplate/
+COPY ["src/Boilerplate/Boilerplate.EntityFramework", "Boilerplate.EntityFramework/"]
+
+# Copy project folders
+WORKDIR /src/Services/ProductCatalog/
+COPY ["src/Services/ProductCatalog/", "."]
+
+RUN dotnet nuget add source "$FEED_SOURCE" --name "source-name" --username "useless" --password "$FEED_ACCESSTOKEN" --store-password-in-clear-text
+RUN dotnet restore "ProductCatalog.API/ProductCatalog.API.csproj" 
+
+WORKDIR "/src/Services/ProductCatalog/ProductCatalog.API"
 RUN dotnet build "ProductCatalog.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
