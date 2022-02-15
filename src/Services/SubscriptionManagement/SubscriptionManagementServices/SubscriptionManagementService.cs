@@ -15,7 +15,7 @@ namespace SubscriptionManagementServices
             _transferSubscriptionDateConfiguration = transferSubscriptionOrderConfigurationOptions.Value;
         }
 
-        public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, string accountNumber, string accountName, int operatorId, Guid callerId)
+        public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid organizationId, string accountNumber, string accountName, int operatorId, Guid callerId)
         {
             var customerOperator = await _subscriptionManagementRepository.GetOperatorAsync(operatorId);
 
