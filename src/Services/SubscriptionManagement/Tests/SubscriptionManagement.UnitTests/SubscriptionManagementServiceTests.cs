@@ -4,6 +4,7 @@ using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -32,6 +33,13 @@ namespace SubscriptionManagement.UnitTests
                 MaxDaysForAll = 30,
                 MinDaysForCurrentOperator = 1
             }));
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task AddSubscriptionProductForCustomer_Valid()
+        {
+            var added = await _subscriptionManagementService.AddSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, "Op1", "ProductName", new List<string> { "s1", "s2" }, Guid.NewGuid(), false);
         }
 
         [Fact]

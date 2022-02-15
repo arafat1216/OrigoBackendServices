@@ -80,37 +80,35 @@ namespace SubscriptionManagementServices
         public async Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages, Guid callerId, bool isGlobal)
         {
             var operatorObject = await _subscriptionManagementRepository.GetOperatorAsync(operatorName);
+
             if (operatorObject == null)
             {
                 throw new ArgumentException($"No operator for name {operatorName}");
             }
 
             var datapackageList = new List<DataPackage>();
+
             foreach (var dataPackage in datapackages)
             {
                 datapackageList.Add(new DataPackage(dataPackage, callerId));
             }
 
-
-
-            //var organizationSettings = await _subscriptionManagementRepository.GetCustomerSettings(customerId,operatorName);
             var subscriptionProduct = await _subscriptionManagementRepository.AddSubscriptionProductForCustomerAsync(new SubscriptionProduct(productName, operatorObject, new ReadOnlyCollection<DataPackage>(datapackageList), customerId));
-
 
             if (!isGlobal)
             {
 
                 var customerProduct = new CustomerSubscriptionProduct(subscriptionProduct.SubscriptionName,
                                                                       subscriptionProduct.OperatorId,
-                                                                      new List<DataPackage>(subscriptionProduct.DataPackages),
                                                                       callerId);
 
                 var customerOperatorSettings = new CustomerOperatorSettings(
-                                                                    operatorObject, new List<CustomerSubscriptionProduct>() { customerProduct },
+                                                                    operatorObject.Id, new List<CustomerSubscriptionProduct>() { customerProduct },
                                                                     null);
 
                 await _subscriptionManagementRepository.AddCustomerOperatorSettingsAsync(customerOperatorSettings);
-                var customerSetting = new CustomerSettings(customerId, (IReadOnlyCollection<CustomerOperatorSettings>)new List<CustomerOperatorSettings> { customerOperatorSettings }, null);
+
+                var customerSetting = new CustomerSettings(customerId, new List<CustomerOperatorSettings> { customerOperatorSettings }, null);
                 await _subscriptionManagementRepository.AddCustomerSettingsAsync(customerSetting);
 
                 return subscriptionProduct;
@@ -119,14 +117,14 @@ namespace SubscriptionManagementServices
             {
                 var customerProduct = new CustomerSubscriptionProduct(subscriptionProduct);
 
-                
 
-                var customerOperatorSettings = new CustomerOperatorSettings(operatorObject,
+
+                var customerOperatorSettings = new CustomerOperatorSettings(operatorObject.Id,
                                                                             new List<CustomerSubscriptionProduct>() { customerProduct },
                                                                             null);
 
                 var customerSetting = new CustomerSettings(customerId,
-                                                           (IReadOnlyCollection<CustomerOperatorSettings>)new List<CustomerOperatorSettings> { customerOperatorSettings },
+                                                           new List<CustomerOperatorSettings> { customerOperatorSettings },
                                                            null);
 
                 await _subscriptionManagementRepository.AddCustomerOperatorSettingsAsync(customerOperatorSettings);
@@ -155,7 +153,7 @@ namespace SubscriptionManagementServices
             }
 
             var availableSubscriptionProductsForCustomer = await _subscriptionManagementRepository.GetOperatorSubscriptionProductForCustomerAsync(customerId, operatorName);
-            
+
             if (availableSubscriptionProductsForCustomer == null)
             {
                 return operatorsSubscriptionProduct;

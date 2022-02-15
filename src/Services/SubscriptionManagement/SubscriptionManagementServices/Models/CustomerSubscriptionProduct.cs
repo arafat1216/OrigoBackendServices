@@ -1,30 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SubscriptionManagementServices.Models
+﻿namespace SubscriptionManagementServices.Models
 {
     public class CustomerSubscriptionProduct : SubscriptionProduct
     {
         public CustomerSubscriptionProduct()
         {
         }
-        public CustomerSubscriptionProduct(string subscriptionName, int operatorId, IList<DataPackage>? dataPackages, Guid callerId)
+        public CustomerSubscriptionProduct(string subscriptionName, int operatorId, Guid callerId)
         {
             SubscriptionName = subscriptionName;
             OperatorId = operatorId;
-            DataPackages = new ReadOnlyCollection<DataPackage>(dataPackages ?? new List<DataPackage>());
             CreatedBy = callerId;
             UpdatedBy = callerId;
+            Name = subscriptionName;
         }
 
         public CustomerSubscriptionProduct(SubscriptionProduct? globalSubscriptionProduct)
         {
             GlobalSubscriptionProduct = globalSubscriptionProduct;
             Name = globalSubscriptionProduct.SubscriptionName;
+            SubscriptionName = globalSubscriptionProduct.SubscriptionName;
+            OperatorId = globalSubscriptionProduct.OperatorId;
+            CreatedBy = globalSubscriptionProduct.CreatedBy;
+            UpdatedBy = globalSubscriptionProduct.UpdatedBy;
         }
 
         public string Name { get; set; }

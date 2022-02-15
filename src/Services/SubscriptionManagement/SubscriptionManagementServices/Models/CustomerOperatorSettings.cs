@@ -4,9 +4,9 @@ namespace SubscriptionManagementServices.Models
 {
     public class CustomerOperatorSettings : Entity
     {
-        public CustomerOperatorSettings(Operator @operator, ICollection<CustomerSubscriptionProduct>? subscriptionProducts, IReadOnlyCollection<CustomerOperatorAccount>? customerOperatorAccounts)
+        public CustomerOperatorSettings(int operatorId, ICollection<CustomerSubscriptionProduct>? subscriptionProducts, IReadOnlyCollection<CustomerOperatorAccount>? customerOperatorAccounts)
         {
-            Operator = @operator;
+            OperatorId = operatorId;
             AvailableSubscriptionProducts = subscriptionProducts;
             CustomerOperatorAccounts = customerOperatorAccounts;
         }

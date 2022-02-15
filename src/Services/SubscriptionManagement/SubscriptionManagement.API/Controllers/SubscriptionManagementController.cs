@@ -137,16 +137,16 @@ namespace SubscriptionManagement.API.Controllers
         /// <summary>
         /// Add subscription product
         /// </summary>
-        /// <param name="customerId">Customer identifier</param>
+        /// <param name="organizationId">Customer identifier</param>
         /// <param name="subscriptionProduct">Details of the subscription product</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("{customerId:Guid}/subscription-products")]
+        [Route("{organizationId:Guid}/subscription-products")]
         [ProducesResponseType(typeof(SubscriptionProduct), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<SubscriptionProduct>> AddSubscriptionProductForCustomer(Guid customerId, [FromBody] NewSubscriptionProduct subscriptionProduct)
+        public async Task<ActionResult<SubscriptionProduct>> AddSubscriptionProductForCustomer(Guid organizationId, [FromBody] NewSubscriptionProduct subscriptionProduct)
         {
-            var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(customerId, subscriptionProduct.OperatorName, subscriptionProduct.SubscriptionProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId, subscriptionProduct.IsGlobal);
+            var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(organizationId, subscriptionProduct.OperatorName, subscriptionProduct.SubscriptionProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId, subscriptionProduct.IsGlobal);
 
             var mappedSubscriptionProduct = _mapper.Map<SubscriptionProduct>(addSubscriptionProduct);
 
