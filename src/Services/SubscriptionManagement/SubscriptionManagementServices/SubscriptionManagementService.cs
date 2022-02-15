@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using SubscriptionManagementServices.Models;
+using System.Collections.ObjectModel;
 
 namespace SubscriptionManagementServices
 {
@@ -14,14 +15,14 @@ namespace SubscriptionManagementServices
             _transferSubscriptionDateConfiguration = transferSubscriptionOrderConfigurationOptions.Value;
         }
 
-        public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid organizationId, string accountNumber, string accountName, int operatorId, Guid callerId)
+        public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, string accountNumber, string accountName, int operatorId, Guid callerId)
         {
             var customerOperator = await _subscriptionManagementRepository.GetOperatorAsync(operatorId);
 
             if (customerOperator == null)
                 throw new ArgumentException($"No operator exists with ID {operatorId}");
 
-            var newCustomerOperatorAccount = new CustomerOperatorAccount(organizationId, accountNumber, accountName, operatorId, callerId);
+            var newCustomerOperatorAccount = new CustomerOperatorAccount(customerId, accountNumber, accountName, operatorId, callerId);
             return await _subscriptionManagementRepository.AddOperatorAccountForCustomerAsync(newCustomerOperatorAccount);
         }
 
@@ -76,11 +77,63 @@ namespace SubscriptionManagementServices
             return operatorObject;
         }
 
-        public async Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages, Guid callerId)
+        public async Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages, Guid callerId, bool isGlobal)
         {
-            var operatorObject = _subscriptionManagementRepository.GetOperatorAsync(operatorName);
-            var subscriptionProduct = new SubscriptionProduct(productName, operatorObject.Id, datapackages?.Select(i => new DataPackage(i,customerId)).ToList(),customerId);
-            return await _subscriptionManagementRepository.AddSubscriptionProductForCustomerAsync(customerId, subscriptionProduct);
+            var operatorObject = await _subscriptionManagementRepository.GetOperatorAsync(operatorName);
+            if (operatorObject == null)
+            {
+                throw new ArgumentException($"No operator for name {operatorName}");
+            }
+
+            var datapackageList = new List<DataPackage>();
+            foreach (var dataPackage in datapackages)
+            {
+                datapackageList.Add(new DataPackage(dataPackage, callerId));
+            }
+
+
+
+            //var organizationSettings = await _subscriptionManagementRepository.GetCustomerSettings(customerId,operatorName);
+            var subscriptionProduct = await _subscriptionManagementRepository.AddSubscriptionProductForCustomerAsync(new SubscriptionProduct(productName, operatorObject, new ReadOnlyCollection<DataPackage>(datapackageList), customerId));
+
+
+            if (!isGlobal)
+            {
+
+                var customerProduct = new CustomerSubscriptionProduct(subscriptionProduct.SubscriptionName,
+                                                                      subscriptionProduct.OperatorId,
+                                                                      new List<DataPackage>(subscriptionProduct.DataPackages),
+                                                                      callerId);
+
+                var customerOperatorSettings = new CustomerOperatorSettings(
+                                                                    operatorObject, new List<CustomerSubscriptionProduct>() { customerProduct },
+                                                                    null);
+
+                await _subscriptionManagementRepository.AddCustomerOperatorSettingsAsync(customerOperatorSettings);
+                var customerSetting = new CustomerSettings(customerId, (IReadOnlyCollection<CustomerOperatorSettings>)new List<CustomerOperatorSettings> { customerOperatorSettings }, null);
+                await _subscriptionManagementRepository.AddCustomerSettingsAsync(customerSetting);
+
+                return subscriptionProduct;
+            }
+            else
+            {
+                var customerProduct = new CustomerSubscriptionProduct(subscriptionProduct);
+
+                
+
+                var customerOperatorSettings = new CustomerOperatorSettings(operatorObject,
+                                                                            new List<CustomerSubscriptionProduct>() { customerProduct },
+                                                                            null);
+
+                var customerSetting = new CustomerSettings(customerId,
+                                                           (IReadOnlyCollection<CustomerOperatorSettings>)new List<CustomerOperatorSettings> { customerOperatorSettings },
+                                                           null);
+
+                await _subscriptionManagementRepository.AddCustomerOperatorSettingsAsync(customerOperatorSettings);
+                await _subscriptionManagementRepository.AddCustomerSettingsAsync(customerSetting);
+            }
+
+            return null;
         }
 
         public async Task<IList<SubscriptionProduct>> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
@@ -92,6 +145,31 @@ namespace SubscriptionManagementServices
             }
             return subscriptionProduct;
 
+        }
+        public async Task<IList<SubscriptionProduct>> GetOperatorSubscriptionProductForSettingsAsync(Guid customerId, string operatorName)
+        {
+            var operatorsSubscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductForOperatorAsync(operatorName);
+            if (operatorsSubscriptionProduct == null)
+            {
+                throw new ArgumentException($"No subscription products for operator {operatorName}");
+            }
+
+            var availableSubscriptionProductsForCustomer = await _subscriptionManagementRepository.GetOperatorSubscriptionProductForCustomerAsync(customerId, operatorName);
+            
+            if (availableSubscriptionProductsForCustomer == null)
+            {
+                return operatorsSubscriptionProduct;
+            }
+
+            var allProducts = operatorsSubscriptionProduct
+                .Union(availableSubscriptionProductsForCustomer)
+                .ToList();
+
+            if (allProducts == null)
+            {
+                throw new ArgumentException($"could not concat subscription product lists");
+            }
+            return allProducts;
         }
 
         public async Task<SubscriptionProduct> DeleteOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
@@ -151,5 +229,6 @@ namespace SubscriptionManagementServices
 
             return await _subscriptionManagementRepository.TransferSubscriptionOrderAsync(new TransferSubscriptionOrder(customerId, subscriptionProductId, currentOperatorAccountId, datapackageId, callerId, simCardNumber, orderExecutionDate, newOperatorAccountId));
         }
+
     }
 }

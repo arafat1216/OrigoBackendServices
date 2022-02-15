@@ -146,7 +146,7 @@ namespace SubscriptionManagement.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<SubscriptionProduct>> AddSubscriptionProductForCustomer(Guid customerId, [FromBody] NewSubscriptionProduct subscriptionProduct)
         {
-            var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(customerId, subscriptionProduct.OperatorName, subscriptionProduct.ProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
+            var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(customerId, subscriptionProduct.OperatorName, subscriptionProduct.SubscriptionProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId, subscriptionProduct.IsGlobal);
 
             var mappedSubscriptionProduct = _mapper.Map<SubscriptionProduct>(addSubscriptionProduct);
 
@@ -163,6 +163,18 @@ namespace SubscriptionManagement.API.Controllers
             
             var subscriptionProductsList = _mapper.Map<IEnumerable<SubscriptionProduct>>(subscriptionProducts);
             
+            return Ok(subscriptionProductsList);
+        }
+        [HttpGet]
+        [Route("{customerId:Guid}/subscription-products/settings/{operatorName}")]
+        [ProducesResponseType(typeof(IList<SubscriptionProduct>), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<IEnumerable<SubscriptionProduct>>> GetOperatorSubscriptionProductForSettingsAsync(Guid customerId, string operatorName)
+        {
+            var subscriptionProducts = await _subscriptionServices.GetOperatorSubscriptionProductForSettingsAsync(customerId,operatorName);
+
+            var subscriptionProductsList = _mapper.Map<IEnumerable<SubscriptionProduct>>(subscriptionProducts);
+
             return Ok(subscriptionProductsList);
         }
 

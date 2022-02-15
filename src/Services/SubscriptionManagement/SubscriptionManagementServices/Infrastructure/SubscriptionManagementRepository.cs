@@ -80,6 +80,13 @@ namespace SubscriptionManagementServices.Infrastructure
                 .Select(m => m.AvailableSubscriptionProducts)
                         .FirstOrDefaultAsync();
 
+            //var subscription = await _subscriptionContext.CustomerSettings
+            //          .Include(x => x.CustomerOperatorSettings.Select(r => r.AvailableSubscriptionProducts.Select(p => p.DataPackages)).ToListAsync();
+
+            //          .Include(x => x.Shifts.Select(r => r.Rate).Select(rt => rt.RuleType))
+            //          .Include(x => x.Shifts.Select(r => r.Rate).Select(rt => rt.RateType))
+            //          .FirstOrDefaultAsync();
+
             if (subscriptionProuctsForCustomer == null)
             {
                 return null;
@@ -88,30 +95,61 @@ namespace SubscriptionManagementServices.Infrastructure
             IList<SubscriptionProduct> result = new List<SubscriptionProduct>();
             foreach (var subscriptionProuct in subscriptionProuctsForCustomer)
             {
-                
+
                 result.Add(subscriptionProuct);
 
             }
             return result;
         }
-
-        public async Task<IList<CustomerOperatorSettings>> GetCustomerOperatorSettings(Guid customerId)
+        public async Task<IList<SubscriptionProduct>?> GetSubscriptionProductForOperatorAsync(string operatorName)
         {
+            var operatorSubscriptionProducts = await _subscriptionContext.SubscriptionProducts
+                .Where(s => s.Operator.OperatorName == operatorName).ToListAsync();
 
-            //return await _subscriptionContext.CustomerOperatorSettings
-            //    .Where(c => c.CustomerId == customerId)
-            //    .ToListAsync();
-            throw new NotImplementedException();
-
+            return operatorSubscriptionProducts; 
         }
 
-        public async Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, SubscriptionProduct subscriptionProduct)
+        public async Task<CustomerOperatorSettings> GetCustomerSettings(Guid customerId, string operatorName)
         {
-            //_subscriptionContext.SubscriptionProducts.Add(subscriptionProduct);
-           
-            //_subscriptionContext.CustomerOperatorSettings.Add(subscriptionProduct);
-            //return await Task.CompletedTask;
-            throw new NotImplementedException();
+
+            var customerOperatorSettings = await _subscriptionContext.CustomerSettings
+                .Include(e => e.CustomerOperatorSettings)
+                    .ThenInclude(m => m.AvailableSubscriptionProducts)
+                .Include(e => e.CustomerOperatorSettings)
+                    .ThenInclude(m => m.CustomerOperatorAccounts)
+                .Include(e => e.CustomerOperatorSettings)
+                    .ThenInclude(m => m.Operator)
+                                     .Where(c => c.CustomerId == customerId).Select(e => e.CustomerOperatorSettings.Where(e => e.Operator.OperatorName == operatorName).FirstOrDefault())
+                                     .FirstAsync();
+
+
+            //List<CustomerOperatorSettings> listOfOperator = new List<CustomerOperatorSettings>(customerOperatorSettings);
+
+            return customerOperatorSettings;
+    }
+
+        public async Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(SubscriptionProduct subscriptionProduct)
+        {
+
+            var addedSubscriptionProduct = await _subscriptionContext.SubscriptionProducts.AddAsync(subscriptionProduct);
+            await _subscriptionContext.SaveChangesAsync();
+            return addedSubscriptionProduct.Entity;
+        }
+
+        public async Task<CustomerSettings> AddCustomerSettingsAsync(CustomerSettings customerSettings)
+        {
+
+            var addedCustomerSetting = await _subscriptionContext.CustomerSettings.AddAsync(customerSettings);
+            await _subscriptionContext.SaveChangesAsync();
+            return addedCustomerSetting.Entity;
+            
+        }
+        public async Task<CustomerOperatorSettings> AddCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings)
+        {
+
+            var addedCustomerOperatorSetting = await _subscriptionContext.CustomerOperatorSettings.AddAsync(customerOperatorSettings);
+           await _subscriptionContext.SaveChangesAsync();
+            return addedCustomerOperatorSetting.Entity;
         }
 
         public Task<SubscriptionProduct> DeleteOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)

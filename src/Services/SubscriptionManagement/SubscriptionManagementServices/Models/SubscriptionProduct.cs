@@ -8,11 +8,12 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public SubscriptionProduct(string subscriptionName, int operatorId, IReadOnlyCollection<DataPackage>? dataPackages, Guid callerId)
+        public SubscriptionProduct(string subscriptionName, Operator @operator, IReadOnlyCollection<DataPackage>? dataPackages, Guid callerId)
         {
 
             SubscriptionName = subscriptionName;
-            OperatorId = operatorId;
+            Operator = @operator;
+            OperatorId = @operator.Id;
             DataPackages = dataPackages;
             CreatedBy = callerId;
             UpdatedBy = callerId;

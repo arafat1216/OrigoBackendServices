@@ -38,7 +38,7 @@ namespace SubscriptionManagement.UnitTests
 
             context.SaveChanges();
 
-            var subscriptionProductOne = new SubscriptionProduct("SubscriptionName", operatorOne.Id, null, CALLER_ONE_ID);
+            var subscriptionProductOne = new SubscriptionProduct("SubscriptionName", operatorOne, null, CALLER_ONE_ID);
 
             context.AddRange(subscriptionProductOne);
 

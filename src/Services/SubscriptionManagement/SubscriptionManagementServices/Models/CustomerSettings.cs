@@ -23,7 +23,7 @@ namespace SubscriptionManagementServices.Models
         }
         
         public Guid CustomerId { get; protected set; }
-        public IReadOnlyCollection<CustomerOperatorSettings>? CustomerOperatorSettings { get; protected set; }
+        public IReadOnlyCollection<CustomerOperatorSettings>? CustomerOperatorSettings { get; protected set; } 
         public IReadOnlyCollection<CustomerReferenceField>? CustomerReferenceFields { get; protected set; }
     }
 }
