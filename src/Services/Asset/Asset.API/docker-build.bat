@@ -1,5 +1,5 @@
 @echo off
-title Docker Build: ProductCatalog.API
+title Docker Build: Asset.API
 cls
 
 @echo Make sure you are authenticated with the Docker container register. 
@@ -15,7 +15,7 @@ set /p buildId="Enter a build id (optional): "
 set /p nuGetFeedToken="Enter your NuGet access token: "
 echo.
 
-docker build -f ".\Dockerfile" "..\..\..\.." -t "productcatalogapi" --build-arg SONAR_TOKEN=%sonarToken% --build-arg BUILD_ID=%buildId% --build-arg FEED_SOURCE=https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json --build-arg FEED_ACCESSTOKEN=%nuGetFeedToken%
+docker build -f ".\Dockerfile" "..\..\..\.." -t "assetapi" --build-arg SONAR_TOKEN=%sonarToken% --build-arg BUILD_ID=XXX --build-arg FEED_SOURCE=https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json --build-arg FEED_ACCESSTOKEN=%nuGetFeedToken%
 echo.
 
 pause
