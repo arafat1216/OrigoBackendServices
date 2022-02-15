@@ -259,5 +259,25 @@ namespace SubscriptionManagement.UnitTests
 
             Assert.NotNull(order);
         }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task GetAllOperator()
+        {
+            var operators = await _subscriptionManagementService.GetAllOperatorsAsync();
+            Assert.NotNull(operators);
+            Assert.Equal(7, operators.Count);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task GetOperator()
+        {
+            var @operator1 = await _subscriptionManagementService.GetOperatorAsync(1);
+            Assert.NotNull(@operator1);
+
+            var @operator2 = await _subscriptionManagementService.GetOperatorAsync(100);
+            Assert.Null(@operator2);
+        }
     }
 }

@@ -24,23 +24,33 @@ namespace SubscriptionManagement.API.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Get all operators
+        /// </summary>
+        /// <returns>all operators</returns>
         [HttpGet]
         [Route("operators")]
-        public async Task<ActionResult<IEnumerable<string>>> GetAllOperators()
+        [ProducesResponseType(typeof(IList<Operator>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllOperators()
         {
             var operatorList = await _subscriptionServices.GetAllOperatorsAsync();
 
-            return Ok(operatorList);
+            return Ok(operatorList.Select(m => new Operator(m)));
         }
 
+        /// <summary>
+        /// Get operator by ID
+        /// </summary>
+        /// <param name="id">Operator identifier</param>
+        /// <returns></returns>
         [HttpGet]
-        [Route("operators/{operatorName}")]
-        public async Task<ActionResult<Operator>> GetOperator(string operatorName)
+        [Route("operators/{id}")]
+        [ProducesResponseType(typeof(Operator), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetOperator(int id)
         {
-            var operatorObject = await _subscriptionServices.GetOperator(operatorName);
-            var mappedOperator = _mapper.Map<Operator>(operatorObject);
+            var operatorObject = await _subscriptionServices.GetOperatorAsync(id);
 
-            return Ok(mappedOperator);
+            return Ok(new Operator(operatorObject));
         }
 
         [HttpGet]

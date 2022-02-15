@@ -4,8 +4,6 @@ using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using OrigoApiGateway.Services;
 using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Controllers
@@ -26,39 +24,6 @@ namespace OrigoApiGateway.Controllers
             _subscriptionManagementService = subscriptionManagementService;
             _logger = logger;
             _mapper = mapper;
-        }
-
-
-        //All avalible operators 
-        [HttpGet]
-        [Route("operator")]
-        //[PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult<IEnumerable<string>>> Get()
-        {
-            var operatorList = await _subscriptionManagementService.GetAllOperators();
-            return Ok(operatorList);
-        }
-
-        //Operator by name
-        [Route("operator/{operatorName}")]
-        [HttpGet]
-        [ProducesResponseType(typeof(OrigoOperator), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrigoOperator>> Get(string operatorName)
-        {
-            try
-            {
-                var operatorObject = await _subscriptionManagementService.GetOperator(operatorName);
-
-                return Ok(operatorObject);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Get with operator name ", ex.Message);
-                return BadRequest();
-            }
-
         }
 
         [Route("{organizationId:Guid}/subscription")]

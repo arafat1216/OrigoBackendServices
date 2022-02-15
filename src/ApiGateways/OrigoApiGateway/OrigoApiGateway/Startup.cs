@@ -206,8 +206,7 @@ namespace OrigoApiGateway
             services.AddSingleton<ISubscriptionManagementService>(x => new SubscriptionManagementService(
                 x.GetRequiredService<ILogger<SubscriptionManagementService>>(),
                     x.GetRequiredService<IOptions<SubscriptionManagementConfiguration>>(), 
-                    DaprClient.CreateInvokeHttpClient("subscriptionmanagementservices"),
-                    x.GetRequiredService<IMapper>()
+                    DaprClient.CreateInvokeHttpClient("subscriptionmanagementservices")
                 ));
 
 

@@ -115,5 +115,10 @@ namespace SubscriptionManagementServices.Infrastructure
             _subscriptionContext.Remove(customerOperatorAccount);
             await _subscriptionContext.SaveChangesAsync();
         }
+
+        public async Task<IList<Operator>> GetAllOperatorsAsync()
+        {
+            return await _subscriptionContext.Operators.ToListAsync();
+        }
     }
 }
