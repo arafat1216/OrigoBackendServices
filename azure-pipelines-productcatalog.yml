@@ -71,6 +71,8 @@ stages:
       inputs:
         script: 'dotnet --list-sdks'
 
+    - task: NuGetAuthenticate@0
+
     - script: 'dotnet tool install --global dotnet-ef'
       displayName: Install EF Core Console Tools
 
