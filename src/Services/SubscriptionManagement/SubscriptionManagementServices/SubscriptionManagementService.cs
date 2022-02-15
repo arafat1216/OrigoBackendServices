@@ -21,6 +21,11 @@ namespace SubscriptionManagementServices
             if (customerOperator == null)
                 throw new ArgumentException($"No operator exists with ID {operatorId}");
 
+            var existingCustomerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(organizationId, accountNumber);
+
+            if (existingCustomerOperatorAccount != null)
+                throw new ArgumentException($"A customer operator account with organization ID ({organizationId}) and account name {accountName} already exists.");
+
             var newCustomerOperatorAccount = new CustomerOperatorAccount(organizationId, accountNumber, accountName, operatorId, callerId);
             return await _subscriptionManagementRepository.AddOperatorAccountForCustomerAsync(newCustomerOperatorAccount);
         }
@@ -143,6 +148,18 @@ namespace SubscriptionManagementServices
                 throw new ArgumentException($"No Datapackage exists with ID {datapackageId}");
 
             return await _subscriptionManagementRepository.TransferSubscriptionOrderAsync(new TransferSubscriptionOrder(customerId, subscriptionProductId, currentOperatorAccountId, datapackageId, callerId, simCardNumber, orderExecutionDate, newOperatorAccountId));
+        }
+
+        public async Task DeleteCustomerOperatorAccountAsync(Guid organizationId, string accountNumber)
+        {
+            var existing = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(organizationId, accountNumber);
+
+            if (existing == null)
+                throw new ArgumentException($"No customer operator account with organization ID ({organizationId}) and account name {accountNumber} exists.");
+
+
+
+            await _subscriptionManagementRepository.DeleteCustomerOperatorAccountAsync(existing);
         }
     }
 }

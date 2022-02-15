@@ -34,6 +34,7 @@ namespace SubscriptionManagementServices.Infrastructure
             return await _subscriptionContext.Operators.Where(o => o.OperatorName == name).FirstOrDefaultAsync();
 
         }
+
         public Task<IList<SubscriptionProduct>> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
         {
             //Needs implementing - Rolf should supply the model for setting
@@ -63,6 +64,7 @@ namespace SubscriptionManagementServices.Infrastructure
         {
             return await _subscriptionContext.Datapackages.FindAsync(id);
         }
+
         public Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages)
         {
             //Needs implementing - Rolf should supply the model for setting
@@ -82,6 +84,7 @@ namespace SubscriptionManagementServices.Infrastructure
 
             return customerOperators;
         }
+
         public Task<SubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
         {
             //Needs implementing - Rolf should supply the model for setting
@@ -93,6 +96,24 @@ namespace SubscriptionManagementServices.Infrastructure
             var added = await _subscriptionContext.AddAsync(subscriptionOrder);
             await _subscriptionContext.SaveChangesAsync();
             return added.Entity;
+        }
+
+        public async Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(Guid organizationId, string accountNumber)
+        {
+            return await _subscriptionContext.CustomerOperatorAccounts
+                .Include(m => m.SubscriptionOrders)
+                .Include(m => m.CustomerOperatorSettings)
+                .Include(m => m.TransferSubscriptionOrders)
+                .FirstOrDefaultAsync(m => m.OrganizationId == organizationId && m.AccountNumber == accountNumber);
+        }
+
+        public async Task DeleteCustomerOperatorAccountAsync(CustomerOperatorAccount customerOperatorAccount)
+        {
+            if (customerOperatorAccount.CustomerOperatorSettings.Any() || customerOperatorAccount.SubscriptionOrders.Any() || customerOperatorAccount.TransferSubscriptionOrders.Any())
+                throw new ArgumentException("This customer operator accounts cannot be deleted because there are other entities related with it.");
+
+            _subscriptionContext.Remove(customerOperatorAccount);
+            await _subscriptionContext.SaveChangesAsync();
         }
     }
 }
