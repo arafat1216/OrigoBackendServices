@@ -7,19 +7,20 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
-# Define build arguments
+# Define build arguments required by NuGet
 ARG FEED_SOURCE
 ARG FEED_ACCESSTOKEN
+
+# Register the NuGet package-feed
+RUN dotnet nuget add source "$FEED_SOURCE" --name "source-name" --username "useless" --password "$FEED_ACCESSTOKEN" --store-password-in-clear-text
 
 # Copy dependencies
 WORKDIR /src/Boilerplate/
 COPY ["src/Boilerplate/Boilerplate.EntityFramework", "Boilerplate.EntityFramework/"]
 
-# Copy project folders
+# Copy project folders and restore NuGet packages
 WORKDIR /src/Services/ProductCatalog/
 COPY ["src/Services/ProductCatalog/", "."]
-
-RUN dotnet nuget add source "$FEED_SOURCE" --name "source-name" --username "useless" --password "$FEED_ACCESSTOKEN" --store-password-in-clear-text
 RUN dotnet restore "ProductCatalog.API/ProductCatalog.API.csproj" 
 
 WORKDIR "/src/Services/ProductCatalog/ProductCatalog.API"
