@@ -16,6 +16,8 @@
         Task<SubscriptionProduct?> GetSubscriptionProductAsync(int id);
         Task<DataPackage?> GetDatapackageAsync(int id);
         Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(int id);
+        Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(Guid organizationId, string accountNumber);
+        Task DeleteCustomerOperatorAccountAsync(CustomerOperatorAccount customerOperatorAccount);
         Task<IList<Operator>> GetAllOperatorsForCustomerAsync(Guid customerId);
         Task<CustomerOperatorSettings> GetCustomerSettings(Guid customerId,string operatorName);
         Task<CustomerSettings> AddCustomerSettingsAsync(CustomerSettings customerSettings);

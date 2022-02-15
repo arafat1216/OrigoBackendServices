@@ -134,6 +134,15 @@ namespace SubscriptionManagement.API.Controllers
             return Ok(new CustomerOperatorAccount(newCustomerOperatorAccount));
         }
 
+        [HttpDelete]
+        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+        [Route("{organizationId:Guid}/operator-accounts/{accountNumber}")]
+        public async Task<IActionResult> DeleteOperatorAccountsForCustomer(Guid organizationId, string accountNumber)
+        {
+            await _subscriptionServices.DeleteCustomerOperatorAccountAsync(organizationId, accountNumber);
+            return Ok();
+        }
+
         /// <summary>
         /// Add subscription product
         /// </summary>

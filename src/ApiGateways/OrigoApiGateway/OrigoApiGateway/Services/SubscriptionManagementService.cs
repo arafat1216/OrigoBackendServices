@@ -255,5 +255,27 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task DeleteOperatorAccountForCustomerAsync(Guid organizationId, string accountNumber)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/{organizationId}/operator-accounts/{accountNumber}";
+
+                var response = await HttpClient.SendAsync(new HttpRequestMessage
+                {
+                    Content = new StringContent(string.Empty),
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(requestUri, UriKind.Relative)
+                });
+
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "GetSubscriptionProductForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
     }
 }
