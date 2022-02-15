@@ -72,6 +72,7 @@ stages:
         script: 'dotnet --list-sdks'
 
     - task: NuGetAuthenticate@0
+      displayName: Authenticating with internal NuGet package-feeds
 
     - script: 'dotnet tool install --global dotnet-ef'
       displayName: Install EF Core Console Tools
@@ -91,6 +92,8 @@ stages:
       vmImage: $(vmImageName)
     steps:
     - task: NuGetAuthenticate@0 # Get artifact tolken. Source - https://stackoverflow.com/questions/63158785/azure-devops-nuget-artifact-feed-and-docker
+      displayName: Authenticating with internal NuGet package-feeds
+
     - task: Docker@2 # Can't use buildAndPush since arguments are needed
       displayName: Building Docker image
       inputs:
