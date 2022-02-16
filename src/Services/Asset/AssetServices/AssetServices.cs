@@ -520,7 +520,7 @@ namespace AssetServices
             MobilePhone phone = asset as MobilePhone;
             if (phone != null)
             {
-                if (!string.IsNullOrWhiteSpace(serialNumber) && phone.SerialNumber != serialNumber)
+                if (phone.SerialNumber != serialNumber)
                 {
                     phone.ChangeSerialNumber(serialNumber, callerId);
                 }
