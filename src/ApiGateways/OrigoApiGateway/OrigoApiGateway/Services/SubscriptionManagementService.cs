@@ -67,14 +67,13 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<bool> AddOperatorForCustomerAsync(Guid organizationId, IList<string> operators)
+        public async Task AddOperatorForCustomerAsync(Guid organizationId, IList<int> operators)
         {
             try
             {
                 string requestUri = $"{_options.ApiPath}/{organizationId}/operators";
                 var postOperator = await HttpClient.PostAsJsonAsync(requestUri, operators);
-
-                return postOperator.IsSuccessStatusCode;
+                postOperator.EnsureSuccessStatusCode();
             }
             catch (HttpRequestException ex)
             {
@@ -83,12 +82,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<bool> DeleteOperatorForCustomerAsync(Guid organizationId, string operatorName)
+        public async Task DeleteOperatorForCustomerAsync(Guid organizationId, int operatorId)
         {
             try
             {
 
-                string requestUri = $"{_options.ApiPath}/{organizationId}/operators/{operatorName}";
+                string requestUri = $"{_options.ApiPath}/{organizationId}/operators/{operatorId}";
 
                 HttpRequestMessage request = new HttpRequestMessage
                 {
@@ -98,7 +97,7 @@ namespace OrigoApiGateway.Services
                 };
 
                 var response = await HttpClient.SendAsync(request);
-                return response.IsSuccessStatusCode;
+                response.EnsureSuccessStatusCode();
             }
             catch (HttpRequestException ex)
             {

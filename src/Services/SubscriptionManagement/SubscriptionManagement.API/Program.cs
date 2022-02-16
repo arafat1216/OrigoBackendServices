@@ -57,6 +57,8 @@ builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.Configure<TransferSubscriptionDateConfiguration>(builder.Configuration.GetSection("TransferSubscriptionOrderConfiguration"));
 builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
 builder.Services.AddScoped<ISubscriptionManagementRepository, SubscriptionManagementRepository>();
+builder.Services.AddScoped<ICustomerSettingsService, CustomerSettingsService>();
+builder.Services.AddScoped<ICustomerSettingsRepository, CustomerSettingsRepository>();
 builder.Services.AddScoped<ErrorExceptionFilter>();
 var app = builder.Build();
 

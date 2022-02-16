@@ -14,7 +14,6 @@ using System.Security.Claims;
 using Common.Enums;
 using OrigoApiGateway.Models.BackendDTO;
 using AutoMapper;
-using System.IdentityModel.Tokens.Jwt;
 using OrigoApiGateway.Models.SubscriptionManagement;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
@@ -444,6 +443,11 @@ namespace OrigoApiGateway.Controllers
             return Ok("https://www.google.com/");
         }
 
+        /// <summary>
+        /// Get all operators a customer
+        /// </summary>
+        /// <param name="organizationId">Organization identifier</param>
+        /// <returns></returns>
         [Route("{organizationId:Guid}/operators")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<OrigoOperator>), (int)HttpStatusCode.OK)]
@@ -453,27 +457,32 @@ namespace OrigoApiGateway.Controllers
             return Ok(customersOperators);
         }
 
+        /// <summary>
+        /// Create operator list for customer
+        /// </summary>
+        /// <param name="organizationId">Organization identifier</param>
+        /// <param name="operators">List of operator identifier</param>
+        /// <returns></returns>
         [Route("{organizationId:Guid}/operators")]
         [HttpPost]
-        public async Task<ActionResult> CreateOperatorListForCustomerAsync(Guid organizationId, [FromBody] NewOperatorList operatorList)
+        public async Task<ActionResult> CreateOperatorListForCustomerAsync(Guid organizationId, [FromBody] List<int> operators)
         {
-            var addOperatorListForCustomer = await SubscriptionManagementService.AddOperatorForCustomerAsync(organizationId, operatorList.Operators);
-            if (!addOperatorListForCustomer)
-            {
+            await SubscriptionManagementService.AddOperatorForCustomerAsync(organizationId, operators);
 
-            }
             return NoContent();
         }
 
-        [Route("{organizationId:Guid}/operators/{operatorName}")]
+        /// <summary>
+        /// Delete customer's operator
+        /// </summary>
+        /// <param name="organizationId">Organization identifier</param>
+        /// <param name="id">Operator identifier</param>
+        /// <returns></returns>
+        [Route("{organizationId:Guid}/operators/{id}")]
         [HttpDelete]
-        public async Task<ActionResult> DeleteFromCustomersOperatorList(Guid organizationId, string operatorName)
+        public async Task<ActionResult> DeleteFromCustomersOperatorList(Guid organizationId, int id)
         {
-            var deleteFromCustomerOperators = await SubscriptionManagementService.DeleteOperatorForCustomerAsync(organizationId, operatorName);
-            if (!deleteFromCustomerOperators)
-            {
-
-            }
+            await SubscriptionManagementService.DeleteOperatorForCustomerAsync(organizationId, id);
             return NoContent();
         }
 

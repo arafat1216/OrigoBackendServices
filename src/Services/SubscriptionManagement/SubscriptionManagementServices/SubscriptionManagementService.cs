@@ -30,11 +30,6 @@ namespace SubscriptionManagementServices
             return await _subscriptionManagementRepository.AddOperatorAccountForCustomerAsync(newCustomerOperatorAccount);
         }
 
-        public Task<bool> AddOperatorForCustomerAsync(Guid organizationId, IList<string> operators)
-        {
-            return Task.FromResult(true);
-        }
-
         public async Task<SubscriptionOrder> AddSubscriptionOrderForCustomerAsync(Guid customerId, int subscriptionProductId, int operatorAccountId, int datapackageId, Guid callerId, string simCardNumber)
         {
             var customerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(operatorAccountId);
