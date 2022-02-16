@@ -14,11 +14,8 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task AddCustomerSettingsAsync(Guid customerId, IList<int> operators)
         {
-            //Check customerSettings
-            var customerSettings = await SubscriptionManagementContext.CustomerSettings.Include(m => m.CustomerOperatorSettings).FirstOrDefaultAsync(m => m.CustomerId == customerId);
-
-            if (customerSettings != null)
-                throw new ArgumentException("Settings already exists for this customer");
+            var customerSettings = await SubscriptionManagementContext.CustomerSettings.Include(m => m.CustomerOperatorSettings).FirstOrDefaultAsync(m => m.CustomerId == customerId) ??
+            new CustomerSettings(customerId);
 
             var customerOperatorSettingsList = new List<CustomerOperatorSettings>();
 
@@ -32,14 +29,19 @@ namespace SubscriptionManagementServices.Infrastructure
                 var customerOperatorAccounts = await SubscriptionManagementContext.CustomerOperatorAccounts.Where(m => m.OrganizationId == customerId).ToListAsync();
 
                 var customerOperatorSettings = new CustomerOperatorSettings(@operator, customerOperatorAccounts);
-
                 customerOperatorSettingsList.Add(customerOperatorSettings);
             }
 
-            if (customerOperatorSettingsList.Any())
-            {
-                SubscriptionManagementContext.CustomerSettings.Add(new CustomerSettings(customerId, customerOperatorSettingsList));
+            customerSettings.AddCustomerOperatorSettings(customerOperatorSettingsList);
 
+            if (customerSettings.Id == 0)
+            {
+                SubscriptionManagementContext.CustomerSettings.Add(customerSettings);
+                await SubscriptionManagementContext.SaveChangesAsync();
+            }
+            else
+            {
+                SubscriptionManagementContext.Entry(customerSettings).State = EntityState.Modified;
                 await SubscriptionManagementContext.SaveChangesAsync();
             }
         }
@@ -51,13 +53,11 @@ namespace SubscriptionManagementServices.Infrastructure
             if (customerSettings == null)
                 throw new ArgumentException("Settings does not exist for this customer");
 
-            var customerOperatorSettings = customerSettings.CustomerOperatorSettings.FirstOrDefault(m => m.OperatorId == operatorId);
+            customerSettings.RemoveCustomerOperatorSettings(operatorId);
 
-            if (customerOperatorSettings != null)
-            {
-                SubscriptionManagementContext.CustomerOperatorSettings.Remove(customerOperatorSettings);
-                await SubscriptionManagementContext.SaveChangesAsync();
-            }
+            SubscriptionManagementContext.Entry(customerSettings).State = EntityState.Modified;
+
+            await SubscriptionManagementContext.SaveChangesAsync();
         }
     }
 }
