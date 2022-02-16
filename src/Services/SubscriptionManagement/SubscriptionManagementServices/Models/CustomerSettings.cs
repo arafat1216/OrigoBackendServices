@@ -1,9 +1,4 @@
 ﻿using Common.Seedwork;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -15,6 +10,12 @@ namespace SubscriptionManagementServices.Models
             CustomerId = customerId;
             CustomerOperatorSettings = customerOperatorSettings;
             CustomerReferenceFields = customerReferenceFields;
+        }
+
+        public CustomerSettings(Guid customerId, IReadOnlyCollection<CustomerOperatorSettings>? customerOperatorSettings)
+        {
+            CustomerId = customerId;
+            CustomerOperatorSettings = customerOperatorSettings;
         }
 
         public CustomerSettings()

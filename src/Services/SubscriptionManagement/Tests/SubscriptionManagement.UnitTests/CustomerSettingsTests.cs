@@ -2,10 +2,8 @@
 using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -35,6 +33,28 @@ namespace SubscriptionManagement.UnitTests
         {
             var customerReferenceFields = await _customerSettingsService.GetCustomerReferenceFieldsAsync(CUSTOMER_ONE_ID);
             Assert.Equal(2, customerReferenceFields.Count);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task AddCustomerOperator()
+        {
+            await _customerSettingsService.AddOperatorsForCustomerAsync(CUSTOMER_ONE_ID, new List<int> { 1, 2 });
+            Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
+            Assert.Equal(2, _subscriptionManagementContext.CustomerOperatorSettings.Count());
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task DeleteCustomerOperator()
+        {
+            await _customerSettingsService.AddOperatorsForCustomerAsync(CUSTOMER_ONE_ID, new List<int> { 1, 2 });
+            Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
+            Assert.Equal(2, _subscriptionManagementContext.CustomerOperatorSettings.Count());
+
+            await _customerSettingsService.DeleteOperatorForCustomerAsync(CUSTOMER_ONE_ID, 1);
+            Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
+            Assert.Equal(1, _subscriptionManagementContext.CustomerOperatorSettings.Count());
         }
     }
 }
