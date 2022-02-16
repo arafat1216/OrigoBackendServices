@@ -19,6 +19,7 @@ resources:
 variables:
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '09ee8083-2a55-4731-876c-d6df7059bd8f'
+  artifactsFeedSource: 'https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json'
   imageRepository: 'assetsbackend'
   containerRegistry: 'origov2acr.azurecr.io'
   dockerfilePath: 'src/Services/Asset/Asset.API/Dockerfile'
