@@ -42,6 +42,10 @@ namespace SubscriptionManagement.UnitTests
 
             context.AddRange(subscriptionProductOne);
 
+            var customerSubscriptionProductOne = new CustomerSubscriptionProduct("SubscriptionName", operatorOne, CALLER_ONE_ID, null);
+
+            context.AddRange(customerSubscriptionProductOne);
+
             var dataPackageOne = new DataPackage("Data Package", CALLER_ONE_ID);
             context.AddRange(dataPackageOne);
 

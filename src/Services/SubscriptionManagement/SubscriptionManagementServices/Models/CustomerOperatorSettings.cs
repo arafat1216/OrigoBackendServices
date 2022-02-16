@@ -4,18 +4,24 @@ namespace SubscriptionManagementServices.Models
 {
     public class CustomerOperatorSettings : Entity
     {
-        public CustomerOperatorSettings(int operatorId, ICollection<CustomerSubscriptionProduct>? subscriptionProducts, IReadOnlyCollection<CustomerOperatorAccount>? customerOperatorAccounts)
+        public CustomerOperatorSettings(Operator @operator, ICollection<CustomerSubscriptionProduct> subscriptionProducts, ICollection<CustomerOperatorAccount> customerOperatorAccounts)
         {
-            OperatorId = operatorId;
+
+            Operator = @operator;
             AvailableSubscriptionProducts = subscriptionProducts;
             CustomerOperatorAccounts = customerOperatorAccounts;
         }
 
-        public CustomerOperatorSettings() { }
+        public CustomerOperatorSettings(Operator @operator)
+        {
+            Operator = @operator;
+        }
 
-        public int OperatorId { get; set; }
+        public CustomerOperatorSettings(){}
+
         public Operator Operator { get; protected set; }
-        public ICollection<CustomerSubscriptionProduct>? AvailableSubscriptionProducts { get; protected set; }
-        public IReadOnlyCollection<CustomerOperatorAccount>? CustomerOperatorAccounts { get; protected set; }
+
+        public ICollection<CustomerSubscriptionProduct> AvailableSubscriptionProducts { get; protected set; } = new List<CustomerSubscriptionProduct>();
+        public ICollection<CustomerOperatorAccount> CustomerOperatorAccounts { get; protected set; } = new List<CustomerOperatorAccount>();
     }
 }

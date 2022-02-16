@@ -1,29 +1,62 @@
 ﻿using Common.Seedwork;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SubscriptionManagementServices.Models
 {
     public class CustomerSettings : Entity, IAggregateRoot
     {
 
-        public CustomerSettings(Guid customerId, ICollection<CustomerOperatorSettings>? customerOperatorSettings, IReadOnlyCollection<CustomerReferenceField>? customerReferenceFields)
+        public CustomerSettings(Guid customerId, ICollection<CustomerOperatorSettings>? customerOperatorSettings = null, IReadOnlyCollection<CustomerReferenceField>? customerReferenceFields = null)
         {
             CustomerId = customerId;
-            CustomerOperatorSettings = customerOperatorSettings;
-            CustomerReferenceFields = customerReferenceFields;
+            if (customerOperatorSettings != null)
+            {
+                _customerOperatorSettings.AddRange(customerOperatorSettings);
+            }
+
+            if (customerReferenceFields != null)
+            {
+                _customerReferenceFields.AddRange(customerReferenceFields);
+            }
         }
 
-        public CustomerSettings()
-        {
-            //CustomerId = customerId;
-        }
+        public CustomerSettings(){}
         
         public Guid CustomerId { get; protected set; }
-        public ICollection<CustomerOperatorSettings>? CustomerOperatorSettings { get; protected set; } = new HashSet<CustomerOperatorSettings>();
-        public IReadOnlyCollection<CustomerReferenceField>? CustomerReferenceFields { get; protected set; }
+
+        private readonly List<CustomerOperatorSettings> _customerOperatorSettings = new();
+        public IReadOnlyCollection<CustomerOperatorSettings> CustomerOperatorSettings => _customerOperatorSettings.AsReadOnly();
+
+        private readonly List<CustomerReferenceField> _customerReferenceFields = new();
+        public IReadOnlyCollection<CustomerReferenceField>? CustomerReferenceFields => _customerReferenceFields.AsReadOnly();
+
+        public CustomerSubscriptionProduct AddSubscriptionProductAsync(Operator @operator, string productName, IList<string>? selectedDataPackages, SubscriptionProduct? globalSubscriptionProduct, Guid callerId)
+        {
+            //If the operator settings is null then add operator to customer
+            var customerOperatorSetting = CustomerOperatorSettings.FirstOrDefault(os => os.Operator.Id == @operator.Id);
+            if (customerOperatorSetting == null)
+            {
+                customerOperatorSetting = new CustomerOperatorSettings(@operator);
+                _customerOperatorSettings.Add(customerOperatorSetting);
+            }
+
+            var foundSubscriptionProduct = customerOperatorSetting.AvailableSubscriptionProducts.FirstOrDefault(p => p.SubscriptionName == productName);
+            if (foundSubscriptionProduct == null)
+            {
+                var dataPackages = selectedDataPackages?.Select(dataPackage => new DataPackage(dataPackage, callerId)).ToList();
+                var customerSubscriptionProduct = globalSubscriptionProduct != null
+                    ? new CustomerSubscriptionProduct(globalSubscriptionProduct, callerId, dataPackages)
+                    : new CustomerSubscriptionProduct(productName, @operator, callerId, dataPackages);
+                foundSubscriptionProduct = customerSubscriptionProduct;
+                customerOperatorSetting.AvailableSubscriptionProducts.Add(customerSubscriptionProduct);
+            }
+            else
+            {
+                foundSubscriptionProduct.SubscriptionName = globalSubscriptionProduct != null ? globalSubscriptionProduct.SubscriptionName : productName;
+                foundSubscriptionProduct.GlobalSubscriptionProduct = globalSubscriptionProduct;
+                foundSubscriptionProduct.SetDataPackages(selectedDataPackages, callerId);
+            }
+
+            return foundSubscriptionProduct;
+        }
     }
 }

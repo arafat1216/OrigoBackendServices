@@ -3,6 +3,7 @@ using AssetServices.Exceptions;
 using AssetServices.Utility;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.Json.Serialization;
@@ -21,12 +22,8 @@ namespace AssetServices.Models
         /// <summary>
         /// A list of all the IMEI numbers this asset has
         /// </summary>
-        private IList<AssetImei> imeis;
-        public IReadOnlyCollection<AssetImei> Imeis
-        {
-            get => new ReadOnlyCollection<AssetImei>(imeis);
-            protected set => imeis = value != null ? new List<AssetImei>(value) : new List<AssetImei>();
-        }
+        protected readonly List<AssetImei> _imeis = new List<AssetImei>();
+        public IReadOnlyCollection<AssetImei> Imeis => _imeis.AsReadOnly();
 
         /// <summary>
         /// The mac-address of the asset
@@ -57,7 +54,7 @@ namespace AssetServices.Models
                     throw new InvalidAssetDataException($"Invalid imei: {imei}");
                 }
             }
-            Imeis = new List<AssetImei>(imeiList.Select(i => new AssetImei(i)).ToList());
+            _imeis.AddRange(imeiList.Select(i => new AssetImei(i)).ToList());
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
         }
@@ -77,12 +74,12 @@ namespace AssetServices.Models
                     throw new InvalidAssetDataException($"Invalid imei: {imei}");
                 }
 
-                if (!Imeis.Any(i => i.Imei == imei))
+                if (Imeis.All(i => i.Imei != imei))
                 {
                     imeis.Add(new AssetImei(imei));
                 }
             }
-            Imeis = new List<AssetImei>(imeis);
+            _imeis.AddRange(imeis);
         }
 
         /// <summary>

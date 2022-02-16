@@ -1,36 +1,46 @@
 ﻿using System.Collections.ObjectModel;
+using Common.Seedwork;
 
 namespace SubscriptionManagementServices.Models
 {
-    public class CustomerSubscriptionProduct : SubscriptionProduct
+    public class CustomerSubscriptionProduct : Entity
     {
         public CustomerSubscriptionProduct()
         {
         }
-        public CustomerSubscriptionProduct(string subscriptionName, Operator @operator, Guid callerId, IList<DataPackage> dataPackages)
+        public CustomerSubscriptionProduct(string subscriptionName, Operator @operator, Guid callerId, IList<DataPackage>? dataPackages)
         {
             SubscriptionName = subscriptionName;
-            OperatorId = @operator.Id;
             Operator = @operator;
-            CreatedBy = callerId;
-            UpdatedBy = callerId;
-            Name = subscriptionName;
-            DataPackages = new ReadOnlyCollection<DataPackage>(dataPackages ?? new List<DataPackage>());
-            //GlobalSubscriptionProduct = isGlobal;
+            if (dataPackages != null) _dataPackages.AddRange(dataPackages);
         }
 
-
-        public CustomerSubscriptionProduct(SubscriptionProduct? globalSubscriptionProduct)
+        public CustomerSubscriptionProduct(SubscriptionProduct globalSubscriptionProduct, Guid callerId, IList<DataPackage>? dataPackages)
         {
             GlobalSubscriptionProduct = globalSubscriptionProduct;
-            Name = globalSubscriptionProduct.SubscriptionName;
             SubscriptionName = globalSubscriptionProduct.SubscriptionName;
-            OperatorId = globalSubscriptionProduct.OperatorId;
-            CreatedBy = globalSubscriptionProduct.CreatedBy;
-            UpdatedBy = globalSubscriptionProduct.UpdatedBy;
+            Operator = globalSubscriptionProduct.Operator;
+            if (dataPackages != null) _dataPackages.AddRange(dataPackages);
         }
-        public string Name { get; set; }
+
+        public string SubscriptionName { get; set; }
+        public Operator Operator { get; set; }
+
+        private List<DataPackage> _dataPackages = new();
+        public ICollection<DataPackage> DataPackages => _dataPackages.AsReadOnly();
+
+        public void SetDataPackages(IList<string> dataPackages, Guid callerId)
+        {
+            _dataPackages = new List<DataPackage>();
+            foreach (var dataPackageName in dataPackages)
+            {
+                _dataPackages.Add(new DataPackage(dataPackageName, callerId));
+            }
+        }
+
 
         public SubscriptionProduct? GlobalSubscriptionProduct { get; set; }
+
+        public ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
     }
 }

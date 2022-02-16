@@ -27,7 +27,7 @@ builder.Services.AddDbContext<SubscriptionManagementContext>(options => options.
     }));
 
 
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(SubscriptionProductProfile)));
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(SubscriptionManagementServices.Mappings.CustomerSubscriptionProductProfile)));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

@@ -48,7 +48,7 @@ namespace SubscriptionManagementServices.Infrastructure
             return await _subscriptionContext.SubscriptionProducts.FindAsync(id);
         }
 
-        public async Task<DataPackage?> GetDatapackageAsync(int id)
+        public async Task<DataPackage?> GetDataPackageAsync(int id)
         {
             return await _subscriptionContext.DataPackages.FindAsync(id);
         }
@@ -73,9 +73,9 @@ namespace SubscriptionManagementServices.Infrastructure
             return customerOperators;
         }
 
-        public async Task<IList<SubscriptionProduct>?> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
+        public async Task<IList<CustomerSubscriptionProduct>?> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
         {
-            var subscriptionProuctsForCustomer = await _subscriptionContext.CustomerSettings
+            var subscriptionProductsForCustomer = await _subscriptionContext.CustomerSettings
                 .Include(m => m.CustomerOperatorSettings)
                     .ThenInclude(m => m.AvailableSubscriptionProducts)
                         .ThenInclude(m => m.DataPackages)
@@ -94,16 +94,16 @@ namespace SubscriptionManagementServices.Infrastructure
             //          .Include(x => x.Shifts.Select(r => r.Rate).Select(rt => rt.RateType))
             //          .FirstOrDefaultAsync();
 
-            if (subscriptionProuctsForCustomer == null)
+            if (subscriptionProductsForCustomer == null)
             {
                 return null;
             }
 
-            IList<SubscriptionProduct> result = new List<SubscriptionProduct>();
-            foreach (var subscriptionProuct in subscriptionProuctsForCustomer)
+            List<CustomerSubscriptionProduct> result = new();
+            foreach (var customerSubscriptionProduct in subscriptionProductsForCustomer)
             {
 
-                result.Add(subscriptionProuct);
+                result.Add(customerSubscriptionProduct);
 
             }
             return result;
@@ -162,7 +162,7 @@ namespace SubscriptionManagementServices.Infrastructure
         }
 
         public Task<SubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
-        { 
+        {
             throw new NotImplementedException();
         }
         public async Task<CustomerOperatorSettings> UpdateCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings)
@@ -198,15 +198,17 @@ namespace SubscriptionManagementServices.Infrastructure
             await _subscriptionContext.SaveChangesAsync();
         }
 
-        public async Task<CustomerSettings> GetCustomerSettingsAsync(Guid customerId)
+        public async Task<CustomerSettings?> GetCustomerSettingsAsync(Guid customerId)
         {
-            var customerSetting = await _subscriptionContext.CustomerSettings.FirstOrDefaultAsync(m => m.CustomerId == customerId);
-            return customerSetting;
+            return await _subscriptionContext.CustomerSettings
+                .Include(cs => cs.CustomerOperatorSettings)
+                .ThenInclude(op => op.AvailableSubscriptionProducts).AsSplitQuery()
+                .FirstOrDefaultAsync(m => m.CustomerId == customerId);
         }
 
-        public async Task<CustomerSettings> UpdateCustomerSettingsAsync(CustomerSettings customersettings)
+        public async Task<CustomerSettings> UpdateCustomerSettingsAsync(CustomerSettings customerSettings)
         {
-            var updatedCustomerSetting = _subscriptionContext.CustomerSettings.Update(customersettings);
+            var updatedCustomerSetting = _subscriptionContext.CustomerSettings.Update(customerSettings);
             await _subscriptionContext.SaveChangesAsync();
 
             return updatedCustomerSetting.Entity;
@@ -214,9 +216,9 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task<SubscriptionProduct?> GetSubscriptionProductByNameAsync(string subscriptionProductName, int operatorId)
         {
-            
+
             var subscriptionProduct = await _subscriptionContext.SubscriptionProducts.FirstOrDefaultAsync(m => m.SubscriptionName == subscriptionProductName && m.OperatorId == operatorId);
-            
+
             return subscriptionProduct;
         }
 

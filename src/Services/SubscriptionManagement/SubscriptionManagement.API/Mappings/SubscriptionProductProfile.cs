@@ -1,7 +1,4 @@
 ﻿using AutoMapper;
-using SubscriptionManagement.API.ViewModels;
-using SubscriptionManagementServices.Models;
-using SubscriptionManagementServices.ServiceModels;
 
 namespace SubscriptionManagement.API.Mappings
 {

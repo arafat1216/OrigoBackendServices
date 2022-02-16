@@ -3,6 +3,7 @@ using Common.Enums;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace AssetServices.Models
@@ -23,7 +24,7 @@ namespace AssetServices.Models
             LifecycleType = lifecycleType;
             PurchaseDate = purchaseDate;
             AssetHolderId = assetHolderId;
-            Imeis = new ReadOnlyCollection<AssetImei>(imei ?? new List<AssetImei>());
+            _imeis.AddRange(imei.ToList());
             MacAddress = macAddress;
             Status = status;
             Note = note;

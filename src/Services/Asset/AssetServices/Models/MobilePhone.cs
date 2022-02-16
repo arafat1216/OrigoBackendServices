@@ -24,7 +24,7 @@ namespace AssetServices.Models
             LifecycleType = lifecycleType;
             PurchaseDate = purchaseDate;
             AssetHolderId = assetHolderId;
-            Imeis = new ReadOnlyCollection<AssetImei>(imei ?? new List<AssetImei>());
+            _imeis.AddRange(imei);
             MacAddress = macAddress;
             Status = status;
             Note = note;

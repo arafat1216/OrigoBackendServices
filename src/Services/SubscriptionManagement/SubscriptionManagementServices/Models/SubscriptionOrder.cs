@@ -19,14 +19,14 @@ namespace SubscriptionManagementServices.Models
             SimCardNumber = simCardNumber;
         }
 
-        public virtual SubscriptionProduct SubscriptionProduct { get; set; }
-        public virtual IReadOnlyCollection<SubscriptionAddOnProduct> SubscriptionAddOnProducts { get; set; }
+        public CustomerSubscriptionProduct CustomerSubscriptionProduct { get; set; }
+        public IReadOnlyCollection<SubscriptionAddOnProduct> SubscriptionAddOnProducts { get; set; }
         public string SimCardNumber { get; set; }
         public int SubscriptionProductId { get; set; }
         public Guid CustomerId { get; set; }
-        public virtual CustomerOperatorAccount OperatorAccount { get; set; }
+        public CustomerOperatorAccount OperatorAccount { get; set; }
         public int OperatorAccountId { get; set; }
-        public virtual DataPackage? DataPackage { get; set; }
+        public DataPackage? DataPackage { get; set; }
         public int DataPackageId { get; set; }
         public DateTime OrderExecutionDate { get; set; }
     }

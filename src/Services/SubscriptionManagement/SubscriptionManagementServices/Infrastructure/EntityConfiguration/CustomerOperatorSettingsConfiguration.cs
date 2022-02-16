@@ -22,8 +22,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             //Relationships
             builder
                 .HasOne(e => e.Operator)
-                .WithMany(e => e.CustomerOperatorSettings)
-                .HasForeignKey(e => e.OperatorId);
+                .WithMany(e => e.CustomerOperatorSettings);
 
             builder.HasMany(e => e.CustomerOperatorAccounts)
                 .WithMany(e => e.CustomerOperatorSettings)

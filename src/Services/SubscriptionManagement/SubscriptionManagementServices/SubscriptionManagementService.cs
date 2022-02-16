@@ -1,17 +1,20 @@
-﻿using Microsoft.Extensions.Options;
+﻿using AutoMapper;
+using Microsoft.Extensions.Options;
 using SubscriptionManagementServices.Models;
-using System.Collections.ObjectModel;
+using SubscriptionManagementServices.ServiceModels;
 
 namespace SubscriptionManagementServices
 {
     public class SubscriptionManagementService : ISubscriptionManagementService
     {
         private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
+        private readonly IMapper _mapper;
         private readonly TransferSubscriptionDateConfiguration _transferSubscriptionDateConfiguration;
 
-        public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository, IOptions<TransferSubscriptionDateConfiguration> transferSubscriptionOrderConfigurationOptions)
+        public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository, IOptions<TransferSubscriptionDateConfiguration> transferSubscriptionOrderConfigurationOptions, IMapper mapper)
         {
             _subscriptionManagementRepository = subscriptionManagementRepository;
+            _mapper = mapper;
             _transferSubscriptionDateConfiguration = transferSubscriptionOrderConfigurationOptions.Value;
         }
 
@@ -46,7 +49,7 @@ namespace SubscriptionManagementServices
             if (subscriptionProduct == null)
                 throw new ArgumentException($"No subscription product exists with ID {subscriptionProductId}");
 
-            var dataPackage = await _subscriptionManagementRepository.GetDatapackageAsync(datapackageId);
+            var dataPackage = await _subscriptionManagementRepository.GetDataPackageAsync(datapackageId);
             if (dataPackage == null)
                 throw new ArgumentException($"No DataPackage exists with ID {datapackageId}");
 
@@ -79,82 +82,57 @@ namespace SubscriptionManagementServices
             return await _subscriptionManagementRepository.GetOperatorAsync(id);
         }
 
-        public async Task<CustomerSubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages, Guid callerId)
+        public async Task<CustomerSubscriptionProductDTO> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string>? dataPackages, Guid callerId)
         {
-            //Check if operator exist
-            var operatorObject = await _subscriptionManagementRepository.GetOperatorAsync(operatorName);
-
-            if (operatorObject == null)
+            var @operator = await _subscriptionManagementRepository.GetOperatorAsync(operatorName);
+            if (@operator == null)
             {
                 throw new ArgumentException($"No operator for name {operatorName}");
             }
 
-            //Add subscription product
-            var datapackageList = new List<DataPackage>();
-
-            foreach (var dataPackage in datapackages)
+            var customerSettings = await _subscriptionManagementRepository.GetCustomerSettingsAsync(customerId);
+            if (customerSettings == null)
             {
-                datapackageList.Add(new DataPackage(dataPackage, callerId));
+                customerSettings = new CustomerSettings(customerId);
             }
 
-            var subscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductByNameAsync(productName, operatorObject.Id);
-            
-            CustomerSubscriptionProduct customerProduct;
-            if (subscriptionProduct != null)
+            var globalSubscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductByNameAsync(productName, @operator.Id);
+            var customerSubscriptionProduct = customerSettings.AddSubscriptionProductAsync(@operator, productName, dataPackages, globalSubscriptionProduct, callerId);
+            if (customerSettings.Id > 0)
             {
-
-                customerProduct = new CustomerSubscriptionProduct(subscriptionProduct);
-
+                await _subscriptionManagementRepository.UpdateCustomerSettingsAsync(customerSettings);
             }
             else
             {
-                //Send the subscriptionproduct so the linking happens
-                customerProduct = new CustomerSubscriptionProduct(productName,
-                                                                        operatorObject,
-                                                                        callerId, datapackageList);
+                await _subscriptionManagementRepository.AddCustomerSettingsAsync(customerSettings);
             }
-
-
-            var operatorSetting = await _subscriptionManagementRepository.GetCustomerOperatorSettings(customerId,operatorName);
-                
-                //If the operator settings is null then add operator to customer
-                if (operatorSetting == null)
-                {
-                    var newListSubs = new List<CustomerSubscriptionProduct>() { customerProduct };
-                    await CreateOperatorSettingForCustomer(customerId,newListSubs,operatorObject.Id);
-                }
-                else //or update the old one
-                {
-                    operatorSetting.AvailableSubscriptionProducts.Add(customerProduct);
-                    await _subscriptionManagementRepository.UpdateCustomerOperatorSettingsAsync(operatorSetting);
-                }
-
-            return customerProduct;
-        }
-        public async Task CreateOperatorSettingForCustomer(Guid customerId, List<CustomerSubscriptionProduct> subs, int operatorId)
-        {
-            
-            var customerOperatorSettings = new CustomerOperatorSettings(operatorId, subs, null);
-
-            await _subscriptionManagementRepository.AddCustomerOperatorSettingsAsync(customerOperatorSettings);
-            
-            //Check if customer has a setting
-            var customersettings = await _subscriptionManagementRepository.GetCustomerSettingsAsync(customerId);
-            
-            //Make new a new one
-            if (customersettings == null)
-            {
-                var newCustomerSetting = new CustomerSettings(customerId, new List<CustomerOperatorSettings> { customerOperatorSettings }, null);
-                await _subscriptionManagementRepository.AddCustomerSettingsAsync(newCustomerSetting);
-            }
-            else //or add to old one
-            {
-                customersettings.CustomerOperatorSettings.Add(customerOperatorSettings);
-                await _subscriptionManagementRepository.UpdateCustomerSettingsAsync(customersettings);
-            }
+            return _mapper.Map<CustomerSubscriptionProductDTO>(customerSubscriptionProduct);
         }
 
-            public async Task<IList<SubscriptionProduct>> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
+        //public async Task CreateOperatorSettingForCustomer(Guid customerId, List<CustomerSubscriptionProduct> subs, int operatorId)
+        //{
+
+        //    var customerOperatorSettings = new CustomerOperatorSettings(operatorId, subs, null);
+
+        //    await _subscriptionManagementRepository.AddCustomerOperatorSettingsAsync(customerOperatorSettings);
+
+        //    //Check if customer has a setting
+        //    var customerSettings = await _subscriptionManagementRepository.GetCustomerSettingsAsync(customerId);
+
+        //    //Make new a new one
+        //    if (customerSettings == null)
+        //    {
+        //        var newCustomerSetting = new CustomerSettings(customerId, new List<CustomerOperatorSettings> { customerOperatorSettings }, null);
+        //        await _subscriptionManagementRepository.AddCustomerSettingsAsync(newCustomerSetting);
+        //    }
+        //    else //or add to old one
+        //    {
+        //        customerSettings.CustomerOperatorSettings.Add(customerOperatorSettings);
+        //        await _subscriptionManagementRepository.UpdateCustomerSettingsAsync(customerSettings);
+        //    }
+        //}
+
+        public async Task<IList<CustomerSubscriptionProduct>> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
         {
             var subscriptionProduct = await _subscriptionManagementRepository.GetOperatorSubscriptionProductForCustomerAsync(customerId, operatorName);
             if (subscriptionProduct == null)
@@ -164,30 +142,21 @@ namespace SubscriptionManagementServices
             return subscriptionProduct;
 
         }
-        public async Task<IList<SubscriptionProduct>> GetOperatorSubscriptionProductForSettingsAsync(Guid customerId, string operatorName)
+        public async Task<IList<CustomerSubscriptionProductDTO>> GetOperatorSubscriptionProductForSettingsAsync(Guid customerId, string operatorName)
         {
             var operatorsSubscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductForOperatorAsync(operatorName);
-            if (operatorsSubscriptionProduct == null)
-            {
-                throw new ArgumentException($"No subscription products for operator {operatorName}");
-            }
-
+            List<CustomerSubscriptionProductDTO> customerSubscriptionProductDTOs = new();
+            customerSubscriptionProductDTOs.AddRange(
+                _mapper.Map<List<CustomerSubscriptionProductDTO>>(operatorsSubscriptionProduct));
             var availableSubscriptionProductsForCustomer = await _subscriptionManagementRepository.GetOperatorSubscriptionProductForCustomerAsync(customerId, operatorName);
 
             if (availableSubscriptionProductsForCustomer == null)
             {
-                return operatorsSubscriptionProduct;
+                customerSubscriptionProductDTOs.AddRange(
+                    _mapper.Map<List<CustomerSubscriptionProductDTO>>(availableSubscriptionProductsForCustomer));
             }
 
-            var allProducts = operatorsSubscriptionProduct
-                .Union(availableSubscriptionProductsForCustomer)
-                .ToList();
-
-            if (allProducts == null)
-            {
-                throw new ArgumentException($"could not concat subscription product lists");
-            }
-            return allProducts;
+            return customerSubscriptionProductDTOs;
         }
 
         public async Task<SubscriptionProduct> DeleteOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
@@ -241,7 +210,7 @@ namespace SubscriptionManagementServices
             if (subscriptionProduct == null)
                 throw new ArgumentException($"No subscription product exists with ID {subscriptionProductId}");
 
-            var dataPackage = await _subscriptionManagementRepository.GetDatapackageAsync(datapackageId);
+            var dataPackage = await _subscriptionManagementRepository.GetDataPackageAsync(datapackageId);
             if (dataPackage == null)
                 throw new ArgumentException($"No DataPackage exists with ID {datapackageId}");
 
