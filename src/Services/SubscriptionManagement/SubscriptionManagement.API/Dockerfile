@@ -1,5 +1,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
+# Define build arguments required by NuGet
+ARG FEED_SOURCE
+ARG FEED_ACCESSTOKEN
+
+# Register the NuGet package-feed
+RUN dotnet nuget add source "$FEED_SOURCE" --name "source-name" --username "useless" --password "$FEED_ACCESSTOKEN" --store-password-in-clear-text
+
 WORKDIR /src
 COPY ["src/Core/Common.csproj", "Core/Common.csproj"]
 COPY ["src/Services/SubscriptionManagement/SubscriptionManagementServices/SubscriptionManagementServices.csproj", "Services/SubscriptionManagement/SubscriptionManagementServices/SubscriptionManagementServices.csproj"]

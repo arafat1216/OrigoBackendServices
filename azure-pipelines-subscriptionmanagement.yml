@@ -67,6 +67,9 @@ stages:
       inputs:
         script: 'dotnet --list-sdks'
 
+    - task: NuGetAuthenticate@0
+      displayName: Authenticating with internal NuGet package-feeds
+
     - script: 'dotnet tool install --global dotnet-ef'
       displayName: Install EF Core Console Tools
 
@@ -90,20 +93,24 @@ stages:
         packageType: 'sdk'
         version: '6.0.x'
 
+    # Get artifact tolken. Source - https://stackoverflow.com/questions/63158785/azure-devops-nuget-artifact-feed-and-docker
+    - task: NuGetAuthenticate@0
+      displayName: Authenticating with internal NuGet package-feeds
+
     - task: Docker@2 # Can't use buildAndPush since arguments are needed
-      displayName: Build image
+      displayName: Building Docker image
       inputs:
         command: build
         buildContext: '$(Build.Repository.LocalPath)'
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
-        arguments: --build-arg SONAR_TOKEN=$(SonarToken) --build-arg BUILD_ID=$(Build.BuildId)
+        arguments: --build-arg SONAR_TOKEN=$(SonarToken) --build-arg BUILD_ID=$(Build.BuildId)  --build-arg FEED_SOURCE=$(artifactsFeedSource) --build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)
         tags: |
           $(tag)
 
     - task: Docker@2
-      displayName: Push an image to container registry
+      displayName: Pushing Docker image to container registry
       inputs:
         command: push
         buildContext: '$(Build.Repository.LocalPath)'
