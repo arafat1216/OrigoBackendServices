@@ -219,5 +219,10 @@ namespace SubscriptionManagementServices.Infrastructure
             
             return subscriptionProduct;
         }
+
+        public async Task<IList<Operator>> GetAllOperatorsAsync()
+        {
+            return await _subscriptionContext.Operators.ToListAsync();
+        }
     }
 }

@@ -1,10 +1,8 @@
-﻿using AutoMapper;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using System;
 using System.Collections.Generic;
-
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -16,21 +14,19 @@ namespace OrigoApiGateway.Services
 
         private readonly ILogger<SubscriptionManagementService> _logger;
         private readonly SubscriptionManagementConfiguration _options;
-        private readonly IMapper _mapper;
         private HttpClient HttpClient { get; }
-        public SubscriptionManagementService(ILogger<SubscriptionManagementService> logger, IOptions<SubscriptionManagementConfiguration> options, HttpClient httpClient, IMapper mapper)
+        public SubscriptionManagementService(ILogger<SubscriptionManagementService> logger, IOptions<SubscriptionManagementConfiguration> options, HttpClient httpClient)
         {
             _logger = logger;
             _options = options.Value;
             HttpClient = httpClient;
-            _mapper = mapper;
         }
 
-        public async Task<IList<string>> GetAllOperators()
+        public async Task<IList<OrigoOperator>> GetAllOperatorsAsync()
         {
             try
             {
-                var operators = await HttpClient.GetFromJsonAsync<IList<string>>($"{_options.ApiPath}/operator");
+                var operators = await HttpClient.GetFromJsonAsync<IList<OrigoOperator>>($"{_options.ApiPath}/operators");
 
                 return operators;
             }
@@ -39,15 +35,13 @@ namespace OrigoApiGateway.Services
                 _logger.LogError(ex, "GetAllOperators failed with HttpRequestException.");
                 throw;
             }
-
-
         }
 
-        public async Task<OrigoOperator> GetOperator(string operatorName)
+        public async Task<OrigoOperator> GetOperatorAsync(int id)
         {
             try
             {
-                var operatorObject = await HttpClient.GetFromJsonAsync<OrigoOperator>($"{_options.ApiPath}/operator/{operatorName}");
+                var operatorObject = await HttpClient.GetFromJsonAsync<OrigoOperator>($"{_options.ApiPath}/operators/{id}");
 
                 return operatorObject;
             }
