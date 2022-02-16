@@ -5,6 +5,13 @@ ARG SONAR_ORGANIZATION_KEY=mytos
 ARG SONAR_HOST_URL=https://sonarcloud.io
 ARG SONAR_TOKEN
 
+# Define build arguments required by NuGet
+ARG FEED_SOURCE
+ARG FEED_ACCESSTOKEN
+
+# Register the NuGet package-feed
+RUN dotnet nuget add source "$FEED_SOURCE" --name "source-name" --username "useless" --password "$FEED_ACCESSTOKEN" --store-password-in-clear-text
+
 WORKDIR /src
 
 COPY ["src/Core/Common.csproj", "Core/Common.csproj"]
