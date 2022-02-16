@@ -19,8 +19,12 @@
         Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(Guid organizationId, string accountNumber);
         Task DeleteCustomerOperatorAccountAsync(CustomerOperatorAccount customerOperatorAccount);
         Task<IList<Operator>> GetAllOperatorsForCustomerAsync(Guid customerId);
-        Task<CustomerOperatorSettings> GetCustomerSettings(Guid customerId,string operatorName);
-        Task<CustomerSettings> AddCustomerSettingsAsync(CustomerSettings customerSettings);
+        Task<CustomerOperatorSettings> GetCustomerOperatorSettings(Guid customerId,string operatorName);
         Task<CustomerOperatorSettings> AddCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings);
+        Task<CustomerOperatorSettings> UpdateCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings);
+        Task <CustomerSettings> GetCustomerSettingsAsync(Guid customerId);
+        Task<CustomerSettings> AddCustomerSettingsAsync(CustomerSettings customerSettings);
+        Task<CustomerSettings> UpdateCustomerSettingsAsync(CustomerSettings customersettings);
+        Task<SubscriptionProduct?> GetSubscriptionProductByNameAsync(string subscriptionProductName,int operatorId);
     }
 }

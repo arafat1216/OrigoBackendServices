@@ -116,7 +116,7 @@ namespace SubscriptionManagementServices.Infrastructure
             return operatorSubscriptionProducts;
         }
 
-        public async Task<CustomerOperatorSettings> GetCustomerSettings(Guid customerId, string operatorName)
+        public async Task<CustomerOperatorSettings> GetCustomerOperatorSettings(Guid customerId, string operatorName)
         {
 
             var customerOperatorSettings = await _subscriptionContext.CustomerSettings
@@ -127,10 +127,7 @@ namespace SubscriptionManagementServices.Infrastructure
                 .Include(e => e.CustomerOperatorSettings)
                     .ThenInclude(m => m.Operator)
                                      .Where(c => c.CustomerId == customerId).Select(e => e.CustomerOperatorSettings.Where(e => e.Operator.OperatorName == operatorName).FirstOrDefault())
-                                     .FirstAsync();
-
-
-            //List<CustomerOperatorSettings> listOfOperator = new List<CustomerOperatorSettings>(customerOperatorSettings);
+                                     .FirstOrDefaultAsync();
 
             return customerOperatorSettings;
         }
@@ -154,7 +151,7 @@ namespace SubscriptionManagementServices.Infrastructure
         public async Task<CustomerOperatorSettings> AddCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings)
         {
 
-            var addedCustomerOperatorSetting = await _subscriptionContext.AddAsync(customerOperatorSettings);
+            var addedCustomerOperatorSetting = await _subscriptionContext.CustomerOperatorSettings.AddAsync(customerOperatorSettings);
             await _subscriptionContext.SaveChangesAsync();
             return addedCustomerOperatorSetting.Entity;
         }
@@ -165,8 +162,15 @@ namespace SubscriptionManagementServices.Infrastructure
         }
 
         public Task<SubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
-        {
+        { 
             throw new NotImplementedException();
+        }
+        public async Task<CustomerOperatorSettings> UpdateCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings)
+        {
+            var addedCustomerOperatorSetting = _subscriptionContext.CustomerOperatorSettings.Update(customerOperatorSettings);
+            await _subscriptionContext.SaveChangesAsync();
+
+            return addedCustomerOperatorSetting.Entity;
         }
 
         public async Task<TransferSubscriptionOrder> TransferSubscriptionOrderAsync(TransferSubscriptionOrder subscriptionOrder)
@@ -192,6 +196,28 @@ namespace SubscriptionManagementServices.Infrastructure
 
             _subscriptionContext.Remove(customerOperatorAccount);
             await _subscriptionContext.SaveChangesAsync();
+        }
+
+        public async Task<CustomerSettings> GetCustomerSettingsAsync(Guid customerId)
+        {
+            var customerSetting = await _subscriptionContext.CustomerSettings.FirstOrDefaultAsync(m => m.CustomerId == customerId);
+            return customerSetting;
+        }
+
+        public async Task<CustomerSettings> UpdateCustomerSettingsAsync(CustomerSettings customersettings)
+        {
+            var updatedCustomerSetting = _subscriptionContext.CustomerSettings.Update(customersettings);
+            await _subscriptionContext.SaveChangesAsync();
+
+            return updatedCustomerSetting.Entity;
+        }
+
+        public async Task<SubscriptionProduct?> GetSubscriptionProductByNameAsync(string subscriptionProductName, int operatorId)
+        {
+            
+            var subscriptionProduct = await _subscriptionContext.SubscriptionProducts.FirstOrDefaultAsync(m => m.SubscriptionName == subscriptionProductName && m.OperatorId == operatorId);
+            
+            return subscriptionProduct;
         }
     }
 }

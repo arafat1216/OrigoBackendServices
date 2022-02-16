@@ -39,7 +39,7 @@ namespace SubscriptionManagement.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task AddSubscriptionProductForCustomer_Valid()
         {
-            var added = await _subscriptionManagementService.AddSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, "Op1", "ProductName", new List<string> { "s1", "s2" }, Guid.NewGuid(), false);
+            var added = await _subscriptionManagementService.AddSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, "Op1", "ProductName", new List<string> { "s1", "s2" }, Guid.NewGuid());
         }
 
         [Fact]

@@ -10,7 +10,7 @@ namespace SubscriptionManagementServices.Models
     public class CustomerSettings : Entity, IAggregateRoot
     {
 
-        public CustomerSettings(Guid customerId, IReadOnlyCollection<CustomerOperatorSettings>? customerOperatorSettings, IReadOnlyCollection<CustomerReferenceField>? customerReferenceFields)
+        public CustomerSettings(Guid customerId, ICollection<CustomerOperatorSettings>? customerOperatorSettings, IReadOnlyCollection<CustomerReferenceField>? customerReferenceFields)
         {
             CustomerId = customerId;
             CustomerOperatorSettings = customerOperatorSettings;
@@ -23,7 +23,7 @@ namespace SubscriptionManagementServices.Models
         }
         
         public Guid CustomerId { get; protected set; }
-        public IReadOnlyCollection<CustomerOperatorSettings>? CustomerOperatorSettings { get; protected set; } 
+        public ICollection<CustomerOperatorSettings>? CustomerOperatorSettings { get; protected set; } = new HashSet<CustomerOperatorSettings>();
         public IReadOnlyCollection<CustomerReferenceField>? CustomerReferenceFields { get; protected set; }
     }
 }

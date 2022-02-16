@@ -155,10 +155,12 @@ namespace SubscriptionManagement.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<SubscriptionProduct>> AddSubscriptionProductForCustomer(Guid organizationId, [FromBody] NewSubscriptionProduct subscriptionProduct)
         {
-            var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(organizationId, subscriptionProduct.OperatorName, subscriptionProduct.SubscriptionProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId, subscriptionProduct.IsGlobal);
-
+            var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(organizationId, subscriptionProduct.OperatorName, subscriptionProduct.SubscriptionProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
             var mappedSubscriptionProduct = _mapper.Map<SubscriptionProduct>(addSubscriptionProduct);
-
+            if (addSubscriptionProduct.GlobalSubscriptionProduct != null)
+            {
+                mappedSubscriptionProduct.isGlobal = true;
+            }
             return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), mappedSubscriptionProduct);
         }
 
