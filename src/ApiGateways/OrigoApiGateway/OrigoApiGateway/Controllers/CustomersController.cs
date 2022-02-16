@@ -14,7 +14,6 @@ using System.Security.Claims;
 using Common.Enums;
 using OrigoApiGateway.Models.BackendDTO;
 using AutoMapper;
-using System.IdentityModel.Tokens.Jwt;
 using OrigoApiGateway.Models.SubscriptionManagement;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
@@ -23,7 +22,7 @@ namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-   // [Authorize]
+    [Authorize]
     [Route("origoapi/v{version:apiVersion}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
