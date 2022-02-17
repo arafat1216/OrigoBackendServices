@@ -12,9 +12,19 @@ namespace SubscriptionManagementServices
 
         public ICustomerSettingsRepository CustomerSettingsRepository { get; }
 
-        public Task<IList<CustomerReferenceFieldDTO>> GetCustomerReferenceFieldsAsync(Guid customerId)
+        public async Task AddOperatorsForCustomerAsync(Guid customerId, IList<int> operators)
+        {
+            await CustomerSettingsRepository.AddCustomerSettingsAsync(customerId, operators);
+        }
+
+        public async Task<IList<CustomerReferenceFieldDTO>> GetCustomerReferenceFieldsAsync(Guid customerId)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task DeleteOperatorForCustomerAsync(Guid organizationId, int operatorId)
+        {
+            await CustomerSettingsRepository.DeleteOperatorForCustomerAsync(organizationId, operatorId);
         }
     }
 }

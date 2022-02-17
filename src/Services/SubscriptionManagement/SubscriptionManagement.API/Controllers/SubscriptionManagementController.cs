@@ -15,13 +15,19 @@ namespace SubscriptionManagement.API.Controllers
     {
         private readonly ILogger<SubscriptionManagementController> _logger;
         private readonly ISubscriptionManagementService _subscriptionServices;
+        private readonly ICustomerSettingsService _customerSettingsService;
         private readonly IMapper _mapper;
 
-        public SubscriptionManagementController(ILogger<SubscriptionManagementController> logger, ISubscriptionManagementService subscriptionServices, IMapper mapper)
+        public SubscriptionManagementController(
+            ILogger<SubscriptionManagementController> logger,
+            ISubscriptionManagementService subscriptionServices,
+            IMapper mapper,
+            ICustomerSettingsService customerSettingsService)
         {
             _logger = logger;
             _subscriptionServices = subscriptionServices;
             _mapper = mapper;
+            _customerSettingsService = customerSettingsService;
         }
 
         /// <summary>
@@ -54,31 +60,31 @@ namespace SubscriptionManagement.API.Controllers
         }
 
         [HttpGet]
-        [Route("{customerId:Guid}/operators")]
+        [Route("{organizationId:Guid}/operators")]
         [ProducesResponseType(typeof(IEnumerable<Operator>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetOperatorForCustomer(Guid customerId)
+        public async Task<IActionResult> GetOperatorForCustomer(Guid organizationId)
         {
-            var customerOperators = await _subscriptionServices.GetAllOperatorsForCustomerAsync(customerId);
+            var customerOperators = await _subscriptionServices.GetAllOperatorsForCustomerAsync(organizationId);
 
             return Ok(customerOperators.Select(m => new Operator(m)));
         }
 
         [HttpPost]
-        [Route("{customerId:Guid}/operators")]
-        public async Task<ActionResult<bool>> AddOperatorsForCustomer(Guid customerId, [FromBody] IList<string> operators)
+        [Route("{organizationId:Guid}/operators")]
+        public async Task<ActionResult> AddOperatorsForCustomer(Guid organizationId, [FromBody] IList<int> operators)
         {
-            var addOperatorForCustomer = await _subscriptionServices.AddOperatorForCustomerAsync(customerId, operators);
+            await _customerSettingsService.AddOperatorsForCustomerAsync(organizationId, operators);
 
-            return Ok(addOperatorForCustomer);
+            return Ok();
         }
 
         [HttpDelete]
-        [Route("{customerId:Guid}/operators/{operatorName}")]
-        public async Task<ActionResult<bool>> DeleteOperatorsForCustomer(Guid customerId, string operatorName)
+        [Route("{customerId:Guid}/operators/{id}")]
+        public async Task<ActionResult> DeleteOperatorsForCustomer(Guid customerId, int id)
         {
-            var deleteOperatorForCustomer = await _subscriptionServices.DeleteOperatorForCustomerAsync(customerId, operatorName);
+            await _customerSettingsService.DeleteOperatorForCustomerAsync(customerId, id);
 
-            return Ok(deleteOperatorForCustomer);
+            return Ok();
         }
 
         /// <summary>

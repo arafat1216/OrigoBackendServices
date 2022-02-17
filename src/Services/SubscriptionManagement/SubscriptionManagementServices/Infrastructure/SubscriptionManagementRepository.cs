@@ -66,11 +66,16 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task<IList<Operator>> GetAllOperatorsForCustomerAsync(Guid organizationId)
         {
-            var customerOperators = await _subscriptionContext.CustomerOperatorAccounts
-                .Include(m => m.Operator)
-                .Where(m => m.OrganizationId == organizationId).Select(m => m.Operator).ToListAsync();
+            var customerSettings = await _subscriptionContext
+                 .CustomerSettings
+                 .Include(m => m.CustomerOperatorSettings)
+                 .ThenInclude(m => m.Operator)
+                 .FirstOrDefaultAsync(m => m.CustomerId == organizationId);
 
-            return customerOperators;
+            if (customerSettings == null || customerSettings.CustomerOperatorSettings == null)
+                return new List<Operator> { };
+
+            return customerSettings?.CustomerOperatorSettings?.Select(m => m.Operator).ToList();
         }
 
         public async Task<IList<CustomerSubscriptionProduct>?> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
