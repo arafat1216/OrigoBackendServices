@@ -196,7 +196,7 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task DeleteCustomerOperatorAccountAsync(CustomerOperatorAccount customerOperatorAccount)
         {
-            if (customerOperatorAccount.CustomerOperatorSettings.Any() || customerOperatorAccount.SubscriptionOrders.Any() || customerOperatorAccount.TransferSubscriptionOrders.Any())
+            if (customerOperatorAccount.SubscriptionOrders.Any() || customerOperatorAccount.TransferSubscriptionOrders.Any())
                 throw new ArgumentException("This customer operator accounts cannot be deleted because there are other entities related with it.");
 
             _subscriptionContext.Remove(customerOperatorAccount);

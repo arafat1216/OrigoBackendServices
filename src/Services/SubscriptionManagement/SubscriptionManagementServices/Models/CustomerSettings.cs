@@ -12,9 +12,6 @@ namespace SubscriptionManagementServices.Models
             {
                 _customerOperatorSettings.AddRange(customerOperatorSettings);
             }
-            CustomerReferenceFields = customerReferenceFields;
-            _customerOperatorSettings = new List<CustomerOperatorSettings>();
-        }
 
             if (customerReferenceFields != null)
             {
@@ -30,15 +27,12 @@ namespace SubscriptionManagementServices.Models
             _customerOperatorSettings = new List<CustomerOperatorSettings>();
         }
 
-        public CustomerSettings()
-        {
-            _customerOperatorSettings = new List<CustomerOperatorSettings>();
-        }
-
         public Guid CustomerId { get; protected set; }
-        public IReadOnlyCollection<CustomerOperatorSettings>? CustomerOperatorSettings => _customerOperatorSettings.AsReadOnly();
+        private readonly List<CustomerOperatorSettings> _customerOperatorSettings = new();
+        public IReadOnlyCollection<CustomerOperatorSettings> CustomerOperatorSettings => _customerOperatorSettings.AsReadOnly();
 
-        public IReadOnlyCollection<CustomerReferenceField>? CustomerReferenceFields { get; protected set; }
+        private readonly List<CustomerReferenceField> _customerReferenceFields = new();
+        public IReadOnlyCollection<CustomerReferenceField>? CustomerReferenceFields => _customerReferenceFields.AsReadOnly();
 
         public void UpdateCustomerOperatorSettings(List<CustomerOperatorSettings> customerOperatorSettings)
         {
@@ -52,7 +46,7 @@ namespace SubscriptionManagementServices.Models
 
         public void RemoveCustomerOperatorSettings(int operatorId)
         {
-            var customerOperatorSettings = _customerOperatorSettings.FirstOrDefault(x => x.OperatorId == operatorId);
+            var customerOperatorSettings = _customerOperatorSettings.FirstOrDefault(x => x.Operator.Id == operatorId);
 
             if (customerOperatorSettings != null)
             {
@@ -63,19 +57,13 @@ namespace SubscriptionManagementServices.Models
             throw new ArgumentException($"Operator {operatorId} is not associated with this customer.");
         }
 
-        private readonly List<CustomerOperatorSettings> _customerOperatorSettings = new();
-        public IReadOnlyCollection<CustomerOperatorSettings> CustomerOperatorSettings => _customerOperatorSettings.AsReadOnly();
-
-        private readonly List<CustomerReferenceField> _customerReferenceFields = new();
-        public IReadOnlyCollection<CustomerReferenceField>? CustomerReferenceFields => _customerReferenceFields.AsReadOnly();
-
         public CustomerSubscriptionProduct AddSubscriptionProductAsync(Operator @operator, string productName, IList<string>? selectedDataPackages, SubscriptionProduct? globalSubscriptionProduct, Guid callerId)
         {
             //If the operator settings is null then add operator to customer
             var customerOperatorSetting = CustomerOperatorSettings.FirstOrDefault(os => os.Operator.Id == @operator.Id);
             if (customerOperatorSetting == null)
             {
-                customerOperatorSetting = new CustomerOperatorSettings(@operator);
+                customerOperatorSetting = new CustomerOperatorSettings(@operator, null);
                 _customerOperatorSettings.Add(customerOperatorSetting);
             }
 

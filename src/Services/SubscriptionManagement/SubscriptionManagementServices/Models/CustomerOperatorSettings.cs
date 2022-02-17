@@ -12,10 +12,14 @@ namespace SubscriptionManagementServices.Models
             CustomerOperatorAccounts = customerOperatorAccounts;
         }
 
-        public CustomerOperatorSettings(Operator @operator, IReadOnlyCollection<CustomerOperatorAccount>? customerOperatorAccounts)
+        public CustomerOperatorSettings(Operator @operator, ICollection<CustomerOperatorAccount>? customerOperatorAccounts)
         {
             Operator = @operator;
-            CustomerOperatorAccounts = customerOperatorAccounts;
+            if (customerOperatorAccounts != null)
+            {
+                CustomerOperatorAccounts = customerOperatorAccounts;
+            }
+           
         }
 
         public CustomerOperatorSettings() { }
