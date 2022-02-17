@@ -124,8 +124,7 @@ namespace SubscriptionManagementServices.Infrastructure
                         .ThenInclude(m => m.Operator)
                 .Where(c => c.CustomerId == customerId)
                 .SelectMany(m => m.CustomerOperatorSettings)
-                .Select(m => m.AvailableSubscriptionProducts.FirstOrDefault())
-                    .Where(a => a.Id == subscriptionId).FirstOrDefaultAsync();
+                .Select(m => m.AvailableSubscriptionProducts.FirstOrDefault(a=> a.Id == subscriptionId)).FirstOrDefaultAsync();
 
             return subscriptionProductsForCustomer; 
         }
