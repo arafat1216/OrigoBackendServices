@@ -202,6 +202,8 @@ namespace SubscriptionManagementServices.Infrastructure
         {
             return await _subscriptionContext.CustomerSettings
                 .Include(cs => cs.CustomerOperatorSettings)
+                .ThenInclude(o => o. Operator)
+                .Include(cs => cs.CustomerOperatorSettings)
                 .ThenInclude(op => op.AvailableSubscriptionProducts).AsSplitQuery()
                 .FirstOrDefaultAsync(m => m.CustomerId == customerId);
         }

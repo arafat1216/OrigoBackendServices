@@ -8,6 +8,6 @@ public class OperatorProfile : Profile
 {
     public OperatorProfile()
     {
-        CreateMap<Operator, OperatorDTO>();
+        CreateMap<Operator, OperatorDTO>().ForMember(destination => destination.Name, opt => opt.MapFrom(src => src.OperatorName));
     }
 }
