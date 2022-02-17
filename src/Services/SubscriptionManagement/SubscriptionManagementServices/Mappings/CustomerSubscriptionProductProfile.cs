@@ -12,6 +12,10 @@ public class CustomerSubscriptionProductProfile : Profile
             .ForMember(destination => destination.Datapackages,
                 opt => opt.MapFrom(src => src.DataPackages.Select(s => s.DataPackageName)))
             .ForMember(destination => destination.isGlobal, 
-                opt => opt.MapFrom(src => src.GlobalSubscriptionProduct != null));
+                opt => opt.MapFrom(src => src.GlobalSubscriptionProduct != null))
+            .ForMember(destination => destination.Name, 
+                opt => opt.MapFrom(src => src.SubscriptionName))
+            .ForMember(destination => destination.OperatorId,
+                opt => opt.MapFrom(src => src.Operator.Id));
     }
 }
