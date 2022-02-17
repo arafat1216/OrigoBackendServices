@@ -5,7 +5,7 @@
         /// <summary>
         /// The product name
         /// </summary>
-        public string ProductName { get; set; }
+        public string SubscriptionProductName { get; set; }
         /// <summary>
         /// The operator name
         /// </summary>
@@ -14,6 +14,9 @@
         /// The datapacakges that is offered by the product
         /// </summary>
         public IList<string>? DataPackages { get; set; }
+        /// <summary>
+        /// Id of caller to identify who requested the action to be made
+        /// </summary>
         public Guid CallerId { get; set; }
     }
 }

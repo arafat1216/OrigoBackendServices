@@ -31,7 +31,7 @@ namespace SubscriptionManagement.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task GetAllOperatorAccountsForCustomer_Check_Total()
         {
-            var customerReferenceFields = await _customerSettingsService.GetCustomerReferenceFieldsAsync(CUSTOMER_ONE_ID);
+            var customerReferenceFields = await _customerSettingsService.GetCustomerReferenceFieldsAsync(ORGANIZATION_ONE_ID);
             Assert.Equal(2, customerReferenceFields.Count);
         }
 
@@ -39,35 +39,35 @@ namespace SubscriptionManagement.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task AddCustomerOperator()
         {
-            await _customerSettingsService.AddOperatorsForCustomerAsync(CUSTOMER_ONE_ID, new List<int> { 1, 2 });
-            Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
-            Assert.Equal(2, _subscriptionManagementContext.CustomerOperatorSettings.Count());
-        }
-
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task UpdateCustomerOperator()
-        {
-            await _customerSettingsService.AddOperatorsForCustomerAsync(CUSTOMER_ONE_ID, new List<int> { 1, 2 });
-            Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
-            Assert.Equal(2, _subscriptionManagementContext.CustomerOperatorSettings.Count());
-
-            await _customerSettingsService.AddOperatorsForCustomerAsync(CUSTOMER_ONE_ID, new List<int> { 3 });
+            await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID, new List<int> { 1, 2 });
             Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
             Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorSettings.Count());
         }
 
         [Fact]
         [Trait("Category", "UnitTest")]
+        public async Task UpdateCustomerOperator()
+        {
+            await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID, new List<int> { 1, 2 });
+            Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
+            Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorSettings.Count());
+
+            await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID, new List<int> { 3 });
+            Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
+            Assert.Equal(4, _subscriptionManagementContext.CustomerOperatorSettings.Count());
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
         public async Task DeleteCustomerOperator()
         {
-            await _customerSettingsService.AddOperatorsForCustomerAsync(CUSTOMER_ONE_ID, new List<int> { 1, 2 });
+            await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID, new List<int> { 1, 2 });
             Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
-            Assert.Equal(2, _subscriptionManagementContext.CustomerOperatorSettings.Count());
+            Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorSettings.Count());
 
-            await _customerSettingsService.DeleteOperatorForCustomerAsync(CUSTOMER_ONE_ID, 1);
+            await _customerSettingsService.DeleteOperatorForCustomerAsync(ORGANIZATION_ONE_ID, 1);
             Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
-            Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.FirstOrDefault().CustomerOperatorSettings.Count());
+            Assert.Equal(2, _subscriptionManagementContext.CustomerSettings.FirstOrDefault().CustomerOperatorSettings.Count());
         }
     }
 }

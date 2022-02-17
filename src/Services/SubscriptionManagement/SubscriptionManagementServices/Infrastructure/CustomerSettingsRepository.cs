@@ -14,8 +14,8 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task AddCustomerSettingsAsync(Guid customerId, IList<int> operators)
         {
-            var customerSettings = await SubscriptionManagementContext.CustomerSettings.Include(m => m.CustomerOperatorSettings).FirstOrDefaultAsync(m => m.CustomerId == customerId) ??
-            new CustomerSettings(customerId);
+            var customerSettings = await SubscriptionManagementContext.CustomerSettings.Include(m => m.CustomerOperatorSettings)
+                .FirstOrDefaultAsync(m => m.CustomerId == customerId) ?? new CustomerSettings(customerId);
 
             var customerOperatorSettingsList = new List<CustomerOperatorSettings>();
 
@@ -48,7 +48,7 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task DeleteOperatorForCustomerAsync(Guid customerId, int operatorId)
         {
-            var customerSettings = await SubscriptionManagementContext.CustomerSettings.Include(m => m.CustomerOperatorSettings).FirstOrDefaultAsync(m => m.CustomerId == customerId);
+            var customerSettings = await SubscriptionManagementContext.CustomerSettings.Include(m => m.CustomerOperatorSettings).ThenInclude(e => e.Operator).FirstOrDefaultAsync(m => m.CustomerId == customerId);
 
             if (customerSettings == null)
                 throw new ArgumentException("Settings does not exist for this customer");

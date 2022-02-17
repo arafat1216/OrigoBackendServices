@@ -4,29 +4,35 @@ namespace SubscriptionManagementServices.Models
 {
     public class CustomerSettings : Entity, IAggregateRoot
     {
-        private List<CustomerOperatorSettings> _customerOperatorSettings;
-        public CustomerSettings(Guid customerId, IReadOnlyCollection<CustomerReferenceField>? customerReferenceFields)
+
+        public CustomerSettings(Guid customerId, ICollection<CustomerOperatorSettings>? customerOperatorSettings = null, IReadOnlyCollection<CustomerReferenceField>? customerReferenceFields = null)
         {
             CustomerId = customerId;
-            CustomerReferenceFields = customerReferenceFields;
-            _customerOperatorSettings = new List<CustomerOperatorSettings>();
+            if (customerOperatorSettings != null)
+            {
+                _customerOperatorSettings.AddRange(customerOperatorSettings);
+            }
+
+            if (customerReferenceFields != null)
+            {
+                _customerReferenceFields.AddRange(customerReferenceFields);
+            }
         }
 
+        public CustomerSettings(){}
+        
         public CustomerSettings(Guid customerId)
         {
             CustomerId = customerId;
             _customerOperatorSettings = new List<CustomerOperatorSettings>();
         }
 
-        public CustomerSettings()
-        {
-            _customerOperatorSettings = new List<CustomerOperatorSettings>();
-        }
-
         public Guid CustomerId { get; protected set; }
-        public IReadOnlyCollection<CustomerOperatorSettings>? CustomerOperatorSettings => _customerOperatorSettings.AsReadOnly();
+        private readonly List<CustomerOperatorSettings> _customerOperatorSettings = new();
+        public IReadOnlyCollection<CustomerOperatorSettings> CustomerOperatorSettings => _customerOperatorSettings.AsReadOnly();
 
-        public IReadOnlyCollection<CustomerReferenceField>? CustomerReferenceFields { get; protected set; }
+        private readonly List<CustomerReferenceField> _customerReferenceFields = new();
+        public IReadOnlyCollection<CustomerReferenceField>? CustomerReferenceFields => _customerReferenceFields.AsReadOnly();
 
         public void UpdateCustomerOperatorSettings(List<CustomerOperatorSettings> customerOperatorSettings)
         {
@@ -40,7 +46,7 @@ namespace SubscriptionManagementServices.Models
 
         public void RemoveCustomerOperatorSettings(int operatorId)
         {
-            var customerOperatorSettings = _customerOperatorSettings.FirstOrDefault(x => x.OperatorId == operatorId);
+            var customerOperatorSettings = _customerOperatorSettings.FirstOrDefault(x => x.Operator.Id == operatorId);
 
             if (customerOperatorSettings != null)
             {
@@ -49,6 +55,36 @@ namespace SubscriptionManagementServices.Models
             }
 
             throw new ArgumentException($"Operator {operatorId} is not associated with this customer.");
+        }
+
+        public CustomerSubscriptionProduct AddSubscriptionProductAsync(Operator @operator, string productName, IList<string>? selectedDataPackages, SubscriptionProduct? globalSubscriptionProduct, Guid callerId)
+        {
+            //If the operator settings is null then add operator to customer
+            var customerOperatorSetting = CustomerOperatorSettings.FirstOrDefault(os => os.Operator.Id == @operator.Id);
+            if (customerOperatorSetting == null)
+            {
+                customerOperatorSetting = new CustomerOperatorSettings(@operator, null);
+                _customerOperatorSettings.Add(customerOperatorSetting);
+            }
+
+            var foundSubscriptionProduct = customerOperatorSetting.AvailableSubscriptionProducts.FirstOrDefault(p => p.SubscriptionName == productName);
+            if (foundSubscriptionProduct == null)
+            {
+                var dataPackages = selectedDataPackages?.Select(dataPackage => new DataPackage(dataPackage, callerId)).ToList();
+                var customerSubscriptionProduct = globalSubscriptionProduct != null
+                    ? new CustomerSubscriptionProduct(globalSubscriptionProduct, callerId, dataPackages)
+                    : new CustomerSubscriptionProduct(productName, @operator, callerId, dataPackages);
+                foundSubscriptionProduct = customerSubscriptionProduct;
+                customerOperatorSetting.AvailableSubscriptionProducts.Add(customerSubscriptionProduct);
+            }
+            else
+            {
+                foundSubscriptionProduct.SubscriptionName = globalSubscriptionProduct != null ? globalSubscriptionProduct.SubscriptionName : productName;
+                foundSubscriptionProduct.GlobalSubscriptionProduct = globalSubscriptionProduct;
+                foundSubscriptionProduct.SetDataPackages(selectedDataPackages, callerId);
+            }
+
+            return foundSubscriptionProduct;
         }
     }
 }

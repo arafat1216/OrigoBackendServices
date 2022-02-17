@@ -521,7 +521,7 @@ namespace OrigoApiGateway.Controllers
                 //{
                 //    return BadRequest();
                 //}
-                return CreatedAtAction(nameof(CreateSubscriptionProductForCustomer), newSubscriptionProduct);
+                return CreatedAtAction(nameof(CreateSubscriptionProductForCustomer), subscriptionProduct);
             }
             catch (Exception ex)
             {

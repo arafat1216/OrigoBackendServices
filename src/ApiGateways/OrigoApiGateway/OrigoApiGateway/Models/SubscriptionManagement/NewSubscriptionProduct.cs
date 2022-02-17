@@ -8,7 +8,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
         /// <summary>
         /// The product name
         /// </summary>
-        public string ProductName { get; set; }
+        public string SubscriptionProductName { get; set; }
 
         /// <summary>
         /// The operator name

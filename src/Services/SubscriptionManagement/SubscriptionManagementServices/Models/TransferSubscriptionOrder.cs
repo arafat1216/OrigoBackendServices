@@ -6,8 +6,8 @@
         {
 
         }
-        public TransferSubscriptionOrder(Guid customerId, int subscriptionProductId, int currentOperatorAccountId, int datapackageId, Guid callerId, string simCardNumber, DateTime orderExecutionDate, int newOperatorAccountId)
-            : base(customerId, subscriptionProductId, currentOperatorAccountId, datapackageId, callerId, simCardNumber)
+        public TransferSubscriptionOrder(Guid customerId, int subscriptionProductId, int currentOperatorAccountId, int dataPackageId, Guid callerId, string simCardNumber, DateTime orderExecutionDate, int newOperatorAccountId)
+            : base(customerId, subscriptionProductId, currentOperatorAccountId, dataPackageId, callerId, simCardNumber)
         {
             OrderExecutionDate = orderExecutionDate;
             NewOperatorAccountId = newOperatorAccountId;

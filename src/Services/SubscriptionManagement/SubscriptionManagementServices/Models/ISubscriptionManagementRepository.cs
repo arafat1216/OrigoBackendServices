@@ -5,19 +5,27 @@
         Task<Operator?> GetOperatorAsync(int id);
         Task<IEnumerable<CustomerOperatorAccount>> GetAllCustomerOperatorAccountsAsync(Guid customerId);
         Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(CustomerOperatorAccount customerOperatorAccount);
-        Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages);
-        Task<IList<SubscriptionProduct>> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName);
+        Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(SubscriptionProduct subscriptionProduct);
+        Task<IList<CustomerSubscriptionProduct>?> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName);
+        Task<IList<SubscriptionProduct>?> GetSubscriptionProductForOperatorAsync(string operatorName);
         Task<SubscriptionProduct> DeleteOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId);
         Task<SubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId);
-        Task<Operator> GetOperatorAsync(string name);
+        Task<Operator?> GetOperatorAsync(string name);
         Task<SubscriptionOrder> AddSubscriptionOrderAsync(SubscriptionOrder subscriptionOrder);
         Task<TransferSubscriptionOrder> TransferSubscriptionOrderAsync(TransferSubscriptionOrder subscriptionOrder);
         Task<SubscriptionProduct?> GetSubscriptionProductAsync(int id);
-        Task<Datapackage?> GetDatapackageAsync(int id);
+        Task<DataPackage?> GetDataPackageAsync(int id);
         Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(int id);
         Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(Guid organizationId, string accountNumber);
         Task DeleteCustomerOperatorAccountAsync(CustomerOperatorAccount customerOperatorAccount);
         Task<IList<Operator>> GetAllOperatorsForCustomerAsync(Guid customerId);
+        Task<CustomerOperatorSettings> GetCustomerOperatorSettings(Guid customerId,string operatorName);
+        Task<CustomerOperatorSettings> AddCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings);
+        Task<CustomerOperatorSettings> UpdateCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings);
+        Task <CustomerSettings?> GetCustomerSettingsAsync(Guid customerId);
+        Task<CustomerSettings> AddCustomerSettingsAsync(CustomerSettings customerSettings);
+        Task<CustomerSettings> UpdateCustomerSettingsAsync(CustomerSettings customerSettings);
+        Task<SubscriptionProduct?> GetSubscriptionProductByNameAsync(string subscriptionProductName,int operatorId);
         Task<IList<Operator>> GetAllOperatorsAsync();
     }
 }

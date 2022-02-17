@@ -1,283 +1,309 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
-namespace SubscriptionManagement.UnitTests
-{
-    public class SubscriptionManagementServiceTests : SubscriptionManagementServiceBaseTests
-    {
-        private SubscriptionManagementContext _subscriptionManagementContext;
-        private ISubscriptionManagementRepository _subscriptionManagementRepository;
-        private ISubscriptionManagementService _subscriptionManagementService;
+namespace SubscriptionManagement.UnitTests;
 
-        public SubscriptionManagementServiceTests() : base(
-                new DbContextOptionsBuilder<SubscriptionManagementContext>()
-                    // ReSharper disable once StringLiteralTypo
-                    .UseSqlite("Data Source=sqlitecustomerunittests.db")
-                    .Options
-            )
+public class SubscriptionManagementServiceTests : SubscriptionManagementServiceBaseTests
+{
+    private readonly SubscriptionManagementContext _subscriptionManagementContext;
+    private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
+    private readonly ISubscriptionManagementService _subscriptionManagementService;
+    private static IMapper? _mapper;
+
+    public SubscriptionManagementServiceTests() : base(new DbContextOptionsBuilder<SubscriptionManagementContext>()
+        // ReSharper disable once StringLiteralTypo
+        .UseSqlite("Data Source=sqlitecustomerunittests.db").Options)
+    {
+        if (_mapper == null)
         {
-            _subscriptionManagementContext = new SubscriptionManagementContext(ContextOptions);
-            _subscriptionManagementRepository = new SubscriptionManagementRepository(_subscriptionManagementContext);
-            _subscriptionManagementService = new SubscriptionManagementService(_subscriptionManagementRepository, Options.Create(new TransferSubscriptionDateConfiguration
+            var mappingConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddMaps(Assembly.GetAssembly(typeof(SubscriptionProduct)));
+            });
+            _mapper = mappingConfig.CreateMapper();
+        }
+
+        _subscriptionManagementContext = new SubscriptionManagementContext(ContextOptions);
+        _subscriptionManagementRepository = new SubscriptionManagementRepository(_subscriptionManagementContext);
+        _subscriptionManagementService = new SubscriptionManagementService(_subscriptionManagementRepository,
+            Options.Create(new TransferSubscriptionDateConfiguration
             {
                 MinDaysForNewOperatorWithSIM = 10,
                 MinDaysForNewOperator = 4,
                 MaxDaysForAll = 30,
                 MinDaysForCurrentOperator = 1
-            }));
-        }
+            }), _mapper);
+    }
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task GetAllOperatorAccountsForCustomer_Check_Total()
-        {
-            var accounts = await _subscriptionManagementService.GetAllOperatorAccountsForCustomerAsync(CUSTOMER_ONE_ID);
-            Assert.Equal(3, accounts.Count());
-        }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AddSubscriptionProductForCustomer_Valid()
+    {
+        var added = await _subscriptionManagementService.AddSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID,
+            "Op1", "ProductName", new List<string> { "s1", "s2" }, Guid.NewGuid());
+    }
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task AddCustomerOperatorAccount_Valid()
-        {
-            await _subscriptionManagementService.AddOperatorAccountForCustomerAsync(ORGANIZATION_ONE_ID, "AcNum4", "AC_Name_4", 1, Guid.NewGuid());
-            Assert.Equal(4, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
-        }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetAllOperatorAccountsForCustomer_Check_Total()
+    {
+        var accounts = await _subscriptionManagementService.GetAllOperatorAccountsForCustomerAsync(ORGANIZATION_ONE_ID);
+        Assert.Equal(3, accounts.Count());
+    }
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task DeleteCustomerOperatorAccount_Valid()
-        {
-            await _subscriptionManagementService.DeleteCustomerOperatorAccountAsync(ORGANIZATION_ONE_ID, "AC_NUM1");
-            Assert.Equal(2, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
-        }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AddCustomerOperatorAccount_Valid()
+    {
+        await _subscriptionManagementService.AddOperatorAccountForCustomerAsync(ORGANIZATION_ONE_ID, "AcNum4",
+            "AC_Name_4", 1, Guid.NewGuid());
+        Assert.Equal(4, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
+    }
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task DeleteCustomerOperatorAccount_InValid()
-        {
-            var exception = await Record.ExceptionAsync(() =>
-                _subscriptionManagementService.DeleteCustomerOperatorAccountAsync(ORGANIZATION_ONE_ID, "AC_NUM11")
-            );
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task DeleteCustomerOperatorAccount_Valid()
+    {
+        await _subscriptionManagementService.DeleteCustomerOperatorAccountAsync(ORGANIZATION_ONE_ID, "AC_NUM1");
+        Assert.Equal(2, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
+    }
 
-            Assert.NotNull(exception);
-            Assert.IsType<ArgumentException>(exception);
-            Assert.Equal($"No customer operator account with organization ID ({ORGANIZATION_ONE_ID}) and account name AC_NUM11 exists.", exception.Message);
-        }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task DeleteCustomerOperatorAccount_InValid()
+    {
+        var exception = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.DeleteCustomerOperatorAccountAsync(ORGANIZATION_ONE_ID, "AC_NUM11"));
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task AddCustomerOperatorAccount_SameObject()
-        {
-            var exception = await Record.ExceptionAsync(() =>
-                _subscriptionManagementService.AddOperatorAccountForCustomerAsync(ORGANIZATION_ONE_ID, "AC_NUM1", "AC_NUM1", 1, Guid.NewGuid())
-            );
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
+        Assert.Equal(
+            $"No customer operator account with organization ID ({ORGANIZATION_ONE_ID}) and account name AC_NUM11 exists.",
+            exception.Message);
+    }
 
-            Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
-            Assert.NotNull(exception);
-            Assert.IsType<ArgumentException>(exception);
-            Assert.Equal($"A customer operator account with organization ID ({ORGANIZATION_ONE_ID}) and account name AC_NUM1 already exists.", exception.Message);
-        }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AddCustomerOperatorAccount_SameObject()
+    {
+        var exception = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.AddOperatorAccountForCustomerAsync(ORGANIZATION_ONE_ID, "AC_NUM1", "AC_NUM1",
+                1, Guid.NewGuid()));
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task AddCustomerOperatorAccount_InValid()
-        {
-            var exception = await Record.ExceptionAsync(() =>
-                 _subscriptionManagementService.AddOperatorAccountForCustomerAsync(ORGANIZATION_ONE_ID, "AcNum4", "AC_Name_4", 11, Guid.NewGuid())
-            );
+        Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
+        Assert.Equal(
+            $"A customer operator account with organization ID ({ORGANIZATION_ONE_ID}) and account name AC_NUM1 already exists.",
+            exception.Message);
+    }
 
-            Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
-            Assert.NotNull(exception);
-            Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("No operator exists with ID 11", exception.Message);
-        }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AddCustomerOperatorAccount_InValid()
+    {
+        var exception = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.AddOperatorAccountForCustomerAsync(ORGANIZATION_ONE_ID, "AcNum4",
+                "AC_Name_4", 11, Guid.NewGuid()));
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task AddSubscriptionOrder_Valid()
-        {
-            await _subscriptionManagementService.AddSubscriptionOrderForCustomerAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, string.Empty);
-            Assert.Equal(1, _subscriptionManagementContext.SubscriptionOrders.Count());
-        }
+        Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
+        Assert.Equal("No operator exists with ID 11", exception.Message);
+    }
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task AddSubscriptionOrder_InValid_SubscriptionProduct()
-        {
-            var exception = await Record.ExceptionAsync(() =>
-                 _subscriptionManagementService.AddSubscriptionOrderForCustomerAsync(CUSTOMER_ONE_ID, 10, 1, 1, CALLER_ONE_ID, string.Empty)
-            );
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AddSubscriptionOrder_Valid()
+    {
+        await _subscriptionManagementService.AddSubscriptionOrderForCustomerAsync(ORGANIZATION_ONE_ID, 1, 1, 1,
+            CALLER_ONE_ID, string.Empty);
+        Assert.Equal(1, _subscriptionManagementContext.SubscriptionOrders.Count());
+    }
 
-            Assert.Equal(0, _subscriptionManagementContext.SubscriptionOrders.Count());
-            Assert.NotNull(exception);
-            Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("No subscription product exists with ID 10", exception.Message);
-        }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AddSubscriptionOrder_InValid_SubscriptionProduct()
+    {
+        var exception = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.AddSubscriptionOrderForCustomerAsync(ORGANIZATION_ONE_ID, 10, 1, 1,
+                CALLER_ONE_ID, string.Empty));
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task AddSubscriptionOrder_InValid_OperatorAccount()
-        {
-            var exception = await Record.ExceptionAsync(() =>
-                 _subscriptionManagementService.AddSubscriptionOrderForCustomerAsync(CUSTOMER_ONE_ID, 1, 10, 1, CALLER_ONE_ID, string.Empty)
-            );
+        Assert.Equal(0, _subscriptionManagementContext.SubscriptionOrders.Count());
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
+        Assert.Equal("No subscription product exists with ID 10", exception.Message);
+    }
 
-            Assert.Equal(0, _subscriptionManagementContext.SubscriptionOrders.Count());
-            Assert.NotNull(exception);
-            Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("No operator account exists with ID 10", exception.Message);
-        }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AddSubscriptionOrder_InValid_OperatorAccount()
+    {
+        var exception = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.AddSubscriptionOrderForCustomerAsync(ORGANIZATION_ONE_ID, 1, 10, 1,
+                CALLER_ONE_ID, string.Empty));
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task AddSubscriptionOrder_InValid_DataPackage()
-        {
-            var exception = await Record.ExceptionAsync(() =>
-                 _subscriptionManagementService.AddSubscriptionOrderForCustomerAsync(CUSTOMER_ONE_ID, 1, 1, 10, CALLER_ONE_ID, string.Empty)
-            );
+        Assert.Equal(0, _subscriptionManagementContext.SubscriptionOrders.Count());
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
+        Assert.Equal("No operator account exists with ID 10", exception.Message);
+    }
 
-            Assert.Equal(0, _subscriptionManagementContext.SubscriptionOrders.Count());
-            Assert.NotNull(exception);
-            Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("No Datapackage exists with ID 10", exception.Message);
-        }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AddSubscriptionOrder_InValid_DataPackage()
+    {
+        var exception = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.AddSubscriptionOrderForCustomerAsync(ORGANIZATION_ONE_ID, 1, 1, 10,
+                CALLER_ONE_ID, string.Empty));
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task GetAllOperatorsForCustomer()
-        {
-            var customerOperators = await _subscriptionManagementService.GetAllOperatorsForCustomerAsync(CUSTOMER_ONE_ID);
-            Assert.Equal(3, customerOperators.Count());
-        }
+        Assert.Equal(0, _subscriptionManagementContext.SubscriptionOrders.Count());
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
+        Assert.Equal("No DataPackage exists with ID 10", exception.Message);
+    }
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task TransferSubscription_Same_Operator_EmptySIM()
-        {
-            var exception_one_day = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "", DateTime.UtcNow, 1)
-            );
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetAllOperatorsForCustomer()
+    {
+        var customerOperators = await _subscriptionManagementService.GetAllOperatorsForCustomerAsync(ORGANIZATION_ONE_ID);
+        Assert.Equal(1, customerOperators.Count());
+    }
 
-            Assert.NotNull(exception_one_day);
-            Assert.IsType<ArgumentException>(exception_one_day);
-            Assert.Equal("SIM card number is required.", exception_one_day.Message);
-        }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_Same_Operator_EmptySIM()
+    {
+        var exception_one_day = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.TransferSubscriptionOrderAsync(ORGANIZATION_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "",
+                DateTime.UtcNow, 1));
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task TransferSubscription_Same_Operator_InvalidDate()
-        {
-            var exception = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "[SIMCardNumber]", DateTime.UtcNow, 1)
-            );
+        Assert.NotNull(exception_one_day);
+        Assert.IsType<ArgumentException>(exception_one_day);
+        Assert.Equal("SIM card number is required.", exception_one_day.Message);
+    }
 
-            Assert.NotNull(exception);
-            Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("Invalid transfer date. 1 workday ahead or more is allowed.", exception.Message);
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_Same_Operator_InvalidDate()
+    {
+        var exception = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.TransferSubscriptionOrderAsync(ORGANIZATION_ONE_ID, 1, 1, 1, CALLER_ONE_ID,
+                "[SimCardNumber]", DateTime.UtcNow, 1));
 
-            var exception_thirty_day = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "[SIMCardNumber]", DateTime.UtcNow.AddDays(30.5), 1)
-            );
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
+        Assert.Equal("Invalid transfer date. 1 workday ahead or more is allowed.", exception.Message);
 
-            Assert.NotNull(exception_thirty_day);
-            Assert.IsType<ArgumentException>(exception_thirty_day);
-            Assert.Equal("Invalid transfer date. 1 workday ahead or more is allowed.", exception_thirty_day.Message);
-        }
+        var exception_thirty_day = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.TransferSubscriptionOrderAsync(ORGANIZATION_ONE_ID, 1, 1, 1, CALLER_ONE_ID,
+                "[SimCardNumber]", DateTime.UtcNow.AddDays(30.5), 1));
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task TransferSubscription_Diff_Operator_InvalidDate()
-        {
-            var exception = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "[SIMCardNumber]", DateTime.UtcNow, 2)
-            );
+        Assert.NotNull(exception_thirty_day);
+        Assert.IsType<ArgumentException>(exception_thirty_day);
+        Assert.Equal("Invalid transfer date. 1 workday ahead or more is allowed.", exception_thirty_day.Message);
+    }
 
-            Assert.NotNull(exception);
-            Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("Invalid transfer date. 4 workdays ahead or more allowed.", exception.Message);
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_Diff_Operator_InvalidDate()
+    {
+        var exception = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.TransferSubscriptionOrderAsync(ORGANIZATION_ONE_ID, 1, 1, 1, CALLER_ONE_ID,
+                "[SimCardNumber]", DateTime.UtcNow, 2));
 
-            var exception_thirty_day = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "[SIMCardNumber]", DateTime.UtcNow.AddDays(30.5), 2)
-            );
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
+        Assert.Equal("Invalid transfer date. 4 workdays ahead or more allowed.", exception.Message);
 
-            Assert.NotNull(exception_thirty_day);
-            Assert.IsType<ArgumentException>(exception_thirty_day);
-            Assert.Equal("Invalid transfer date. 4 workdays ahead or more allowed.", exception_thirty_day.Message);
-        }
+        var exception_thirty_day = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.TransferSubscriptionOrderAsync(ORGANIZATION_ONE_ID, 1, 1, 1, CALLER_ONE_ID,
+                "[SimCardNumber]", DateTime.UtcNow.AddDays(30.5), 2));
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task TransferSubscription_Diff_Operator_No_SIM_InvalidDate()
-        {
-            var exception = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "", DateTime.UtcNow, 2)
-            );
+        Assert.NotNull(exception_thirty_day);
+        Assert.IsType<ArgumentException>(exception_thirty_day);
+        Assert.Equal("Invalid transfer date. 4 workdays ahead or more allowed.", exception_thirty_day.Message);
+    }
 
-            Assert.NotNull(exception);
-            Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("Invalid transfer date. 10 workdays ahead or more is allowed.", exception.Message);
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_Diff_Operator_No_SIM_InvalidDate()
+    {
+        var exception = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.TransferSubscriptionOrderAsync(ORGANIZATION_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "",
+                DateTime.UtcNow, 2));
 
-            var exception_thirty_day = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "", DateTime.UtcNow.AddDays(65), 2)
-            );
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
+        Assert.Equal("Invalid transfer date. 10 workdays ahead or more is allowed.", exception.Message);
 
-            Assert.NotNull(exception_thirty_day);
-            Assert.IsType<ArgumentException>(exception_thirty_day);
-            Assert.Equal("Invalid transfer date. 10 workdays ahead or more is allowed.", exception_thirty_day.Message);
-        }
+        var exception_thirty_day = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.TransferSubscriptionOrderAsync(ORGANIZATION_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "",
+                DateTime.UtcNow.AddDays(65), 2));
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task TransferSubscription_Same_Operator_Valid()
-        {
-            var order = await _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "[SIM]", DateTime.UtcNow.AddDays(1.5), 1);
+        Assert.NotNull(exception_thirty_day);
+        Assert.IsType<ArgumentException>(exception_thirty_day);
+        Assert.Equal("Invalid transfer date. 10 workdays ahead or more is allowed.", exception_thirty_day.Message);
+    }
 
-            Assert.NotNull(order);
-        }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_Same_Operator_Valid()
+    {
+        var order = await _subscriptionManagementService.TransferSubscriptionOrderAsync(ORGANIZATION_ONE_ID, 1, 1, 1,
+            CALLER_ONE_ID, "[SIM]", DateTime.UtcNow.AddDays(1.5), 1);
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task TransferSubscription_Diff_Operator_New_SIM()
-        {
-            var order = await _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "[SIM]", DateTime.UtcNow.AddDays(4.5), 2);
+        Assert.NotNull(order);
+    }
 
-            Assert.NotNull(order);
-        }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_Diff_Operator_New_SIM()
+    {
+        var order = await _subscriptionManagementService.TransferSubscriptionOrderAsync(ORGANIZATION_ONE_ID, 1, 1, 1,
+            CALLER_ONE_ID, "[SIM]", DateTime.UtcNow.AddDays(4.5), 2);
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task TransferSubscription_Diff_Operator_Order_SIM()
-        {
-            var order = await _subscriptionManagementService.TransferSubscriptionOrderAsync(CUSTOMER_ONE_ID, 1, 1, 1, CALLER_ONE_ID, "", DateTime.UtcNow.AddDays(10.5), 2);
+        Assert.NotNull(order);
+    }
 
-            Assert.NotNull(order);
-        }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_Diff_Operator_Order_SIM()
+    {
+        var order = await _subscriptionManagementService.TransferSubscriptionOrderAsync(ORGANIZATION_ONE_ID, 1, 1, 1,
+            CALLER_ONE_ID, "", DateTime.UtcNow.AddDays(10.5), 2);
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task GetAllOperator()
-        {
-            var operators = await _subscriptionManagementService.GetAllOperatorsAsync();
-            Assert.NotNull(operators);
-            Assert.Equal(7, operators.Count);
-        }
+        Assert.NotNull(order);
+    }
 
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task GetOperator()
-        {
-            var @operator1 = await _subscriptionManagementService.GetOperatorAsync(1);
-            Assert.NotNull(@operator1);
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetAllOperator()
+    {
+        var operators = await _subscriptionManagementService.GetAllOperatorsAsync();
+        Assert.NotNull(operators);
+        Assert.Equal(7, operators.Count);
+    }
 
-            var @operator2 = await _subscriptionManagementService.GetOperatorAsync(100);
-            Assert.Null(@operator2);
-        }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetOperator()
+    {
+        var operator1 = await _subscriptionManagementService.GetOperatorAsync(1);
+        Assert.NotNull(operator1);
+
+        var operator2 = await _subscriptionManagementService.GetOperatorAsync(100);
+        Assert.Null(operator2);
     }
 }

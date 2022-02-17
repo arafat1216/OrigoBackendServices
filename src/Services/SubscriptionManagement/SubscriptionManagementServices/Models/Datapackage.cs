@@ -1,20 +1,20 @@
 ﻿using Common.Seedwork;
 namespace SubscriptionManagementServices.Models
 {
-    public class Datapackage : Entity
+    public class DataPackage : Entity
     {
-        public Datapackage()
+        public DataPackage()
         {
 
         }
-        public Datapackage(string datapackageName, Guid callerId)
+        public DataPackage(string dataPackageName, Guid callerId)
         {
-            DatapackageName = datapackageName;
+            DataPackageName = dataPackageName;
             CreatedBy = callerId;
             UpdatedBy = callerId;
         }
 
-        public string DatapackageName { get; set; }
+        public string DataPackageName { get; set; }
         public virtual ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
     }
 }

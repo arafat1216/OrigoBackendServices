@@ -2,14 +2,15 @@
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
 using System;
+using System.Collections.Generic;
 
 namespace SubscriptionManagement.UnitTests
 {
     public class SubscriptionManagementServiceBaseTests
     {
-        protected readonly Guid CUSTOMER_ONE_ID = new("42447F76-D9A8-4F0A-B0FF-B4683ACEDD64");
-        protected readonly Guid ORGANIZATION_ONE_ID = new("42447F76-D9A8-4F0A-B0FF-B4683ACEDD64");
-        protected readonly Guid CALLER_ONE_ID = new("42447F76-D9A8-4F0A-B0FF-B4683ACEDD64");
+        
+        protected readonly Guid ORGANIZATION_ONE_ID = new("42447F76-D9A8-4F0A-B0FF-B4683ACEDD62");
+        protected readonly Guid CALLER_ONE_ID = new("42447F76-D9A8-4F0A-B0FF-B4683ACEDD63");
         protected SubscriptionManagementServiceBaseTests(DbContextOptions<SubscriptionManagementContext> contextOptions)
         {
             ContextOptions = contextOptions;
@@ -29,20 +30,39 @@ namespace SubscriptionManagement.UnitTests
             var operatorThree = new Operator("Op3", "No", CALLER_ONE_ID);
             context.AddRange(operatorOne, operatorTwo, operatorThree);
             context.SaveChanges();
+            
 
             //Add customer operator acount
+            var customerOperatorAccounts = new List<CustomerOperatorAccount>();
+            var customerOperatorAccountOne = new CustomerOperatorAccount(ORGANIZATION_ONE_ID, "AC_NUM1", "AC_NAME1", operatorOne.Id, CALLER_ONE_ID);
+            var customerOperatorAccountTwo = new CustomerOperatorAccount(ORGANIZATION_ONE_ID, "AC_NUM2", "AC_NAME2", operatorTwo.Id, CALLER_ONE_ID);
+            var customerOperatorAccountThree = new CustomerOperatorAccount(ORGANIZATION_ONE_ID, "AC_NUM3", "AC_NAME3", operatorThree.Id, CALLER_ONE_ID);
+            customerOperatorAccounts.Add(customerOperatorAccountOne);
+            customerOperatorAccounts.Add(customerOperatorAccountTwo);
+            customerOperatorAccounts.Add(customerOperatorAccountThree);
+
+            context.AddRange(customerOperatorAccountOne, customerOperatorAccountTwo, customerOperatorAccountThree);
+            var customerOperatorSettings = new List<CustomerOperatorSettings>();
+           
+            var customerOperatorSettingOne = new CustomerOperatorSettings(operatorOne, customerOperatorAccounts);
+            customerOperatorSettings.Add(customerOperatorSettingOne);
+            context.Add(customerOperatorSettingOne);
+
             context.AddRange(
-                new CustomerOperatorAccount(ORGANIZATION_ONE_ID, "AC_NUM1", "AC_NAME1", operatorOne.Id, CALLER_ONE_ID),
-                new CustomerOperatorAccount(ORGANIZATION_ONE_ID, "AC_NUM2", "AC_NAME2", operatorTwo.Id, CALLER_ONE_ID),
-                new CustomerOperatorAccount(ORGANIZATION_ONE_ID, "AC_NUM3", "AC_NAME3", operatorThree.Id, CALLER_ONE_ID));
+               new CustomerSettings(ORGANIZATION_ONE_ID, customerOperatorSettings)
+              );
 
             context.SaveChanges();
 
-            var subscriptionProductOne = new SubscriptionProduct("SubscriptionName", operatorOne.Id, null, CALLER_ONE_ID);
+            var subscriptionProductOne = new SubscriptionProduct("SubscriptionName", operatorOne, null, CALLER_ONE_ID);
 
             context.AddRange(subscriptionProductOne);
 
-            var dataPackageOne = new Datapackage("Data Package", CALLER_ONE_ID);
+            var customerSubscriptionProductOne = new CustomerSubscriptionProduct("SubscriptionName", operatorOne, CALLER_ONE_ID, null);
+
+            context.AddRange(customerSubscriptionProductOne);
+
+            var dataPackageOne = new DataPackage("Data Package", CALLER_ONE_ID);
             context.AddRange(dataPackageOne);
 
             context.SaveChanges();

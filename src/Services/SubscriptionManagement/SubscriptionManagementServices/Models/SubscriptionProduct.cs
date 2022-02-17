@@ -8,21 +8,34 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
-        public SubscriptionProduct(string subscriptionName, int operatorId, IList<Datapackage>? dataPackages, Guid callerId)
+        public SubscriptionProduct(string subscriptionName, Operator @operator, IList<DataPackage>? dataPackages, Guid callerId)
         {
 
             SubscriptionName = subscriptionName;
-            OperatorId = operatorId;
-            DataPackages = dataPackages;
+            Operator = @operator;
+            OperatorId = @operator.Id;
+            if (dataPackages != null)
+            {
+                _dataPackages.AddRange(dataPackages);
+            }
             CreatedBy = callerId;
             UpdatedBy = callerId;
         }
 
         public string SubscriptionName { get; set; }
-        public virtual Operator Operator { get; set; }
+        public Operator Operator { get; set; }
         public int OperatorId { get; set; }
-        public virtual ICollection<Datapackage>? DataPackages { get; set; }
-        public virtual ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
-        public virtual ICollection<CustomerOperatorSettings>? CustomerOperatorSettings { get; protected set; }
+
+        private List<DataPackage> _dataPackages = new();
+        public ICollection<DataPackage> DataPackages => _dataPackages.AsReadOnly();
+
+        public void SetDataPackages(IList<string> dataPackages, Guid callerId)
+        {
+            _dataPackages = new List<DataPackage>();
+            foreach (var dataPackageName in dataPackages)
+            {
+                _dataPackages.Add(new DataPackage(dataPackageName, callerId));
+            }
+        }
     }
 }
