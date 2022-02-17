@@ -89,5 +89,21 @@ namespace SubscriptionManagementServices.Models
 
             return foundSubscriptionProduct;
         }
+
+        public CustomerReferenceField? RemoveCustomerReferenceField(int customerReferenceFieldId)
+        {
+            if (CustomerReferenceFields == null)
+            {
+                return null;
+            }
+
+            var customerReferenceField = _customerReferenceFields.FirstOrDefault(r => r.Id == customerReferenceFieldId);
+            if (customerReferenceField == null)
+            {
+                return null;
+            }
+            _customerReferenceFields.Remove(customerReferenceField);
+            return customerReferenceField;
+        }
     }
 }

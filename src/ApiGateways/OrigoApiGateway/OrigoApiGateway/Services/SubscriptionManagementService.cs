@@ -6,6 +6,13 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using OrigoApiGateway.Models.BackendDTO;
+using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
+using OrigoApiGateway.Models.SubscriptionManagement.Backend.Response;
+using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
+using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 
 namespace OrigoApiGateway.Services
 {
@@ -13,11 +20,13 @@ namespace OrigoApiGateway.Services
     {
 
         private readonly ILogger<SubscriptionManagementService> _logger;
+        private readonly IMapper _mapper;
         private readonly SubscriptionManagementConfiguration _options;
         private HttpClient HttpClient { get; }
-        public SubscriptionManagementService(ILogger<SubscriptionManagementService> logger, IOptions<SubscriptionManagementConfiguration> options, HttpClient httpClient)
+        public SubscriptionManagementService(ILogger<SubscriptionManagementService> logger, IOptions<SubscriptionManagementConfiguration> options, HttpClient httpClient, IMapper mapper)
         {
             _logger = logger;
+            _mapper = mapper;
             _options = options.Value;
             HttpClient = httpClient;
         }
@@ -199,6 +208,66 @@ namespace OrigoApiGateway.Services
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "AddSubscriptionProductForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
+
+        public async Task<IList<OrigoCustomerReferenceField>> GetAllCustomerReferenceFieldsAsync(Guid organizationId)
+        {
+            try
+            {
+                var requestUri = $"{_options.ApiPath}/{organizationId}/customer-reference-fields";
+                var customerReferenceFieldDTOs = await HttpClient.GetFromJsonAsync<IList<CustomerReferenceFieldResponseDTO>>(requestUri);
+
+                return _mapper.Map<List<OrigoCustomerReferenceField>>(customerReferenceFieldDTOs);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "GetAllCustomerReferenceFieldsAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoCustomerReferenceField> AddCustomerReferenceFieldAsync(Guid organizationId, NewCustomerReferenceField newCustomerReferenceField,
+            string callerId)
+        {
+            try
+            {
+                var customerReferenceFieldRequest =
+                    _mapper.Map<CustomerReferenceFieldPostRequestDTO>(newCustomerReferenceField);
+                customerReferenceFieldRequest.CallerId = callerId;
+                var requestUri = $"{_options.ApiPath}/{organizationId}/customer-reference-fields";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, customerReferenceFieldRequest);
+
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to add customer reference field", (int)response.StatusCode);
+
+                var customerReferenceField = await response.Content.ReadFromJsonAsync<CustomerReferenceFieldResponseDTO>();
+                return customerReferenceField == null ? null : _mapper.Map<OrigoCustomerReferenceField>(customerReferenceField);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, $"AddCustomerReferenceFieldAsync failed with HttpRequestException." );
+                throw;
+            }
+        }
+
+        public async Task<OrigoCustomerReferenceField> DeleteCustomerReferenceFieldAsync(Guid organizationId, int customerReferenceId, string callerId)
+        {
+            try
+            {
+                var requestUri = $"{_options.ApiPath}/{organizationId}/customer-reference-fields/{customerReferenceId}";
+                var response = await HttpClient.DeleteAsync(requestUri);
+
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to delete customer reference field", (int)response.StatusCode);
+
+                var customerReferenceField = await response.Content.ReadFromJsonAsync<CustomerReferenceFieldResponseDTO>();
+                return customerReferenceField == null ? null : _mapper.Map<OrigoCustomerReferenceField>(customerReferenceField);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, $"DeleteCustomerReferenceFieldAsync failed with HttpRequestException.");
                 throw;
             }
         }

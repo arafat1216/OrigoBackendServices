@@ -57,5 +57,22 @@ namespace SubscriptionManagementServices
         {
             await _customerSettingsRepository.DeleteOperatorForCustomerAsync(organizationId, operatorId);
         }
+
+        public async Task<CustomerReferenceFieldDTO?> DeleteCustomerReferenceFieldsAsync(Guid organizationId, int customerReferenceFieldId)
+        {
+            var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+            if (customerSettings == null)
+            {
+                return null;
+            }
+
+            var customerReferenceField = customerSettings.RemoveCustomerReferenceField(customerReferenceFieldId);
+            if (customerReferenceField == null)
+            {
+                return null;
+            }
+            await _customerSettingsRepository.DeleteCustomerReferenceFieldForCustomerAsync(customerReferenceField);
+            return _mapper.Map<CustomerReferenceFieldDTO>(customerReferenceField);
+        }
     }
 }

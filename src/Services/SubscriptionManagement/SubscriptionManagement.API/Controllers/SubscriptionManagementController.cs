@@ -183,7 +183,7 @@ namespace SubscriptionManagement.API.Controllers
         /// <param name="newCustomerReferenceField">Details of the new reference field</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("{organizationId:Guid}/customer-reference-field")]
+        [Route("{organizationId:Guid}/customer-reference-fields")]
         [ProducesResponseType(typeof(CustomerReferenceField), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<CustomerReferenceField>> AddCustomerReferenceField(Guid organizationId, [FromBody] NewCustomerReferenceField newCustomerReferenceField)
@@ -194,12 +194,33 @@ namespace SubscriptionManagement.API.Controllers
         }
 
         /// <summary>
+        /// Delete a customer reference field based on id for a customer.
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="customerReferenceFieldId">Id of the field requested for delete</param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route("{organizationId:Guid}/customer-reference-fields/{customerReferenceFieldId:int}")]
+        [ProducesResponseType(typeof(CustomerReferenceField), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<IEnumerable<CustomerReferenceField>>> DeleteCustomerReferenceFieldsForCustomer(Guid organizationId, int customerReferenceFieldId)
+        {
+            var customerReferenceFieldDTO = await _customerSettingsService.DeleteCustomerReferenceFieldsAsync(organizationId, customerReferenceFieldId);
+            if (customerReferenceFieldDTO == null)
+            {
+                return NotFound();
+            }
+            var customerReferenceField = _mapper.Map<CustomerReferenceField>(customerReferenceFieldDTO);
+            return Ok(customerReferenceField);
+        }
+
+        /// <summary>
         /// Get a list of all reference field used by a customer.
         /// </summary>
         /// <param name="organizationId"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("{organizationId:Guid}/customer-reference-field")]
+        [Route("{organizationId:Guid}/customer-reference-fields")]
         [ProducesResponseType(typeof(IList<CustomerReferenceField>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<IEnumerable<CustomerReferenceField>>> GetCustomerReferenceFieldsForCustomer(Guid organizationId)

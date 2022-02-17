@@ -14,14 +14,15 @@ namespace SubscriptionManagementServices.Infrastructure
             _subscriptionManagementContext = subscriptionManagementContext;
         }
 
-        public async Task<CustomerSettings?> GetCustomerSettingsAsync(Guid customerId)
+        public async Task<CustomerSettings?> GetCustomerSettingsAsync(Guid organizationId)
         {
             return await _subscriptionManagementContext.CustomerSettings
                 .Include(cs => cs.CustomerOperatorSettings)
                 .ThenInclude(o => o.Operator)
                 .Include(cs => cs.CustomerOperatorSettings)
-                .ThenInclude(op => op.AvailableSubscriptionProducts).AsSplitQuery()
-                .FirstOrDefaultAsync(m => m.CustomerId == customerId);
+                .ThenInclude(op => op.AvailableSubscriptionProducts)
+                .Include(cs => cs.CustomerReferenceFields).AsSplitQuery()
+                .FirstOrDefaultAsync(m => m.CustomerId == organizationId);
         }
 
 
@@ -42,10 +43,10 @@ namespace SubscriptionManagementServices.Infrastructure
             return updatedCustomerSetting.Entity;
         }
 
-        public async Task AddCustomerOperatorSettingsAsync(Guid customerId, IList<int> operators)
+        public async Task AddCustomerOperatorSettingsAsync(Guid organizationId, IList<int> operators)
         {
             var customerSettings = await _subscriptionManagementContext.CustomerSettings.Include(m => m.CustomerOperatorSettings)
-                .FirstOrDefaultAsync(m => m.CustomerId == customerId) ?? new CustomerSettings(customerId);
+                .FirstOrDefaultAsync(m => m.CustomerId == organizationId) ?? new CustomerSettings(organizationId);
 
             var customerOperatorSettingsList = new List<CustomerOperatorSettings>();
 
@@ -56,7 +57,7 @@ namespace SubscriptionManagementServices.Infrastructure
                 if (@operator == null)
                     throw new ArgumentException($"No operator exists with ID {id}");
 
-                var customerOperatorAccounts = await _subscriptionManagementContext.CustomerOperatorAccounts.Where(m => m.OrganizationId == customerId).ToListAsync();
+                var customerOperatorAccounts = await _subscriptionManagementContext.CustomerOperatorAccounts.Where(m => m.OrganizationId == organizationId).ToListAsync();
 
                 var customerOperatorSettings = new CustomerOperatorSettings(@operator, customerOperatorAccounts);
                 customerOperatorSettingsList.Add(customerOperatorSettings);
@@ -76,9 +77,9 @@ namespace SubscriptionManagementServices.Infrastructure
             }
         }
 
-        public async Task DeleteOperatorForCustomerAsync(Guid customerId, int operatorId)
+        public async Task DeleteOperatorForCustomerAsync(Guid organizationId, int operatorId)
         {
-            var customerSettings = await _subscriptionManagementContext.CustomerSettings.Include(m => m.CustomerOperatorSettings).ThenInclude(e => e.Operator).FirstOrDefaultAsync(m => m.CustomerId == customerId);
+            var customerSettings = await _subscriptionManagementContext.CustomerSettings.Include(m => m.CustomerOperatorSettings).ThenInclude(e => e.Operator).FirstOrDefaultAsync(m => m.CustomerId == organizationId);
 
             if (customerSettings == null)
                 throw new ArgumentException("Settings does not exist for this customer");
@@ -101,6 +102,12 @@ namespace SubscriptionManagementServices.Infrastructure
                 return new ReadOnlyCollection<CustomerReferenceField>(new List<CustomerReferenceField>());
             }
             return customerSetting.CustomerReferenceFields.ToImmutableList();
+        }
+
+        public async Task DeleteCustomerReferenceFieldForCustomerAsync(CustomerReferenceField customerReferenceField)
+        {
+            _subscriptionManagementContext.Entry(customerReferenceField).State = EntityState.Deleted;
+            await _subscriptionManagementContext.SaveChangesAsync();
         }
     }
 }

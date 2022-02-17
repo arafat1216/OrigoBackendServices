@@ -8,5 +8,6 @@
         Task AddCustomerOperatorSettingsAsync(Guid customerId, IList<int> operators);
         Task DeleteOperatorForCustomerAsync(Guid organizationId, int operatorId);
         Task<IReadOnlyCollection<CustomerReferenceField>> GetCustomerReferenceFieldsAsync(Guid organizationId);
+        Task DeleteCustomerReferenceFieldForCustomerAsync(CustomerReferenceField customerReferenceField);
     }
 }

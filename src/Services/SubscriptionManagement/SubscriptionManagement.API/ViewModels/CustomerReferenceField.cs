@@ -4,12 +4,14 @@ namespace SubscriptionManagement.API.ViewModels
 {
     public record CustomerReferenceField
     {
-        public CustomerReferenceField(string name, string type)
+        public CustomerReferenceField(string name, string type, int id)
         {
             Name = name;
             Type = type;
+            Id = id;
         }
 
+        public int Id { get; set; }
         /// <summary>
         /// The name of the reference field. Set by the customer to tell what kind of information is put in this
         /// reference field

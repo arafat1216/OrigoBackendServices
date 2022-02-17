@@ -17,16 +17,16 @@ namespace SubscriptionManagementServices.Infrastructure
             }
         }
 
-        public DbSet<Operator> Operators { get; set; }
-        public DbSet<CustomerOperatorAccount> CustomerOperatorAccounts { get; set; }
-        public DbSet<SubscriptionProduct> SubscriptionProducts { get; set; }
-        public DbSet<SubscriptionOrder> SubscriptionOrders { get; set; }
-        public DbSet<TransferSubscriptionOrder> TransferSubscriptionOrders { get; set; }
-        public DbSet<DataPackage> DataPackages { get; set; }
-        public DbSet<SubscriptionAddOnProduct> SubscriptionAddOnProducts { get; set; }
-        public DbSet<CustomerSettings> CustomerSettings { get; set; }
-        public DbSet<CustomerOperatorSettings> CustomerOperatorSettings { get; set; }
-        public DbSet<CustomerSubscriptionProduct> CustomerSubscriptionProducts { get; set; }
+        public DbSet<Operator> Operators => Set<Operator>();
+        public DbSet<CustomerOperatorAccount> CustomerOperatorAccounts => Set<CustomerOperatorAccount>();
+        public DbSet<SubscriptionProduct> SubscriptionProducts => Set<SubscriptionProduct>();
+        public DbSet<SubscriptionOrder> SubscriptionOrders => Set<SubscriptionOrder>();
+        public DbSet<TransferSubscriptionOrder> TransferSubscriptionOrders => Set<TransferSubscriptionOrder>();
+        public DbSet<DataPackage> DataPackages => Set<DataPackage>();
+        public DbSet<SubscriptionAddOnProduct> SubscriptionAddOnProducts => Set<SubscriptionAddOnProduct>();
+        public DbSet<CustomerSettings> CustomerSettings => Set<CustomerSettings>();
+        public DbSet<CustomerOperatorSettings> CustomerOperatorSettings => Set<CustomerOperatorSettings>();
+        public DbSet<CustomerSubscriptionProduct> CustomerSubscriptionProducts => Set<CustomerSubscriptionProduct>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

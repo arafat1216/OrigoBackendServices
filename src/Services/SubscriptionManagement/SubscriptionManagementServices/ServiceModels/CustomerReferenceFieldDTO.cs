@@ -10,7 +10,8 @@ namespace SubscriptionManagementServices.ServiceModels
             ReferenceType = referenceType;
         }
 
-        public string Name { get; protected set; }
-        public CustomerReferenceTypes ReferenceType { get; protected set; }
+        public string Name { get; set; }
+        public CustomerReferenceTypes ReferenceType { get; set; }
+        public int Id { get; set; }
     }
 }

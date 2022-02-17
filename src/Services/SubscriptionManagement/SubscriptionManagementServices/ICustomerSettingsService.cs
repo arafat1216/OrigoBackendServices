@@ -9,5 +9,6 @@ namespace SubscriptionManagementServices
 
         Task AddOperatorsForCustomerAsync(Guid customerId, IList<int> operators);
         Task DeleteOperatorForCustomerAsync(Guid organizationId, int operatorId);
+        Task<CustomerReferenceFieldDTO?> DeleteCustomerReferenceFieldsAsync(Guid organizationId, int customerReferenceFieldId);
     }
 }
