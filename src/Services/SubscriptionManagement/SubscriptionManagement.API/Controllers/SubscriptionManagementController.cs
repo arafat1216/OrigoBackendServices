@@ -79,10 +79,10 @@ namespace SubscriptionManagement.API.Controllers
         }
 
         [HttpDelete]
-        [Route("{customerId:Guid}/operators/{id}")]
-        public async Task<ActionResult> DeleteOperatorsForCustomer(Guid customerId, int id)
+        [Route("{organizationId:Guid}/operators/{id}")]
+        public async Task<ActionResult> DeleteOperatorsForCustomer(Guid organizationId, int id)
         {
-            await _customerSettingsService.DeleteOperatorForCustomerAsync(customerId, id);
+            await _customerSettingsService.DeleteOperatorForCustomerAsync(organizationId, id);
 
             return Ok();
         }
@@ -90,15 +90,15 @@ namespace SubscriptionManagement.API.Controllers
         /// <summary>
         /// Submit subscription order
         /// </summary>
-        /// <param name="customerId">Customer identifier</param>
+        /// <param name="organizationId">Customer identifier</param>
         /// <param name="subscriptionOrder">Details of the subscription order</param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(SubscriptionOrder), (int)HttpStatusCode.OK)]
-        [Route("{customerId:Guid}/subscription")]
-        public async Task<ActionResult<bool>> AddSubscriptionToCustomer(Guid customerId, [FromBody] SubscriptionOrder subscriptionOrder)
+        [Route("{organizationId:Guid}/subscription")]
+        public async Task<ActionResult<bool>> AddSubscriptionToCustomer(Guid organizationId, [FromBody] SubscriptionOrder subscriptionOrder)
         {
-            var addSubscriptionForCustomer = await _subscriptionServices.AddSubscriptionOrderForCustomerAsync(customerId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DataPackageId, subscriptionOrder.CallerId, subscriptionOrder.SimCardNumber);
+            var addSubscriptionForCustomer = await _subscriptionServices.AddSubscriptionOrderForCustomerAsync(organizationId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DataPackageId, subscriptionOrder.CallerId, subscriptionOrder.SimCardNumber);
 
             return CreatedAtAction(nameof(AddSubscriptionToCustomer), new SubscriptionOrder(addSubscriptionForCustomer));
         }
@@ -106,15 +106,15 @@ namespace SubscriptionManagement.API.Controllers
         /// <summary>
         /// Submit subscription order
         /// </summary>
-        /// <param name="customerId">Customer identifier</param>
+        /// <param name="organizationId">Customer identifier</param>
         /// <param name="subscriptionOrder">Details of the subscription order</param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(SubscriptionOrder), (int)HttpStatusCode.OK)]
-        [Route("{customerId:Guid}/subscription-transfer")]
-        public async Task<IActionResult> TransferSubscription(Guid customerId, [FromBody] TransferSubscriptionOrder subscriptionOrder)
+        [Route("{organizationId:Guid}/subscription-transfer")]
+        public async Task<IActionResult> TransferSubscription(Guid organizationId, [FromBody] TransferSubscriptionOrder subscriptionOrder)
         {
-            await _subscriptionServices.TransferSubscriptionOrderAsync(customerId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DataPackageId, subscriptionOrder.CallerId, subscriptionOrder.SimCardNumber, subscriptionOrder.OrderExecutionDate, subscriptionOrder.NewOperatorAccountId);
+            await _subscriptionServices.TransferSubscriptionOrderAsync(organizationId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DataPackageId, subscriptionOrder.CallerId, subscriptionOrder.SimCardNumber, subscriptionOrder.OrderExecutionDate, subscriptionOrder.NewOperatorAccountId);
 
             return Ok();
         }
@@ -171,30 +171,64 @@ namespace SubscriptionManagement.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<CustomerSubscriptionProduct>> AddSubscriptionProductForCustomer(Guid organizationId, [FromBody] NewSubscriptionProduct subscriptionProduct)
         {
-            var addSubscriptionProduct = await _subscriptionServices.AddSubscriptionProductForCustomerAsync(organizationId, subscriptionProduct.OperatorName, subscriptionProduct.SubscriptionProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
+            var addSubscriptionProduct = await _subscriptionServices.AddOperatorSubscriptionProductForCustomerAsync(organizationId, subscriptionProduct.OperatorName, subscriptionProduct.SubscriptionProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
             var mappedSubscriptionProduct = _mapper.Map<CustomerSubscriptionProduct>(addSubscriptionProduct);
             return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), mappedSubscriptionProduct);
         }
 
-        [HttpGet]
-        [Route("{customerId:Guid}/subscription-products/{operatorName}")]
-        [ProducesResponseType(typeof(IList<SubscriptionProduct>), (int)HttpStatusCode.Created)]
+        /// <summary>
+        /// Add customer reference field
+        /// </summary>
+        /// <param name="organizationId">Customer identifier</param>
+        /// <param name="newCustomerReferenceField">Details of the new reference field</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("{organizationId:Guid}/customer-reference-field")]
+        [ProducesResponseType(typeof(CustomerReferenceField), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<IEnumerable<SubscriptionProduct>>> GetOperatorSubscriptionProductForCustomer(Guid customerId, string operatorName)
+        public async Task<ActionResult<CustomerReferenceField>> AddCustomerReferenceField(Guid organizationId, [FromBody] NewCustomerReferenceField newCustomerReferenceField)
         {
-            var subscriptionProducts = await _subscriptionServices.GetOperatorSubscriptionProductForCustomerAsync(customerId, operatorName);
+            var addCustomerReferenceField = await _customerSettingsService.AddCustomerReferenceFieldAsync(organizationId, newCustomerReferenceField.Name, newCustomerReferenceField.Type, newCustomerReferenceField.CallerId);
+            var mappedCustomerReferenceField = _mapper.Map<CustomerReferenceField>(addCustomerReferenceField);
+            return CreatedAtAction(nameof(AddCustomerReferenceField), mappedCustomerReferenceField);
+        }
+
+        /// <summary>
+        /// Get a list of all reference field used by a customer.
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{organizationId:Guid}/customer-reference-field")]
+        [ProducesResponseType(typeof(IList<CustomerReferenceField>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<IEnumerable<CustomerReferenceField>>> GetCustomerReferenceFieldsForCustomer(Guid organizationId)
+        {
+            var customerReferenceFieldDTOs = await _customerSettingsService.GetCustomerReferenceFieldsAsync(organizationId);
+            var customerReferenceFields = _mapper.Map<List<CustomerReferenceField>>(customerReferenceFieldDTOs);
+            return Ok(customerReferenceFields);
+        }
+
+        [HttpGet]
+        [Route("{organizationId:Guid}/subscription-products/{operatorName}")]
+        [ProducesResponseType(typeof(IList<SubscriptionProduct>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<IEnumerable<SubscriptionProduct>>> GetOperatorSubscriptionProductForCustomer(Guid organizationId, string operatorName)
+        {
+            var subscriptionProducts = await _subscriptionServices.GetOperatorSubscriptionProductForCustomerAsync(organizationId, operatorName);
             
             var subscriptionProductsList = _mapper.Map<IEnumerable<SubscriptionProduct>>(subscriptionProducts);
             
             return Ok(subscriptionProductsList);
         }
+
         [HttpGet]
-        [Route("{customerId:Guid}/subscription-products/settings/{operatorName}")]
+        [Route("{organizationId:Guid}/subscription-products/settings/{operatorName}")]
         [ProducesResponseType(typeof(IList<SubscriptionProduct>), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<IEnumerable<SubscriptionProduct>>> GetOperatorSubscriptionProductForSettingsAsync(Guid customerId, string operatorName)
+        public async Task<ActionResult<IEnumerable<SubscriptionProduct>>> GetOperatorSubscriptionProductForSettingsAsync(Guid organizationId, string operatorName)
         {
-            var subscriptionProducts = await _subscriptionServices.GetOperatorSubscriptionProductForSettingsAsync(customerId,operatorName);
+            var subscriptionProducts = await _subscriptionServices.GetOperatorSubscriptionProductForSettingsAsync(organizationId,operatorName);
 
             var subscriptionProductsList = _mapper.Map<IEnumerable<SubscriptionProduct>>(subscriptionProducts);
 
@@ -202,12 +236,12 @@ namespace SubscriptionManagement.API.Controllers
         }
 
         [HttpDelete]
-        [Route("{customerId:Guid}/subscription-products/{subscriptionProductId}")]
+        [Route("{organizationId:Guid}/subscription-products/{subscriptionProductId}")]
         [ProducesResponseType(typeof(SubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<SubscriptionProduct>> DeleteOperatorSubscriptionProductForCustomer(Guid customerId, int subscriptionProductId)
+        public async Task<ActionResult<SubscriptionProduct>> DeleteOperatorSubscriptionProductForCustomer(Guid organizationId, int subscriptionProductId)
         {
-            var deletedSubscriptionProducts = await _subscriptionServices.DeleteOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionProductId);
+            var deletedSubscriptionProducts = await _subscriptionServices.DeleteOperatorSubscriptionProductForCustomerAsync(organizationId, subscriptionProductId);
 
             var mappedSubscriptionProduct = _mapper.Map<SubscriptionProduct>(deletedSubscriptionProducts);
             //return the deleted subscription product
@@ -215,12 +249,12 @@ namespace SubscriptionManagement.API.Controllers
         }
 
         [HttpPatch]
-        [Route("{customerId:Guid}/subscription-products/{subscriptionProductId}")]
+        [Route("{organizationId:Guid}/subscription-products/{subscriptionProductId}")]
         [ProducesResponseType(typeof(IList<SubscriptionProduct>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<SubscriptionProduct>> UpdateOperatorSubscriptionProductForCustomer(Guid customerId, int subscriptionProductId, [FromBody] SubscriptionProduct subscription)
+        public async Task<ActionResult<SubscriptionProduct>> UpdateOperatorSubscriptionProductForCustomer(Guid organizationId, int subscriptionProductId, [FromBody] SubscriptionProduct subscription)
         {
-            var updatedSubscriptionProducts = await _subscriptionServices.UpdateOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionProductId);
+            var updatedSubscriptionProducts = await _subscriptionServices.UpdateOperatorSubscriptionProductForCustomerAsync(organizationId, subscriptionProductId);
 
             var mappedSubscriptionProduct = _mapper.Map<SubscriptionProduct>(updatedSubscriptionProducts);
 

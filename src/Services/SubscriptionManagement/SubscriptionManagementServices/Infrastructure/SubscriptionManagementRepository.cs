@@ -145,14 +145,6 @@ namespace SubscriptionManagementServices.Infrastructure
             return addedSubscriptionProduct.Entity;
         }
 
-        public async Task<CustomerSettings> AddCustomerSettingsAsync(CustomerSettings customerSettings)
-        {
-
-            var addedCustomerSetting = await _subscriptionContext.CustomerSettings.AddAsync(customerSettings);
-            await _subscriptionContext.SaveChangesAsync();
-            return addedCustomerSetting.Entity;
-
-        }
         public async Task<CustomerOperatorSettings> AddCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings)
         {
 
@@ -201,24 +193,6 @@ namespace SubscriptionManagementServices.Infrastructure
 
             _subscriptionContext.Remove(customerOperatorAccount);
             await _subscriptionContext.SaveChangesAsync();
-        }
-
-        public async Task<CustomerSettings?> GetCustomerSettingsAsync(Guid customerId)
-        {
-            return await _subscriptionContext.CustomerSettings
-                .Include(cs => cs.CustomerOperatorSettings)
-                .ThenInclude(o => o. Operator)
-                .Include(cs => cs.CustomerOperatorSettings)
-                .ThenInclude(op => op.AvailableSubscriptionProducts).AsSplitQuery()
-                .FirstOrDefaultAsync(m => m.CustomerId == customerId);
-        }
-
-        public async Task<CustomerSettings> UpdateCustomerSettingsAsync(CustomerSettings customerSettings)
-        {
-            var updatedCustomerSetting = _subscriptionContext.CustomerSettings.Update(customerSettings);
-            await _subscriptionContext.SaveChangesAsync();
-
-            return updatedCustomerSetting.Entity;
         }
 
         public async Task<SubscriptionProduct?> GetSubscriptionProductByNameAsync(string subscriptionProductName, int operatorId)

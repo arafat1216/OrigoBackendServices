@@ -1,30 +1,61 @@
-﻿using SubscriptionManagementServices.Models;
+﻿using AutoMapper;
+using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
+using SubscriptionManagementServices.Types;
 
 namespace SubscriptionManagementServices
 {
     public class CustomerSettingsService : ICustomerSettingsService
     {
-        public CustomerSettingsService(ICustomerSettingsRepository customerSettingsRepository)
+        private readonly IMapper _mapper;
+        private readonly ICustomerSettingsRepository _customerSettingsRepository;
+
+        public CustomerSettingsService(ICustomerSettingsRepository customerSettingsRepository, IMapper mapper)
         {
-            CustomerSettingsRepository = customerSettingsRepository;
+            _mapper = mapper;
+            _customerSettingsRepository = customerSettingsRepository;
         }
 
-        public ICustomerSettingsRepository CustomerSettingsRepository { get; }
-
-        public async Task AddOperatorsForCustomerAsync(Guid customerId, IList<int> operators)
+        public async Task AddOperatorsForCustomerAsync(Guid organizationId, IList<int> operators)
         {
-            await CustomerSettingsRepository.AddCustomerSettingsAsync(customerId, operators);
+            await _customerSettingsRepository.AddCustomerOperatorSettingsAsync(organizationId, operators);
         }
 
-        public async Task<IList<CustomerReferenceFieldDTO>> GetCustomerReferenceFieldsAsync(Guid customerId)
+        public async Task<IList<CustomerReferenceFieldDTO>> GetCustomerReferenceFieldsAsync(Guid organizationId)
         {
-            throw new NotImplementedException();
+            var customerReferenceFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId);
+            return _mapper.Map<List<CustomerReferenceFieldDTO>>(customerReferenceFields);
+        }
+
+        public async Task<CustomerReferenceFieldDTO> AddCustomerReferenceFieldAsync(Guid organizationId, string name, string type, Guid callerId)
+        {
+            var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+            if (customerSettings == null)
+            {
+                customerSettings = new CustomerSettings(organizationId);
+            }
+
+            if (!Enum.TryParse(type, true, out CustomerReferenceTypes customerReferenceFieldType))
+            {
+                throw new Exception();
+            }
+
+            var customerReferenceField = new CustomerReferenceField(name, customerReferenceFieldType, callerId);
+            customerSettings.AddCustomerReferenceField(customerReferenceField);
+            if (customerSettings.Id > 0)
+            {
+                await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSettings);
+            }
+            else
+            {
+                await _customerSettingsRepository.AddCustomerSettingsAsync(customerSettings);
+            }
+            return _mapper.Map<CustomerReferenceFieldDTO>(customerReferenceField);
         }
 
         public async Task DeleteOperatorForCustomerAsync(Guid organizationId, int operatorId)
         {
-            await CustomerSettingsRepository.DeleteOperatorForCustomerAsync(organizationId, operatorId);
+            await _customerSettingsRepository.DeleteOperatorForCustomerAsync(organizationId, operatorId);
         }
     }
 }

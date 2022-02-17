@@ -18,7 +18,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     private readonly SubscriptionManagementContext _subscriptionManagementContext;
     private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
     private readonly ISubscriptionManagementService _subscriptionManagementService;
-    private static IMapper? _mapper;
+    private readonly IMapper? _mapper;
 
     public SubscriptionManagementServiceTests() : base(new DbContextOptionsBuilder<SubscriptionManagementContext>()
         // ReSharper disable once StringLiteralTypo
@@ -35,7 +35,9 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         _subscriptionManagementContext = new SubscriptionManagementContext(ContextOptions);
         _subscriptionManagementRepository = new SubscriptionManagementRepository(_subscriptionManagementContext);
+        var customerSettingsRepository = new CustomerSettingsRepository(_subscriptionManagementContext);
         _subscriptionManagementService = new SubscriptionManagementService(_subscriptionManagementRepository,
+            customerSettingsRepository,
             Options.Create(new TransferSubscriptionDateConfiguration
             {
                 MinDaysForNewOperatorWithSIM = 10,
@@ -49,7 +51,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     [Trait("Category", "UnitTest")]
     public async Task AddSubscriptionProductForCustomer_Valid()
     {
-        var added = await _subscriptionManagementService.AddSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID,
+        var added = await _subscriptionManagementService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID,
             "Op1", "ProductName", new List<string> { "s1", "s2" }, Guid.NewGuid());
     }
 

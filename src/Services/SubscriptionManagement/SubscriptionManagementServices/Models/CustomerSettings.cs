@@ -34,9 +34,12 @@ namespace SubscriptionManagementServices.Models
         private readonly List<CustomerReferenceField> _customerReferenceFields = new();
         public IReadOnlyCollection<CustomerReferenceField>? CustomerReferenceFields => _customerReferenceFields.AsReadOnly();
 
-        public void UpdateCustomerOperatorSettings(List<CustomerOperatorSettings> customerOperatorSettings)
+        public void AddCustomerReferenceField(CustomerReferenceField customerReferenceField)
         {
-            _customerOperatorSettings.AddRange(customerOperatorSettings);
+            if (!_customerReferenceFields.Any(r => r.Name == customerReferenceField.Name && r.ReferenceType == customerReferenceField.ReferenceType))
+            {
+                _customerReferenceFields.Add(customerReferenceField);
+            }
         }
 
         public void AddCustomerOperatorSettings(List<CustomerOperatorSettings> customerOperatorSettings)

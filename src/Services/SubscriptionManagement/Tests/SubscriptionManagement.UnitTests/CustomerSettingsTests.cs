@@ -1,19 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using AutoMapper;
 using Xunit;
 
 namespace SubscriptionManagement.UnitTests
 {
     public class CustomerSettingsTests : SubscriptionManagementServiceBaseTests
     {
-        private SubscriptionManagementContext _subscriptionManagementContext;
-        private ICustomerSettingsRepository _customerSettingsRepository;
-        private ICustomerSettingsService _customerSettingsService;
+        private readonly SubscriptionManagementContext _subscriptionManagementContext;
+        private readonly ICustomerSettingsService _customerSettingsService;
+        private readonly IMapper? _mapper;
 
         public CustomerSettingsTests() : base(
                 new DbContextOptionsBuilder<SubscriptionManagementContext>()
@@ -22,17 +25,29 @@ namespace SubscriptionManagement.UnitTests
                     .Options
             )
         {
+            if (_mapper == null)
+            {
+                var mappingConfig = new MapperConfiguration(mc =>
+                {
+                    mc.AddMaps(Assembly.GetAssembly(typeof(SubscriptionProduct)));
+                });
+                _mapper = mappingConfig.CreateMapper();
+            }
             _subscriptionManagementContext = new SubscriptionManagementContext(ContextOptions);
-            _customerSettingsRepository = new CustomerSettingsRepository(_subscriptionManagementContext);
-            _customerSettingsService = new CustomerSettingsService(_customerSettingsRepository);
+            var customerSettingsRepository = new CustomerSettingsRepository(_subscriptionManagementContext);
+            _customerSettingsService = new CustomerSettingsService(customerSettingsRepository, _mapper);
         }
 
-        //[Fact]
+        [Fact]
         [Trait("Category", "UnitTest")]
-        public async Task GetAllOperatorAccountsForCustomer_Check_Total()
+        public async Task Add_AddCustomerReferenceField_CheckTotalIncreased()
         {
-            var customerReferenceFields = await _customerSettingsService.GetCustomerReferenceFieldsAsync(ORGANIZATION_ONE_ID);
-            Assert.Equal(2, customerReferenceFields.Count);
+            var initialCustomerReferenceFields = await _customerSettingsService.GetCustomerReferenceFieldsAsync(ORGANIZATION_ONE_ID);
+            Assert.Equal(0, initialCustomerReferenceFields.Count);
+
+            await _customerSettingsService.AddCustomerReferenceFieldAsync(ORGANIZATION_ONE_ID, "EmployeeID", "user", Guid.NewGuid());
+            var updatedCustomerReferenceFields = await _customerSettingsService.GetCustomerReferenceFieldsAsync(ORGANIZATION_ONE_ID);
+            Assert.Equal(1, updatedCustomerReferenceFields.Count);
         }
 
         [Fact]
