@@ -2,7 +2,11 @@
 {
     public interface ICustomerSettingsRepository
     {
-        Task AddCustomerSettingsAsync(Guid customerId, IList<int> operators);
+        Task<CustomerSettings?> GetCustomerSettingsAsync(Guid customerId);
+        Task<CustomerSettings> AddCustomerSettingsAsync(CustomerSettings customerSettings);
+        Task<CustomerSettings> UpdateCustomerSettingsAsync(CustomerSettings customerSettings);
+        Task AddCustomerOperatorSettingsAsync(Guid customerId, IList<int> operators);
         Task DeleteOperatorForCustomerAsync(Guid organizationId, int operatorId);
+        Task<IReadOnlyCollection<CustomerReferenceField>> GetCustomerReferenceFieldsAsync(Guid organizationId);
     }
 }

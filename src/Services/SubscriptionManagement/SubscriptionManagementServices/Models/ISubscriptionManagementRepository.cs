@@ -23,9 +23,6 @@
         Task<CustomerOperatorSettings> GetCustomerOperatorSettings(Guid customerId,string operatorName);
         Task<CustomerOperatorSettings> AddCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings);
         Task<CustomerOperatorSettings> UpdateCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings);
-        Task <CustomerSettings?> GetCustomerSettingsAsync(Guid customerId);
-        Task<CustomerSettings> AddCustomerSettingsAsync(CustomerSettings customerSettings);
-        Task<CustomerSettings> UpdateCustomerSettingsAsync(CustomerSettings customerSettings);
         Task<SubscriptionProduct?> GetSubscriptionProductByNameAsync(string subscriptionProductName,int operatorId);
         Task<IList<Operator>> GetAllOperatorsAsync();
     }
