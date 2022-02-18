@@ -114,18 +114,30 @@ namespace SubscriptionManagementServices.Infrastructure
         }
         public async Task<CustomerSubscriptionProduct?> GetAvailableSubscriptionProductForCustomerbySubscriptionIdAsync(Guid customerId, int subscriptionId)
         {
-            var subscriptionProductsForCustomer = await _subscriptionContext.CustomerSettings
-                .Include(m => m.CustomerOperatorSettings)
-                    .ThenInclude(m => m.AvailableSubscriptionProducts)
-                        .ThenInclude(m => m.DataPackages)
-                .Include(m => m.CustomerOperatorSettings)
-                    .ThenInclude(m => m.AvailableSubscriptionProducts)
-                        .ThenInclude(m => m.Operator)
-                .Where(c => c.CustomerId == customerId)
-                .SelectMany(m => m.CustomerOperatorSettings)
-                .Select(m => m.AvailableSubscriptionProducts.FirstOrDefault(a=> a.Id == subscriptionId)).FirstOrDefaultAsync();
+            //var subscriptionProductsForCustomer = await _subscriptionContext.CustomerSettings
+            //    .Include(m => m.CustomerOperatorSettings)
+            //        .ThenInclude(m => m.AvailableSubscriptionProducts)
+            //            .ThenInclude(m => m.DataPackages)
+            //    .Include(m => m.CustomerOperatorSettings)
+            //        .ThenInclude(m => m.AvailableSubscriptionProducts)
+            //            .ThenInclude(m => m.Operator)
+            //    .Where(c => c.CustomerId == customerId)
+            //    .SelectMany(m => m.CustomerOperatorSettings)
+            //    .Select(m => m.AvailableSubscriptionProducts.FirstOrDefault(a=> a.Id == subscriptionId)).FirstOrDefaultAsync();
+            var subscriptionProductsForCustomer = await GetAllCustomerSubscriptionProductsAsync(customerId);
+            if (subscriptionProductsForCustomer == null)
+            {
+                return null;
+            }
+            foreach (var product in subscriptionProductsForCustomer)
+            {
+                if (product.Id == subscriptionId)
+                {
+                    return product;
+                }
+            }
 
-            return subscriptionProductsForCustomer; 
+            return null; 
         }
         public async Task<IList<SubscriptionProduct>?> GetSubscriptionProductForOperatorAsync(string operatorName)
         {
