@@ -124,6 +124,7 @@ namespace AssetServices.Infrastructure
             {
                 var temp = await _assetContext.HardwareAsset
                     .Include(a => a.AssetCategory)
+                    .ThenInclude(c => c.Translations)
                     .Include(b => b.AssetLabels.Where(c => (!c.IsDeleted)))
                     .ThenInclude(b => b.Label)
                     .Where(a => (a.CustomerId == customerId && assetGuidList.Contains(a.ExternalId))).ToListAsync();
