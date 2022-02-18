@@ -8,30 +8,22 @@ namespace CustomerServices.Infrastructure
 {
     public class CustomerContext : DbContext
     {
-        public DbSet<Organization> Organizations { get; set; }
+        public DbSet<Organization> Organizations => Set<Organization>();
+        public DbSet<Department> Departments => Set<Department>();
+        public DbSet<User> Users => Set<User>();
+        public DbSet<AssetCategoryType> AssetCategoryTypes => Set<AssetCategoryType>();
+        public DbSet<AssetCategoryLifecycleType> AssetCategoryLifecycleTypes => Set<AssetCategoryLifecycleType>();
+        public DbSet<ProductModule> ProductModules => Set<ProductModule>();
+        public DbSet<ProductModuleGroup> ProductModuleGroups => Set<ProductModuleGroup>();
+        public DbSet<Permission> Permissions => Set<Permission>();
 
-        public DbSet<Department> Departments { get; set; }
-
-        public DbSet<User> Users { get; set; }
-
-        public DbSet<AssetCategoryType> AssetCategoryTypes { get; set; }
-
-        public DbSet<AssetCategoryLifecycleType> AssetCategoryLifecycleTypes { get; set; }
-
-        public DbSet<ProductModule> ProductModules { get; set; }
-
-        public DbSet<ProductModuleGroup> ProductModuleGroups { get; set; }
-
-        public DbSet<Permission> Permissions { get; set; }
-
-        public DbSet<PermissionSet> PermissionSets { get; set; }
-
-        public DbSet<Role> Roles { get; set; }
-
-        public DbSet<UserPermissions> UserPermissions { get; set; }
-        public DbSet<OrganizationPreferences> OrganizationPreferences { get; set; }
-        public DbSet<Location> Locations { get; set; }
-        public DbSet<Partner> Partners { get; set; }
+        public DbSet<PermissionSet> PermissionSets => Set<PermissionSet>();
+        public DbSet<Role> Roles => Set<Role>();
+        public DbSet<UserPermissions> UserPermissions => Set<UserPermissions>();
+        public DbSet<OrganizationPreferences> OrganizationPreferences => Set<OrganizationPreferences>();
+        public DbSet<Location> Locations => Set<Location>();
+        public DbSet<Partner> Partners => Set<Partner>();
+        public DbSet<FeatureFlag> FeatureFlags => Set<FeatureFlag>();
 
 
         public CustomerContext(DbContextOptions<CustomerContext> options) : base(options)
@@ -48,12 +40,17 @@ namespace CustomerServices.Infrastructure
             modelBuilder.Entity<AssetCategoryType>().ToTable("AssetCategory");
             modelBuilder.Entity<ProductModule>().ToTable("ProductModule");
             modelBuilder.Entity<Partner>().ToTable("Partner");
-            modelBuilder.Entity<Organization>().HasMany<ProductModuleGroup>(o => o.SelectedProductModuleGroups).WithMany(p => p.Customers).UsingEntity(join=>join.ToTable("CustomerProductModuleGroup"));
-            modelBuilder.Entity<Organization>().HasMany<ProductModule>(o => o.SelectedProductModules).WithMany(p => p.Customers).UsingEntity(join => join.ToTable("CustomerProductModule"));
+            modelBuilder.Entity<Organization>().HasMany(o => o.SelectedProductModuleGroups).WithMany(p => p.Customers)
+                .UsingEntity(join => join.ToTable("CustomerProductModuleGroup"));
+            modelBuilder.Entity<Organization>().HasMany(o => o.SelectedProductModules).WithMany(p => p.Customers)
+                .UsingEntity(join => join.ToTable("CustomerProductModule"));
 
             modelBuilder.Entity<UserPermissions>().Property(userPermissions => userPermissions.AccessList)
-                .HasConversion(convertTo => JsonSerializer.Serialize(convertTo, new JsonSerializerOptions{IgnoreNullValues = true}),
-                    convertFrom => JsonSerializer.Deserialize<IList<Guid>>(convertFrom, new JsonSerializerOptions{ IgnoreNullValues = true }));
+                .HasConversion(
+                    convertTo =>
+                        JsonSerializer.Serialize(convertTo, new JsonSerializerOptions { IgnoreNullValues = true }),
+                    convertFrom => JsonSerializer.Deserialize<IList<Guid>>(convertFrom,
+                        new JsonSerializerOptions { IgnoreNullValues = true }));
 
             modelBuilder.Seed();
         }

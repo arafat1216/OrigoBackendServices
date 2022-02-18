@@ -79,6 +79,7 @@ namespace OrigoApiGateway
             services.Configure<ProductCatalogConfiguration>(Configuration.GetSection("ProductCatalog"));
             services.Configure<SubscriptionManagementConfiguration>(Configuration.GetSection("SubscriptionManagement"));
             services.Configure<WebshopConfiguration>(Configuration.GetSection("Webshop"));
+            services.Configure<FeatureFlagConfiguration>(Configuration.GetSection("FeatureFlag"));
 
             services.AddAuthentication(options =>
             {
@@ -156,6 +157,12 @@ namespace OrigoApiGateway
                 DaprClient.CreateInvokeHttpClient("customerservices"),
                 x.GetRequiredService<IOptions<UserPermissionsConfigurations>>(),
                 x.GetRequiredService<IMapper>()
+            ));
+
+            services.AddSingleton<IFeatureFlagServices>(x => new FeatureFlagServices(
+                x.GetRequiredService<ILogger<FeatureFlagServices>>(),
+                DaprClient.CreateInvokeHttpClient("customerservices"),
+                x.GetRequiredService<IOptions<FeatureFlagConfiguration>>()
             ));
 
             services.AddSingleton<IUserServices>(x => new UserServices(
