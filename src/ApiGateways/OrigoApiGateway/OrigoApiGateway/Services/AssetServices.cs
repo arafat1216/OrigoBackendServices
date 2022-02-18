@@ -665,6 +665,7 @@ namespace OrigoApiGateway.Services
             defaultAttributes.Add(new AssetCategoryAttribute { Name = "purchaseDate", Required = true });
             defaultAttributes.Add(new AssetCategoryAttribute { Name = "managedByDepartmentId", Required = false });
             defaultAttributes.Add(new AssetCategoryAttribute { Name = "assetHolderId", Required = false });
+            defaultAttributes.Add(new AssetCategoryAttribute { Name = "createdDate", Required = false });
 
             if (categoryId == 1)
             { // MobilePhone - Mobiltelefon
