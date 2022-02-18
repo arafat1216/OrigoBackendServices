@@ -78,7 +78,7 @@ namespace SubscriptionManagementServices.Infrastructure
             return customerSettings?.CustomerOperatorSettings?.Select(m => m.Operator).ToList();
         }
 
-        public async Task<IList<CustomerSubscriptionProduct>?> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
+        public async Task<IList<CustomerSubscriptionProduct>?> GetAllCustomerSubscriptionProductsAsync(Guid customerId)
         {
             var subscriptionProductsForCustomer = await _subscriptionContext.CustomerSettings
                 .Include(m => m.CustomerOperatorSettings)
@@ -87,18 +87,15 @@ namespace SubscriptionManagementServices.Infrastructure
                 .Include(m => m.CustomerOperatorSettings)
                     .ThenInclude(m => m.AvailableSubscriptionProducts)
                         .ThenInclude(m => m.Operator)
+                .Include(m => m.CustomerOperatorSettings)
+                    .ThenInclude(m => m.AvailableSubscriptionProducts)
+                        .ThenInclude(m => m.GlobalSubscriptionProduct)
                 .Where(c => c.CustomerId == customerId)
-                .SelectMany(m => m.CustomerOperatorSettings.Where(m => m.Operator.OperatorName == operatorName))
-                .Select(m => m.AvailableSubscriptionProducts)
-                        .FirstOrDefaultAsync();
+                .SelectMany(m => m.CustomerOperatorSettings)
+                .Select(m => m.AvailableSubscriptionProducts).Where(a => a.Count() != 0)
+                        .ToListAsync();
 
-            //var subscription = await _subscriptionContext.CustomerSettings
-            //          .Include(x => x.CustomerOperatorSettings.Select(r => r.AvailableSubscriptionProducts.Select(p => p.DataPackages)).ToListAsync();
-
-            //          .Include(x => x.Shifts.Select(r => r.Rate).Select(rt => rt.RuleType))
-            //          .Include(x => x.Shifts.Select(r => r.Rate).Select(rt => rt.RateType))
-            //          .FirstOrDefaultAsync();
-
+            
             if (subscriptionProductsForCustomer == null)
             {
                 return null;
@@ -107,9 +104,11 @@ namespace SubscriptionManagementServices.Infrastructure
             List<CustomerSubscriptionProduct> result = new();
             foreach (var customerSubscriptionProduct in subscriptionProductsForCustomer)
             {
-
-                result.Add(customerSubscriptionProduct);
-
+                foreach (var product in customerSubscriptionProduct)
+                {
+                    result.Add(product);
+                }
+                
             }
             return result;
         }
