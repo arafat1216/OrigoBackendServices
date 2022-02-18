@@ -172,8 +172,8 @@ namespace SubscriptionManagement.API.Controllers
         public async Task<ActionResult<CustomerSubscriptionProduct>> AddSubscriptionProductForCustomer(Guid organizationId, [FromBody] NewSubscriptionProduct subscriptionProduct)
         {
             var addSubscriptionProduct = await _subscriptionServices.AddOperatorSubscriptionProductForCustomerAsync(organizationId, subscriptionProduct.OperatorName, subscriptionProduct.SubscriptionProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
-            var mappedSubscriptionProduct = _mapper.Map<CustomerSubscriptionProduct>(addSubscriptionProduct);
-            return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), mappedSubscriptionProduct);
+            
+            return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), addSubscriptionProduct);
         }
 
         /// <summary>
@@ -263,13 +263,15 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{organizationId:Guid}/subscription-products/{subscriptionProductId}")]
         [ProducesResponseType(typeof(SubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<SubscriptionProduct>> DeleteOperatorSubscriptionProductForCustomer(Guid organizationId, int subscriptionProductId)
+        public async Task<ActionResult<CustomerSubscriptionProduct>> DeleteOperatorSubscriptionProductForCustomer(Guid organizationId, int subscriptionProductId)
         {
             var deletedSubscriptionProducts = await _subscriptionServices.DeleteOperatorSubscriptionProductForCustomerAsync(organizationId, subscriptionProductId);
-
-            var mappedSubscriptionProduct = _mapper.Map<SubscriptionProduct>(deletedSubscriptionProducts);
-            //return the deleted subscription product
-            return Ok();
+            if (deletedSubscriptionProducts == null)
+            {
+                return BadRequest();
+            }
+            
+            return Ok(deletedSubscriptionProducts);
         }
 
         [HttpPatch]
