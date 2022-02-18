@@ -554,7 +554,7 @@ namespace OrigoApiGateway.Controllers
 
         [Route("{organizationId:Guid}/subscription-products/{subscriptionProductId}")]
         [HttpDelete]
-        [ProducesResponseType(typeof(IList<OrigoSubscriptionProduct>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(OrigoSubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<OrigoSubscriptionProduct>> DeleteSubscriptionProductsForCustomer(Guid organizationId, int subscriptionProductId)
         {

@@ -90,7 +90,7 @@ namespace SubscriptionManagementServices.Infrastructure
                 .Where(c => c.CustomerId == customerId)
                 .SelectMany(m => m.CustomerOperatorSettings.Where(m => m.Operator.OperatorName == operatorName))
                 .Select(m => m.AvailableSubscriptionProducts)
-                        .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync();
 
             //var subscription = await _subscriptionContext.CustomerSettings
             //          .Include(x => x.CustomerOperatorSettings.Select(r => r.AvailableSubscriptionProducts.Select(p => p.DataPackages)).ToListAsync();
@@ -112,6 +112,21 @@ namespace SubscriptionManagementServices.Infrastructure
 
             }
             return result;
+        }
+        public async Task<CustomerSubscriptionProduct?> GetAvailableSubscriptionProductForCustomerbySubscriptionIdAsync(Guid customerId, int subscriptionId)
+        {
+            var subscriptionProductsForCustomer = await _subscriptionContext.CustomerSettings
+                .Include(m => m.CustomerOperatorSettings)
+                    .ThenInclude(m => m.AvailableSubscriptionProducts)
+                        .ThenInclude(m => m.DataPackages)
+                .Include(m => m.CustomerOperatorSettings)
+                    .ThenInclude(m => m.AvailableSubscriptionProducts)
+                        .ThenInclude(m => m.Operator)
+                .Where(c => c.CustomerId == customerId)
+                .SelectMany(m => m.CustomerOperatorSettings)
+                .Select(m => m.AvailableSubscriptionProducts.FirstOrDefault(a=> a.Id == subscriptionId)).FirstOrDefaultAsync();
+
+            return subscriptionProductsForCustomer; 
         }
         public async Task<IList<SubscriptionProduct>?> GetSubscriptionProductForOperatorAsync(string operatorName)
         {
@@ -153,9 +168,11 @@ namespace SubscriptionManagementServices.Infrastructure
             return addedCustomerOperatorSetting.Entity;
         }
 
-        public Task<SubscriptionProduct> DeleteOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
+        public async Task<CustomerSubscriptionProduct> DeleteOperatorSubscriptionProductForCustomerAsync(CustomerSubscriptionProduct customerSubscriptionProduct)
         {
-            throw new NotImplementedException();
+            _subscriptionContext.CustomerSubscriptionProducts.Remove(customerSubscriptionProduct);
+            await _subscriptionContext.SaveChangesAsync();
+            return customerSubscriptionProduct;
         }
 
         public Task<SubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
