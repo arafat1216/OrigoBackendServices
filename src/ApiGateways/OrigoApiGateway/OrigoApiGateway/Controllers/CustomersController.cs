@@ -486,15 +486,16 @@ namespace OrigoApiGateway.Controllers
             return NoContent();
         }
 
-        [Route("{organizationId:Guid}/subscription-products/{operatorName}")]
+        [Route("{organizationId:Guid}/subscription-products")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoSubscriptionProduct>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<IList<OrigoSubscriptionProduct>>> GetSubscriptionProductsForCustomer(Guid organizationId, string operatorName)
+        public async Task<ActionResult<IList<OrigoSubscriptionProduct>>> GetSubscriptionProductsForCustomer(Guid organizationId)
         {
             try
             {
-                var subscriptionProductList = await SubscriptionManagementService.GetSubscriptionProductForCustomerAsync(organizationId, operatorName);
+                
+                var subscriptionProductList = await SubscriptionManagementService.GetAllSubscriptionProductForCustomerAsync(organizationId);
                 //if (subscriptionProductList == null)
                 //{
                 //    return BadRequest();

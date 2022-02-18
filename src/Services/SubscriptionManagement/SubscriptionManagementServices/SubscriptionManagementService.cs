@@ -107,15 +107,18 @@ namespace SubscriptionManagementServices
             return _mapper.Map<CustomerSubscriptionProductDTO>(customerSubscriptionProduct);
         }
 
-        public async Task<IList<CustomerSubscriptionProduct>> GetOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName)
+        public async Task<IList<CustomerSubscriptionProductDTO>> GetAllCustomerSubscriptionProductsAsync(Guid customerId)
         {
-            var subscriptionProduct = await _subscriptionManagementRepository.GetOperatorSubscriptionProductForCustomerAsync(customerId, operatorName);
+           
+            var subscriptionProduct = await _subscriptionManagementRepository.GetAllCustomerSubscriptionProductsAsync(customerId);
             if (subscriptionProduct == null)
             {
-                throw new ArgumentException($"No subscription products for customer with ID {customerId} and operator {operatorName}");
+                throw new ArgumentException($"Customer with ID {customerId} has no subscription products");
             }
-            return subscriptionProduct;
-
+            List<CustomerSubscriptionProductDTO> customerSubscriptionProductDTOs = new();
+            customerSubscriptionProductDTOs.AddRange(
+                   _mapper.Map<List<CustomerSubscriptionProductDTO>>(subscriptionProduct));
+            return customerSubscriptionProductDTOs;
         }
         public async Task<IList<CustomerSubscriptionProductDTO>> GetOperatorSubscriptionProductForSettingsAsync(Guid customerId, string operatorName)
         {
@@ -123,7 +126,7 @@ namespace SubscriptionManagementServices
             List<CustomerSubscriptionProductDTO> customerSubscriptionProductDTOs = new();
             customerSubscriptionProductDTOs.AddRange(
                 _mapper.Map<List<CustomerSubscriptionProductDTO>>(operatorsSubscriptionProduct));
-            var availableSubscriptionProductsForCustomer = await _subscriptionManagementRepository.GetOperatorSubscriptionProductForCustomerAsync(customerId, operatorName);
+            var availableSubscriptionProductsForCustomer = await _subscriptionManagementRepository.GetAllCustomerSubscriptionProductsAsync(customerId);
 
             if (availableSubscriptionProductsForCustomer == null)
             {
