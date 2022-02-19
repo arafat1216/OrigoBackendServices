@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Services;
@@ -9,6 +10,7 @@ using OrigoApiGateway.Services;
 namespace OrigoApiGateway.Controllers
 {
     [ApiController]
+    [Authorize(Roles = "SystemAdmin")]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/feature-flags")]
     public class FeatureFlagsController : ControllerBase
