@@ -100,6 +100,11 @@ namespace CustomerServices
             return await _customerRepository.GetCustomerAsync(customerId);
         }
 
+        public async Task<Organization> GetOrganizationByOrganizationNumberAsync(string organizationNumber)
+        {
+            return await _customerRepository.GetOrganizationByOrganizationNumber(organizationNumber);
+        }
+
         public async Task<IList<CustomerUserCount>> GetCustomerUsersAsync()
         {
             return await _customerRepository.GetOrganizationUserCountsAsync();
@@ -134,6 +139,11 @@ namespace CustomerServices
                 if (name == null || name == string.Empty)
                     throw new RequiredFieldIsEmptyException("The name field is required and cannot be one of: (null || string.Empty). Null is allowed for patch queries.");
                 organizationNumber = (organizationNumber == null) ? "" : organizationNumber;
+
+                // Check organizationNumber
+                var organizationFromOrgNumber = await GetOrganizationByOrganizationNumberAsync(organizationNumber);
+                if (organizationFromOrgNumber != null && organizationFromOrgNumber.OrganizationId != organizationOriginal.OrganizationId)
+                    throw new InvalidOrganizationNumberException($"Organization numbers must be unique. An Organization with organization number {organizationNumber} already exists.");
 
                 // PrimaryLocation
                 Location newLocation;
@@ -189,6 +199,11 @@ namespace CustomerServices
                 _logger.LogError("OrganizationServices - PutOrganizationAsync: No result on Given locationId (not null || empty): " + ex.Message);
                 throw;
             }
+            catch (InvalidOrganizationNumberException ex)
+            {
+                _logger.LogError("OrganizationServices - PutOrganizationAsync: Conflict due to organization number being in use. " + ex.Message);
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError("OrganizationServices - PutOrganizationAsync: failed to update: " + ex.Message);
@@ -222,6 +237,11 @@ namespace CustomerServices
                     throw new RequiredFieldIsEmptyException("The name field is required and should never be empty (null is allowed for patch).");
                 name = (name == null) ? organizationOriginal.Name : name;
                 organizationNumber = (organizationNumber == null) ? organizationOriginal.OrganizationNumber : organizationNumber;
+
+                // Check organizationNumber
+                var organizationFromOrgNumber = await GetOrganizationByOrganizationNumberAsync(organizationNumber);
+                if (organizationFromOrgNumber != null && organizationFromOrgNumber.OrganizationId != organizationOriginal.OrganizationId)
+                    throw new InvalidOrganizationNumberException($"Organization numbers must be unique. An Organization with organization number {organizationNumber} already exists.");
 
                 // PrimaryLocation
                 Location newLocation;
@@ -285,7 +305,12 @@ namespace CustomerServices
                 _logger.LogError("OrganizationServices - PatchOrganizationAsync: No result on Given locationId (not null || empty): " + ex.Message);
                 throw;
             }
-            catch(Exception ex)
+            catch (InvalidOrganizationNumberException ex)
+            {
+                _logger.LogError("OrganizationServices - PatchOrganizationAsync: Conflict due to organization number being in use. " + ex.Message);
+                throw;
+            }
+            catch (Exception ex)
             {
                 _logger.LogError("OrganizationServices - PatchOrganizationAsync: Failed to update: " + ex.Message);
                 throw;

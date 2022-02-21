@@ -192,6 +192,14 @@ namespace CustomerServices.Infrastructure
                 .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
         }
 
+        public async Task<Organization> GetOrganizationByOrganizationNumber(string organizationNumber)
+        {
+            if (organizationNumber == null)
+                return null;
+            return await _customerContext.Organizations.Where(c => c.OrganizationNumber == organizationNumber && !c.IsDeleted)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<User> GetUserByUserName(string emailAddress)
         {
             if (emailAddress == null)

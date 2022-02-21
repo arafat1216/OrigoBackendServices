@@ -156,6 +156,12 @@ namespace Customer.API.Controllers
                     }
                 }
 
+                // Check for organization number conflict
+                if (_organizationServices.GetOrganizationByOrganizationNumberAsync(organization.OrganizationNumber) != null)
+                {
+                    return Conflict($"Organization with organization number {organization.OrganizationNumber} already exists");
+                }
+
                 // Location
                 CustomerServices.Models.Location organizationLocation;
                 if (organization.PrimaryLocation != Guid.Empty)
@@ -318,6 +324,11 @@ namespace Customer.API.Controllers
                 _logger.LogError("OrganizationController - UpdateOrganizationPut: No result on Given locationId (not null || empty): " + ex.Message);
                 return NotFound(ex.Message);
             }
+            catch (InvalidOrganizationNumberException ex)
+            {
+                _logger.LogError("OrganizationController - UpdateOrganizationPut: Conflict due to organization number being in use.");
+                return Conflict(ex.Message);
+            }
             catch (Exception ex)
             {
                 _logger.LogError("OrganizationController - UpdateOrganizationPut: failed to update: " + ex.Message);
@@ -384,6 +395,11 @@ namespace Customer.API.Controllers
             {
                 _logger.LogError("OrganizationController - UpdateOrganizationPatch: No result on Given locationId (not null || empty): " + ex.Message);
                 return NotFound(ex.Message);
+            }
+            catch (InvalidOrganizationNumberException ex)
+            {
+                _logger.LogError("OrganizationController - UpdateOrganizationPatch: Conflict due to organization number being in use.");
+                return Conflict(ex.Message);
             }
             catch (Exception ex)
             {
