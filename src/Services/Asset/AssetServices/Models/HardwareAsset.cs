@@ -54,6 +54,7 @@ namespace AssetServices.Models
                     throw new InvalidAssetDataException($"Invalid imei: {imei}");
                 }
             }
+            _imeis.Clear();
             _imeis.AddRange(imeiList.Select(i => new AssetImei(i)).ToList());
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
