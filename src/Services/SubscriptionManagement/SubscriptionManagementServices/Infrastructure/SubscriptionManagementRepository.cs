@@ -226,7 +226,9 @@ namespace SubscriptionManagementServices.Infrastructure
         public async Task<SubscriptionProduct?> GetSubscriptionProductByNameAsync(string subscriptionProductName, int operatorId)
         {
 
-            var subscriptionProduct = await _subscriptionContext.SubscriptionProducts.FirstOrDefaultAsync(m => m.SubscriptionName == subscriptionProductName && m.OperatorId == operatorId);
+            var subscriptionProduct = await _subscriptionContext.SubscriptionProducts
+                .Include(m=>m.DataPackages)
+                .FirstOrDefaultAsync(m => m.SubscriptionName == subscriptionProductName && m.OperatorId == operatorId);
 
             return subscriptionProduct;
         }

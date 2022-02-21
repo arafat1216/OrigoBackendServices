@@ -73,7 +73,7 @@ namespace SubscriptionManagementServices.Models
             var foundSubscriptionProduct = customerOperatorSetting.AvailableSubscriptionProducts.FirstOrDefault(p => p.SubscriptionName == productName);
             if (foundSubscriptionProduct == null)
             {
-                var dataPackages = selectedDataPackages?.Select(dataPackage => new DataPackage(dataPackage, callerId)).ToList();
+               var dataPackages = selectedDataPackages?.Select(dataPackage => new DataPackage(dataPackage, callerId)).ToList();
                 var customerSubscriptionProduct = globalSubscriptionProduct != null
                     ? new CustomerSubscriptionProduct(globalSubscriptionProduct, callerId, dataPackages)
                     : new CustomerSubscriptionProduct(productName, @operator, callerId, dataPackages);
@@ -83,8 +83,11 @@ namespace SubscriptionManagementServices.Models
             else
             {
                 foundSubscriptionProduct.SubscriptionName = globalSubscriptionProduct != null ? globalSubscriptionProduct.SubscriptionName : productName;
+
+
+                foundSubscriptionProduct.SetDataPackages(globalSubscriptionProduct?.DataPackages, selectedDataPackages, callerId);
+                
                 foundSubscriptionProduct.GlobalSubscriptionProduct = globalSubscriptionProduct;
-                foundSubscriptionProduct.SetDataPackages(selectedDataPackages, callerId);
             }
 
             return foundSubscriptionProduct;

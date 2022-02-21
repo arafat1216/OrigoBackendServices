@@ -25,6 +25,10 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
             builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
 
+            builder.HasMany(e => e.DataPackages)
+                .WithMany(e => e.CustomerSubscriptionProducts)
+                .UsingEntity(join => join.ToTable("CustomersDatapackage"));
+
         }
     }
 }

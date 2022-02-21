@@ -95,6 +95,7 @@ namespace SubscriptionManagementServices
             }
 
             var globalSubscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductByNameAsync(productName, @operator.Id);
+            
             var customerSubscriptionProduct = customerSettings.AddSubscriptionProductAsync(@operator, productName, dataPackages, globalSubscriptionProduct, callerId);
             if (customerSettings.Id > 0)
             {
