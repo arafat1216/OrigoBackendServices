@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models.SubscriptionManagement
 {
     public class NewSubscriptionProduct
     {
         /// <summary>
-        /// The product name
+        /// The subscription product name
         /// </summary>
-        public string SubscriptionProductName { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// The operator name
         /// </summary>
-        public string OperatorName { get; set; }
+        public int OperatorId { get; set; }
 
         /// <summary>
         /// The datapacakges that is offered by the product

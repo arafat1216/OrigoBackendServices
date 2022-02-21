@@ -80,12 +80,13 @@ namespace SubscriptionManagementServices
             return await _subscriptionManagementRepository.GetOperatorAsync(id);
         }
 
-        public async Task<CustomerSubscriptionProductDTO> AddOperatorSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string>? dataPackages, Guid callerId)
+        public async Task<CustomerSubscriptionProductDTO> AddOperatorSubscriptionProductForCustomerAsync(Guid customerId, int operatorId, string productName, IList<string>? dataPackages, Guid callerId)
         {
-            var @operator = await _subscriptionManagementRepository.GetOperatorAsync(operatorName);
+            
+            var @operator = await _subscriptionManagementRepository.GetOperatorAsync(operatorId);
             if (@operator == null)
             {
-                throw new ArgumentException($"No operator for name {operatorName}");
+                throw new ArgumentException($"No operator for id {operatorId}");
             }
 
             var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(customerId);
@@ -94,7 +95,8 @@ namespace SubscriptionManagementServices
                 customerSettings = new CustomerSettings(customerId);
             }
 
-            var globalSubscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductByNameAsync(productName, @operator.Id);
+            var globalSubscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductByNameAsync(productName, operatorId);
+            
             var customerSubscriptionProduct = customerSettings.AddSubscriptionProductAsync(@operator, productName, dataPackages, globalSubscriptionProduct, callerId);
             if (customerSettings.Id > 0)
             {
