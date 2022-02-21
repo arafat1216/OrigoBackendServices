@@ -182,6 +182,9 @@ namespace SubscriptionManagement.API.Controllers
         /// <param name="organizationId">Customer identifier</param>
         /// <param name="newCustomerReferenceField">Details of the new reference field</param>
         /// <returns></returns>
+        /// <remarks>
+        ///  Type can be be 'User' or 'Account'.
+        /// </remarks>
         [HttpPost]
         [Route("{organizationId:Guid}/customer-reference-fields")]
         [ProducesResponseType(typeof(CustomerReferenceField), (int)HttpStatusCode.Created)]
@@ -199,6 +202,9 @@ namespace SubscriptionManagement.API.Controllers
         /// <param name="organizationId"></param>
         /// <param name="customerReferenceFieldId">Id of the field requested for delete</param>
         /// <returns></returns>
+        /// <remarks>
+        ///  Type can be be 'User' or 'Account'.
+        /// </remarks>
         [HttpDelete]
         [Route("{organizationId:Guid}/customer-reference-fields/{customerReferenceFieldId:int}")]
         [ProducesResponseType(typeof(CustomerReferenceField), (int)HttpStatusCode.OK)]
@@ -219,6 +225,9 @@ namespace SubscriptionManagement.API.Controllers
         /// </summary>
         /// <param name="organizationId"></param>
         /// <returns></returns>
+        /// <remarks>
+        ///  Type can be be 'User' or 'Account'.
+        /// </remarks>
         [HttpGet]
         [Route("{organizationId:Guid}/customer-reference-fields")]
         [ProducesResponseType(typeof(IList<CustomerReferenceField>), (int)HttpStatusCode.OK)]
