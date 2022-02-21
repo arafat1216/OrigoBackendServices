@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using SubscriptionManagementServices.Exceptions;
 
 namespace SubscriptionManagement.API.Filters
 {
@@ -18,7 +19,7 @@ namespace SubscriptionManagement.API.Filters
             var exception = context.Exception;
             _logger.LogError(exception.Message, exception);
 
-            if (exception is ArgumentException)
+            if (exception is ArgumentException or SubscriptionManagementException)
             {
                 context.Result = new BadRequestObjectResult(exception.Message);
                 return;

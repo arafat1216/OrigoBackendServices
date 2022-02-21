@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using SubscriptionManagementServices.Exceptions;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
 using SubscriptionManagementServices.Types;
@@ -35,9 +36,13 @@ namespace SubscriptionManagementServices
                 customerSettings = new CustomerSettings(organizationId);
             }
 
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new InvalidCustomerReferenceInputDataException("Value for name not set.");
+            }
             if (!Enum.TryParse(type, true, out CustomerReferenceTypes customerReferenceFieldType))
             {
-                throw new Exception();
+                throw new InvalidCustomerReferenceInputDataException("Invalid value for type. Should be 'account' or 'user'.");
             }
 
             var customerReferenceField = new CustomerReferenceField(name, customerReferenceFieldType, callerId);

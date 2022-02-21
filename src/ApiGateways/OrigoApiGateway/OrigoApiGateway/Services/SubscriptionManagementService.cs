@@ -240,7 +240,11 @@ namespace OrigoApiGateway.Services
                 var response = await HttpClient.PostAsJsonAsync(requestUri, customerReferenceFieldRequest);
 
                 if (!response.IsSuccessStatusCode)
-                    throw new BadHttpRequestException("Unable to add customer reference field", (int)response.StatusCode);
+                {
+                    var errorMessage = await response.Content.ReadAsStringAsync();
+                    throw new BadHttpRequestException($"Unable to add customer reference field. Message = {errorMessage}",
+                        (int)response.StatusCode);
+                }
 
                 var customerReferenceField = await response.Content.ReadFromJsonAsync<CustomerReferenceFieldResponseDTO>();
                 return customerReferenceField == null ? null : _mapper.Map<OrigoCustomerReferenceField>(customerReferenceField);

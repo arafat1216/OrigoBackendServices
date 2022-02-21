@@ -91,9 +91,10 @@ namespace SubscriptionManagementServices.Infrastructure
                     .ThenInclude(m => m.AvailableSubscriptionProducts)
                         .ThenInclude(m => m.GlobalSubscriptionProduct)
                 .Where(c => c.CustomerId == customerId)
+                .AsSplitQuery()
                 .SelectMany(m => m.CustomerOperatorSettings)
                 .Select(m => m.AvailableSubscriptionProducts).Where(a => a.Count() != 0)
-                        .ToListAsync();
+                .ToListAsync();
 
             
             if (subscriptionProductsForCustomer == null)
