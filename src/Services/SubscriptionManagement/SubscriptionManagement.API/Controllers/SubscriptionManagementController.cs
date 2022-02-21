@@ -247,16 +247,18 @@ namespace SubscriptionManagement.API.Controllers
         }
 
         [HttpGet]
-        [Route("{organizationId:Guid}/subscription-products/settings/{operatorName}")]
+        [Route("operators/subscription-products")]
         [ProducesResponseType(typeof(IList<SubscriptionProduct>), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<IEnumerable<SubscriptionProduct>>> GetOperatorSubscriptionProductForSettingsAsync(Guid organizationId, string operatorName)
+        public async Task<ActionResult<IEnumerable<SubscriptionProduct>>> GetOperatorSubscriptionProductForSettingsAsync()
         {
-            var subscriptionProducts = await _subscriptionServices.GetOperatorSubscriptionProductForSettingsAsync(organizationId,operatorName);
+            var subscriptionProducts = await _subscriptionServices.GetAllOperatorSubscriptionProductAsync();
+            if (subscriptionProducts == null)
+            {
+                BadRequest();
+            }
 
-            var subscriptionProductsList = _mapper.Map<IEnumerable<SubscriptionProduct>>(subscriptionProducts);
-
-            return Ok(subscriptionProductsList);
+            return Ok(subscriptionProducts);
         }
 
         [HttpDelete]

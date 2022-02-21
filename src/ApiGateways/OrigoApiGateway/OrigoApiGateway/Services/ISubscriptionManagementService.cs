@@ -19,6 +19,7 @@ namespace OrigoApiGateway.Services
         Task DeleteOperatorForCustomerAsync(Guid organizationId, int operatorId);
         Task<bool> AddSubscriptionForCustomerAsync(Guid organizationId, OrderTransferSubscription subscription);
         Task TransferSubscriptionOrderForCustomerAsync(Guid customerId, TransferSubscriptionOrder order);
+        Task<IList<OrigoSubscriptionProduct>> GetAllOperatorsSubscriptionProductsAsync();
         Task<OrigoSubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid organizationId, NewSubscriptionProduct subscriptionProduct);
         Task<IList<OrigoSubscriptionProduct>> GetAllSubscriptionProductForCustomerAsync(Guid organizationId);
         Task<OrigoSubscriptionProduct> DeleteSubscriptionProductForCustomerAsync(Guid organizationId, int subscriptionProductId);
