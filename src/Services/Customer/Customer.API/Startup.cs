@@ -73,6 +73,7 @@ namespace Customer.API
             services.AddScoped<IOrganizationTestDataService, OrganizationTestDataService>();
             services.AddScoped<IOrganizationRepository, OrganizationRepository>();
             services.AddScoped<IWebshopService, WebshopService>();
+            services.AddScoped<IFeatureFlagServices, FeatureFlagServices>();
             services.AddScoped<ErrorExceptionFilter>();
             services.AddMediatR(typeof(Startup));
         }

@@ -116,12 +116,14 @@ namespace SubscriptionManagementServices.Infrastructure
 
             return null; 
         }
-        public async Task<IList<SubscriptionProduct>?> GetSubscriptionProductForOperatorAsync(string operatorName)
+        public async Task<IList<SubscriptionProduct>?> GetAllOperatorSubscriptionProducts()
         {
-            var operatorSubscriptionProducts = await _subscriptionContext.SubscriptionProducts
-                .Where(s => s.Operator.OperatorName == operatorName).ToListAsync();
+            var operatorSubscriptionproducts = await _subscriptionContext.SubscriptionProducts
+                .Include(o => o.Operator)
+                .Include(d => d.DataPackages)
+                .ToListAsync();
 
-            return operatorSubscriptionProducts;
+            return operatorSubscriptionproducts;
         }
 
         public async Task<CustomerOperatorSettings> GetCustomerOperatorSettings(Guid customerId, string operatorName)

@@ -339,5 +339,20 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<IList<OrigoSubscriptionProduct>> GetAllOperatorsSubscriptionProductsAsync()
+        {
+            try
+            {
+                var operatorsSubscriptionProduct = await HttpClient.GetFromJsonAsync<IList<OrigoSubscriptionProduct>>($"{_options.ApiPath}/operators/subscription-products");
+
+                return operatorsSubscriptionProduct;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "GetAllOperatorsSubscriptionProductsAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
     }
 }

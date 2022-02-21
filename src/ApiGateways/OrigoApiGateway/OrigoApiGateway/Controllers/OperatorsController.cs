@@ -44,5 +44,20 @@ namespace OrigoApiGateway.Controllers
             var operatorObject = await _subscriptionService.GetOperatorAsync(id);
             return Ok(operatorObject);
         }
+        
+        /// <summary>
+        /// Get all operators subscription products
+        /// </summary>
+        /// <returns>all subscription products for all the operators</returns>
+        [HttpGet]
+        [Route("subscription-products")]
+        [ProducesResponseType(typeof(IList<OrigoSubscriptionProduct>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetAllOperatorsSubscriptionProducts()
+        {
+            var operatorSubscriptionProducts = await _subscriptionService.GetAllOperatorsSubscriptionProductsAsync();
+            return Ok(operatorSubscriptionProducts);
+        }
+
     }
 }

@@ -122,21 +122,15 @@ namespace SubscriptionManagementServices
                    _mapper.Map<List<CustomerSubscriptionProductDTO>>(subscriptionProduct));
             return customerSubscriptionProductDTOs;
         }
-        public async Task<IList<CustomerSubscriptionProductDTO>> GetOperatorSubscriptionProductForSettingsAsync(Guid customerId, string operatorName)
+        public async Task<IList<GlobalSubscriptionProductDTO>> GetAllOperatorSubscriptionProductAsync()
         {
-            var operatorsSubscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductForOperatorAsync(operatorName);
-            List<CustomerSubscriptionProductDTO> customerSubscriptionProductDTOs = new();
-            customerSubscriptionProductDTOs.AddRange(
-                _mapper.Map<List<CustomerSubscriptionProductDTO>>(operatorsSubscriptionProduct));
-            var availableSubscriptionProductsForCustomer = await _subscriptionManagementRepository.GetAllCustomerSubscriptionProductsAsync(customerId);
+           
+            var operatorsSubscriptionProduct = await _subscriptionManagementRepository.GetAllOperatorSubscriptionProducts();
+            List<GlobalSubscriptionProductDTO> operatorSubscriptionProducts = new();
+            operatorSubscriptionProducts.AddRange(
+                _mapper.Map<List<GlobalSubscriptionProductDTO>>(operatorsSubscriptionProduct));
 
-            if (availableSubscriptionProductsForCustomer == null)
-            {
-                customerSubscriptionProductDTOs.AddRange(
-                    _mapper.Map<List<CustomerSubscriptionProductDTO>>(availableSubscriptionProductsForCustomer));
-            }
-
-            return customerSubscriptionProductDTOs;
+            return operatorSubscriptionProducts;
         }
 
         public async Task<CustomerSubscriptionProductDTO> DeleteOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)

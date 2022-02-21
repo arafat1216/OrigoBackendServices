@@ -35,6 +35,9 @@ namespace OrigoApiGateway.Controllers
         /// Get all customer reference fields
         /// </summary>
         /// <returns>all operators</returns>
+        /// <remarks>
+        ///  Type can be be 'User' or 'Account'.
+        /// </remarks>
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoCustomerReferenceField>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllCustomerReferenceFields(Guid organizationId)
@@ -59,6 +62,9 @@ namespace OrigoApiGateway.Controllers
         /// <param name="organizationId"></param>
         /// <param name="newCustomerReferenceField"></param>
         /// <returns></returns>
+        /// <remarks>
+        ///  Type can be be 'User' or 'Account'.
+        /// </remarks>
         [HttpPost]
         [ProducesResponseType(typeof(OrigoCustomerReferenceField), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -93,6 +99,9 @@ namespace OrigoApiGateway.Controllers
         /// <param name="organizationId"></param>
         /// <param name="customerReferenceId">The id of the reference field to be deleted</param>
         /// <returns></returns>
+        /// <remarks>
+        ///  Type can be be 'User' or 'Account'.
+        /// </remarks>
         [HttpDelete]
         [Route("{customerReferenceId:int}")]
         [ProducesResponseType(typeof(OrigoCustomerReferenceField), (int)HttpStatusCode.Created)]
