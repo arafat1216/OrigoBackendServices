@@ -73,9 +73,21 @@ namespace SubscriptionManagementServices.Models
             var foundSubscriptionProduct = customerOperatorSetting.AvailableSubscriptionProducts.FirstOrDefault(p => p.SubscriptionName == productName);
             if (foundSubscriptionProduct == null)
             {
+               
                var dataPackages = selectedDataPackages?.Select(dataPackage => new DataPackage(dataPackage, callerId)).ToList();
+                var globalDataPackages = new List<DataPackage>();
+                if (globalSubscriptionProduct?.DataPackages.Count != null) {
+                    foreach (var dataPackage in selectedDataPackages)
+                    {
+                        var exsitingDatapackages = globalSubscriptionProduct.DataPackages.FirstOrDefault(a => a.DataPackageName == dataPackage);
+                        if (exsitingDatapackages != null)
+                        {
+                            globalDataPackages.Add(exsitingDatapackages);
+                        }
+                    }
+                }
                 var customerSubscriptionProduct = globalSubscriptionProduct != null
-                    ? new CustomerSubscriptionProduct(globalSubscriptionProduct, callerId, dataPackages)
+                    ? new CustomerSubscriptionProduct(globalSubscriptionProduct, callerId, globalDataPackages)
                     : new CustomerSubscriptionProduct(productName, @operator, callerId, dataPackages);
                 foundSubscriptionProduct = customerSubscriptionProduct;
                 customerOperatorSetting.AvailableSubscriptionProducts.Add(customerSubscriptionProduct);

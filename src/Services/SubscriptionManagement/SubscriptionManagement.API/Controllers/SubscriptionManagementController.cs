@@ -171,7 +171,7 @@ namespace SubscriptionManagement.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<CustomerSubscriptionProduct>> AddSubscriptionProductForCustomer(Guid organizationId, [FromBody] NewSubscriptionProduct subscriptionProduct)
         {
-            var addSubscriptionProduct = await _subscriptionServices.AddOperatorSubscriptionProductForCustomerAsync(organizationId, subscriptionProduct.OperatorName, subscriptionProduct.SubscriptionProductName, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
+            var addSubscriptionProduct = await _subscriptionServices.AddOperatorSubscriptionProductForCustomerAsync(organizationId, subscriptionProduct.OperatorId, subscriptionProduct.Name, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
             
             return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), addSubscriptionProduct);
         }

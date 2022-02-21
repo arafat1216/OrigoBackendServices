@@ -31,40 +31,19 @@ namespace SubscriptionManagementServices.Models
 
         public void SetDataPackages(ICollection<DataPackage>? globalDataPackages,IList<string> selectedDataPackages, Guid callerId)
         {
+            _dataPackages.Clear();
             foreach (var select in selectedDataPackages)
             {
+
                 var dataPackage = globalDataPackages.FirstOrDefault(a=>a.DataPackageName == select);
 
-                var existingDatapackages = _dataPackages.FirstOrDefault(a => a.DataPackageName == select);
+                
 
-                if (dataPackage != null && existingDatapackages == null)
+                if (dataPackage != null)
                 {
                     _dataPackages.Add(dataPackage);
                 }
             }
-            //Sjekk om det allerede er datapakker for denne?
-            //var datapackages = new List<DataPackage>();
-            //if (globalDataPackages?.Count != 0)
-            //{
-
-            //    if (selectedDataPackages != null)
-            //    {
-
-            //        foreach (var dataPackages in globalDataPackages)
-            //        {
-            //            if (selectedDataPackages.Contains(dataPackages.DataPackageName))
-            //            {
-            //                datapackages.Add(dataPackages);
-            //            }
-            //        }
-            //    }
-            //}
-            //    _dataPackages = datapackages;
-            //foreach (var dataPackageName in dataPackages)
-            //{
-                
-            //    _dataPackages.Add(new DataPackage(dataPackageName, callerId));
-            //}
         }
 
 
