@@ -12,8 +12,8 @@ using SubscriptionManagementServices.Infrastructure;
 namespace SubscriptionManagementServices.Migrations
 {
     [DbContext(typeof(SubscriptionManagementContext))]
-    [Migration("20220221080215_test")]
-    partial class test
+    [Migration("20220221142324_CustomerDataPackagesTable")]
+    partial class CustomerDataPackagesTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

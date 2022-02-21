@@ -4,7 +4,7 @@
 
 namespace SubscriptionManagementServices.Migrations
 {
-    public partial class test : Migration
+    public partial class CustomerDataPackagesTable : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
