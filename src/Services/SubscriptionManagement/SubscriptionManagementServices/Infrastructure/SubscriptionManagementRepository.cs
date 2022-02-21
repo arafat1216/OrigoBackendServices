@@ -28,14 +28,6 @@ namespace SubscriptionManagementServices.Infrastructure
         {
             return await _subscriptionContext.CustomerOperatorAccounts.Where(m => m.OrganizationId == organizationId).ToListAsync();
         }
-
-        public async Task<Operator?> GetOperatorAsync(string name)
-        {
-            return await _subscriptionContext.Operators.Where(o => o.OperatorName == name).FirstOrDefaultAsync();
-
-        }
-
-
         public async Task<SubscriptionOrder> AddSubscriptionOrderAsync(SubscriptionOrder subscriptionOrder)
         {
             var added = await _subscriptionContext.AddAsync(subscriptionOrder);
@@ -51,12 +43,6 @@ namespace SubscriptionManagementServices.Infrastructure
         public async Task<DataPackage?> GetDataPackageAsync(int id)
         {
             return await _subscriptionContext.DataPackages.FindAsync(id);
-        }
-
-        public Task<SubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid customerId, string operatorName, string productName, IList<string> datapackages)
-        {
-            //Needs implementing - Rolf should supply the model for setting
-            throw new NotImplementedException();
         }
 
         public async Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(int id)
@@ -115,16 +101,7 @@ namespace SubscriptionManagementServices.Infrastructure
         }
         public async Task<CustomerSubscriptionProduct?> GetAvailableSubscriptionProductForCustomerbySubscriptionIdAsync(Guid customerId, int subscriptionId)
         {
-            //var subscriptionProductsForCustomer = await _subscriptionContext.CustomerSettings
-            //    .Include(m => m.CustomerOperatorSettings)
-            //        .ThenInclude(m => m.AvailableSubscriptionProducts)
-            //            .ThenInclude(m => m.DataPackages)
-            //    .Include(m => m.CustomerOperatorSettings)
-            //        .ThenInclude(m => m.AvailableSubscriptionProducts)
-            //            .ThenInclude(m => m.Operator)
-            //    .Where(c => c.CustomerId == customerId)
-            //    .SelectMany(m => m.CustomerOperatorSettings)
-            //    .Select(m => m.AvailableSubscriptionProducts.FirstOrDefault(a=> a.Id == subscriptionId)).FirstOrDefaultAsync();
+            
             var subscriptionProductsForCustomer = await GetAllCustomerSubscriptionProductsAsync(customerId);
             if (subscriptionProductsForCustomer == null)
             {
@@ -229,7 +206,9 @@ namespace SubscriptionManagementServices.Infrastructure
         public async Task<SubscriptionProduct?> GetSubscriptionProductByNameAsync(string subscriptionProductName, int operatorId)
         {
 
-            var subscriptionProduct = await _subscriptionContext.SubscriptionProducts.FirstOrDefaultAsync(m => m.SubscriptionName == subscriptionProductName && m.OperatorId == operatorId);
+            var subscriptionProduct = await _subscriptionContext.SubscriptionProducts
+                .Include(m=>m.DataPackages)
+                .FirstOrDefaultAsync(m => m.SubscriptionName == subscriptionProductName && m.OperatorId == operatorId);
 
             return subscriptionProduct;
         }
