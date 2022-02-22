@@ -184,7 +184,7 @@ namespace CustomerServices.Models
         internal void ChangeMobileNumber(string mobileNumber, Guid callerId)
         {
             var oldMobileNumber = MobileNumber;
-            Email = mobileNumber;
+            MobileNumber = mobileNumber;
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
             AddDomainEvent(new UserUpdateMobileNumberDomainEvent(this, oldMobileNumber, callerId));

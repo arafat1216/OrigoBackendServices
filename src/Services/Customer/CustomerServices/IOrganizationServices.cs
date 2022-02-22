@@ -38,5 +38,6 @@ namespace CustomerServices
         Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
         Task<Location> AddOrganizationLocationAsync(Location location);
         Task<bool> ParentOrganizationIsValid(Guid? parentId, Guid organizationId);
+        Task<Organization> GetOrganizationByOrganizationNumberAsync(string organizationNumber);
     }
 }
