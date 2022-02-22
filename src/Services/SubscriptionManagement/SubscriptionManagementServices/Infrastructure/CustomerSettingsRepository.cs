@@ -21,6 +21,7 @@ namespace SubscriptionManagementServices.Infrastructure
                 .ThenInclude(o => o.Operator)
                 .Include(cs => cs.CustomerOperatorSettings)
                 .ThenInclude(op => op.AvailableSubscriptionProducts)
+                .ThenInclude(d => d.DataPackages)
                 .Include(cs => cs.CustomerReferenceFields).AsSplitQuery()
                 .FirstOrDefaultAsync(m => m.CustomerId == organizationId);
         }

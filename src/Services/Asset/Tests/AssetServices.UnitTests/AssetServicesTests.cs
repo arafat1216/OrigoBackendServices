@@ -179,8 +179,8 @@ namespace AssetServices.UnitTests
 
            
             // Act and assert
-            Assert.ThrowsAsync<InvalidAssetDataException>(() => assetService.AddAssetForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
-                "iPhone", "iPhone X", LifecycleType.NoLifecycle, new DateTime(2020, 1, 1), null, new List<long>() { 458718920164666 }, "a3:21:99:5d:a7:a1", null, "Unassigned asset", "tag", "description"));
+            await Assert.ThrowsAsync<InvalidAssetDataException>(() => assetService.AddAssetForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
+                "iPhone", "iPhone X", LifecycleType.NoLifecycle, new DateTime(2020, 1, 1), null, new List<long>() { 45871892016466 }, "a3:21:99:5d:a7:a1", null, "Unassigned asset", "tag", "description"));
            
         }
         [Fact]

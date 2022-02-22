@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
+using SubscriptionManagementServices.Exceptions;
 using Xunit;
 
 namespace SubscriptionManagement.UnitTests
@@ -48,6 +49,13 @@ namespace SubscriptionManagement.UnitTests
             await _customerSettingsService.AddCustomerReferenceFieldAsync(ORGANIZATION_ONE_ID, "EmployeeID", "user", Guid.NewGuid());
             var updatedCustomerReferenceFields = await _customerSettingsService.GetCustomerReferenceFieldsAsync(ORGANIZATION_ONE_ID);
             Assert.Equal(1, updatedCustomerReferenceFields.Count);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task Add_AddCustomerReferenceField_WithEmptyNameThrowsException()
+        {
+            await Assert.ThrowsAsync<InvalidCustomerReferenceInputDataException>(() => _customerSettingsService.AddCustomerReferenceFieldAsync(ORGANIZATION_ONE_ID, "", "user", Guid.NewGuid()));
         }
 
         [Fact]

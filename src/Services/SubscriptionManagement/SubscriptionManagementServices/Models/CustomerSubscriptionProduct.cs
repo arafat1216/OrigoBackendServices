@@ -29,14 +29,23 @@ namespace SubscriptionManagementServices.Models
         private List<DataPackage> _dataPackages = new();
         public ICollection<DataPackage> DataPackages => _dataPackages.AsReadOnly();
 
-        public void SetDataPackages(IList<string> dataPackages, Guid callerId)
+        public void SetDataPackages(ICollection<DataPackage>? globalDataPackages,IList<string> selectedDataPackages, Guid callerId)
         {
-            _dataPackages = new List<DataPackage>();
-            foreach (var dataPackageName in dataPackages)
+            _dataPackages.Clear();
+            foreach (var select in selectedDataPackages)
             {
-                _dataPackages.Add(new DataPackage(dataPackageName, callerId));
+
+                var dataPackage = globalDataPackages.FirstOrDefault(a=>a.DataPackageName == select);
+
+                
+
+                if (dataPackage != null)
+                {
+                    _dataPackages.Add(dataPackage);
+                }
             }
         }
+
 
 
         public SubscriptionProduct? GlobalSubscriptionProduct { get; set; }

@@ -54,7 +54,17 @@ namespace SubscriptionManagement.UnitTests
 
             context.SaveChanges();
 
-            var subscriptionProductOne = new SubscriptionProduct("SubscriptionName", operatorOne, null, CALLER_ONE_ID);
+            var dataPackageOne = new DataPackage("Data Package", CALLER_ONE_ID);
+            var dataPackageTwo = new DataPackage("Data Package2", CALLER_ONE_ID);
+            var dataPackages = new List<DataPackage>();
+            dataPackages.Add(dataPackageOne);
+            dataPackages.Add(dataPackageTwo);
+
+            context.SaveChanges();
+
+            context.AddRange(dataPackageOne,dataPackageTwo);
+
+            var subscriptionProductOne = new SubscriptionProduct("SubscriptionName", operatorOne, dataPackages, CALLER_ONE_ID);
 
             context.AddRange(subscriptionProductOne);
 
@@ -62,8 +72,7 @@ namespace SubscriptionManagement.UnitTests
 
             context.AddRange(customerSubscriptionProductOne);
 
-            var dataPackageOne = new DataPackage("Data Package", CALLER_ONE_ID);
-            context.AddRange(dataPackageOne);
+            
 
             context.SaveChanges();
         }

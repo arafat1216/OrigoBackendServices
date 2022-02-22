@@ -1,4 +1,6 @@
-﻿namespace SubscriptionManagement.API.ViewModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SubscriptionManagement.API.ViewModels
 {
     public record NewCustomerReferenceField
     {
