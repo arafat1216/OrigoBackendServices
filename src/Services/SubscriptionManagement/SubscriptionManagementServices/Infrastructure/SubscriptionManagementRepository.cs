@@ -159,11 +159,10 @@ namespace SubscriptionManagementServices.Infrastructure
             return addedCustomerOperatorSetting.Entity;
         }
 
-        public async Task<CustomerSubscriptionProduct> DeleteOperatorSubscriptionProductForCustomerAsync(CustomerSubscriptionProduct customerSubscriptionProduct)
+        public async Task DeleteOperatorSubscriptionProductForCustomerAsync(CustomerSubscriptionProduct customerSubscriptionProduct)
         {
-            _subscriptionContext.CustomerSubscriptionProducts.Remove(customerSubscriptionProduct);
+            _subscriptionContext.Entry(customerSubscriptionProduct).State = EntityState.Deleted;
             await _subscriptionContext.SaveChangesAsync();
-            return customerSubscriptionProduct;
         }
 
         public Task<SubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)

@@ -120,5 +120,31 @@ namespace SubscriptionManagementServices.Models
             _customerReferenceFields.Remove(customerReferenceField);
             return customerReferenceField;
         }
+        
+        public CustomerSubscriptionProduct? RemoveSubscriptionProductAsync(int subscriptionProductID)
+        {
+            if (CustomerOperatorSettings == null)
+            {
+                return null;
+            }
+
+            var subscriptionProduct = _customerOperatorSettings.SelectMany(a => a.AvailableSubscriptionProducts).Where(a=>a.Id ==subscriptionProductID).FirstOrDefault();
+
+            if (subscriptionProduct == null)
+            {
+                return null;
+            }
+            
+            var customerOperatorSetting = _customerOperatorSettings.FirstOrDefault(r => r.Id == subscriptionProduct.Operator.Id);
+
+            if (customerOperatorSetting == null)
+            {
+                return null;
+            }
+
+            customerOperatorSetting.AvailableSubscriptionProducts.Remove(subscriptionProduct);
+
+            return subscriptionProduct;
+        }
     }
 }
