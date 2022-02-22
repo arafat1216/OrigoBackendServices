@@ -276,7 +276,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task TransferSubscriptionOrderForCustomerAsync(Guid customerId, TransferSubscriptionOrder order)
+        public async Task TransferSubscriptionOrderForCustomerAsync(Guid customerId, TransferFromPrivateToBusinessSubscriptionOrder order)
         {
             try
             {

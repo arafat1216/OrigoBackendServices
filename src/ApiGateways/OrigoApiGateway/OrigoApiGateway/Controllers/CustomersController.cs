@@ -15,6 +15,7 @@ using Common.Enums;
 using OrigoApiGateway.Models.BackendDTO;
 using AutoMapper;
 using OrigoApiGateway.Models.SubscriptionManagement;
+using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -628,9 +629,9 @@ namespace OrigoApiGateway.Controllers
         /// <param name="organizationId"></param>
         /// <param name="order"></param>
         /// <returns></returns>
-        [Route("{organizationId:Guid}/subscription-transfer")]
+        [Route("{organizationId:Guid}/subscription-transfer-from-private-to-business")]
         [HttpPost]
-        public async Task<ActionResult> TransferSubscription(Guid organizationId, [FromBody] TransferSubscriptionOrder order)
+        public async Task<ActionResult> TransferSubscription(Guid organizationId, [FromBody] TransferFromPrivateToBusinessSubscriptionOrder order)
         {
             await SubscriptionManagementService.TransferSubscriptionOrderForCustomerAsync(organizationId, order);
             return NoContent();
