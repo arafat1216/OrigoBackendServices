@@ -157,7 +157,7 @@ namespace Customer.API.Controllers
                 }
 
                 // Check for organization number conflict
-                if (_organizationServices.GetOrganizationByOrganizationNumberAsync(organization.OrganizationNumber) != null)
+                if (await _organizationServices.GetOrganizationByOrganizationNumberAsync(organization.OrganizationNumber) != null)
                 {
                     return Conflict($"Organization with organization number {organization.OrganizationNumber} already exists");
                 }
