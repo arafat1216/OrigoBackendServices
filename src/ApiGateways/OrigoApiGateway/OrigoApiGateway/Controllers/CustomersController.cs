@@ -621,5 +621,20 @@ namespace OrigoApiGateway.Controllers
 
             return Ok();
         }
+
+        /// <summary>
+        /// Creates a transfer subscription order
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        [Route("{organizationId:Guid}/subscription-transfer")]
+        [HttpPost]
+        public async Task<ActionResult> TransferSubscription(Guid organizationId, [FromBody] TransferSubscriptionOrder order)
+        {
+            await SubscriptionManagementService.TransferSubscriptionOrderForCustomerAsync(organizationId, order);
+            return NoContent();
+        }
+
     }
 }
