@@ -135,14 +135,22 @@ namespace SubscriptionManagementServices
 
         public async Task<CustomerSubscriptionProductDTO> DeleteOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
         {
-            var subscriptionProductToDelete = await _subscriptionManagementRepository.GetAvailableSubscriptionProductForCustomerbySubscriptionIdAsync(customerId,subscriptionId);
-            if (subscriptionProductToDelete == null)
+            var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(customerId);
+            if (customerSettings == null)
             {
-                throw new ArgumentException($"No available subscription product found for customer id {customerId}");
+                throw new ArgumentException($"Customer has no customer settings for id {customerId}");
             }
             
-            var deleted =  await _subscriptionManagementRepository.DeleteOperatorSubscriptionProductForCustomerAsync(subscriptionProductToDelete);
-            return _mapper.Map<CustomerSubscriptionProductDTO>(deleted);
+            var removedProduct = customerSettings.RemoveSubscriptionProductAsync(subscriptionId);
+
+            if (removedProduct == null)
+            {
+                return null;
+            }
+
+            await _subscriptionManagementRepository.DeleteOperatorSubscriptionProductForCustomerAsync(removedProduct);
+
+            return _mapper.Map<CustomerSubscriptionProductDTO>(removedProduct);
         }
 
         public async Task<SubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId)
