@@ -15,8 +15,8 @@ namespace SubscriptionManagementServices.Infrastructure
         public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(CustomerOperatorAccount customerOperatorAccount)
         {
             var @operator = await _subscriptionContext.Operators.FindAsync(customerOperatorAccount.OperatorId);
-            
-            if(@operator != null)
+
+            if (@operator != null)
             {
                 customerOperatorAccount.Operator = @operator;
             }
@@ -222,6 +222,11 @@ namespace SubscriptionManagementServices.Infrastructure
         public async Task<IList<Operator>> GetAllOperatorsAsync()
         {
             return await _subscriptionContext.Operators.ToListAsync();
+        }
+
+        public async Task<DataPackage?> GetDataPackageAsync(string dataPackageName)
+        {
+            return await _subscriptionContext.DataPackages.FirstOrDefaultAsync(m => m.DataPackageName == dataPackageName);
         }
     }
 }

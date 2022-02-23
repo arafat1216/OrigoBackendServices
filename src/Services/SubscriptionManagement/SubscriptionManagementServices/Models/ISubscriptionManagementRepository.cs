@@ -15,14 +15,15 @@
         Task<PrivateToBusinessSubscriptionOrder> TransferSubscriptionOrderAsync(PrivateToBusinessSubscriptionOrder subscriptionOrder);
         Task<SubscriptionProduct?> GetSubscriptionProductAsync(int id);
         Task<DataPackage?> GetDataPackageAsync(int id);
+        Task<DataPackage?> GetDataPackageAsync(string dataPackageName);
         Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(int id);
         Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(Guid organizationId, string accountNumber);
         Task DeleteCustomerOperatorAccountAsync(CustomerOperatorAccount customerOperatorAccount);
         Task<IList<Operator>> GetAllOperatorsForCustomerAsync(Guid customerId);
-        Task<CustomerOperatorSettings> GetCustomerOperatorSettings(Guid customerId,string operatorName);
+        Task<CustomerOperatorSettings> GetCustomerOperatorSettings(Guid customerId, string operatorName);
         Task<CustomerOperatorSettings> AddCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings);
         Task<CustomerOperatorSettings> UpdateCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings);
-        Task<SubscriptionProduct?> GetSubscriptionProductByNameAsync(string subscriptionProductName,int operatorId);
+        Task<SubscriptionProduct?> GetSubscriptionProductByNameAsync(string subscriptionProductName, int operatorId);
         Task<IList<Operator>> GetAllOperatorsAsync();
     }
 }
