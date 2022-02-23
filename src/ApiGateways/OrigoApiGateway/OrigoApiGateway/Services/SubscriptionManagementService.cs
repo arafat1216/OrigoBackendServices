@@ -280,7 +280,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/{customerId}/subscription-transfer";
+                string requestUri = $"{_options.ApiPath}/{customerId}/transfer-from-private-to-business";
                 var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, order);
 
                 postSubscription.EnsureSuccessStatusCode();

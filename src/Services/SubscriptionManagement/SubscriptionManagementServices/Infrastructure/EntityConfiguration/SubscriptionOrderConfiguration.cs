@@ -36,8 +36,11 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
                 .HasForeignKey(m => m.SubscriptionProductId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Property(m => m.CustomerReferenceFields)
+            if (!_isSqlLite)
+            {
+                builder.Property(m => m.CustomerReferenceFields)
                 .HasColumnType("jsonb");
+            }
         }
     }
 }
