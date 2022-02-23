@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
 {
@@ -48,5 +49,14 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         ///     Date of transfer
         /// </summary>
         public DateTime OrderExecutionDate { get; set; }
+
+        /// <summary>
+        /// List of add on products to the subscription
+        /// </summary>
+        public IList<string> AddOnProducts { get; set; }
+
+        public IList<NewCustomerReferenceField> CustomerReferenceFields { get; set; }
+
+        public OrigoCustomerOperatorAccount OperatorAccount { get; set; }
     }
 }

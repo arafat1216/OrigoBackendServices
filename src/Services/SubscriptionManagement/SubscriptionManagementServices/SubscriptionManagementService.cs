@@ -168,7 +168,7 @@ namespace SubscriptionManagementServices
             return await _subscriptionManagementRepository.UpdateOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionId);
         }
 
-        public async Task<TransferSubscriptionOrder> TransferSubscriptionOrderAsync(Guid customerId, int subscriptionProductId, int currentOperatorAccountId, int datapackageId, Guid callerId, string simCardNumber, DateTime orderExecutionDate, int newOperatorAccountId)
+        public async Task<PrivateToBusinessSubscriptionOrder> TransferSubscriptionOrderAsync(Guid customerId, int subscriptionProductId, int currentOperatorAccountId, int datapackageId, Guid callerId, string simCardNumber, DateTime orderExecutionDate, int newOperatorAccountId)
         {
             if (currentOperatorAccountId == newOperatorAccountId)
             {
@@ -213,7 +213,7 @@ namespace SubscriptionManagementServices
             if (dataPackage == null)
                 throw new ArgumentException($"No DataPackage exists with ID {datapackageId}");
 
-            return await _subscriptionManagementRepository.TransferSubscriptionOrderAsync(new TransferSubscriptionOrder(customerId, subscriptionProductId, currentOperatorAccountId, datapackageId, callerId, simCardNumber, orderExecutionDate, newOperatorAccountId));
+            return await _subscriptionManagementRepository.TransferSubscriptionOrderAsync(new PrivateToBusinessSubscriptionOrder(customerId, subscriptionProductId, currentOperatorAccountId, datapackageId, callerId, simCardNumber, orderExecutionDate, newOperatorAccountId));
         }
 
         public async Task DeleteCustomerOperatorAccountAsync(Guid organizationId, string accountNumber)
