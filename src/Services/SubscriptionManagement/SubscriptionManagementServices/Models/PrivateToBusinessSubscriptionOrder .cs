@@ -9,7 +9,7 @@
 
         public PrivateToBusinessSubscriptionOrder(
             string simCardNumber,
-            string simCardActivation,
+            string simCardAction,
             int subscriptionProductId,
             Guid oranizationId,
             int operatorAccountId,
@@ -26,7 +26,7 @@
             string country, 
             string email,
             DateTime dob,
-            string operatorName): base(simCardNumber, simCardActivation, subscriptionProductId, oranizationId, operatorAccountId, dataPackageId, orderExecutionDate, mobileNumber, customerReferenceFields, subscriptionAddOnProducts)
+            string operatorName): base(simCardNumber, simCardAction, subscriptionProductId, oranizationId, operatorAccountId, dataPackageId, orderExecutionDate, mobileNumber, customerReferenceFields, subscriptionAddOnProducts)
         {
             FirstName = firstName;
             LastName = lastName;

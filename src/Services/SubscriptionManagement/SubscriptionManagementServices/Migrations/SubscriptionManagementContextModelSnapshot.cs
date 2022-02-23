@@ -500,8 +500,9 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CustomerReferenceFields")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DataPackageId")
                         .HasColumnType("int");
@@ -517,11 +518,22 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
+                    b.Property<string>("MobileNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("OperatorAccountId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("OrderExecutionDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SIMCardAction")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SimCardNumber")
                         .IsRequired()
@@ -590,16 +602,51 @@ namespace SubscriptionManagementServices.Migrations
                     b.ToTable("SubscriptionProduct", (string)null);
                 });
 
-            modelBuilder.Entity("SubscriptionManagementServices.Models.TransferSubscriptionOrder", b =>
+            modelBuilder.Entity("SubscriptionManagementServices.Models.PrivateToBusinessSubscriptionOrder", b =>
                 {
                     b.HasBaseType("SubscriptionManagementServices.Models.SubscriptionOrder");
 
-                    b.Property<int>("NewOperatorAccountId")
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("BirthDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("CustomerOperatorAccountId")
                         .HasColumnType("int");
 
-                    b.HasIndex("NewOperatorAccountId");
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("TransferSubscriptionOrder", (string)null);
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OperatorName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PostalPlace")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasIndex("CustomerOperatorAccountId");
+
+                    b.ToTable("PrivateToBusinessSubscriptionOrder", (string)null);
                 });
 
             modelBuilder.Entity("CustomerOperatorAccountCustomerOperatorSettings", b =>
@@ -757,21 +804,17 @@ namespace SubscriptionManagementServices.Migrations
                     b.Navigation("Operator");
                 });
 
-            modelBuilder.Entity("SubscriptionManagementServices.Models.TransferSubscriptionOrder", b =>
+            modelBuilder.Entity("SubscriptionManagementServices.Models.PrivateToBusinessSubscriptionOrder", b =>
                 {
+                    b.HasOne("SubscriptionManagementServices.Models.CustomerOperatorAccount", null)
+                        .WithMany("TransferSubscriptionOrders")
+                        .HasForeignKey("CustomerOperatorAccountId");
+
                     b.HasOne("SubscriptionManagementServices.Models.SubscriptionOrder", null)
                         .WithOne()
-                        .HasForeignKey("SubscriptionManagementServices.Models.TransferSubscriptionOrder", "Id")
+                        .HasForeignKey("SubscriptionManagementServices.Models.PrivateToBusinessSubscriptionOrder", "Id")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
-
-                    b.HasOne("SubscriptionManagementServices.Models.CustomerOperatorAccount", "NewOperatorAccount")
-                        .WithMany("TransferSubscriptionOrders")
-                        .HasForeignKey("NewOperatorAccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("NewOperatorAccount");
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.CustomerOperatorAccount", b =>
