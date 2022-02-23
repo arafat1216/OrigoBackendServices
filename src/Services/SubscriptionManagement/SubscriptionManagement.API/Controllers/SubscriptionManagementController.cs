@@ -131,7 +131,7 @@ namespace SubscriptionManagement.API.Controllers
         {
             var customerOperatorAccounts = await _subscriptionServices.GetAllOperatorAccountsForCustomerAsync(organizationId);
 
-            return Ok(customerOperatorAccounts.Select(m => new CustomerOperatorAccount(m)));
+            return Ok(customerOperatorAccounts);
         }
 
         /// <summary>
@@ -143,11 +143,11 @@ namespace SubscriptionManagement.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(CustomerOperatorAccount), (int)HttpStatusCode.OK)]
         [Route("{organizationId:Guid}/operator-accounts")]
-        public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] CustomerOperatorAccount customerOperatorAccount)
+        public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] NewOperatorAccount customerOperatorAccount)
         {
             var newCustomerOperatorAccount = await _subscriptionServices.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName, customerOperatorAccount.OperatorId, customerOperatorAccount.CallerId);
-
-            return Ok(new CustomerOperatorAccount(newCustomerOperatorAccount));
+            
+            return Ok(newCustomerOperatorAccount);
         }
 
         [HttpDelete]

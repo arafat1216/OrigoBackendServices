@@ -5,9 +5,9 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
     public class OrigoCustomerOperatorAccount
     {
         /// <summary>
-        /// Organization identifier
+        /// Account identifier
         /// </summary>
-        public Guid OrganizationId { get; set; }
+        public int Id { get; set; }
         /// <summary>
         /// Account number of the operator
         /// </summary>
