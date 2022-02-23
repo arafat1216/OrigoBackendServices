@@ -31,5 +31,6 @@ namespace SubscriptionManagementServices.Models
         public int DataPackageId { get; set; }
         public DateTime OrderExecutionDate { get; set; }
         public string MobileNumber { get; set; }
+        public string CustomerReferenceFields { get; set; }
     }
 }

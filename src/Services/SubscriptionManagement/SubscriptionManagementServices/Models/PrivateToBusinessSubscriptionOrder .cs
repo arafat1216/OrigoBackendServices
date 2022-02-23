@@ -6,10 +6,19 @@
         {
 
         }
-        public PrivateToBusinessSubscriptionOrder(Guid customerId, int subscriptionProductId, int currentOperatorAccountId, int dataPackageId, Guid callerId, string simCardNumber, DateTime orderExecutionDate, int newOperatorAccountId)
-            : base(customerId, subscriptionProductId, currentOperatorAccountId, dataPackageId, callerId, simCardNumber)
+        public PrivateToBusinessSubscriptionOrder(
+            Guid customerId, 
+            int subscriptionProductId, 
+            string currentOperatorName, 
+            int dataPackageId, 
+            Guid callerId, 
+            string simCardNumber, 
+            DateTime orderExecutionDate, 
+            int operatorAccountId)
+            : base(customerId, subscriptionProductId, operatorAccountId, dataPackageId, callerId, simCardNumber)
         {
             OrderExecutionDate = orderExecutionDate;
+            OperatorName = currentOperatorName;
         }
         public string FirstName { get; set; }
         public string LastName { get; set; }

@@ -54,5 +54,9 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         /// List of add on products to the subscription
         /// </summary>
         public IList<string> AddOnProducts { get; set; }
+
+        public IList<NewCustomerReferenceField> CustomerReferenceFields { get; set; }
+
+        public OrigoCustomerOperatorAccount OperatorAccount { get; set; }
     }
 }
