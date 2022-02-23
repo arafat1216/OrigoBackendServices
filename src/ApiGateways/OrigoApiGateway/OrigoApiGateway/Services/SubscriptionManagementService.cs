@@ -307,7 +307,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoCustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, OrigoCustomerOperatorAccount origoCustomerOperatorAccount)
+        public async Task<OrigoCustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, NewOperatorAccount origoCustomerOperatorAccount)
         {
             try
             {

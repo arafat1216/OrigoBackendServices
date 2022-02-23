@@ -31,7 +31,7 @@ namespace SubscriptionManagementServices
             var existingCustomerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(organizationId, accountNumber);
 
             if (existingCustomerOperatorAccount != null)
-                throw new ArgumentException($"A customer operator account with organization ID ({organizationId}) and account name {accountName} already exists.");
+                throw new ArgumentException($"A customer operator account with organization ID ({organizationId}) and account number {accountNumber} already exists.");
 
             var newCustomerOperatorAccount = new CustomerOperatorAccount(organizationId, accountNumber, accountName, operatorId, callerId);
 
