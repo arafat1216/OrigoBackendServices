@@ -6,19 +6,18 @@
         {
 
         }
-        public CustomerOperatorAccount(SubscriptionManagementServices.Models.CustomerOperatorAccount customerOperatorAccount)
+        public CustomerOperatorAccount(SubscriptionManagementServices.ServiceModels.CustomerOperatorAccountDTO customerOperatorAccount)
         {
-            OrganizationId = customerOperatorAccount.OrganizationId;
+            Id = customerOperatorAccount.Id;
             AccountNumber = customerOperatorAccount.AccountNumber;
             AccountName = customerOperatorAccount.AccountName;
-            OrganizationId = customerOperatorAccount.OrganizationId;
             OperatorId = customerOperatorAccount.OperatorId;
         }
 
         /// <summary>
-        /// Organization identifier
+        /// Account identifier
         /// </summary>
-        public Guid OrganizationId { get; set; }
+        public int Id { get; set; }
         /// <summary>
         /// Account number of the operator
         /// </summary>

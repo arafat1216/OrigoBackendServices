@@ -602,9 +602,9 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/operator-accounts")]
         public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] OrigoCustomerOperatorAccount customerOperatorAccount)
         {
-            await SubscriptionManagementService.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount);
+            var operatorAccount = await SubscriptionManagementService.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount);
 
-            return Ok();
+            return Ok(operatorAccount);
         }
 
         /// <summary>

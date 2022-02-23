@@ -131,7 +131,7 @@ namespace SubscriptionManagement.API.Controllers
         {
             var customerOperatorAccounts = await _subscriptionServices.GetAllOperatorAccountsForCustomerAsync(organizationId);
 
-            return Ok(customerOperatorAccounts.Select(m => new CustomerOperatorAccount(m)));
+            return Ok(customerOperatorAccounts);
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace SubscriptionManagement.API.Controllers
         {
             var newCustomerOperatorAccount = await _subscriptionServices.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName, customerOperatorAccount.OperatorId, customerOperatorAccount.CallerId);
 
-            return Ok(new CustomerOperatorAccount(newCustomerOperatorAccount));
+            return Ok(newCustomerOperatorAccount);
         }
 
         [HttpDelete]
