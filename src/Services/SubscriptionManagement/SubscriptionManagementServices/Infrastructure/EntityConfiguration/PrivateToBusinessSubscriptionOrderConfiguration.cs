@@ -4,25 +4,20 @@ using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
-    public class TransferSubscriptionOrderConfiguration : IEntityTypeConfiguration<TransferSubscriptionOrder>
+    public class PrivateToBusinessSubscriptionOrderConfiguration : IEntityTypeConfiguration<PrivateToBusinessSubscriptionOrder>
     {
         private bool _isSqlLite;
-        public TransferSubscriptionOrderConfiguration(bool isSqlLite)
+        public PrivateToBusinessSubscriptionOrderConfiguration(bool isSqlLite)
         {
             _isSqlLite = isSqlLite;
         }
-        public void Configure(EntityTypeBuilder<TransferSubscriptionOrder> builder)
+        public void Configure(EntityTypeBuilder<PrivateToBusinessSubscriptionOrder> builder)
         {
-            builder.ToTable("TransferSubscriptionOrder");
+            builder.ToTable("PrivateToBusinessSubscriptionOrder");
 
             //Properties
             builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
             builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
-
-            builder.HasOne(e => e.NewOperatorAccount)
-                .WithMany(e => e.TransferSubscriptionOrders)
-                .HasForeignKey(m => m.NewOperatorAccountId)
-                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

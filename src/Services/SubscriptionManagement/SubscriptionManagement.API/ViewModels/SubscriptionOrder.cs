@@ -11,7 +11,7 @@
             SubscriptionProductId = subscriptionOrder.SubscriptionProductId;
             OperatorAccountId = subscriptionOrder.OperatorAccountId;
             DataPackageId = subscriptionOrder.DataPackageId;
-            CustomerId = subscriptionOrder.CustomerId;
+            OrganizationId = subscriptionOrder.OrganizationId;
             OrderExecutionDate = subscriptionOrder.OrderExecutionDate;
             SimCardNumber = subscriptionOrder.SimCardNumber;
         }
@@ -30,7 +30,7 @@
         /// <summary>
         /// Customer identifier
         /// </summary>
-        public Guid CustomerId { get; set; }
+        public Guid OrganizationId { get; set; }
         public Guid CallerId { get; set; }
         /// <summary>
         /// SIM card number

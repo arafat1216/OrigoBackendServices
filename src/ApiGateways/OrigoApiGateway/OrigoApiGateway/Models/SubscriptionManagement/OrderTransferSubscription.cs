@@ -29,10 +29,5 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
         /// List of add on products to the subscription
         /// </summary>
         public IList<string> AddOnProducts { get; set; }
-
-
-
-
-
     }
 }
