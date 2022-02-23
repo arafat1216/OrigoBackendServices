@@ -16,6 +16,7 @@ using OrigoApiGateway.Models.BackendDTO;
 using AutoMapper;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
+using Common.Exceptions;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -98,6 +99,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Conflict)]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Organization>> CreateCustomer([FromBody] NewOrganization newCustomer)
@@ -114,6 +116,10 @@ namespace OrigoApiGateway.Controllers
                 }
 
                 return CreatedAtAction(nameof(CreateCustomer), new { id = createdCustomer.OrganizationId }, createdCustomer);
+            }
+            catch (InvalidOrganizationNumberException exception)
+            {
+                return Conflict(exception.Message);
             }
             catch (Exception)
             {
