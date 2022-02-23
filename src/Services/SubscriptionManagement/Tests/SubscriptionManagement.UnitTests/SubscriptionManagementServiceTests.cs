@@ -106,7 +106,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.NotNull(exception);
         Assert.IsType<ArgumentException>(exception);
         Assert.Equal(
-            $"A customer operator account with organization ID ({ORGANIZATION_ONE_ID}) and account name AC_NUM1 already exists.",
+            $"A customer operator account with organization ID ({ORGANIZATION_ONE_ID}) and account number AC_NUM1 already exists.",
             exception.Message);
     }
 

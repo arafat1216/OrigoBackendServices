@@ -21,7 +21,7 @@ namespace SubscriptionManagementServices
             _transferSubscriptionDateConfiguration = transferSubscriptionOrderConfigurationOptions.Value;
         }
 
-        public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid organizationId, string accountNumber, string accountName, int operatorId, Guid callerId)
+        public async Task<CustomerOperatorAccountDTO> AddOperatorAccountForCustomerAsync(Guid organizationId, string accountNumber, string accountName, int operatorId, Guid callerId)
         {
             var customerOperator = await _subscriptionManagementRepository.GetOperatorAsync(operatorId);
 
@@ -31,10 +31,13 @@ namespace SubscriptionManagementServices
             var existingCustomerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(organizationId, accountNumber);
 
             if (existingCustomerOperatorAccount != null)
-                throw new ArgumentException($"A customer operator account with organization ID ({organizationId}) and account name {accountName} already exists.");
+                throw new ArgumentException($"A customer operator account with organization ID ({organizationId}) and account number {accountNumber} already exists.");
 
             var newCustomerOperatorAccount = new CustomerOperatorAccount(organizationId, accountNumber, accountName, operatorId, callerId);
-            return await _subscriptionManagementRepository.AddOperatorAccountForCustomerAsync(newCustomerOperatorAccount);
+
+            var operatorAccount = await _subscriptionManagementRepository.AddOperatorAccountForCustomerAsync(newCustomerOperatorAccount);
+
+            return _mapper.Map<CustomerOperatorAccountDTO>(operatorAccount);
         }
 
         public async Task<SubscriptionOrder> AddSubscriptionOrderForCustomerAsync(Guid customerId, int subscriptionProductId, int operatorAccountId, int datapackageId, Guid callerId, string simCardNumber)
@@ -59,9 +62,16 @@ namespace SubscriptionManagementServices
             return Task.FromResult(true);
         }
 
-        public async Task<IEnumerable<CustomerOperatorAccount>> GetAllOperatorAccountsForCustomerAsync(Guid customerId)
+
+        public async Task<IList<CustomerOperatorAccountDTO>> GetAllOperatorAccountsForCustomerAsync(Guid customerId)
         {
-            return await _subscriptionManagementRepository.GetAllCustomerOperatorAccountsAsync(customerId);
+            var customerAccount = await _subscriptionManagementRepository.GetAllCustomerOperatorAccountsAsync(customerId);
+
+            List<CustomerOperatorAccountDTO> customerOperatorAccounttDTOs = new();
+            customerOperatorAccounttDTOs.AddRange(
+                   _mapper.Map<List<CustomerOperatorAccountDTO>>(customerAccount));
+
+            return customerOperatorAccounttDTOs;
         }
 
         public async Task<IList<Operator>> GetAllOperatorsAsync()

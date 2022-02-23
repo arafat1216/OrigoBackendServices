@@ -600,11 +600,11 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoCustomerOperatorAccount), (int)HttpStatusCode.OK)]
         [Route("{organizationId:Guid}/operator-accounts")]
-        public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] OrigoCustomerOperatorAccount customerOperatorAccount)
+        public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] NewOperatorAccount customerOperatorAccount)
         {
-            await SubscriptionManagementService.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount);
+            var operatorAccount = await SubscriptionManagementService.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount);
 
-            return Ok();
+            return Ok(operatorAccount);
         }
 
         /// <summary>
