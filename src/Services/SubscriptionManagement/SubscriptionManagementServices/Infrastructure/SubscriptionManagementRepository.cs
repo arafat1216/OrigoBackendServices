@@ -14,6 +14,13 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(CustomerOperatorAccount customerOperatorAccount)
         {
+            var @operator = await _subscriptionContext.Operators.FindAsync(customerOperatorAccount.OperatorId);
+            
+            if(@operator != null)
+            {
+                customerOperatorAccount.Operator = @operator;
+            }
+
             var added = await _subscriptionContext.AddAsync(customerOperatorAccount);
             await _subscriptionContext.SaveChangesAsync();
             return added.Entity;
@@ -47,7 +54,7 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(int id)
         {
-            return await _subscriptionContext.CustomerOperatorAccounts.FindAsync(id);
+            return await _subscriptionContext.CustomerOperatorAccounts.Include(m => m.Operator).FirstOrDefaultAsync(m => m.Id == id);
         }
 
         public async Task<IList<Operator>> GetAllOperatorsForCustomerAsync(Guid organizationId)
@@ -82,7 +89,7 @@ namespace SubscriptionManagementServices.Infrastructure
                 .Select(m => m.AvailableSubscriptionProducts).Where(a => a.Count() != 0)
                 .ToListAsync();
 
-            
+
             if (subscriptionProductsForCustomer == null)
             {
                 return null;
@@ -95,13 +102,13 @@ namespace SubscriptionManagementServices.Infrastructure
                 {
                     result.Add(product);
                 }
-                
+
             }
             return result;
         }
         public async Task<CustomerSubscriptionProduct?> GetAvailableSubscriptionProductForCustomerbySubscriptionIdAsync(Guid customerId, int subscriptionId)
         {
-            
+
             var subscriptionProductsForCustomer = await GetAllCustomerSubscriptionProductsAsync(customerId);
             if (subscriptionProductsForCustomer == null)
             {
@@ -115,7 +122,7 @@ namespace SubscriptionManagementServices.Infrastructure
                 }
             }
 
-            return null; 
+            return null;
         }
         public async Task<IList<SubscriptionProduct>?> GetAllOperatorSubscriptionProducts()
         {
@@ -206,7 +213,7 @@ namespace SubscriptionManagementServices.Infrastructure
         {
 
             var subscriptionProduct = await _subscriptionContext.SubscriptionProducts
-                .Include(m=>m.DataPackages)
+                .Include(m => m.DataPackages)
                 .FirstOrDefaultAsync(m => m.SubscriptionName == subscriptionProductName && m.OperatorId == operatorId);
 
             return subscriptionProduct;

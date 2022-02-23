@@ -6,20 +6,39 @@
         {
 
         }
+
         public PrivateToBusinessSubscriptionOrder(
-            Guid customerId, 
-            int subscriptionProductId, 
-            string currentOperatorName, 
-            int dataPackageId, 
-            Guid callerId, 
-            string simCardNumber, 
-            DateTime orderExecutionDate, 
-            int operatorAccountId)
-            : base(customerId, subscriptionProductId, operatorAccountId, dataPackageId, callerId, simCardNumber)
+            string simCardNumber,
+            string simCardActivation,
+            int subscriptionProductId,
+            Guid oranizationId,
+            int operatorAccountId,
+            int dataPackageId,
+            DateTime orderExecutionDate,
+            string mobileNumber,
+            string customerReferenceFields,
+            List<SubscriptionAddOnProduct> subscriptionAddOnProducts,
+            string firstName,
+            string lastName,
+            string address,
+            string postalPlace,
+            string postalCode,
+            string country, 
+            string email,
+            DateTime dob,
+            string operatorName): base(simCardNumber, simCardActivation, subscriptionProductId, oranizationId, operatorAccountId, dataPackageId, orderExecutionDate, mobileNumber, customerReferenceFields, subscriptionAddOnProducts)
         {
-            OrderExecutionDate = orderExecutionDate;
-            OperatorName = currentOperatorName;
+            FirstName = firstName;
+            LastName = lastName;
+            Address = address;
+            PostalCode = postalCode;
+            PostalPlace = postalPlace;
+            Country = country;
+            Email = email;
+            BirthDate = dob;
+            OperatorName = operatorName;
         }
+
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Address { get; set; }
