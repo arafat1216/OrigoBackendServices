@@ -4,23 +4,39 @@ namespace SubscriptionManagementServices.Models
 {
     public class SubscriptionOrder : Entity
     {
+        private List<SubscriptionAddOnProduct> _subscriptionAddOnProducts;
+
         public SubscriptionOrder()
         {
-
+            _subscriptionAddOnProducts = new List<SubscriptionAddOnProduct>();
         }
-        public SubscriptionOrder(Guid organizationId, int subscriptionProductId, int operatorAccountId, int dataPackageId, Guid callerId, string simCardNumber)
+
+        public SubscriptionOrder(
+            string simCardNumber,
+            string simCardActivation,
+            int subscriptionProductId,
+            Guid oranizationId,
+            int operatorAccountId,
+            int dataPackageId,
+            DateTime orderExecutionDate,
+            string mobileNumber,
+            string customerReferenceFields,
+            List<SubscriptionAddOnProduct> subscriptionAddOnProducts)
         {
-            OrganizationId = organizationId;
+            SimCardNumber = simCardNumber;
+            SIMCardAction = simCardActivation;
             SubscriptionProductId = subscriptionProductId;
+            OrganizationId = oranizationId;
             OperatorAccountId = operatorAccountId;
             DataPackageId = dataPackageId;
-            CreatedBy = callerId;
-            UpdatedBy = callerId;
-            SimCardNumber = simCardNumber;
+            OrderExecutionDate = orderExecutionDate;
+            MobileNumber = mobileNumber;
+            CustomerReferenceFields = customerReferenceFields;
+            _subscriptionAddOnProducts = subscriptionAddOnProducts;
         }
 
         public CustomerSubscriptionProduct CustomerSubscriptionProduct { get; set; }
-        public IReadOnlyCollection<SubscriptionAddOnProduct> SubscriptionAddOnProducts { get; set; }
+        public IReadOnlyCollection<SubscriptionAddOnProduct> SubscriptionAddOnProducts => _subscriptionAddOnProducts.AsReadOnly();
         public string SimCardNumber { get; set; }
         public string SIMCardAction { get; set; }
         public int SubscriptionProductId { get; set; }
@@ -32,5 +48,10 @@ namespace SubscriptionManagementServices.Models
         public DateTime OrderExecutionDate { get; set; }
         public string MobileNumber { get; set; }
         public string CustomerReferenceFields { get; set; }
+
+        public void SetSubscriptionAddOnProduct(List<SubscriptionAddOnProduct> subscriptionAddOnProducts)
+        {
+            _subscriptionAddOnProducts.AddRange(subscriptionAddOnProducts);
+        }
     }
 }
