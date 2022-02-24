@@ -20,5 +20,9 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
         /// Operator identifier
         /// </summary>
         public int OperatorId { get; set; }
+        /// <summary>
+        /// Organization identifier associated with the account
+        /// </summary>
+        public Guid OrganizationId { get; set; }
     }
 }

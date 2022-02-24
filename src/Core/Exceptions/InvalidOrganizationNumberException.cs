@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace CustomerServices.Exceptions
+namespace Common.Exceptions
 {
     public class InvalidOrganizationNumberException : Exception
     {

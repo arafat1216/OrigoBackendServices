@@ -140,6 +140,8 @@ namespace Customer.API.Controllers
 
         [HttpPost]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.Conflict)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<Organization>> CreateOrganization([FromBody] NewOrganization organization)
         {
             try
