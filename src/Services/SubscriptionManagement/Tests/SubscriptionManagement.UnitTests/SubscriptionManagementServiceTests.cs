@@ -193,16 +193,11 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new PrivateToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1),
-                    OperatorAccount = new CustomerOperatorAccountDTO
-                    {
-                        AccountName = "[Name]",
-                        AccountNumber = "[Number]",
-                        OperatorId = 1,
-                    },
                     TransferFromPrivateSubscription = new PrivateSubscriptionDTO
                     {
-                        OperatorName = "Telia - NO"
-                    }
+                        OperatorName = "Op1"
+                    },
+                    OperatorAccountId = 1
                 }
                 ));
 
@@ -220,17 +215,12 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new PrivateToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow,
-                    OperatorAccount = new CustomerOperatorAccountDTO
-                    {
-                        AccountName = "[Name]",
-                        AccountNumber = "[Number]",
-                        OperatorId = 1,
-                    },
                     TransferFromPrivateSubscription = new PrivateSubscriptionDTO
                     {
-                        OperatorName = "Telia - NO"
+                        OperatorName = "Op1"
                     },
-                    SIMCardNumber = "[SIMCardNumber]"
+                    SIMCardNumber = "[SIMCardNumber]",
+                    OperatorAccountId = 1
                 }
                 ));
 
@@ -243,15 +233,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new PrivateToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
-                    OperatorAccount = new CustomerOperatorAccountDTO
-                    {
-                        AccountName = "[Name]",
-                        AccountNumber = "[Number]",
-                        OperatorId = 1,
-                    },
+                    OperatorAccountId = 1,
                     TransferFromPrivateSubscription = new PrivateSubscriptionDTO
                     {
-                        OperatorName = "Telia - NO"
+                        OperatorName = "Op1"
                     },
                     SIMCardNumber = "[SIMCardNumber]"
                 }
@@ -271,11 +256,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new PrivateToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1),
-                    OperatorAccount = new CustomerOperatorAccountDTO
+                    NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
-                        AccountName = "[Name]",
-                        AccountNumber = "[Number]",
-                        OperatorId = 1,
+                        NewOperatorAccountPayer = "[OperatorAccountPayer]",
+                        NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
                     TransferFromPrivateSubscription = new PrivateSubscriptionDTO
                     {
@@ -294,11 +278,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new PrivateToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
-                    OperatorAccount = new CustomerOperatorAccountDTO
+                    NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
-                        AccountName = "[Name]",
-                        AccountNumber = "[Number]",
-                        OperatorId = 1,
+                        NewOperatorAccountPayer = "[OperatorAccountPayer]",
+                        NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
                     TransferFromPrivateSubscription = new PrivateSubscriptionDTO
                     {
@@ -322,11 +305,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new PrivateToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1),
-                    OperatorAccount = new CustomerOperatorAccountDTO
+                    NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
-                        AccountName = "[Name]",
-                        AccountNumber = "[Number]",
-                        OperatorId = 1,
+                        NewOperatorAccountPayer = "[OperatorAccountPayer]",
+                        NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
                     TransferFromPrivateSubscription = new PrivateSubscriptionDTO
                     {
@@ -345,11 +327,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new PrivateToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
-                    OperatorAccount = new CustomerOperatorAccountDTO
+                    NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
-                        AccountName = "[Name]",
-                        AccountNumber = "[Number]",
-                        OperatorId = 1,
+                        NewOperatorAccountPayer = "[OperatorAccountPayer]",
+                        NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
                     TransferFromPrivateSubscription = new PrivateSubscriptionDTO
                     {
@@ -372,15 +353,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new PrivateToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1.5),
-                    OperatorAccount = new CustomerOperatorAccountDTO
-                    {
-                        AccountName = "[Name]",
-                        AccountNumber = "[Number]",
-                        OperatorId = 1,
-                    },
+                    OperatorAccountId = 1,
                     TransferFromPrivateSubscription = new PrivateSubscriptionDTO
                     {
-                        OperatorName = "Telia - NO",
+                        OperatorName = "Op1",
                         FirstName = "[FName]",
                         LastName = "[LName]",
                         Address = "[Address]",
@@ -417,11 +393,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new PrivateToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
-                    OperatorAccount = new CustomerOperatorAccountDTO
+                    NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
-                        AccountName = "[Name]",
-                        AccountNumber = "[Number]",
-                        OperatorId = 1,
+                        NewOperatorAccountPayer = "[OperatorAccountPayer]",
+                        NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
                     TransferFromPrivateSubscription = new PrivateSubscriptionDTO
                     {
@@ -457,11 +432,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new PrivateToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
-                    OperatorAccount = new CustomerOperatorAccountDTO
+                    NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
-                        AccountName = "[Name]",
-                        AccountNumber = "[Number]",
-                        OperatorId = 1,
+                        NewOperatorAccountPayer = "[OperatorAccountPayer]",
+                        NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
                     TransferFromPrivateSubscription = new PrivateSubscriptionDTO
                     {
@@ -498,11 +472,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new PrivateToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
-                    OperatorAccount = new CustomerOperatorAccountDTO
+                    NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
-                        AccountName = "[Name]",
-                        AccountNumber = "[Number]",
-                        OperatorId = 1,
+                        NewOperatorAccountPayer = "[OperatorAccountPayer]",
+                        NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
                     TransferFromPrivateSubscription = new PrivateSubscriptionDTO
                     {

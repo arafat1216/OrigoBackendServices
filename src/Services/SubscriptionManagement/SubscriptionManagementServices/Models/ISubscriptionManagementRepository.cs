@@ -18,6 +18,7 @@
         Task<DataPackage?> GetDataPackageAsync(int id);
         Task<DataPackage?> GetDataPackageAsync(string dataPackageName);
         Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(int id);
+        Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(Guid organizationId, int id);
         Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(Guid organizationId, string accountNumber);
         Task DeleteCustomerOperatorAccountAsync(CustomerOperatorAccount customerOperatorAccount);
         Task<IList<Operator>> GetAllOperatorsForCustomerAsync(Guid customerId);

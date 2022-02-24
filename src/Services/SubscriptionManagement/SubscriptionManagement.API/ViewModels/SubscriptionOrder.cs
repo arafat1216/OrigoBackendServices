@@ -22,7 +22,7 @@
         /// <summary>
         /// Current operator account identifier
         /// </summary>
-        public int OperatorAccountId { get; set; }
+        public int? OperatorAccountId { get; set; }
         /// <summary>
         /// DataPackage identifier
         /// </summary>

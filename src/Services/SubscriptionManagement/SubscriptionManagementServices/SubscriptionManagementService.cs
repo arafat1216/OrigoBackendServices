@@ -169,14 +169,9 @@ namespace SubscriptionManagementServices
 
         public async Task<PrivateToBusinessSubscriptionOrder> TransferPrivateToBusinessSubscriptionOrderAsync(Guid organizationId, PrivateToBusinessSubscriptionOrderDTO order)
         {
-            var customerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(order.OperatorAccountId);
+            var customerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(organizationId, order.OperatorAccountId.GetValueOrDefault()) ?? new CustomerOperatorAccount();
 
-            if (customerOperatorAccount == null && order.OperatorAccount != null)
-            {
-                customerOperatorAccount = await _subscriptionManagementRepository.AddOperatorAccountForCustomerAsync(new CustomerOperatorAccount(organizationId, order.OperatorAccount.AccountNumber, order.OperatorAccount.AccountName, order.OperatorAccount.OperatorId, order.CallerId));
-            }
-
-            if (customerOperatorAccount.Operator.OperatorName == order.TransferFromPrivateSubscription.OperatorName)
+            if (customerOperatorAccount?.Operator?.OperatorName == order.TransferFromPrivateSubscription.OperatorName)
             {
                 if (string.IsNullOrEmpty(order.SIMCardNumber))
                     throw new ArgumentException("SIM card number is required.");
@@ -223,7 +218,7 @@ namespace SubscriptionManagementServices
                         order.SIMCardAction,
                         order.SubscriptionProductId,
                         organizationId,
-                        customerOperatorAccount.Id,
+                        order.OperatorAccountId,
                         dataPackage.Id,
                         order.OrderExecutionDate,
                         order.MobileNumber,
@@ -237,7 +232,8 @@ namespace SubscriptionManagementServices
                         order.TransferFromPrivateSubscription.Country,
                         order.TransferFromPrivateSubscription.Email,
                         order.TransferFromPrivateSubscription.BirthDate,
-                        order.TransferFromPrivateSubscription.OperatorName));
+                        order.TransferFromPrivateSubscription.OperatorName,
+                        order.NewOperatorAccount?.NewOperatorAccountOwner, order.NewOperatorAccount?.NewOperatorAccountPayer));
 
 
         }
