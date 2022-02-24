@@ -175,10 +175,6 @@ namespace SubscriptionManagementServices
             {
                 customerOperatorAccount = await _subscriptionManagementRepository.AddOperatorAccountForCustomerAsync(new CustomerOperatorAccount(organizationId, order.OperatorAccount.AccountNumber, order.OperatorAccount.AccountName, order.OperatorAccount.OperatorId, order.CallerId));
             }
-            else
-            {
-                throw new ArgumentException("Operator account information is missing.");
-            }
 
             if (customerOperatorAccount.Operator.OperatorName == order.TransferFromPrivateSubscription.OperatorName)
             {
@@ -210,7 +206,15 @@ namespace SubscriptionManagementServices
             if (dataPackage == null)
                 throw new ArgumentException($"No DataPackage exists with name {order.DataPackage}");
 
-            var subscriptionAddOnProducts = order.AddOnProducts.Select(m=> new SubscriptionAddOnProduct(m, order.CallerId, subscriptionProduct));
+            var subscriptionAddOnProducts = order.AddOnProducts.Select(m => new SubscriptionAddOnProduct(m, order.CallerId, subscriptionProduct));
+
+            //Checking order.CustomerReferenceFields
+            var existingFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId);
+            foreach (var field in order.CustomerReferenceFields)
+            {
+                if (!existingFields.Any(m => m.Name == field.Name))
+                    throw new ArgumentException($"The field name {field.Name} is not valid for this customer.");
+            }
 
             return await _subscriptionManagementRepository
                 .TransferSubscriptionOrderAsync(
@@ -235,7 +239,7 @@ namespace SubscriptionManagementServices
                         order.TransferFromPrivateSubscription.BirthDate,
                         order.TransferFromPrivateSubscription.OperatorName));
 
-            
+
         }
 
         public async Task DeleteCustomerOperatorAccountAsync(Guid organizationId, string accountNumber)

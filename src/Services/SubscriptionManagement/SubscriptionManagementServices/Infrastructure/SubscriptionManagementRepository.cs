@@ -14,13 +14,18 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(CustomerOperatorAccount customerOperatorAccount)
         {
+            var existing = await _subscriptionContext.CustomerOperatorAccounts.FirstOrDefaultAsync(m => m.OperatorId == customerOperatorAccount.OperatorId && m.OrganizationId == customerOperatorAccount.OrganizationId);
+            if (existing != null)
+                return existing;
+
             var @operator = await _subscriptionContext.Operators.FindAsync(customerOperatorAccount.OperatorId);
 
-            if (@operator != null)
+            if (@operator == null)
             {
-                customerOperatorAccount.Operator = @operator;
+                throw new ArgumentException($"No operator exists with ID {customerOperatorAccount.OperatorId}");
             }
 
+            customerOperatorAccount.Operator = @operator;
             var added = await _subscriptionContext.AddAsync(customerOperatorAccount);
             await _subscriptionContext.SaveChangesAsync();
             return added.Entity;
