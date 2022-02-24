@@ -16,7 +16,7 @@ namespace SubscriptionManagementServices.Models
             string simCardAction,
             int subscriptionProductId,
             Guid oranizationId,
-            int operatorAccountId,
+            int? operatorAccountId,
             int dataPackageId,
             DateTime orderExecutionDate,
             string mobileNumber,
@@ -30,7 +30,9 @@ namespace SubscriptionManagementServices.Models
             string country,
             string email,
             DateTime dob,
-            string operatorName)
+            string operatorName,
+            string? operatorAccountOwner,
+            string? operatorAccountPayer)
         {
             FirstName = firstName;
             LastName = lastName;
@@ -52,6 +54,8 @@ namespace SubscriptionManagementServices.Models
             MobileNumber = mobileNumber;
             CustomerReferenceFields = customerReferenceFields;
             _subscriptionAddOnProducts = subscriptionAddOnProducts;
+            OperatorAccountOwner = operatorAccountOwner;
+            OperatorAccountPayer = operatorAccountPayer;
         }
 
         public string FirstName { get; set; }
@@ -71,13 +75,16 @@ namespace SubscriptionManagementServices.Models
         public string SIMCardAction { get; set; }
         public int SubscriptionProductId { get; set; }
         public Guid OrganizationId { get; set; }
-        public CustomerOperatorAccount OperatorAccount { get; set; }
-        public int OperatorAccountId { get; set; }
+        public CustomerOperatorAccount? OperatorAccount { get; set; }
+        public int? OperatorAccountId { get; set; }
         public DataPackage? DataPackage { get; set; }
         public int DataPackageId { get; set; }
         public DateTime OrderExecutionDate { get; set; }
         public string MobileNumber { get; set; }
         public string CustomerReferenceFields { get; set; }
+
+        public string? OperatorAccountOwner { get; set; }
+        public string? OperatorAccountPayer { get; set; }
 
         public void SetSubscriptionAddOnProduct(List<SubscriptionAddOnProduct> subscriptionAddOnProducts)
         {

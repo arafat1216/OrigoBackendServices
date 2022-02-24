@@ -8,8 +8,8 @@
         public string SIMCardAction { get; set; }
         public int SubscriptionProductId { get; set; }
         public Guid OrganizationId { get; set; }
-        public CustomerOperatorAccount OperatorAccount { get; set; }
-        public int OperatorAccountId { get; set; }
+        public CustomerOperatorAccount? OperatorAccount { get; set; }
+        public int? OperatorAccountId { get; set; }
         public DataPackage? DataPackage { get; set; }
         public int DataPackageId { get; set; }
         public DateTime OrderExecutionDate { get; set; }

@@ -13,6 +13,7 @@ using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Backend.Response;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
+using System.Text.Json;
 
 namespace OrigoApiGateway.Services
 {
@@ -281,7 +282,10 @@ namespace OrigoApiGateway.Services
             try
             {
                 string requestUri = $"{_options.ApiPath}/{customerId}/transfer-from-private-to-business";
-                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, order);
+                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, order, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }) ;
 
                 postSubscription.EnsureSuccessStatusCode();
             }

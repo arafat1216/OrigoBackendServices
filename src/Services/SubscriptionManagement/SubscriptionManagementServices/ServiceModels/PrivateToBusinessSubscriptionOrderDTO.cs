@@ -15,7 +15,7 @@
         /// <summary>
         ///     New operator account identifier
         /// </summary>
-        public int OperatorAccountId { get; set; }
+        public int? OperatorAccountId { get; set; }
 
         /// <summary>
         ///     Subscription product identifier
@@ -53,8 +53,7 @@
         public IList<string> AddOnProducts { get; set; } = new List<string>();
 
         public IList<NewCustomerReferenceField> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceField>();
-
-        public CustomerOperatorAccountDTO OperatorAccount { get; set; }
+        public NewOperatorAccountRequested OperatorAccount { get; set; } = new NewOperatorAccountRequested();
         public Guid CallerId { get; set; }
     }
 }

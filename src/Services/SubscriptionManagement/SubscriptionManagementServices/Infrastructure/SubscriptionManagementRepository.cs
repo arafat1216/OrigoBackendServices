@@ -236,7 +236,12 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task<CustomerSubscriptionProduct?> GetCustomerSubscriptionProductAsync(int id)
         {
-            return await _subscriptionContext.CustomerSubscriptionProducts.FirstAsync(m => m.Id == id);
+            return await _subscriptionContext.CustomerSubscriptionProducts.FirstOrDefaultAsync(m => m.Id == id);
+        }
+
+        public async Task<CustomerOperatorAccount?> GetCustomerOperatorAccountAsync(Guid organizationId, int id)
+        {
+            return await _subscriptionContext.CustomerOperatorAccounts.Include(m => m.Operator).FirstOrDefaultAsync(m => m.Id == id && m.OrganizationId == organizationId);
         }
     }
 }
