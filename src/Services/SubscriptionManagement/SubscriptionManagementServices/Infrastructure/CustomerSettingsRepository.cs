@@ -1,5 +1,9 @@
 ﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using Common.Extensions;
+using Common.Logging;
+using Common.Utilities;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SubscriptionManagementServices.Models;
 
@@ -8,10 +12,14 @@ namespace SubscriptionManagementServices.Infrastructure
     public class CustomerSettingsRepository : ICustomerSettingsRepository
     {
         private readonly SubscriptionManagementContext _subscriptionManagementContext;
+        private readonly IFunctionalEventLogService _functionalEventLogService;
+        private readonly IMediator _mediator;
 
-        public CustomerSettingsRepository(SubscriptionManagementContext subscriptionManagementContext)
+        public CustomerSettingsRepository(SubscriptionManagementContext subscriptionManagementContext, IFunctionalEventLogService functionalEventLogService, IMediator mediator)
         {
             _subscriptionManagementContext = subscriptionManagementContext;
+            _functionalEventLogService = functionalEventLogService;
+            _mediator = mediator;
         }
 
         public async Task<CustomerSettings?> GetCustomerSettingsAsync(Guid organizationId)
@@ -31,7 +39,7 @@ namespace SubscriptionManagementServices.Infrastructure
         {
 
             var addedCustomerSetting = await _subscriptionManagementContext.CustomerSettings.AddAsync(customerSettings);
-            await _subscriptionManagementContext.SaveChangesAsync();
+            await SaveEntitiesAsync();
             return addedCustomerSetting.Entity;
 
         }
@@ -39,15 +47,15 @@ namespace SubscriptionManagementServices.Infrastructure
         public async Task<CustomerSettings> UpdateCustomerSettingsAsync(CustomerSettings customerSettings)
         {
             var updatedCustomerSetting = _subscriptionManagementContext.CustomerSettings.Update(customerSettings);
-            await _subscriptionManagementContext.SaveChangesAsync();
-
+            await SaveEntitiesAsync();
             return updatedCustomerSetting.Entity;
         }
 
-        public async Task AddCustomerOperatorSettingsAsync(Guid organizationId, IList<int> operators)
+        public async Task AddCustomerOperatorSettingsAsync(Guid organizationId, IList<int> operators, Guid callerId)
         {
+
             var customerSettings = await _subscriptionManagementContext.CustomerSettings.Include(m => m.CustomerOperatorSettings)
-                .FirstOrDefaultAsync(m => m.CustomerId == organizationId) ?? new CustomerSettings(organizationId);
+                .FirstOrDefaultAsync(m => m.CustomerId == organizationId) ?? new CustomerSettings(organizationId,callerId);
 
             var customerOperatorSettingsList = new List<CustomerOperatorSettings>();
 
@@ -60,7 +68,7 @@ namespace SubscriptionManagementServices.Infrastructure
 
                 var customerOperatorAccounts = await _subscriptionManagementContext.CustomerOperatorAccounts.Where(m => m.OrganizationId == organizationId).ToListAsync();
 
-                var customerOperatorSettings = new CustomerOperatorSettings(@operator, customerOperatorAccounts);
+                var customerOperatorSettings = new CustomerOperatorSettings(@operator, customerOperatorAccounts, callerId);
                 customerOperatorSettingsList.Add(customerOperatorSettings);
             }
 
@@ -109,6 +117,24 @@ namespace SubscriptionManagementServices.Infrastructure
         {
             _subscriptionManagementContext.Entry(customerReferenceField).State = EntityState.Deleted;
             await _subscriptionManagementContext.SaveChangesAsync();
+        }
+        public async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            int numberOfRecordsSaved = 0;
+            //Use of an EF Core resiliency strategy when using multiple DbContexts within an explicit BeginTransaction():
+            //See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency            
+            await ResilientTransaction.New(_subscriptionManagementContext).ExecuteAsync(async () =>
+            {
+                // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
+                foreach (var @event in _subscriptionManagementContext.GetDomainEventsAsync())
+                {
+                    await _functionalEventLogService.SaveEventAsync(@event, _subscriptionManagementContext.Database.CurrentTransaction);
+                }
+                await _subscriptionManagementContext.SaveChangesAsync(cancellationToken);
+                numberOfRecordsSaved = await _subscriptionManagementContext.SaveChangesAsync(cancellationToken);
+                await _mediator.DispatchDomainEventsAsync(_subscriptionManagementContext);
+            });
+            return numberOfRecordsSaved;
         }
     }
 }

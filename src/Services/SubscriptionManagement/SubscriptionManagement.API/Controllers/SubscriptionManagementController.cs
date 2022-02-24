@@ -74,7 +74,10 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{organizationId:Guid}/operators")]
         public async Task<ActionResult> AddOperatorsForCustomer(Guid organizationId, [FromBody] IList<int> operators)
         {
-            await _customerSettingsService.AddOperatorsForCustomerAsync(organizationId, operators);
+            //Needs to come from gateway
+            Guid callerId = Guid.NewGuid();
+
+            await _customerSettingsService.AddOperatorsForCustomerAsync(organizationId, operators, callerId);
 
             return Ok();
         }

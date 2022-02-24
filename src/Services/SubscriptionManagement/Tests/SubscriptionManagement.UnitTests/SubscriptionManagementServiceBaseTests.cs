@@ -44,7 +44,7 @@ namespace SubscriptionManagement.UnitTests
             context.AddRange(customerOperatorAccountOne, customerOperatorAccountTwo, customerOperatorAccountThree);
             var customerOperatorSettings = new List<CustomerOperatorSettings>();
            
-            var customerOperatorSettingOne = new CustomerOperatorSettings(operatorOne, customerOperatorAccounts);
+            var customerOperatorSettingOne = new CustomerOperatorSettings(operatorOne, customerOperatorAccounts, CALLER_ONE_ID);
             customerOperatorSettings.Add(customerOperatorSettingOne);
             context.Add(customerOperatorSettingOne);
 

@@ -17,9 +17,9 @@ namespace SubscriptionManagementServices
             _customerSettingsRepository = customerSettingsRepository;
         }
 
-        public async Task AddOperatorsForCustomerAsync(Guid organizationId, IList<int> operators)
+        public async Task AddOperatorsForCustomerAsync(Guid organizationId, IList<int> operators, Guid callerId)
         {
-            await _customerSettingsRepository.AddCustomerOperatorSettingsAsync(organizationId, operators);
+            await _customerSettingsRepository.AddCustomerOperatorSettingsAsync(organizationId, operators, callerId);
         }
 
         public async Task<IList<CustomerReferenceFieldDTO>> GetCustomerReferenceFieldsAsync(Guid organizationId)
@@ -33,7 +33,7 @@ namespace SubscriptionManagementServices
             var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
             if (customerSettings == null)
             {
-                customerSettings = new CustomerSettings(organizationId);
+                customerSettings = new CustomerSettings(organizationId, callerId);
             }
 
             if (string.IsNullOrWhiteSpace(name))
@@ -46,7 +46,7 @@ namespace SubscriptionManagementServices
             }
 
             var customerReferenceField = new CustomerReferenceField(name, customerReferenceFieldType, callerId);
-            customerSettings.AddCustomerReferenceField(customerReferenceField);
+            customerSettings.AddCustomerReferenceField(customerReferenceField, callerId);
             if (customerSettings.Id > 0)
             {
                 await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSettings);

@@ -4,8 +4,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common.Logging;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Moq;
 using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
@@ -35,8 +38,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         }
 
         _subscriptionManagementContext = new SubscriptionManagementContext(ContextOptions);
-        _subscriptionManagementRepository = new SubscriptionManagementRepository(_subscriptionManagementContext);
-        var customerSettingsRepository = new CustomerSettingsRepository(_subscriptionManagementContext);
+        _subscriptionManagementRepository = new SubscriptionManagementRepository(_subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var customerSettingsRepository = new CustomerSettingsRepository(_subscriptionManagementContext,Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         _subscriptionManagementService = new SubscriptionManagementService(_subscriptionManagementRepository,
             customerSettingsRepository,
             Options.Create(new TransferSubscriptionDateConfiguration

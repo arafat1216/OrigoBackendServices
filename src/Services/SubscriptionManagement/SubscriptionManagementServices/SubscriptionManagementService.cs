@@ -101,7 +101,7 @@ namespace SubscriptionManagementServices
             var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(customerId);
             if (customerSettings == null)
             {
-                customerSettings = new CustomerSettings(customerId);
+                customerSettings = new CustomerSettings(customerId, callerId);
             }
 
             var globalSubscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductByNameAsync(productName, operatorId);

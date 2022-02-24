@@ -1,3 +1,5 @@
+using Common.Logging;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SubscriptionManagement.API.Filters;
@@ -24,6 +26,14 @@ builder.Services.AddDbContext<SubscriptionManagementContext>(options => options.
     {
         sqlOption.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
         sqlOption.MigrationsAssembly(typeof(SubscriptionManagementContext).GetTypeInfo().Assembly.GetName().Name);
+    }));
+
+builder.Services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(
+    builder.Configuration.GetConnectionString("SubscriptionManagementConnectionString"), sqlOptions =>
+    {
+        sqlOptions.MigrationsAssembly(typeof(SubscriptionManagementContext).GetTypeInfo().Assembly.GetName().Name);
+        //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
+        sqlOptions.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
     }));
 
 
@@ -55,11 +65,16 @@ builder.Services.AddSwaggerGen(config =>
 
 builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.Configure<TransferSubscriptionDateConfiguration>(builder.Configuration.GetSection("TransferSubscriptionOrderConfiguration"));
+builder.Services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
 builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
 builder.Services.AddScoped<ISubscriptionManagementRepository, SubscriptionManagementRepository>();
 builder.Services.AddScoped<ICustomerSettingsService, CustomerSettingsService>();
 builder.Services.AddScoped<ICustomerSettingsRepository, CustomerSettingsRepository>();
 builder.Services.AddScoped<ErrorExceptionFilter>();
+builder.Services.AddMediatR(typeof(SubscriptionManagementContext));
+
+
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
