@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SubscriptionManagement.API.Filters;
 using SubscriptionManagement.API.ViewModels;
 using SubscriptionManagementServices;
+using SubscriptionManagementServices.ServiceModels;
 using System.Net;
 
 namespace SubscriptionManagement.API.Controllers
@@ -90,6 +91,22 @@ namespace SubscriptionManagement.API.Controllers
             return Ok();
         }
 
+        ///// <summary>
+        ///// Submit subscription order
+        ///// </summary>
+        ///// <param name="organizationId">Customer identifier</param>
+        ///// <param name="subscriptionOrder">Details of the subscription order</param>
+        ///// <returns></returns>
+        //[HttpPost]
+        //[ProducesResponseType(typeof(SubscriptionOrder), (int)HttpStatusCode.OK)]
+        //[Route("{organizationId:Guid}/subscription")]
+        //public async Task<ActionResult<bool>> AddSubscriptionToCustomer(Guid organizationId, [FromBody] SubscriptionOrder subscriptionOrder)
+        //{
+        //    var addSubscriptionForCustomer = await _subscriptionServices.AddSubscriptionOrderForCustomerAsync(organizationId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DataPackageId, subscriptionOrder.CallerId, subscriptionOrder.SimCardNumber);
+
+        //    return CreatedAtAction(nameof(AddSubscriptionToCustomer), new SubscriptionOrder(addSubscriptionForCustomer));
+        //}
+
         /// <summary>
         /// Submit subscription order
         /// </summary>
@@ -97,27 +114,11 @@ namespace SubscriptionManagement.API.Controllers
         /// <param name="subscriptionOrder">Details of the subscription order</param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(SubscriptionOrder), (int)HttpStatusCode.OK)]
-        [Route("{organizationId:Guid}/subscription")]
-        public async Task<ActionResult<bool>> AddSubscriptionToCustomer(Guid organizationId, [FromBody] SubscriptionOrder subscriptionOrder)
+        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+        [Route("{organizationId:Guid}/transfer-from-private-to-business")]
+        public async Task<IActionResult> TransferSubscription(Guid organizationId, [FromBody] PrivateToBusinessSubscriptionOrderDTO subscriptionOrder)
         {
-            var addSubscriptionForCustomer = await _subscriptionServices.AddSubscriptionOrderForCustomerAsync(organizationId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DataPackageId, subscriptionOrder.CallerId, subscriptionOrder.SimCardNumber);
-
-            return CreatedAtAction(nameof(AddSubscriptionToCustomer), new SubscriptionOrder(addSubscriptionForCustomer));
-        }
-
-        /// <summary>
-        /// Submit subscription order
-        /// </summary>
-        /// <param name="organizationId">Customer identifier</param>
-        /// <param name="subscriptionOrder">Details of the subscription order</param>
-        /// <returns></returns>
-        [HttpPost]
-        [ProducesResponseType(typeof(SubscriptionOrder), (int)HttpStatusCode.OK)]
-        [Route("{organizationId:Guid}/subscription-transfer")]
-        public async Task<IActionResult> TransferSubscription(Guid organizationId, [FromBody] TransferSubscriptionOrder subscriptionOrder)
-        {
-            await _subscriptionServices.TransferSubscriptionOrderAsync(organizationId, subscriptionOrder.SubscriptionProductId, subscriptionOrder.OperatorAccountId, subscriptionOrder.DataPackageId, subscriptionOrder.CallerId, subscriptionOrder.SimCardNumber, subscriptionOrder.OrderExecutionDate, subscriptionOrder.NewOperatorAccountId);
+            await _subscriptionServices.TransferPrivateToBusinessSubscriptionOrderAsync(organizationId, subscriptionOrder);
 
             return Ok();
         }

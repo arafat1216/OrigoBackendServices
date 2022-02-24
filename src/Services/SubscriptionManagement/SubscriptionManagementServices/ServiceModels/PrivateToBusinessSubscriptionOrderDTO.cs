@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
+﻿namespace SubscriptionManagementServices.ServiceModels
 {
-    public class TransferFromPrivateToBusinessSubscriptionOrder
+    public class PrivateToBusinessSubscriptionOrderDTO
     {
         /// <summary>
         /// The current owner the subscription will be transferred from.
         /// </summary>
-        public PrivateSubscription TransferFromPrivateSubscription { get; set; }
+        public PrivateSubscriptionDTO TransferFromPrivateSubscription { get; set; } = new PrivateSubscriptionDTO();
 
         /// <summary>
         /// The mobile number to be transferred
@@ -18,7 +15,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         /// <summary>
         ///     New operator account identifier
         /// </summary>
-        public int OperatorAccountId { get; set; }
+        public int? OperatorAccountId { get; set; }
 
         /// <summary>
         ///     Subscription product identifier
@@ -55,7 +52,8 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         /// </summary>
         public IList<string> AddOnProducts { get; set; } = new List<string>();
 
-        public IList<NewCustomerReferenceField> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceField> { };
-        public NewOperatorAccountRequested NewOperatorAccount { get; set; } = new NewOperatorAccountRequested();
+        public IList<NewCustomerReferenceField> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceField>();
+        public NewOperatorAccountRequestedDTO NewOperatorAccount { get; set; } = new NewOperatorAccountRequestedDTO();
+        public Guid CallerId { get; set; }
     }
 }

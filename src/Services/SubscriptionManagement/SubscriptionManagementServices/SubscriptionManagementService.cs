@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
-using SubscriptionManagementServices.Types;
+using System.Text.Json;
 
 namespace SubscriptionManagementServices
 {
@@ -40,30 +40,29 @@ namespace SubscriptionManagementServices
             return _mapper.Map<CustomerOperatorAccountDTO>(operatorAccount);
         }
 
-        public async Task<SubscriptionOrder> AddSubscriptionOrderForCustomerAsync(Guid customerId, int subscriptionProductId, int operatorAccountId, int datapackageId, Guid callerId, string simCardNumber)
-        {
-            var customerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(operatorAccountId);
-            if (customerOperatorAccount == null)
-                throw new ArgumentException($"No operator account exists with ID {operatorAccountId}");
+        //public async Task<SubscriptionOrder> AddSubscriptionOrderForCustomerAsync(Guid customerId, int subscriptionProductId, int operatorAccountId, int datapackageId, Guid callerId, string simCardNumber)
+        //{
+        //    var customerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(operatorAccountId);
+        //    if (customerOperatorAccount == null)
+        //        throw new ArgumentException($"No operator account exists with ID {operatorAccountId}");
 
-            var subscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductAsync(subscriptionProductId);
-            if (subscriptionProduct == null)
-                throw new ArgumentException($"No subscription product exists with ID {subscriptionProductId}");
+        //    var subscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductAsync(subscriptionProductId);
+        //    if (subscriptionProduct == null)
+        //        throw new ArgumentException($"No subscription product exists with ID {subscriptionProductId}");
 
-            var dataPackage = await _subscriptionManagementRepository.GetDataPackageAsync(datapackageId);
-            if (dataPackage == null)
-                throw new ArgumentException($"No DataPackage exists with ID {datapackageId}");
+        //    var dataPackage = await _subscriptionManagementRepository.GetDataPackageAsync(datapackageId);
+        //    if (dataPackage == null)
+        //        throw new ArgumentException($"No DataPackage exists with ID {datapackageId}");
 
-            return await _subscriptionManagementRepository.AddSubscriptionOrderAsync(new SubscriptionOrder(customerId, subscriptionProductId, operatorAccountId, datapackageId, callerId, simCardNumber));
-        }
+        //    return await _subscriptionManagementRepository.AddSubscriptionOrderAsync(new SubscriptionOrder(customerId, subscriptionProductId, operatorAccountId, datapackageId, callerId, simCardNumber));
+        //}
 
         public Task<bool> DeleteOperatorForCustomerAsync(Guid organizationId, string operatorName)
         {
             return Task.FromResult(true);
         }
 
-
-        public async Task<IList<CustomerOperatorAccountDTO>> GetAllOperatorAccountsForCustomerAsync(Guid customerId)
+        public async Task<IEnumerable<CustomerOperatorAccountDTO>> GetAllOperatorAccountsForCustomerAsync(Guid customerId)
         {
             var customerAccount = await _subscriptionManagementRepository.GetAllCustomerOperatorAccountsAsync(customerId);
 
@@ -92,7 +91,7 @@ namespace SubscriptionManagementServices
 
         public async Task<CustomerSubscriptionProductDTO> AddOperatorSubscriptionProductForCustomerAsync(Guid customerId, int operatorId, string productName, IList<string>? dataPackages, Guid callerId)
         {
-            
+
             var @operator = await _subscriptionManagementRepository.GetOperatorAsync(operatorId);
             if (@operator == null)
             {
@@ -106,7 +105,7 @@ namespace SubscriptionManagementServices
             }
 
             var globalSubscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductByNameAsync(productName, operatorId);
-            
+
             var customerSubscriptionProduct = customerSettings.AddSubscriptionProductAsync(@operator, productName, dataPackages, globalSubscriptionProduct, callerId);
             if (customerSettings.Id > 0)
             {
@@ -121,7 +120,7 @@ namespace SubscriptionManagementServices
 
         public async Task<IList<CustomerSubscriptionProductDTO>> GetAllCustomerSubscriptionProductsAsync(Guid customerId)
         {
-           
+
             var subscriptionProduct = await _subscriptionManagementRepository.GetAllCustomerSubscriptionProductsAsync(customerId);
             if (subscriptionProduct == null)
             {
@@ -134,7 +133,7 @@ namespace SubscriptionManagementServices
         }
         public async Task<IList<GlobalSubscriptionProductDTO>> GetAllOperatorSubscriptionProductAsync()
         {
-           
+
             var operatorsSubscriptionProduct = await _subscriptionManagementRepository.GetAllOperatorSubscriptionProducts();
             List<GlobalSubscriptionProductDTO> operatorSubscriptionProducts = new();
             operatorSubscriptionProducts.AddRange(
@@ -150,7 +149,7 @@ namespace SubscriptionManagementServices
             {
                 throw new ArgumentException($"Customer has no customer settings for id {customerId}");
             }
-            
+
             var removedProduct = customerSettings.RemoveSubscriptionProductAsync(subscriptionId);
 
             if (removedProduct == null)
@@ -168,52 +167,75 @@ namespace SubscriptionManagementServices
             return await _subscriptionManagementRepository.UpdateOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionId);
         }
 
-        public async Task<TransferSubscriptionOrder> TransferSubscriptionOrderAsync(Guid customerId, int subscriptionProductId, int currentOperatorAccountId, int datapackageId, Guid callerId, string simCardNumber, DateTime orderExecutionDate, int newOperatorAccountId)
+        public async Task<PrivateToBusinessSubscriptionOrder> TransferPrivateToBusinessSubscriptionOrderAsync(Guid organizationId, PrivateToBusinessSubscriptionOrderDTO order)
         {
-            if (currentOperatorAccountId == newOperatorAccountId)
+            var customerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(organizationId, order.OperatorAccountId.GetValueOrDefault()) ?? new CustomerOperatorAccount();
+
+            if (customerOperatorAccount?.Operator?.OperatorName == order.TransferFromPrivateSubscription.OperatorName)
             {
-                if (string.IsNullOrEmpty(simCardNumber))
+                if (string.IsNullOrEmpty(order.SIMCardNumber))
                     throw new ArgumentException("SIM card number is required.");
 
-                if (orderExecutionDate < DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator) || orderExecutionDate > DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
+                if (order.OrderExecutionDate < DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator) || order.OrderExecutionDate > DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
                     throw new ArgumentException($"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workday ahead or more is allowed.");
             }
             else
             {
-                if (!string.IsNullOrEmpty(simCardNumber))
+                if (!string.IsNullOrEmpty(order.SIMCardNumber))
                 {
-                    if (orderExecutionDate < DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperator) || orderExecutionDate > DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
+                    if (order.OrderExecutionDate < DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperator) || order.OrderExecutionDate > DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
                         throw new ArgumentException($"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForNewOperator} workdays ahead or more allowed.");
                 }
                 else
                 {
-                    if (orderExecutionDate < DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM) || orderExecutionDate > DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
+                    if (order.OrderExecutionDate < DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM) || order.OrderExecutionDate > DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
                         throw new ArgumentException($"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM} workdays ahead or more is allowed.");
                 }
             }
 
-            var currentOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(currentOperatorAccountId);
-
-            if (currentOperatorAccount == null)
-            {
-                throw new ArgumentException("Invalid current operator account.");
-            }
-
-            var newOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(newOperatorAccountId);
-            if (newOperatorAccount == null)
-            {
-                throw new ArgumentException("Invalid new operator account.");
-            }
-
-            var subscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductAsync(subscriptionProductId);
+            var subscriptionProduct = await _subscriptionManagementRepository.GetCustomerSubscriptionProductAsync(order.SubscriptionProductId);
             if (subscriptionProduct == null)
-                throw new ArgumentException($"No subscription product exists with ID {subscriptionProductId}");
+                throw new ArgumentException($"No subscription product exists with ID {order.SubscriptionProductId}");
 
-            var dataPackage = await _subscriptionManagementRepository.GetDataPackageAsync(datapackageId);
+            var dataPackage = await _subscriptionManagementRepository.GetDataPackageAsync(order.DataPackage);
             if (dataPackage == null)
-                throw new ArgumentException($"No DataPackage exists with ID {datapackageId}");
+                throw new ArgumentException($"No DataPackage exists with name {order.DataPackage}");
 
-            return await _subscriptionManagementRepository.TransferSubscriptionOrderAsync(new TransferSubscriptionOrder(customerId, subscriptionProductId, currentOperatorAccountId, datapackageId, callerId, simCardNumber, orderExecutionDate, newOperatorAccountId));
+            var subscriptionAddOnProducts = order.AddOnProducts.Select(m => new SubscriptionAddOnProduct(m, order.CallerId));
+
+            //Checking order.CustomerReferenceFields
+            var existingFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId);
+            foreach (var field in order.CustomerReferenceFields)
+            {
+                if (!existingFields.Any(m => m.Name == field.Name))
+                    throw new ArgumentException($"The field name {field.Name} is not valid for this customer.");
+            }
+
+            return await _subscriptionManagementRepository
+                .TransferSubscriptionOrderAsync(
+                    new PrivateToBusinessSubscriptionOrder(
+                        order.SIMCardNumber,
+                        order.SIMCardAction,
+                        order.SubscriptionProductId,
+                        organizationId,
+                        order.OperatorAccountId,
+                        dataPackage.Id,
+                        order.OrderExecutionDate,
+                        order.MobileNumber,
+                        JsonSerializer.Serialize(order.CustomerReferenceFields),
+                        subscriptionAddOnProducts.ToList(),
+                        order.TransferFromPrivateSubscription.FirstName,
+                        order.TransferFromPrivateSubscription.LastName,
+                        order.TransferFromPrivateSubscription.Address,
+                        order.TransferFromPrivateSubscription.PostalPlace,
+                        order.TransferFromPrivateSubscription.PostalCode,
+                        order.TransferFromPrivateSubscription.Country,
+                        order.TransferFromPrivateSubscription.Email,
+                        order.TransferFromPrivateSubscription.BirthDate,
+                        order.TransferFromPrivateSubscription.OperatorName,
+                        order.NewOperatorAccount?.NewOperatorAccountOwner, order.NewOperatorAccount?.NewOperatorAccountPayer));
+
+
         }
 
         public async Task DeleteCustomerOperatorAccountAsync(Guid organizationId, string accountNumber)

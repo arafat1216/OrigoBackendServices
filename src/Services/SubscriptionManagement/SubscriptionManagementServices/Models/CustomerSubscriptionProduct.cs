@@ -57,5 +57,6 @@ namespace SubscriptionManagementServices.Models
         public SubscriptionProduct? GlobalSubscriptionProduct { get; set; }
         [JsonIgnore]
         public ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
+        public virtual ICollection<PrivateToBusinessSubscriptionOrder> PrivateToBusinessSubscriptionOrders { get; set; }
     }
 }

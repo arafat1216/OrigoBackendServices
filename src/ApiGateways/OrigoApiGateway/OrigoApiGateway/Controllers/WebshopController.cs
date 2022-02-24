@@ -120,7 +120,7 @@ namespace OrigoApiGateway.Controllers
                 try
                 {
                     await _webshopService.ProvisionUserAsync(email);
-                    return Ok();
+                    return Ok(_webshopConfiguration.WebshopRedirectUrl);
                 }
                 catch (Exception ex)
                 {

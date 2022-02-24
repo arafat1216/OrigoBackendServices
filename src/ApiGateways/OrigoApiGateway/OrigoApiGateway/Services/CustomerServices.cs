@@ -131,11 +131,18 @@ namespace OrigoApiGateway.Services
                 newCustomerDTO.IsCustomer = true;
 
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", newCustomerDTO);
-                if (!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode && (int)response.StatusCode == 409)
+                    throw new InvalidOrganizationNumberException("Unable to save customer: " + response.Content);
+                else if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save customer", (int)response.StatusCode);
 
                 var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
                 return organization == null ? null : _mapper.Map<Organization>(organization);
+            }
+            catch (InvalidOrganizationNumberException exception)
+            {
+                _logger.LogError(exception, "CreateCustomerAsync failed with InvalidOrganizationNumberException.");
+                throw;
             }
             catch (Exception exception)
             {
