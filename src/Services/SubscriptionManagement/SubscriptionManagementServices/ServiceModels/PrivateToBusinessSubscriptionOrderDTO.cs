@@ -53,7 +53,7 @@
         public IList<string> AddOnProducts { get; set; } = new List<string>();
 
         public IList<NewCustomerReferenceField> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceField>();
-        public NewOperatorAccountRequestedDTO NewOperatorAccount { get; set; } = new NewOperatorAccountRequestedDTO();
+        public NewOperatorAccountRequestedDTO? NewOperatorAccount { get; set; }
         public Guid CallerId { get; set; }
     }
 }
