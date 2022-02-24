@@ -31,8 +31,8 @@ namespace SubscriptionManagementServices.Models
             string email,
             DateTime dob,
             string operatorName,
-            string? operatorAccountOwner,
-            string? operatorAccountPayer)
+            string? newOperatorAccountOwner,
+            string? newOperatorAccountPayer)
         {
             FirstName = firstName;
             LastName = lastName;
@@ -54,8 +54,8 @@ namespace SubscriptionManagementServices.Models
             MobileNumber = mobileNumber;
             CustomerReferenceFields = customerReferenceFields;
             _subscriptionAddOnProducts = subscriptionAddOnProducts;
-            OperatorAccountOwner = operatorAccountOwner;
-            OperatorAccountPayer = operatorAccountPayer;
+            OperatorAccountOwner = newOperatorAccountOwner;
+            OperatorAccountPayer = newOperatorAccountPayer;
         }
 
         public string FirstName { get; set; }
