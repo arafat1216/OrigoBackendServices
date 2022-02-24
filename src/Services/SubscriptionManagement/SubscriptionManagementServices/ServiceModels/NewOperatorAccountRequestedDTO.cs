@@ -1,6 +1,6 @@
-﻿namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
+﻿namespace SubscriptionManagementServices.ServiceModels
 {
-    public class NewOperatorAccountRequested
+    public class NewOperatorAccountRequestedDTO
     {
         public string NewOperatorAccountOwner { get; set; }
         public string NewOperatorAccountPayer { get; set; }

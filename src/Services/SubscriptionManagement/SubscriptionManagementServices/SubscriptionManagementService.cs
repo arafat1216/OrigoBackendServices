@@ -233,7 +233,7 @@ namespace SubscriptionManagementServices
                         order.TransferFromPrivateSubscription.Email,
                         order.TransferFromPrivateSubscription.BirthDate,
                         order.TransferFromPrivateSubscription.OperatorName,
-                        order.OperatorAccount?.OperatorAccountOwner, order.OperatorAccount?.OperatorAccountPayer));
+                        order.NewOperatorAccount?.NewOperatorAccountOwner, order.NewOperatorAccount?.NewOperatorAccountPayer));
 
 
         }
