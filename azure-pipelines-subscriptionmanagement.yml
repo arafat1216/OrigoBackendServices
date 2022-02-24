@@ -77,6 +77,9 @@ stages:
     - script: 'dotnet ef migrations script --context SubscriptionManagementContext --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/SubscriptionManagement/SubscriptionManagementServices/SubscriptionManagementServices.csproj'
       displayName: Create EF --> .SQL migration scripts
 
+    - script: 'dotnet ef migrations script --context LoggingDbContext --idempotent --output $(build.artifactstagingdirectory)/migrations/logging_migrations.sql --project src/Services/SubscriptionManagement/SubscriptionManagementServices/SubscriptionManagementServices.csproj'
+      displayName: Create subscription management logging migration scripts
+
     - task: PublishPipelineArtifact@1
       displayName: 'Publish migrations'
       inputs:
@@ -165,7 +168,7 @@ stages:
               artifactName: 'migrations'
               downloadPath: '$(System.ArtifactsDirectory)/migrations'
           - task: SqlAzureDacpacDeployment@1
-            displayName: Run sql migrations
+            displayName: Run sql Subscription Management migrations
             inputs:
               azureConnectionType: ConnectedServiceNameARM
               azureSubscription: OrigoV2ServiceConnection
@@ -173,6 +176,16 @@ stages:
               connectionString: $(currentDbConnection)
               deployType: SqlTask
               sqlFile: $(System.ArtifactsDirectory)/migrations/migrations.sql
+          - task: SqlAzureDacpacDeployment@1
+            displayName: Run sql Logging migrations
+            inputs:
+              azureConnectionType: ConnectedServiceNameARM
+              azureSubscription: OrigoV2ServiceConnection
+              authenticationType: connectionString
+              connectionString: $(currentDbConnection)
+              deployType: SqlTask
+              sqlFile: $(System.ArtifactsDirectory)/migrations/logging_migrations.sql
+
 
   - deployment: Deploy
     condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
