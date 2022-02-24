@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
 using Common.Seedwork;
+using SubscriptionManagementServices.DomainEvents;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -13,6 +15,7 @@ namespace SubscriptionManagementServices.Models
             SubscriptionName = subscriptionName;
             Operator = @operator;
             if (dataPackages != null) _dataPackages.AddRange(dataPackages);
+            
         }
 
         public CustomerSubscriptionProduct(SubscriptionProduct globalSubscriptionProduct, Guid callerId, IList<DataPackage>? dataPackages)
@@ -21,12 +24,15 @@ namespace SubscriptionManagementServices.Models
             SubscriptionName = globalSubscriptionProduct.SubscriptionName;
             Operator = globalSubscriptionProduct.Operator;
             if (dataPackages != null) _dataPackages.AddRange(dataPackages);
+           
         }
 
         public string SubscriptionName { get; set; }
+        [JsonIgnore]
         public Operator Operator { get; set; }
 
         private List<DataPackage> _dataPackages = new();
+        [JsonIgnore]
         public ICollection<DataPackage> DataPackages => _dataPackages.AsReadOnly();
 
         public void SetDataPackages(ICollection<DataPackage>? globalDataPackages,IList<string> selectedDataPackages, Guid callerId)
@@ -49,7 +55,7 @@ namespace SubscriptionManagementServices.Models
 
 
         public SubscriptionProduct? GlobalSubscriptionProduct { get; set; }
-
+        [JsonIgnore]
         public ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
     }
 }

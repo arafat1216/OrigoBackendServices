@@ -1,4 +1,6 @@
 ﻿using Common.Seedwork;
+using SubscriptionManagementServices.DomainEvents;
+using System.Text.Json.Serialization;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -21,29 +23,36 @@ namespace SubscriptionManagementServices.Models
 
         public CustomerSettings(){}
         
-        public CustomerSettings(Guid customerId)
+        public CustomerSettings(Guid customerId, Guid callerId)
         {
             CustomerId = customerId;
             _customerOperatorSettings = new List<CustomerOperatorSettings>();
+            AddDomainEvent(new CustomerSettingsCreatedDomainEvent<CustomerSettings>(this, callerId));
         }
 
         public Guid CustomerId { get; protected set; }
+
         private readonly List<CustomerOperatorSettings> _customerOperatorSettings = new();
+        [JsonIgnore]
         public IReadOnlyCollection<CustomerOperatorSettings> CustomerOperatorSettings => _customerOperatorSettings.AsReadOnly();
 
         private readonly List<CustomerReferenceField> _customerReferenceFields = new();
+        [JsonIgnore]
         public IReadOnlyCollection<CustomerReferenceField>? CustomerReferenceFields => _customerReferenceFields.AsReadOnly();
 
-        public void AddCustomerReferenceField(CustomerReferenceField customerReferenceField)
+        public void AddCustomerReferenceField(CustomerReferenceField customerReferenceField, Guid callerId)
         {
             if (!_customerReferenceFields.Any(r => r.Name == customerReferenceField.Name && r.ReferenceType == customerReferenceField.ReferenceType))
             {
                 _customerReferenceFields.Add(customerReferenceField);
+                AddDomainEvent(new CustomerReferenceFieldAddedDomainEvent(CustomerId, customerReferenceField, callerId));
             }
         }
 
         public void AddCustomerOperatorSettings(List<CustomerOperatorSettings> customerOperatorSettings)
         {
+
+            //Need to add domain event
             _customerOperatorSettings.AddRange(customerOperatorSettings);
         }
 
@@ -54,6 +63,7 @@ namespace SubscriptionManagementServices.Models
             if (customerOperatorSettings != null)
             {
                 _customerOperatorSettings.Remove(customerOperatorSettings);
+                AddDomainEvent(new CustomerOperatorSettingsRemovedDomainEvent(CustomerId, customerOperatorSettings, operatorId));
                 return;
             }
 
@@ -66,7 +76,8 @@ namespace SubscriptionManagementServices.Models
             var customerOperatorSetting = CustomerOperatorSettings.FirstOrDefault(os => os.Operator.Id == @operator.Id);
             if (customerOperatorSetting == null)
             {
-                customerOperatorSetting = new CustomerOperatorSettings(@operator, null);
+                customerOperatorSetting = new CustomerOperatorSettings(@operator, null, callerId);
+                AddDomainEvent(new CustomerOperatorSettingsAddedDomainEvent(CustomerId,customerOperatorSetting, callerId));
                 _customerOperatorSettings.Add(customerOperatorSetting);
             }
 
@@ -91,6 +102,19 @@ namespace SubscriptionManagementServices.Models
                     : new CustomerSubscriptionProduct(productName, @operator, callerId, dataPackages);
                 foundSubscriptionProduct = customerSubscriptionProduct;
                 customerOperatorSetting.AvailableSubscriptionProducts.Add(customerSubscriptionProduct);
+
+                if (globalSubscriptionProduct != null)
+                {
+
+                    //Global
+                    AddDomainEvent(new CustomerSubscriptionProductAddedDomainEvent(CustomerId, customerSubscriptionProduct, callerId));
+                }
+                else
+                {
+                    //Custom
+                    AddDomainEvent(new DatapackagesAddedDomainEvent(dataPackages,CustomerId, callerId));
+                    AddDomainEvent(new CustomerSubscriptionProductAddedDomainEvent(CustomerId, customerSubscriptionProduct, callerId));
+                }
             }
             else
             {
@@ -118,6 +142,7 @@ namespace SubscriptionManagementServices.Models
                 return null;
             }
             _customerReferenceFields.Remove(customerReferenceField);
+            AddDomainEvent(new CustomerReferenceFieldRemovedDomainEvent(customerReferenceField,CustomerId));
             return customerReferenceField;
         }
         
@@ -143,6 +168,7 @@ namespace SubscriptionManagementServices.Models
             }
 
             customerOperatorSetting.AvailableSubscriptionProducts.Remove(subscriptionProduct);
+            AddDomainEvent(new CustomerSubscriptionProductdRemovedDomainEvent(subscriptionProduct, CustomerId));
 
             return subscriptionProduct;
         }

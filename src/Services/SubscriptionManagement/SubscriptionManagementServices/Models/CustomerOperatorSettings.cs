@@ -1,4 +1,6 @@
 ﻿using Common.Seedwork;
+using SubscriptionManagementServices.DomainEvents;
+using System.Text.Json.Serialization;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -12,21 +14,22 @@ namespace SubscriptionManagementServices.Models
             CustomerOperatorAccounts = customerOperatorAccounts;
         }
 
-        public CustomerOperatorSettings(Operator @operator, ICollection<CustomerOperatorAccount>? customerOperatorAccounts)
+        public CustomerOperatorSettings(Operator @operator, ICollection<CustomerOperatorAccount>? customerOperatorAccounts, Guid callerId)
         {
             Operator = @operator;
             if (customerOperatorAccounts != null)
             {
                 CustomerOperatorAccounts = customerOperatorAccounts;
             }
-           
         }
 
         public CustomerOperatorSettings() { }
 
+        [JsonIgnore]
         public Operator Operator { get; protected set; }
-
+        [JsonIgnore]
         public ICollection<CustomerSubscriptionProduct> AvailableSubscriptionProducts { get; protected set; } = new List<CustomerSubscriptionProduct>();
+        [JsonIgnore]
         public ICollection<CustomerOperatorAccount> CustomerOperatorAccounts { get; protected set; } = new List<CustomerOperatorAccount>();
     }
 }
