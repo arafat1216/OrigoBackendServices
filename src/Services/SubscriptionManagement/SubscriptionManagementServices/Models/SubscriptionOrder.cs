@@ -2,7 +2,7 @@
 
 namespace SubscriptionManagementServices.Models
 {
-    public class SubscriptionOrder : Entity
+    public class SubscriptionOrder : Entity, ISubscriptionOrder
     {
         private List<SubscriptionAddOnProduct> _subscriptionAddOnProducts;
 
@@ -13,7 +13,7 @@ namespace SubscriptionManagementServices.Models
 
         public SubscriptionOrder(
             string simCardNumber,
-            string simCardActivation,
+            string simCardAction,
             int subscriptionProductId,
             Guid oranizationId,
             int operatorAccountId,
@@ -24,7 +24,7 @@ namespace SubscriptionManagementServices.Models
             List<SubscriptionAddOnProduct> subscriptionAddOnProducts)
         {
             SimCardNumber = simCardNumber;
-            SIMCardAction = simCardActivation;
+            SIMCardAction = simCardAction;
             SubscriptionProductId = subscriptionProductId;
             OrganizationId = oranizationId;
             OperatorAccountId = operatorAccountId;
@@ -49,7 +49,7 @@ namespace SubscriptionManagementServices.Models
         public string MobileNumber { get; set; }
         public string CustomerReferenceFields { get; set; }
 
-        public void SetSubscriptionAddOnProduct(List<SubscriptionAddOnProduct> subscriptionAddOnProducts)
+        public void  SetSubscriptionAddOnProduct(List<SubscriptionAddOnProduct> subscriptionAddOnProducts)
         {
             _subscriptionAddOnProducts.AddRange(subscriptionAddOnProducts);
         }

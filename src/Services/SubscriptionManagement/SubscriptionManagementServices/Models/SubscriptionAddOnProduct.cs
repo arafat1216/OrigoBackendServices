@@ -8,19 +8,16 @@ namespace SubscriptionManagementServices.Models
         {
         }
 
-        public SubscriptionAddOnProduct(string addOnProductName, Guid callerId, SubscriptionProduct belongsToSubscriptionProduct)
+        public SubscriptionAddOnProduct(string addOnProductName, Guid callerId)
         {
             AddOnProductName = addOnProductName;
-            BelongsToSubscriptionProduct = belongsToSubscriptionProduct;
             UpdatedBy = callerId;
             CreatedBy = callerId;
         }
 
         public string AddOnProductName { get; set; }
 
-        public SubscriptionProduct BelongsToSubscriptionProduct { get; set; }
-
         public IReadOnlyCollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
-
+        public IReadOnlyCollection<PrivateToBusinessSubscriptionOrder>? PrivateToBusinessSubscriptionOrders { get; set; }
     }
 }

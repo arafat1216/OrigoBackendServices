@@ -35,6 +35,10 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
                 .WithMany(m => m.SubscriptionOrders)
                 .HasForeignKey(m => m.SubscriptionProductId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(m => m.SubscriptionAddOnProducts)
+                .WithMany(m => m.SubscriptionOrders)
+                .UsingEntity(join => join.ToTable("SubscriptionOrderAddOnProducts"));
         }
     }
 }

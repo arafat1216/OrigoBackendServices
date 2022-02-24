@@ -198,7 +198,7 @@ namespace SubscriptionManagementServices
                 }
             }
 
-            var subscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductAsync(order.SubscriptionProductId);
+            var subscriptionProduct = await _subscriptionManagementRepository.GetCustomerSubscriptionProductAsync(order.SubscriptionProductId);
             if (subscriptionProduct == null)
                 throw new ArgumentException($"No subscription product exists with ID {order.SubscriptionProductId}");
 
@@ -206,7 +206,7 @@ namespace SubscriptionManagementServices
             if (dataPackage == null)
                 throw new ArgumentException($"No DataPackage exists with name {order.DataPackage}");
 
-            var subscriptionAddOnProducts = order.AddOnProducts.Select(m => new SubscriptionAddOnProduct(m, order.CallerId, subscriptionProduct));
+            var subscriptionAddOnProducts = order.AddOnProducts.Select(m => new SubscriptionAddOnProduct(m, order.CallerId));
 
             //Checking order.CustomerReferenceFields
             var existingFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId);
