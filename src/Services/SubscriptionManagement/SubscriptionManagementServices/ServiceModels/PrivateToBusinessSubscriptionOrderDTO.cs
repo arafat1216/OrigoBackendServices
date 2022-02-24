@@ -5,7 +5,7 @@
         /// <summary>
         /// The current owner the subscription will be transferred from.
         /// </summary>
-        public PrivateSubscriptionDTO TransferFromPrivateSubscription { get; set; }
+        public PrivateSubscriptionDTO TransferFromPrivateSubscription { get; set; } = new PrivateSubscriptionDTO();
 
         /// <summary>
         /// The mobile number to be transferred
@@ -50,9 +50,9 @@
         /// <summary>
         /// List of add on products to the subscription
         /// </summary>
-        public IList<string> AddOnProducts { get; set; }
+        public IList<string> AddOnProducts { get; set; } = new List<string>();
 
-        public IList<NewCustomerReferenceField> CustomerReferenceFields { get; set; }
+        public IList<NewCustomerReferenceField> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceField>();
 
         public CustomerOperatorAccountDTO OperatorAccount { get; set; }
         public Guid CallerId { get; set; }

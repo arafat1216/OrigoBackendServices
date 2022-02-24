@@ -17,5 +17,6 @@ namespace SubscriptionManagementServices.Models
         public string DataPackageName { get; set; }
         public virtual ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
         public virtual ICollection<CustomerSubscriptionProduct>? CustomerSubscriptionProducts { get; set; }
+        public virtual ICollection<PrivateToBusinessSubscriptionOrder> PrivateToBusinessSubscriptionOrders { get; set; }
     }
 }

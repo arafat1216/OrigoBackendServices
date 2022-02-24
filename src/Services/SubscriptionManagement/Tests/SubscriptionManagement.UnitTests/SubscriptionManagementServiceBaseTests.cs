@@ -72,8 +72,6 @@ namespace SubscriptionManagement.UnitTests
 
             context.AddRange(customerSubscriptionProductOne);
 
-            
-
             context.SaveChanges();
         }
     }

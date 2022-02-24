@@ -14,13 +14,18 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task<CustomerOperatorAccount> AddOperatorAccountForCustomerAsync(CustomerOperatorAccount customerOperatorAccount)
         {
+            var existing = await _subscriptionContext.CustomerOperatorAccounts.Include(m => m.Operator).FirstOrDefaultAsync(m => m.OperatorId == customerOperatorAccount.OperatorId && m.OrganizationId == customerOperatorAccount.OrganizationId);
+            if (existing != null)
+                return existing;
+
             var @operator = await _subscriptionContext.Operators.FindAsync(customerOperatorAccount.OperatorId);
 
-            if (@operator != null)
+            if (@operator == null)
             {
-                customerOperatorAccount.Operator = @operator;
+                throw new ArgumentException($"No operator exists with ID {customerOperatorAccount.OperatorId}");
             }
 
+            customerOperatorAccount.Operator = @operator;
             var added = await _subscriptionContext.AddAsync(customerOperatorAccount);
             await _subscriptionContext.SaveChangesAsync();
             return added.Entity;
@@ -196,13 +201,13 @@ namespace SubscriptionManagementServices.Infrastructure
             return await _subscriptionContext.CustomerOperatorAccounts
                 .Include(m => m.SubscriptionOrders)
                 .Include(m => m.CustomerOperatorSettings)
-                .Include(m => m.TransferSubscriptionOrders)
+                .Include(m => m.PrivateToBusinessSubscriptionOrders)
                 .FirstOrDefaultAsync(m => m.OrganizationId == organizationId && m.AccountNumber == accountNumber);
         }
 
         public async Task DeleteCustomerOperatorAccountAsync(CustomerOperatorAccount customerOperatorAccount)
         {
-            if (customerOperatorAccount.SubscriptionOrders.Any() || customerOperatorAccount.TransferSubscriptionOrders.Any())
+            if (customerOperatorAccount.SubscriptionOrders.Any() || customerOperatorAccount.PrivateToBusinessSubscriptionOrders.Any())
                 throw new ArgumentException("This customer operator accounts cannot be deleted because there are other entities related with it.");
 
             _subscriptionContext.Remove(customerOperatorAccount);
@@ -227,6 +232,11 @@ namespace SubscriptionManagementServices.Infrastructure
         public async Task<DataPackage?> GetDataPackageAsync(string dataPackageName)
         {
             return await _subscriptionContext.DataPackages.FirstOrDefaultAsync(m => m.DataPackageName == dataPackageName);
+        }
+
+        public async Task<CustomerSubscriptionProduct?> GetCustomerSubscriptionProductAsync(int id)
+        {
+            return await _subscriptionContext.CustomerSubscriptionProducts.FirstAsync(m => m.Id == id);
         }
     }
 }
