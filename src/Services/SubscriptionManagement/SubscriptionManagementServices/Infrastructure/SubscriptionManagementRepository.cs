@@ -182,6 +182,11 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task DeleteOperatorSubscriptionProductForCustomerAsync(CustomerSubscriptionProduct customerSubscriptionProduct)
         {
+            if (customerSubscriptionProduct.GlobalSubscriptionProduct == null)
+            {
+                _subscriptionContext.DataPackages.RemoveRange(customerSubscriptionProduct.DataPackages);
+            }
+            
             _subscriptionContext.Entry(customerSubscriptionProduct).State = EntityState.Deleted;
             await _subscriptionContext.SaveChangesAsync();
         }
