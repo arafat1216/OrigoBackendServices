@@ -28,11 +28,6 @@
         public string DataPackage { get; set; }
 
         /// <summary>
-        ///     Customer identifier
-        /// </summary>
-        public Guid OrganizationId { get; set; }
-
-        /// <summary>
         ///     SIM card number
         /// </summary>
         public string SIMCardNumber { get; set; }

@@ -171,7 +171,7 @@ namespace SubscriptionManagementServices
         {
             var customerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(organizationId, order.OperatorAccountId.GetValueOrDefault()) ?? new CustomerOperatorAccount();
 
-            if (customerOperatorAccount?.Operator?.OperatorName == order.TransferFromPrivateSubscription.OperatorName)
+            if (customerOperatorAccount?.Operator?.OperatorName == order.PrivateSubscription?.OperatorName)
             {
                 if (string.IsNullOrEmpty(order.SIMCardNumber))
                     throw new ArgumentException("SIM card number is required.");
@@ -224,16 +224,9 @@ namespace SubscriptionManagementServices
                         order.MobileNumber,
                         JsonSerializer.Serialize(order.CustomerReferenceFields),
                         subscriptionAddOnProducts.ToList(),
-                        order.TransferFromPrivateSubscription.FirstName,
-                        order.TransferFromPrivateSubscription.LastName,
-                        order.TransferFromPrivateSubscription.Address,
-                        order.TransferFromPrivateSubscription.PostalPlace,
-                        order.TransferFromPrivateSubscription.PostalCode,
-                        order.TransferFromPrivateSubscription.Country,
-                        order.TransferFromPrivateSubscription.Email,
-                        order.TransferFromPrivateSubscription.BirthDate,
-                        order.TransferFromPrivateSubscription.OperatorName,
-                        order.NewOperatorAccount?.NewOperatorAccountOwner, order.NewOperatorAccount?.NewOperatorAccountPayer));
+                        order.NewOperatorAccount?.NewOperatorAccountOwner, 
+                        order.NewOperatorAccount?.NewOperatorAccountPayer,
+                        null, null));
 
 
         }

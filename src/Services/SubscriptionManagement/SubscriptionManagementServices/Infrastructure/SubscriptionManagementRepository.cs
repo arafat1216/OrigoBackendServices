@@ -210,13 +210,13 @@ namespace SubscriptionManagementServices.Infrastructure
             return await _subscriptionContext.CustomerOperatorAccounts
                 .Include(m => m.SubscriptionOrders)
                 .Include(m => m.CustomerOperatorSettings)
-                .Include(m => m.PrivateToBusinessSubscriptionOrders)
+                .Include(m => m.TransferToBusinessSubscriptionOrders)
                 .FirstOrDefaultAsync(m => m.OrganizationId == organizationId && m.AccountNumber == accountNumber);
         }
 
         public async Task DeleteCustomerOperatorAccountAsync(CustomerOperatorAccount customerOperatorAccount)
         {
-            if (customerOperatorAccount.SubscriptionOrders.Any() || customerOperatorAccount.PrivateToBusinessSubscriptionOrders.Any())
+            if (customerOperatorAccount.SubscriptionOrders.Any() || customerOperatorAccount.TransferToBusinessSubscriptionOrders.Any())
                 throw new ArgumentException("This customer operator accounts cannot be deleted because there are other entities related with it.");
 
             _subscriptionContext.Remove(customerOperatorAccount);

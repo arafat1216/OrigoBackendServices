@@ -196,7 +196,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1),
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
                     },
@@ -218,7 +218,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow,
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
                     },
@@ -237,7 +237,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
                     OperatorAccountId = 1,
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
                     },
@@ -264,7 +264,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
                     },
@@ -286,7 +286,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
                     },
@@ -313,7 +313,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
                     },
@@ -335,7 +335,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
                     },
@@ -357,7 +357,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1.5),
                     OperatorAccountId = 1,
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1",
                         FirstName = "[FName]",
@@ -383,8 +383,6 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.NotEmpty(order.SIMCardAction);
         Assert.NotEmpty(order.MobileNumber);
         Assert.NotEmpty(order.SimCardNumber);
-        Assert.NotEmpty(order.FirstName);
-        Assert.NotEmpty(order.LastName);
         Assert.Equal("[]", order.CustomerReferenceFields);
     }
 
@@ -401,7 +399,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Telia - NO1",
                         FirstName = "[FName]",
@@ -440,7 +438,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Telia - NO1",
                         FirstName = "[FName]",
@@ -480,7 +478,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Telia - NO1",
                         FirstName = "[FName]",
