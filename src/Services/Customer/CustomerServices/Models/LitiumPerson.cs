@@ -1,25 +1,25 @@
 using System;
-using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace CustomerServices.Models
 {
     [Serializable]
     public class LitiumPerson
     {
-        [JsonProperty("firstname")]
+        [JsonPropertyName("firstname")]
         public string FirstName { get; set; } = string.Empty;
 
-        [JsonProperty("lastname")]
+        [JsonPropertyName("lastname")]
         public string LastName { get; set; } = string.Empty;
 
-        [JsonProperty("phonenumber")]
+        [JsonPropertyName("phonenumber")]
         public string PhoneNumber { get; set; } = string.Empty;
 
-        [JsonProperty("email")]
+        [JsonPropertyName("email")]
         public string Email { get; set; } = string.Empty;
 
-        [JsonProperty("organizationRoles")]
+        [JsonPropertyName("organizationRoles")]
         public List<LitiumOrganizationRole> OrganizationRoles { get; set; } = new List<LitiumOrganizationRole>();
     }
 }

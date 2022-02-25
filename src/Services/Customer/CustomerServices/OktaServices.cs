@@ -1,12 +1,13 @@
 ﻿using CustomerServices.Exceptions;
 using CustomerServices.ServiceModels;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CustomerServices
@@ -68,13 +69,13 @@ namespace CustomerServices
             {
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
                 client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
-                var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
                 var resMsg = await client.PostAsync(_oktaOptions.OktaUrl + "users?activate=" + activate.ToString(), content);
-                string msg = await resMsg.Content.ReadAsStringAsync();
                 if (resMsg.IsSuccessStatusCode)
                 {
-                    var jMsg = JObject.Parse(msg);
-                    return jMsg["id"].ToString();
+                    var msg = await resMsg.Content.ReadAsStringAsync();
+                    var jsonMsg = JsonNode.Parse(msg);
+                    return jsonMsg != null && jsonMsg["id"] != null ? jsonMsg["id"].ToString() : "";
                 }
                 else
                 {
@@ -196,7 +197,7 @@ namespace CustomerServices
 
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                return JsonConvert.DeserializeObject<OktaUserDTO>(responseContent);
+                return JsonSerializer.Deserialize<OktaUserDTO>(responseContent);
             }
             catch (Exception ex)
             {
