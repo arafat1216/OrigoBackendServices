@@ -196,7 +196,7 @@ namespace SubscriptionManagementServices
 
 
             var subscriptionOrder = await _subscriptionManagementRepository
-                .TransferSubscriptionOrderAsync(
+                .TransferToBusinessSubscriptionOrderAsync(
                     new TransferToBusinessSubscriptionOrder(
                         order.SIMCardNumber,
                         order.SIMCardAction,
@@ -228,6 +228,14 @@ namespace SubscriptionManagementServices
 
 
             await _subscriptionManagementRepository.DeleteCustomerOperatorAccountAsync(existing);
+        }
+
+        public async Task<TransferToPrivateSubscriptionOrderDTO> TransferToPrivateSubscriptionOrderAsync(Guid organizationId, TransferToPrivateSubscriptionOrderDTO subscriptionOrder)
+        {
+            var order = _mapper.Map<TransferToPrivateSubscriptionOrder>(subscriptionOrder);
+            order.OrganizationId = organizationId;
+            var added = await _subscriptionManagementRepository.TransferToPrivateSubscriptionOrderAsync(order);
+            return _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(added);
         }
     }
 }

@@ -203,7 +203,7 @@ namespace SubscriptionManagementServices.Infrastructure
             return addedCustomerOperatorSetting.Entity;
         }
 
-        public async Task<TransferToBusinessSubscriptionOrder> TransferSubscriptionOrderAsync(TransferToBusinessSubscriptionOrder subscriptionOrder)
+        public async Task<TransferToBusinessSubscriptionOrder> TransferToBusinessSubscriptionOrderAsync(TransferToBusinessSubscriptionOrder subscriptionOrder)
         {
             var added = await _subscriptionContext.AddAsync(subscriptionOrder);
             await _subscriptionContext.SaveChangesAsync();
@@ -277,5 +277,12 @@ namespace SubscriptionManagementServices.Infrastructure
             });
             return numberOfRecordsSaved;
         }
-  }
+
+        public async Task<TransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrderAsync(TransferToPrivateSubscriptionOrder subscriptionOrder)
+        {
+            var added = await _subscriptionContext.AddAsync(subscriptionOrder);
+            await _subscriptionContext.SaveChangesAsync();
+            return added.Entity;
+        }
+    }
 }

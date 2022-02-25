@@ -114,12 +114,21 @@ namespace SubscriptionManagement.API.Controllers
         /// <param name="subscriptionOrder">Details of the subscription order</param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(TransferToBusinessSubscriptionOrderDTO), (int)HttpStatusCode.OK)]
         [Route("{organizationId:Guid}/transfer-to-business")]
         public async Task<IActionResult> TransferSubscription(Guid organizationId, [FromBody] TransferToBusinessSubscriptionOrderDTO subscriptionOrder)
         {
             var dto = await _subscriptionServices.TransferPrivateToBusinessSubscriptionOrderAsync(organizationId, subscriptionOrder);
 
+            return Ok(dto);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(TransferToPrivateSubscriptionOrderDTO), (int)HttpStatusCode.OK)]
+        [Route("{organizationId:Guid}/transfer-to-private")]
+        public async Task<IActionResult> TransferSubscriptionToPrivate(Guid organizationId, [FromBody] TransferToPrivateSubscriptionOrderDTO subscriptionOrder)
+        {
+            var dto = await _subscriptionServices.TransferToPrivateSubscriptionOrderAsync(organizationId, subscriptionOrder);
             return Ok(dto);
         }
 
