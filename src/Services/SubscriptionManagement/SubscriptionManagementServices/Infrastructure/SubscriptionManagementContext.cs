@@ -21,12 +21,14 @@ namespace SubscriptionManagementServices.Infrastructure
         public DbSet<CustomerOperatorAccount> CustomerOperatorAccounts => Set<CustomerOperatorAccount>();
         public DbSet<SubscriptionProduct> SubscriptionProducts => Set<SubscriptionProduct>();
         public DbSet<SubscriptionOrder> SubscriptionOrders => Set<SubscriptionOrder>();
-        public DbSet<PrivateToBusinessSubscriptionOrder> TransferSubscriptionOrders => Set<PrivateToBusinessSubscriptionOrder>();
+        public DbSet<TransferToBusinessSubscriptionOrder> TransferSubscriptionOrders => Set<TransferToBusinessSubscriptionOrder>();
         public DbSet<DataPackage> DataPackages => Set<DataPackage>();
         public DbSet<SubscriptionAddOnProduct> SubscriptionAddOnProducts => Set<SubscriptionAddOnProduct>();
         public DbSet<CustomerSettings> CustomerSettings => Set<CustomerSettings>();
         public DbSet<CustomerOperatorSettings> CustomerOperatorSettings => Set<CustomerOperatorSettings>();
         public DbSet<CustomerSubscriptionProduct> CustomerSubscriptionProducts => Set<CustomerSubscriptionProduct>();
+        public DbSet<PrivateSubscription> PrivateSubscriptions => Set<PrivateSubscription>();
+        public DbSet<BusinessSubscription> BusinessSubscriptions => Set<BusinessSubscription>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -38,9 +40,10 @@ namespace SubscriptionManagementServices.Infrastructure
             modelBuilder.ApplyConfiguration(new SubscriptionProductConfiguration(_isSqlLite));
             modelBuilder.ApplyConfiguration(new CustomerSettingsConfiguration(_isSqlLite));
             modelBuilder.ApplyConfiguration(new CustomerOperatorSettingsConfiguration(_isSqlLite));
-            modelBuilder.ApplyConfiguration(new PrivateToBusinessSubscriptionOrderConfiguration(_isSqlLite));
+            modelBuilder.ApplyConfiguration(new TransferToBusinessSubscriptionOrderConfiguration(_isSqlLite));
             modelBuilder.ApplyConfiguration(new CustomerSubscriptionProductConfiguration(_isSqlLite));
-
+            modelBuilder.ApplyConfiguration(new PrivateSubscriptionConfiguration(_isSqlLite));
+            modelBuilder.ApplyConfiguration(new BusinessSubscriptionConfiguration(_isSqlLite));
         }
     }
 }

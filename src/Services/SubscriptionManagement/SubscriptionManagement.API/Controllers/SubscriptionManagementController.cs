@@ -115,12 +115,12 @@ namespace SubscriptionManagement.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
-        [Route("{organizationId:Guid}/transfer-from-private-to-business")]
-        public async Task<IActionResult> TransferSubscription(Guid organizationId, [FromBody] PrivateToBusinessSubscriptionOrderDTO subscriptionOrder)
+        [Route("{organizationId:Guid}/transfer-to-business")]
+        public async Task<IActionResult> TransferSubscription(Guid organizationId, [FromBody] TransferToBusinessSubscriptionOrderDTO subscriptionOrder)
         {
-            await _subscriptionServices.TransferPrivateToBusinessSubscriptionOrderAsync(organizationId, subscriptionOrder);
+            var dto = await _subscriptionServices.TransferPrivateToBusinessSubscriptionOrderAsync(organizationId, subscriptionOrder);
 
-            return Ok();
+            return Ok(dto);
         }
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace SubscriptionManagement.API.Controllers
         public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] NewOperatorAccount customerOperatorAccount)
         {
             var newCustomerOperatorAccount = await _subscriptionServices.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName, customerOperatorAccount.OperatorId, customerOperatorAccount.CallerId);
-            
+
             return Ok(newCustomerOperatorAccount);
         }
 
@@ -176,7 +176,7 @@ namespace SubscriptionManagement.API.Controllers
         public async Task<ActionResult<CustomerSubscriptionProduct>> AddSubscriptionProductForCustomer(Guid organizationId, [FromBody] NewSubscriptionProduct subscriptionProduct)
         {
             var addSubscriptionProduct = await _subscriptionServices.AddOperatorSubscriptionProductForCustomerAsync(organizationId, subscriptionProduct.OperatorId, subscriptionProduct.Name, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
-            
+
             return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), addSubscriptionProduct);
         }
 
@@ -255,7 +255,7 @@ namespace SubscriptionManagement.API.Controllers
             {
                 BadRequest();
             }
-            
+
             return Ok(subscriptionProducts);
         }
 
@@ -285,7 +285,7 @@ namespace SubscriptionManagement.API.Controllers
             {
                 return BadRequest();
             }
-            
+
             return Ok(deletedSubscriptionProducts);
         }
 

@@ -4,16 +4,17 @@ using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
-    public class PrivateToBusinessSubscriptionOrderConfiguration : IEntityTypeConfiguration<PrivateToBusinessSubscriptionOrder>
+    public class TransferToBusinessSubscriptionOrderConfiguration : IEntityTypeConfiguration<TransferToBusinessSubscriptionOrder>
     {
         private bool _isSqlLite;
-        public PrivateToBusinessSubscriptionOrderConfiguration(bool isSqlLite)
+        public TransferToBusinessSubscriptionOrderConfiguration(bool isSqlLite)
         {
             _isSqlLite = isSqlLite;
         }
-        public void Configure(EntityTypeBuilder<PrivateToBusinessSubscriptionOrder> builder)
+
+        public void Configure(EntityTypeBuilder<TransferToBusinessSubscriptionOrder> builder)
         {
-            builder.ToTable("PrivateToBusinessSubscriptionOrder");
+            builder.ToTable("TransferToBusinessSubscriptionOrder");
 
             //Properties
 
@@ -23,23 +24,27 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 
             //Relationships
             builder.HasOne(e => e.OperatorAccount)
-                .WithMany(e => e.PrivateToBusinessSubscriptionOrders)
+                .WithMany(e => e.TransferToBusinessSubscriptionOrders)
                 .HasForeignKey(m => m.OperatorAccountId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(e => e.DataPackage)
-                .WithMany(m => m.PrivateToBusinessSubscriptionOrders)
+                .WithMany(m => m.TransferToBusinessSubscriptionOrders)
                 .HasForeignKey(m => m.DataPackageId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(e => e.CustomerSubscriptionProduct)
-                .WithMany(m => m.PrivateToBusinessSubscriptionOrders)
+                .WithMany(m => m.TransferToBusinessSubscriptionOrders)
                 .HasForeignKey(m => m.SubscriptionProductId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(m => m.SubscriptionAddOnProducts)
-                .WithMany(m => m.PrivateToBusinessSubscriptionOrders)
-                .UsingEntity(join => join.ToTable("PrivateToBusinessSubscriptionOrderAddOnProducts"));
+                .WithMany(m => m.TransferToBusinessSubscriptionOrders)
+                .UsingEntity(join => join.ToTable("TransferToBusinessSubscriptionOrderAddOnProducts"));
+
+            builder.HasOne(e => e.PrivateSubscription);
+
+            builder.HasOne(e => e.BusinessSubscription);
         }
     }
 }

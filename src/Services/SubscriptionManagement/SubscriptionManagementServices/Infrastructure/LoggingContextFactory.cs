@@ -10,8 +10,11 @@ namespace SubscriptionManagementServices.Infrastructure
     {
         public LoggingDbContext CreateDbContext(string[] args)
         {
-            IConfiguration configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", false, true).AddJsonFile("appsettings.Development.json", true, true)
+            IConfiguration configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", false, true)
+                .AddJsonFile("appsettings.Development.json", true, true)
+                .AddUserSecrets<LoggingContextFactory>(optional: true)
                 .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<LoggingDbContext>();

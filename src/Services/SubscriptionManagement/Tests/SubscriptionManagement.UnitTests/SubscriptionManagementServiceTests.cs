@@ -39,7 +39,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         _subscriptionManagementContext = new SubscriptionManagementContext(ContextOptions);
         _subscriptionManagementRepository = new SubscriptionManagementRepository(_subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var customerSettingsRepository = new CustomerSettingsRepository(_subscriptionManagementContext,Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var customerSettingsRepository = new CustomerSettingsRepository(_subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         _subscriptionManagementService = new SubscriptionManagementService(_subscriptionManagementRepository,
             customerSettingsRepository,
             Options.Create(new TransferSubscriptionDateConfiguration
@@ -193,10 +193,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var exception_one_day = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1),
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
                     },
@@ -215,10 +215,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var exception = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow,
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
                     },
@@ -233,11 +233,11 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         var exception_thirty_day = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
                     OperatorAccountId = 1,
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
                     },
@@ -256,7 +256,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var exception = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
@@ -264,7 +264,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
                     },
@@ -278,7 +278,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         var exception_thirty_day = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
@@ -286,7 +286,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
                     },
@@ -305,7 +305,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var exception = await Record.ExceptionAsync(() =>
              _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
@@ -313,7 +313,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
                     },
@@ -327,7 +327,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         var exception_thirty_day = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
@@ -335,7 +335,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
                     },
@@ -353,11 +353,11 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     public async Task TransferSubscription_Same_Operator_Valid()
     {
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1.5),
                     OperatorAccountId = 1,
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1",
                         FirstName = "[FName]",
@@ -382,10 +382,9 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.NotNull(order);
         Assert.NotEmpty(order.SIMCardAction);
         Assert.NotEmpty(order.MobileNumber);
-        Assert.NotEmpty(order.SimCardNumber);
-        Assert.NotEmpty(order.FirstName);
-        Assert.NotEmpty(order.LastName);
-        Assert.Equal("[]", order.CustomerReferenceFields);
+        Assert.NotEmpty(order.SIMCardNumber);
+        Assert.NotNull(order.PrivateSubscription);
+        Assert.Null(order.BusinessSubscription);
     }
 
     [Fact]
@@ -393,7 +392,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     public async Task TransferSubscription_Diff_Operator_New_SIM()
     {
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
@@ -401,7 +400,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Telia - NO1",
                         FirstName = "[FName]",
@@ -432,7 +431,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var exception = await Record.ExceptionAsync(() =>
              _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
@@ -440,7 +439,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Telia - NO1",
                         FirstName = "[FName]",
@@ -472,7 +471,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     public async Task TransferSubscription_EmptyAddOnProduct()
     {
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
@@ -480,7 +479,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
-                    TransferFromPrivateSubscription = new PrivateSubscriptionDTO
+                    PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Telia - NO1",
                         FirstName = "[FName]",

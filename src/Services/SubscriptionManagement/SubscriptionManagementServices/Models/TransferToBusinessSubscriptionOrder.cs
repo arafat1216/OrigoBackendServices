@@ -2,16 +2,16 @@
 
 namespace SubscriptionManagementServices.Models
 {
-    public class PrivateToBusinessSubscriptionOrder : Entity, ISubscriptionOrder
+    public class TransferToBusinessSubscriptionOrder : Entity, ISubscriptionOrder
     {
         private List<SubscriptionAddOnProduct> _subscriptionAddOnProducts;
 
-        public PrivateToBusinessSubscriptionOrder()
+        public TransferToBusinessSubscriptionOrder()
         {
 
         }
 
-        public PrivateToBusinessSubscriptionOrder(
+        public TransferToBusinessSubscriptionOrder(
             string simCardNumber,
             string simCardAction,
             int subscriptionProductId,
@@ -22,28 +22,11 @@ namespace SubscriptionManagementServices.Models
             string mobileNumber,
             string customerReferenceFields,
             List<SubscriptionAddOnProduct> subscriptionAddOnProducts,
-            string firstName,
-            string lastName,
-            string address,
-            string postalPlace,
-            string postalCode,
-            string country,
-            string email,
-            DateTime dob,
-            string operatorName,
             string? newOperatorAccountOwner,
-            string? newOperatorAccountPayer)
+            string? newOperatorAccountPayer,
+            PrivateSubscription? privateSubscription,
+            BusinessSubscription? businessSubscription)
         {
-            FirstName = firstName;
-            LastName = lastName;
-            Address = address;
-            PostalCode = postalCode;
-            PostalPlace = postalPlace;
-            Country = country;
-            Email = email;
-            BirthDate = dob;
-            OperatorName = operatorName;
-
             SimCardNumber = simCardNumber;
             SIMCardAction = simCardAction;
             SubscriptionProductId = subscriptionProductId;
@@ -56,19 +39,10 @@ namespace SubscriptionManagementServices.Models
             _subscriptionAddOnProducts = subscriptionAddOnProducts;
             OperatorAccountOwner = newOperatorAccountOwner;
             OperatorAccountPayer = newOperatorAccountPayer;
+            PrivateSubscription = privateSubscription;
+            BusinessSubscription = businessSubscription;
         }
-
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Address { get; set; }
-        public string PostalCode { get; set; }
-        public string PostalPlace { get; set; }
-        public string Country { get; set; }
-        public string Email { get; set; }
-        public DateTime BirthDate { get; set; }
-        public string OperatorName { get; set; }
         public CustomerSubscriptionProduct CustomerSubscriptionProduct { get; set; }
-
         public IReadOnlyCollection<SubscriptionAddOnProduct> SubscriptionAddOnProducts => _subscriptionAddOnProducts.AsReadOnly();
 
         public string SimCardNumber { get; set; }
@@ -85,6 +59,9 @@ namespace SubscriptionManagementServices.Models
 
         public string? OperatorAccountOwner { get; set; }
         public string? OperatorAccountPayer { get; set; }
+
+        public PrivateSubscription? PrivateSubscription { get; set; }
+        public BusinessSubscription? BusinessSubscription { get; set; }
 
         public void SetSubscriptionAddOnProduct(List<SubscriptionAddOnProduct> subscriptionAddOnProducts)
         {

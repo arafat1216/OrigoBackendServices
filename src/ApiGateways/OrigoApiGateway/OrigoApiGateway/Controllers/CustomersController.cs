@@ -501,7 +501,7 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                
+
                 var subscriptionProductList = await SubscriptionManagementService.GetAllSubscriptionProductForCustomerAsync(organizationId);
                 //if (subscriptionProductList == null)
                 //{
@@ -635,13 +635,12 @@ namespace OrigoApiGateway.Controllers
         /// <param name="organizationId"></param>
         /// <param name="order"></param>
         /// <returns></returns>
-        [Route("{organizationId:Guid}/subscription-transfer-from-private-to-business")]
+        [Route("{organizationId:Guid}/subscription-transfer-to-business")]
         [HttpPost]
-        public async Task<ActionResult> TransferSubscription(Guid organizationId, [FromBody] TransferFromPrivateToBusinessSubscriptionOrder order)
+        public async Task<ActionResult> TransferSubscription(Guid organizationId, [FromBody] TransferToBusinessSubscriptionOrder order)
         {
-            await SubscriptionManagementService.TransferSubscriptionOrderForCustomerAsync(organizationId, order);
-            return NoContent();
+            var response = await SubscriptionManagementService.TransferSubscriptionOrderForCustomerAsync(organizationId, order);
+            return Ok(response);
         }
-
     }
 }
