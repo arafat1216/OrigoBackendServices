@@ -1,13 +1,13 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace CustomerServices.Models
 {
     public class LitiumOrganizationRole
     {
-        [JsonProperty("organization")]
+        [JsonPropertyName("organization")]
         public LitiumOrganization Organization { get; set; }
 
-        [JsonProperty("role")]
+        [JsonPropertyName("role")]
         public string Role { get; set; } = string.Empty;
     }
 }

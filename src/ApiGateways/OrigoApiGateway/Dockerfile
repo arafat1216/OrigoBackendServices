@@ -1,5 +1,5 @@
 # To run Sonarcloud and code coverage reports we need a dotnet.core SDK image with some extra tools installed.
-FROM origov2acr.azurecr.io/baseimage-dotnetcore-sonarcloud:latest AS build
+FROM origov2acr.azurecr.io/baseimage-dotnetcore6-sonarcloud:latest AS build
 
 # Parameters needed by Sonarcloud
 ARG SONAR_PROJECT_KEY=Mytos_OrigoApiGateway

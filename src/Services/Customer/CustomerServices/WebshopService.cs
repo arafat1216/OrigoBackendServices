@@ -4,10 +4,11 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using CustomerServices.Models;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 namespace CustomerServices
 {
@@ -81,7 +82,7 @@ namespace CustomerServices
                     }
 
                     string json = await resMsg.Content.ReadAsStringAsync();
-                    dynamic deserializedToken = JsonConvert.DeserializeObject(json);
+                    dynamic deserializedToken = JsonSerializer.Deserialize<dynamic>(json);
                     if (deserializedToken == null)
                     {
                         return null;
@@ -116,7 +117,7 @@ namespace CustomerServices
                 try
                 {
                     string json = await resMsg.Content.ReadAsStringAsync();
-                    LitiumPerson person = JsonConvert.DeserializeObject<LitiumPerson>(json);
+                    LitiumPerson person = JsonSerializer.Deserialize<LitiumPerson>(json);
                     return person;
                 }
                 catch (Exception e)
@@ -139,7 +140,7 @@ namespace CustomerServices
                 var resMsg = client.GetAsync($"{_webshopConfig.OrganizationsUri}/{orgNumber}").GetAwaiter().GetResult();
 
                 string json = await resMsg.Content.ReadAsStringAsync();
-                List<LitiumOrganization> organizations = JsonConvert.DeserializeObject<List<LitiumOrganization>>(json);
+                List<LitiumOrganization> organizations = JsonSerializer.Deserialize<List<LitiumOrganization>>(json);
 
                 // There can be multiple organizations with the same organizationNumber, for example:
                 // Mytos AS
@@ -192,8 +193,8 @@ namespace CustomerServices
                     role.Organization.LegalRegistrationNumber = role.Organization.LegalRegistrationNumber.Trim().Replace("-", "");
                 }
 
-                var personContent = new StringContent(JsonConvert.SerializeObject(person), Encoding.UTF8, "text/json");
-                var resMsg = client.PostAsync(_webshopConfig.PostPersonUri, personContent).GetAwaiter().GetResult();
+                var personContent = new StringContent(JsonSerializer.Serialize(person), Encoding.UTF8, "text/json");
+                var resMsg = await client.PostAsync(_webshopConfig.PostPersonUri, personContent);
 
                 if (!resMsg.IsSuccessStatusCode)
                 {

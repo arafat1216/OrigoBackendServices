@@ -12,8 +12,7 @@ namespace SubscriptionManagementServices.Mappings
                 .ForMember(d => d.UserInfo, opts => opts.MapFrom(s => s.UserInfo))
                 .ForMember(d => d.OperatorName, opts => opts.MapFrom(s => s.OperatorName))
                 .ForMember(d => d.NewSubscription, opts => opts.MapFrom(s => s.NewSubscription))
-                .ForMember(d => d.OrderExecutionDate, opts => opts.MapFrom(s => s.OrderExecutionDate))
-                .ForAllOtherMembers(d => d.Ignore());
+                .ForMember(d => d.OrderExecutionDate, opts => opts.MapFrom(s => s.OrderExecutionDate));
 
             CreateMap<TransferToPrivateSubscriptionOrder, TransferToPrivateSubscriptionOrderDTO>();
         }
