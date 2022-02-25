@@ -13,7 +13,7 @@
         Task DeleteOperatorSubscriptionProductForCustomerAsync(CustomerSubscriptionProduct customerSubscriptionProduct);
         Task<SubscriptionProduct> UpdateOperatorSubscriptionProductForCustomerAsync(Guid customerId, int subscriptionId);
         Task<SubscriptionOrder> AddSubscriptionOrderAsync(SubscriptionOrder subscriptionOrder);
-        Task<PrivateToBusinessSubscriptionOrder> TransferSubscriptionOrderAsync(PrivateToBusinessSubscriptionOrder subscriptionOrder);
+        Task<TransferToBusinessSubscriptionOrder> TransferSubscriptionOrderAsync(TransferToBusinessSubscriptionOrder subscriptionOrder);
         Task<SubscriptionProduct?> GetSubscriptionProductAsync(int id);
         Task<DataPackage?> GetDataPackageAsync(int id);
         Task<DataPackage?> GetDataPackageAsync(string dataPackageName);

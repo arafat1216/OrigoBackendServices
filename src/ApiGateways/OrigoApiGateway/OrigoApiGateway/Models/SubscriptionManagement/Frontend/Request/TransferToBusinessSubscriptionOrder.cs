@@ -3,12 +3,13 @@ using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
 {
-    public class TransferFromPrivateToBusinessSubscriptionOrder
+    public class TransferToBusinessSubscriptionOrder
     {
         /// <summary>
         /// The current owner the subscription will be transferred from.
         /// </summary>
-        public PrivateSubscription TransferFromPrivateSubscription { get; set; }
+        public PrivateSubscription? PrivateSubscription { get; set; } = null;
+        public BusinessSubscription? BusinessSubscription { get; set; } = null;
 
         /// <summary>
         /// The mobile number to be transferred

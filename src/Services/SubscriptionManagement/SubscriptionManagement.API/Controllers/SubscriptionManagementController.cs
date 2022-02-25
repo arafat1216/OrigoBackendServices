@@ -116,7 +116,7 @@ namespace SubscriptionManagement.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
         [Route("{organizationId:Guid}/transfer-from-private-to-business")]
-        public async Task<IActionResult> TransferSubscription(Guid organizationId, [FromBody] PrivateToBusinessSubscriptionOrderDTO subscriptionOrder)
+        public async Task<IActionResult> TransferSubscription(Guid organizationId, [FromBody] TransferToBusinessSubscriptionOrderDTO subscriptionOrder)
         {
             await _subscriptionServices.TransferPrivateToBusinessSubscriptionOrderAsync(organizationId, subscriptionOrder);
 

@@ -1,12 +1,12 @@
 ﻿namespace SubscriptionManagementServices.ServiceModels
 {
-    public class PrivateToBusinessSubscriptionOrderDTO
+    public class TransferToBusinessSubscriptionOrderDTO
     {
         /// <summary>
         /// The current owner the subscription will be transferred from.
         /// </summary>
-        public PrivateSubscriptionDTO TransferFromPrivateSubscription { get; set; } = new PrivateSubscriptionDTO();
-
+        public PrivateSubscriptionDTO? PrivateSubscription { get; set; } = null;
+        public BusinessSubscriptionDTO? BusinessSubscription { get; set; } = null;
         /// <summary>
         /// The mobile number to be transferred
         /// </summary>

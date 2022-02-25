@@ -193,7 +193,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var exception_one_day = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1),
                     TransferFromPrivateSubscription = new PrivateSubscriptionDTO
@@ -215,7 +215,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var exception = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow,
                     TransferFromPrivateSubscription = new PrivateSubscriptionDTO
@@ -233,7 +233,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         var exception_thirty_day = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
                     OperatorAccountId = 1,
@@ -256,7 +256,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var exception = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
@@ -278,7 +278,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         var exception_thirty_day = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
@@ -305,7 +305,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var exception = await Record.ExceptionAsync(() =>
              _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
@@ -327,7 +327,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         var exception_thirty_day = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
@@ -353,7 +353,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     public async Task TransferSubscription_Same_Operator_Valid()
     {
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1.5),
                     OperatorAccountId = 1,
@@ -393,7 +393,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     public async Task TransferSubscription_Diff_Operator_New_SIM()
     {
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
@@ -432,7 +432,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var exception = await Record.ExceptionAsync(() =>
              _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
@@ -472,7 +472,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     public async Task TransferSubscription_EmptyAddOnProduct()
     {
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
-                new PrivateToBusinessSubscriptionOrderDTO
+                new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO

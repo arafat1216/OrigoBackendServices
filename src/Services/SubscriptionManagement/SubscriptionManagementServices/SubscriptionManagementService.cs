@@ -167,7 +167,7 @@ namespace SubscriptionManagementServices
             return await _subscriptionManagementRepository.UpdateOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionId);
         }
 
-        public async Task<PrivateToBusinessSubscriptionOrder> TransferPrivateToBusinessSubscriptionOrderAsync(Guid organizationId, PrivateToBusinessSubscriptionOrderDTO order)
+        public async Task<TransferToBusinessSubscriptionOrder> TransferPrivateToBusinessSubscriptionOrderAsync(Guid organizationId, TransferToBusinessSubscriptionOrderDTO order)
         {
             var customerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(organizationId, order.OperatorAccountId.GetValueOrDefault()) ?? new CustomerOperatorAccount();
 
@@ -213,7 +213,7 @@ namespace SubscriptionManagementServices
 
             return await _subscriptionManagementRepository
                 .TransferSubscriptionOrderAsync(
-                    new PrivateToBusinessSubscriptionOrder(
+                    new TransferToBusinessSubscriptionOrder(
                         order.SIMCardNumber,
                         order.SIMCardAction,
                         order.SubscriptionProductId,

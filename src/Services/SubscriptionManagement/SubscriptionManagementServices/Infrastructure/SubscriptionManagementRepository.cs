@@ -198,7 +198,7 @@ namespace SubscriptionManagementServices.Infrastructure
             return addedCustomerOperatorSetting.Entity;
         }
 
-        public async Task<PrivateToBusinessSubscriptionOrder> TransferSubscriptionOrderAsync(PrivateToBusinessSubscriptionOrder subscriptionOrder)
+        public async Task<TransferToBusinessSubscriptionOrder> TransferSubscriptionOrderAsync(TransferToBusinessSubscriptionOrder subscriptionOrder)
         {
             var added = await _subscriptionContext.AddAsync(subscriptionOrder);
             await _subscriptionContext.SaveChangesAsync();

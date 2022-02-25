@@ -4,16 +4,17 @@ using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
-    public class PrivateToBusinessSubscriptionOrderConfiguration : IEntityTypeConfiguration<PrivateToBusinessSubscriptionOrder>
+    public class TransferToBusinessSubscriptionOrderConfiguration : IEntityTypeConfiguration<TransferToBusinessSubscriptionOrder>
     {
         private bool _isSqlLite;
-        public PrivateToBusinessSubscriptionOrderConfiguration(bool isSqlLite)
+        public TransferToBusinessSubscriptionOrderConfiguration(bool isSqlLite)
         {
             _isSqlLite = isSqlLite;
         }
-        public void Configure(EntityTypeBuilder<PrivateToBusinessSubscriptionOrder> builder)
+
+        public void Configure(EntityTypeBuilder<TransferToBusinessSubscriptionOrder> builder)
         {
-            builder.ToTable("PrivateToBusinessSubscriptionOrder");
+            builder.ToTable("TransferToBusinessSubscriptionOrder");
 
             //Properties
 
@@ -39,7 +40,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 
             builder.HasMany(m => m.SubscriptionAddOnProducts)
                 .WithMany(m => m.PrivateToBusinessSubscriptionOrders)
-                .UsingEntity(join => join.ToTable("PrivateToBusinessSubscriptionOrderAddOnProducts"));
+                .UsingEntity(join => join.ToTable("TransferToBusinessSubscriptionOrderAddOnProducts"));
         }
     }
 }
