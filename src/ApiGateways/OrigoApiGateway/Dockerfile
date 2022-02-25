@@ -54,7 +54,7 @@ WORKDIR "/src/ApiGateways/OrigoApiGateway/OrigoApiGateway"
 RUN dotnet publish "OrigoApiGateway.csproj" -c Release -o /app/publish
 
 # Create app image
-FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS final
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim AS final
 WORKDIR /app
 
 COPY --from=publish /app/publish .
