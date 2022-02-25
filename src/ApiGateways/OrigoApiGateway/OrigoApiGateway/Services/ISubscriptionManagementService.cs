@@ -18,7 +18,7 @@ namespace OrigoApiGateway.Services
         Task AddOperatorForCustomerAsync(Guid organizationId, IList<int> operators);
         Task DeleteOperatorForCustomerAsync(Guid organizationId, int operatorId);
         Task<bool> AddSubscriptionForCustomerAsync(Guid organizationId, OrderTransferSubscription subscription);
-        Task<TransferToBusinessSubscriptionOrder> TransferSubscriptionOrderForCustomerAsync(Guid customerId, TransferToBusinessSubscriptionOrder order);
+        Task<TransferToBusinessSubscriptionOrder> TransferToBusinessSubscriptionOrderForCustomerAsync(Guid customerId, TransferToBusinessSubscriptionOrder order);
         Task<IList<OrigoSubscriptionProduct>> GetAllOperatorsSubscriptionProductsAsync();
         Task<OrigoSubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid organizationId, NewSubscriptionProduct subscriptionProduct);
         Task<IList<OrigoSubscriptionProduct>> GetAllSubscriptionProductForCustomerAsync(Guid organizationId);
@@ -27,5 +27,6 @@ namespace OrigoApiGateway.Services
         Task<IList<OrigoCustomerReferenceField>> GetAllCustomerReferenceFieldsAsync(Guid organizationId);
         Task<OrigoCustomerReferenceField> AddCustomerReferenceFieldAsync(Guid organizationId, NewCustomerReferenceField newCustomerReferenceField, string callerId);
         Task<OrigoCustomerReferenceField> DeleteCustomerReferenceFieldAsync(Guid organizationId, int customerReferenceId, string callerId);
+        Task<TransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrderForCustomerAsync(Guid organizationId, TransferToPrivateSubscriptionOrder order);
     }
 }

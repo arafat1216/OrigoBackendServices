@@ -277,7 +277,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<TransferToBusinessSubscriptionOrder> TransferSubscriptionOrderForCustomerAsync(Guid customerId, TransferToBusinessSubscriptionOrder order)
+        public async Task<TransferToBusinessSubscriptionOrder> TransferToBusinessSubscriptionOrderForCustomerAsync(Guid customerId, TransferToBusinessSubscriptionOrder order)
         {
             try
             {
@@ -366,6 +366,27 @@ namespace OrigoApiGateway.Services
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "GetAllOperatorsSubscriptionProductsAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
+
+        public async Task<TransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrderForCustomerAsync(Guid organizationId, TransferToPrivateSubscriptionOrder order)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/{organizationId}/transfer-to-private";
+                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, order, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                });
+
+                postSubscription.EnsureSuccessStatusCode();
+
+                return await postSubscription.Content.ReadFromJsonAsync<TransferToPrivateSubscriptionOrder>();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "AddSubscriptionForCustomerAsync failed with HttpRequestException.");
                 throw;
             }
         }

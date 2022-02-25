@@ -29,6 +29,7 @@ namespace SubscriptionManagementServices.Infrastructure
         public DbSet<CustomerSubscriptionProduct> CustomerSubscriptionProducts => Set<CustomerSubscriptionProduct>();
         public DbSet<PrivateSubscription> PrivateSubscriptions => Set<PrivateSubscription>();
         public DbSet<BusinessSubscription> BusinessSubscriptions => Set<BusinessSubscription>();
+        public DbSet<TransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrders => Set<TransferToPrivateSubscriptionOrder>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,6 +45,7 @@ namespace SubscriptionManagementServices.Infrastructure
             modelBuilder.ApplyConfiguration(new CustomerSubscriptionProductConfiguration(_isSqlLite));
             modelBuilder.ApplyConfiguration(new PrivateSubscriptionConfiguration(_isSqlLite));
             modelBuilder.ApplyConfiguration(new BusinessSubscriptionConfiguration(_isSqlLite));
+            modelBuilder.ApplyConfiguration(new TransferToPrivateSubscriptionOrderConfiguration(_isSqlLite));
         }
     }
 }
