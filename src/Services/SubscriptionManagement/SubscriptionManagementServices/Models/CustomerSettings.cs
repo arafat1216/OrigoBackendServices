@@ -145,7 +145,7 @@ namespace SubscriptionManagementServices.Models
             AddDomainEvent(new CustomerReferenceFieldRemovedDomainEvent(customerReferenceField,CustomerId));
             return customerReferenceField;
         }
-        
+
         public CustomerSubscriptionProduct? RemoveSubscriptionProductAsync(int subscriptionProductID)
         {
             if (CustomerOperatorSettings == null)
@@ -153,14 +153,14 @@ namespace SubscriptionManagementServices.Models
                 return null;
             }
 
-            var subscriptionProduct = _customerOperatorSettings.SelectMany(a => a.AvailableSubscriptionProducts).Where(a=>a.Id ==subscriptionProductID).FirstOrDefault();
+            var subscriptionProduct = _customerOperatorSettings.SelectMany(a => a.AvailableSubscriptionProducts).Where(a => a.Id == subscriptionProductID).FirstOrDefault();
 
             if (subscriptionProduct == null)
             {
                 return null;
             }
-            
-            var customerOperatorSetting = _customerOperatorSettings.FirstOrDefault(r => r.Id == subscriptionProduct.Operator.Id);
+
+            var customerOperatorSetting = _customerOperatorSettings.FirstOrDefault(r => r.Operator.Id == subscriptionProduct.Operator.Id);
 
             if (customerOperatorSetting == null)
             {
