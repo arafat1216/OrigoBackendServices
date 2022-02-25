@@ -1,4 +1,4 @@
-FROM origov2acr.azurecr.io/baseimage-dotnetcore-sonarcloud6:latest AS build
+FROM origov2acr.azurecr.io/baseimage-dotnetcore6-sonarcloud:latest AS build
 
 ARG SONAR_PROJECT_KEY=97dfb3ac-dac5-4667-8e4e-d19bba085612
 ARG SONAR_ORGANIZATION_KEY=mytos
@@ -51,7 +51,7 @@ RUN find /CodeCoverage -name "coverage.cobertura.xml" -print | xargs sed -i 's/\
 FROM build AS publish
 RUN dotnet publish "Customer.API.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS final
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim AS final
 WORKDIR /app
 
 COPY --from=publish /app/publish .
