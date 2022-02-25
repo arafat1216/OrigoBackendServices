@@ -277,17 +277,19 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task TransferSubscriptionOrderForCustomerAsync(Guid customerId, TransferToBusinessSubscriptionOrder order)
+        public async Task<TransferToBusinessSubscriptionOrder> TransferSubscriptionOrderForCustomerAsync(Guid customerId, TransferToBusinessSubscriptionOrder order)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/{customerId}/transfer-from-private-to-business";
+                string requestUri = $"{_options.ApiPath}/{customerId}/transfer-to-business";
                 var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, order, new JsonSerializerOptions
                 {
                     DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
                 }) ;
 
                 postSubscription.EnsureSuccessStatusCode();
+
+                return await postSubscription.Content.ReadFromJsonAsync<TransferToBusinessSubscriptionOrder>();
             }
             catch (HttpRequestException ex)
             {

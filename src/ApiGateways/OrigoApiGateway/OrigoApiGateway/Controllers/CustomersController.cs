@@ -501,7 +501,7 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                
+
                 var subscriptionProductList = await SubscriptionManagementService.GetAllSubscriptionProductForCustomerAsync(organizationId);
                 //if (subscriptionProductList == null)
                 //{
@@ -639,8 +639,8 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         public async Task<ActionResult> TransferSubscription(Guid organizationId, [FromBody] TransferToBusinessSubscriptionOrder order)
         {
-            await SubscriptionManagementService.TransferSubscriptionOrderForCustomerAsync(organizationId, order);
-            return Ok();
+            var response = await SubscriptionManagementService.TransferSubscriptionOrderForCustomerAsync(organizationId, order);
+            return Ok(response);
         }
     }
 }

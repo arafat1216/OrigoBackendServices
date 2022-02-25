@@ -40,23 +40,6 @@ namespace SubscriptionManagementServices
             return _mapper.Map<CustomerOperatorAccountDTO>(operatorAccount);
         }
 
-        //public async Task<SubscriptionOrder> AddSubscriptionOrderForCustomerAsync(Guid customerId, int subscriptionProductId, int operatorAccountId, int datapackageId, Guid callerId, string simCardNumber)
-        //{
-        //    var customerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(operatorAccountId);
-        //    if (customerOperatorAccount == null)
-        //        throw new ArgumentException($"No operator account exists with ID {operatorAccountId}");
-
-        //    var subscriptionProduct = await _subscriptionManagementRepository.GetSubscriptionProductAsync(subscriptionProductId);
-        //    if (subscriptionProduct == null)
-        //        throw new ArgumentException($"No subscription product exists with ID {subscriptionProductId}");
-
-        //    var dataPackage = await _subscriptionManagementRepository.GetDataPackageAsync(datapackageId);
-        //    if (dataPackage == null)
-        //        throw new ArgumentException($"No DataPackage exists with ID {datapackageId}");
-
-        //    return await _subscriptionManagementRepository.AddSubscriptionOrderAsync(new SubscriptionOrder(customerId, subscriptionProductId, operatorAccountId, datapackageId, callerId, simCardNumber));
-        //}
-
         public Task<bool> DeleteOperatorForCustomerAsync(Guid organizationId, string operatorName)
         {
             return Task.FromResult(true);
@@ -167,7 +150,7 @@ namespace SubscriptionManagementServices
             return await _subscriptionManagementRepository.UpdateOperatorSubscriptionProductForCustomerAsync(customerId, subscriptionId);
         }
 
-        public async Task<TransferToBusinessSubscriptionOrder> TransferPrivateToBusinessSubscriptionOrderAsync(Guid organizationId, TransferToBusinessSubscriptionOrderDTO order)
+        public async Task<TransferToBusinessSubscriptionOrderDTO> TransferPrivateToBusinessSubscriptionOrderAsync(Guid organizationId, TransferToBusinessSubscriptionOrderDTO order)
         {
             var customerOperatorAccount = await _subscriptionManagementRepository.GetCustomerOperatorAccountAsync(organizationId, order.OperatorAccountId.GetValueOrDefault()) ?? new CustomerOperatorAccount();
 
@@ -211,7 +194,8 @@ namespace SubscriptionManagementServices
                     throw new ArgumentException($"The field name {field.Name} is not valid for this customer.");
             }
 
-            return await _subscriptionManagementRepository
+
+            var subscriptionOrder = await _subscriptionManagementRepository
                 .TransferSubscriptionOrderAsync(
                     new TransferToBusinessSubscriptionOrder(
                         order.SIMCardNumber,
@@ -224,9 +208,12 @@ namespace SubscriptionManagementServices
                         order.MobileNumber,
                         JsonSerializer.Serialize(order.CustomerReferenceFields),
                         subscriptionAddOnProducts.ToList(),
-                        order.NewOperatorAccount?.NewOperatorAccountOwner, 
+                        order.NewOperatorAccount?.NewOperatorAccountOwner,
                         order.NewOperatorAccount?.NewOperatorAccountPayer,
-                        null, null));
+                        _mapper.Map<PrivateSubscription>(order.PrivateSubscription),
+                        _mapper.Map<BusinessSubscription>(order.BusinessSubscription)));
+
+            return _mapper.Map<TransferToBusinessSubscriptionOrderDTO>(subscriptionOrder);
 
 
         }

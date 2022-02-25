@@ -11,5 +11,6 @@
         public string? Email { get; set; }
         public DateTime? BirthDate { get; set; }
         public string? OperatorName { get; set; }
+        public PrivateSubscriptionDTO? RealOwner { get; set; }
     }
 }

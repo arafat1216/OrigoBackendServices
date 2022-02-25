@@ -12,7 +12,7 @@ namespace SubscriptionManagementServices.Models
         public BusinessSubscription(string name, string organizationNumber, string address, string postalCode, string postalPlace, string country)
         {
             Name = name;
-            OranizationNumber = organizationNumber;
+            OrganizationNumber = organizationNumber;
             Address = address;
             PostalCode = postalCode;
             PostalPlace = postalPlace;
@@ -20,7 +20,7 @@ namespace SubscriptionManagementServices.Models
         }
 
         public string Name { get; set; }
-        public string OranizationNumber { get; set; }
+        public string OrganizationNumber { get; set; }
         public string Address { get; set; }
         public string PostalCode { get; set; }
         public string PostalPlace { get; set; }

@@ -39,7 +39,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         _subscriptionManagementContext = new SubscriptionManagementContext(ContextOptions);
         _subscriptionManagementRepository = new SubscriptionManagementRepository(_subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var customerSettingsRepository = new CustomerSettingsRepository(_subscriptionManagementContext,Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var customerSettingsRepository = new CustomerSettingsRepository(_subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         _subscriptionManagementService = new SubscriptionManagementService(_subscriptionManagementRepository,
             customerSettingsRepository,
             Options.Create(new TransferSubscriptionDateConfiguration
@@ -382,8 +382,9 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.NotNull(order);
         Assert.NotEmpty(order.SIMCardAction);
         Assert.NotEmpty(order.MobileNumber);
-        Assert.NotEmpty(order.SimCardNumber);
-        Assert.Equal("[]", order.CustomerReferenceFields);
+        Assert.NotEmpty(order.SIMCardNumber);
+        Assert.NotNull(order.PrivateSubscription);
+        Assert.Null(order.BusinessSubscription);
     }
 
     [Fact]
