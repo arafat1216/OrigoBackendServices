@@ -18,7 +18,7 @@
         public int? OperatorAccountId { get; set; }
 
         /// <summary>
-        ///     Customet Subscription product identifier
+        ///     Customer Subscription product identifier
         /// </summary>
         public int CustomerSubscriptionProductId { get; set; }
 
