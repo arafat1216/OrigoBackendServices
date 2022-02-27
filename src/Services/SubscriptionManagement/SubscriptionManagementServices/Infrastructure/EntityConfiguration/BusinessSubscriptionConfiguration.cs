@@ -6,7 +6,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
     public class BusinessSubscriptionConfiguration : IEntityTypeConfiguration<BusinessSubscription>
     {
-        private bool _isSqlLite;
+        private readonly bool _isSqlLite;
         public BusinessSubscriptionConfiguration(bool isSqlLite)
         {
             _isSqlLite = isSqlLite;

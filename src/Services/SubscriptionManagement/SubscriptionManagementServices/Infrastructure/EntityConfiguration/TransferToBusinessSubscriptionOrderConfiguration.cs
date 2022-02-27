@@ -6,7 +6,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
     public class TransferToBusinessSubscriptionOrderConfiguration : IEntityTypeConfiguration<TransferToBusinessSubscriptionOrder>
     {
-        private bool _isSqlLite;
+        private readonly bool _isSqlLite;
         public TransferToBusinessSubscriptionOrderConfiguration(bool isSqlLite)
         {
             _isSqlLite = isSqlLite;

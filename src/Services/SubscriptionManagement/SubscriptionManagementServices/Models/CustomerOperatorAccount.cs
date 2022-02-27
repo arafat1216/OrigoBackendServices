@@ -9,6 +9,17 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
+
+        /// <summary>
+        /// Used for testing to be able to set identity id.
+        /// </summary>
+        public CustomerOperatorAccount(int id, Guid organizationId, string accountNumber, string accountName, int operatorId,
+            Guid callerId) : this(organizationId, accountNumber, accountName, operatorId, callerId)
+        {
+            // ReSharper disable once VirtualMemberCallInConstructor
+            Id = id;
+        }
+
         public CustomerOperatorAccount(Guid organizationId, string accountNumber, string accountName, int operatorId, Guid callerId)
         {
             OrganizationId = organizationId;
@@ -25,7 +36,7 @@ namespace SubscriptionManagementServices.Models
         public virtual Operator Operator { get; set; }
         public int OperatorId { get; set; }
         public virtual ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
-        public virtual ICollection<CustomerOperatorSettings>? CustomerOperatorSettings { get; set; }
+        public virtual CustomerOperatorSettings CustomerOperatorSetting { get; set; }
         public virtual ICollection<TransferToBusinessSubscriptionOrder>? TransferToBusinessSubscriptionOrders { get; set; }
     }
 }

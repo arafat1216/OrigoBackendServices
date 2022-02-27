@@ -10,12 +10,33 @@ namespace SubscriptionManagementServices.Models
         public CustomerSubscriptionProduct()
         {
         }
+
+        /// <summary>
+        /// Used for testing to be able to set identity id.
+        /// </summary>
+        public CustomerSubscriptionProduct(int id, string subscriptionName, Operator @operator, Guid callerId, IList<DataPackage>? dataPackages)
+        : this(subscriptionName, @operator, callerId, dataPackages)
+        {
+            // ReSharper disable once VirtualMemberCallInConstructor
+            Id = id;
+        }
+
         public CustomerSubscriptionProduct(string subscriptionName, Operator @operator, Guid callerId, IList<DataPackage>? dataPackages)
         {
             SubscriptionName = subscriptionName;
             Operator = @operator;
             if (dataPackages != null) _dataPackages.AddRange(dataPackages);
             
+        }
+
+        /// <summary>
+        /// Used for testing to be able to set identity id.
+        /// </summary>
+        public CustomerSubscriptionProduct(int id, SubscriptionProduct globalSubscriptionProduct, Guid callerId, IList<DataPackage>? dataPackages)
+            : this(globalSubscriptionProduct, callerId, dataPackages)
+        {
+            // ReSharper disable once VirtualMemberCallInConstructor
+            Id = id;
         }
 
         public CustomerSubscriptionProduct(SubscriptionProduct globalSubscriptionProduct, Guid callerId, IList<DataPackage>? dataPackages)
@@ -28,23 +49,23 @@ namespace SubscriptionManagementServices.Models
         }
 
         public string SubscriptionName { get; set; }
+
         [JsonIgnore]
         public Operator Operator { get; set; }
 
-        private List<DataPackage> _dataPackages = new();
+        private readonly List<DataPackage> _dataPackages = new();
+
         [JsonIgnore]
         public ICollection<DataPackage> DataPackages => _dataPackages.AsReadOnly();
 
-        public void SetDataPackages(ICollection<DataPackage>? globalDataPackages,IList<string> selectedDataPackages, Guid callerId)
+        public void SetDataPackages(ICollection<DataPackage>? globalDataPackages, IEnumerable<string>? selectedDataPackages, Guid callerId)
         {
             _dataPackages.Clear();
-            foreach (var select in selectedDataPackages)
+            if (selectedDataPackages == null) return;
+            foreach (var selectedDataPackage in selectedDataPackages)
             {
-
-                var dataPackage = globalDataPackages.FirstOrDefault(a=>a.DataPackageName == select);
-
-                
-
+                if (globalDataPackages == null) continue;
+                var dataPackage = globalDataPackages.FirstOrDefault(a => a.DataPackageName == selectedDataPackage);
                 if (dataPackage != null)
                 {
                     _dataPackages.Add(dataPackage);
@@ -52,11 +73,10 @@ namespace SubscriptionManagementServices.Models
             }
         }
 
-
-
-        public SubscriptionProduct? GlobalSubscriptionProduct { get; set; }
         [JsonIgnore]
-        public ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
+        public SubscriptionProduct? GlobalSubscriptionProduct { get; set; }
+
+        [JsonIgnore]
         public virtual ICollection<TransferToBusinessSubscriptionOrder> TransferToBusinessSubscriptionOrders { get; set; }
     }
 }

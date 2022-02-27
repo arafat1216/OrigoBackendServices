@@ -4,80 +4,191 @@ using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
 using SubscriptionManagementServices.Types;
 
-namespace SubscriptionManagementServices
+namespace SubscriptionManagementServices;
+
+public class CustomerSettingsService : ICustomerSettingsService
 {
-    public class CustomerSettingsService : ICustomerSettingsService
+    private readonly IMapper _mapper;
+    private readonly ICustomerSettingsRepository _customerSettingsRepository;
+    private readonly IOperatorRepository _operatorRepository;
+
+    public CustomerSettingsService(ICustomerSettingsRepository customerSettingsRepository,
+        IOperatorRepository operatorRepository, IMapper mapper)
     {
-        private readonly IMapper _mapper;
-        private readonly ICustomerSettingsRepository _customerSettingsRepository;
+        _mapper = mapper;
+        _customerSettingsRepository = customerSettingsRepository;
+        _operatorRepository = operatorRepository;
+    }
 
-        public CustomerSettingsService(ICustomerSettingsRepository customerSettingsRepository, IMapper mapper)
-        {
-            _mapper = mapper;
-            _customerSettingsRepository = customerSettingsRepository;
-        }
+    public async Task AddOperatorsForCustomerAsync(Guid organizationId, IList<int> operators, Guid callerId)
+    {
+        await _customerSettingsRepository.AddCustomerOperatorSettingsAsync(organizationId, operators, callerId);
+    }
 
-        public async Task AddOperatorsForCustomerAsync(Guid organizationId, IList<int> operators, Guid callerId)
-        {
-            await _customerSettingsRepository.AddCustomerOperatorSettingsAsync(organizationId, operators, callerId);
-        }
+    public async Task<IList<OperatorDTO>> GetAllOperatorsForCustomerAsync(Guid organizationId)
+    {
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        return _mapper.Map<List<OperatorDTO>>(customerSettings?.CustomerOperatorSettings.Select(o => o.Operator));
+    }
 
-        public async Task<IList<CustomerReferenceFieldDTO>> GetCustomerReferenceFieldsAsync(Guid organizationId)
-        {
-            var customerReferenceFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId);
-            return _mapper.Map<List<CustomerReferenceFieldDTO>>(customerReferenceFields);
-        }
 
-        public async Task<CustomerReferenceFieldDTO> AddCustomerReferenceFieldAsync(Guid organizationId, string name, string type, Guid callerId)
-        {
-            var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
-            if (customerSettings == null)
-            {
-                customerSettings = new CustomerSettings(organizationId, callerId);
-            }
+    public async Task<IList<CustomerReferenceFieldDTO>> GetCustomerReferenceFieldsAsync(Guid organizationId)
+    {
+        var customerReferenceFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId);
+        return _mapper.Map<List<CustomerReferenceFieldDTO>>(customerReferenceFields);
+    }
 
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new InvalidCustomerReferenceInputDataException("Value for name not set.");
-            }
-            if (!Enum.TryParse(type, true, out CustomerReferenceTypes customerReferenceFieldType))
-            {
-                throw new InvalidCustomerReferenceInputDataException("Invalid value for type. Should be 'account' or 'user'.");
-            }
+    public async Task<CustomerReferenceFieldDTO> AddCustomerReferenceFieldAsync(Guid organizationId, string name,
+        string type, Guid callerId)
+    {
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        if (customerSettings == null) customerSettings = new CustomerSettings(organizationId, callerId);
 
-            var customerReferenceField = new CustomerReferenceField(name, customerReferenceFieldType, callerId);
-            customerSettings.AddCustomerReferenceField(customerReferenceField, callerId);
-            if (customerSettings.Id > 0)
-            {
-                await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSettings);
-            }
-            else
-            {
-                await _customerSettingsRepository.AddCustomerSettingsAsync(customerSettings);
-            }
-            return _mapper.Map<CustomerReferenceFieldDTO>(customerReferenceField);
-        }
+        if (string.IsNullOrWhiteSpace(name))
+            throw new InvalidCustomerReferenceInputDataException("Value for name not set.");
+        if (!Enum.TryParse(type, true, out CustomerReferenceTypes customerReferenceFieldType))
+            throw new InvalidCustomerReferenceInputDataException(
+                "Invalid value for type. Should be 'account' or 'user'.");
 
-        public async Task DeleteOperatorForCustomerAsync(Guid organizationId, int operatorId)
-        {
-            await _customerSettingsRepository.DeleteOperatorForCustomerAsync(organizationId, operatorId);
-        }
+        var customerReferenceField = new CustomerReferenceField(name, customerReferenceFieldType, callerId);
+        customerSettings.AddCustomerReferenceField(customerReferenceField, callerId);
+        if (customerSettings.Id > 0)
+            await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSettings);
+        else
+            await _customerSettingsRepository.AddCustomerSettingsAsync(customerSettings);
+        return _mapper.Map<CustomerReferenceFieldDTO>(customerReferenceField);
+    }
 
-        public async Task<CustomerReferenceFieldDTO?> DeleteCustomerReferenceFieldsAsync(Guid organizationId, int customerReferenceFieldId)
-        {
-            var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
-            if (customerSettings == null)
-            {
-                return null;
-            }
+    public async Task DeleteOperatorForCustomerAsync(Guid organizationId, int operatorId)
+    {
+        await _customerSettingsRepository.DeleteOperatorForCustomerAsync(organizationId, operatorId);
+    }
 
-            var customerReferenceField = customerSettings.RemoveCustomerReferenceField(customerReferenceFieldId);
-            if (customerReferenceField == null)
-            {
-                return null;
-            }
-            await _customerSettingsRepository.DeleteCustomerReferenceFieldForCustomerAsync(customerReferenceField);
-            return _mapper.Map<CustomerReferenceFieldDTO>(customerReferenceField);
-        }
+    public async Task<CustomerReferenceFieldDTO?> DeleteCustomerReferenceFieldsAsync(Guid organizationId,
+        int customerReferenceFieldId)
+    {
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        if (customerSettings == null) return null;
+
+        var customerReferenceField = customerSettings.RemoveCustomerReferenceField(customerReferenceFieldId);
+        if (customerReferenceField == null) return null;
+        await _customerSettingsRepository.DeleteCustomerReferenceFieldForCustomerAsync(customerReferenceField);
+        return _mapper.Map<CustomerReferenceFieldDTO>(customerReferenceField);
+    }
+
+    public async Task<CustomerOperatorAccountDTO> AddOperatorAccountForCustomerAsync(Guid organizationId,
+        string accountNumber, string accountName, int operatorId, Guid callerId)
+    {
+        var @operator = await _operatorRepository.GetOperatorAsync(operatorId);
+        if (@operator == null)
+            throw new ArgumentException($"No operator exists with ID {operatorId}");
+
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+
+        if (customerSettings == null) customerSettings = new CustomerSettings(organizationId, callerId);
+
+        var operatorAccount =
+            customerSettings.AddCustomerOperatorAccount(accountNumber, accountName, @operator, callerId);
+
+        if (customerSettings.Id > 0)
+            await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSettings);
+        else
+            await _customerSettingsRepository.AddCustomerSettingsAsync(customerSettings);
+
+        return _mapper.Map<CustomerOperatorAccountDTO>(operatorAccount);
+    }
+
+    public async Task DeleteCustomerOperatorAccountAsync(Guid organizationId, string accountNumber, int operatorId)
+    {
+        var @operator = await _operatorRepository.GetOperatorAsync(operatorId);
+        if (@operator == null)
+            throw new ArgumentException($"No operator exists with ID {operatorId}");
+
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        if (customerSettings == null) return;
+        customerSettings.DeleteCustomerOperatorAccountAsync(accountNumber, @operator);
+        await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSettings);
+    }
+
+    public async Task<IEnumerable<CustomerOperatorAccountDTO>> GetAllOperatorAccountsForCustomerAsync(
+        Guid organizationId)
+    {
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        return _mapper.Map<List<CustomerOperatorAccountDTO>>(customerSettings?.CustomerOperatorSettings.SelectMany(o => o.CustomerOperatorAccounts));
+    }
+
+    public async Task<CustomerSubscriptionProductDTO> AddOperatorSubscriptionProductForCustomerAsync(
+        Guid organizationId, int operatorId, string productName, IList<string>? dataPackages, Guid callerId)
+    {
+        var @operator = await _operatorRepository.GetOperatorAsync(operatorId);
+        if (@operator == null)
+            throw new ArgumentException($"No operator exists with ID {operatorId}");
+
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+
+        if (customerSettings == null) customerSettings = new CustomerSettings(organizationId, callerId);
+
+        var globalSubscriptionProduct =
+            await _customerSettingsRepository.GetSubscriptionProductByNameAsync(productName, operatorId);
+
+        var customerSubscriptionProduct = customerSettings.AddSubscriptionProduct(@operator, productName, dataPackages,
+            globalSubscriptionProduct, callerId);
+        if (customerSettings.Id > 0)
+            await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSettings);
+        else
+            await _customerSettingsRepository.AddCustomerSettingsAsync(customerSettings);
+        return _mapper.Map<CustomerSubscriptionProductDTO>(customerSubscriptionProduct);
+    }
+
+    public async Task<CustomerSubscriptionProductDTO?> DeleteOperatorSubscriptionProductForCustomerAsync(
+        Guid organizationId, int subscriptionId)
+    {
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        if (customerSettings == null)
+            throw new ArgumentException($"Customer has no customer settings for id {organizationId}");
+
+        var removedProduct = customerSettings.RemoveSubscriptionProduct(subscriptionId);
+
+        if (removedProduct == null) return null;
+
+        await _customerSettingsRepository.DeleteOperatorSubscriptionProductForCustomerAsync(removedProduct);
+
+        return _mapper.Map<CustomerSubscriptionProductDTO>(removedProduct);
+    }
+
+    public async Task<CustomerSubscriptionProductDTO> UpdateOperatorSubscriptionProductForCustomerAsync(Guid organizationId,
+        CustomerSubscriptionProductDTO subscriptionProduct)
+    {
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        if (customerSettings == null)
+            throw new ArgumentException($"Customer has no customer settings for id {organizationId}");
+
+        var updateSubscriptionProduct = customerSettings.UpdateSubscriptionProduct(subscriptionProduct);
+        await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSettings);
+        return _mapper.Map<CustomerSubscriptionProductDTO>(updateSubscriptionProduct);
+    }
+
+
+    public async Task<IList<CustomerSubscriptionProductDTO>> GetAllCustomerSubscriptionProductsAsync(
+        Guid organizationId)
+    {
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        if (customerSettings == null) return new List<CustomerSubscriptionProductDTO>();
+        var customerSubscriptionProducts =
+            customerSettings.CustomerOperatorSettings.SelectMany(o => o.AvailableSubscriptionProducts);
+        return !customerSubscriptionProducts.Any()
+            ? new List<CustomerSubscriptionProductDTO>()
+            : _mapper.Map<List<CustomerSubscriptionProductDTO>>(customerSubscriptionProducts);
+    }
+
+
+    public async Task<IList<GlobalSubscriptionProductDTO>> GetAllOperatorSubscriptionProductAsync()
+    {
+        var operatorsSubscriptionProduct = await _customerSettingsRepository.GetAllOperatorSubscriptionProducts();
+        List<GlobalSubscriptionProductDTO> operatorSubscriptionProducts = new();
+        operatorSubscriptionProducts.AddRange(
+            _mapper.Map<List<GlobalSubscriptionProductDTO>>(operatorsSubscriptionProduct));
+
+        return operatorSubscriptionProducts;
     }
 }

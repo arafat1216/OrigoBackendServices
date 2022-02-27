@@ -120,12 +120,12 @@ namespace OrigoApiGateway.Services
             // Thrown by HttpClient when there are connection issues. Let's re-package it as an API Exception so we can throw it to the controller for proper handling.
             catch (HttpRequestException exception)
             {
-                _logger.LogError(exception, $"{methodName} encountered an 'HttpRequestException'. Unique location ID: 55C012CD-2E59-458B-AEDC-E0EE94E4B4FB");
+                _logger.LogError(exception, "{0} encountered an 'HttpRequestException'. Unique location ID: 55C012CD-2E59-458B-AEDC-E0EE94E4B4FB", methodName);
                 throw new MicroserviceErrorResponseException(string.Empty, HttpStatusCode.GatewayTimeout);
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, $"{methodName} encountered an unexpected exception. Unique location ID: EAF80475-9430- 41C7-B2B0-C5AF74ACC443");
+                _logger.LogError(exception, "{0} encountered an unexpected exception. Unique location ID: EAF80475-9430- 41C7-B2B0-C5AF74ACC443", methodName);
                 throw;
             }
         }
@@ -171,12 +171,12 @@ namespace OrigoApiGateway.Services
             // Thrown by HttpClient when there are connection issues. Let's re-package it as an API Exception so we can throw it to the controller for proper handling.
             catch (HttpRequestException exception)
             {
-                _logger.LogError(exception, $"{methodName} encountered an 'HttpRequestException'. Unique location ID: 44498A62-4A97-4B36-8AE1-D9511DB06D52");
+                _logger.LogError(exception, "{0} encountered an 'HttpRequestException'. Unique location ID: 44498A62-4A97-4B36-8AE1-D9511DB06D52", methodName);
                 throw new MicroserviceErrorResponseException(string.Empty, HttpStatusCode.GatewayTimeout);
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, $"{methodName} encountered an unexpected exception. Unique location ID: 72F74E81-99D2-4246-BBAC-0E3B95CB7C7E");
+                _logger.LogError(exception, "{0} encountered an unexpected exception. Unique location ID: 72F74E81-99D2-4246-BBAC-0E3B95CB7C7E", methodName);
                 throw;
             }
         }

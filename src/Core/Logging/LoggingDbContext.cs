@@ -5,7 +5,7 @@ namespace Common.Logging
 {
     public class LoggingDbContext : DbContext
     {
-        public LoggingDbContext(DbContextOptions options) : base(options)
+        public LoggingDbContext(DbContextOptions<LoggingDbContext> options) : base(options)
         {
         }
 

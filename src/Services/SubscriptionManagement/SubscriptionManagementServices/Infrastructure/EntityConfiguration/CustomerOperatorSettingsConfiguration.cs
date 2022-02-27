@@ -6,7 +6,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
     internal class CustomerOperatorSettingsConfiguration : IEntityTypeConfiguration<CustomerOperatorSettings>
     {
-            private bool _isSqlLite;
+            private readonly bool _isSqlLite;
             public CustomerOperatorSettingsConfiguration(bool isSqlLite)
             {
                 _isSqlLite = isSqlLite;
@@ -25,9 +25,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
                 .WithMany(e => e.CustomerOperatorSettings);
 
             builder.HasMany(e => e.CustomerOperatorAccounts)
-                .WithMany(e => e.CustomerOperatorSettings)
-                .UsingEntity(join => join.ToTable("CustomersOperatorAccounts"));
-
+                .WithOne(e => e.CustomerOperatorSetting);
         }
     }
 }

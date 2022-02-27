@@ -1,17 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SubscriptionManagementServices.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
     internal class CustomerSubscriptionProductConfiguration : IEntityTypeConfiguration<CustomerSubscriptionProduct>
     {
-        private bool _isSqlLite;
+        private readonly bool _isSqlLite;
 
         public CustomerSubscriptionProductConfiguration(bool isSqlLite)
         {

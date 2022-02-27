@@ -28,6 +28,8 @@ namespace SubscriptionManagementServices.Infrastructure
                 .Include(cs => cs.CustomerOperatorSettings)
                 .ThenInclude(o => o.Operator)
                 .Include(cs => cs.CustomerOperatorSettings)
+                .ThenInclude(o => o.CustomerOperatorAccounts)
+                .Include(cs => cs.CustomerOperatorSettings)
                 .ThenInclude(op => op.AvailableSubscriptionProducts)
                 .ThenInclude(d => d.DataPackages)
                 .Include(cs => cs.CustomerReferenceFields).AsSplitQuery()
@@ -113,11 +115,51 @@ namespace SubscriptionManagementServices.Infrastructure
             return customerSetting.CustomerReferenceFields.ToImmutableList();
         }
 
+        public async Task DeleteOperatorSubscriptionProductForCustomerAsync(CustomerSubscriptionProduct customerSubscriptionProduct)
+        {
+            if (customerSubscriptionProduct.GlobalSubscriptionProduct == null)
+            {
+                _subscriptionManagementContext.DataPackages.RemoveRange(customerSubscriptionProduct.DataPackages);
+            }
+
+            _subscriptionManagementContext.Entry(customerSubscriptionProduct).State = EntityState.Deleted;
+            await _subscriptionManagementContext.SaveChangesAsync();
+        }
+
+        public async Task<SubscriptionProduct?> GetSubscriptionProductByNameAsync(string subscriptionProductName, int operatorId)
+        {
+
+            var subscriptionProduct = await _subscriptionManagementContext.SubscriptionProducts
+                .Include(m => m.DataPackages)
+                .FirstOrDefaultAsync(m => m.SubscriptionName == subscriptionProductName && m.OperatorId == operatorId);
+
+            return subscriptionProduct;
+        }
+
+        public async Task<CustomerOperatorSettings> UpdateCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings)
+        {
+            var addedCustomerOperatorSetting = _subscriptionManagementContext.CustomerOperatorSettings.Update(customerOperatorSettings);
+            await _subscriptionManagementContext.SaveChangesAsync();
+
+            return addedCustomerOperatorSetting.Entity;
+        }
+
+        public async Task<IList<SubscriptionProduct>?> GetAllOperatorSubscriptionProducts()
+        {
+            return await _subscriptionManagementContext.SubscriptionProducts
+                .Include(o => o.Operator)
+                .Include(d => d.DataPackages)
+                .AsSplitQuery()
+                .ToListAsync();
+        }
+
+
         public async Task DeleteCustomerReferenceFieldForCustomerAsync(CustomerReferenceField customerReferenceField)
         {
             _subscriptionManagementContext.Entry(customerReferenceField).State = EntityState.Deleted;
             await _subscriptionManagementContext.SaveChangesAsync();
         }
+
         public async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             int numberOfRecordsSaved = 0;

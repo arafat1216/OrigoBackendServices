@@ -4,7 +4,7 @@ namespace SubscriptionManagementServices.Models
 {
     public class TransferToBusinessSubscriptionOrder : Entity, ISubscriptionOrder
     {
-        private List<SubscriptionAddOnProduct> _subscriptionAddOnProducts;
+        private readonly List<SubscriptionAddOnProduct> _subscriptionAddOnProducts;
 
         public TransferToBusinessSubscriptionOrder()
         {
@@ -15,7 +15,7 @@ namespace SubscriptionManagementServices.Models
             string simCardNumber,
             string simCardAction,
             int subscriptionProductId,
-            Guid oranizationId,
+            Guid organizationId,
             int? operatorAccountId,
             int dataPackageId,
             DateTime orderExecutionDate,
@@ -30,7 +30,7 @@ namespace SubscriptionManagementServices.Models
             SimCardNumber = simCardNumber;
             SIMCardAction = simCardAction;
             SubscriptionProductId = subscriptionProductId;
-            OrganizationId = oranizationId;
+            OrganizationId = organizationId;
             OperatorAccountId = operatorAccountId;
             DataPackageId = dataPackageId;
             OrderExecutionDate = orderExecutionDate;

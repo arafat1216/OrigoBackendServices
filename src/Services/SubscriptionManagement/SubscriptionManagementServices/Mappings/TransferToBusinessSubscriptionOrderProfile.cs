@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
+using System.Text.Json;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
-using System.Text.Json;
+
 namespace SubscriptionManagementServices.Mappings
 {
     public class TransferToBusinessSubscriptionOrderProfile : Profile
