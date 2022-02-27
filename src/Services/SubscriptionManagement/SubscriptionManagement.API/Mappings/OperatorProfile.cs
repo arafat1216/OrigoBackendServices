@@ -7,11 +7,7 @@ namespace SubscriptionManagement.API.Mappings
     {
         public OperatorProfile()
         {
-            CreateMap<SubscriptionManagementServices.Models.Operator, OperatorDTO>()
-                .ForMember(destination => destination.Name, opt => opt.MapFrom(src => src.OperatorName));
-            
-            CreateMap<SubscriptionManagementServices.Models.Operator, ViewModels.Operator >()
-            .ForMember(destination => destination.Name, opt => opt.MapFrom(src => src.OperatorName));
+            CreateMap<OperatorDTO, ViewModels.Operator >();
         }
     }
 }

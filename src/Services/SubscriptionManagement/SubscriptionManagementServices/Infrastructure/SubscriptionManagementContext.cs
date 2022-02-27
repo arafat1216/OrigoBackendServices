@@ -20,7 +20,6 @@ namespace SubscriptionManagementServices.Infrastructure
         public DbSet<Operator> Operators => Set<Operator>();
         public DbSet<CustomerOperatorAccount> CustomerOperatorAccounts => Set<CustomerOperatorAccount>();
         public DbSet<SubscriptionProduct> SubscriptionProducts => Set<SubscriptionProduct>();
-        public DbSet<SubscriptionOrder> SubscriptionOrders => Set<SubscriptionOrder>();
         public DbSet<TransferToBusinessSubscriptionOrder> TransferSubscriptionOrders => Set<TransferToBusinessSubscriptionOrder>();
         public DbSet<DataPackage> DataPackages => Set<DataPackage>();
         public DbSet<SubscriptionAddOnProduct> SubscriptionAddOnProducts => Set<SubscriptionAddOnProduct>();
@@ -37,7 +36,6 @@ namespace SubscriptionManagementServices.Infrastructure
             modelBuilder.ApplyConfiguration(new DataPackageConfiguration(_isSqlLite));
             modelBuilder.ApplyConfiguration(new OperatorConfiguration(_isSqlLite));
             modelBuilder.ApplyConfiguration(new SubscriptionAddOnProductConfiguration(_isSqlLite));
-            modelBuilder.ApplyConfiguration(new SubscriptionOrderConfiguration(_isSqlLite));
             modelBuilder.ApplyConfiguration(new SubscriptionProductConfiguration(_isSqlLite));
             modelBuilder.ApplyConfiguration(new CustomerSettingsConfiguration(_isSqlLite));
             modelBuilder.ApplyConfiguration(new CustomerOperatorSettingsConfiguration(_isSqlLite));

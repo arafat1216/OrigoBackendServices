@@ -217,7 +217,8 @@ namespace OrigoApiGateway.Controllers
                 // In the event that we cannon retrieve or parse the user's UUID, throw an exception and log the problem.
                 if (!parseSuccess)
                 {
-                    _logger.LogError($"{nameof(ReplaceOrderedProductsAsync)} failed as the actor's claim could not be retrieved and/or parsed to a valid user UUID. Unique location ID: 'F7E971AF-3FF2-4259-AF0F-171A5A534B8F'");
+                    _logger.LogError("{0} failed as the actor's claim could not be retrieved and/or parsed to a valid user UUID. Unique location ID: 'F7E971AF-3FF2-4259-AF0F-171A5A534B8F'",
+                        nameof(ReplaceOrderedProductsAsync));
                     return Problem(statusCode: 500);
                 }
 
@@ -245,7 +246,9 @@ namespace OrigoApiGateway.Controllers
         private ActionResult ExceptionResponseBuilder(MicroserviceErrorResponseException exception)
         {
             if (exception.StatusCode.HasValue && exception.StatusCode == System.Net.HttpStatusCode.InternalServerError)
-                _logger.LogError(exception, $"Encountered an unexpected exception.\nUnique location ID: 731B4BE3-D358-4104-AAF7-96041BD07102.\nMessage:\n{exception.Message}");
+                _logger.LogError(exception,
+                        "Encountered an unexpected exception.\nUnique location ID: 731B4BE3-D358-4104-AAF7-96041BD07102.\nMessage:\n{0}",
+                        exception.Message);
 
             // Try and parse the error code, and set it to 500 if it's null.
             int statusCode = exception.StatusCode.HasValue ? (int)exception.StatusCode : 500;

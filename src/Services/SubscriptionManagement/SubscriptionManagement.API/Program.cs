@@ -3,7 +3,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SubscriptionManagement.API.Filters;
-using SubscriptionManagement.API.Mappings;
 using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
@@ -19,6 +18,7 @@ builder.Configuration.AddJsonFile("secrets/appsettings.secrets.json", optional: 
 
 builder.Configuration.AddUserSecrets<Program>(optional: true);
 
+builder.Services.AddHealthChecks();
 builder.Services.AddControllers().AddDapr();
 
 builder.Services.AddDbContext<SubscriptionManagementContext>(options => options.UseSqlServer(
@@ -68,6 +68,8 @@ builder.Services.Configure<TransferSubscriptionDateConfiguration>(builder.Config
 builder.Services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
 builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
 builder.Services.AddScoped<ISubscriptionManagementRepository, SubscriptionManagementRepository>();
+builder.Services.AddScoped<IOperatorService, OperatorService>();
+builder.Services.AddScoped<IOperatorRepository, OperatorRepository>();
 builder.Services.AddScoped<ICustomerSettingsService, CustomerSettingsService>();
 builder.Services.AddScoped<ICustomerSettingsRepository, CustomerSettingsRepository>();
 builder.Services.AddScoped<ErrorExceptionFilter>();
@@ -92,10 +94,14 @@ if (app.Environment.IsDevelopment())
 
 }
 
-app.UseHttpsRedirection();
+app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHealthChecks("/healthcheck");
+    endpoints.MapControllers();
+});
 
 app.Run();

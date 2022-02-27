@@ -2,11 +2,13 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SubscriptionManagementServices.Models;
 
+// ReSharper disable StringLiteralTypo
+
 namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
     internal class OperatorConfiguration : IEntityTypeConfiguration<Operator>
     {
-        private bool _isSqlLite;
+        private readonly bool _isSqlLite;
         public OperatorConfiguration(bool isSqlLite)
         {
             _isSqlLite = isSqlLite;

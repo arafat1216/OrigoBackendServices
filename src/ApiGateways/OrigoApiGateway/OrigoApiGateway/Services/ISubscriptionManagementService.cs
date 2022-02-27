@@ -11,7 +11,7 @@ namespace OrigoApiGateway.Services
     {
         Task<IEnumerable<OrigoCustomerOperatorAccount>> GetAllOperatorAccountsForCustomerAsync(Guid customerId);
         Task<OrigoCustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid organizationId, NewOperatorAccount origoCustomerOperatorAccount);
-        Task DeleteOperatorAccountForCustomerAsync(Guid organizationId, string accountNumber);
+        Task DeleteOperatorAccountForCustomerAsync(Guid organizationId, string accountNumber, int operatorId);
         Task<OrigoOperator> GetOperatorAsync(int id);
         Task<IList<OrigoOperator>> GetAllOperatorsAsync();
         Task<IList<OrigoOperator>> GetAllOperatorsForCustomerAsync(Guid organizationId);

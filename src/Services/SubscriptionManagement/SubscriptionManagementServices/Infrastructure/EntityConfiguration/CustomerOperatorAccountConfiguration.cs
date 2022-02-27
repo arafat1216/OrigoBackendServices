@@ -6,7 +6,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
     internal class CustomerOperatorAccountConfiguration : IEntityTypeConfiguration<CustomerOperatorAccount>
     {
-        private bool _isSqlLite;
+        private readonly bool _isSqlLite;
         public CustomerOperatorAccountConfiguration(bool isSqlLite)
         {
             _isSqlLite = isSqlLite;

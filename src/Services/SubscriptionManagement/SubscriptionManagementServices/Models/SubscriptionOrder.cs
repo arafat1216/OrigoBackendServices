@@ -4,7 +4,7 @@ namespace SubscriptionManagementServices.Models
 {
     public class SubscriptionOrder : Entity, ISubscriptionOrder
     {
-        private List<SubscriptionAddOnProduct> _subscriptionAddOnProducts;
+        private readonly List<SubscriptionAddOnProduct> _subscriptionAddOnProducts;
 
         public SubscriptionOrder()
         {

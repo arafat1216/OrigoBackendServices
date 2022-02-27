@@ -26,7 +26,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
     public SubscriptionManagementServiceTests() : base(new DbContextOptionsBuilder<SubscriptionManagementContext>()
         // ReSharper disable once StringLiteralTypo
-        .UseSqlite("Data Source=sqlitecustomerunittests.db").Options)
+        .UseSqlite("Data Source=sqlitesubscriptionmanagementunittests.db").Options)
     {
         if (_mapper == null)
         {
@@ -40,8 +40,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         _subscriptionManagementContext = new SubscriptionManagementContext(ContextOptions);
         _subscriptionManagementRepository = new SubscriptionManagementRepository(_subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var customerSettingsRepository = new CustomerSettingsRepository(_subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var operatorRepository = new OperatorRepository(_subscriptionManagementContext);
         _subscriptionManagementService = new SubscriptionManagementService(_subscriptionManagementRepository,
             customerSettingsRepository,
+            operatorRepository,
             Options.Create(new TransferSubscriptionDateConfiguration
             {
                 MinDaysForNewOperatorWithSIM = 10,
@@ -49,83 +51,6 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 MaxDaysForAll = 30,
                 MinDaysForCurrentOperator = 1
             }), _mapper);
-    }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task AddSubscriptionProductForCustomer_Valid()
-    {
-        var added = await _subscriptionManagementService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID,
-            1, "ProductName", new List<string> { "s1", "s2" }, Guid.NewGuid());
-    }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task GetAllOperatorAccountsForCustomer_Check_Total()
-    {
-        var accounts = await _subscriptionManagementService.GetAllOperatorAccountsForCustomerAsync(ORGANIZATION_ONE_ID);
-        Assert.Equal(3, accounts.Count());
-    }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task AddCustomerOperatorAccount_Valid()
-    {
-        await _subscriptionManagementService.AddOperatorAccountForCustomerAsync(ORGANIZATION_ONE_ID, "AcNum4",
-            "AC_Name_4", 1, Guid.NewGuid());
-        Assert.Equal(4, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
-    }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task DeleteCustomerOperatorAccount_Valid()
-    {
-        await _subscriptionManagementService.DeleteCustomerOperatorAccountAsync(ORGANIZATION_ONE_ID, "AC_NUM1");
-        Assert.Equal(2, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
-    }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task DeleteCustomerOperatorAccount_InValid()
-    {
-        var exception = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.DeleteCustomerOperatorAccountAsync(ORGANIZATION_ONE_ID, "AC_NUM11"));
-
-        Assert.NotNull(exception);
-        Assert.IsType<ArgumentException>(exception);
-        Assert.Equal(
-            $"No customer operator account with organization ID ({ORGANIZATION_ONE_ID}) and account name AC_NUM11 exists.",
-            exception.Message);
-    }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task AddCustomerOperatorAccount_SameObject()
-    {
-        var exception = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.AddOperatorAccountForCustomerAsync(ORGANIZATION_ONE_ID, "AC_NUM1", "AC_NUM1",
-                1, Guid.NewGuid()));
-
-        Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
-        Assert.NotNull(exception);
-        Assert.IsType<ArgumentException>(exception);
-        Assert.Equal(
-            $"A customer operator account with organization ID ({ORGANIZATION_ONE_ID}) and account number AC_NUM1 already exists.",
-            exception.Message);
-    }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task AddCustomerOperatorAccount_InValid()
-    {
-        var exception = await Record.ExceptionAsync(() =>
-            _subscriptionManagementService.AddOperatorAccountForCustomerAsync(ORGANIZATION_ONE_ID, "AcNum4",
-                "AC_Name_4", 11, Guid.NewGuid()));
-
-        Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
-        Assert.NotNull(exception);
-        Assert.IsType<ArgumentException>(exception);
-        Assert.Equal("No operator exists with ID 11", exception.Message);
     }
 
     [Fact]
@@ -177,14 +102,6 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         //Assert.NotNull(exception);
         //Assert.IsType<ArgumentException>(exception);
         //Assert.Equal("No DataPackage exists with ID 10", exception.Message);
-    }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task GetAllOperatorsForCustomer()
-    {
-        var customerOperators = await _subscriptionManagementService.GetAllOperatorsForCustomerAsync(ORGANIZATION_ONE_ID);
-        Assert.Equal(1, customerOperators.Count());
     }
 
     [Fact]
@@ -261,6 +178,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
+                        OperatorId = 11, // Op2
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
@@ -276,13 +194,14 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.IsType<ArgumentException>(exception);
         Assert.Equal("Invalid transfer date. 4 workdays ahead or more allowed.", exception.Message);
 
-        var exception_thirty_day = await Record.ExceptionAsync(() =>
+        var exceptionThirtyDay = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
                     OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
+                        OperatorId = 11, // Op2
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
@@ -294,9 +213,9 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 }
                 ));
 
-        Assert.NotNull(exception_thirty_day);
-        Assert.IsType<ArgumentException>(exception_thirty_day);
-        Assert.Equal("Invalid transfer date. 4 workdays ahead or more allowed.", exception_thirty_day.Message);
+        Assert.NotNull(exceptionThirtyDay);
+        Assert.IsType<ArgumentException>(exceptionThirtyDay);
+        Assert.Equal("Invalid transfer date. 4 workdays ahead or more allowed.", exceptionThirtyDay.Message);
     }
 
     [Fact]
@@ -310,6 +229,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     OrderExecutionDate = DateTime.UtcNow.AddDays(1),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
+                        OperatorId = 11, // Op2
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
@@ -332,6 +252,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
+                        OperatorId = 11, // Op2
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
@@ -372,7 +293,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SIMCardNumber = "[SIMCardNumber]",
                     SIMCardAction = "[SIMCardAction]",
                     MobileNumber = "[MobileNumber]",
-                    SubscriptionProductId = 1,
+                    CustomerSubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
                     CustomerReferenceFields = new List<NewCustomerReferenceField> { }
@@ -397,12 +318,13 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
+                        OperatorId = 10, // Op1
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
                     PrivateSubscription = new PrivateSubscriptionDTO
                     {
-                        OperatorName = "Telia - NO1",
+                        OperatorName = "Op2",
                         FirstName = "[FName]",
                         LastName = "[LName]",
                         Address = "[Address]",
@@ -415,7 +337,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SIMCardNumber = "[SIMCardNumber]",
                     SIMCardAction = "[SIMCardAction]",
                     MobileNumber = "[MobileNumber]",
-                    SubscriptionProductId = 1,
+                    CustomerSubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
                     CustomerReferenceFields = new List<NewCustomerReferenceField> { }
@@ -436,6 +358,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
+                        OperatorId = 10, // Op1
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
@@ -454,7 +377,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SIMCardNumber = "[SIMCardNumber]",
                     SIMCardAction = "[SIMCardAction]",
                     MobileNumber = "[MobileNumber]",
-                    SubscriptionProductId = 1,
+                    CustomerSubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
                     CustomerReferenceFields = new List<NewCustomerReferenceField> { new NewCustomerReferenceField { Name = "X", Type = "Y" } }
@@ -476,6 +399,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
+                        OperatorId = 10, // Op1
                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
                     },
@@ -494,109 +418,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SIMCardNumber = "[SIMCardNumber]",
                     SIMCardAction = "[SIMCardAction]",
                     MobileNumber = "[MobileNumber]",
-                    SubscriptionProductId = 1,
+                    CustomerSubscriptionProductId = 1,
                     DataPackage = "Data Package"
                 });
 
         Assert.NotNull(order);
-    }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task GetAllOperator()
-    {
-        var operators = await _subscriptionManagementService.GetAllOperatorsAsync();
-        Assert.NotNull(operators);
-        Assert.Equal(7, operators.Count);
-    }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task GetOperator()
-    {
-        var operator1 = await _subscriptionManagementService.GetOperatorAsync(1);
-        Assert.NotNull(operator1);
-
-        var operator2 = await _subscriptionManagementService.GetOperatorAsync(100);
-        Assert.Null(operator2);
-    }
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task AddOperatorSubscriptionProductForCustomerAsync_WithGlobalProduct()
-    {
-        var newDataPackages = new List<string>
-        {
-            "Data Package"
-        };
-        var operators = await _subscriptionManagementRepository.GetAllOperatorsAsync();
-        var operatorId = operators.FirstOrDefault(a => a.OperatorName == "Op1");
-
-
-        var subscriptionProductForCustomer = await _subscriptionManagementService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, operatorId.Id, "SubscriptionName", newDataPackages, CALLER_ONE_ID);
-        Assert.NotNull(subscriptionProductForCustomer);
-        Assert.Equal(1, subscriptionProductForCustomer.Datapackages.Count);
-        Assert.True(subscriptionProductForCustomer.isGlobal);
-        Assert.Equal("SubscriptionName", subscriptionProductForCustomer.Name);
-        Assert.Equal(operatorId.Id, subscriptionProductForCustomer.OperatorId);
-    }
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task AddOperatorSubscriptionProductForCustomerAsync_WithCustomProduct()
-    {
-        var newDataPackages = new List<string>
-        {
-            "New Datapackage",
-            "New Datapackage 2"
-        };
-        var operators = await _subscriptionManagementRepository.GetAllOperatorsAsync();
-        var operatorId = operators.FirstOrDefault(a => a.OperatorName == "Op1");
-
-
-        var subscriptionProductForCustomer = await _subscriptionManagementService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, operatorId.Id, "Custom Product", newDataPackages, CALLER_ONE_ID);
-        Assert.NotNull(subscriptionProductForCustomer);
-        Assert.Equal(2, subscriptionProductForCustomer.Datapackages.Count);
-        Assert.False(subscriptionProductForCustomer.isGlobal);
-        Assert.Equal("Custom Product", subscriptionProductForCustomer.Name);
-        Assert.Equal(operatorId.Id, subscriptionProductForCustomer.OperatorId);
-    }
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task AddOperatorSubscriptionProductForCustomerAsync_GlobalProductWithWrongDatapackages()
-    {
-        var newDataPackages = new List<string>
-        {
-            "New Datapackage"
-        };
-
-        var operators = await _subscriptionManagementRepository.GetAllOperatorsAsync();
-        var operatorId = operators.FirstOrDefault(a => a.OperatorName == "Op1");
-
-
-        var subscriptionProductForCustomer = await _subscriptionManagementService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, operatorId.Id, "SubscriptionName", newDataPackages, CALLER_ONE_ID);
-        Assert.NotNull(subscriptionProductForCustomer);
-        Assert.Equal(0, subscriptionProductForCustomer.Datapackages.Count);
-        Assert.True(subscriptionProductForCustomer.isGlobal);
-        Assert.Equal("SubscriptionName", subscriptionProductForCustomer.Name);
-        Assert.Equal(operatorId.Id, subscriptionProductForCustomer.OperatorId);
-    }
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task AddOperatorSubscriptionProductForCustomerAsync_AddingSubscriptionProductWithouCustomerSettings()
-    {
-        var newDataPackages = new List<string>
-        {
-            "Data Package"
-        };
-
-        var operators = await _subscriptionManagementRepository.GetAllOperatorsAsync();
-        var operatorId = operators.FirstOrDefault(a => a.OperatorName == "Op1");
-
-
-        var subscriptionProductForCustomer = await _subscriptionManagementService.AddOperatorSubscriptionProductForCustomerAsync(new Guid("00000000-0000-0000-0000-000000000000"), operatorId.Id, "SubscriptionName", newDataPackages, CALLER_ONE_ID);
-        Assert.NotNull(subscriptionProductForCustomer);
-        Assert.Equal(1, subscriptionProductForCustomer.Datapackages.Count);
-        Assert.True(subscriptionProductForCustomer.isGlobal);
-        Assert.Equal("SubscriptionName", subscriptionProductForCustomer.Name);
-        Assert.Equal(operatorId.Id, subscriptionProductForCustomer.OperatorId);
     }
 }

@@ -8,6 +8,17 @@ namespace SubscriptionManagementServices.Models
         {
 
         }
+
+        /// <summary>
+        /// Used for testing to be able to set identity id.
+        /// </summary>
+        public SubscriptionProduct(int id, string subscriptionName, Operator @operator, IList<DataPackage>? dataPackages, Guid callerId)
+        : this(subscriptionName, @operator, dataPackages, callerId)
+        {
+            // ReSharper disable once VirtualMemberCallInConstructor
+            Id = id;
+        }
+
         public SubscriptionProduct(string subscriptionName, Operator @operator, IList<DataPackage>? dataPackages, Guid callerId)
         {
 

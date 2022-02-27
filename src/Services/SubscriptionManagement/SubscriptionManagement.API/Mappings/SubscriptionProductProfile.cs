@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using SubscriptionManagementServices.ServiceModels;
 
 namespace SubscriptionManagement.API.Mappings
 {
@@ -6,9 +7,8 @@ namespace SubscriptionManagement.API.Mappings
     {
         public SubscriptionProductProfile()
         {
-            CreateMap<SubscriptionManagementServices.Models.SubscriptionProduct, ViewModels.SubscriptionProduct>()
-                .ForMember(destination => destination.Datapackages, opt => opt.MapFrom(src => src.DataPackages.Select(s=>s.DataPackageName)));
-
+            CreateMap<ViewModels.SubscriptionProduct, CustomerSubscriptionProductDTO>();
+            CreateMap<CustomerSubscriptionProductDTO, ViewModels.SubscriptionProduct>();
         }
     }
 }

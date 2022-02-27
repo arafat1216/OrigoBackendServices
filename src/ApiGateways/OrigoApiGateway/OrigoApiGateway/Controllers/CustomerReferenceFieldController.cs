@@ -88,7 +88,7 @@ namespace OrigoApiGateway.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"CreateCustomerReferenceField gateway. Message = {ex.Message}");
+                _logger.LogError("CreateCustomerReferenceField gateway. Message = {0}", ex.Message);
                 return BadRequest(ex.Message);
             }
         }

@@ -252,7 +252,7 @@ namespace OrigoApiGateway.Services
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError(ex, $"AddCustomerReferenceFieldAsync failed with HttpRequestException." );
+                _logger.LogError(ex, "AddCustomerReferenceFieldAsync failed with HttpRequestException." );
                 throw;
             }
         }
@@ -272,7 +272,7 @@ namespace OrigoApiGateway.Services
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError(ex, $"DeleteCustomerReferenceFieldAsync failed with HttpRequestException.");
+                _logger.LogError(ex, "DeleteCustomerReferenceFieldAsync failed with HttpRequestException.");
                 throw;
             }
         }
@@ -333,17 +333,18 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task DeleteOperatorAccountForCustomerAsync(Guid organizationId, string accountNumber)
+        public async Task DeleteOperatorAccountForCustomerAsync(Guid organizationId, string accountNumber, int operatorId)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/{organizationId}/operator-accounts/{accountNumber}";
+                string requestUri = $"{_options.ApiPath}/{organizationId}/operator-accounts?accountNumber={accountNumber}&operatorId={operatorId}";
 
                 var response = await HttpClient.SendAsync(new HttpRequestMessage
                 {
                     Content = new StringContent(string.Empty),
                     Method = HttpMethod.Delete,
-                    RequestUri = new Uri(requestUri, UriKind.Relative)
+                    RequestUri = new Uri(requestUri, UriKind.Relative),
+
                 });
 
                 response.EnsureSuccessStatusCode();

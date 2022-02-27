@@ -2,12 +2,6 @@
 {
     public record Operator
     {
-        public Operator(SubscriptionManagementServices.Models.Operator @operator)
-        {
-            Name = @operator.OperatorName;
-            Country = @operator.Country;
-            Id = @operator.Id;
-        }
         /// <summary>
         /// Operator's name
         /// </summary>

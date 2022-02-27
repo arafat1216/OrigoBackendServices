@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SubscriptionManagementServices.Models;
+
 namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
     internal class CustomerSettingsConfiguration : IEntityTypeConfiguration<CustomerSettings>
     {
-        private bool _isSqlLite;
+        private readonly bool _isSqlLite;
         public CustomerSettingsConfiguration(bool isSqlLite)
         {
             _isSqlLite = isSqlLite;
