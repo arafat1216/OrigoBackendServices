@@ -17,6 +17,7 @@ using AutoMapper;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using Common.Exceptions;
+using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -651,5 +652,33 @@ namespace OrigoApiGateway.Controllers
             var response = await SubscriptionManagementService.TransferToPrivateSubscriptionOrderForCustomerAsync(organizationId, order);
             return Ok(response);
         }
+
+        [Route("{organizationId:Guid}/subscription-orders")]
+        [ProducesResponseType(typeof(IList<OrigoSubscriptionOrderListItem>), (int)HttpStatusCode.OK)]
+        [HttpGet]
+        public async Task<ActionResult> GetSubscriptionOrders(Guid organizationId)
+        {
+            var origoSubscriptionOrderList = new List<OrigoSubscriptionOrderListItem>
+            {
+                new OrigoSubscriptionOrderListItem{
+                    CreatedDate = new DateTime(2022, 1, 2),
+                    NewSubscriptionOrderOwnerName = "My Company",
+                    TransferDate = new DateTime(2022, 1, 8)
+                },
+                new OrigoSubscriptionOrderListItem{
+                    CreatedDate = new DateTime(2022, 1, 12),
+                    NewSubscriptionOrderOwnerName = "Another Company",
+                    TransferDate = new DateTime(2022, 1, 19)
+                },
+                new OrigoSubscriptionOrderListItem{
+                    CreatedDate = new DateTime(2022, 1, 3),
+                    NewSubscriptionOrderOwnerName = "Ola Nordmann",
+                    TransferDate = new DateTime(2022, 1, 4)
+                }
+            };
+            return Ok(origoSubscriptionOrderList);
+        }
+
+
     }
 }
