@@ -277,7 +277,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<TransferToBusinessSubscriptionOrder> TransferToBusinessSubscriptionOrderForCustomerAsync(Guid customerId, TransferToBusinessSubscriptionOrder order)
+        public async Task<OrigoTransferToBusinessSubscriptionOrder> TransferToBusinessSubscriptionOrderForCustomerAsync(Guid customerId, TransferToBusinessSubscriptionOrder order)
         {
             try
             {
@@ -286,10 +286,11 @@ namespace OrigoApiGateway.Services
                 {
                     DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
                 }) ;
-
+               
                 postSubscription.EnsureSuccessStatusCode();
 
-                return await postSubscription.Content.ReadFromJsonAsync<TransferToBusinessSubscriptionOrder>();
+                return await postSubscription.Content.ReadFromJsonAsync<OrigoTransferToBusinessSubscriptionOrder>();
+
             }
             catch (HttpRequestException ex)
             {
