@@ -77,12 +77,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task AddOperatorForCustomerAsync(Guid organizationId, IList<int> operators)
+        public async Task AddOperatorForCustomerAsync(Guid organizationId, NewOperatorListDTO newOperatorListDto)
         {
             try
             {
                 string requestUri = $"{_options.ApiPath}/{organizationId}/operators";
-                var postOperator = await HttpClient.PostAsJsonAsync(requestUri, operators);
+                var postOperator = await HttpClient.PostAsJsonAsync(requestUri, newOperatorListDto);
                 postOperator.EnsureSuccessStatusCode();
             }
             catch (HttpRequestException ex)

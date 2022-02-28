@@ -13,6 +13,7 @@ using Xunit;
 using Moq;
 using Common.Logging;
 using MediatR;
+using SubscriptionManagementServices.ServiceModels;
 
 namespace SubscriptionManagement.UnitTests
 {
@@ -67,7 +68,11 @@ namespace SubscriptionManagement.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task AddCustomerOperator()
         {
-            await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID, new List<int> { 1, 2 }, CALLER_ONE_ID);
+            NewOperatorList operatorList = new NewOperatorList();
+            operatorList.Operators = new List<int> { 1, 2 };
+            operatorList.CallerId = CALLER_ONE_ID;
+
+            await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID,operatorList);
             Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
             Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorSettings.Count());
         }
@@ -76,11 +81,19 @@ namespace SubscriptionManagement.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task UpdateCustomerOperator()
         {
-            await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID, new List<int> { 1, 2 }, CALLER_ONE_ID);
+            NewOperatorList operatorList = new NewOperatorList();
+            operatorList.Operators = new List<int> { 1, 2 };
+            operatorList.CallerId = CALLER_ONE_ID;
+
+            await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID, operatorList);
             Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
             Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorSettings.Count());
 
-            await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID, new List<int> { 3 }, CALLER_ONE_ID);
+            NewOperatorList operatorList2 = new NewOperatorList();
+            operatorList2.Operators = new List<int> { 3};
+            operatorList2.CallerId = CALLER_ONE_ID;
+
+            await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID, operatorList2);
             Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
             Assert.Equal(4, _subscriptionManagementContext.CustomerOperatorSettings.Count());
         }
@@ -89,7 +102,11 @@ namespace SubscriptionManagement.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task DeleteCustomerOperator()
         {
-            await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID, new List<int> { 1, 2 }, CALLER_ONE_ID);
+            NewOperatorList operatorList = new NewOperatorList();
+            operatorList.Operators = new List<int> { 1, 2 };
+            operatorList.CallerId = CALLER_ONE_ID;
+
+            await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID, operatorList);
             Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
             Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorSettings.Count());
 

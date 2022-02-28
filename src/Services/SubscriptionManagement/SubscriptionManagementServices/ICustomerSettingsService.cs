@@ -4,7 +4,7 @@ namespace SubscriptionManagementServices
 {
     public interface ICustomerSettingsService
     {
-        Task AddOperatorsForCustomerAsync(Guid organizationId, IList<int> operators, Guid callerId);
+        Task AddOperatorsForCustomerAsync(Guid organizationId, NewOperatorList operators);
         Task DeleteOperatorForCustomerAsync(Guid organizationId, int operatorId);
 
         Task<CustomerReferenceFieldDTO?> DeleteCustomerReferenceFieldsAsync(Guid organizationId, int customerReferenceFieldId);
