@@ -132,7 +132,7 @@ namespace OrigoApiGateway.Services
 
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", newCustomerDTO);
                 if (!response.IsSuccessStatusCode && (int)response.StatusCode == 409)
-                    throw new InvalidOrganizationNumberException("Unable to save customer: " + response.Content);
+                    throw new InvalidOrganizationNumberException(await response.Content.ReadAsStringAsync());
                 else if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save customer", (int)response.StatusCode);
 
