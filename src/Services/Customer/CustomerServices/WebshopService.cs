@@ -16,6 +16,7 @@ namespace CustomerServices
     {
         private readonly IOktaServices _oktaServices;
         private readonly WebshopConfiguration _webshopConfig;
+        private readonly JsonSerializerOptions _jsonSerializerOptions;
 
         private string Token { get; set; } = string.Empty;
         private DateTime TokenExpireTime { get; set; } = DateTime.UtcNow;
@@ -24,6 +25,7 @@ namespace CustomerServices
         {
             _oktaServices = oktaServices;
             _webshopConfig = config.Value;
+            _jsonSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
         }
 
         /// <summary>
@@ -82,14 +84,10 @@ namespace CustomerServices
                     }
 
                     string json = await resMsg.Content.ReadAsStringAsync();
-                    dynamic deserializedToken = JsonSerializer.Deserialize<dynamic>(json);
-                    if (deserializedToken == null)
-                    {
-                        return null;
-                    }
+                    var deserializedToken = JsonSerializer.Deserialize<JsonElement>(json, _jsonSerializerOptions);
 
-                    Token = (string)deserializedToken.access_token;
-                    TokenExpireTime = DateTime.UtcNow.AddSeconds((int)deserializedToken.expires_in);
+                    Token = deserializedToken.GetProperty("access_token").GetString();
+                    TokenExpireTime = DateTime.UtcNow.AddSeconds(deserializedToken.GetProperty("expires_in").GetInt32());
                     return Token;
                 }
                 catch (Exception)
@@ -117,7 +115,7 @@ namespace CustomerServices
                 try
                 {
                     string json = await resMsg.Content.ReadAsStringAsync();
-                    LitiumPerson person = JsonSerializer.Deserialize<LitiumPerson>(json);
+                    LitiumPerson person = JsonSerializer.Deserialize<LitiumPerson>(json, _jsonSerializerOptions);
                     return person;
                 }
                 catch (Exception e)
@@ -140,7 +138,7 @@ namespace CustomerServices
                 var resMsg = client.GetAsync($"{_webshopConfig.OrganizationsUri}/{orgNumber}").GetAwaiter().GetResult();
 
                 string json = await resMsg.Content.ReadAsStringAsync();
-                List<LitiumOrganization> organizations = JsonSerializer.Deserialize<List<LitiumOrganization>>(json);
+                List<LitiumOrganization> organizations = JsonSerializer.Deserialize<List<LitiumOrganization>>(json, _jsonSerializerOptions);
 
                 // There can be multiple organizations with the same organizationNumber, for example:
                 // Mytos AS

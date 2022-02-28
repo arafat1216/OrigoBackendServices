@@ -197,7 +197,7 @@ namespace CustomerServices
 
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                return JsonSerializer.Deserialize<OktaUserDTO>(responseContent);
+                return JsonSerializer.Deserialize<OktaUserDTO>(responseContent, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
             }
             catch (Exception ex)
             {
