@@ -12,13 +12,15 @@ namespace SubscriptionManagementServices
         public EmailService(IOptions<EmailConfiguration> emailConfiguration)
         {
             _emailConfiguration = emailConfiguration.Value;
-            _httpClient = new HttpClient() { BaseAddress = new Uri(_emailConfiguration.BaseUrl) };
+            
+            if (!string.IsNullOrEmpty(_emailConfiguration.BaseUrl))
+                _httpClient = new HttpClient() { BaseAddress = new Uri(_emailConfiguration.BaseUrl) };
         }
 
         public async Task SendEmailAsync(string subject, object data)
         {
             if (string.IsNullOrEmpty(_emailConfiguration.BaseUrl)) return;
-            
+
             try
             {
                 var request = new Dictionary<string, object>
