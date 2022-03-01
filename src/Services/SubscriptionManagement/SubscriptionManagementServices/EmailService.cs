@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
-
+using System.Text.Json;
+using System;
 namespace SubscriptionManagementServices
 {
     public class EmailService : IEmailService
@@ -14,25 +15,34 @@ namespace SubscriptionManagementServices
             _httpClient = new HttpClient() { BaseAddress = new Uri(_emailConfiguration.BaseUrl) };
         }
 
-        public async Task SendEmailAsync(object data)
+        public async Task SendEmailAsync(string subject, object data)
         {
-            var request = new Dictionary<string, object>
+            try
+            {
+                var request = new Dictionary<string, object>
             {
                 {"emailHeader", new Dictionary<string, object> {
                         {"partner", _emailConfiguration.Partner },
                         {"language", _emailConfiguration.Language},
-                        {"subject", _emailConfiguration.Subject },
+                        {"subject", subject ?? _emailConfiguration.Subject },
                         {"sender", _emailConfiguration.Sender },
                         {"recipient", _emailConfiguration.Recipient }
-                    } 
+                    }
                 },
                 { "content", new Dictionary<string, object> {
-                        {"body", data}
+                        {"body", JsonSerializer.Serialize(data)}
                     }
                 }
             };
 
-            await _httpClient.PostAsJsonAsync("/notification", new List<Dictionary<string, object>> { request });
+                var response = await _httpClient.PostAsJsonAsync("/notification", new List<Dictionary<string, object>> { request });
+
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
     }
 }

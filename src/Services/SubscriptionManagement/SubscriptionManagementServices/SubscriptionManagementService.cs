@@ -106,7 +106,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 _mapper.Map<PrivateSubscription>(order.PrivateSubscription),
                 _mapper.Map<BusinessSubscription>(order.BusinessSubscription)));
 
-        await _emailService.SendEmailAsync(order);
+        await _emailService.SendEmailAsync("Transfer to business order", order);
 
         return _mapper.Map<TransferToBusinessSubscriptionOrderDTO>(subscriptionOrder);
     }
@@ -144,7 +144,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         order.OrganizationId = organizationId;
         var added = await _subscriptionManagementRepository.TransferToPrivateSubscriptionOrderAsync(order);
 
-        await _emailService.SendEmailAsync(subscriptionOrder);
+        await _emailService.SendEmailAsync("Transfer to private order", subscriptionOrder);
         
         return _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(added);
     }
