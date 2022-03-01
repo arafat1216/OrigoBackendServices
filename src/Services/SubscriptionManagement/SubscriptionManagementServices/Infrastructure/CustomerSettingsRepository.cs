@@ -31,6 +31,9 @@ namespace SubscriptionManagementServices.Infrastructure
                 .ThenInclude(o => o.CustomerOperatorAccounts)
                 .Include(cs => cs.CustomerOperatorSettings)
                 .ThenInclude(op => op.AvailableSubscriptionProducts)
+                .ThenInclude(d => d.GlobalSubscriptionProduct)
+                .Include(cs => cs.CustomerOperatorSettings)
+                .ThenInclude(op => op.AvailableSubscriptionProducts)
                 .ThenInclude(d => d.DataPackages)
                 .Include(cs => cs.CustomerReferenceFields).AsSplitQuery()
                 .FirstOrDefaultAsync(m => m.CustomerId == organizationId);
@@ -134,14 +137,6 @@ namespace SubscriptionManagementServices.Infrastructure
                 .FirstOrDefaultAsync(m => m.SubscriptionName == subscriptionProductName && m.OperatorId == operatorId);
 
             return subscriptionProduct;
-        }
-
-        public async Task<CustomerOperatorSettings> UpdateCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings)
-        {
-            var addedCustomerOperatorSetting = _subscriptionManagementContext.CustomerOperatorSettings.Update(customerOperatorSettings);
-            await _subscriptionManagementContext.SaveChangesAsync();
-
-            return addedCustomerOperatorSetting.Entity;
         }
 
         public async Task<IList<SubscriptionProduct>?> GetAllOperatorSubscriptionProducts()

@@ -74,7 +74,7 @@ namespace SubscriptionManagement.UnitTests
 
             await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID,operatorList);
             Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
-            Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorSettings.Count());
+            Assert.Equal(3, _subscriptionManagementContext.CustomerSettings.FirstOrDefault()!.CustomerOperatorSettings.Count());
         }
 
         [Fact]
@@ -87,7 +87,7 @@ namespace SubscriptionManagement.UnitTests
 
             await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID, operatorList);
             Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
-            Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorSettings.Count());
+            Assert.Equal(3, _subscriptionManagementContext.CustomerSettings.FirstOrDefault()!.CustomerOperatorSettings.Count());
 
             NewOperatorList operatorList2 = new NewOperatorList();
             operatorList2.Operators = new List<int> { 3};
@@ -95,7 +95,7 @@ namespace SubscriptionManagement.UnitTests
 
             await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID, operatorList2);
             Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
-            Assert.Equal(4, _subscriptionManagementContext.CustomerOperatorSettings.Count());
+            Assert.Equal(4, _subscriptionManagementContext.CustomerSettings.FirstOrDefault()!.CustomerOperatorSettings.Count());
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace SubscriptionManagement.UnitTests
 
             await _customerSettingsService.AddOperatorsForCustomerAsync(ORGANIZATION_ONE_ID, operatorList);
             Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());
-            Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorSettings.Count());
+            Assert.Equal(3, _subscriptionManagementContext.CustomerSettings.FirstOrDefault()!.CustomerOperatorSettings.Count());
 
             await _customerSettingsService.DeleteOperatorForCustomerAsync(ORGANIZATION_ONE_ID, 1);
             Assert.Equal(1, _subscriptionManagementContext.CustomerSettings.Count());

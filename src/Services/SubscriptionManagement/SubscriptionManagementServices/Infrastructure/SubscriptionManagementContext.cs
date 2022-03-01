@@ -22,12 +22,7 @@ namespace SubscriptionManagementServices.Infrastructure
         public DbSet<SubscriptionProduct> SubscriptionProducts => Set<SubscriptionProduct>();
         public DbSet<TransferToBusinessSubscriptionOrder> TransferSubscriptionOrders => Set<TransferToBusinessSubscriptionOrder>();
         public DbSet<DataPackage> DataPackages => Set<DataPackage>();
-        public DbSet<SubscriptionAddOnProduct> SubscriptionAddOnProducts => Set<SubscriptionAddOnProduct>();
         public DbSet<CustomerSettings> CustomerSettings => Set<CustomerSettings>();
-        public DbSet<CustomerOperatorSettings> CustomerOperatorSettings => Set<CustomerOperatorSettings>();
-        public DbSet<CustomerSubscriptionProduct> CustomerSubscriptionProducts => Set<CustomerSubscriptionProduct>();
-        public DbSet<PrivateSubscription> PrivateSubscriptions => Set<PrivateSubscription>();
-        public DbSet<BusinessSubscription> BusinessSubscriptions => Set<BusinessSubscription>();
         public DbSet<TransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrders => Set<TransferToPrivateSubscriptionOrder>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

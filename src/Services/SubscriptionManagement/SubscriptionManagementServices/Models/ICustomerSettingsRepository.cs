@@ -11,8 +11,5 @@
         Task DeleteCustomerReferenceFieldForCustomerAsync(CustomerReferenceField customerReferenceField);
         Task<SubscriptionProduct?> GetSubscriptionProductByNameAsync(string subscriptionProductName, int operatorId);
         Task<IList<SubscriptionProduct>?> GetAllOperatorSubscriptionProducts();
-        Task DeleteOperatorSubscriptionProductForCustomerAsync(CustomerSubscriptionProduct customerSubscriptionProduct);
-        Task<CustomerOperatorSettings> UpdateCustomerOperatorSettingsAsync(CustomerOperatorSettings customerOperatorSettings);
-
     }
 }
