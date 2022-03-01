@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
+using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
 
 namespace OrigoApiGateway.Services
 {
@@ -15,7 +16,7 @@ namespace OrigoApiGateway.Services
         Task<OrigoOperator> GetOperatorAsync(int id);
         Task<IList<OrigoOperator>> GetAllOperatorsAsync();
         Task<IList<OrigoOperator>> GetAllOperatorsForCustomerAsync(Guid organizationId);
-        Task AddOperatorForCustomerAsync(Guid organizationId, IList<int> operators);
+        Task AddOperatorForCustomerAsync(Guid organizationId, NewOperatorListDTO operators);
         Task DeleteOperatorForCustomerAsync(Guid organizationId, int operatorId);
         Task<bool> AddSubscriptionForCustomerAsync(Guid organizationId, OrderTransferSubscription subscription);
         Task<OrigoTransferToBusinessSubscriptionOrder> TransferToBusinessSubscriptionOrderForCustomerAsync(Guid customerId, TransferToBusinessSubscriptionOrder order);

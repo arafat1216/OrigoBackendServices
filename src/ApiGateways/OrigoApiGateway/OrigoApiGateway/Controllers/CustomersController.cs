@@ -18,6 +18,7 @@ using OrigoApiGateway.Models.SubscriptionManagement;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using Common.Exceptions;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
+using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -475,7 +476,16 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateOperatorListForCustomerAsync(Guid organizationId, [FromBody] List<int> operators)
         {
-            await SubscriptionManagementService.AddOperatorForCustomerAsync(organizationId, operators);
+
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            Guid callerId;
+            Guid.TryParse(actor, out callerId);
+
+            NewOperatorListDTO newOperatorListDTO = new NewOperatorListDTO();
+            newOperatorListDTO.Operators = operators;
+            newOperatorListDTO.CallerId = callerId;
+
+            await SubscriptionManagementService.AddOperatorForCustomerAsync(organizationId, newOperatorListDTO);
 
             return NoContent();
         }

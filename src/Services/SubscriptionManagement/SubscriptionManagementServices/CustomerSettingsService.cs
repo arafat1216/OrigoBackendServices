@@ -20,9 +20,9 @@ public class CustomerSettingsService : ICustomerSettingsService
         _operatorRepository = operatorRepository;
     }
 
-    public async Task AddOperatorsForCustomerAsync(Guid organizationId, IList<int> operators, Guid callerId)
+    public async Task AddOperatorsForCustomerAsync(Guid organizationId, NewOperatorList operators)
     {
-        await _customerSettingsRepository.AddCustomerOperatorSettingsAsync(organizationId, operators, callerId);
+        await _customerSettingsRepository.AddCustomerOperatorSettingsAsync(organizationId, operators.Operators, operators.CallerId);
     }
 
     public async Task<IList<OperatorDTO>> GetAllOperatorsForCustomerAsync(Guid organizationId)
