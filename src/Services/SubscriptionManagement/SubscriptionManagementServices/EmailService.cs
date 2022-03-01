@@ -17,6 +17,8 @@ namespace SubscriptionManagementServices
 
         public async Task SendEmailAsync(string subject, object data)
         {
+            if (string.IsNullOrEmpty(_emailConfiguration.BaseUrl)) return;
+            
             try
             {
                 var request = new Dictionary<string, object>
@@ -39,7 +41,7 @@ namespace SubscriptionManagementServices
 
                 response.EnsureSuccessStatusCode();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
