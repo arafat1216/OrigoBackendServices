@@ -20,7 +20,7 @@
         /// <summary>
         ///     Customer Subscription product identifier
         /// </summary>
-        public int CustomerSubscriptionProductId { get; set; }
+        public int SubscriptionProductId { get; set; }
 
         /// <summary>
         ///     Data package name
@@ -30,7 +30,7 @@
         /// <summary>
         ///     SIM card number
         /// </summary>
-        public string SIMCardNumber { get; set; }
+        public string? SIMCardNumber { get; set; }
 
         /// <summary>
         ///     SIM card number

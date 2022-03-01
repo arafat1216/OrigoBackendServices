@@ -73,7 +73,7 @@ public class
                     Email = "me@example.com"
                 },
             MobileNumber = "+4791111111",
-            CustomerSubscriptionProductId = _subscriptionProductId,
+            SubscriptionProductId = _subscriptionProductId,
             DataPackage = "20GB",
             AddOnProducts = new List<string> { "FKL" },
             NewOperatorAccount = new NewOperatorAccountRequestedDTO { NewOperatorAccountOwner = "91700000" },
@@ -93,6 +93,6 @@ public class
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(newTransferToBusinessFromPrivate));
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-business", newTransferToBusinessFromPrivate);
 
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 }

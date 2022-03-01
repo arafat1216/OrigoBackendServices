@@ -45,7 +45,7 @@ namespace SubscriptionManagementServices.Models
         public CustomerSubscriptionProduct CustomerSubscriptionProduct { get; set; }
         public IReadOnlyCollection<SubscriptionAddOnProduct> SubscriptionAddOnProducts => _subscriptionAddOnProducts.AsReadOnly();
 
-        public string SimCardNumber { get; set; }
+        public string? SimCardNumber { get; set; }
         public string SIMCardAction { get; set; }
         public int SubscriptionProductId { get; set; }
         public Guid OrganizationId { get; set; }

@@ -1,17 +1,17 @@
-﻿using System;
+﻿using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
+using System;
 using System.Collections.Generic;
 
-namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
+namespace OrigoApiGateway.Models.SubscriptionManagement
 {
-    public class TransferToBusinessSubscriptionOrder
+    public record OrigoTransferToBusinessSubscriptionOrder
     {
         /// <summary>
-        /// The current owner the subscription will be transferred from.
-        /// </summary>
-        public PrivateSubscription? PrivateSubscription { get; set; } = null;
-        public BusinessSubscription? BusinessSubscription { get; set; } = null;
-
-        /// <summary>
+        ///// The current owner the subscription will be transferred from.
+        ///// </summary>
+        public PrivateSubscription? PrivateSubscription { get; set; }
+        public BusinessSubscription? BusinessSubscription { get; set; }
+        ///// <summary>
         /// The mobile number to be transferred
         /// </summary>
         public string MobileNumber { get; set; }
@@ -19,10 +19,10 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         /// <summary>
         ///     New operator account identifier
         /// </summary>
-        public int OperatorAccountId { get; set; }
+        public int? OperatorAccountId { get; set; }
 
         /// <summary>
-        ///     Subscription product identifier
+        ///     Customer Subscription product identifier
         /// </summary>
         public int SubscriptionProductId { get; set; }
 
@@ -49,9 +49,9 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         /// <summary>
         /// List of add on products to the subscription
         /// </summary>
-        public List<string> AddOnProducts { get; set; } = new List<string>();
+        public IList<string> AddOnProducts { get; set; } = new List<string>();
 
-        public List<NewCustomerReferenceField> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceField> { };
+        public IList<NewCustomerReferenceField> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceField>();
         public NewOperatorAccountRequested? NewOperatorAccount { get; set; }
     }
 }

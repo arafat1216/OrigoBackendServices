@@ -638,6 +638,7 @@ namespace OrigoApiGateway.Controllers
         /// <param name="order"></param>
         /// <returns></returns>
         [Route("{organizationId:Guid}/subscription-transfer-to-business")]
+        [ProducesResponseType(typeof(OrigoTransferToBusinessSubscriptionOrder), (int)HttpStatusCode.OK)]
         [HttpPost]
         public async Task<ActionResult> TransferSubscriptionToBusiness(Guid organizationId, [FromBody] TransferToBusinessSubscriptionOrder order)
         {

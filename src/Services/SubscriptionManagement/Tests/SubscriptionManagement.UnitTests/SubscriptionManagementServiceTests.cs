@@ -293,7 +293,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SIMCardNumber = "[SIMCardNumber]",
                     SIMCardAction = "[SIMCardAction]",
                     MobileNumber = "[MobileNumber]",
-                    CustomerSubscriptionProductId = 1,
+                    SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
                     CustomerReferenceFields = new List<NewCustomerReferenceField> { }
@@ -337,7 +337,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SIMCardNumber = "[SIMCardNumber]",
                     SIMCardAction = "[SIMCardAction]",
                     MobileNumber = "[MobileNumber]",
-                    CustomerSubscriptionProductId = 1,
+                    SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
                     CustomerReferenceFields = new List<NewCustomerReferenceField> { }
@@ -377,7 +377,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SIMCardNumber = "[SIMCardNumber]",
                     SIMCardAction = "[SIMCardAction]",
                     MobileNumber = "[MobileNumber]",
-                    CustomerSubscriptionProductId = 1,
+                    SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
                     CustomerReferenceFields = new List<NewCustomerReferenceField> { new NewCustomerReferenceField { Name = "X", Type = "Y" } }
@@ -418,7 +418,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SIMCardNumber = "[SIMCardNumber]",
                     SIMCardAction = "[SIMCardAction]",
                     MobileNumber = "[MobileNumber]",
-                    CustomerSubscriptionProductId = 1,
+                    SubscriptionProductId = 1,
                     DataPackage = "Data Package"
                 });
 

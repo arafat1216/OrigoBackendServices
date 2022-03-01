@@ -36,6 +36,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             throw new ArgumentException("Operator account id or new operator information must be provided.");
 
         var newOperatorName = await GetNewOperatorName(order, customerSettings);
+        //Same private operator as business operator 
         if (newOperatorName == order.PrivateSubscription?.OperatorName)
         {
             if (string.IsNullOrEmpty(order.SIMCardNumber))
@@ -49,7 +50,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                     $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workday ahead or more is allowed.");
         }
         else
-        {
+        {   //Not ordering a new sim card 
             if (!string.IsNullOrEmpty(order.SIMCardNumber))
             {
                 if (order.OrderExecutionDate <
@@ -61,6 +62,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             }
             else
             {
+                //Ordering a new sim card - no need for sim card number
                 if (order.OrderExecutionDate <
                     DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM) ||
                     order.OrderExecutionDate >
@@ -71,10 +73,10 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         }
 
         var customerSubscriptionProduct = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == newOperatorName)
-            ?.AvailableSubscriptionProducts.FirstOrDefault(p => p.Id == order.CustomerSubscriptionProductId);
+            ?.AvailableSubscriptionProducts.FirstOrDefault(p => p.Id == order.SubscriptionProductId);
         if (customerSubscriptionProduct == null)
             throw new ArgumentException(
-                $"No subscription product exists with ID {order.CustomerSubscriptionProductId}");
+                $"No subscription product exists with ID {order.SubscriptionProductId}");
 
         var dataPackage =
             customerSubscriptionProduct.DataPackages.FirstOrDefault(dp => dp.DataPackageName == order.DataPackage);
@@ -93,7 +95,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
         var subscriptionOrder = await _subscriptionManagementRepository.TransferToBusinessSubscriptionOrderAsync(
             new TransferToBusinessSubscriptionOrder(order.SIMCardNumber, order.SIMCardAction,
-                order.CustomerSubscriptionProductId, organizationId, order.OperatorAccountId, dataPackage.Id,
+                order.SubscriptionProductId, organizationId, order.OperatorAccountId, dataPackage.Id,
                 order.OrderExecutionDate, order.MobileNumber, JsonSerializer.Serialize(order.CustomerReferenceFields),
                 subscriptionAddOnProducts.ToList(), order.NewOperatorAccount?.NewOperatorAccountOwner,
                 order.NewOperatorAccount?.NewOperatorAccountPayer,
