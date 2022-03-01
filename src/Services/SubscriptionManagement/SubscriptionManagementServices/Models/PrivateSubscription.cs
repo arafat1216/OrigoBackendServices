@@ -29,7 +29,7 @@ namespace SubscriptionManagementServices.Models
         public string PostalCode { get; set; }
         public string PostalPlace { get; set; }
         public string Country { get; set; }
-        public string Email { get; set; }
+        public string? Email { get; set; }
         public DateTime BirthDate { get; set; }
         public string OperatorName { get; set; }
         public PrivateSubscription? RealOwner { get; set; }
