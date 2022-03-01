@@ -15,8 +15,6 @@ namespace CustomerServices.Models
     public class Organization : Entity, IAggregateRoot
     {
         private IList<AssetCategoryType> selectedAssetCategories;
-        private ICollection<ProductModule> selectedProductModules;
-        private ICollection<ProductModuleGroup> selectedProductModuleGroups;
         private IList<User> users;
 
         public Guid OrganizationId { get; protected set; }
@@ -52,20 +50,6 @@ namespace CustomerServices.Models
 
         [JsonIgnore]
         public ICollection<Department> Departments { get; protected set; }
-
-        [JsonIgnore]
-        public ICollection<ProductModule> SelectedProductModules
-        {
-            get { return selectedProductModules?.ToImmutableList(); }
-            protected set { selectedProductModules = value.ToList(); }
-        }
-
-        [JsonIgnore]
-        public ICollection<ProductModuleGroup> SelectedProductModuleGroups
-        {
-            get { return selectedProductModuleGroups?.ToImmutableList(); }
-            protected set { selectedProductModuleGroups = value.ToList(); }
-        }
 
         [JsonIgnore]
         public ICollection<AssetCategoryType> SelectedAssetCategories
@@ -271,42 +255,6 @@ namespace CustomerServices.Models
             {
                 // Item may already be removed
             }
-        }
-
-        public void AddProductModule(ProductModule productModule, Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate= DateTime.UtcNow;
-            productModule.SetCreatedBy(callerId);
-            AddDomainEvent(new ProductModuleAddedDomainEvent(OrganizationId, productModule));
-            selectedProductModules.Add(productModule);
-        }
-
-        public void RemoveProductModule(ProductModule productModule, Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate = DateTime.UtcNow;
-            productModule.SetDeletedBy(callerId);
-            AddDomainEvent(new ProductModuleRemovedDomainEvent(OrganizationId, productModule));
-            selectedProductModules.Remove(productModule);
-        }
-
-        public void AddProductModuleGroup(ProductModuleGroup productModuleGroup, Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate=DateTime.UtcNow;
-            productModuleGroup.SetCreatedBy(callerId);
-            AddDomainEvent(new ProductModuleGroupAddedDomainEvent(OrganizationId, productModuleGroup));
-            selectedProductModuleGroups.Add(productModuleGroup);
-        }
-
-        public void RemoveProductModuleGroup(ProductModuleGroup productModuleGroup,Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate = DateTime.UtcNow;
-            productModuleGroup.SetDeletedBy(callerId);
-            AddDomainEvent(new ProductModuleGroupRemovedDomainEvent(OrganizationId, productModuleGroup));
-            selectedProductModuleGroups.Remove(productModuleGroup);
         }
 
         public void AddDepartment(Department department, Guid callerId)
