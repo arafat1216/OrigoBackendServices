@@ -2,31 +2,30 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SubscriptionManagementServices.Models;
 
-namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
+namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration;
+
+internal class CustomerOperatorSettingsConfiguration : IEntityTypeConfiguration<CustomerOperatorSettings>
 {
-    internal class CustomerOperatorSettingsConfiguration : IEntityTypeConfiguration<CustomerOperatorSettings>
+    private readonly bool _isSqlLite;
+
+    public CustomerOperatorSettingsConfiguration(bool isSqlLite)
     {
-            private readonly bool _isSqlLite;
-            public CustomerOperatorSettingsConfiguration(bool isSqlLite)
-            {
-                _isSqlLite = isSqlLite;
-            }
+        _isSqlLite = isSqlLite;
+    }
 
-        public void Configure(EntityTypeBuilder<CustomerOperatorSettings> builder)
-        {
-            builder.ToTable("CustomerOperatorSettings");
+    public void Configure(EntityTypeBuilder<CustomerOperatorSettings> builder)
+    {
+        builder.ToTable("CustomerOperatorSettings");
 
-            builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
-            builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
+        builder.Property(s => s.LastUpdatedDate)
+            .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
+        builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
 
-            //Relationships
-            builder
-                .HasOne(e => e.Operator)
-                .WithMany(e => e.CustomerOperatorSettings);
+        //Relationships
+        builder.HasOne(s => s.Operator).WithMany(o => o.CustomerOperatorSettings);
 
-            builder.HasMany(e => e.CustomerOperatorAccounts)
-                .WithOne(e => e.CustomerOperatorSetting);
-        }
+        builder.HasMany(s => s.CustomerOperatorAccounts).WithOne(a => a.CustomerOperatorSetting);
+
+        builder.HasMany(s => s.AvailableSubscriptionProducts).WithOne(a => a.CustomerOperatorSettings);
     }
 }
-

@@ -53,6 +53,8 @@ namespace SubscriptionManagementServices.Models
         [JsonIgnore]
         public Operator Operator { get; set; }
 
+        public CustomerOperatorSettings CustomerOperatorSettings { get; set; }
+
         private readonly List<DataPackage> _dataPackages = new();
 
         [JsonIgnore]

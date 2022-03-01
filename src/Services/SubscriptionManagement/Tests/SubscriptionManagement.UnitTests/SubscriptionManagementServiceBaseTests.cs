@@ -44,7 +44,6 @@ namespace SubscriptionManagement.UnitTests
             context.AddRange(subscriptionProductOne);
             var customerSubscriptionProductOne = new CustomerSubscriptionProduct("SubscriptionName", operatorOne, CALLER_ONE_ID, new List<DataPackage>{ dataPackageOne });
             context.AddRange(customerSubscriptionProductOne);
-            context.SaveChanges();
 
             //Add customer operator account
             var customerOperatorAccounts = new List<CustomerOperatorAccount>();

@@ -49,7 +49,7 @@ namespace SubscriptionManagementServices.Migrations
 
                     b.HasIndex("SubscriptionOrdersId");
 
-                    b.ToTable("SubscriptionAddOnProductSubscriptionOrder");
+                    b.ToTable("SubscriptionAddOnProductSubscriptionOrder", (string)null);
                 });
 
             modelBuilder.Entity("SubscriptionAddOnProductTransferToBusinessSubscriptionOrder", b =>
@@ -272,7 +272,7 @@ namespace SubscriptionManagementServices.Migrations
 
                     b.HasIndex("CustomerSettingsId");
 
-                    b.ToTable("CustomerReferenceField");
+                    b.ToTable("CustomerReferenceField", (string)null);
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.CustomerSettings", b =>
@@ -686,7 +686,7 @@ namespace SubscriptionManagementServices.Migrations
 
                     b.HasIndex("OperatorAccountId");
 
-                    b.ToTable("SubscriptionOrder");
+                    b.ToTable("SubscriptionOrder", (string)null);
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.SubscriptionProduct", b =>

@@ -151,7 +151,7 @@ public class CustomerSettingsService : ICustomerSettingsService
 
         if (removedProduct == null) return null;
 
-        await _customerSettingsRepository.DeleteOperatorSubscriptionProductForCustomerAsync(removedProduct);
+        await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSettings);
 
         return _mapper.Map<CustomerSubscriptionProductDTO>(removedProduct);
     }
