@@ -50,7 +50,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 MinDaysForNewOperator = 4,
                 MaxDaysForAll = 30,
                 MinDaysForCurrentOperator = 1
-            }), _mapper);
+            }), _mapper, new Mock<IEmailService>().Object);
     }
 
     [Fact]
