@@ -11,8 +11,6 @@ namespace CustomerServices.Infrastructure
         public DbSet<Organization> Organizations => Set<Organization>();
         public DbSet<Department> Departments => Set<Department>();
         public DbSet<User> Users => Set<User>();
-        public DbSet<AssetCategoryType> AssetCategoryTypes => Set<AssetCategoryType>();
-        public DbSet<AssetCategoryLifecycleType> AssetCategoryLifecycleTypes => Set<AssetCategoryLifecycleType>();
         public DbSet<Permission> Permissions => Set<Permission>();
 
         public DbSet<PermissionSet> PermissionSets => Set<PermissionSet>();
@@ -34,8 +32,6 @@ namespace CustomerServices.Infrastructure
             modelBuilder.ApplyConfiguration(new UserConfiguration());
 
             modelBuilder.Entity<Department>().ToTable("Department");
-            modelBuilder.Entity<AssetCategoryLifecycleType>().ToTable("AssetCategoryLifecycleType");
-            modelBuilder.Entity<AssetCategoryType>().ToTable("AssetCategory");
             modelBuilder.Entity<Partner>().ToTable("Partner");
 
             modelBuilder.Entity<UserPermissions>().Property(userPermissions => userPermissions.AccessList)

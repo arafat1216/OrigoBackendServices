@@ -102,8 +102,6 @@ namespace CustomerServices.Infrastructure
         public async Task<Organization> GetOrganizationAsync(Guid customerId)
         {
             return await _customerContext.Organizations
-            .Include(p => p.SelectedAssetCategories)
-            .ThenInclude(p => p.LifecycleTypes)
             .Include(p => p.Departments)
             .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
         }
@@ -111,8 +109,6 @@ namespace CustomerServices.Infrastructure
         public async Task<Organization> GetCustomerAsync(Guid customerId)
         {
             return await _customerContext.Organizations
-            .Include(p => p.SelectedAssetCategories)
-            .ThenInclude(p => p.LifecycleTypes)
             .Include(p => p.Departments)
             .FirstOrDefaultAsync(c => c.OrganizationId == customerId && c.IsCustomer == true);
         }
@@ -177,8 +173,6 @@ namespace CustomerServices.Infrastructure
         private async Task<Organization> GetCustomerReadOnlyAsync(Guid customerId)
         {
             return await _customerContext.Organizations
-                .Include(p => p.SelectedAssetCategories)
-                .ThenInclude(p => p.LifecycleTypes)
                 .Include(p => p.Departments)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
@@ -263,56 +257,6 @@ namespace CustomerServices.Infrastructure
             }
             await SaveEntitiesAsync();
             return user;
-        }
-
-        public async Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes, Guid callerId)
-        {
-            try
-            {
-                foreach (var assetLifecycle in assetCategoryLifecycleTypes)
-                {
-                    customer.RemoveLifecyle(assetCategory, assetLifecycle, callerId);
-                }
-                _customerContext.AssetCategoryLifecycleTypes.RemoveRange(assetCategoryLifecycleTypes);
-            }
-            catch
-            {
-                // item is already removed or did not exsit
-            }
-            await SaveEntitiesAsync();
-            return assetCategoryLifecycleTypes;
-        }
-
-        public async Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, int assetCategoryId)
-        {
-            return await _customerContext.AssetCategoryTypes.Include(p => p.LifecycleTypes).FirstOrDefaultAsync(p => p.Id == assetCategoryId && p.ExternalCustomerId == customerId);
-        }
-
-        public async Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, Guid assetCategoryId)
-        {
-            return await _customerContext.AssetCategoryTypes.Include(p => p.LifecycleTypes).FirstOrDefaultAsync(p => p.AssetCategoryId == assetCategoryId && p.ExternalCustomerId == customerId);
-        }
-
-        public async Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId)
-        {
-            var customer = await GetCustomerAsync(customerId);
-            if (customer == null)
-                return null;
-            return customer.SelectedAssetCategories.ToList();
-        }
-
-        public async Task<AssetCategoryType> DeleteAssetCategoryTypeAsync(AssetCategoryType assetCategoryType)
-        {
-            try
-            {
-                _customerContext.AssetCategoryTypes.Remove(assetCategoryType);
-            }
-            catch
-            {
-                // item is already removed or did not exist
-            }
-            await SaveEntitiesAsync();
-            return assetCategoryType;
         }
 
         public async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
