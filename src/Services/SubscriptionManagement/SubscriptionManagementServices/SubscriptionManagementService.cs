@@ -13,17 +13,21 @@ public class SubscriptionManagementService : ISubscriptionManagementService
     private readonly IOperatorRepository _operatorRepository;
     private readonly IMapper _mapper;
     private readonly TransferSubscriptionDateConfiguration _transferSubscriptionDateConfiguration;
+    private readonly IEmailService _emailService;
 
     public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository,
         ICustomerSettingsRepository customerSettingsRepository,
         IOperatorRepository operatorRepository,
-        IOptions<TransferSubscriptionDateConfiguration> transferSubscriptionOrderConfigurationOptions, IMapper mapper)
+        IOptions<TransferSubscriptionDateConfiguration> transferSubscriptionOrderConfigurationOptions, 
+        IMapper mapper,
+        IEmailService emailService)
     {
         _subscriptionManagementRepository = subscriptionManagementRepository;
         _customerSettingsRepository = customerSettingsRepository;
         _operatorRepository = operatorRepository;
         _mapper = mapper;
         _transferSubscriptionDateConfiguration = transferSubscriptionOrderConfigurationOptions.Value;
+        _emailService = emailService;
     }
 
     public async Task<TransferToBusinessSubscriptionOrderDTO> TransferPrivateToBusinessSubscriptionOrderAsync(
@@ -102,6 +106,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 _mapper.Map<PrivateSubscription>(order.PrivateSubscription),
                 _mapper.Map<BusinessSubscription>(order.BusinessSubscription)));
 
+        await _emailService.SendEmailAsync(order);
+
         return _mapper.Map<TransferToBusinessSubscriptionOrderDTO>(subscriptionOrder);
     }
 
@@ -137,6 +143,9 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         var order = _mapper.Map<TransferToPrivateSubscriptionOrder>(subscriptionOrder);
         order.OrganizationId = organizationId;
         var added = await _subscriptionManagementRepository.TransferToPrivateSubscriptionOrderAsync(order);
+
+        await _emailService.SendEmailAsync(subscriptionOrder);
+        
         return _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(added);
     }
 }
