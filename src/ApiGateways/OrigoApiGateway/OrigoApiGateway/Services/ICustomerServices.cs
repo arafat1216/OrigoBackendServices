@@ -20,9 +20,6 @@ namespace OrigoApiGateway.Services
         Task<OrigoCustomerAssetCategoryType> AddAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryType customerAssetCategoryType, Guid callerId);
         Task<OrigoCustomerAssetCategoryType> RemoveAssetCategoryForCustomerAsync(Guid customerId, NewCustomerAssetCategoryType customerAssetCategoryType, Guid callerId);
 
-        Task<IList<OrigoProductModule>> GetCustomerProductModulesAsync(Guid customerId);
-        Task<OrigoProductModule> AddProductModulesAsync(Guid customerId, NewCustomerProductModule productModule, Guid callerId);
-        Task<OrigoProductModule> RemoveProductModulesAsync(Guid customerId, NewCustomerProductModule productModule, Guid callerId);
         Task<string> CreateOrganizationSeedData();
 
         Task<string> GetOktaUserProfileByEmail(string email);
