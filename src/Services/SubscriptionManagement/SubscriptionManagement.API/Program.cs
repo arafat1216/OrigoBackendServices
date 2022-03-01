@@ -65,6 +65,7 @@ builder.Services.AddSwaggerGen(config =>
 
 builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.Configure<TransferSubscriptionDateConfiguration>(builder.Configuration.GetSection("TransferSubscriptionOrderConfiguration"));
+builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("Email"));
 builder.Services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
 builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
 builder.Services.AddScoped<ISubscriptionManagementRepository, SubscriptionManagementRepository>();
@@ -73,6 +74,7 @@ builder.Services.AddScoped<IOperatorRepository, OperatorRepository>();
 builder.Services.AddScoped<ICustomerSettingsService, CustomerSettingsService>();
 builder.Services.AddScoped<ICustomerSettingsRepository, CustomerSettingsRepository>();
 builder.Services.AddScoped<ErrorExceptionFilter>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddMediatR(typeof(SubscriptionManagementContext));
 
 
