@@ -9,15 +9,17 @@ namespace SubscriptionManagementServices.Models
 
         }
 
-        public TransferToPrivateSubscriptionOrder(PrivateSubscription userInfo, string operatorName, string newSubscription, DateTime orderExecutionDate)
+        public TransferToPrivateSubscriptionOrder(PrivateSubscription userInfo, string operatorName, string newSubscription, DateTime orderExecutionDate, string mobileNumber)
         {
             UserInfo = userInfo;
             OperatorName = operatorName;
             NewSubscription = newSubscription;
             OrderExecutionDate = orderExecutionDate;
+            MobileNumber = mobileNumber;
         }
 
         public PrivateSubscription UserInfo { get; set; }
+        public string MobileNumber { get; set; }
         public string OperatorName { get; set; }
         public string NewSubscription { get; set; }
         public DateTime OrderExecutionDate { get; set; }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SubscriptionManagementServices.Infrastructure;
 
@@ -11,9 +12,10 @@ using SubscriptionManagementServices.Infrastructure;
 namespace SubscriptionManagementServices.Migrations
 {
     [DbContext(typeof(SubscriptionManagementContext))]
-    partial class SubscriptionManagementContextModelSnapshot : ModelSnapshot
+    [Migration("20220301124701_AllowNullEmailAndAddedMobileNumber_TransferPrivateOrder")]
+    partial class AllowNullEmailAndAddedMobileNumber_TransferPrivateOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -329,7 +331,7 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
-                    b.Property<int>("CustomerOperatorSettingsId")
+                    b.Property<int?>("CustomerOperatorSettingsId")
                         .HasColumnType("int");
 
                     b.Property<Guid>("DeletedBy")
@@ -967,11 +969,9 @@ namespace SubscriptionManagementServices.Migrations
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.CustomerSubscriptionProduct", b =>
                 {
-                    b.HasOne("SubscriptionManagementServices.Models.CustomerOperatorSettings", "CustomerOperatorSettings")
+                    b.HasOne("SubscriptionManagementServices.Models.CustomerOperatorSettings", null)
                         .WithMany("AvailableSubscriptionProducts")
-                        .HasForeignKey("CustomerOperatorSettingsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerOperatorSettingsId");
 
                     b.HasOne("SubscriptionManagementServices.Models.SubscriptionProduct", "GlobalSubscriptionProduct")
                         .WithMany()
@@ -982,8 +982,6 @@ namespace SubscriptionManagementServices.Migrations
                         .HasForeignKey("OperatorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("CustomerOperatorSettings");
 
                     b.Navigation("GlobalSubscriptionProduct");
 
