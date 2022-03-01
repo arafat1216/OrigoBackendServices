@@ -55,7 +55,6 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
                         subscriptionProduct
                     });
                 var customerSubscriptionProduct = new CustomerSubscriptionProduct(CUSTOMER_SUBSCRIPTION_PRODUCT_ID, subscriptionProduct, Guid.Empty, (IList<DataPackage>?)subscriptionProduct.DataPackages);
-                subscriptionManagementContext.CustomerSubscriptionProducts.Add(customerSubscriptionProduct);
                 var customerOperatorAccount = new CustomerOperatorAccount(OPERATOR_ACCOUNT_ID, ORGANIZATION_ID, "435543", "CC1", firstOperator.Id, Guid.Empty);
                 subscriptionManagementContext.CustomerOperatorAccounts.Add(customerOperatorAccount);
 
@@ -65,14 +64,12 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
                         new List<CustomerSubscriptionProduct> { customerSubscriptionProduct },
                         new List<CustomerOperatorAccount> { customerOperatorAccount })
                 };
-                subscriptionManagementContext.CustomerOperatorSettings.AddRange(customerOperatorSettings);
                 var customerReferenceFields = new List<CustomerReferenceField>
                 {
                     new CustomerReferenceField("URef1", CustomerReferenceTypes.User, Guid.Empty),
                     new CustomerReferenceField("URef2", CustomerReferenceTypes.User, Guid.Empty),
                     new CustomerReferenceField("AccURef1", CustomerReferenceTypes.Account, Guid.Empty)
                 };
-                subscriptionManagementContext.CustomerOperatorSettings.AddRange(customerOperatorSettings);
                 subscriptionManagementContext.CustomerSettings.Add(new CustomerSettings(ORGANIZATION_ID,
                     customerOperatorSettings, customerReferenceFields));
                 subscriptionManagementContext.SaveChanges();

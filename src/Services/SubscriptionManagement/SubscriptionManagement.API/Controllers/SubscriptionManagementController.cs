@@ -14,6 +14,7 @@ namespace SubscriptionManagement.API.Controllers
     [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class SubscriptionManagementController : ControllerBase
     {
+        // ReSharper disable once NotAccessedField.Local
         private readonly ILogger<SubscriptionManagementController> _logger;
         private readonly ISubscriptionManagementService _subscriptionServices;
         private readonly ICustomerSettingsService _customerSettingsService;
@@ -245,25 +246,16 @@ namespace SubscriptionManagement.API.Controllers
         {
             var subscriptionProducts = await _customerSettingsService.GetAllCustomerSubscriptionProductsAsync(organizationId);
 
-            if (subscriptionProducts == null)
-            {
-                BadRequest();
-            }
-
             return Ok(subscriptionProducts);
         }
 
         [HttpGet]
         [Route("operators/subscription-products")]
-        [ProducesResponseType(typeof(IList<SubscriptionProduct>), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(IList<SubscriptionProduct>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<IEnumerable<SubscriptionProduct>>> GetOperatorSubscriptionProductForSettingsAsync()
         {
             var subscriptionProducts = await _customerSettingsService.GetAllOperatorSubscriptionProductAsync();
-            if (subscriptionProducts == null)
-            {
-                BadRequest();
-            }
 
             return Ok(subscriptionProducts);
         }

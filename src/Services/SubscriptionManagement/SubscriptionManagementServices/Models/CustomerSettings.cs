@@ -88,13 +88,13 @@ namespace SubscriptionManagementServices.Models
                
                var dataPackages = selectedDataPackages?.Select(dataPackage => new DataPackage(dataPackage, callerId)).ToList();
                 var globalDataPackages = new List<DataPackage>();
-                if (globalSubscriptionProduct?.DataPackages.Count != null) {
+                if (globalSubscriptionProduct != null && globalSubscriptionProduct.DataPackages.Any() && selectedDataPackages != null) {
                     foreach (var dataPackage in selectedDataPackages)
                     {
-                        var exsitingDatapackages = globalSubscriptionProduct.DataPackages.FirstOrDefault(a => a.DataPackageName == dataPackage);
-                        if (exsitingDatapackages != null)
+                        var existingDataPackage = globalSubscriptionProduct.DataPackages.FirstOrDefault(a => a.DataPackageName == dataPackage);
+                        if (existingDataPackage != null)
                         {
-                            globalDataPackages.Add(exsitingDatapackages);
+                            globalDataPackages.Add(existingDataPackage);
                         }
                     }
                 }
