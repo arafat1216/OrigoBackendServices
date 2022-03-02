@@ -52,7 +52,7 @@ namespace SubscriptionManagementServices.Models
         public Guid OrganizationId { get; set; }
         public CustomerOperatorAccount? OperatorAccount { get; set; }
         public int? OperatorAccountId { get; set; }
-        public DataPackage? DataPackage { get; set; }
+        public string? DataPackageName { get; set; }
         public int DataPackageId { get; set; }
         public DateTime OrderExecutionDate { get; set; }
         public string MobileNumber { get; set; }
