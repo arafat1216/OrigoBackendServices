@@ -55,7 +55,7 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
                         subscriptionProduct
                     });
                 var customerSubscriptionProduct = new CustomerSubscriptionProduct(CUSTOMER_SUBSCRIPTION_PRODUCT_ID, subscriptionProduct, Guid.Empty, (IList<DataPackage>?)subscriptionProduct.DataPackages);
-                var customerOperatorAccount = new CustomerOperatorAccount(OPERATOR_ACCOUNT_ID, ORGANIZATION_ID, "435543", "CC1", firstOperator.Id, Guid.Empty);
+                var customerOperatorAccount = new CustomerOperatorAccount(OPERATOR_ACCOUNT_ID, ORGANIZATION_ID, "1111111111111", "435543", "CC1", firstOperator.Id, Guid.Empty);
                 subscriptionManagementContext.CustomerOperatorAccounts.Add(customerOperatorAccount);
 
                 var customerOperatorSettings = new List<CustomerOperatorSettings>

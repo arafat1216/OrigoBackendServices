@@ -15,6 +15,10 @@
         /// </summary>
         public int OperatorId { get; set; }
         /// <summary>
+        /// The organization number connected to the account.
+        /// </summary>
+        public string ConnectedOrganizationNumber { get; set; }
+        /// <summary>
         /// Identification for the caller that made the request.
         /// </summary>
         public Guid CallerId { get; set; }

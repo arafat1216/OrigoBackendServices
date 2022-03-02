@@ -1,4 +1,6 @@
-﻿namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
+﻿using System;
+
+namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
 {
     public class NewOperatorAccount
     {
@@ -14,5 +16,9 @@
         /// The operator identification.
         /// </summary>
         public int OperatorId { get; set; }
+        /// <summary>
+        /// The organization number connected to the account.
+        /// </summary>
+        public string ConnectedOrganizationNumber { get; set; }
     }
 }

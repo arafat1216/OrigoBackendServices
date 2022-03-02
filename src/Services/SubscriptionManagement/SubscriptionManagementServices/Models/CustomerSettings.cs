@@ -166,13 +166,14 @@ namespace SubscriptionManagementServices.Models
             return subscriptionProduct;
         }
 
-        public CustomerOperatorAccount AddCustomerOperatorAccount(string accountNumber, string accountName, Operator @operator, Guid callerId)
+        public CustomerOperatorAccount AddCustomerOperatorAccount(string accountNumber, string accountName, Operator @operator, Guid callerId, string connectedOrganizationNumber)
         {
             var customerOperatorSettings = _customerOperatorSettings.FirstOrDefault(o => o.Operator.Id == @operator.Id);
-            var customerOperatorAccount = new CustomerOperatorAccount(CustomerId, accountNumber, accountName, @operator.Id, callerId);
+            var customerOperatorAccount = new CustomerOperatorAccount(CustomerId,connectedOrganizationNumber, accountNumber, accountName, @operator.Id, callerId);
             if (customerOperatorSettings == null)
             {
                 customerOperatorSettings = new CustomerOperatorSettings(@operator, new List<CustomerOperatorAccount> { customerOperatorAccount }, callerId);
+                _customerOperatorSettings.Add(customerOperatorSettings);
             }
             else
             {
@@ -182,7 +183,7 @@ namespace SubscriptionManagementServices.Models
                         $"A customer operator account with organization ID ({CustomerId}) and account number {accountNumber} already exists.");
                 }
             }
-
+            
             customerOperatorAccount.CustomerOperatorSetting = customerOperatorSettings;
             customerOperatorSettings.CustomerOperatorAccounts.Add(customerOperatorAccount);
             return customerOperatorAccount;

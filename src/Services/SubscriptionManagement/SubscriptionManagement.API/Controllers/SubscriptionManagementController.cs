@@ -163,7 +163,7 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{organizationId:Guid}/operator-accounts")]
         public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] NewOperatorAccount customerOperatorAccount)
         {
-            var newCustomerOperatorAccount = await _customerSettingsService.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName, customerOperatorAccount.OperatorId, customerOperatorAccount.CallerId);
+            var newCustomerOperatorAccount = await _customerSettingsService.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName, customerOperatorAccount.OperatorId, customerOperatorAccount.CallerId, customerOperatorAccount.ConnectedOrganizationNumber);
 
             return Ok(newCustomerOperatorAccount);
         }

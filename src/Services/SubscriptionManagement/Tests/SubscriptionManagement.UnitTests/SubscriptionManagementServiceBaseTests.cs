@@ -11,6 +11,7 @@ namespace SubscriptionManagement.UnitTests
         
         protected readonly Guid ORGANIZATION_ONE_ID = new("42447F76-D9A8-4F0A-B0FF-B4683ACEDD62");
         protected readonly Guid CALLER_ONE_ID = new("42447F76-D9A8-4F0A-B0FF-B4683ACEDD63");
+        protected readonly string CONNECTED_ORGANIZATION_NUMBER = "11111111111111";
         protected SubscriptionManagementServiceBaseTests(DbContextOptions<SubscriptionManagementContext> contextOptions)
         {
             ContextOptions = contextOptions;
@@ -47,9 +48,9 @@ namespace SubscriptionManagement.UnitTests
 
             //Add customer operator account
             var customerOperatorAccounts = new List<CustomerOperatorAccount>();
-            var customerOperatorAccountOne = new CustomerOperatorAccount(1, ORGANIZATION_ONE_ID, "AC_NUM1", "AC_NAME1", operatorOne.Id, CALLER_ONE_ID);
-            var customerOperatorAccountTwo = new CustomerOperatorAccount(2, ORGANIZATION_ONE_ID, "AC_NUM2", "AC_NAME2", operatorTwo.Id, CALLER_ONE_ID);
-            var customerOperatorAccountThree = new CustomerOperatorAccount(3, ORGANIZATION_ONE_ID, "AC_NUM3", "AC_NAME3", operatorThree.Id, CALLER_ONE_ID);
+            var customerOperatorAccountOne = new CustomerOperatorAccount(1, ORGANIZATION_ONE_ID, CONNECTED_ORGANIZATION_NUMBER, "AC_NUM1", "AC_NAME1", operatorOne.Id, CALLER_ONE_ID);
+            var customerOperatorAccountTwo = new CustomerOperatorAccount(2, ORGANIZATION_ONE_ID, CONNECTED_ORGANIZATION_NUMBER, "AC_NUM2", "AC_NAME2", operatorTwo.Id, CALLER_ONE_ID);
+            var customerOperatorAccountThree = new CustomerOperatorAccount(3, ORGANIZATION_ONE_ID, CONNECTED_ORGANIZATION_NUMBER, "AC_NUM3", "AC_NAME3", operatorThree.Id, CALLER_ONE_ID);
             customerOperatorAccounts.Add(customerOperatorAccountOne);
             customerOperatorAccounts.Add(customerOperatorAccountTwo);
             customerOperatorAccounts.Add(customerOperatorAccountThree);
