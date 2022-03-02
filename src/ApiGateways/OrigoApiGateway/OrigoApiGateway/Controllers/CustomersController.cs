@@ -669,34 +669,9 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         public async Task<ActionResult> GetSubscriptionOrders(Guid organizationId)
         {
-            var origoSubscriptionOrderList = new List<OrigoSubscriptionOrderListItem>
-            {
-                new OrigoSubscriptionOrderListItem{
-                    CreatedDate = new DateTime(2022, 1, 2),
-                    NewSubscriptionOrderOwnerName = "My Company",
-                    TransferDate = new DateTime(2022, 1, 8),
-                    OrderType = "TransferToBusiness",
-                    CreatedBy = "Kari Nordmann",
-                    PhoneNumber = "919999999"
-                },
-                new OrigoSubscriptionOrderListItem{
-                    CreatedDate = new DateTime(2022, 1, 12),
-                    NewSubscriptionOrderOwnerName = "Another Company",
-                    TransferDate = new DateTime(2022, 1, 19),
-                    OrderType = "TransferToBusiness",
-                    CreatedBy = "Lene Hansen",
-                    PhoneNumber = "45454545"
-                },
-                new OrigoSubscriptionOrderListItem{
-                    CreatedDate = new DateTime(2022, 1, 3),
-                    NewSubscriptionOrderOwnerName = "Ola Nordmann",
-                    TransferDate = new DateTime(2022, 1, 4),
-                    OrderType = "TransferToPrivate",
-                    CreatedBy = "Kari Nordmann",
-                    PhoneNumber = "44443333"
-                }
-            };
-            return Ok(origoSubscriptionOrderList);
+            var response = await SubscriptionManagementService.GetSubscriptionOrders(organizationId);
+
+            return Ok(response);
         }
 
 

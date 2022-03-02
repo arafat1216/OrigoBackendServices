@@ -148,4 +148,10 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         
         return _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(added);
     }
+
+    public async Task<IList<SubscriptionOrderListItemDTO>> GetSubscriptionOrderLog(Guid organizationId)
+    {
+        IList<ISubscriptionOrder> subscriptionOrders =  await _subscriptionManagementRepository.GetAllSubscriptionOrdersForCustomer(organizationId);
+        return _mapper.Map<IList<SubscriptionOrderListItemDTO>>(subscriptionOrders);
+    }
 }

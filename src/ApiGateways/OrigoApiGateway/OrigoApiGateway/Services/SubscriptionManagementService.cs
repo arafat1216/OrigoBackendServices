@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -180,13 +181,7 @@ namespace OrigoApiGateway.Services
                 };
 
                 var response = await HttpClient.SendAsync(request);
-                var deletedSubscriptionProduct = await response.Content.ReadFromJsonAsync<OrigoSubscriptionProduct>();
-                if (deletedSubscriptionProduct == null)
-                {
-                    return null;
-                }
-
-                return deletedSubscriptionProduct;
+                return await response.Content.ReadFromJsonAsync<OrigoSubscriptionProduct>();
             }
             catch (HttpRequestException ex)
             {
@@ -286,10 +281,13 @@ namespace OrigoApiGateway.Services
                 {
                     DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
                 }) ;
-               
-                postSubscription.EnsureSuccessStatusCode();
 
-                return await postSubscription.Content.ReadFromJsonAsync<OrigoTransferToBusinessSubscriptionOrder>();
+                if (postSubscription.StatusCode == HttpStatusCode.Created)
+                {
+                    return await postSubscription.Content.ReadFromJsonAsync<OrigoTransferToBusinessSubscriptionOrder>();
+                }
+
+                throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
 
             }
             catch (HttpRequestException ex)
@@ -382,13 +380,29 @@ namespace OrigoApiGateway.Services
                     DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
                 });
 
-                postSubscription.EnsureSuccessStatusCode();
+                if (postSubscription.StatusCode == HttpStatusCode.Created)
+                {
+                    return await postSubscription.Content.ReadFromJsonAsync<TransferToPrivateSubscriptionOrder>();
+                }
 
-                return await postSubscription.Content.ReadFromJsonAsync<TransferToPrivateSubscriptionOrder>();
+                throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "AddSubscriptionForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
+
+        public async Task<IList<OrigoSubscriptionOrderListItem>> GetSubscriptionOrders(Guid organizationId)
+        {
+            try
+            {
+                return await HttpClient.GetFromJsonAsync<IList<OrigoSubscriptionOrderListItem>>($"{_options.ApiPath}/{organizationId}/subscription-orders");
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "GetSubscriptionOrders failed with HttpRequestException.");
                 throw;
             }
         }

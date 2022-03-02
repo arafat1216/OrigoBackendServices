@@ -1,8 +1,9 @@
-﻿using Common.Seedwork;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Common.Seedwork;
 
 namespace SubscriptionManagementServices.Models
 {
-    public class TransferToPrivateSubscriptionOrder : Entity
+    public class TransferToPrivateSubscriptionOrder : Entity, ISubscriptionOrder
     {
         public TransferToPrivateSubscriptionOrder()
         {
@@ -24,5 +25,14 @@ namespace SubscriptionManagementServices.Models
         public string NewSubscription { get; set; }
         public DateTime OrderExecutionDate { get; set; }
         public Guid OrganizationId { get; set; }
+
+        #region ISubscriptionOrder implementation
+        [NotMapped] public string OrderType => "TransferToPrivate";
+        [NotMapped] public string PhoneNumber => MobileNumber;
+
+        [NotMapped]
+        public string NewSubscriptionOrderOwnerName => String.Empty;
+        [NotMapped] public DateTime TransferDate => OrderExecutionDate;
+        #endregion
     }
 }
