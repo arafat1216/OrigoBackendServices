@@ -137,7 +137,7 @@ namespace SubscriptionManagement.UnitTests
         public async Task AddCustomerOperatorAccount_Valid()
         {
             await _customerSettingsService.AddOperatorAccountForCustomerAsync(ORGANIZATION_ONE_ID, "AcNum4",
-                "AC_Name_4", 10, Guid.NewGuid());
+                "AC_Name_4", 10, Guid.NewGuid(), CONNECTED_ORGANIZATION_NUMBER);
             Assert.Equal(4, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
         }
 
@@ -169,7 +169,7 @@ namespace SubscriptionManagement.UnitTests
         {
             var exception = await Record.ExceptionAsync(() =>
                 _customerSettingsService.AddOperatorAccountForCustomerAsync(ORGANIZATION_ONE_ID, "AC_NUM1", "AC_NUM1",
-                    10, Guid.NewGuid()));
+                    10, Guid.NewGuid(), CONNECTED_ORGANIZATION_NUMBER));
 
             Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
             Assert.NotNull(exception);
@@ -185,7 +185,7 @@ namespace SubscriptionManagement.UnitTests
         {
             var exception = await Record.ExceptionAsync(() =>
                 _customerSettingsService.AddOperatorAccountForCustomerAsync(ORGANIZATION_ONE_ID, "AcNum4",
-                    "AC_Name_4", 111, Guid.NewGuid()));
+                    "AC_Name_4", 111, Guid.NewGuid(), CONNECTED_ORGANIZATION_NUMBER));
 
             Assert.Equal(3, _subscriptionManagementContext.CustomerOperatorAccounts.Count());
             Assert.NotNull(exception);

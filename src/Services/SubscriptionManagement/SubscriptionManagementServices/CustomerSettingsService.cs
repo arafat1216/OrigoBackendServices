@@ -77,7 +77,7 @@ public class CustomerSettingsService : ICustomerSettingsService
     }
 
     public async Task<CustomerOperatorAccountDTO> AddOperatorAccountForCustomerAsync(Guid organizationId,
-        string accountNumber, string accountName, int operatorId, Guid callerId)
+        string accountNumber, string accountName, int operatorId, Guid callerId, string connectedOrganizationNumber)
     {
         var @operator = await _operatorRepository.GetOperatorAsync(operatorId);
         if (@operator == null)
@@ -88,7 +88,8 @@ public class CustomerSettingsService : ICustomerSettingsService
         if (customerSettings == null) customerSettings = new CustomerSettings(organizationId, callerId);
 
         var operatorAccount =
-            customerSettings.AddCustomerOperatorAccount(accountNumber, accountName, @operator, callerId);
+            customerSettings.AddCustomerOperatorAccount(accountNumber, accountName, @operator, callerId, connectedOrganizationNumber);
+        
 
         if (customerSettings.Id > 0)
             await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSettings);

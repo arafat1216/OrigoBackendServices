@@ -24,5 +24,9 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
         /// Organization identifier associated with the account
         /// </summary>
         public Guid OrganizationId { get; set; }
+        /// <summary>
+        /// Organization linked to the account.
+        /// </summary>
+        public string ConnectedOrganizationNumber { get; set; }
     }
 }
