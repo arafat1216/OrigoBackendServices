@@ -2,6 +2,7 @@
 using Common.Logging;
 using Common.Utilities;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices.Infrastructure
@@ -52,6 +53,21 @@ namespace SubscriptionManagementServices.Infrastructure
             var added = await _subscriptionContext.AddAsync(subscriptionOrder);
             await SaveEntitiesAsync();
             return added.Entity;
+        }
+
+        public async Task<List<ISubscriptionOrder>> GetAllSubscriptionOrdersForCustomer(Guid organizationId)
+        {
+            var orders = await _subscriptionContext.TransferSubscriptionOrders.Include(o => o.PrivateSubscription)
+                .Include(o => o.BusinessSubscription).Where(o => o.OrganizationId == organizationId)
+                .ToListAsync<ISubscriptionOrder>();
+            var subscriptionOrderList = orders.ToList();
+
+            var transferToPrivateOrders = await _subscriptionContext.TransferToPrivateSubscriptionOrders
+                .Include(o => o.UserInfo).Where(o => o.OrganizationId == organizationId)
+                .ToListAsync<ISubscriptionOrder>();
+            subscriptionOrderList.AddRange(transferToPrivateOrders);
+
+            return subscriptionOrderList;
         }
     }
 }

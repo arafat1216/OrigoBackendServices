@@ -3,6 +3,8 @@ using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -14,6 +16,7 @@ using OrigoApiGateway.Models.SubscriptionManagement.Backend.Response;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using System.Text.Json;
+using OrigoApiGateway.Models;
 
 namespace OrigoApiGateway.Services
 {
@@ -21,12 +24,14 @@ namespace OrigoApiGateway.Services
     {
 
         private readonly ILogger<SubscriptionManagementService> _logger;
+        private readonly IUserServices _userServices;
         private readonly IMapper _mapper;
         private readonly SubscriptionManagementConfiguration _options;
         private HttpClient HttpClient { get; }
-        public SubscriptionManagementService(ILogger<SubscriptionManagementService> logger, IOptions<SubscriptionManagementConfiguration> options, HttpClient httpClient, IMapper mapper)
+        public SubscriptionManagementService(ILogger<SubscriptionManagementService> logger, IOptions<SubscriptionManagementConfiguration> options, IUserServices userServices, HttpClient httpClient, IMapper mapper)
         {
             _logger = logger;
+            _userServices = userServices;
             _mapper = mapper;
             _options = options.Value;
             HttpClient = httpClient;
@@ -180,13 +185,7 @@ namespace OrigoApiGateway.Services
                 };
 
                 var response = await HttpClient.SendAsync(request);
-                var deletedSubscriptionProduct = await response.Content.ReadFromJsonAsync<OrigoSubscriptionProduct>();
-                if (deletedSubscriptionProduct == null)
-                {
-                    return null;
-                }
-
-                return deletedSubscriptionProduct;
+                return await response.Content.ReadFromJsonAsync<OrigoSubscriptionProduct>();
             }
             catch (HttpRequestException ex)
             {
@@ -286,10 +285,13 @@ namespace OrigoApiGateway.Services
                 {
                     DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
                 }) ;
-               
-                postSubscription.EnsureSuccessStatusCode();
 
-                return await postSubscription.Content.ReadFromJsonAsync<OrigoTransferToBusinessSubscriptionOrder>();
+                if (postSubscription.StatusCode == HttpStatusCode.Created)
+                {
+                    return await postSubscription.Content.ReadFromJsonAsync<OrigoTransferToBusinessSubscriptionOrder>();
+                }
+
+                throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
 
             }
             catch (HttpRequestException ex)
@@ -382,13 +384,49 @@ namespace OrigoApiGateway.Services
                     DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
                 });
 
-                postSubscription.EnsureSuccessStatusCode();
+                if (postSubscription.StatusCode == HttpStatusCode.Created)
+                {
+                    return await postSubscription.Content.ReadFromJsonAsync<TransferToPrivateSubscriptionOrder>();
+                }
 
-                return await postSubscription.Content.ReadFromJsonAsync<TransferToPrivateSubscriptionOrder>();
+                throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "AddSubscriptionForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
+
+        public async Task<IList<OrigoSubscriptionOrderListItem>> GetSubscriptionOrders(Guid organizationId)
+        {
+            try
+            {
+                var subscriptionOrderList = await HttpClient.GetFromJsonAsync<IList<OrigoSubscriptionOrderListItem>>($"{_options.ApiPath}/{organizationId}/subscription-orders");
+                IList<OrigoUser> users = new List<OrigoUser>();
+                if (subscriptionOrderList != null)
+                {
+                    foreach (var createdBy in subscriptionOrderList.Select(s => s.CreatedBy).Distinct())
+                    {
+                        if (!Guid.TryParse(createdBy, out var userId)) continue;
+                        var user = await _userServices.GetUserAsync(userId);
+                        if (user == null)
+                            continue;
+                        users.Add(user);
+                    }
+                    foreach (var log in subscriptionOrderList)
+                    {
+                        if (!Guid.TryParse(log.CreatedBy, out var userId)) continue;
+                        var user = users.FirstOrDefault(u => u.Id == userId);
+                        log.CreatedBy = user?.DisplayName ?? "";
+                    }
+                }
+
+                return subscriptionOrderList ?? new List<OrigoSubscriptionOrderListItem>();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "GetSubscriptionOrders failed with HttpRequestException.");
                 throw;
             }
         }

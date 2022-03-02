@@ -1,4 +1,5 @@
-﻿using Common.Seedwork;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Common.Seedwork;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -67,5 +68,17 @@ namespace SubscriptionManagementServices.Models
         {
             _subscriptionAddOnProducts.AddRange(subscriptionAddOnProducts);
         }
+
+        #region ISubscriptionOrder implementation
+        [NotMapped] public string OrderType => "TransferToBusiness";
+        [NotMapped] public string PhoneNumber => MobileNumber;
+
+        [NotMapped]
+        public string NewSubscriptionOrderOwnerName =>
+            PrivateSubscription != null ? $"{PrivateSubscription?.FirstName} {PrivateSubscription?.LastName}" : BusinessSubscription?.Name ?? string.Empty;
+
+        [NotMapped] public DateTime TransferDate => OrderExecutionDate;
+
+        #endregion
     }
 }
