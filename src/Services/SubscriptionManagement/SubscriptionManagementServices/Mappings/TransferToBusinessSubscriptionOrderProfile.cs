@@ -10,16 +10,14 @@ namespace SubscriptionManagementServices.Mappings
         public TransferToBusinessSubscriptionOrderProfile()
         {
             CreateMap<TransferToBusinessSubscriptionOrder, TransferToBusinessSubscriptionOrderDTO>()
-                .ForMember(d => d.CallerId, opts => opts.Ignore())
-                .ForMember(d => d.NewOperatorAccount, opts => opts.MapFrom(s => new NewOperatorAccountRequestedDTO { NewOperatorAccountOwner = s.OperatorAccountOwner, NewOperatorAccountPayer = s.OperatorAccountPayer }))
-                .ForMember(d => d.CustomerReferenceFields, opts => opts.MapFrom(s => JsonSerializer.Deserialize<IList<NewCustomerReferenceField>>(s.CustomerReferenceFields, new JsonSerializerOptions { })));
+                .ForMember(dto => dto.CallerId, opts => opts.MapFrom(m => m.CreatedBy))
+                .ForMember(dto => dto.NewOperatorAccount, opts => opts.MapFrom(m => new NewOperatorAccountRequestedDTO { NewOperatorAccountOwner = m.OperatorAccountOwner, NewOperatorAccountPayer = m.OperatorAccountPayer }))
+                .ForMember(dto => dto.CustomerReferenceFields, opts => opts.MapFrom(m => JsonSerializer.Deserialize<IList<NewCustomerReferenceField>>(m.CustomerReferenceFields, new JsonSerializerOptions { })));
+            CreateMap<TransferToBusinessSubscriptionOrderDTO, TransferToBusinessSubscriptionOrder>()
+                .ForMember(m => m.CreatedBy, opts => opts.MapFrom(dto => dto.CallerId));
 
             CreateMap<TransferToPrivateSubscriptionOrderDTO, TransferToBusinessSubscriptionOrder>()
-                .ForMember(d => d.CreatedBy, opts => opts.MapFrom(d => d.Caller))
-                //.ForMember(d => d.NewOperatorAccount, opts => opts.MapFrom(s => new NewOperatorAccountRequestedDTO { NewOperatorAccountOwner = s.OperatorAccountOwner, NewOperatorAccountPayer = s.OperatorAccountPayer }))
-                //.ForMember(d => d.CustomerReferenceFields, opts => opts.MapFrom(s => JsonSerializer.Deserialize<IList<NewCustomerReferenceField>>(s.CustomerReferenceFields, new JsonSerializerOptions { })))
-                ;
-
+                .ForMember(m => m.CreatedBy, opts => opts.MapFrom(dto => dto.CallerId));
 
         }
     }

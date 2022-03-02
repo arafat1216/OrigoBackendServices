@@ -303,7 +303,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.NotNull(order);
         Assert.NotEmpty(order.SIMCardAction);
         Assert.NotEmpty(order.MobileNumber);
-        Assert.NotEmpty(order.SIMCardNumber);
+        Assert.NotEmpty(order.SIMCardNumber!);
         Assert.NotNull(order.PrivateSubscription);
         Assert.Null(order.BusinessSubscription);
     }

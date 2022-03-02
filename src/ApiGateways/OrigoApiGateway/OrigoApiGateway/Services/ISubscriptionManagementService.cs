@@ -19,7 +19,8 @@ namespace OrigoApiGateway.Services
         Task AddOperatorForCustomerAsync(Guid organizationId, NewOperatorListDTO operators);
         Task DeleteOperatorForCustomerAsync(Guid organizationId, int operatorId);
         Task<bool> AddSubscriptionForCustomerAsync(Guid organizationId, OrderTransferSubscription subscription);
-        Task<OrigoTransferToBusinessSubscriptionOrder> TransferToBusinessSubscriptionOrderForCustomerAsync(Guid customerId, TransferToBusinessSubscriptionOrder order);
+        Task<OrigoTransferToBusinessSubscriptionOrder> TransferToBusinessSubscriptionOrderForCustomerAsync(
+            Guid customerId, TransferToBusinessSubscriptionOrder order, Guid callerId);
         Task<IList<OrigoSubscriptionProduct>> GetAllOperatorsSubscriptionProductsAsync();
         Task<OrigoSubscriptionProduct> AddSubscriptionProductForCustomerAsync(Guid organizationId, NewSubscriptionProduct subscriptionProduct);
         Task<IList<OrigoSubscriptionProduct>> GetAllSubscriptionProductForCustomerAsync(Guid organizationId);
@@ -28,7 +29,8 @@ namespace OrigoApiGateway.Services
         Task<IList<OrigoCustomerReferenceField>> GetAllCustomerReferenceFieldsAsync(Guid organizationId);
         Task<OrigoCustomerReferenceField> AddCustomerReferenceFieldAsync(Guid organizationId, NewCustomerReferenceField newCustomerReferenceField, string callerId);
         Task<OrigoCustomerReferenceField> DeleteCustomerReferenceFieldAsync(Guid organizationId, int customerReferenceId, string callerId);
-        Task<TransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrderForCustomerAsync(Guid organizationId, TransferToPrivateSubscriptionOrder order);
+        Task<TransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrderForCustomerAsync(Guid organizationId,
+            TransferToPrivateSubscriptionOrder order, Guid callerId);
         Task<IList<OrigoSubscriptionOrderListItem>> GetSubscriptionOrders(Guid organizationId);
     }
 }
