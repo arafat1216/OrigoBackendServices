@@ -31,7 +31,7 @@ namespace SubscriptionManagementServices.Models
         [NotMapped] public string PhoneNumber => MobileNumber;
 
         [NotMapped]
-        public string NewSubscriptionOrderOwnerName => String.Empty;
+        public string NewSubscriptionOrderOwnerName => $"{UserInfo.FirstName} {UserInfo.LastName}";
         [NotMapped] public DateTime TransferDate => OrderExecutionDate;
         #endregion
     }
