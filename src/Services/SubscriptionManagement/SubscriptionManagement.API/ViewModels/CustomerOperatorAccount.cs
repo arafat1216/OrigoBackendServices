@@ -12,12 +12,22 @@
             AccountNumber = customerOperatorAccount.AccountNumber;
             AccountName = customerOperatorAccount.AccountName;
             OperatorId = customerOperatorAccount.OperatorId;
+            ConnectedOrganizationNumber = customerOperatorAccount.ConnectedOrganizationNumber;
+            OrganizationId = customerOperatorAccount.OrganizationId;
         }
 
         /// <summary>
         /// Account identifier
         /// </summary>
         public int Id { get; set; }
+        /// <summary>
+        /// Head Organization identifier
+        /// </summary>
+        public Guid OrganizationId { get; set; }
+        /// <summary>
+        /// Organization linked to the account.
+        /// </summary>
+        public string ConnectedOrganizationNumber { get; set; }
         /// <summary>
         /// Account number of the operator
         /// </summary>
