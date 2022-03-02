@@ -10,23 +10,21 @@ namespace SubscriptionManagementServices.Models
         {
         }
 
-        public ChangeSubscriptionOrder(string mobileNumber, string productName, string packageName, string operatorName, DateTime orderExecutionDate, string orderAuthor, Guid organizationId)
+        public ChangeSubscriptionOrder(string mobileNumber, string productName, string packageName, string operatorName, string subscriptionOwner, Guid organizationId)
         {
             MobileNumber = mobileNumber;
             ProductName = productName;
             PackageName = packageName;
             OperatorName = operatorName;
-            OrderExecutionDate = orderExecutionDate;
-            OrderAuthor = orderAuthor;
+            SubscriptionOwner = subscriptionOwner;
             OrganizationId = organizationId;
         }
 
         public string MobileNumber { get; set; }
-        public string ProductName { get; set; }
-        public string PackageName { get; set; }
         public string OperatorName { get; set; }
-        public DateTime OrderExecutionDate { get; set; }
-        public string OrderAuthor { get; set; }
+        public string ProductName { get; set; }
+        public string? PackageName { get; set; }
+        public string? SubscriptionOwner { get; set; }
         public Guid OrganizationId { get; set; }
 
 
@@ -36,9 +34,9 @@ namespace SubscriptionManagementServices.Models
 
         [NotMapped] public string PhoneNumber => MobileNumber;
 
-        [NotMapped] public string NewSubscriptionOrderOwnerName => OrderAuthor;
+        [NotMapped] public string NewSubscriptionOrderOwnerName => SubscriptionOwner != null ? SubscriptionOwner : "Owner not specified";
 
-        [NotMapped] public DateTime TransferDate => OrderExecutionDate;
+        [NotMapped] public DateTime TransferDate => DateTime.UtcNow;
         #endregion
     }
 }
