@@ -12,7 +12,7 @@ using SubscriptionManagementServices.Infrastructure;
 namespace SubscriptionManagementServices.Migrations
 {
     [DbContext(typeof(SubscriptionManagementContext))]
-    [Migration("20220302130637_initial")]
+    [Migration("20220302150216_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -780,11 +780,9 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OperatorAccountName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OperatorAccountNumber")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OperatorAccountOrganizationNumber")
@@ -797,7 +795,6 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OperatorName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("OrderExecutionDate")

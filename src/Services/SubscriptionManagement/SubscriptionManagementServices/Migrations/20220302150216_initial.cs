@@ -213,12 +213,11 @@ namespace SubscriptionManagementServices.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SubscriptionOrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SubscriptionProductName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OperatorAccountOrganizationNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OperatorAccountNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OperatorName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OperatorAccountName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OperatorAccountNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OperatorName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OperatorAccountName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SimCardNumber = table.Column<string>(type: "nvarchar(22)", maxLength: 22, nullable: true),
                     SIMCardAction = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -230,6 +229,7 @@ namespace SubscriptionManagementServices.Migrations
                     OperatorAccountPayer = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PrivateSubscriptionId = table.Column<int>(type: "int", nullable: true),
                     BusinessSubscriptionId = table.Column<int>(type: "int", nullable: true),
+                    SubscriptionOrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
@@ -258,13 +258,13 @@ namespace SubscriptionManagementServices.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SubscriptionOrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserInfoId = table.Column<int>(type: "int", nullable: false),
                     MobileNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OperatorName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NewSubscription = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OrderExecutionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SubscriptionOrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),

@@ -778,11 +778,9 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OperatorAccountName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OperatorAccountNumber")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OperatorAccountOrganizationNumber")
@@ -795,7 +793,6 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OperatorName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("OrderExecutionDate")

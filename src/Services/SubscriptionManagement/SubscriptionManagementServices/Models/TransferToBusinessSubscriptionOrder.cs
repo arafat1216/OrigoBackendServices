@@ -49,11 +49,11 @@ namespace SubscriptionManagementServices.Models
 
         public string? OperatorAccountOrganizationNumber { get; set; }
 
-        public string OperatorAccountNumber { get; set; }
+        public string? OperatorAccountNumber { get; set; }
 
-        public string OperatorName { get; set; }
+        public string? OperatorName { get; set; }
 
-        public string OperatorAccountName { get; set; }
+        public string? OperatorAccountName { get; set; }
 
         public IReadOnlyCollection<SubscriptionAddOnProduct> SubscriptionAddOnProducts => _subscriptionAddOnProducts.AsReadOnly();
 
