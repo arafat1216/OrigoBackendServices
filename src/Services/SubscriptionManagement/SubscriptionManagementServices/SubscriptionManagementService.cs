@@ -96,17 +96,28 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             if (existingFields.All(m => m.Name != field.Name))
                 throw new ArgumentException($"The field name {field.Name} is not valid for this customer.");
 
+        CustomerOperatorAccount? customerOperatorAccount = null;
+        if (order.OperatorAccountId.HasValue)
+        {
+            customerOperatorAccount = customerSettings.CustomerOperatorSettings.FirstOrDefault(o =>  o.Operator.OperatorName == newOperatorName)
+                ?.CustomerOperatorAccounts.FirstOrDefault(p => p.Id == order.OperatorAccountId);
+            if (customerSubscriptionProduct == null)
+                throw new ArgumentException(
+                    $"No subscription product exists with ID {order.SubscriptionProductId}");
 
-        var subscriptionOrder = await _subscriptionManagementRepository.TransferToBusinessSubscriptionOrderAsync(
-            new TransferToBusinessSubscriptionOrder(order.SIMCardNumber, order.SIMCardAction,
-                order.SubscriptionProductId, organizationId, order.OperatorAccountId, dataPackage.Id,
-                order.OrderExecutionDate, order.MobileNumber, JsonSerializer.Serialize(order.CustomerReferenceFields),
-                subscriptionAddOnProducts.ToList(), order.NewOperatorAccount?.NewOperatorAccountOwner,
-                order.NewOperatorAccount?.NewOperatorAccountPayer,
-                _mapper.Map<PrivateSubscription>(order.PrivateSubscription),
-                _mapper.Map<BusinessSubscription>(order.BusinessSubscription)));
+        }
 
-        await _emailService.SendEmailAsync("Transfer to business order", order);
+        var transferToBusinessSubscriptionOrder = new TransferToBusinessSubscriptionOrder(order.SIMCardNumber, order.SIMCardAction, customerSubscriptionProduct
+            , organizationId, customerOperatorAccount, dataPackage.DataPackageName,
+            order.OrderExecutionDate, order.MobileNumber, JsonSerializer.Serialize(order.CustomerReferenceFields),
+            subscriptionAddOnProducts.ToList(), order.NewOperatorAccount?.NewOperatorAccountOwner,
+            order.NewOperatorAccount?.NewOperatorAccountPayer,
+            _mapper.Map<PrivateSubscription>(order.PrivateSubscription),
+            _mapper.Map<BusinessSubscription>(order.BusinessSubscription),
+            order.CallerId);
+        var subscriptionOrder = await _subscriptionManagementRepository.TransferToBusinessSubscriptionOrderAsync(transferToBusinessSubscriptionOrder);
+
+        await _emailService.SendEmailAsync("Transfer to business order", subscriptionOrder);
 
         return _mapper.Map<TransferToBusinessSubscriptionOrderDTO>(subscriptionOrder);
     }
@@ -144,7 +155,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         order.OrganizationId = organizationId;
         var added = await _subscriptionManagementRepository.TransferToPrivateSubscriptionOrderAsync(order);
 
-        await _emailService.SendEmailAsync("Transfer to private order", subscriptionOrder);
+        await _emailService.SendEmailAsync("Transfer to private order", added);
         
         return _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(added);
     }

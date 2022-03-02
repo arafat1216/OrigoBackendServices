@@ -198,7 +198,7 @@ namespace SubscriptionManagement.UnitTests
         public async Task GetAllOperatorsForCustomer()
         {
             var customerOperators = await _customerSettingsService.GetAllOperatorsForCustomerAsync(ORGANIZATION_ONE_ID);
-            Assert.Equal(1, customerOperators.Count());
+            Assert.Equal(1, customerOperators.Count);
         }
 
         [Fact]

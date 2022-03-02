@@ -39,6 +39,5 @@ namespace SubscriptionManagementServices.Models
         public string? ConnectedOrganizationNumber { get; set; }
         public virtual ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
         public virtual CustomerOperatorSettings CustomerOperatorSetting { get; set; }
-        public virtual ICollection<TransferToBusinessSubscriptionOrder>? TransferToBusinessSubscriptionOrders { get; set; }
     }
 }

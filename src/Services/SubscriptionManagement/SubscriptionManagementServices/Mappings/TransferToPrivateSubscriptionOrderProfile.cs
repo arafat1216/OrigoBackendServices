@@ -9,13 +9,12 @@ namespace SubscriptionManagementServices.Mappings
         public TransferToPrivateSubscriptionOrderProfile()
         {
             CreateMap<TransferToPrivateSubscriptionOrderDTO, TransferToPrivateSubscriptionOrder>()
-                .ForMember(d => d.UserInfo, opts => opts.MapFrom(s => s.PrivateSubscription))
-                .ForMember(d => d.OperatorName, opts => opts.MapFrom(s => s.OperatorName))
-                .ForMember(d => d.NewSubscription, opts => opts.MapFrom(s => s.NewSubscription))
-                .ForMember(d => d.OrderExecutionDate, opts => opts.MapFrom(s => s.OrderExecutionDate));
+                .ForMember(m => m.UserInfo, opts => opts.MapFrom(dto => dto.PrivateSubscription))
+                .ForMember(m => m.CreatedBy, opts => opts.MapFrom(dto => dto.CallerId));
 
             CreateMap<TransferToPrivateSubscriptionOrder, TransferToPrivateSubscriptionOrderDTO>()
-                .ForMember(d => d.PrivateSubscription, opts => opts.MapFrom(s => s.UserInfo));
+                .ForMember(dto => dto.PrivateSubscription, opts => opts.MapFrom(m => m.UserInfo))
+                .ForMember(m => m.CallerId, opts => opts.MapFrom(dto => dto.CreatedBy));
         }
     }
 }
