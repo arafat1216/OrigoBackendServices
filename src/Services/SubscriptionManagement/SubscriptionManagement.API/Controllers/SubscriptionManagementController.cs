@@ -99,31 +99,50 @@ namespace SubscriptionManagement.API.Controllers
         /// <param name="subscriptionOrder">Details of the subscription order</param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(TransferToBusinessSubscriptionOrderDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(TransferToBusinessSubscriptionOrderDTO), (int)HttpStatusCode.Created)]
         [Route("{organizationId:Guid}/transfer-to-business")]
         public async Task<ActionResult<TransferToBusinessSubscriptionOrderDTO>> TransferSubscription(Guid organizationId, [FromBody] TransferToBusinessSubscriptionOrderDTO subscriptionOrder)
         {
             var privateSubscription = await _subscriptionServices.TransferPrivateToBusinessSubscriptionOrderAsync(organizationId, subscriptionOrder);
 
-            //var uriString = $"/api/v1.0/SubscriptionManagement/{organizationId}/transfer-to-business";
-            return Ok(privateSubscription);
+            return CreatedAtAction(nameof(TransferSubscription), privateSubscription);
         }
 
+        /// <summary>
+        /// Create a transfer to private subscription order.
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="subscriptionOrder"></param>
+        /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(TransferToPrivateSubscriptionOrderDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(TransferToPrivateSubscriptionOrderDTO), (int)HttpStatusCode.Created)]
         [Route("{organizationId:Guid}/transfer-to-private")]
         public async Task<IActionResult> TransferSubscriptionToPrivate(Guid organizationId, [FromBody] TransferToPrivateSubscriptionOrderDTO subscriptionOrder)
         {
             var dto = await _subscriptionServices.TransferToPrivateSubscriptionOrderAsync(organizationId, subscriptionOrder);
-            return Ok(dto);
+            return CreatedAtAction(nameof(TransferSubscriptionToPrivate), dto);
+        }
+
+
+        /// <summary>
+        /// Gets a list of all subscription orders for a customer
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <returns></returns>
+        [Route("{organizationId:Guid}/subscription-orders")]
+        [ProducesResponseType(typeof(IList<SubscriptionOrderListItemDTO>), (int)HttpStatusCode.OK)]
+        [HttpGet]
+        public async Task<ActionResult> GetSubscriptionOrders(Guid organizationId)
+        {
+            return Ok(await _subscriptionServices.GetSubscriptionOrderLog(organizationId));
         }
 
         /// <summary>
-        /// Get list of customer operator accounts
-        /// </summary>
-        /// <param name="organizationId">Organization identifier</param>
-        /// <returns>list of customer operator accounts</returns>
-        [HttpGet]
+            /// Get list of customer operator accounts
+            /// </summary>
+            /// <param name="organizationId">Organization identifier</param>
+            /// <returns>list of customer operator accounts</returns>
+            [HttpGet]
         [ProducesResponseType(typeof(IList<CustomerOperatorAccount>), (int)HttpStatusCode.OK)]
         [Route("{organizationId:Guid}/operator-accounts")]
         public async Task<IActionResult> GetAllOperatorAccountsForCustomer(Guid organizationId)

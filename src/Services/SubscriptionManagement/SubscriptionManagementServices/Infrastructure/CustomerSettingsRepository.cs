@@ -117,18 +117,7 @@ namespace SubscriptionManagementServices.Infrastructure
             }
             return customerSetting.CustomerReferenceFields.ToImmutableList();
         }
-
-        public async Task DeleteOperatorSubscriptionProductForCustomerAsync(CustomerSubscriptionProduct customerSubscriptionProduct)
-        {
-            if (customerSubscriptionProduct.GlobalSubscriptionProduct == null)
-            {
-                _subscriptionManagementContext.DataPackages.RemoveRange(customerSubscriptionProduct.DataPackages);
-            }
-
-            _subscriptionManagementContext.Entry(customerSubscriptionProduct).State = EntityState.Deleted;
-            await _subscriptionManagementContext.SaveChangesAsync();
-        }
-
+        
         public async Task<SubscriptionProduct?> GetSubscriptionProductByNameAsync(string subscriptionProductName, int operatorId)
         {
 

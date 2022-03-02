@@ -2,7 +2,7 @@
 
 namespace SubscriptionManagementServices.Models
 {
-    public class SubscriptionOrder : Entity, ISubscriptionOrder
+    public class SubscriptionOrder : Entity
     {
         private readonly List<SubscriptionAddOnProduct> _subscriptionAddOnProducts;
 
