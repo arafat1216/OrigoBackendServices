@@ -75,7 +75,7 @@ namespace SubscriptionManagementServices.Models
 
         [NotMapped]
         public string NewSubscriptionOrderOwnerName =>
-            PrivateSubscription != null ? $"{PrivateSubscription.FirstName} {PrivateSubscription.LastName}" : BusinessSubscription?.Name ?? string.Empty;
+            PrivateSubscription != null ? $"{PrivateSubscription?.FirstName} {PrivateSubscription?.LastName}" : BusinessSubscription?.Name ?? string.Empty;
 
         [NotMapped] public DateTime TransferDate => OrderExecutionDate;
 
