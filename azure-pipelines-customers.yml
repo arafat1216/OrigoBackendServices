@@ -54,9 +54,6 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
-    - task: NuGetAuthenticate@0
-      displayName: Authenticating with internal NuGet package-feeds
-
     - script: 'dotnet tool install --global dotnet-ef'
       displayName: Install EF Core
 
