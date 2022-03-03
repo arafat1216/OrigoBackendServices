@@ -124,4 +124,50 @@ public class
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
+    [Fact]
+    public async Task PostChangeSubscriptionOrder_ReturnsCreated()
+    {
+        var postRequest = new NewChangeSubscriptionOrder
+        {
+            MobileNumber = "+47 41414141",
+            OperatorName = "Telenor - NO",
+            ProductName = "Fri Flyt",
+            PackageName = "5 GB",
+            SubscriptionOwner = "Ola Normann",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription",postRequest);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+    [Fact]
+    public async Task PostChangeSubscriptionOrder_ReturnsBadRequest_WhenMobileNumberIsNull()
+    {
+        var postRequest = new NewChangeSubscriptionOrder
+        {
+            OperatorName = "Telenor - NO",
+            ProductName = "Fri Flyt",
+            PackageName = "5 GB",
+            SubscriptionOwner = "Ola Normann",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+    [Fact]
+    public async Task PostChangeSubscriptionOrder_ReturnsCreated_WhenSubscriptionOwnerIsNull()
+    {
+        var postRequest = new NewChangeSubscriptionOrder
+        {
+            MobileNumber = "+47 41414141",
+            OperatorName = "Telenor - NO",
+            ProductName = "Fri Flyt",
+            PackageName = "5 GB",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
 }
