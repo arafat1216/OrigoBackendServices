@@ -724,6 +724,43 @@ namespace OrigoApiGateway.Controllers
             Guid.TryParse(actor, out Guid callerId);
             return CreatedAtAction(nameof(CancelSubscription), order);
         }
+        /// <summary>
+        /// Change subscription product.
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        [Route("{organizationId:Guid}/change-subscription")]
+        [ProducesResponseType(typeof(OrigoChangeSubscriptionOrder), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [HttpPost]
+        public async Task<ActionResult> ChangeSubscriptionOrder(Guid organizationId, [FromBody] ChangeSubscriptionOrder order)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            if (role == PredefinedRole.EndUser.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+
+            var requestModel = Mapper.Map<ChangeSubscriptionOrderPostRequest>(order);
+
+            Guid.TryParse(actor, out Guid callerId);
+            requestModel.CallerId = callerId;
+
+            var changeSubscription = await SubscriptionManagementService.ChangeSubscriptionOrderAsync(organizationId, requestModel);
+
+            return CreatedAtAction(nameof(ChangeSubscriptionOrder), changeSubscription);
+        }
 
 
         [Route("{organizationId:Guid}/subscription-orders")]

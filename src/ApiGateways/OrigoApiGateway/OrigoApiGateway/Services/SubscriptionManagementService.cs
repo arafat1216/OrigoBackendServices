@@ -437,5 +437,27 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<OrigoChangeSubscriptionOrder> ChangeSubscriptionOrderAsync(Guid organizationId, ChangeSubscriptionOrderPostRequest subscriptionOrderModel)
+        {
+            try
+            {
+                string requestUri = $"{_options.ApiPath}/{organizationId}/change-subscription";
+
+                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri,subscriptionOrderModel);
+
+                if (postSubscription.StatusCode == HttpStatusCode.Created)
+                {
+                    return await postSubscription.Content.ReadFromJsonAsync<OrigoChangeSubscriptionOrder>();
+                }
+
+                throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "ChangeSubscriptionOrderAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
     }
 }
