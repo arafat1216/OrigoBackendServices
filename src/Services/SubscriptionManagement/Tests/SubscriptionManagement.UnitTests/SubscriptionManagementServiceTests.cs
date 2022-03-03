@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -19,8 +18,6 @@ namespace SubscriptionManagement.UnitTests;
 
 public class SubscriptionManagementServiceTests : SubscriptionManagementServiceBaseTests
 {
-    private readonly SubscriptionManagementContext _subscriptionManagementContext;
-    private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
     private readonly ISubscriptionManagementService _subscriptionManagementService;
     private readonly IMapper? _mapper;
 
@@ -37,11 +34,11 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
             _mapper = mappingConfig.CreateMapper();
         }
 
-        _subscriptionManagementContext = new SubscriptionManagementContext(ContextOptions);
-        _subscriptionManagementRepository = new SubscriptionManagementRepository(_subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var customerSettingsRepository = new CustomerSettingsRepository(_subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var operatorRepository = new OperatorRepository(_subscriptionManagementContext);
-        _subscriptionManagementService = new SubscriptionManagementService(_subscriptionManagementRepository,
+        var subscriptionManagementContext = new SubscriptionManagementContext(ContextOptions);
+        ISubscriptionManagementRepository subscriptionManagementRepository = new SubscriptionManagementRepository(subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var customerSettingsRepository = new CustomerSettingsRepository(subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var operatorRepository = new OperatorRepository(subscriptionManagementContext);
+        _subscriptionManagementService = new SubscriptionManagementService(subscriptionManagementRepository,
             customerSettingsRepository,
             operatorRepository,
             Options.Create(new TransferSubscriptionDateConfiguration
@@ -53,62 +50,12 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
             }), _mapper, new Mock<IEmailService>().Object);
     }
 
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task AddSubscriptionOrder_Valid()
-    {
-        //await _subscriptionManagementService.AddSubscriptionOrderForCustomerAsync(ORGANIZATION_ONE_ID, 1, 1, 1,
-        //    CALLER_ONE_ID, string.Empty);
-        //Assert.Equal(1, _subscriptionManagementContext.SubscriptionOrders.Count());
-    }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task AddSubscriptionOrder_InValid_SubscriptionProduct()
-    {
-        //var exception = await Record.ExceptionAsync(() =>
-        //    _subscriptionManagementService.AddSubscriptionOrderForCustomerAsync(ORGANIZATION_ONE_ID, 10, 1, 1,
-        //        CALLER_ONE_ID, string.Empty));
-
-        //Assert.Equal(0, _subscriptionManagementContext.SubscriptionOrders.Count());
-        //Assert.NotNull(exception);
-        //Assert.IsType<ArgumentException>(exception);
-        //Assert.Equal("No subscription product exists with ID 10", exception.Message);
-    }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task AddSubscriptionOrder_InValid_OperatorAccount()
-    {
-        //var exception = await Record.ExceptionAsync(() =>
-        //    _subscriptionManagementService.AddSubscriptionOrderForCustomerAsync(ORGANIZATION_ONE_ID, 1, 10, 1,
-        //        CALLER_ONE_ID, string.Empty));
-
-        //Assert.Equal(0, _subscriptionManagementContext.SubscriptionOrders.Count());
-        //Assert.NotNull(exception);
-        //Assert.IsType<ArgumentException>(exception);
-        //Assert.Equal("No operator account exists with ID 10", exception.Message);
-    }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async Task AddSubscriptionOrder_InValid_DataPackage()
-    {
-        //var exception = await Record.ExceptionAsync(() =>
-        //    _subscriptionManagementService.AddSubscriptionOrderForCustomerAsync(ORGANIZATION_ONE_ID, 1, 1, 10,
-        //        CALLER_ONE_ID, string.Empty));
-
-        //Assert.Equal(0, _subscriptionManagementContext.SubscriptionOrders.Count());
-        //Assert.NotNull(exception);
-        //Assert.IsType<ArgumentException>(exception);
-        //Assert.Equal("No DataPackage exists with ID 10", exception.Message);
-    }
 
     [Fact]
     [Trait("Category", "UnitTest")]
     public async Task TransferSubscription_Same_Operator_EmptySIM()
     {
-        var exception_one_day = await Record.ExceptionAsync(() =>
+        var exceptionOneDay = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
@@ -121,9 +68,9 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 }
                 ));
 
-        Assert.NotNull(exception_one_day);
-        Assert.IsType<ArgumentException>(exception_one_day);
-        Assert.Equal("SIM card number is required.", exception_one_day.Message);
+        Assert.NotNull(exceptionOneDay);
+        Assert.IsType<ArgumentException>(exceptionOneDay);
+        Assert.Equal("SIM card number is required.", exceptionOneDay.Message);
     }
 
     [Fact]
@@ -148,7 +95,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.IsType<ArgumentException>(exception);
         Assert.Equal("Invalid transfer date. 1 workday ahead or more is allowed.", exception.Message);
 
-        var exception_thirty_day = await Record.ExceptionAsync(() =>
+        var exceptionThirtyDay = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
@@ -162,9 +109,9 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 }
                 ));
 
-        Assert.NotNull(exception_thirty_day);
-        Assert.IsType<ArgumentException>(exception_thirty_day);
-        Assert.Equal("Invalid transfer date. 1 workday ahead or more is allowed.", exception_thirty_day.Message);
+        Assert.NotNull(exceptionThirtyDay);
+        Assert.IsType<ArgumentException>(exceptionThirtyDay);
+        Assert.Equal("Invalid transfer date. 1 workday ahead or more is allowed.", exceptionThirtyDay.Message);
     }
 
     [Fact]
@@ -245,7 +192,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.IsType<ArgumentException>(exception);
         Assert.Equal("Invalid transfer date. 10 workdays ahead or more is allowed.", exception.Message);
 
-        var exception_thirty_day = await Record.ExceptionAsync(() =>
+        var exceptionThirtyDay = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
@@ -264,9 +211,9 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 }
                 ));
 
-        Assert.NotNull(exception_thirty_day);
-        Assert.IsType<ArgumentException>(exception_thirty_day);
-        Assert.Equal("Invalid transfer date. 10 workdays ahead or more is allowed.", exception_thirty_day.Message);
+        Assert.NotNull(exceptionThirtyDay);
+        Assert.IsType<ArgumentException>(exceptionThirtyDay);
+        Assert.Equal("Invalid transfer date. 10 workdays ahead or more is allowed.", exceptionThirtyDay.Message);
     }
 
     [Fact]
@@ -296,7 +243,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
-                    CustomerReferenceFields = new List<NewCustomerReferenceField> { }
+                    CustomerReferenceFields = new List<NewCustomerReferenceField>()
                 }
                 );
 
@@ -340,7 +287,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
-                    CustomerReferenceFields = new List<NewCustomerReferenceField> { }
+                    CustomerReferenceFields = new List<NewCustomerReferenceField>()
                 }
                 );
 
@@ -380,7 +327,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
-                    CustomerReferenceFields = new List<NewCustomerReferenceField> { new NewCustomerReferenceField { Name = "X", Type = "Y" } }
+                    CustomerReferenceFields = new List<NewCustomerReferenceField> { new() { Name = "X", Type = "Y" } }
                 }
                 ));
 

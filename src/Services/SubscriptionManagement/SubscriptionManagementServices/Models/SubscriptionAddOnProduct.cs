@@ -17,7 +17,6 @@ namespace SubscriptionManagementServices.Models
 
         public string AddOnProductName { get; set; }
 
-        public IReadOnlyCollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
         public IReadOnlyCollection<TransferToBusinessSubscriptionOrder>? TransferToBusinessSubscriptionOrders { get; set; }
     }
 }
