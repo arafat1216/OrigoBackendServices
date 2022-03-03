@@ -42,6 +42,7 @@ namespace SubscriptionManagementServices.Models
         [NotMapped] public DateTime TransferDate => DateTime.UtcNow;
 
         public Guid SubscriptionOrderId { get; set; }
+        public string? SalesforceTicketId { get; set; }
         #endregion
     }
 }

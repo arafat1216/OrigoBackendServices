@@ -117,7 +117,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             order.CallerId);
         var subscriptionOrder = await _subscriptionManagementRepository.TransferToBusinessSubscriptionOrderAsync(transferToBusinessSubscriptionOrder);
 
-        await _emailService.SendEmailAsync("Transfer to business order", subscriptionOrder);
+        await _emailService.SendEmailAsync($"[{subscriptionOrder?.SubscriptionOrderId}]-[{subscriptionOrder?.OrderType}]", subscriptionOrder);
 
         return _mapper.Map<TransferToBusinessSubscriptionOrderDTO>(subscriptionOrder);
     }
@@ -155,8 +155,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         order.OrganizationId = organizationId;
         var added = await _subscriptionManagementRepository.TransferToPrivateSubscriptionOrderAsync(order);
 
-        await _emailService.SendEmailAsync("Transfer to private order", added);
-        
+        await _emailService.SendEmailAsync($"[{added?.SubscriptionOrderId}]-[{added?.OrderType}]", added);
+
         return _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(added);
     }
 
