@@ -602,50 +602,6 @@ namespace CustomerServices
             return await GetAssetCategoryType(customerId, deletedAssetCategoryId);
         }
 
-        public async Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId)
-        {
-            return await _customerRepository.GetCustomerProductModulesAsync(customerId);
-        }
-
-        public async Task<ProductModule> AddProductModulesAsync(Guid customerId, Guid moduleId, IList<Guid> productModuleGroupIds, Guid callerId)
-        {
-            var productModule = await _customerRepository.AddProductModuleAsync(customerId, moduleId, callerId);
-            if (productModule != null)
-            {
-                foreach (var moduleGroupId in productModuleGroupIds)
-                {
-                    await _customerRepository.AddProductModuleGroupAsync(customerId, moduleGroupId, callerId);
-                }
-            }
-            var result = await GetCustomerProductModulesAsync(customerId);
-            return result.FirstOrDefault(m => m.ProductModuleId == moduleId);
-        }
-
-        public async Task<ProductModule> RemoveProductModulesAsync(Guid customerId, Guid moduleId, IList<Guid> productModuleGroupIds, Guid callerId)
-        {
-            var customerModules = await GetCustomerProductModulesAsync(customerId);
-            var module = customerModules.FirstOrDefault(m => m.ProductModuleId == moduleId);
-            if (module == null)
-            {
-                return null;
-            }
-            if (!productModuleGroupIds.Any()) // remove module and module groups
-            {
-                foreach (var moduleGroup in module.ProductModuleGroup)
-                {
-                    await _customerRepository.RemoveProductModuleGroupAsync(customerId, moduleGroup.ProductModuleGroupId, callerId);
-                }
-                await _customerRepository.RemoveProductModuleAsync(customerId, moduleId, callerId);
-                return GetCustomerProductModulesAsync(customerId).Result.FirstOrDefault(m => m.ProductModuleId == moduleId);
-            }
-            foreach (var groupId in productModuleGroupIds) // remove module groups
-            {
-                await _customerRepository.RemoveProductModuleGroupAsync(customerId, groupId, callerId);
-            }
-            var result = await GetCustomerProductModulesAsync(customerId);
-            return result.FirstOrDefault(m => m.ProductModuleId == moduleId);
-        }
-
         public async Task<string> EncryptDataForCustomer(Guid customerId, string message, byte[] secretKey, byte[] iv)
         {
             try

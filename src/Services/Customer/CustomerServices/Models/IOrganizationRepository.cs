@@ -42,15 +42,6 @@ namespace CustomerServices.Models
         Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, int assetCategoryId);
         Task<AssetCategoryType> DeleteAssetCategoryTypeAsync(AssetCategoryType assetCategoryType);
 
-        Task<ProductModuleGroup> GetProductModuleGroupAsync(Guid moduleGroupId);
-        Task<ProductModuleGroup> AddProductModuleGroupAsync(Guid customerId, Guid moduleGroupId,Guid callerId);
-        Task<ProductModuleGroup> RemoveProductModuleGroupAsync(Guid customerId, Guid moduleGroupId, Guid callerId);
-        Task<IList<ProductModule>> GetProductModulesAsync();
-        Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId);
-        Task<ProductModule> GetProductModuleAsync(Guid moduleId);
-        Task<ProductModule> AddProductModuleAsync(Guid customerId, Guid moduleId, Guid callerId);
-        Task<ProductModule> RemoveProductModuleAsync(Guid customerId, Guid moduleId, Guid callerId);
-
         Task<IList<Department>> GetDepartmentsAsync(Guid customerId);
         Task<Department> GetDepartmentAsync(Guid customerId, Guid departmentId);
         Task<IList<Department>> DeleteDepartmentsAsync(IList<Department> department);

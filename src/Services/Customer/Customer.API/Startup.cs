@@ -68,7 +68,6 @@ namespace Customer.API
             services.AddScoped<IUserServices, UserServices>();
             services.AddScoped<IOktaServices, OktaServices>();
             services.AddScoped<IUserPermissionServices, UserPermissionServices>();
-            services.AddScoped<IModuleServices, ModuleServices>();
             services.AddScoped<IDepartmentsServices, DepartmentsServices>();
             services.AddScoped<IOrganizationTestDataService, OrganizationTestDataService>();
             services.AddScoped<IOrganizationRepository, OrganizationRepository>();

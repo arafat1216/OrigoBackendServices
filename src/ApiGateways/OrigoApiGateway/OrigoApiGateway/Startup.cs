@@ -74,7 +74,6 @@ namespace OrigoApiGateway
             services.Configure<PartnerConfiguration>(Configuration.GetSection("Partner"));
             services.Configure<UserConfiguration>(Configuration.GetSection("User"));
             services.Configure<UserPermissionsConfigurations>(Configuration.GetSection("UserPermissions"));
-            services.Configure<ModuleConfiguration>(Configuration.GetSection("Module"));
             services.Configure<DepartmentConfiguration>(Configuration.GetSection("Department"));
             services.Configure<ProductCatalogConfiguration>(Configuration.GetSection("ProductCatalog"));
             services.Configure<SubscriptionManagementConfiguration>(Configuration.GetSection("SubscriptionManagement"));
@@ -170,30 +169,6 @@ namespace OrigoApiGateway
                 DaprClient.CreateInvokeHttpClient("customerservices"),
                 x.GetRequiredService<IOptions<UserConfiguration>>(),
                 x.GetRequiredService<IMapper>()
-            ));
-
-            services.AddSingleton<IModuleServices>(x => new ModuleServices(
-                x.GetRequiredService<ILogger<ModuleServices>>(),
-                DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<ModuleConfiguration>>(),
-                new CustomerServices(
-                    x.GetRequiredService<ILogger<CustomerServices>>(),
-                    DaprClient.CreateInvokeHttpClient("customerservices"),
-                    x.GetRequiredService<IOptions<CustomerConfiguration>>(),
-                    new AssetServices(
-                        x.GetRequiredService<ILogger<AssetServices>>(),
-                        DaprClient.CreateInvokeHttpClient("assetservices"),
-                        x.GetRequiredService<IOptions<AssetConfiguration>>(),
-                        new UserServices(
-                            x.GetRequiredService<ILogger<UserServices>>(),
-                            DaprClient.CreateInvokeHttpClient("customerservices"),
-                            x.GetRequiredService<IOptions<UserConfiguration>>(),
-                            x.GetRequiredService<IMapper>()
-                        ),
-                        x.GetRequiredService<IMapper>()
-                    ),
-                    x.GetRequiredService<IMapper>()
-                )
             ));
 
             services.AddSingleton<IDepartmentsServices>(x => new DepartmentsServices(

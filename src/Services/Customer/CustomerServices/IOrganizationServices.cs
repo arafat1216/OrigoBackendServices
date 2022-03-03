@@ -31,9 +31,6 @@ namespace CustomerServices
         Task<IList<AssetCategoryType>> GetAssetCategoryTypes(Guid customerId);
         Task<AssetCategoryType> AddAssetCategoryType(Guid customerId, Guid addedAssetCategoryId, IList<int> lifecycleTypes, Guid callerId);
         Task<AssetCategoryType> RemoveAssetCategoryType(Guid customerId, Guid deletedAssetCategoryId, IList<int> lifecycleTypes, Guid callerId);
-        Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId);
-        Task<ProductModule> AddProductModulesAsync(Guid customerId, Guid moduleId, IList<Guid> productModuleGroupIds, Guid callerId);
-        Task<ProductModule> RemoveProductModulesAsync(Guid customerId, Guid moduleId, IList<Guid> productModuleGroupIds, Guid callerId);
         Task<Organization> AddOrganizationAsync(Organization newOrganization);
         Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
         Task<Location> AddOrganizationLocationAsync(Location location);
