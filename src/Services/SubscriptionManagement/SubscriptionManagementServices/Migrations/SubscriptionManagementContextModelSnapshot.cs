@@ -130,7 +130,8 @@ namespace SubscriptionManagementServices.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(0);
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
@@ -172,7 +173,8 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("SubscriptionOrderId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(1);
 
                     b.Property<string>("SubscriptionOwner")
                         .HasColumnType("nvarchar(max)");

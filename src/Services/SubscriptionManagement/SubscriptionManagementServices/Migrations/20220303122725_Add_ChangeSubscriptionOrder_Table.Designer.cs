@@ -12,7 +12,7 @@ using SubscriptionManagementServices.Infrastructure;
 namespace SubscriptionManagementServices.Migrations
 {
     [DbContext(typeof(SubscriptionManagementContext))]
-    [Migration("20220303121108_Add_ChangeSubscriptionOrder_Table")]
+    [Migration("20220303122725_Add_ChangeSubscriptionOrder_Table")]
     partial class Add_ChangeSubscriptionOrder_Table
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -132,7 +132,8 @@ namespace SubscriptionManagementServices.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(0);
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
@@ -174,7 +175,8 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("SubscriptionOrderId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(1);
 
                     b.Property<string>("SubscriptionOwner")
                         .HasColumnType("nvarchar(max)");

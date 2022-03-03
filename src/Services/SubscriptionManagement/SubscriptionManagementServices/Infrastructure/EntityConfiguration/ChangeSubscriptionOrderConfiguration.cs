@@ -18,6 +18,11 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             builder.ToTable("ChangeSubscriptionOrder");
             builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
             builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
+
+            builder.Property(e => e.Id)
+                   .HasColumnOrder(0);
+            builder.Property(e => e.SubscriptionOrderId)
+                   .HasColumnOrder(1);
         }
     }
 }
