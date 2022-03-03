@@ -12,7 +12,7 @@ namespace OrigoApiGateway.Controllers
     [ApiController]
     [Authorize(Roles = "SystemAdmin")]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/feature-flags")]
+    [Route("origoapi/api/v{version:apiVersion}/feature-flags")]
     public class FeatureFlagsController : ControllerBase
     {
         private readonly IFeatureFlagServices _featureFlagServices;
