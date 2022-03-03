@@ -122,6 +122,30 @@ namespace SubscriptionManagement.API.Controllers
             var dto = await _subscriptionServices.TransferToPrivateSubscriptionOrderAsync(organizationId, subscriptionOrder);
             return CreatedAtAction(nameof(TransferSubscriptionToPrivate), dto);
         }
+        /// <summary>
+        /// Create a order for changing subscription product for customer.
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="subscriptionOrder"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ProducesResponseType(typeof(ChangeSubscriptionOrderDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [Route("{organizationId:Guid}/change-subscription")]
+        public async Task<IActionResult> ChangeSubscriptionOrder(Guid organizationId, [FromBody] NewChangeSubscriptionOrder subscriptionOrder)
+        {
+            try
+            {
+                var addedOrder = await _subscriptionServices.ChangeSubscriptionOrder(organizationId, subscriptionOrder);
+
+                return CreatedAtAction(nameof(ChangeSubscriptionOrder), addedOrder);
+
+            }catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
 
 
         /// <summary>

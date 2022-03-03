@@ -69,5 +69,12 @@ namespace SubscriptionManagementServices.Infrastructure
 
             return subscriptionOrderList;
         }
+
+        public async Task<ChangeSubscriptionOrder> AddChangeSubscriptionOrderAsync(ChangeSubscriptionOrder subscriptionOrder)
+        {
+            var added = await _subscriptionContext.AddAsync(subscriptionOrder);
+            await SaveEntitiesAsync();
+            return added.Entity;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using SubscriptionManagementServices.DomainEvents;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SubscriptionManagementServices.Models
@@ -10,7 +11,7 @@ namespace SubscriptionManagementServices.Models
         {
         }
 
-        public ChangeSubscriptionOrder(string mobileNumber, string productName, string packageName, string operatorName, string subscriptionOwner, Guid organizationId)
+        public ChangeSubscriptionOrder(string mobileNumber, string productName, string? packageName, string operatorName, string? subscriptionOwner, Guid organizationId, Guid callerId)
         {
             MobileNumber = mobileNumber;
             ProductName = productName;
@@ -18,6 +19,7 @@ namespace SubscriptionManagementServices.Models
             OperatorName = operatorName;
             SubscriptionOwner = subscriptionOwner;
             OrganizationId = organizationId;
+            AddDomainEvent(new ChangeSubscriptionOrderCreatedDomainEvent(this, callerId));
         }
 
         public string MobileNumber { get; set; }
