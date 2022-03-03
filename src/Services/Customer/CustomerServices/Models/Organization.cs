@@ -14,9 +14,6 @@ namespace CustomerServices.Models
 {
     public class Organization : Entity, IAggregateRoot
     {
-        private IList<AssetCategoryType> selectedAssetCategories;
-        private ICollection<ProductModule> selectedProductModules;
-        private ICollection<ProductModuleGroup> selectedProductModuleGroups;
         private IList<User> users;
 
         public Guid OrganizationId { get; protected set; }
@@ -53,26 +50,6 @@ namespace CustomerServices.Models
         [JsonIgnore]
         public ICollection<Department> Departments { get; protected set; }
 
-        [JsonIgnore]
-        public ICollection<ProductModule> SelectedProductModules
-        {
-            get { return selectedProductModules?.ToImmutableList(); }
-            protected set { selectedProductModules = value.ToList(); }
-        }
-
-        [JsonIgnore]
-        public ICollection<ProductModuleGroup> SelectedProductModuleGroups
-        {
-            get { return selectedProductModuleGroups?.ToImmutableList(); }
-            protected set { selectedProductModuleGroups = value.ToList(); }
-        }
-
-        [JsonIgnore]
-        public ICollection<AssetCategoryType> SelectedAssetCategories
-        {
-            get { return selectedAssetCategories?.ToImmutableList(); }
-            protected set { selectedAssetCategories = value.ToList(); }
-        }
 
         protected Organization()
         {
@@ -229,84 +206,6 @@ namespace CustomerServices.Models
             LastUpdatedDate = DateTime.UtcNow;
             DeletedBy = callerId;
             AddDomainEvent(new CustomerDeletedDomainEvent(this));
-        }
-
-        public void AddAssetCategory(AssetCategoryType assetCategory)
-        {
-            UpdatedBy = assetCategory.UpdatedBy;
-            LastUpdatedDate= DateTime.UtcNow;
-            AddDomainEvent(new AssetCategoryAddedDomainEvent(assetCategory));
-            selectedAssetCategories.Add(assetCategory);
-        }
-
-        public void RemoveAssetCategory(AssetCategoryType assetCategory,Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate = DateTime.UtcNow;
-            assetCategory.SetDeletedBy(callerId);
-            AddDomainEvent(new AssetCategoryRemovedDomainEvent(assetCategory));
-            selectedAssetCategories.Remove(assetCategory);
-        }
-
-        public void AddLifecyle(AssetCategoryType assetCategory, AssetCategoryLifecycleType lifecycleType)
-        {
-            UpdatedBy = lifecycleType.CreatedBy;
-            LastUpdatedDate = DateTime.UtcNow;
-            //AssetCategoryLifecycleType already has a CreatedBy - no need to set it again
-            AddDomainEvent(new AssetLifecycleSettingAddedDomainEvent(lifecycleType));
-            assetCategory.LifecycleTypes.Add(lifecycleType);
-        }
-
-        public void RemoveLifecyle(AssetCategoryType assetCategory, AssetCategoryLifecycleType lifecycleType, Guid callerId)
-        {
-            try
-            {
-                UpdatedBy = callerId;
-                LastUpdatedDate = DateTime.UtcNow;
-                lifecycleType.SetDeletedBy(callerId);
-                AddDomainEvent(new AssetLifecycleSettingRemovedDomainEvent(lifecycleType));
-                assetCategory.LifecycleTypes.Remove(lifecycleType);
-            }
-            catch
-            {
-                // Item may already be removed
-            }
-        }
-
-        public void AddProductModule(ProductModule productModule, Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate= DateTime.UtcNow;
-            productModule.SetCreatedBy(callerId);
-            AddDomainEvent(new ProductModuleAddedDomainEvent(OrganizationId, productModule));
-            selectedProductModules.Add(productModule);
-        }
-
-        public void RemoveProductModule(ProductModule productModule, Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate = DateTime.UtcNow;
-            productModule.SetDeletedBy(callerId);
-            AddDomainEvent(new ProductModuleRemovedDomainEvent(OrganizationId, productModule));
-            selectedProductModules.Remove(productModule);
-        }
-
-        public void AddProductModuleGroup(ProductModuleGroup productModuleGroup, Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate=DateTime.UtcNow;
-            productModuleGroup.SetCreatedBy(callerId);
-            AddDomainEvent(new ProductModuleGroupAddedDomainEvent(OrganizationId, productModuleGroup));
-            selectedProductModuleGroups.Add(productModuleGroup);
-        }
-
-        public void RemoveProductModuleGroup(ProductModuleGroup productModuleGroup,Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate = DateTime.UtcNow;
-            productModuleGroup.SetDeletedBy(callerId);
-            AddDomainEvent(new ProductModuleGroupRemovedDomainEvent(OrganizationId, productModuleGroup));
-            selectedProductModuleGroups.Remove(productModuleGroup);
         }
 
         public void AddDepartment(Department department, Guid callerId)

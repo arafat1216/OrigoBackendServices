@@ -247,202 +247,6 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("{organizationId:Guid}/assetCategory")]
-        [HttpGet]
-        [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
-        public async Task<ActionResult<IList<OrigoCustomerAssetCategoryType>>> GetAssetCategoryForCustomer(Guid organizationId)
-        {
-            try
-            {
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role != PredefinedRole.SystemAdmin.ToString())
-                {
-
-                    // All roles have access to an organizations departments, as long as the organization is in the caller access list
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
-                    {
-                        return Forbid();
-                    }
-                }
-
-                var assetCategoryLifecycleTypes = await CustomerServices.GetAssetCategoryForCustomerAsync(organizationId);
-                return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
-        [Route("{organizationId:Guid}/assetCategory")]
-        [HttpPatch]
-        [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult<OrigoCustomerAssetCategoryType>> AddAssetCategoryForCustomer(Guid organizationId, NewCustomerAssetCategoryType customerAssetCategoryType)
-        {
-            try
-            {
-                // Only admin or manager roles are allowed to manage assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                if (role == PredefinedRole.EndUser.ToString())
-                {
-                    return Forbid();
-                }
-
-                if (role != PredefinedRole.SystemAdmin.ToString())
-                {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
-                    {
-                        return Forbid();
-                    }
-                }
-                Guid.TryParse(actor, out Guid callerId);
-
-                var removedAssetCategory = await CustomerServices.AddAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType, callerId);
-                if (removedAssetCategory == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(removedAssetCategory);
-            }
-            catch (Exception)
-            {
-                return NotFound();
-            }
-        }
-
-        [Route("{organizationId:Guid}/assetCategory")]
-        [HttpDelete]
-        [ProducesResponseType(typeof(OrigoCustomerAssetCategoryType), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult<IList<OrigoCustomerAssetCategoryType>>> DeleteAssetCategoryForCustomer(Guid organizationId, NewCustomerAssetCategoryType customerAssetCategoryType)
-        {
-            try
-            {
-                // Only admin or manager roles are allowed to manage assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-
-                if (role == PredefinedRole.EndUser.ToString())
-                {
-                    return Forbid();
-                }
-
-                if (role != PredefinedRole.SystemAdmin.ToString())
-                {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
-                    {
-                        return Forbid();
-                    }
-                }
-
-                Guid.TryParse(actor, out Guid callerId);
-
-                var assetCategoryLifecycleTypes = await CustomerServices.RemoveAssetCategoryForCustomerAsync(organizationId, customerAssetCategoryType, callerId);
-                return assetCategoryLifecycleTypes != null ? Ok(assetCategoryLifecycleTypes) : NotFound();
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
-        [Route("{organizationId:Guid}/modules")]
-        [HttpGet]
-        [ProducesResponseType(typeof(IList<OrigoProductModule>), (int)HttpStatusCode.OK)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
-        public async Task<ActionResult<IList<OrigoProductModule>>> GetCustomerProductModule(Guid organizationId)
-        {
-            try
-            {
-                var productModules = await CustomerServices.GetCustomerProductModulesAsync(organizationId);
-                return productModules != null ? Ok(productModules) : NotFound();
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
-
-        [Route("{organizationId:Guid}/modules")]
-        [HttpPatch]
-        [ProducesResponseType(typeof(OrigoProductModule), (int)HttpStatusCode.OK)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult<OrigoProductModule>> AddCustomerProductModule(Guid organizationId, NewCustomerProductModule productModule)
-        {
-            try
-            {
-                // Only admin or manager roles are allowed to manage assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                if (role == PredefinedRole.EndUser.ToString())
-                {
-                    return Forbid();
-                }
-
-                if (role != PredefinedRole.SystemAdmin.ToString())
-                {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
-                    {
-                        return Forbid();
-                    }
-                }
-                Guid.TryParse(actor, out Guid callerId);
-
-                var productModules = await CustomerServices.AddProductModulesAsync(organizationId, productModule, callerId);
-                return productModules != null ? Ok(productModules) : NotFound();
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
-
-        [Route("{organizationId:Guid}/modules")]
-        [HttpDelete]
-        [ProducesResponseType(typeof(OrigoProductModule), (int)HttpStatusCode.OK)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult<OrigoProductModule>> DeleteCustomerProductModule(Guid organizationId, NewCustomerProductModule productModule)
-        {
-            try
-            {
-                // Only admin or manager roles are allowed to manage assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                if (role == PredefinedRole.EndUser.ToString())
-                {
-                    return Forbid();
-                }
-
-                if (role != PredefinedRole.SystemAdmin.ToString())
-                {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
-                    {
-                        return Forbid();
-                    }
-                }
-                Guid.TryParse(actor, out Guid callerId);
-
-                var productModules = await CustomerServices.RemoveProductModulesAsync(organizationId, productModule, callerId);
-                return productModules != null ? Ok(productModules) : NoContent();
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
-
         [Route("webshopUrl")]
         [HttpGet]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
@@ -723,6 +527,43 @@ namespace OrigoApiGateway.Controllers
             }
             Guid.TryParse(actor, out Guid callerId);
             return CreatedAtAction(nameof(CancelSubscription), order);
+        }
+        /// <summary>
+        /// Change subscription product.
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        [Route("{organizationId:Guid}/change-subscription")]
+        [ProducesResponseType(typeof(OrigoChangeSubscriptionOrder), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [HttpPost]
+        public async Task<ActionResult> ChangeSubscriptionOrder(Guid organizationId, [FromBody] ChangeSubscriptionOrder order)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            if (role == PredefinedRole.EndUser.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+
+            var requestModel = Mapper.Map<ChangeSubscriptionOrderPostRequest>(order);
+
+            Guid.TryParse(actor, out Guid callerId);
+            requestModel.CallerId = callerId;
+
+            var changeSubscription = await SubscriptionManagementService.ChangeSubscriptionOrderAsync(organizationId, requestModel);
+
+            return CreatedAtAction(nameof(ChangeSubscriptionOrder), changeSubscription);
         }
 
 

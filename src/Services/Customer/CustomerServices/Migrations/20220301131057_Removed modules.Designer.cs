@@ -4,6 +4,7 @@ using CustomerServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CustomerServices.Migrations
 {
     [DbContext(typeof(CustomerContext))]
-    partial class CustomerContextModelSnapshot : ModelSnapshot
+    [Migration("20220301131057_Removed modules")]
+    partial class Removedmodules
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +23,93 @@ namespace CustomerServices.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("CustomerServices.Models.AssetCategoryLifecycleType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<Guid>("AssetCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("AssetCategoryTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LifecycleType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetCategoryTypeId");
+
+                    b.ToTable("AssetCategoryLifecycleType", (string)null);
+                });
+
+            modelBuilder.Entity("CustomerServices.Models.AssetCategoryType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<Guid>("AssetCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ExternalCustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("OrganizationId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("AssetCategory", (string)null);
+                });
 
             modelBuilder.Entity("CustomerServices.Models.Department", b =>
                 {
@@ -365,7 +454,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 1,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 1, 14, 59, 50, 40, DateTimeKind.Utc).AddTicks(9577),
+                            CreatedDate = new DateTime(2022, 3, 1, 13, 10, 57, 320, DateTimeKind.Utc).AddTicks(8997),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -376,7 +465,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 2,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 1, 14, 59, 50, 40, DateTimeKind.Utc).AddTicks(9580),
+                            CreatedDate = new DateTime(2022, 3, 1, 13, 10, 57, 320, DateTimeKind.Utc).AddTicks(8999),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -387,7 +476,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 3,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 1, 14, 59, 50, 40, DateTimeKind.Utc).AddTicks(9581),
+                            CreatedDate = new DateTime(2022, 3, 1, 13, 10, 57, 320, DateTimeKind.Utc).AddTicks(9000),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -398,7 +487,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 4,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 1, 14, 59, 50, 40, DateTimeKind.Utc).AddTicks(9582),
+                            CreatedDate = new DateTime(2022, 3, 1, 13, 10, 57, 320, DateTimeKind.Utc).AddTicks(9001),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -445,7 +534,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 1,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 1, 14, 59, 50, 40, DateTimeKind.Utc).AddTicks(9742),
+                            CreatedDate = new DateTime(2022, 3, 1, 13, 10, 57, 320, DateTimeKind.Utc).AddTicks(9204),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -492,7 +581,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 1,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 1, 14, 59, 50, 40, DateTimeKind.Utc).AddTicks(9765),
+                            CreatedDate = new DateTime(2022, 3, 1, 13, 10, 57, 320, DateTimeKind.Utc).AddTicks(9246),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -503,7 +592,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 2,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 1, 14, 59, 50, 40, DateTimeKind.Utc).AddTicks(9766),
+                            CreatedDate = new DateTime(2022, 3, 1, 13, 10, 57, 320, DateTimeKind.Utc).AddTicks(9248),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -514,7 +603,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 3,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 1, 14, 59, 50, 40, DateTimeKind.Utc).AddTicks(9766),
+                            CreatedDate = new DateTime(2022, 3, 1, 13, 10, 57, 320, DateTimeKind.Utc).AddTicks(9249),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -525,7 +614,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 4,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 1, 14, 59, 50, 40, DateTimeKind.Utc).AddTicks(9767),
+                            CreatedDate = new DateTime(2022, 3, 1, 13, 10, 57, 320, DateTimeKind.Utc).AddTicks(9249),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -536,7 +625,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 5,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 1, 14, 59, 50, 40, DateTimeKind.Utc).AddTicks(9768),
+                            CreatedDate = new DateTime(2022, 3, 1, 13, 10, 57, 320, DateTimeKind.Utc).AddTicks(9250),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -547,7 +636,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 6,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 1, 14, 59, 50, 40, DateTimeKind.Utc).AddTicks(9768),
+                            CreatedDate = new DateTime(2022, 3, 1, 13, 10, 57, 320, DateTimeKind.Utc).AddTicks(9250),
                             DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -762,6 +851,20 @@ namespace CustomerServices.Migrations
                     b.ToTable("PermissionSetRole");
                 });
 
+            modelBuilder.Entity("CustomerServices.Models.AssetCategoryLifecycleType", b =>
+                {
+                    b.HasOne("CustomerServices.Models.AssetCategoryType", null)
+                        .WithMany("LifecycleTypes")
+                        .HasForeignKey("AssetCategoryTypeId");
+                });
+
+            modelBuilder.Entity("CustomerServices.Models.AssetCategoryType", b =>
+                {
+                    b.HasOne("CustomerServices.Models.Organization", null)
+                        .WithMany("SelectedAssetCategories")
+                        .HasForeignKey("OrganizationId");
+                });
+
             modelBuilder.Entity("CustomerServices.Models.Department", b =>
                 {
                     b.HasOne("CustomerServices.Models.Organization", "Customer")
@@ -935,9 +1038,16 @@ namespace CustomerServices.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("CustomerServices.Models.AssetCategoryType", b =>
+                {
+                    b.Navigation("LifecycleTypes");
+                });
+
             modelBuilder.Entity("CustomerServices.Models.Organization", b =>
                 {
                     b.Navigation("Departments");
+
+                    b.Navigation("SelectedAssetCategories");
 
                     b.Navigation("Users");
                 });

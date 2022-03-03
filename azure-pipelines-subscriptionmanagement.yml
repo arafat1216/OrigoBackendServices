@@ -54,28 +54,11 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
-
-    # Add this Command to Include the .NET 6 SDK
-    - task: UseDotNet@2
-      displayName: Use .NET 6.0
-      inputs:
-        packageType: 'sdk'
-        version: '6.0.x'
-
-    # Add a Command To List the Current .NET SDKs (Sanity Check)
-    - task: CmdLine@2
-      displayName: List Current .NET SDKs
-      inputs:
-        script: 'dotnet --list-sdks'
-
-    - task: NuGetAuthenticate@0
-      displayName: Authenticating with internal NuGet package-feeds
-
     - script: 'dotnet tool install --global dotnet-ef'
       displayName: Install EF Core Console Tools
 
     - script: 'dotnet ef migrations script --context SubscriptionManagementContext --idempotent --output $(build.artifactstagingdirectory)/migrations/migrations.sql --project src/Services/SubscriptionManagement/SubscriptionManagementServices/SubscriptionManagementServices.csproj'
-      displayName: Create EF --> .SQL migration scripts
+      displayName: Create subscription management SQL migration scripts
 
     - script: 'dotnet ef migrations script --context LoggingDbContext --idempotent --output $(build.artifactstagingdirectory)/migrations/logging_migrations.sql --project src/Services/SubscriptionManagement/SubscriptionManagementServices/SubscriptionManagementServices.csproj'
       displayName: Create subscription management logging migration scripts
@@ -91,13 +74,7 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
-    - task: UseDotNet@2
-      displayName: Use .NET 6.0
-      inputs:
-        packageType: 'sdk'
-        version: '6.0.x'
-
-    # Get artifact tolken. Source - https://stackoverflow.com/questions/63158785/azure-devops-nuget-artifact-feed-and-docker
+    # Get artifact token. Source - https://stackoverflow.com/questions/63158785/azure-devops-nuget-artifact-feed-and-docker
     - task: NuGetAuthenticate@0
       displayName: Authenticating with internal NuGet package-feeds
 
@@ -109,7 +86,7 @@ stages:
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
-        arguments: --build-arg SONAR_TOKEN=$(SonarToken) --build-arg BUILD_ID=$(Build.BuildId)  --build-arg FEED_SOURCE=$(artifactsFeedSource) --build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)
+        arguments: --build-arg SONAR_TOKEN=$(SonarToken) --build-arg BUILD_ID=$(Build.BuildId) --build-arg FEED_SOURCE=$(artifactsFeedSource) --build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)
         tags: |
           $(tag)
 
@@ -124,25 +101,25 @@ stages:
         tags: |
           $(tag)
 
-    #- pwsh: |
-    #    $id=docker images --filter "label=test=$(Build.BuildId)" -q | Select-Object -First 1
-    #    docker create --name testcontainer $id
-    #    docker cp testcontainer:/TestResults $(Build.SourcesDirectory)/TestResults
-    #    docker cp testcontainer:/CodeCoverage $(Build.SourcesDirectory)/CodeCoverage
-    #    docker rm testcontainer
-    #  displayName: 'Copy test results' 
+    - pwsh: |
+        $id=docker images --filter "label=test=$(Build.BuildId)" -q | Select-Object -First 1
+        docker create --name testcontainer $id
+        docker cp testcontainer:/TestResults $(Build.SourcesDirectory)/TestResults
+        docker cp testcontainer:/CodeCoverage $(Build.SourcesDirectory)/CodeCoverage
+        docker rm testcontainer
+      displayName: 'Copy test results' 
 
-    #- task: PublishCodeCoverageResults@1
-    #  inputs:
-    #    codeCoverageTool: Cobertura
-    #    summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/coverage.cobertura.xml'
-    #  displayName: 'Publish code coverage'
+    - task: PublishCodeCoverageResults@1
+      inputs:
+        codeCoverageTool: Cobertura
+        summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/coverage.cobertura.xml'
+      displayName: 'Publish code coverage'
 
-    #- task: PublishTestResults@2
-    #  inputs:
-    #    testRunner: VSTest
-    #    testResultsFiles: '**/*.trx'
-    #  displayName: 'Publish test results'
+    - task: PublishTestResults@2
+      inputs:
+        testRunner: VSTest
+        testResultsFiles: '**/*.trx'
+      displayName: 'Publish test results'
 
     - publish: charts/subscriptionmanagement-api
       artifact: helmcharts

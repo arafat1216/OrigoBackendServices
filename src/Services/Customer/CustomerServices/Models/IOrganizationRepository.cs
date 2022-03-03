@@ -35,22 +35,6 @@ namespace CustomerServices.Models
         Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
         Task<OrganizationPreferences> DeleteOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
 
-
-        Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes,Guid callerId);
-        Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId);
-        Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, Guid assetCategoryId);
-        Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, int assetCategoryId);
-        Task<AssetCategoryType> DeleteAssetCategoryTypeAsync(AssetCategoryType assetCategoryType);
-
-        Task<ProductModuleGroup> GetProductModuleGroupAsync(Guid moduleGroupId);
-        Task<ProductModuleGroup> AddProductModuleGroupAsync(Guid customerId, Guid moduleGroupId,Guid callerId);
-        Task<ProductModuleGroup> RemoveProductModuleGroupAsync(Guid customerId, Guid moduleGroupId, Guid callerId);
-        Task<IList<ProductModule>> GetProductModulesAsync();
-        Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId);
-        Task<ProductModule> GetProductModuleAsync(Guid moduleId);
-        Task<ProductModule> AddProductModuleAsync(Guid customerId, Guid moduleId, Guid callerId);
-        Task<ProductModule> RemoveProductModuleAsync(Guid customerId, Guid moduleId, Guid callerId);
-
         Task<IList<Department>> GetDepartmentsAsync(Guid customerId);
         Task<Department> GetDepartmentAsync(Guid customerId, Guid departmentId);
         Task<IList<Department>> DeleteDepartmentsAsync(IList<Department> department);

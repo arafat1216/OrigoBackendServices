@@ -56,7 +56,8 @@ namespace CustomerServices.Infrastructure
             return await _customerContext.Users
             .Where(u => u.IsActive)
             .GroupBy(u => u.Customer.OrganizationId)
-            .Select(group => new CustomerUserCount(){
+            .Select(group => new CustomerUserCount()
+            {
                 OrganizationId = group.Key,
                 Count = group.Count()
             })
@@ -101,11 +102,6 @@ namespace CustomerServices.Infrastructure
         public async Task<Organization> GetOrganizationAsync(Guid customerId)
         {
             return await _customerContext.Organizations
-            .Include(p => p.SelectedProductModules)
-            .ThenInclude(p => p.ProductModuleGroup)
-            .Include(p => p.SelectedProductModuleGroups)
-            .Include(p => p.SelectedAssetCategories)
-            .ThenInclude(p => p.LifecycleTypes)
             .Include(p => p.Departments)
             .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
         }
@@ -113,11 +109,6 @@ namespace CustomerServices.Infrastructure
         public async Task<Organization> GetCustomerAsync(Guid customerId)
         {
             return await _customerContext.Organizations
-            .Include(p => p.SelectedProductModules)
-            .ThenInclude(p => p.ProductModuleGroup)
-            .Include(p => p.SelectedProductModuleGroups)
-            .Include(p => p.SelectedAssetCategories)
-            .ThenInclude(p => p.LifecycleTypes)
             .Include(p => p.Departments)
             .FirstOrDefaultAsync(c => c.OrganizationId == customerId && c.IsCustomer == true);
         }
@@ -182,11 +173,6 @@ namespace CustomerServices.Infrastructure
         private async Task<Organization> GetCustomerReadOnlyAsync(Guid customerId)
         {
             return await _customerContext.Organizations
-                .Include(p => p.SelectedProductModules)
-                .ThenInclude(p => p.ProductModuleGroup)
-                .Include(p => p.SelectedProductModuleGroups)
-                .Include(p => p.SelectedAssetCategories)
-                .ThenInclude(p => p.LifecycleTypes)
                 .Include(p => p.Departments)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
@@ -273,56 +259,6 @@ namespace CustomerServices.Infrastructure
             return user;
         }
 
-        public async Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes, Guid callerId)
-        {
-            try
-            {
-                foreach (var assetLifecycle in assetCategoryLifecycleTypes)
-                {
-                    customer.RemoveLifecyle(assetCategory, assetLifecycle, callerId);
-                }
-                _customerContext.AssetCategoryLifecycleTypes.RemoveRange(assetCategoryLifecycleTypes);
-            }
-            catch
-            {
-                // item is already removed or did not exsit
-            }
-            await SaveEntitiesAsync();
-            return assetCategoryLifecycleTypes;
-        }
-
-        public async Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, int assetCategoryId)
-        {
-            return await _customerContext.AssetCategoryTypes.Include(p => p.LifecycleTypes).FirstOrDefaultAsync(p => p.Id == assetCategoryId && p.ExternalCustomerId == customerId);
-        }
-
-        public async Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, Guid assetCategoryId)
-        {
-            return await _customerContext.AssetCategoryTypes.Include(p => p.LifecycleTypes).FirstOrDefaultAsync(p => p.AssetCategoryId == assetCategoryId && p.ExternalCustomerId == customerId);
-        }
-
-        public async Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId)
-        {
-            var customer = await GetCustomerAsync(customerId);
-            if (customer == null)
-                return null;
-            return customer.SelectedAssetCategories.ToList();
-        }
-
-        public async Task<AssetCategoryType> DeleteAssetCategoryTypeAsync(AssetCategoryType assetCategoryType)
-        {
-            try
-            {
-                _customerContext.AssetCategoryTypes.Remove(assetCategoryType);
-            }
-            catch
-            {
-                // item is already removed or did not exsit
-            }
-            await SaveEntitiesAsync();
-            return assetCategoryType;
-        }
-
         public async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
         {
             int numberOfRecordsSaved = 0;
@@ -340,116 +276,6 @@ namespace CustomerServices.Infrastructure
                 await _mediator.DispatchDomainEventsAsync(_customerContext);
             });
             return numberOfRecordsSaved;
-        }
-
-        public async Task<IList<ProductModule>> GetProductModulesAsync()
-        {
-            return await _customerContext.ProductModules.Include(p => p.ProductModuleGroup).ToListAsync();
-        }
-
-        public async Task<IList<ProductModule>> GetCustomerProductModulesAsync(Guid customerId)
-        {
-            var customer = await GetCustomerReadOnlyAsync(customerId);
-
-            // Customer specific service
-            if (customer.IsCustomer == false)
-                return null;
-
-            var customerModuleGroups = customer.SelectedProductModuleGroups;
-            var customerModules = customer.SelectedProductModules.ToList();
-            foreach (var module in customerModules)
-            {
-                var tempModuleGroup = customerModuleGroups.Where(mg => mg.ProductModuleExternalId == module.ProductModuleId);
-                module.ProductModuleGroup.Clear();
-                foreach (var moduleGroup in tempModuleGroup)
-                {
-                    module.ProductModuleGroup.Add(moduleGroup);
-                }
-            }
-            return customerModules;
-        }
-
-        public async Task<ProductModule> GetProductModuleAsync(Guid moduleId)
-        {
-            return await _customerContext.ProductModules.Include(m => m.ProductModuleGroup).FirstOrDefaultAsync(p => p.ProductModuleId == moduleId);
-        }
-
-        public async Task<ProductModule> AddProductModuleAsync(Guid customerId, Guid moduleId, Guid callerId)
-        {
-            var customer = await GetCustomerAsync(customerId);
-            var module = await GetProductModuleAsync(moduleId);
-            if (customer == null || module == null)
-            {
-                return null;
-            }
-
-            if (!customer.SelectedProductModules.Contains(module))
-            {
-                customer.AddProductModule(module, callerId);
-            }
-            await SaveEntitiesAsync();
-            return await _customerContext.ProductModules.Include(m => m.ProductModuleGroup).FirstOrDefaultAsync(p => p.ProductModuleId == moduleId);
-        }
-
-        public async Task<ProductModule> RemoveProductModuleAsync(Guid customerId, Guid moduleId, Guid callerId)
-        {
-            var customer = await GetCustomerAsync(customerId);
-            var module = await GetProductModuleAsync(moduleId);
-            if (customer == null || module == null)
-            {
-                return null;
-            }
-            try
-            {
-                customer.RemoveProductModule(module, callerId);
-            }
-            catch
-            {
-                // item is already removed or did not exsit
-            }
-            await SaveEntitiesAsync();
-            return await _customerContext.ProductModules.Include(m => m.ProductModuleGroup).FirstOrDefaultAsync(p => p.ProductModuleId == moduleId);
-        }
-
-        public async Task<ProductModuleGroup> GetProductModuleGroupAsync(Guid moduleGroupId)
-        {
-            return await _customerContext.ProductModuleGroups.FirstOrDefaultAsync(p => p.ProductModuleGroupId == moduleGroupId);
-        }
-
-        public async Task<ProductModuleGroup> AddProductModuleGroupAsync(Guid customerId, Guid moduleGroupId, Guid callerId)
-        {
-            var customer = await GetCustomerAsync(customerId);
-            var moduleGroup = await GetProductModuleGroupAsync(moduleGroupId);
-            if (customer == null || moduleGroup == null)
-            {
-                return null;
-            }
-            if (!customer.SelectedProductModuleGroups.Contains(moduleGroup))
-            {
-                customer.AddProductModuleGroup(moduleGroup, callerId);
-            }
-            await SaveEntitiesAsync();
-            return moduleGroup;
-        }
-
-        public async Task<ProductModuleGroup> RemoveProductModuleGroupAsync(Guid customerId, Guid moduleGroupId, Guid callerId)
-        {
-            var customer = await GetCustomerAsync(customerId);
-            var moduleGroup = await GetProductModuleGroupAsync(moduleGroupId);
-            if (customer == null || moduleGroup == null)
-            {
-                return null;
-            }
-            try
-            {
-                customer.RemoveProductModuleGroup(moduleGroup, callerId);
-            }
-            catch
-            {
-                // item is already removed or did not exsit
-            }
-            await SaveEntitiesAsync();
-            return moduleGroup;
         }
 
         public async Task<IList<Department>> GetDepartmentsAsync(Guid customerId)
@@ -470,7 +296,7 @@ namespace CustomerServices.Infrastructure
             }
             catch
             {
-                // item is already removed or did not exsit
+                // item is already removed or did not exist
             }
             await SaveEntitiesAsync();
             return department;
@@ -492,7 +318,7 @@ namespace CustomerServices.Infrastructure
         {
             return await _customerContext.Partners.Where(partner => !partner.IsDeleted)
                 .Include(partner => partner.Organization).ToListAsync();
-                
+
         }
     }
 }
