@@ -48,7 +48,7 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
             try
             {
                 var firstOperator = subscriptionManagementContext.Operators.FirstOrDefault();
-                var subscriptionProduct = new SubscriptionProduct(SUBSCRIPTION_PRODUCT_ID, "TOTAL BEDRIFT", firstOperator, new List<DataPackage>{new DataPackage("20GB", Guid.Empty), new DataPackage("30GB", Guid.Empty)}, Guid.Empty);
+                var subscriptionProduct = new SubscriptionProduct(SUBSCRIPTION_PRODUCT_ID, "TOTAL BEDRIFT", firstOperator!, new List<DataPackage>{new DataPackage("20GB", Guid.Empty), new DataPackage("30GB", Guid.Empty)}, Guid.Empty);
                 subscriptionManagementContext.SubscriptionProducts.AddRangeAsync(
                     new List<SubscriptionProduct>
                     {

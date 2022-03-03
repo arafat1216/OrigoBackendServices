@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM origov2acr.azurecr.io/baseimage-dotnetcore6-sonarcloud:latest AS build
 
 ARG SONAR_PROJECT_KEY=97dfb3ac-dac5-4667-8e4e-d19bba085612
 ARG SONAR_ORGANIZATION_KEY=mytos

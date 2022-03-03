@@ -7,11 +7,11 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
     public record OrigoTransferToBusinessSubscriptionOrder
     {
         /// <summary>
-        ///// The current owner the subscription will be transferred from.
-        ///// </summary>
+        /// The current owner the subscription will be transferred from.
+        /// </summary>
         public PrivateSubscription? PrivateSubscription { get; set; }
         public BusinessSubscription? BusinessSubscription { get; set; }
-        ///// <summary>
+        /// <summary>
         /// The mobile number to be transferred
         /// </summary>
         public string MobileNumber { get; set; }

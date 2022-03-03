@@ -612,7 +612,7 @@ namespace OrigoApiGateway.Controllers
 
                 return Ok(createdLabels);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -665,7 +665,7 @@ namespace OrigoApiGateway.Controllers
                 return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -719,7 +719,7 @@ namespace OrigoApiGateway.Controllers
                 return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest();
             }

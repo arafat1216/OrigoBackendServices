@@ -199,7 +199,7 @@ namespace CustomerServices
 
                 return JsonSerializer.Deserialize<OktaUserDTO>(responseContent, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }

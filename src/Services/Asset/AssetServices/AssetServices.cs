@@ -130,7 +130,7 @@ namespace AssetServices
                 await _assetRepository.DeleteLabelsFromAssetLabels(labelIds);
                 return await _assetRepository.DeleteCustomerLabelsForCustomerAsync(customerId, customerLabels);
             }
-            catch (ResourceNotFoundException ex)
+            catch (ResourceNotFoundException)
             {
                 throw; // no need to log same exception again
             }
@@ -168,7 +168,7 @@ namespace AssetServices
                 await _assetRepository.SaveEntitiesAsync();
                 return await _assetRepository.GetCustomerLabelsForCustomerAsync(customerId);
             }
-            catch (ResourceNotFoundException ex)
+            catch (ResourceNotFoundException)
             {
                 throw; // no need to log same exception again
             }
@@ -199,7 +199,7 @@ namespace AssetServices
 
                 await _assetRepository.SaveEntitiesAsync();
             }
-            catch (ResourceNotFoundException ex)
+            catch (ResourceNotFoundException)
             {
                 throw; // no need to log same exception again
             }
@@ -238,7 +238,7 @@ namespace AssetServices
 
                 return assets;
             }
-            catch (ResourceNotFoundException ex)
+            catch (ResourceNotFoundException)
             {
                 throw; // no need to log same exception again
             }
@@ -296,7 +296,7 @@ namespace AssetServices
                 await _assetRepository.SaveEntitiesAsync();
                 return await _assetRepository.GetAssetsFromListAsync(customerId, assetGuids);
             }
-            catch(ResourceNotFoundException ex)
+            catch(ResourceNotFoundException)
             {
                 throw; // no need to log same exception again
             }
