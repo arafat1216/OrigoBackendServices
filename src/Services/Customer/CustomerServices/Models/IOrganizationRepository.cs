@@ -35,13 +35,6 @@ namespace CustomerServices.Models
         Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
         Task<OrganizationPreferences> DeleteOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
 
-
-        Task<IList<AssetCategoryLifecycleType>> DeleteAssetCategoryLifecycleTypeAsync(Organization customer, AssetCategoryType assetCategory, IList<AssetCategoryLifecycleType> assetCategoryLifecycleTypes,Guid callerId);
-        Task<IList<AssetCategoryType>> GetAssetCategoryTypesAsync(Guid customerId);
-        Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, Guid assetCategoryId);
-        Task<AssetCategoryType> GetAssetCategoryTypeAsync(Guid customerId, int assetCategoryId);
-        Task<AssetCategoryType> DeleteAssetCategoryTypeAsync(AssetCategoryType assetCategoryType);
-
         Task<IList<Department>> GetDepartmentsAsync(Guid customerId);
         Task<Department> GetDepartmentAsync(Guid customerId, Guid departmentId);
         Task<IList<Department>> DeleteDepartmentsAsync(IList<Department> department);
