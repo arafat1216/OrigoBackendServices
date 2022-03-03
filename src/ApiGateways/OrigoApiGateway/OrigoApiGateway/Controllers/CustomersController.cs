@@ -696,6 +696,36 @@ namespace OrigoApiGateway.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Cancels a subscription
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        [Route("{organizationId:Guid}/subscription-cancel")]
+        [HttpPost]
+        public async Task<ActionResult> CancelSubscription(Guid organizationId, [FromBody] CancelSubscriptionOrder order)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            if (role == PredefinedRole.EndUser.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+            Guid.TryParse(actor, out Guid callerId);
+            return CreatedAtAction(nameof(CancelSubscription), order);
+        }
+
+
         [Route("{organizationId:Guid}/subscription-orders")]
         [ProducesResponseType(typeof(IList<OrigoSubscriptionOrderListItem>), (int)HttpStatusCode.OK)]
         [HttpGet]
