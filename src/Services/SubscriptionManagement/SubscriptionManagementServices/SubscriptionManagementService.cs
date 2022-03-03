@@ -165,4 +165,15 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         IList<ISubscriptionOrder> subscriptionOrders =  await _subscriptionManagementRepository.GetAllSubscriptionOrdersForCustomer(organizationId);
         return _mapper.Map<IList<SubscriptionOrderListItemDTO>>(subscriptionOrders);
     }
+
+    public async Task<ChangeSubscriptionOrderDTO> ChangeSubscriptionOrder(Guid organizationId, NewChangeSubscriptionOrder subscriptionOrder)
+    {
+        var changeSubscriptionOrder = new ChangeSubscriptionOrder(subscriptionOrder.MobileNumber, subscriptionOrder.ProductName, subscriptionOrder.PackageName, subscriptionOrder.OperatorName, subscriptionOrder.SubscriptionOwner,organizationId, subscriptionOrder.CallerId);
+
+        var added = await _subscriptionManagementRepository.AddChangeSubscriptionOrderAsync(changeSubscriptionOrder);
+
+        await _emailService.SendEmailAsync(changeSubscriptionOrder.OrderType, changeSubscriptionOrder);
+
+        return _mapper.Map<ChangeSubscriptionOrderDTO>(added); 
+    }
 }
