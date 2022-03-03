@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace SubscriptionManagementServices.Migrations
 {
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -84,7 +84,7 @@ namespace SubscriptionManagementServices.Migrations
                     PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PostalPlace = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Country = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     BirthDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     OperatorName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RealOwnerId = table.Column<int>(type: "int", nullable: true),
@@ -151,34 +151,6 @@ namespace SubscriptionManagementServices.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CustomerOperatorAccount",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AccountNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    AccountName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    OperatorId = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CustomerOperatorAccount", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CustomerOperatorAccount_Operator_OperatorId",
-                        column: x => x.OperatorId,
-                        principalTable: "Operator",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "CustomerOperatorSettings",
                 columns: table => new
                 {
@@ -236,27 +208,115 @@ namespace SubscriptionManagementServices.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CustomersOperatorAccounts",
+                name: "TransferToBusinessSubscriptionOrder",
                 columns: table => new
                 {
-                    CustomerOperatorAccountsId = table.Column<int>(type: "int", nullable: false),
-                    CustomerOperatorSettingsId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SubscriptionProductName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OperatorAccountOrganizationNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OperatorAccountNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OperatorName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OperatorAccountName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SimCardNumber = table.Column<string>(type: "nvarchar(22)", maxLength: 22, nullable: true),
+                    SIMCardAction = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DataPackageName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OrderExecutionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MobileNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CustomerReferenceFields = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OperatorAccountOwner = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OperatorAccountPayer = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PrivateSubscriptionId = table.Column<int>(type: "int", nullable: true),
+                    BusinessSubscriptionId = table.Column<int>(type: "int", nullable: true),
+                    SubscriptionOrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CustomersOperatorAccounts", x => new { x.CustomerOperatorAccountsId, x.CustomerOperatorSettingsId });
+                    table.PrimaryKey("PK_TransferToBusinessSubscriptionOrder", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CustomersOperatorAccounts_CustomerOperatorAccount_CustomerOperatorAccountsId",
-                        column: x => x.CustomerOperatorAccountsId,
-                        principalTable: "CustomerOperatorAccount",
+                        name: "FK_TransferToBusinessSubscriptionOrder_BusinessSubscription_BusinessSubscriptionId",
+                        column: x => x.BusinessSubscriptionId,
+                        principalTable: "BusinessSubscription",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_TransferToBusinessSubscriptionOrder_PrivateSubscription_PrivateSubscriptionId",
+                        column: x => x.PrivateSubscriptionId,
+                        principalTable: "PrivateSubscription",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TransferToPrivateSubscriptionOrder",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserInfoId = table.Column<int>(type: "int", nullable: false),
+                    MobileNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OperatorName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NewSubscription = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OrderExecutionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SubscriptionOrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TransferToPrivateSubscriptionOrder", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TransferToPrivateSubscriptionOrder_PrivateSubscription_UserInfoId",
+                        column: x => x.UserInfoId,
+                        principalTable: "PrivateSubscription",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CustomerOperatorAccount",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AccountNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    AccountName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    OperatorId = table.Column<int>(type: "int", nullable: false),
+                    ConnectedOrganizationNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomerOperatorSettingId = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomerOperatorAccount", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CustomersOperatorAccounts_CustomerOperatorSettings_CustomerOperatorSettingsId",
-                        column: x => x.CustomerOperatorSettingsId,
+                        name: "FK_CustomerOperatorAccount_CustomerOperatorSettings_CustomerOperatorSettingId",
+                        column: x => x.CustomerOperatorSettingId,
                         principalTable: "CustomerOperatorSettings",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CustomerOperatorAccount_Operator_OperatorId",
+                        column: x => x.OperatorId,
+                        principalTable: "Operator",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -267,8 +327,8 @@ namespace SubscriptionManagementServices.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SubscriptionName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OperatorId = table.Column<int>(type: "int", nullable: false),
+                    CustomerOperatorSettingsId = table.Column<int>(type: "int", nullable: false),
                     GlobalSubscriptionProductId = table.Column<int>(type: "int", nullable: true),
-                    CustomerOperatorSettingsId = table.Column<int>(type: "int", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
@@ -323,6 +383,30 @@ namespace SubscriptionManagementServices.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TransferToBusinessSubscriptionOrderAddOnProducts",
+                columns: table => new
+                {
+                    SubscriptionAddOnProductsId = table.Column<int>(type: "int", nullable: false),
+                    TransferToBusinessSubscriptionOrdersId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TransferToBusinessSubscriptionOrderAddOnProducts", x => new { x.SubscriptionAddOnProductsId, x.TransferToBusinessSubscriptionOrdersId });
+                    table.ForeignKey(
+                        name: "FK_TransferToBusinessSubscriptionOrderAddOnProducts_SubscriptionAddOnProduct_SubscriptionAddOnProductsId",
+                        column: x => x.SubscriptionAddOnProductsId,
+                        principalTable: "SubscriptionAddOnProduct",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TransferToBusinessSubscriptionOrderAddOnProducts_TransferToBusinessSubscriptionOrder_TransferToBusinessSubscriptionOrdersId",
+                        column: x => x.TransferToBusinessSubscriptionOrdersId,
+                        principalTable: "TransferToBusinessSubscriptionOrder",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CustomersDatapackage",
                 columns: table => new
                 {
@@ -352,7 +436,8 @@ namespace SubscriptionManagementServices.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SimCardNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CustomerSubscriptionProductId = table.Column<int>(type: "int", nullable: false),
+                    SimCardNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SIMCardAction = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SubscriptionProductId = table.Column<int>(type: "int", nullable: false),
                     OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -361,9 +446,9 @@ namespace SubscriptionManagementServices.Migrations
                     OrderExecutionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     MobileNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CustomerReferenceFields = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
+                    LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
@@ -375,83 +460,23 @@ namespace SubscriptionManagementServices.Migrations
                         name: "FK_SubscriptionOrder_CustomerOperatorAccount_OperatorAccountId",
                         column: x => x.OperatorAccountId,
                         principalTable: "CustomerOperatorAccount",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_SubscriptionOrder_CustomerSubscriptionProduct_SubscriptionProductId",
-                        column: x => x.SubscriptionProductId,
+                        name: "FK_SubscriptionOrder_CustomerSubscriptionProduct_CustomerSubscriptionProductId",
+                        column: x => x.CustomerSubscriptionProductId,
                         principalTable: "CustomerSubscriptionProduct",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_SubscriptionOrder_DataPackage_DataPackageId",
                         column: x => x.DataPackageId,
                         principalTable: "DataPackage",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "TransferToBusinessSubscriptionOrder",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    SimCardNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    SIMCardAction = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SubscriptionProductId = table.Column<int>(type: "int", nullable: false),
-                    OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    OperatorAccountId = table.Column<int>(type: "int", nullable: true),
-                    DataPackageId = table.Column<int>(type: "int", nullable: false),
-                    OrderExecutionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    MobileNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CustomerReferenceFields = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OperatorAccountOwner = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OperatorAccountPayer = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PrivateSubscriptionId = table.Column<int>(type: "int", nullable: true),
-                    BusinessSubscriptionId = table.Column<int>(type: "int", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TransferToBusinessSubscriptionOrder", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TransferToBusinessSubscriptionOrder_BusinessSubscription_BusinessSubscriptionId",
-                        column: x => x.BusinessSubscriptionId,
-                        principalTable: "BusinessSubscription",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_TransferToBusinessSubscriptionOrder_CustomerOperatorAccount_OperatorAccountId",
-                        column: x => x.OperatorAccountId,
-                        principalTable: "CustomerOperatorAccount",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_TransferToBusinessSubscriptionOrder_CustomerSubscriptionProduct_SubscriptionProductId",
-                        column: x => x.SubscriptionProductId,
-                        principalTable: "CustomerSubscriptionProduct",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_TransferToBusinessSubscriptionOrder_DataPackage_DataPackageId",
-                        column: x => x.DataPackageId,
-                        principalTable: "DataPackage",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_TransferToBusinessSubscriptionOrder_PrivateSubscription_PrivateSubscriptionId",
-                        column: x => x.PrivateSubscriptionId,
-                        principalTable: "PrivateSubscription",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SubscriptionOrderAddOnProducts",
+                name: "SubscriptionAddOnProductSubscriptionOrder",
                 columns: table => new
                 {
                     SubscriptionAddOnProductsId = table.Column<int>(type: "int", nullable: false),
@@ -459,41 +484,17 @@ namespace SubscriptionManagementServices.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SubscriptionOrderAddOnProducts", x => new { x.SubscriptionAddOnProductsId, x.SubscriptionOrdersId });
+                    table.PrimaryKey("PK_SubscriptionAddOnProductSubscriptionOrder", x => new { x.SubscriptionAddOnProductsId, x.SubscriptionOrdersId });
                     table.ForeignKey(
-                        name: "FK_SubscriptionOrderAddOnProducts_SubscriptionAddOnProduct_SubscriptionAddOnProductsId",
+                        name: "FK_SubscriptionAddOnProductSubscriptionOrder_SubscriptionAddOnProduct_SubscriptionAddOnProductsId",
                         column: x => x.SubscriptionAddOnProductsId,
                         principalTable: "SubscriptionAddOnProduct",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SubscriptionOrderAddOnProducts_SubscriptionOrder_SubscriptionOrdersId",
+                        name: "FK_SubscriptionAddOnProductSubscriptionOrder_SubscriptionOrder_SubscriptionOrdersId",
                         column: x => x.SubscriptionOrdersId,
                         principalTable: "SubscriptionOrder",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TransferToBusinessSubscriptionOrderAddOnProducts",
-                columns: table => new
-                {
-                    SubscriptionAddOnProductsId = table.Column<int>(type: "int", nullable: false),
-                    TransferToBusinessSubscriptionOrdersId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TransferToBusinessSubscriptionOrderAddOnProducts", x => new { x.SubscriptionAddOnProductsId, x.TransferToBusinessSubscriptionOrdersId });
-                    table.ForeignKey(
-                        name: "FK_TransferToBusinessSubscriptionOrderAddOnProducts_SubscriptionAddOnProduct_SubscriptionAddOnProductsId",
-                        column: x => x.SubscriptionAddOnProductsId,
-                        principalTable: "SubscriptionAddOnProduct",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TransferToBusinessSubscriptionOrderAddOnProducts_TransferToBusinessSubscriptionOrder_TransferToBusinessSubscriptionOrdersId",
-                        column: x => x.TransferToBusinessSubscriptionOrdersId,
-                        principalTable: "TransferToBusinessSubscriptionOrder",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -508,6 +509,11 @@ namespace SubscriptionManagementServices.Migrations
                     { 3, "nb", new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2022, 2, 9, 13, 10, 2, 47, DateTimeKind.Unspecified).AddTicks(4381), new Guid("00000000-0000-0000-0000-000000000000"), false, "Telenor - NO", new Guid("00000000-0000-0000-0000-000000000000") },
                     { 4, "se", new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2022, 2, 9, 13, 10, 2, 47, DateTimeKind.Unspecified).AddTicks(4381), new Guid("00000000-0000-0000-0000-000000000000"), false, "Telenor - SE", new Guid("00000000-0000-0000-0000-000000000000") }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomerOperatorAccount_CustomerOperatorSettingId",
+                table: "CustomerOperatorAccount",
+                column: "CustomerOperatorSettingId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CustomerOperatorAccount_OperatorId",
@@ -541,11 +547,6 @@ namespace SubscriptionManagementServices.Migrations
                 column: "DataPackagesId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CustomersOperatorAccounts_CustomerOperatorSettingsId",
-                table: "CustomersOperatorAccounts",
-                column: "CustomerOperatorSettingsId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_CustomerSubscriptionProduct_CustomerOperatorSettingsId",
                 table: "CustomerSubscriptionProduct",
                 column: "CustomerOperatorSettingsId");
@@ -571,6 +572,16 @@ namespace SubscriptionManagementServices.Migrations
                 column: "RealOwnerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SubscriptionAddOnProductSubscriptionOrder_SubscriptionOrdersId",
+                table: "SubscriptionAddOnProductSubscriptionOrder",
+                column: "SubscriptionOrdersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubscriptionOrder_CustomerSubscriptionProductId",
+                table: "SubscriptionOrder",
+                column: "CustomerSubscriptionProductId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SubscriptionOrder_DataPackageId",
                 table: "SubscriptionOrder",
                 column: "DataPackageId");
@@ -579,16 +590,6 @@ namespace SubscriptionManagementServices.Migrations
                 name: "IX_SubscriptionOrder_OperatorAccountId",
                 table: "SubscriptionOrder",
                 column: "OperatorAccountId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SubscriptionOrder_SubscriptionProductId",
-                table: "SubscriptionOrder",
-                column: "SubscriptionProductId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SubscriptionOrderAddOnProducts_SubscriptionOrdersId",
-                table: "SubscriptionOrderAddOnProducts",
-                column: "SubscriptionOrdersId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SubscriptionProduct_OperatorId",
@@ -601,29 +602,19 @@ namespace SubscriptionManagementServices.Migrations
                 column: "BusinessSubscriptionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TransferToBusinessSubscriptionOrder_DataPackageId",
-                table: "TransferToBusinessSubscriptionOrder",
-                column: "DataPackageId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TransferToBusinessSubscriptionOrder_OperatorAccountId",
-                table: "TransferToBusinessSubscriptionOrder",
-                column: "OperatorAccountId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_TransferToBusinessSubscriptionOrder_PrivateSubscriptionId",
                 table: "TransferToBusinessSubscriptionOrder",
                 column: "PrivateSubscriptionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TransferToBusinessSubscriptionOrder_SubscriptionProductId",
-                table: "TransferToBusinessSubscriptionOrder",
-                column: "SubscriptionProductId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_TransferToBusinessSubscriptionOrderAddOnProducts_TransferToBusinessSubscriptionOrdersId",
                 table: "TransferToBusinessSubscriptionOrderAddOnProducts",
                 column: "TransferToBusinessSubscriptionOrdersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TransferToPrivateSubscriptionOrder_UserInfoId",
+                table: "TransferToPrivateSubscriptionOrder",
+                column: "UserInfoId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -635,13 +626,13 @@ namespace SubscriptionManagementServices.Migrations
                 name: "CustomersDatapackage");
 
             migrationBuilder.DropTable(
-                name: "CustomersOperatorAccounts");
-
-            migrationBuilder.DropTable(
-                name: "SubscriptionOrderAddOnProducts");
+                name: "SubscriptionAddOnProductSubscriptionOrder");
 
             migrationBuilder.DropTable(
                 name: "TransferToBusinessSubscriptionOrderAddOnProducts");
+
+            migrationBuilder.DropTable(
+                name: "TransferToPrivateSubscriptionOrder");
 
             migrationBuilder.DropTable(
                 name: "SubscriptionOrder");
@@ -653,9 +644,6 @@ namespace SubscriptionManagementServices.Migrations
                 name: "TransferToBusinessSubscriptionOrder");
 
             migrationBuilder.DropTable(
-                name: "BusinessSubscription");
-
-            migrationBuilder.DropTable(
                 name: "CustomerOperatorAccount");
 
             migrationBuilder.DropTable(
@@ -663,6 +651,9 @@ namespace SubscriptionManagementServices.Migrations
 
             migrationBuilder.DropTable(
                 name: "DataPackage");
+
+            migrationBuilder.DropTable(
+                name: "BusinessSubscription");
 
             migrationBuilder.DropTable(
                 name: "PrivateSubscription");

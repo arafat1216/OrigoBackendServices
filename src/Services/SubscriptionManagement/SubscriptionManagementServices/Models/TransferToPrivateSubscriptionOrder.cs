@@ -10,15 +10,6 @@ namespace SubscriptionManagementServices.Models
 
         }
 
-        public TransferToPrivateSubscriptionOrder(PrivateSubscription userInfo, string operatorName, string newSubscription, DateTime orderExecutionDate, string mobileNumber)
-        {
-            UserInfo = userInfo;
-            OperatorName = operatorName;
-            NewSubscription = newSubscription;
-            OrderExecutionDate = orderExecutionDate;
-            MobileNumber = mobileNumber;
-        }
-
         public PrivateSubscription UserInfo { get; set; }
         public string MobileNumber { get; set; }
         public string OperatorName { get; set; }
@@ -27,6 +18,8 @@ namespace SubscriptionManagementServices.Models
         public Guid OrganizationId { get; set; }
 
         #region ISubscriptionOrder implementation
+
+        public Guid SubscriptionOrderId { get; set; } = Guid.NewGuid();
         [NotMapped] public string OrderType => "TransferToPrivate";
         [NotMapped] public string PhoneNumber => MobileNumber;
 

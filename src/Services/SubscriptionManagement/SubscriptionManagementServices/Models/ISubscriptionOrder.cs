@@ -2,6 +2,7 @@
 {
     public interface ISubscriptionOrder
     {
+        public Guid SubscriptionOrderId { get; set; }
         public DateTime CreatedDate { get;  }
         public string OrderType { get;  }
         public string PhoneNumber { get; }

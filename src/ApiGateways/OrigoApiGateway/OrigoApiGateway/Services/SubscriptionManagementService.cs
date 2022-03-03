@@ -276,12 +276,15 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoTransferToBusinessSubscriptionOrder> TransferToBusinessSubscriptionOrderForCustomerAsync(Guid customerId, TransferToBusinessSubscriptionOrder order)
+        public async Task<OrigoTransferToBusinessSubscriptionOrder> TransferToBusinessSubscriptionOrderForCustomerAsync(
+            Guid customerId, TransferToBusinessSubscriptionOrder order, Guid callerId)
         {
             try
             {
                 string requestUri = $"{_options.ApiPath}/{customerId}/transfer-to-business";
-                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, order, new JsonSerializerOptions
+                var transferToBusinessSubscriptionOrderDTO = _mapper.Map<TransferToBusinessSubscriptionOrderDTO>(order);
+                transferToBusinessSubscriptionOrderDTO.CallerId = callerId;
+                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, transferToBusinessSubscriptionOrderDTO, new JsonSerializerOptions
                 {
                     DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
                 }) ;
@@ -374,12 +377,16 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<TransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrderForCustomerAsync(Guid organizationId, TransferToPrivateSubscriptionOrder order)
+        public async Task<TransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrderForCustomerAsync(
+            Guid organizationId, TransferToPrivateSubscriptionOrder order, Guid callerId)
         {
             try
             {
                 string requestUri = $"{_options.ApiPath}/{organizationId}/transfer-to-private";
-                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, order, new JsonSerializerOptions
+                var transferToPrivateSubscriptionOrderDTO = _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(order);
+                transferToPrivateSubscriptionOrderDTO.CallerId = callerId;
+
+                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, transferToPrivateSubscriptionOrderDTO, new JsonSerializerOptions
                 {
                     DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
                 });
