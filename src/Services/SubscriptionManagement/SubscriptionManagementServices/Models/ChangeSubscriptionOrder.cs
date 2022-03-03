@@ -19,6 +19,7 @@ namespace SubscriptionManagementServices.Models
             OperatorName = operatorName;
             SubscriptionOwner = subscriptionOwner;
             OrganizationId = organizationId;
+            SubscriptionOrderId = Guid.NewGuid();
             AddDomainEvent(new ChangeSubscriptionOrderCreatedDomainEvent(this, callerId));
         }
 
@@ -39,6 +40,8 @@ namespace SubscriptionManagementServices.Models
         [NotMapped] public string NewSubscriptionOrderOwnerName => SubscriptionOwner != null ? SubscriptionOwner : "Owner not specified";
 
         [NotMapped] public DateTime TransferDate => DateTime.UtcNow;
+
+        public Guid SubscriptionOrderId { get; set; }
         #endregion
     }
 }

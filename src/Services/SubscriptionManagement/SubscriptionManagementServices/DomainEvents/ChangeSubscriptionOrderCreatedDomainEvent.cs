@@ -5,7 +5,7 @@ namespace SubscriptionManagementServices.DomainEvents
 {
     public class ChangeSubscriptionOrderCreatedDomainEvent : BaseEvent
     {
-        public ChangeSubscriptionOrderCreatedDomainEvent(ChangeSubscriptionOrder changeSubscriptionOrder, Guid callerId)
+        public ChangeSubscriptionOrderCreatedDomainEvent(ChangeSubscriptionOrder changeSubscriptionOrder, Guid callerId): base(changeSubscriptionOrder.SubscriptionOrderId)
         {
             ChangeSubscriptionOrder = changeSubscriptionOrder;
             CallerId = callerId;
