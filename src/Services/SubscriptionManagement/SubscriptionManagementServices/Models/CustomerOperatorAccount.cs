@@ -37,7 +37,6 @@ namespace SubscriptionManagementServices.Models
         public virtual Operator Operator { get; set; }
         public int OperatorId { get; set; }
         public string? ConnectedOrganizationNumber { get; set; }
-        public virtual ICollection<SubscriptionOrder>? SubscriptionOrders { get; set; }
         public virtual CustomerOperatorSettings CustomerOperatorSetting { get; set; }
     }
 }
