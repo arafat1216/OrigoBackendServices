@@ -9,7 +9,7 @@ namespace OrigoApiGateway.Services
     public interface IStorageService
     {
         Task UploadAssetsFileAsync(Guid organizationId, IFormFile formFile);
-        Task<Stream> GetAssetsFileAsStreamAsync(Guid organizationId, string fileName);
+        Task<Stream> GetAssetsFileAsStreamAsync(Guid organizationId, string filename);
         Task<IEnumerable<string>> GetBlobsAsync(Guid organizationId);
     }
 }

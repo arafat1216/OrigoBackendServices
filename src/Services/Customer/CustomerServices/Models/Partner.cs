@@ -25,7 +25,6 @@ namespace CustomerServices.Models
             UpdatedBy = callerId;
         }
 
-        public int Id { get; set; }
         public Guid ExternalId { get; set; }
         public int OrganizationId { get; set; }
         public Organization Organization { get; set; }

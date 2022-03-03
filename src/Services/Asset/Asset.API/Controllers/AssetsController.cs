@@ -127,7 +127,7 @@ namespace Asset.API.Controllers
             {
                 return NotFound(ex.Message);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -194,7 +194,7 @@ namespace Asset.API.Controllers
             {
                 return NotFound(ex.Message);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -232,7 +232,7 @@ namespace Asset.API.Controllers
             {
                 return NotFound(ex.Message);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 return BadRequest();
             }
@@ -278,7 +278,7 @@ namespace Asset.API.Controllers
             {
                 return NotFound(ex.Message);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -325,7 +325,7 @@ namespace Asset.API.Controllers
             {
                 return NotFound(ex.Message);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -686,7 +686,7 @@ namespace Asset.API.Controllers
 
                 return Ok(assetLogList);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest();
             }

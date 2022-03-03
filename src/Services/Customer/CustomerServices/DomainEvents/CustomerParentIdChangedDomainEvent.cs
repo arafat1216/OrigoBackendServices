@@ -8,7 +8,7 @@ namespace CustomerServices.DomainEvents
         public CustomerParentIdChangedDomainEvent(Organization organization, string oldParentId) : base(organization.OrganizationId)
         {
             Organization = organization;
-            OldParentId = OldParentId;
+            OldParentId = oldParentId;
         }
 
         public override string EventMessage(string languageCode = "nb-NO")

@@ -58,7 +58,7 @@ namespace OrigoApiGateway.Controllers
                 var partner = await PartnerServices.CreatePartnerAsync(createdCustomer.OrganizationId, callerId);
                 return CreatedAtAction(nameof(CreatePartner), new { Id = partner.ExternalId }, partner);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -110,7 +110,7 @@ namespace OrigoApiGateway.Controllers
                 var partners = await PartnerServices.GetPartnerAsync(partnerId);
                 return partners != null ? Ok(partners) : NotFound();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -130,7 +130,7 @@ namespace OrigoApiGateway.Controllers
                 var partners = await PartnerServices.GetPartnersAsync();
                 return partners != null ? Ok(partners) : NotFound();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest();
             }
