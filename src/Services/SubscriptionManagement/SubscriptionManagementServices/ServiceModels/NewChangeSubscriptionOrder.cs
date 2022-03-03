@@ -2,6 +2,10 @@
 {
     public record NewChangeSubscriptionOrder
     {
+        public NewChangeSubscriptionOrder()
+        {
+        }
+
         public NewChangeSubscriptionOrder(string mobileNumber, string operatorName, string productName, string? packageName, string? subscriptionOwner, Guid callerId)
         {
             MobileNumber = mobileNumber;
