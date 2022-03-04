@@ -437,13 +437,38 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoChangeSubscriptionOrder> ChangeSubscriptionOrderAsync(Guid organizationId, ChangeSubscriptionOrderPostRequest subscriptionOrderModel)
+        public async Task<OrigoCancelSubscriptionOrder> CancelSubscriptionOrderForCustomerAsync(Guid organizationId,
+            CancelSubscriptionOrder order, Guid callerId)
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/{organizationId}/change-subscription";
+                var requestUri = $"{_options.ApiPath}/{organizationId}/subscription-cancel";
 
-                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri,subscriptionOrderModel);
+                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, order);
+
+                if (postSubscription.StatusCode == HttpStatusCode.Created)
+                {
+                    return await postSubscription.Content.ReadFromJsonAsync<OrigoCancelSubscriptionOrder>();
+                }
+
+                throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "CancelSubscriptionOrderForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
+
+
+        public async Task<OrigoChangeSubscriptionOrder> ChangeSubscriptionOrderAsync(Guid organizationId,
+            ChangeSubscriptionOrderPostRequest subscriptionOrderModel)
+        {
+            try
+            {
+                var requestUri = $"{_options.ApiPath}/{organizationId}/change-subscription";
+
+                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, subscriptionOrderModel);
 
                 if (postSubscription.StatusCode == HttpStatusCode.Created)
                 {

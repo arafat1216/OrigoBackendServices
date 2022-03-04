@@ -76,10 +76,27 @@ namespace SubscriptionManagementServices.Infrastructure
                 .ToListAsync<ISubscriptionOrder>();
             subscriptionOrderList.AddRange(transferToPrivateOrders);
 
+            var changeOrders = await _subscriptionManagementContext.ChangeSubscriptionOrder
+                .Where(o => o.OrganizationId == organizationId)
+                .ToListAsync<ISubscriptionOrder>();
+            subscriptionOrderList.AddRange(changeOrders);
+
+            var cancelOrders = await _subscriptionManagementContext.CancelSubscriptionOrders
+                .Where(o => o.OrganizationId == organizationId)
+                .ToListAsync<ISubscriptionOrder>();
+            subscriptionOrderList.AddRange(cancelOrders);
+
             return subscriptionOrderList;
         }
 
         public async Task<ChangeSubscriptionOrder> AddChangeSubscriptionOrderAsync(ChangeSubscriptionOrder subscriptionOrder)
+        {
+            var added = await _subscriptionManagementContext.AddAsync(subscriptionOrder);
+            await SaveEntitiesAsync();
+            return added.Entity;
+        }
+
+        public async Task<CancelSubscriptionOrder> AddCancelSubscriptionOrderAsync(CancelSubscriptionOrder subscriptionOrder)
         {
             var added = await _subscriptionManagementContext.AddAsync(subscriptionOrder);
             await SaveEntitiesAsync();
