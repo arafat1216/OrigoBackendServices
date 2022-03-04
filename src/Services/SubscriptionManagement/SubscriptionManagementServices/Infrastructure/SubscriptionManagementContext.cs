@@ -6,16 +6,18 @@ namespace SubscriptionManagementServices.Infrastructure
 {
     public class SubscriptionManagementContext : DbContext
     {
-        private readonly bool _isSqlLite;
+        private readonly bool _isSQLite;
         public SubscriptionManagementContext(DbContextOptions<SubscriptionManagementContext> options) : base(options)
         {
             foreach (var extension in options.Extensions)
             {
                 if (!extension.GetType().ToString().Contains("Sqlite")) continue;
-                _isSqlLite = true;
+                _isSQLite = true;
                 break;
             }
         }
+
+        public bool IsSQLite => _isSQLite;
 
         public DbSet<Operator> Operators => Set<Operator>();
         public DbSet<CustomerOperatorAccount> CustomerOperatorAccounts => Set<CustomerOperatorAccount>();
@@ -28,19 +30,19 @@ namespace SubscriptionManagementServices.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new CustomerOperatorAccountConfiguration(_isSqlLite));
-            modelBuilder.ApplyConfiguration(new DataPackageConfiguration(_isSqlLite));
-            modelBuilder.ApplyConfiguration(new OperatorConfiguration(_isSqlLite));
-            modelBuilder.ApplyConfiguration(new SubscriptionAddOnProductConfiguration(_isSqlLite));
-            modelBuilder.ApplyConfiguration(new SubscriptionProductConfiguration(_isSqlLite));
-            modelBuilder.ApplyConfiguration(new CustomerSettingsConfiguration(_isSqlLite));
-            modelBuilder.ApplyConfiguration(new CustomerOperatorSettingsConfiguration(_isSqlLite));
-            modelBuilder.ApplyConfiguration(new TransferToBusinessSubscriptionOrderConfiguration(_isSqlLite));
-            modelBuilder.ApplyConfiguration(new CustomerSubscriptionProductConfiguration(_isSqlLite));
-            modelBuilder.ApplyConfiguration(new PrivateSubscriptionConfiguration(_isSqlLite));
-            modelBuilder.ApplyConfiguration(new BusinessSubscriptionConfiguration(_isSqlLite));
-            modelBuilder.ApplyConfiguration(new TransferToPrivateSubscriptionOrderConfiguration(_isSqlLite));
-            modelBuilder.ApplyConfiguration(new ChangeSubscriptionOrderConfiguration(_isSqlLite));
+            modelBuilder.ApplyConfiguration(new CustomerOperatorAccountConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new DataPackageConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new OperatorConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new SubscriptionAddOnProductConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new SubscriptionProductConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new CustomerSettingsConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new CustomerOperatorSettingsConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new TransferToBusinessSubscriptionOrderConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new CustomerSubscriptionProductConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new PrivateSubscriptionConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new BusinessSubscriptionConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new TransferToPrivateSubscriptionOrderConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new ChangeSubscriptionOrderConfiguration(_isSQLite));
         }
     }
 }

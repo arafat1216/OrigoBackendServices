@@ -283,9 +283,9 @@ namespace SubscriptionManagement.API.Controllers
 
         [HttpGet]
         [Route("{organizationId:Guid}/subscription-products")]
-        [ProducesResponseType(typeof(IList<SubscriptionProduct>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<CustomerSubscriptionProductDTO>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<IEnumerable<SubscriptionProduct>>> GetOperatorSubscriptionProductForCustomer(Guid organizationId)
+        public async Task<ActionResult<IEnumerable<CustomerSubscriptionProductDTO>>> GetOperatorSubscriptionProductForCustomer(Guid organizationId)
         {
             var subscriptionProducts = await _customerSettingsService.GetAllCustomerSubscriptionProductsAsync(organizationId);
 
@@ -306,13 +306,14 @@ namespace SubscriptionManagement.API.Controllers
         [HttpDelete]
         [Route("{organizationId:Guid}/subscription-products/{subscriptionProductId}")]
         [ProducesResponseType(typeof(SubscriptionProduct), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<CustomerSubscriptionProduct>> DeleteOperatorSubscriptionProductForCustomer(Guid organizationId, int subscriptionProductId)
         {
             var deletedSubscriptionProducts = await _customerSettingsService.DeleteOperatorSubscriptionProductForCustomerAsync(organizationId, subscriptionProductId);
             if (deletedSubscriptionProducts == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
             return Ok(deletedSubscriptionProducts);

@@ -1,7 +1,5 @@
-﻿using System.Collections.ObjectModel;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Common.Seedwork;
-using SubscriptionManagementServices.DomainEvents;
 
 namespace SubscriptionManagementServices.Models
 {

@@ -144,19 +144,29 @@ namespace SubscriptionManagementServices.Infrastructure
             await _subscriptionManagementContext.SaveChangesAsync();
         }
 
-        public async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             int numberOfRecordsSaved = 0;
             //Use of an EF Core resiliency strategy when using multiple DbContexts within an explicit BeginTransaction():
             //See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency            
             await ResilientTransaction.New(_subscriptionManagementContext).ExecuteAsync(async () =>
             {
-                // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
-                foreach (var @event in _subscriptionManagementContext.GetDomainEventsAsync())
+                var editedEntities = _subscriptionManagementContext.ChangeTracker.Entries()
+                    .Where(E => E.State == EntityState.Modified)
+                    .ToList();
+
+                editedEntities.ForEach(entity =>
                 {
-                    await _functionalEventLogService.SaveEventAsync(@event, _subscriptionManagementContext.Database.CurrentTransaction);
+                    entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
+                });
+                if (!_subscriptionManagementContext.IsSQLite)
+                {
+                    // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
+                    foreach (var @event in _subscriptionManagementContext.GetDomainEventsAsync())
+                    {
+                        await _functionalEventLogService.SaveEventAsync(@event, _subscriptionManagementContext.Database.CurrentTransaction);
+                    }
                 }
-                await _subscriptionManagementContext.SaveChangesAsync(cancellationToken);
                 numberOfRecordsSaved = await _subscriptionManagementContext.SaveChangesAsync(cancellationToken);
                 await _mediator.DispatchDomainEventsAsync(_subscriptionManagementContext);
             });

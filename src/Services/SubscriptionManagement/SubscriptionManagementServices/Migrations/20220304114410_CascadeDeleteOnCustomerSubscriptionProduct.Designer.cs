@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SubscriptionManagementServices.Infrastructure;
 
@@ -11,9 +12,10 @@ using SubscriptionManagementServices.Infrastructure;
 namespace SubscriptionManagementServices.Migrations
 {
     [DbContext(typeof(SubscriptionManagementContext))]
-    partial class SubscriptionManagementContextModelSnapshot : ModelSnapshot
+    [Migration("20220304114410_CascadeDeleteOnCustomerSubscriptionProduct")]
+    partial class CascadeDeleteOnCustomerSubscriptionProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,9 +157,6 @@ namespace SubscriptionManagementServices.Migrations
 
                     b.Property<string>("ProductName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SalesforceTicketId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("SubscriptionOrderId")
@@ -786,9 +785,6 @@ namespace SubscriptionManagementServices.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SalesforceTicketId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("SimCardNumber")
                         .HasMaxLength(22)
                         .HasColumnType("nvarchar(22)");
@@ -856,9 +852,6 @@ namespace SubscriptionManagementServices.Migrations
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("SalesforceTicketId")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("SubscriptionOrderId")
                         .HasColumnType("uniqueidentifier");

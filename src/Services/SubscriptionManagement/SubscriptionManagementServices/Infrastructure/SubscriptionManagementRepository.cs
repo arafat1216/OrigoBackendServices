@@ -9,60 +9,69 @@ namespace SubscriptionManagementServices.Infrastructure
 {
     public class SubscriptionManagementRepository : ISubscriptionManagementRepository
     {
-        private readonly SubscriptionManagementContext _subscriptionContext;
+        private readonly SubscriptionManagementContext _subscriptionManagementContext;
         private readonly IFunctionalEventLogService _functionalEventLogService;
         private readonly IMediator _mediator;
 
 
-        public SubscriptionManagementRepository(SubscriptionManagementContext subscriptionContext, IFunctionalEventLogService functionalEventLogService, IMediator mediator)
+        public SubscriptionManagementRepository(SubscriptionManagementContext subscriptionManagementContext, IFunctionalEventLogService functionalEventLogService, IMediator mediator)
         {
-            _subscriptionContext = subscriptionContext;
+            _subscriptionManagementContext = subscriptionManagementContext;
             _functionalEventLogService = functionalEventLogService;
             _mediator = mediator;
         }
 
         public async Task<TransferToBusinessSubscriptionOrder> TransferToBusinessSubscriptionOrderAsync(TransferToBusinessSubscriptionOrder subscriptionOrder)
         {
-            var added = await _subscriptionContext.AddAsync(subscriptionOrder);
+            var added = await _subscriptionManagementContext.AddAsync(subscriptionOrder);
             await SaveEntitiesAsync();
             return added.Entity;
         }
-
 
         private async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var numberOfRecordsSaved = 0;
             //Use of an EF Core resiliency strategy when using multiple DbContexts within an explicit BeginTransaction():
             //See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency            
-            await ResilientTransaction.New(_subscriptionContext).ExecuteAsync(async () =>
+            await ResilientTransaction.New(_subscriptionManagementContext).ExecuteAsync(async () =>
             {
-                // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
-                foreach (var @event in _subscriptionContext.GetDomainEventsAsync())
+                var editedEntities = _subscriptionManagementContext.ChangeTracker.Entries()
+                    .Where(E => E.State == EntityState.Modified)
+                    .ToList();
+
+                editedEntities.ForEach(entity =>
                 {
-                    await _functionalEventLogService.SaveEventAsync(@event, _subscriptionContext.Database.CurrentTransaction);
+                    entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
+                });
+                if (!_subscriptionManagementContext.IsSQLite)
+                {
+                    // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
+                    foreach (var @event in _subscriptionManagementContext.GetDomainEventsAsync())
+                    {
+                        await _functionalEventLogService.SaveEventAsync(@event, _subscriptionManagementContext.Database.CurrentTransaction);
+                    }
                 }
-                await _subscriptionContext.SaveChangesAsync(cancellationToken);
-                numberOfRecordsSaved = await _subscriptionContext.SaveChangesAsync(cancellationToken);
-                await _mediator.DispatchDomainEventsAsync(_subscriptionContext);
+                numberOfRecordsSaved = await _subscriptionManagementContext.SaveChangesAsync(cancellationToken);
+                await _mediator.DispatchDomainEventsAsync(_subscriptionManagementContext);
             });
             return numberOfRecordsSaved;
         }
 
         public async Task<TransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrderAsync(TransferToPrivateSubscriptionOrder subscriptionOrder)
         {
-            var added = await _subscriptionContext.AddAsync(subscriptionOrder);
+            var added = await _subscriptionManagementContext.AddAsync(subscriptionOrder);
             await SaveEntitiesAsync();
             return added.Entity;
         }
 
         public async Task<List<ISubscriptionOrder>> GetAllSubscriptionOrdersForCustomer(Guid organizationId)
         {
-            var orders = await _subscriptionContext.TransferSubscriptionOrders.Include(o => o.PrivateSubscription)
+            var orders = await _subscriptionManagementContext.TransferSubscriptionOrders.Include(o => o.PrivateSubscription)
                 .Include(o => o.BusinessSubscription).Where(o => o.OrganizationId == organizationId)
                 .ToListAsync<ISubscriptionOrder>();
             var subscriptionOrderList = orders.ToList();
 
-            var transferToPrivateOrders = await _subscriptionContext.TransferToPrivateSubscriptionOrders
+            var transferToPrivateOrders = await _subscriptionManagementContext.TransferToPrivateSubscriptionOrders
                 .Include(o => o.UserInfo).Where(o => o.OrganizationId == organizationId)
                 .ToListAsync<ISubscriptionOrder>();
             subscriptionOrderList.AddRange(transferToPrivateOrders);
@@ -72,7 +81,7 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task<ChangeSubscriptionOrder> AddChangeSubscriptionOrderAsync(ChangeSubscriptionOrder subscriptionOrder)
         {
-            var added = await _subscriptionContext.AddAsync(subscriptionOrder);
+            var added = await _subscriptionManagementContext.AddAsync(subscriptionOrder);
             await SaveEntitiesAsync();
             return added.Entity;
         }

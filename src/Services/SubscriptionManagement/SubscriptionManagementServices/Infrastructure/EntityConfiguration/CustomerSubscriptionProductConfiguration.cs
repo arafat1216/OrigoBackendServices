@@ -1,10 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
@@ -28,6 +23,9 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             builder.HasMany(e => e.DataPackages)
                 .WithMany(e => e.CustomerSubscriptionProducts)
                 .UsingEntity(join => join.ToTable("CustomersDatapackage"));
+
+            builder.HasOne(e => e.Operator).WithMany(o => o.CustomerSubscriptionProducts)
+                .OnDelete(DeleteBehavior.NoAction);
 
         }
     }
