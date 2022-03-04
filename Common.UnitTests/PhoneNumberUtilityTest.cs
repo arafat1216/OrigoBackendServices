@@ -22,7 +22,7 @@ namespace Common.UnitTests
         [Fact]
         public void PhoneNumberUtility_Valid_For_WithSpacing()
         {
-            var validation = PhoneNumberUtility.ValidatePhoneNumber("90 90 9 09 0", "nn");
+            var validation = PhoneNumberUtility.ValidatePhoneNumber("90 90 9 09 0", "nb");
 
             Assert.True(validation);
         }
