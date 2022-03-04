@@ -1,6 +1,9 @@
 ﻿using System.Text.Json;
 using AutoMapper;
+using Common.Exceptions;
+using Common.Utilities;
 using Microsoft.Extensions.Options;
+using SubscriptionManagementServices.Exceptions;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
 
@@ -168,6 +171,30 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
     public async Task<ChangeSubscriptionOrderDTO> ChangeSubscriptionOrder(Guid organizationId, NewChangeSubscriptionOrder subscriptionOrder)
     {
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        if (customerSettings != null)
+        {
+            var customersOperator = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == subscriptionOrder.OperatorName);
+
+            if (customersOperator != null) {
+
+                var @operator = await _operatorRepository.GetOperatorAsync(customersOperator.Id);
+                
+                if (!PhoneNumberUtility.ValidatePhoneNumber(subscriptionOrder.MobileNumber, @operator.Country))
+                {
+                    throw new InvalidPhoneNumberException("Not valid mobile number");
+                }
+            }
+            else
+            {
+                throw new CustomerSettingsException($"Customer does not have this operator {subscriptionOrder.OperatorName} as a setting");
+            }
+        }
+        else
+        {
+            throw new CustomerSettingsException($"Customer has no settings");
+        }
+        
         var changeSubscriptionOrder = new ChangeSubscriptionOrder(subscriptionOrder.MobileNumber, subscriptionOrder.ProductName, subscriptionOrder.PackageName, subscriptionOrder.OperatorName, subscriptionOrder.SubscriptionOwner,organizationId, subscriptionOrder.CallerId);
 
         var added = await _subscriptionManagementRepository.AddChangeSubscriptionOrderAsync(changeSubscriptionOrder);

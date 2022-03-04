@@ -540,6 +540,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         public async Task<ActionResult> ChangeSubscriptionOrder(Guid organizationId, [FromBody] ChangeSubscriptionOrder order)
         {
+            try { 
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
             if (role == PredefinedRole.EndUser.ToString())
@@ -564,6 +565,12 @@ namespace OrigoApiGateway.Controllers
             var changeSubscription = await SubscriptionManagementService.ChangeSubscriptionOrderAsync(organizationId, requestModel);
 
             return CreatedAtAction(nameof(ChangeSubscriptionOrder), changeSubscription);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
 
