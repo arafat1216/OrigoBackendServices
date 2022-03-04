@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using SubscriptionManagement.API.Controllers;
+using SubscriptionManagement.API.ViewModels;
 using SubscriptionManagementServices.ServiceModels;
 using Xunit;
 using Xunit.Abstractions;
@@ -20,6 +22,7 @@ public class
     private readonly HttpClient _httpClient;
     private readonly Guid _callerId = Guid.Parse("1d64e718-97cb-11ec-ad86-00155d64bd3d");
     private readonly Guid _organizationId;
+    private readonly int _operatorId;
     private readonly int _operatorAccountId;
     private readonly int _subscriptionProductId;
 
@@ -32,6 +35,7 @@ public class
         _subscriptionProductId = factory.CUSTOMER_SUBSCRIPTION_PRODUCT_ID;
         _organizationId = factory.ORGANIZATION_ID;
         _operatorAccountId = factory.OPERATOR_ACCOUNT_ID;
+        _operatorId = factory.FIRST_OPERATOR_ID;
     }
 
     [Fact]
@@ -42,6 +46,27 @@ public class
                 "/api/v1/SubscriptionManagement/operators");
 
         Assert.Equal(4, modelList?.Count);
+    }
+
+    [Fact]
+    public async Task CreateAndDeleteCustomerSubscriptionProduct()
+    {
+        var customerSubscriptionProduct = new NewSubscriptionProduct()
+        {
+            Name = "A customer subscription product",
+            OperatorId = _operatorId,
+            DataPackages = new List<string> { "20GB" },
+            CallerId = Guid.NewGuid()
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(customerSubscriptionProduct));
+        var createResponse = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products", customerSubscriptionProduct);
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var modelList = await _httpClient.GetFromJsonAsync<IList<CustomerSubscriptionProductDTO>>($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products");
+        var retrievedNewCustomerSubscriptionProduct = modelList!.FirstOrDefault(p =>
+            p.Name == customerSubscriptionProduct.Name && !p.isGlobal);
+        var deleteResponse = await _httpClient.DeleteAsync($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products/{retrievedNewCustomerSubscriptionProduct!.Id}");
+
+        Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
     }
 
     [Fact]

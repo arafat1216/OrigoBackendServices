@@ -32,6 +32,7 @@ namespace SubscriptionManagementServices.Models
         public virtual ICollection<SubscriptionProduct>? SubscriptionProducts { get; set; }
         public virtual ICollection<CustomerOperatorAccount>? CustomerOperatorAccounts { get; set; }
         public virtual ICollection<CustomerOperatorSettings>? CustomerOperatorSettings { get; set; }
+        public virtual ICollection<CustomerSubscriptionProduct>? CustomerSubscriptionProducts { get; set; }
 
     }
 }
