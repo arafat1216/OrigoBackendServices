@@ -28,7 +28,8 @@ public class
 
 
     public SubscriptionManagementControllerTests(
-        SubscriptionManagementWebApplicationFactory<SubscriptionManagementController> factory, ITestOutputHelper testOutputHelper)
+        SubscriptionManagementWebApplicationFactory<SubscriptionManagementController> factory,
+        ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
         _httpClient = factory.CreateDefaultClient();
@@ -51,7 +52,7 @@ public class
     [Fact]
     public async Task CreateAndDeleteCustomerSubscriptionProduct()
     {
-        var customerSubscriptionProduct = new NewSubscriptionProduct()
+        var customerSubscriptionProduct = new NewSubscriptionProduct
         {
             Name = "A customer subscription product",
             OperatorId = _operatorId,
@@ -59,12 +60,16 @@ public class
             CallerId = Guid.NewGuid()
         };
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(customerSubscriptionProduct));
-        var createResponse = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products", customerSubscriptionProduct);
+        var createResponse = await _httpClient.PostAsJsonAsync(
+            $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products", customerSubscriptionProduct);
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
-        var modelList = await _httpClient.GetFromJsonAsync<IList<CustomerSubscriptionProductDTO>>($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products");
+        var modelList =
+            await _httpClient.GetFromJsonAsync<IList<CustomerSubscriptionProductDTO>>(
+                $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products");
         var retrievedNewCustomerSubscriptionProduct = modelList!.FirstOrDefault(p =>
             p.Name == customerSubscriptionProduct.Name && !p.isGlobal);
-        var deleteResponse = await _httpClient.DeleteAsync($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products/{retrievedNewCustomerSubscriptionProduct!.Id}");
+        var deleteResponse = await _httpClient.DeleteAsync(
+            $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products/{retrievedNewCustomerSubscriptionProduct!.Id}");
 
         Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
     }
@@ -116,7 +121,8 @@ public class
         };
 
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(newTransferToBusinessFromPrivate));
-        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-business", newTransferToBusinessFromPrivate);
+        var response = await _httpClient.PostAsJsonAsync(
+            $"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-business", newTransferToBusinessFromPrivate);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
@@ -145,10 +151,12 @@ public class
             CallerId = Guid.NewGuid()
         };
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(newTransferFromPrivate));
-        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-private", newTransferFromPrivate);
+        var response = await _httpClient.PostAsJsonAsync(
+            $"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-private", newTransferFromPrivate);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
+
     [Fact]
     public async Task PostChangeSubscriptionOrder_ReturnsCreated()
     {
@@ -162,9 +170,12 @@ public class
             CallerId = Guid.NewGuid()
         };
 
-        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription",postRequest);
+        var response =
+            await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription",
+                postRequest);
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
+
     [Fact]
     public async Task PostChangeSubscriptionOrder_ReturnsBadRequest_WhenMobileNumberIsNull()
     {
@@ -177,9 +188,29 @@ public class
             CallerId = Guid.NewGuid()
         };
 
-        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
+        var response =
+            await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription",
+                postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+
+    [Fact]
+    public async Task PostCancelSubscription_ReturnsCreated()
+    {
+        var cancelSubscriptionOrder = new NewCancelSubscriptionOrder()
+        {
+            MobileNumber = "+4791111111",
+            DateOfTermination = DateTime.UtcNow.AddDays(5),
+            OperatorId = _operatorId,
+            CallerId = Guid.NewGuid()
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(cancelSubscriptionOrder));
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-cancel", cancelSubscriptionOrder);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
+
     [Fact]
     public async Task PostChangeSubscriptionOrder_ReturnsCreated_WhenSubscriptionOwnerIsNull()
     {
@@ -192,7 +223,9 @@ public class
             CallerId = Guid.NewGuid()
         };
 
-        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
+        var response =
+            await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription",
+                postRequest);
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
 }

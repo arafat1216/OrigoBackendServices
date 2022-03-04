@@ -33,5 +33,6 @@ namespace OrigoApiGateway.Services
             TransferToPrivateSubscriptionOrder order, Guid callerId);
         Task<OrigoChangeSubscriptionOrder> ChangeSubscriptionOrderAsync(Guid organizationId, ChangeSubscriptionOrderPostRequest subscriptionOrderModel);
         Task<IList<OrigoSubscriptionOrderListItem>> GetSubscriptionOrders(Guid organizationId);
+        Task<OrigoCancelSubscriptionOrder> CancelSubscriptionOrderForCustomerAsync(Guid organizationId, CancelSubscriptionOrder order, Guid callerId);
     }
 }

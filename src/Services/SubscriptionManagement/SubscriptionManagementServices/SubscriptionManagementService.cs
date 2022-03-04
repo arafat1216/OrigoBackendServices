@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using AutoMapper;
 using Microsoft.Extensions.Options;
+using SubscriptionManagementServices.Exceptions;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
 
@@ -175,5 +176,23 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         await _emailService.SendEmailAsync(changeSubscriptionOrder.OrderType, changeSubscriptionOrder);
 
         return _mapper.Map<ChangeSubscriptionOrderDTO>(added); 
+    }
+
+    public async Task<CancelSubscriptionOrderDTO> CancelSubscriptionOrder(Guid organizationId, NewCancelSubscriptionOrder subscriptionOrder)
+    {
+        var @operator = await _operatorRepository.GetOperatorAsync(subscriptionOrder.OperatorId);
+        if (@operator == null)
+        {
+            throw new InvalidOperatorIdInputDataException(
+                $"No operator with OperatorId {subscriptionOrder.OperatorId} found");
+        }
+        var cancelSubscriptionOrder = new CancelSubscriptionOrder(subscriptionOrder.MobileNumber,
+            subscriptionOrder.DateOfTermination, @operator.OperatorName, organizationId, subscriptionOrder.CallerId);
+        var added = await _subscriptionManagementRepository.AddCancelSubscriptionOrderAsync(cancelSubscriptionOrder);
+
+        await _emailService.SendEmailAsync(cancelSubscriptionOrder.OrderType, cancelSubscriptionOrder);
+
+        return _mapper.Map<CancelSubscriptionOrderDTO>(added);
+
     }
 }
