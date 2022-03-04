@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text.Json.Serialization;
-using System.Linq;
 using System.ComponentModel.DataAnnotations.Schema;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global

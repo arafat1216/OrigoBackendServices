@@ -1,7 +1,6 @@
 ﻿using AssetServices.Models;
 using Common.Logging;
 using System;
-using System.Text.Json.Serialization;
 
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable MemberCanBePrivate.Global

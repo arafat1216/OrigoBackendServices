@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Common.Logging;
 using MediatR;
 using Moq;
-using System.Collections.ObjectModel;
 
 // ReSharper disable InconsistentNaming
 

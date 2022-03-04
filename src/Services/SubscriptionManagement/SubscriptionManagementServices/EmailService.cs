@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System;
+
 namespace SubscriptionManagementServices
 {
     public class EmailService : IEmailService

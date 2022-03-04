@@ -1,10 +1,6 @@
 ﻿using AssetServices.DomainEvents;
 using Common.Seedwork;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AssetServices.Models
 {

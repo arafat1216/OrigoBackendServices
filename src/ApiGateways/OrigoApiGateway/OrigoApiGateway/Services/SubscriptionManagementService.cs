@@ -10,7 +10,6 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
-using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Backend.Response;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;

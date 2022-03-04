@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using System.Text.Json;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
 

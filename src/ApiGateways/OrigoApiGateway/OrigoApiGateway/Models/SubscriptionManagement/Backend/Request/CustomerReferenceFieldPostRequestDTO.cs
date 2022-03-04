@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OrigoApiGateway.Models.SubscriptionManagement.Backend.Request
+﻿namespace OrigoApiGateway.Models.SubscriptionManagement.Backend.Request
 {
     public class CustomerReferenceFieldPostRequestDTO
     {

@@ -1,8 +1,4 @@
-﻿using Common.Extensions;
-using Common.Logging;
-using Common.Utilities;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices.Infrastructure

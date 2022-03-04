@@ -10,7 +10,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Common.Enums;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 
