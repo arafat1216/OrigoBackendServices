@@ -207,7 +207,7 @@ public class
             response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
-    public async Task PostChangeSubscriptionOrder_ReturnsBadRequest_CustomerWithNotValiOperator()
+    public async Task PostChangeSubscriptionOrder_ReturnsNotFound_CustomerWithNotValiOperator()
     {
         var postRequest = new NewChangeSubscriptionOrder
         {
@@ -219,7 +219,7 @@ public class
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.Equal(
             $"Customer does not have this operator {postRequest.OperatorName} as a setting",
             response.Content.ReadAsStringAsync().Result);

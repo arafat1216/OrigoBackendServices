@@ -1,8 +1,10 @@
 using AutoMapper;
+using Common.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using SubscriptionManagement.API.Filters;
 using SubscriptionManagement.API.ViewModels;
 using SubscriptionManagementServices;
+using SubscriptionManagementServices.Exceptions;
 using SubscriptionManagementServices.ServiceModels;
 using System.Net;
 
@@ -140,10 +142,21 @@ namespace SubscriptionManagement.API.Controllers
 
                 return CreatedAtAction(nameof(ChangeSubscriptionOrder), addedOrder);
 
-            }catch (Exception ex)
+            } 
+            catch (InvalidPhoneNumberException ex) 
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError("SubscriptionController - ChangeSubscriptionOrder failed with InvalidPhoneNumberException", ex.Message);
                 return BadRequest(ex.Message);
+            } 
+            catch (CustomerSettingsException ex)
+            {
+                _logger.LogError("SubscriptionController - ChangeSubscriptionOrder failed with CustomerSettingsException", ex.Message);
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("SubscriptionController - ChangeSubscriptionOrder failed with Exception", ex.Message);
+                return BadRequest();
             }
         }
 

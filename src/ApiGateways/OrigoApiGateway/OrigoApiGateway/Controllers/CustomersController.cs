@@ -19,6 +19,9 @@ using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using Common.Exceptions;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
+using System.Net.Http;
+using Microsoft.AspNetCore.Http;
+using OrigoApiGateway.Exceptions;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -567,9 +570,17 @@ namespace OrigoApiGateway.Controllers
             return CreatedAtAction(nameof(ChangeSubscriptionOrder), changeSubscription);
 
             }
-            catch (Exception ex)
+            catch (InvalidPhoneNumberException ex)
             {
                 return BadRequest(ex.Message);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (HttpRequestException)
+            {
+                return BadRequest();
             }
         }
 
