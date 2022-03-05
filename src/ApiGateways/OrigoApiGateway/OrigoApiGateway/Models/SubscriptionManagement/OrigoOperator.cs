@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OrigoApiGateway.Models.SubscriptionManagement
+﻿namespace OrigoApiGateway.Models.SubscriptionManagement
 {
     public record OrigoOperator
     {

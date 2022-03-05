@@ -529,7 +529,9 @@ namespace OrigoApiGateway.Controllers
                 }
             }
             Guid.TryParse(actor, out Guid callerId);
-            return CreatedAtAction(nameof(CancelSubscription), order);
+            var response = await SubscriptionManagementService.CancelSubscriptionOrderForCustomerAsync(organizationId, order, callerId);
+
+            return CreatedAtAction(nameof(CancelSubscription), response);
         }
         /// <summary>
         /// Change subscription product.

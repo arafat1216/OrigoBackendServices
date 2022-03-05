@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
+﻿namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
 {
     public class NewOperatorAccount
     {

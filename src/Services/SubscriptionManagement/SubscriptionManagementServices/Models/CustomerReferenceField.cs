@@ -1,5 +1,4 @@
 ﻿using Common.Seedwork;
-using Microsoft.EntityFrameworkCore;
 using SubscriptionManagementServices.Types;
 
 namespace SubscriptionManagementServices.Models

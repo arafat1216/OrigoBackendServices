@@ -13,7 +13,6 @@ using Moq.Protected;
 using OrigoApiGateway.Mappings;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
-using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
 using Xunit;
 

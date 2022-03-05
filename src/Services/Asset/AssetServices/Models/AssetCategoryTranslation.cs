@@ -1,5 +1,4 @@
 ﻿using Common.Seedwork;
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace AssetServices.Models

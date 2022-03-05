@@ -161,7 +161,7 @@ namespace SubscriptionManagementServices.Models
             }
 
             customerOperatorSetting.AvailableSubscriptionProducts.Remove(subscriptionProduct);
-            AddDomainEvent(new CustomerSubscriptionProductdRemovedDomainEvent(subscriptionProduct, CustomerId));
+            AddDomainEvent(new CustomerSubscriptionProductRemovedDomainEvent(subscriptionProduct, CustomerId));
 
             return subscriptionProduct;
         }

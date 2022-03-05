@@ -2,7 +2,7 @@
 
 namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
 {
-    public class CancelSubscriptionOrder
+    public record CancelSubscriptionOrder
     {
         public string MobileNumber { get; set; }
         public int OperatorId { get; set; }

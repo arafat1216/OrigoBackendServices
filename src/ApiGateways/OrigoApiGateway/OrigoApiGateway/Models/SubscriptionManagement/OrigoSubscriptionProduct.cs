@@ -1,5 +1,4 @@
-﻿using OrigoApiGateway.Models.BackendDTO;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models.SubscriptionManagement
 {

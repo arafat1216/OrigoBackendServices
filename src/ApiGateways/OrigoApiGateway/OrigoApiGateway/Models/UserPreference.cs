@@ -1,7 +1,4 @@
-﻿using System.Reflection.Metadata;
-using OrigoApiGateway.Models.BackendDTO;
-
-namespace OrigoApiGateway.Models
+﻿namespace OrigoApiGateway.Models
 {
     /// <summary>
     /// Request and response object

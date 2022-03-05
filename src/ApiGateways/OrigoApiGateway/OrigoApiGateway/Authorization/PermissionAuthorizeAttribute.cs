@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
-using OrigoApiGateway.Models;
 
 namespace OrigoApiGateway.Authorization
 {

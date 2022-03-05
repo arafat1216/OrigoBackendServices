@@ -1,18 +1,11 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
-using SubscriptionManagementServices.Exceptions;
 using Xunit;
-using Moq;
-using Common.Logging;
-using MediatR;
 
 namespace SubscriptionManagement.UnitTests
 {

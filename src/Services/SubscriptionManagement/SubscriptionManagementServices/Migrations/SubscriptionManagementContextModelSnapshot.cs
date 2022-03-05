@@ -111,6 +111,63 @@ namespace SubscriptionManagementServices.Migrations
                     b.ToTable("BusinessSubscription", (string)null);
                 });
 
+            modelBuilder.Entity("SubscriptionManagementServices.Models.CancelSubscriptionOrder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnOrder(0);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<DateTime>("DateOfTermination")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastUpdatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<string>("MobileNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OperatorName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SalesforceTicketId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("SubscriptionOrderId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(1);
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CancelSubscriptionOrder", (string)null);
+                });
+
             modelBuilder.Entity("SubscriptionManagementServices.Models.ChangeSubscriptionOrder", b =>
                 {
                     b.Property<int>("Id")
@@ -952,7 +1009,7 @@ namespace SubscriptionManagementServices.Migrations
                     b.HasOne("SubscriptionManagementServices.Models.CustomerOperatorSettings", "CustomerOperatorSettings")
                         .WithMany("AvailableSubscriptionProducts")
                         .HasForeignKey("CustomerOperatorSettingsId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SubscriptionManagementServices.Models.SubscriptionProduct", "GlobalSubscriptionProduct")
@@ -960,9 +1017,9 @@ namespace SubscriptionManagementServices.Migrations
                         .HasForeignKey("GlobalSubscriptionProductId");
 
                     b.HasOne("SubscriptionManagementServices.Models.Operator", "Operator")
-                        .WithMany()
+                        .WithMany("CustomerSubscriptionProducts")
                         .HasForeignKey("OperatorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("CustomerOperatorSettings");
@@ -1044,6 +1101,8 @@ namespace SubscriptionManagementServices.Migrations
                     b.Navigation("CustomerOperatorAccounts");
 
                     b.Navigation("CustomerOperatorSettings");
+
+                    b.Navigation("CustomerSubscriptionProducts");
 
                     b.Navigation("SubscriptionProducts");
                 });

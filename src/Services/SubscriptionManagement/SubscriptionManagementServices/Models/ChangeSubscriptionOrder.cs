@@ -19,6 +19,7 @@ namespace SubscriptionManagementServices.Models
             OperatorName = operatorName;
             SubscriptionOwner = subscriptionOwner;
             OrganizationId = organizationId;
+            CreatedBy = callerId;
             SubscriptionOrderId = Guid.NewGuid();
             AddDomainEvent(new ChangeSubscriptionOrderCreatedDomainEvent(this, callerId));
         }

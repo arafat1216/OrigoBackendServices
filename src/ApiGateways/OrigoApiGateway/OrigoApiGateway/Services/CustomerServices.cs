@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Common.Enums;
 using Common.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -8,7 +7,6 @@ using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
