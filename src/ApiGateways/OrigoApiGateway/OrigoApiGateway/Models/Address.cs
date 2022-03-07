@@ -3,7 +3,7 @@
     /// <summary>
     /// Request and response object
     /// </summary>
-    public class OrigoAddress
+    public class Address
     {
         public string Street { get; init; }
 

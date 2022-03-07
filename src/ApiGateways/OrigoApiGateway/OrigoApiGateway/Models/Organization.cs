@@ -10,7 +10,7 @@ namespace OrigoApiGateway.Models
         public Guid OrganizationId { get; init; }
         public string Name { get; init; }
         public string OrganizationNumber { get; init; }
-        public OrigoAddress Address { get; init; }
+        public Address Address { get; init; }
         public OrigoContactPerson ContactPerson { get; init; }
         public NewOrganizationPreferences Preferences { get; init; }
         public NewLocation Location { get; init; }

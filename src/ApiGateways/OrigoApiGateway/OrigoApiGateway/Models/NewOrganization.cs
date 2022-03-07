@@ -11,7 +11,7 @@ namespace OrigoApiGateway.Models
 
         public string OrganizationNumber { get; init; }
 
-        public OrigoAddress Address { get; init; }
+        public Address Address { get; init; }
 
         public OrigoContactPerson ContactPerson { get; init; }
 

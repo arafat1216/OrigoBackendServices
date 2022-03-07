@@ -462,6 +462,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
+        public Task<OrigoOrderSim> OrderSimCardForCustomerAsync(Guid organizationId, OrderSim order, Guid callerId)
+        {
+            throw new NotImplementedException();
+        }
+
 
         public async Task<OrigoChangeSubscriptionOrder> ChangeSubscriptionOrderAsync(Guid organizationId,
             ChangeSubscriptionOrderPostRequest subscriptionOrderModel)

@@ -20,7 +20,6 @@ using Common.Exceptions;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
 using System.Net.Http;
-using Microsoft.AspNetCore.Http;
 using OrigoApiGateway.Exceptions;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
@@ -504,6 +503,39 @@ namespace OrigoApiGateway.Controllers
         }
 
         /// <summary>
+        /// Order new sim
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ProducesResponseType(typeof(OrigoOrderSim), (int)HttpStatusCode.Created)]
+        [Route("{organizationId:Guid}/order-sim")]
+        public async Task<IActionResult> OrderSim(Guid organizationId, [FromBody] OrderSim order)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            if (role == PredefinedRole.EndUser.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+            Guid.TryParse(actor, out Guid callerId);
+            var response = await SubscriptionManagementService.OrderSimCardForCustomerAsync(organizationId, order, callerId);
+
+            return CreatedAtAction(nameof(OrderSim), response);
+        }
+
+
+        /// <summary>
         /// Cancels a subscription
         /// </summary>
         /// <param name="organizationId"></param>
@@ -533,6 +565,7 @@ namespace OrigoApiGateway.Controllers
 
             return CreatedAtAction(nameof(CancelSubscription), response);
         }
+
         /// <summary>
         /// Change subscription product.
         /// </summary>
@@ -543,34 +576,36 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoChangeSubscriptionOrder), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         [HttpPost]
-        public async Task<ActionResult> ChangeSubscriptionOrder(Guid organizationId, [FromBody] ChangeSubscriptionOrder order)
+        public async Task<ActionResult> ChangeSubscriptionOrder(Guid organizationId,
+            [FromBody] ChangeSubscriptionOrder order)
         {
-            try { 
-            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-            if (role == PredefinedRole.EndUser.ToString())
+            try
             {
-                return Forbid();
-            }
-
-            if (role != PredefinedRole.SystemAdmin.ToString())
-            {
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
-            }
 
-            var requestModel = Mapper.Map<ChangeSubscriptionOrderPostRequest>(order);
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
 
-            Guid.TryParse(actor, out Guid callerId);
-            requestModel.CallerId = callerId;
+                var requestModel = Mapper.Map<ChangeSubscriptionOrderPostRequest>(order);
 
-            var changeSubscription = await SubscriptionManagementService.ChangeSubscriptionOrderAsync(organizationId, requestModel);
+                Guid.TryParse(actor, out var callerId);
+                requestModel.CallerId = callerId;
 
-            return CreatedAtAction(nameof(ChangeSubscriptionOrder), changeSubscription);
+                var changeSubscription =
+                    await SubscriptionManagementService.ChangeSubscriptionOrderAsync(organizationId, requestModel);
 
+                return CreatedAtAction(nameof(ChangeSubscriptionOrder), changeSubscription);
             }
             catch (InvalidPhoneNumberException ex)
             {

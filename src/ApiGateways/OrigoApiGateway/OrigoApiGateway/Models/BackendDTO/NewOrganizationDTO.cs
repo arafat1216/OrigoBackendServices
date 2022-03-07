@@ -8,7 +8,7 @@ namespace OrigoApiGateway.Models.BackendDTO
 
         public string OrganizationNumber { get; set; }
 
-        public OrigoAddress Address { get; set; }
+        public Address Address { get; set; }
 
         public OrigoContactPerson ContactPerson { get; set; }
         public NewLocation Location { get; set; }
