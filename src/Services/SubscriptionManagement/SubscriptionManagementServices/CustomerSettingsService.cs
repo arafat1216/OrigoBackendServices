@@ -28,14 +28,14 @@ public class CustomerSettingsService : ICustomerSettingsService
     public async Task<IList<OperatorDTO>> GetAllOperatorsForCustomerAsync(Guid organizationId)
     {
         var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
-        return _mapper.Map<List<OperatorDTO>>(customerSettings?.CustomerOperatorSettings.Select(o => o.Operator));
+        return _mapper.Map<List<OperatorDTO>>(customerSettings?.CustomerOperatorSettings.Select(o => o.Operator).OrderBy(co => co.OperatorName));
     }
 
 
     public async Task<IList<CustomerReferenceFieldDTO>> GetCustomerReferenceFieldsAsync(Guid organizationId)
     {
         var customerReferenceFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId);
-        return _mapper.Map<List<CustomerReferenceFieldDTO>>(customerReferenceFields);
+        return _mapper.Map<List<CustomerReferenceFieldDTO>>(customerReferenceFields.OrderBy(r => r.Name));
     }
 
     public async Task<CustomerReferenceFieldDTO> AddCustomerReferenceFieldAsync(Guid organizationId, string name,
@@ -115,7 +115,7 @@ public class CustomerSettingsService : ICustomerSettingsService
         Guid organizationId)
     {
         var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
-        return _mapper.Map<List<CustomerOperatorAccountDTO>>(customerSettings?.CustomerOperatorSettings.SelectMany(o => o.CustomerOperatorAccounts));
+        return _mapper.Map<List<CustomerOperatorAccountDTO>>(customerSettings?.CustomerOperatorSettings.SelectMany(o => o.CustomerOperatorAccounts).OrderBy(o => o.AccountName));
     }
 
     public async Task<CustomerSubscriptionProductDTO> AddOperatorSubscriptionProductForCustomerAsync(
@@ -177,9 +177,10 @@ public class CustomerSettingsService : ICustomerSettingsService
         if (customerSettings == null) return new List<CustomerSubscriptionProductDTO>();
         var customerSubscriptionProducts =
             customerSettings.CustomerOperatorSettings.SelectMany(o => o.AvailableSubscriptionProducts);
-        return !customerSubscriptionProducts.Any()
+        var subscriptionProducts = customerSubscriptionProducts.ToList();
+        return !subscriptionProducts.Any()
             ? new List<CustomerSubscriptionProductDTO>()
-            : _mapper.Map<List<CustomerSubscriptionProductDTO>>(customerSubscriptionProducts);
+            : _mapper.Map<List<CustomerSubscriptionProductDTO>>(subscriptionProducts.OrderBy(p => p.SubscriptionName));
     }
 
 
@@ -188,7 +189,7 @@ public class CustomerSettingsService : ICustomerSettingsService
         var operatorsSubscriptionProduct = await _customerSettingsRepository.GetAllOperatorSubscriptionProducts();
         List<GlobalSubscriptionProductDTO> operatorSubscriptionProducts = new();
         operatorSubscriptionProducts.AddRange(
-            _mapper.Map<List<GlobalSubscriptionProductDTO>>(operatorsSubscriptionProduct));
+            _mapper.Map<List<GlobalSubscriptionProductDTO>>(operatorsSubscriptionProduct?.OrderBy(p => p.SubscriptionName)));
 
         return operatorSubscriptionProducts;
     }
