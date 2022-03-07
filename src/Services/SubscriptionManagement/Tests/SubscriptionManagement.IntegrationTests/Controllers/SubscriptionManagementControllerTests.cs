@@ -163,7 +163,7 @@ public class
         var postRequest = new NewChangeSubscriptionOrder
         {
             MobileNumber = "+47 41414141",
-            OperatorName = "Telenor - NO",
+            OperatorName = "Telia - NO",
             ProductName = "Fri Flyt",
             PackageName = "5 GB",
             SubscriptionOwner = "Ola Normann",
@@ -217,7 +217,7 @@ public class
         var postRequest = new NewChangeSubscriptionOrder
         {
             MobileNumber = "+47 41414141",
-            OperatorName = "Telenor - NO",
+            OperatorName = "Telia - NO",
             ProductName = "Fri Flyt",
             PackageName = "5 GB",
             CallerId = Guid.NewGuid()
@@ -228,4 +228,59 @@ public class
                 postRequest);
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
+    [Fact]
+    public async Task PostChangeSubscriptionOrder_ReturnsBadRequest_WhenNumberIsNotValid()
+    {
+        var postRequest = new NewChangeSubscriptionOrder
+        {
+            MobileNumber = "+47041414141",
+            OperatorName = "Telia - NO",
+            ProductName = "Fri Flyt",
+            PackageName = "5 GB",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(
+            $"Not valid mobile number",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostChangeSubscriptionOrder_ReturnsBadRequest_EmptyString()
+    {
+        var postRequest = new NewChangeSubscriptionOrder
+        {
+            MobileNumber = " ",
+            OperatorName = "Telia - NO",
+            ProductName = "Fri Flyt",
+            PackageName = "5 GB",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(
+            $"Not valid mobile number",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostChangeSubscriptionOrder_ReturnsNotFound_CustomerWithNotValiOperator()
+    {
+        var postRequest = new NewChangeSubscriptionOrder
+        {
+            MobileNumber = "+47 41730800",
+            OperatorName = "Telenor - NO",
+            ProductName = "Fri Flyt",
+            PackageName = "5 GB",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(
+            $"Customer does not have this operator {postRequest.OperatorName} as a setting",
+            response.Content.ReadAsStringAsync().Result);
+    }
+
 }
