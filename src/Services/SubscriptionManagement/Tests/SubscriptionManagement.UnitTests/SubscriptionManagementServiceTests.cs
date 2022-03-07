@@ -12,6 +12,7 @@ using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
+using SubscriptionManagementServices.Utilities;
 using Xunit;
 
 namespace SubscriptionManagement.UnitTests;
@@ -370,5 +371,54 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 });
 
         Assert.NotNull(order);
+    }
+
+    [Theory]
+    [InlineData("89470000100031227032275", false)]
+    [InlineData("89722020101228153", false)]
+    [InlineData("89148000005339755555", true)]
+    [Trait("Category", "UnitTest")]
+    public async Task ValidateSim_CheckLenght(string value, bool expected)
+    {
+        var result = SIMCardValidation.ValidateSim(value);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData("00470000131227032275", false)]
+    [InlineData("89722020101228153578", true)]
+    [Trait("Category", "UnitTest")]
+    public async Task ValidateSim_CheckFirstDigits89(string value, bool expected)
+    {
+        var result = SIMCardValidation.ValidateSim(value);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData("89470000131227032275",true)]
+    [InlineData("89722020101228153578",true)]
+    [InlineData("89148000005339755555",true)]
+    [InlineData("89652021000371234219",true)]
+    [Trait("Category", "UnitTest")]
+    public async Task LuhnAlgorithm_ForOddNumbers(string value, bool expected) {
+        
+        var result = SIMCardValidation.LuhnAlgorithm(value);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData("89470000131227032275", true)]
+    [InlineData("89722020101228153578", true)]
+    [InlineData("8914800000533975555", false)]
+    [InlineData("89652021 000371234219", true)]
+    [Trait("Category", "UnitTest")]
+    public async Task ValidateSim_CheckDifferentOutcomes(string value, bool expected)
+    {
+        var result = SIMCardValidation.ValidateSim(value);
+
+        Assert.Equal(expected, result);
     }
 }
