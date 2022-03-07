@@ -129,8 +129,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         string newOperatorName;
         if (order.OperatorAccountId != null)
         {
-            var customerOperatorAccount = customerSettings.CustomerOperatorSettings.FirstOrDefault(o =>
-                o.CustomerOperatorAccounts.Any(a => a.Id == order.OperatorAccountId));
+            var customerOperatorAccount = customerSettings.CustomerOperatorSettings.SelectMany(os => os.CustomerOperatorAccounts)
+                .FirstOrDefault(oa => oa.Id == order.OperatorAccountId);
             if (customerOperatorAccount == null)
                 throw new ArgumentException($"Customer operator account id {order.OperatorAccountId} not found.");
             newOperatorName = customerOperatorAccount.Operator.OperatorName;
