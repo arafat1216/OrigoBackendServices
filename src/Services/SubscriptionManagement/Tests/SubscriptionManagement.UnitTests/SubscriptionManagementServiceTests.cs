@@ -12,7 +12,7 @@ using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
-using SubscriptionManagementServices.Ultilities;
+using SubscriptionManagementServices.Utilities;
 using Xunit;
 
 namespace SubscriptionManagement.UnitTests;
@@ -415,7 +415,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     [InlineData("8914800000533975555", false)]
     [InlineData("89652021 000371234219", true)]
     [Trait("Category", "UnitTest")]
-    public async Task ValidateSim_valid(string value, bool expected)
+    public async Task ValidateSim_CheckDifferentOutcomes(string value, bool expected)
     {
         var result = SIMCardValidation.ValidateSim(value);
 

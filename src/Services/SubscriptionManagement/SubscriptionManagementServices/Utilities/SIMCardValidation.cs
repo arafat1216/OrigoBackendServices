@@ -1,8 +1,6 @@
-﻿
+﻿using System.Text.RegularExpressions;
 
-using System.Text.RegularExpressions;
-
-namespace SubscriptionManagementServices.Ultilities
+namespace SubscriptionManagementServices.Utilities
 {
     public class SIMCardValidation
     {
