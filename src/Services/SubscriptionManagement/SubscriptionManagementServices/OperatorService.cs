@@ -19,7 +19,7 @@ namespace SubscriptionManagementServices
         {
 
             var allOperators = await _operatorRepository.GetAllOperatorsAsync();
-            return _mapper.Map<List<OperatorDTO>>(allOperators);
+            return _mapper.Map<List<OperatorDTO>>(allOperators.OrderBy(o => o.OperatorName));
         }
 
         public async Task<OperatorDTO?> GetOperatorAsync(int id)
