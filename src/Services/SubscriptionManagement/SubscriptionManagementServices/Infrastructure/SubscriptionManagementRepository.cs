@@ -86,7 +86,7 @@ namespace SubscriptionManagementServices.Infrastructure
                 .ToListAsync<ISubscriptionOrder>();
             subscriptionOrderList.AddRange(cancelOrders);
 
-            return subscriptionOrderList;
+            return subscriptionOrderList.OrderByDescending(o=> o.CreatedDate).ToList();
         }
 
         public async Task<ChangeSubscriptionOrder> AddChangeSubscriptionOrderAsync(ChangeSubscriptionOrder subscriptionOrder)
