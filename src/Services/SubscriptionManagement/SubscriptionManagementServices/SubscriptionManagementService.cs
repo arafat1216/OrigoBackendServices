@@ -107,7 +107,6 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             if (customerSubscriptionProduct == null)
                 throw new ArgumentException(
                     $"No subscription product exists with ID {order.SubscriptionProductId}");
-
         }
 
         var transferToBusinessSubscriptionOrder = new TransferToBusinessSubscriptionOrder(order.SIMCardNumber, order.SIMCardAction, customerSubscriptionProduct

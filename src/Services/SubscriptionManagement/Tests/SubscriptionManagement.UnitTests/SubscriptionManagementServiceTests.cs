@@ -244,7 +244,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
-                    CustomerReferenceFields = new List<NewCustomerReferenceField>()
+                    CustomerReferenceFields = new List<NewCustomerReferenceValue>()
                 }
                 );
 
@@ -288,7 +288,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
-                    CustomerReferenceFields = new List<NewCustomerReferenceField>()
+                    CustomerReferenceFields = new List<NewCustomerReferenceValue>()
                 }
                 );
 
@@ -328,7 +328,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
-                    CustomerReferenceFields = new List<NewCustomerReferenceField> { new() { Name = "X", Type = "Y" } }
+                    CustomerReferenceFields = new List<NewCustomerReferenceValue> { new() { Name = "X", Type = "Y", Value = "VAL"} }
                 }
                 ));
 

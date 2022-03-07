@@ -12,7 +12,7 @@ namespace SubscriptionManagementServices.Mappings
             CreateMap<TransferToBusinessSubscriptionOrder, TransferToBusinessSubscriptionOrderDTO>()
                 .ForMember(dto => dto.CallerId, opts => opts.MapFrom(m => m.CreatedBy))
                 .ForMember(dto => dto.NewOperatorAccount, opts => opts.MapFrom(m => new NewOperatorAccountRequestedDTO { NewOperatorAccountOwner = m.OperatorAccountOwner, NewOperatorAccountPayer = m.OperatorAccountPayer }))
-                .ForMember(dto => dto.CustomerReferenceFields, opts => opts.MapFrom(m => JsonSerializer.Deserialize<IList<NewCustomerReferenceField>>(m.CustomerReferenceFields, new JsonSerializerOptions { })));
+                .ForMember(dto => dto.CustomerReferenceFields, opts => opts.MapFrom(m => JsonSerializer.Deserialize<IList<NewCustomerReferenceValue>>(m.CustomerReferenceFields, new JsonSerializerOptions { })));
             CreateMap<TransferToBusinessSubscriptionOrderDTO, TransferToBusinessSubscriptionOrder>()
                 .ForMember(m => m.CreatedBy, opts => opts.MapFrom(dto => dto.CallerId));
 
