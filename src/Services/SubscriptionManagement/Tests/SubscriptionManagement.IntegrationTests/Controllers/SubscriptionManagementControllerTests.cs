@@ -107,11 +107,11 @@ public class
             DataPackage = "20GB",
             AddOnProducts = new List<string> { "FKL" },
             NewOperatorAccount = new NewOperatorAccountRequestedDTO { NewOperatorAccountOwner = "91700000" },
-            CustomerReferenceFields = new List<NewCustomerReferenceField>
+            CustomerReferenceFields = new List<NewCustomerReferenceValue>
             {
-                new() { Name = "URef1", Type = "User", CallerId = _callerId },
-                new() { Name = "URef2", Type = "User", CallerId = _callerId },
-                new() { Name = "AccURef1", Type = "Account", CallerId = _callerId }
+                new() { Name = "URef1", Type = "User", CallerId = _callerId, Value = "VAL1"},
+                new() { Name = "URef2", Type = "User", CallerId = _callerId, Value = "VAL2"},
+                new() { Name = "AccURef1", Type = "Account", CallerId = _callerId, Value = "VAL3"}
             },
             OperatorAccountId = _operatorAccountId,
             OrderExecutionDate = DateTime.UtcNow.AddDays(7),
