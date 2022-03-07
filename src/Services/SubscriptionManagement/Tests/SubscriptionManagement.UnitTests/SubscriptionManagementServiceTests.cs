@@ -238,7 +238,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         PostalCode = "[Postal code]",
                         PostalPlace = "[Postal Place]"
                     },
-                    SIMCardNumber = "[SIMCardNumber]",
+                    SIMCardNumber = "89722020101228153578",
                     SIMCardAction = "[SIMCardAction]",
                     MobileNumber = "[MobileNumber]",
                     SubscriptionProductId = 1,
@@ -282,7 +282,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         PostalCode = "[Postal code]",
                         PostalPlace = "[Postal Place]"
                     },
-                    SIMCardNumber = "[SIMCardNumber]",
+                    SIMCardNumber = "89722020101228153578",
                     SIMCardAction = "[SIMCardAction]",
                     MobileNumber = "[MobileNumber]",
                     SubscriptionProductId = 1,
@@ -322,7 +322,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         PostalCode = "[Postal code]",
                         PostalPlace = "[Postal Place]"
                     },
-                    SIMCardNumber = "[SIMCardNumber]",
+                    SIMCardNumber = "89722020101228153578",
                     SIMCardAction = "[SIMCardAction]",
                     MobileNumber = "[MobileNumber]",
                     SubscriptionProductId = 1,
@@ -363,7 +363,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         PostalCode = "[Postal code]",
                         PostalPlace = "[Postal Place]"
                     },
-                    SIMCardNumber = "[SIMCardNumber]",
+                    SIMCardNumber = "89722020101228153578",
                     SIMCardAction = "[SIMCardAction]",
                     MobileNumber = "[MobileNumber]",
                     SubscriptionProductId = 1,
@@ -418,6 +418,20 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     public async Task ValidateSim_CheckDifferentOutcomes(string value, bool expected)
     {
         var result = SIMCardValidation.ValidateSim(value);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData("KeepCurrent", true,false)]
+    [InlineData("KEEP CURRENT", true, false)]
+    [InlineData("keep current", true, false)]
+    [InlineData("keeP Current", false, true)]
+    [Trait("Category", "UnitTest")]
+    public async Task ValidateSimAction_False(string action,bool newOperator, bool expected)
+    {
+        
+        var result = SIMCardValidation.ValidateSimAction(action, newOperator);
 
         Assert.Equal(expected, result);
     }
