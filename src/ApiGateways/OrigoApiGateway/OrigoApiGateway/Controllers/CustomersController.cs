@@ -19,6 +19,9 @@ using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using Common.Exceptions;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
+using System.Net.Http;
+using Microsoft.AspNetCore.Http;
+using OrigoApiGateway.Exceptions;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -542,6 +545,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         public async Task<ActionResult> ChangeSubscriptionOrder(Guid organizationId, [FromBody] ChangeSubscriptionOrder order)
         {
+            try { 
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
             if (role == PredefinedRole.EndUser.ToString())
@@ -566,6 +570,20 @@ namespace OrigoApiGateway.Controllers
             var changeSubscription = await SubscriptionManagementService.ChangeSubscriptionOrderAsync(organizationId, requestModel);
 
             return CreatedAtAction(nameof(ChangeSubscriptionOrder), changeSubscription);
+
+            }
+            catch (InvalidPhoneNumberException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (HttpRequestException)
+            {
+                return BadRequest();
+            }
         }
 
 
