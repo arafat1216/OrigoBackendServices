@@ -9,6 +9,7 @@ public class SubscriptionOrdersProfile : Profile
     public SubscriptionOrdersProfile()
     {
         CreateMap<TransferToBusinessSubscriptionOrder, TransferToBusinessSubscriptionOrderDTO>();
+        CreateMap<NewCustomerReferenceValue, CustomerReferenceValuePostRequestDTO>();
         CreateMap<TransferToBusinessSubscriptionOrderDTO, TransferToBusinessSubscriptionOrder>();
         CreateMap<TransferToPrivateSubscriptionOrder, TransferToPrivateSubscriptionOrderDTO>();
         CreateMap<TransferToPrivateSubscriptionOrderDTO, TransferToPrivateSubscriptionOrder>();
