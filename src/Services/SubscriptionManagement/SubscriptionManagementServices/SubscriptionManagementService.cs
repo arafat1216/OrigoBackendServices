@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using SubscriptionManagementServices.Exceptions;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
+using SubscriptionManagementServices.Utilities;
 
 namespace SubscriptionManagementServices;
 
@@ -55,6 +56,15 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
                 throw new ArgumentException(
                     $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workday ahead or more is allowed.");
+            
+            //Sim Number validation
+            if (!SIMCardValidation.ValidateSim(order.SIMCardNumber))
+                throw new ArgumentException(
+                        $"SIM card number not valid {order.SIMCardNumber}");
+            //Sim Action validation
+            if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, false)) 
+                throw new ArgumentException(
+                        $"SIM card action not valid {order.SIMCardAction}");
         }
         else
         {   //Not ordering a new sim card 
@@ -66,6 +76,16 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                     DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
                     throw new ArgumentException(
                         $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForNewOperator} workdays ahead or more allowed.");
+                
+                //Sim Number validation
+                if (!SIMCardValidation.ValidateSim(order.SIMCardNumber))
+                    throw new ArgumentException(
+                            $"SIM card number not valid {order.SIMCardNumber}");
+
+                //Sim Action validation
+                if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, true)) 
+                    throw new ArgumentException(
+                            $"SIM card action not valid {order.SIMCardAction}");
             }
             else
             {

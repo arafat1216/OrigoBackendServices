@@ -56,5 +56,19 @@ namespace SubscriptionManagementServices.Utilities
             // It's a pass if the result is a multiple of 10
             return sum % 10 == 0;
         }
+        public static bool ValidateSimAction(string action, bool differentOperator)
+        {
+            //remove wihtspace
+            string simActionTrimmed = Regex.Replace(action, @"\s+", "");
+            //make all lower case
+            string simActionLowerCase = simActionTrimmed.ToLower();
+
+            if (simActionLowerCase == "keepcurrent" && differentOperator == true)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }
