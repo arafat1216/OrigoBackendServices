@@ -166,7 +166,7 @@ namespace SubscriptionManagementServices.Models
             return subscriptionProduct;
         }
 
-        public CustomerOperatorAccount AddCustomerOperatorAccount(string accountNumber, string accountName, Operator @operator, Guid callerId, string connectedOrganizationNumber)
+        public CustomerOperatorAccount AddCustomerOperatorAccount(string accountNumber, string accountName, Operator @operator, Guid callerId, string? connectedOrganizationNumber)
         {
             var customerOperatorSettings = _customerOperatorSettings.FirstOrDefault(o => o.Operator.Id == @operator.Id);
             var customerOperatorAccount = new CustomerOperatorAccount(CustomerId,connectedOrganizationNumber, accountNumber, accountName, @operator.Id, callerId);

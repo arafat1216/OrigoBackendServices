@@ -10,6 +10,5 @@ namespace SubscriptionManagementServices.ServiceModels
         public int OperatorId { get; set; }
         public Guid OrganizationId { get; set; }
         public string ConnectedOrganizationNumber { get; set; }
-
     }
 }

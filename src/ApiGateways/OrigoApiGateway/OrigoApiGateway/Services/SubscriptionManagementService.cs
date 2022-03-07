@@ -320,13 +320,13 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoCustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, NewOperatorAccount origoCustomerOperatorAccount)
+        public async Task<OrigoCustomerOperatorAccount> AddOperatorAccountForCustomerAsync(Guid customerId, NewOperatorAccount newCustomerOperatorAccount)
         {
             try
             {
                 string requestUri = $"{_options.ApiPath}/{customerId}/operator-accounts";
 
-                var response = await HttpClient.PostAsJsonAsync(requestUri, origoCustomerOperatorAccount);
+                var response = await HttpClient.PostAsJsonAsync(requestUri, newCustomerOperatorAccount);
 
                 var newOperatorAccount = await response.Content.ReadFromJsonAsync<OrigoCustomerOperatorAccount>();
 

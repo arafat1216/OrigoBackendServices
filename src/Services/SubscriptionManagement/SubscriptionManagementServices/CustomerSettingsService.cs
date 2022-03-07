@@ -77,7 +77,7 @@ public class CustomerSettingsService : ICustomerSettingsService
     }
 
     public async Task<CustomerOperatorAccountDTO> AddOperatorAccountForCustomerAsync(Guid organizationId,
-        string accountNumber, string accountName, int operatorId, Guid callerId, string connectedOrganizationNumber)
+        string accountNumber, string accountName, int operatorId, Guid callerId, string? connectedOrganizationNumber)
     {
         var @operator = await _operatorRepository.GetOperatorAsync(operatorId);
         if (@operator == null)

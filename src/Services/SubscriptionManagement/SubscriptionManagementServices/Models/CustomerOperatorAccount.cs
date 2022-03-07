@@ -23,7 +23,7 @@ namespace SubscriptionManagementServices.Models
         public CustomerOperatorAccount(Guid organizationId, string connectedOrganizationNumber, string accountNumber, string accountName, int operatorId, Guid callerId)
         {
             OrganizationId = organizationId;
-            ConnectedOrganizationNumber = connectedOrganizationNumber;
+            ConnectedOrganizationNumber = connectedOrganizationNumber ?? string.Empty;
             AccountNumber = accountNumber;
             AccountName = accountName;
             OperatorId = operatorId;
