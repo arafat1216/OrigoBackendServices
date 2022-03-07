@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.Json;
+﻿using CustomerServices.Infrastructure.Context.EntityConfiguration;
 using CustomerServices.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace CustomerServices.Infrastructure
+namespace CustomerServices.Infrastructure.Context
 {
     public class CustomerContext : DbContext
     {
@@ -28,18 +26,11 @@ namespace CustomerServices.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new CustomerConfiguration());
+            modelBuilder.ApplyConfiguration(new OrganizationConfiguration());
             modelBuilder.ApplyConfiguration(new UserConfiguration());
-
-            modelBuilder.Entity<Department>().ToTable("Department");
-            modelBuilder.Entity<Partner>().ToTable("Partner");
-
-            modelBuilder.Entity<UserPermissions>().Property(userPermissions => userPermissions.AccessList)
-                .HasConversion(
-                    convertTo =>
-                        JsonSerializer.Serialize(convertTo, new JsonSerializerOptions { IgnoreNullValues = true }),
-                    convertFrom => JsonSerializer.Deserialize<IList<Guid>>(convertFrom,
-                        new JsonSerializerOptions { IgnoreNullValues = true }));
+            modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
+            modelBuilder.ApplyConfiguration(new PartnerConfiguration());
+            modelBuilder.ApplyConfiguration(new UserPermissionsConfiguration());
 
             modelBuilder.Seed();
         }

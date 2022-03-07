@@ -2,6 +2,7 @@ using Common.Logging;
 using Customer.API.Filters;
 using CustomerServices;
 using CustomerServices.Infrastructure;
+using CustomerServices.Infrastructure.Context;
 using CustomerServices.Mappings;
 using CustomerServices.Models;
 using MediatR;
