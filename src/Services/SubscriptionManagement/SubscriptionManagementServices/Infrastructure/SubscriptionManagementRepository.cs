@@ -7,7 +7,7 @@ using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices.Infrastructure
 {
-    public class SubscriptionManagementRepository : ISubscriptionManagementRepository
+    public class SubscriptionManagementRepository<T> : ISubscriptionManagementRepository<T> where T: ISubscriptionOrder
     {
         private readonly SubscriptionManagementContext _subscriptionManagementContext;
         private readonly IFunctionalEventLogService _functionalEventLogService;
@@ -21,14 +21,7 @@ namespace SubscriptionManagementServices.Infrastructure
             _mediator = mediator;
         }
 
-        public async Task<TransferToBusinessSubscriptionOrder> TransferToBusinessSubscriptionOrderAsync(TransferToBusinessSubscriptionOrder subscriptionOrder)
-        {
-            var added = await _subscriptionManagementContext.AddAsync(subscriptionOrder);
-            await SaveEntitiesAsync();
-            return added.Entity;
-        }
-
-        private async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
         {
             var numberOfRecordsSaved = 0;
             //Use of an EF Core resiliency strategy when using multiple DbContexts within an explicit BeginTransaction():
@@ -36,7 +29,7 @@ namespace SubscriptionManagementServices.Infrastructure
             await ResilientTransaction.New(_subscriptionManagementContext).ExecuteAsync(async () =>
             {
                 var editedEntities = _subscriptionManagementContext.ChangeTracker.Entries()
-                    .Where(E => E.State == EntityState.Modified)
+                    .Where(entity => entity.State == EntityState.Modified)
                     .ToList();
 
                 editedEntities.ForEach(entity =>
@@ -55,13 +48,6 @@ namespace SubscriptionManagementServices.Infrastructure
                 await _mediator.DispatchDomainEventsAsync(_subscriptionManagementContext);
             });
             return numberOfRecordsSaved;
-        }
-
-        public async Task<TransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrderAsync(TransferToPrivateSubscriptionOrder subscriptionOrder)
-        {
-            var added = await _subscriptionManagementContext.AddAsync(subscriptionOrder);
-            await SaveEntitiesAsync();
-            return added.Entity;
         }
 
         public async Task<List<ISubscriptionOrder>> GetAllSubscriptionOrdersForCustomer(Guid organizationId)
@@ -86,28 +72,20 @@ namespace SubscriptionManagementServices.Infrastructure
                 .ToListAsync<ISubscriptionOrder>();
             subscriptionOrderList.AddRange(cancelOrders);
 
+            var orderSimSubscriptionOrders = await _subscriptionManagementContext.OrderSimSubscriptionOrders
+                .Where(o => o.OrganizationId == organizationId)
+                .ToListAsync<ISubscriptionOrder>();
+            subscriptionOrderList.AddRange(orderSimSubscriptionOrders);
+
             return subscriptionOrderList.OrderByDescending(o=> o.CreatedDate).ToList();
         }
 
-        public async Task<ChangeSubscriptionOrder> AddChangeSubscriptionOrderAsync(ChangeSubscriptionOrder subscriptionOrder)
+        public async Task<T> AddSubscriptionOrder(T subscriptionOrder)
         {
             var added = await _subscriptionManagementContext.AddAsync(subscriptionOrder);
-            await SaveEntitiesAsync();
-            return added.Entity;
-        }
-
-        public async Task<CancelSubscriptionOrder> AddCancelSubscriptionOrderAsync(CancelSubscriptionOrder subscriptionOrder)
-        {
-            var added = await _subscriptionManagementContext.AddAsync(subscriptionOrder);
-            await SaveEntitiesAsync();
-            return added.Entity;
-        }
-
-        public async Task<OrderSimSubscriptionOrder> OrderSim(OrderSimSubscriptionOrder subscriptionOrder)
-        {
-            var added = await _subscriptionManagementContext.AddAsync(subscriptionOrder);
-            await SaveEntitiesAsync();
-            return added.Entity;
+            // ReSharper disable once UnusedVariable
+            var numberOfRecords = await SaveEntitiesAsync();
+            return (T)added.Entity;
         }
     }
 }

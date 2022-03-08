@@ -202,7 +202,7 @@ namespace SubscriptionManagement.API.Controllers
         [ProducesResponseType(typeof(OrderSimSubscriptionOrderDTO), (int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         [SwaggerOperation(Tags = new[] { "Subscription Orders" })]
-        [Route("{organizationId:Guid}/subscription-cancel")]
+        [Route("{organizationId:Guid}/order-sim")]
         public async Task<IActionResult> OrderSim(Guid organizationId, [FromBody] NewOrderSimSubscriptionOrder subscriptionOrder)
         {
             try
@@ -261,7 +261,7 @@ namespace SubscriptionManagement.API.Controllers
         [SwaggerOperation(Tags = new[] { "Customer Operator Accounts" })]
         public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] NewOperatorAccount customerOperatorAccount)
         {
-            var newCustomerOperatorAccount = await _customerSettingsService.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName, customerOperatorAccount.OperatorId, customerOperatorAccount.CallerId, customerOperatorAccount.ConnectedOrganizationNumber);
+            var newCustomerOperatorAccount = await _customerSettingsService.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName, customerOperatorAccount.OperatorId, customerOperatorAccount.CallerId, customerOperatorAccount.ConnectedOrganizationNumber ?? string.Empty);
 
             return Ok(newCustomerOperatorAccount);
         }

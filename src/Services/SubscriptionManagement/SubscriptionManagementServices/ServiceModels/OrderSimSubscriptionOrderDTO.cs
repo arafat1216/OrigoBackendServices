@@ -11,7 +11,7 @@ public record OrderSimSubscriptionOrderDTO
     /// </summary>
     public Address Address { get; set; }
 
-    public int OperatorId { get; set; }
+    public string OperatorName { get; set; }
     public int Quantity { get; set; }
     public Guid CallerId { get; set; }
 }
