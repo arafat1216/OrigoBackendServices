@@ -207,8 +207,12 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 var subscriptionProduct = customersOperator.AvailableSubscriptionProducts.FirstOrDefault(sp => sp.SubscriptionName == subscriptionOrder.ProductName);
                 if (subscriptionProduct != null)
                 {
-                    var datapackage = subscriptionProduct.DataPackages.FirstOrDefault(d => d.DataPackageName == subscriptionOrder.PackageName);
-                    if (datapackage == null) throw new CustomerSettingsException($"Customer does not have datapackage {subscriptionOrder.PackageName} with product {subscriptionOrder.ProductName} as a setting");
+                    if (!String.IsNullOrEmpty(subscriptionOrder.PackageName))
+                    {
+                        var datapackage = subscriptionProduct.DataPackages.FirstOrDefault(d => d.DataPackageName == subscriptionOrder.PackageName);
+                        
+                        if (datapackage == null) throw new CustomerSettingsException($"Customer does not have datapackage {subscriptionOrder.PackageName} with product {subscriptionOrder.ProductName} as a setting");
+                    }
                 }
                 else
                 {

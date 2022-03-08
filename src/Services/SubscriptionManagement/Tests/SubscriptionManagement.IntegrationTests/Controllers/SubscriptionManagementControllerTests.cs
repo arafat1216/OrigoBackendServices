@@ -317,7 +317,7 @@ public class
             response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
-    public async Task PostChangeSubscriptionOrder_BadReuest_CustomerDoesNotHaveDatapackageForProduct()
+    public async Task PostChangeSubscriptionOrder_BadRequest_CustomerDoesNotHaveDatapackageForProduct()
     {
         var postRequest = new NewChangeSubscriptionOrder
         {
@@ -332,6 +332,36 @@ public class
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.Equal(
             $"Customer does not have datapackage 2GB with product TOTAL BEDRIFT as a setting",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostChangeSubscriptionOrder_BadRequest_ProductDontHaveDataPackages()
+    {
+        var customerSubscriptionProduct = new NewSubscriptionProduct
+        {
+            Name = "Prod",
+            OperatorId = _operatorId,
+            DataPackages = null,
+            CallerId = Guid.NewGuid()
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(customerSubscriptionProduct));
+        var createResponse = await _httpClient.PostAsJsonAsync(
+            $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products", customerSubscriptionProduct);
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+
+        var postRequest = new NewChangeSubscriptionOrder
+        {
+            MobileNumber = "+4741730873",
+            OperatorName = "Telia - NO",
+            ProductName = "Prod",
+            PackageName = "2GB",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(
+            $"Customer does not have datapackage 2GB with product Prod as a setting",
             response.Content.ReadAsStringAsync().Result);
     }
 
