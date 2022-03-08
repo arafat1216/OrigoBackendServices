@@ -620,6 +620,36 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
+        /// <summary>
+        /// Activate sim card
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        [Route("{organizationId:Guid}/activate-sim")]
+        [ProducesResponseType(typeof(ActivateSimOrderPostRequest), (int)HttpStatusCode.OK)]
+        [HttpPost]
+        public async Task<ActionResult> ActivateSimCard(Guid organizationId, [FromBody] ActivateSimOrderPostRequest order)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            if (role == PredefinedRole.EndUser.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+            //Guid.TryParse(actor, out Guid callerId);
+
+            return CreatedAtAction(nameof(ActivateSimCard), order);
+        }
 
 
         [Route("{organizationId:Guid}/subscription-orders")]
