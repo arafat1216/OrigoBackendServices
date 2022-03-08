@@ -197,7 +197,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
             if (customersOperator != null) {
 
-                var @operator = await _operatorRepository.GetOperatorAsync(customersOperator.Id);
+                var @operator = await _operatorRepository.GetOperatorAsync(customersOperator.Operator.Id);
                 
                 if (!PhoneNumberUtility.ValidatePhoneNumber(subscriptionOrder.MobileNumber, @operator?.Country ?? string.Empty))
                 {

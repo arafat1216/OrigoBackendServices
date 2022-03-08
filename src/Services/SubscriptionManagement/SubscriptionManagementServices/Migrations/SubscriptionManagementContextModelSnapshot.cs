@@ -694,7 +694,9 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
 
                     b.Property<Guid>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -703,7 +705,9 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("LastUpdatedDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
 
                     b.Property<string>("OperatorName")
                         .IsRequired()
@@ -738,7 +742,7 @@ namespace SubscriptionManagementServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OrderSimSubscriptionOrders");
+                    b.ToTable("OrderSimSubscriptionOrder", (string)null);
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.PrivateSubscription", b =>
@@ -1059,7 +1063,7 @@ namespace SubscriptionManagementServices.Migrations
 
                     b.HasIndex("UserInfoId");
 
-                    b.ToTable("OrderSimSubscriptionOrder", (string)null);
+                    b.ToTable("TransferToPrivateSubscriptionOrder", (string)null);
                 });
 
             modelBuilder.Entity("CustomerSubscriptionProductDataPackage", b =>

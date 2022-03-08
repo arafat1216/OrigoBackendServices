@@ -4,7 +4,7 @@ using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
-    public class OrderSimSubscriptionOrderConfiguration : IEntityTypeConfiguration<TransferToPrivateSubscriptionOrder>
+    public class OrderSimSubscriptionOrderConfiguration : IEntityTypeConfiguration<OrderSimSubscriptionOrder>
     {
         private readonly bool _isSqlLite;
         public OrderSimSubscriptionOrderConfiguration(bool isSqlLite)
@@ -12,7 +12,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             _isSqlLite = isSqlLite;
         }
 
-        public void Configure(EntityTypeBuilder<TransferToPrivateSubscriptionOrder> builder)
+        public void Configure(EntityTypeBuilder<OrderSimSubscriptionOrder> builder)
         {
             builder.ToTable("OrderSimSubscriptionOrder");
             builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
