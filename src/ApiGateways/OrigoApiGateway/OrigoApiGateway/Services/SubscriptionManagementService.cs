@@ -517,5 +517,27 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<OrigoActivateSimOrder> ActivateSimCardForCustomerAsync(Guid organizationId, ActivateSimOrderPostRequest activateSimOrder)
+        {
+            try
+            {
+                var requestUri = $"{_options.ApiPath}/{organizationId}/activate-sim";
+
+                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, activateSimOrder);
+
+                if (postSubscription.StatusCode == HttpStatusCode.Created)
+                {
+                    return await postSubscription.Content.ReadFromJsonAsync<OrigoActivateSimOrder>();
+                }
+
+                throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "ActivateSimCardForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
+        }
     }
 }

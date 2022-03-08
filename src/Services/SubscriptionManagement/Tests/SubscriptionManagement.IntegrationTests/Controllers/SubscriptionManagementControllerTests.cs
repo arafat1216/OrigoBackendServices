@@ -298,5 +298,58 @@ public class
             $"Customer does not have this operator {postRequest.OperatorName} as a setting",
             response.Content.ReadAsStringAsync().Result);
     }
+    [Fact]
+    public async Task PostActivateSim_ReturnsCreated()
+    {
+        var postRequest = new NewActivateSimOrder
+        {
+            MobileNumber = "+4741730800",
+            OperatorId = 1,
+            SimNumber = "89652021000371234219",
+            SimType = "RegularSIM",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+    [Fact]
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidSim()
+    {
+        var postRequest = new NewActivateSimOrder
+        {
+            MobileNumber = "+4741730800",
+            OperatorId = 1,
+            SimNumber = "89652021000",
+            SimType = "RegularSIM",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(
+           $"SIM card number not valid 89652021000",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidOperator()
+    {
+        var postRequest = new NewActivateSimOrder
+        {
+            MobileNumber = "+4741730800",
+            OperatorId = 5,
+            SimNumber = "89652021000371234219",
+            SimType = "RegularSIM",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(
+             $"No operator with OperatorId 5 found",
+            response.Content.ReadAsStringAsync().Result);
+    }
+
+
 
 }
