@@ -193,6 +193,32 @@ namespace SubscriptionManagement.API.Controllers
         }
 
         /// <summary>
+        /// Order SIM card
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="subscriptionOrder"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ProducesResponseType(typeof(OrderSimSubscriptionOrderDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [SwaggerOperation(Tags = new[] { "Subscription Orders" })]
+        [Route("{organizationId:Guid}/subscription-cancel")]
+        public async Task<IActionResult> OrderSim(Guid organizationId, [FromBody] NewOrderSimSubscriptionOrder subscriptionOrder)
+        {
+            try
+            {
+                var addedOrder = await _subscriptionServices.OrderSim(organizationId, subscriptionOrder);
+
+                return CreatedAtAction(nameof(OrderSim), addedOrder);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Gets a list of all subscription orders for a customer
         /// </summary>
         /// <param name="organizationId"></param>

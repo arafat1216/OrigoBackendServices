@@ -102,5 +102,12 @@ namespace SubscriptionManagementServices.Infrastructure
             await SaveEntitiesAsync();
             return added.Entity;
         }
+
+        public async Task<OrderSimSubscriptionOrder> OrderSim(OrderSimSubscriptionOrder subscriptionOrder)
+        {
+            var added = await _subscriptionManagementContext.AddAsync(subscriptionOrder);
+            await SaveEntitiesAsync();
+            return added.Entity;
+        }
     }
 }

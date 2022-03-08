@@ -9,5 +9,6 @@ namespace SubscriptionManagementServices.Models
         Task<List<ISubscriptionOrder>> GetAllSubscriptionOrdersForCustomer(Guid organizationId);
         Task<ChangeSubscriptionOrder> AddChangeSubscriptionOrderAsync(ChangeSubscriptionOrder subscriptionOrder);
         Task<CancelSubscriptionOrder> AddCancelSubscriptionOrderAsync(CancelSubscriptionOrder subscriptionOrder);
+        Task<OrderSimSubscriptionOrder> OrderSim(OrderSimSubscriptionOrder orderSimSubscriptionOrder);
     }
 }

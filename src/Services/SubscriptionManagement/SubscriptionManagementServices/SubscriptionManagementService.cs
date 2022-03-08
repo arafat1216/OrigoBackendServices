@@ -238,6 +238,22 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         await _emailService.SendEmailAsync(cancelSubscriptionOrder.OrderType, cancelSubscriptionOrder);
 
         return _mapper.Map<CancelSubscriptionOrderDTO>(added);
+    }
 
+    public async Task<OrderSimSubscriptionOrderDTO> OrderSim(Guid organizationId, NewOrderSimSubscriptionOrder subscriptionOrder)
+    {
+        var @operator = await _operatorRepository.GetOperatorAsync(subscriptionOrder.OperatorId);
+        if (@operator == null)
+        {
+            throw new InvalidOperatorIdInputDataException(
+                $"No operator with OperatorId {subscriptionOrder.OperatorId} found");
+        }
+        var orderSimSubscriptionOrder = new OrderSimSubscriptionOrder(subscriptionOrder.SendToName, subscriptionOrder.Address.Street,
+            subscriptionOrder.Address.Postcode, subscriptionOrder.Address.City, subscriptionOrder.Address.Country, @operator.OperatorName, subscriptionOrder.Quantity, organizationId, subscriptionOrder.CallerId);
+        var added = await _subscriptionManagementRepository.OrderSim(orderSimSubscriptionOrder);
+
+        await _emailService.SendEmailAsync(orderSimSubscriptionOrder.OrderType, orderSimSubscriptionOrder);
+
+        return _mapper.Map<OrderSimSubscriptionOrderDTO>(added);
     }
 }

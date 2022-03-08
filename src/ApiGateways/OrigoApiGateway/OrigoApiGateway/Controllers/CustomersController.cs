@@ -528,12 +528,11 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
             }
-            Guid.TryParse(actor, out Guid callerId);
+            Guid.TryParse(actor, out var callerId);
             var response = await SubscriptionManagementService.OrderSimCardForCustomerAsync(organizationId, order, callerId);
 
             return CreatedAtAction(nameof(OrderSim), response);
         }
-
 
         /// <summary>
         /// Cancels a subscription
