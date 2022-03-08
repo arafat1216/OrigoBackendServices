@@ -12,7 +12,8 @@ namespace SubscriptionManagementServices.Mappings
                 .ForPath(dest => dest.Address.Street, opts => opts.MapFrom(src => src.Street))
                 .ForPath(dest => dest.Address.City, opts => opts.MapFrom(src => src.City))
                 .ForPath(dest => dest.Address.Postcode, opts => opts.MapFrom(src => src.Postcode))
-                .ForPath(dest => dest.Address.Country, opts => opts.MapFrom(src => src.Country));
+                .ForPath(dest => dest.Address.Country, opts => opts.MapFrom(src => src.Country))
+                .ForMember(dest => dest.CallerId, opts => opts.MapFrom(src => src.CreatedBy));
         }
     }
 }

@@ -13,5 +13,6 @@ public class SubscriptionOrdersProfile : Profile
         CreateMap<TransferToBusinessSubscriptionOrderDTO, TransferToBusinessSubscriptionOrder>();
         CreateMap<TransferToPrivateSubscriptionOrder, TransferToPrivateSubscriptionOrderDTO>();
         CreateMap<TransferToPrivateSubscriptionOrderDTO, TransferToPrivateSubscriptionOrder>();
+        CreateMap<OrderSim, OrderSimDTO>();
     }
 }

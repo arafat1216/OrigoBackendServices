@@ -15,5 +15,6 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response
 
         public string OperatorName { get; set; }
         public int Quantity { get; set; }
+        public Guid CallerId { get; set; }
     }
 }

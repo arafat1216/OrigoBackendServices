@@ -466,9 +466,11 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var requestUri = $"{_options.ApiPath}/{organizationId}/order-sim";
+                var orderSimDTO = _mapper.Map<OrderSimDTO>(order);
+                orderSimDTO.CallerId = callerId;
 
-                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, order);
+                var requestUri = $"{_options.ApiPath}/{organizationId}/order-sim";
+                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, orderSimDTO);
 
                 if (postSubscription.StatusCode == HttpStatusCode.Created)
                 {
