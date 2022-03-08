@@ -29,6 +29,7 @@ namespace SubscriptionManagementServices.Infrastructure
         public DbSet<ChangeSubscriptionOrder> ChangeSubscriptionOrder => Set<ChangeSubscriptionOrder>();
         public DbSet<CancelSubscriptionOrder> CancelSubscriptionOrders => Set<CancelSubscriptionOrder>();
         public DbSet<ActivateSimOrder> ActivateSimOrders => Set<ActivateSimOrder>();
+        public DbSet<OrderSimSubscriptionOrder> OrderSimSubscriptionOrders => Set<OrderSimSubscriptionOrder>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,6 +48,7 @@ namespace SubscriptionManagementServices.Infrastructure
             modelBuilder.ApplyConfiguration(new ChangeSubscriptionOrderConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new CancelSubscriptionOrderConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new ActivateSimOrderConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new OrderSimSubscriptionOrderConfiguration(_isSQLite));
         }
     }
 }

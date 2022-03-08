@@ -462,9 +462,26 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public Task<OrigoOrderSim> OrderSimCardForCustomerAsync(Guid organizationId, OrderSim order, Guid callerId)
+        public async Task<OrigoOrderSim> OrderSimCardForCustomerAsync(Guid organizationId, OrderSim order, Guid callerId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var requestUri = $"{_options.ApiPath}/{organizationId}/order-sim";
+
+                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, order);
+
+                if (postSubscription.StatusCode == HttpStatusCode.Created)
+                {
+                    return await postSubscription.Content.ReadFromJsonAsync<OrigoOrderSim>();
+                }
+
+                throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "OrderSimCardForCustomerAsync failed with HttpRequestException.");
+                throw;
+            }
         }
 
 

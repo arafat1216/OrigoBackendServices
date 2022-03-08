@@ -70,7 +70,7 @@ builder.Services.Configure<TransferSubscriptionDateConfiguration>(builder.Config
 builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("Email"));
 builder.Services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
 builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
-builder.Services.AddScoped<ISubscriptionManagementRepository, SubscriptionManagementRepository>();
+builder.Services.AddScoped<ISubscriptionManagementRepository<ISubscriptionOrder>, SubscriptionManagementRepository<ISubscriptionOrder>>();
 builder.Services.AddScoped<IOperatorService, OperatorService>();
 builder.Services.AddScoped<IOperatorRepository, OperatorRepository>();
 builder.Services.AddScoped<ICustomerSettingsService, CustomerSettingsService>();
