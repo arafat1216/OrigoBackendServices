@@ -256,4 +256,29 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
         return _mapper.Map<OrderSimSubscriptionOrderDTO>(added);
     }
+
+    public async Task<ActivateSimOrderDTO> ActivateSimAsync(Guid organizationId, NewActivateSimOrder simOrder)
+    {
+        var @operator = await _operatorRepository.GetOperatorAsync(simOrder.OperatorId);
+        if (@operator == null)
+        {
+            throw new InvalidOperatorIdInputDataException(
+                $"No operator with OperatorId {simOrder.OperatorId} found");
+        }
+        
+        if (!SIMCardValidation.ValidateSim(simOrder.SimNumber))
+            throw new InvalidSimException(
+                    $"SIM card number not valid {simOrder.SimNumber}");
+
+        var newActivateSimOrder = new ActivateSimOrder(simOrder.MobileNumber, @operator.OperatorName, simOrder.SimNumber, simOrder.SimType, organizationId, simOrder.CallerId);
+
+        var added = await _subscriptionManagementRepository.AddSubscriptionOrder(newActivateSimOrder);
+
+        await _emailService.SendEmailAsync(newActivateSimOrder.OrderType, newActivateSimOrder);
+
+        var mapped = _mapper.Map<ActivateSimOrderDTO>(newActivateSimOrder);
+        mapped.OperatorId = @operator.Id;
+
+        return mapped;
+    }
 }

@@ -217,6 +217,31 @@ namespace SubscriptionManagement.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        /// <summary>
+        /// Activate SIM card
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="simOrder"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ProducesResponseType(typeof(OrderSimSubscriptionOrderDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [SwaggerOperation(Tags = new[] { "Subscription Orders" })]
+        [Route("{organizationId:Guid}/activate-sim")]
+        public async Task<IActionResult> ActivateSim(Guid organizationId, [FromBody] NewActivateSimOrder simOrder)
+        {
+            try
+            {
+                var addedOrder = await _subscriptionServices.ActivateSimAsync(organizationId, simOrder);
+
+                return CreatedAtAction(nameof(ActivateSim), addedOrder);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
 
         /// <summary>
         /// Gets a list of all subscription orders for a customer
