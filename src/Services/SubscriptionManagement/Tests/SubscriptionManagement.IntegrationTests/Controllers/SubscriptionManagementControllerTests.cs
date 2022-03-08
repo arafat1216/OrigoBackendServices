@@ -210,6 +210,22 @@ public class
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
 
+    [Fact]
+    public async Task PostOrderSim_ReturnsCreated()
+    {
+        var newOrderSimSubscriptionOrder = new NewOrderSimSubscriptionOrder()
+        {
+            SendToName = "My Name",
+            Address = new Address(){Street = "No name", Postcode = "1111", City = "Oslo", Country = "Norway"},
+            OperatorId = _operatorId,
+            Quantity = 2,
+            CallerId = Guid.NewGuid()
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newOrderSimSubscriptionOrder));
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/order-sim", newOrderSimSubscriptionOrder);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
 
     [Fact]
     public async Task PostChangeSubscriptionOrder_ReturnsCreated_WhenSubscriptionOwnerIsNull()

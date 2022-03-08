@@ -193,6 +193,32 @@ namespace SubscriptionManagement.API.Controllers
         }
 
         /// <summary>
+        /// Order SIM card
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="subscriptionOrder"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ProducesResponseType(typeof(OrderSimSubscriptionOrderDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [SwaggerOperation(Tags = new[] { "Subscription Orders" })]
+        [Route("{organizationId:Guid}/order-sim")]
+        public async Task<IActionResult> OrderSim(Guid organizationId, [FromBody] NewOrderSimSubscriptionOrder subscriptionOrder)
+        {
+            try
+            {
+                var addedOrder = await _subscriptionServices.OrderSim(organizationId, subscriptionOrder);
+
+                return CreatedAtAction(nameof(OrderSim), addedOrder);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Gets a list of all subscription orders for a customer
         /// </summary>
         /// <param name="organizationId"></param>
@@ -235,7 +261,7 @@ namespace SubscriptionManagement.API.Controllers
         [SwaggerOperation(Tags = new[] { "Customer Operator Accounts" })]
         public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] NewOperatorAccount customerOperatorAccount)
         {
-            var newCustomerOperatorAccount = await _customerSettingsService.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName, customerOperatorAccount.OperatorId, customerOperatorAccount.CallerId, customerOperatorAccount.ConnectedOrganizationNumber);
+            var newCustomerOperatorAccount = await _customerSettingsService.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName, customerOperatorAccount.OperatorId, customerOperatorAccount.CallerId, customerOperatorAccount.ConnectedOrganizationNumber ?? string.Empty);
 
             return Ok(newCustomerOperatorAccount);
         }

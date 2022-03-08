@@ -12,14 +12,14 @@ namespace SubscriptionManagementServices;
 
 public class SubscriptionManagementService : ISubscriptionManagementService
 {
-    private readonly ISubscriptionManagementRepository _subscriptionManagementRepository;
+    private readonly ISubscriptionManagementRepository<ISubscriptionOrder>  _subscriptionManagementRepository;
     private readonly ICustomerSettingsRepository _customerSettingsRepository;
     private readonly IOperatorRepository _operatorRepository;
     private readonly IMapper _mapper;
     private readonly TransferSubscriptionDateConfiguration _transferSubscriptionDateConfiguration;
     private readonly IEmailService _emailService;
 
-    public SubscriptionManagementService(ISubscriptionManagementRepository subscriptionManagementRepository,
+    public SubscriptionManagementService(ISubscriptionManagementRepository<ISubscriptionOrder> subscriptionManagementRepository,
         ICustomerSettingsRepository customerSettingsRepository,
         IOperatorRepository operatorRepository,
         IOptions<TransferSubscriptionDateConfiguration> transferSubscriptionOrderConfigurationOptions, 
@@ -137,9 +137,9 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             _mapper.Map<PrivateSubscription>(order.PrivateSubscription),
             _mapper.Map<BusinessSubscription>(order.BusinessSubscription),
             order.CallerId);
-        var subscriptionOrder = await _subscriptionManagementRepository.TransferToBusinessSubscriptionOrderAsync(transferToBusinessSubscriptionOrder);
+        var subscriptionOrder = await _subscriptionManagementRepository.AddSubscriptionOrder(transferToBusinessSubscriptionOrder);
 
-        await _emailService.SendEmailAsync($"[{subscriptionOrder?.SubscriptionOrderId}]-[{subscriptionOrder?.OrderType}]", subscriptionOrder);
+        await _emailService.SendEmailAsync($"[{subscriptionOrder.SubscriptionOrderId}]-[{subscriptionOrder.OrderType}]", subscriptionOrder);
 
         return _mapper.Map<TransferToBusinessSubscriptionOrderDTO>(subscriptionOrder);
     }
@@ -175,9 +175,9 @@ public class SubscriptionManagementService : ISubscriptionManagementService
     {
         var order = _mapper.Map<TransferToPrivateSubscriptionOrder>(subscriptionOrder);
         order.OrganizationId = organizationId;
-        var added = await _subscriptionManagementRepository.TransferToPrivateSubscriptionOrderAsync(order);
+        var added = await _subscriptionManagementRepository.AddSubscriptionOrder(order);
 
-        await _emailService.SendEmailAsync($"[{added?.SubscriptionOrderId}]-[{added?.OrderType}]", added);
+        await _emailService.SendEmailAsync($"[{added.SubscriptionOrderId}]-[{added.OrderType}]", added);
 
         return _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(added);
     }
@@ -197,9 +197,9 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
             if (customersOperator != null) {
 
-                var @operator = await _operatorRepository.GetOperatorAsync(customersOperator.Id);
+                var @operator = await _operatorRepository.GetOperatorAsync(customersOperator.Operator.Id);
                 
-                if (!PhoneNumberUtility.ValidatePhoneNumber(subscriptionOrder.MobileNumber, @operator.Country))
+                if (!PhoneNumberUtility.ValidatePhoneNumber(subscriptionOrder.MobileNumber, @operator?.Country ?? string.Empty))
                 {
                     throw new InvalidPhoneNumberException("Not valid mobile number");
                 }
@@ -227,7 +227,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         
         var changeSubscriptionOrder = new ChangeSubscriptionOrder(subscriptionOrder.MobileNumber, subscriptionOrder.ProductName, subscriptionOrder.PackageName, subscriptionOrder.OperatorName, subscriptionOrder.SubscriptionOwner,organizationId, subscriptionOrder.CallerId);
 
-        var added = await _subscriptionManagementRepository.AddChangeSubscriptionOrderAsync(changeSubscriptionOrder);
+        var added = await _subscriptionManagementRepository.AddSubscriptionOrder(changeSubscriptionOrder);
 
         await _emailService.SendEmailAsync(changeSubscriptionOrder.OrderType, changeSubscriptionOrder);
 
@@ -244,11 +244,27 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         }
         var cancelSubscriptionOrder = new CancelSubscriptionOrder(subscriptionOrder.MobileNumber,
             subscriptionOrder.DateOfTermination, @operator.OperatorName, organizationId, subscriptionOrder.CallerId);
-        var added = await _subscriptionManagementRepository.AddCancelSubscriptionOrderAsync(cancelSubscriptionOrder);
+        var added = await _subscriptionManagementRepository.AddSubscriptionOrder(cancelSubscriptionOrder);
 
         await _emailService.SendEmailAsync(cancelSubscriptionOrder.OrderType, cancelSubscriptionOrder);
 
         return _mapper.Map<CancelSubscriptionOrderDTO>(added);
+    }
 
+    public async Task<OrderSimSubscriptionOrderDTO> OrderSim(Guid organizationId, NewOrderSimSubscriptionOrder subscriptionOrder)
+    {
+        var @operator = await _operatorRepository.GetOperatorAsync(subscriptionOrder.OperatorId);
+        if (@operator == null)
+        {
+            throw new InvalidOperatorIdInputDataException(
+                $"No operator with OperatorId {subscriptionOrder.OperatorId} found");
+        }
+        var orderSimSubscriptionOrder = new OrderSimSubscriptionOrder(subscriptionOrder.SendToName, subscriptionOrder.Address.Street,
+            subscriptionOrder.Address.Postcode, subscriptionOrder.Address.City, subscriptionOrder.Address.Country, @operator.OperatorName, subscriptionOrder.Quantity, organizationId, subscriptionOrder.CallerId);
+        var added = await _subscriptionManagementRepository.AddSubscriptionOrder(orderSimSubscriptionOrder);
+
+        await _emailService.SendEmailAsync(orderSimSubscriptionOrder.OrderType, orderSimSubscriptionOrder);
+
+        return _mapper.Map<OrderSimSubscriptionOrderDTO>(added);
     }
 }

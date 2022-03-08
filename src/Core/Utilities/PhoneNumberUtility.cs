@@ -2,15 +2,15 @@
 
 namespace Common.Utilities
 {
-    public class PhoneNumberUtility
+    public static class PhoneNumberUtility
     {
-        private static PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.GetInstance();
+        private static readonly PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.GetInstance();
 
         public static bool ValidatePhoneNumber(string mobileNumber,string countryCode)
         {
             try 
             { 
-                var upperCaseCountryCode = countryCode != null ? countryCode.ToUpper() : null;
+                var upperCaseCountryCode = countryCode?.ToUpper();
 
                 if (countryCode != null && countryCode.Contains("nb"))
                 {

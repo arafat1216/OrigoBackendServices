@@ -20,7 +20,7 @@ namespace SubscriptionManagementServices.Models
             Id = id;
         }
 
-        public CustomerOperatorAccount(Guid organizationId, string connectedOrganizationNumber, string accountNumber, string accountName, int operatorId, Guid callerId)
+        public CustomerOperatorAccount(Guid organizationId, string? connectedOrganizationNumber, string accountNumber, string accountName, int operatorId, Guid callerId)
         {
             OrganizationId = organizationId;
             ConnectedOrganizationNumber = connectedOrganizationNumber ?? string.Empty;

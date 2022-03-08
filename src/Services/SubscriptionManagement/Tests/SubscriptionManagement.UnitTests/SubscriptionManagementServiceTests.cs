@@ -36,7 +36,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         }
 
         var subscriptionManagementContext = new SubscriptionManagementContext(ContextOptions);
-        ISubscriptionManagementRepository subscriptionManagementRepository = new SubscriptionManagementRepository(subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        ISubscriptionManagementRepository<ISubscriptionOrder> subscriptionManagementRepository = new SubscriptionManagementRepository<ISubscriptionOrder>(subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var customerSettingsRepository = new CustomerSettingsRepository(subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var operatorRepository = new OperatorRepository(subscriptionManagementContext);
         _subscriptionManagementService = new SubscriptionManagementService(subscriptionManagementRepository,
@@ -378,7 +378,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     [InlineData("89722020101228153", false)]
     [InlineData("89148000005339755555", true)]
     [Trait("Category", "UnitTest")]
-    public async Task ValidateSim_CheckLenght(string value, bool expected)
+    public void ValidateSim_CheckLenght(string value, bool expected)
     {
         var result = SIMCardValidation.ValidateSim(value);
 
@@ -389,7 +389,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     [InlineData("00470000131227032275", false)]
     [InlineData("89722020101228153578", true)]
     [Trait("Category", "UnitTest")]
-    public async Task ValidateSim_CheckFirstDigits89(string value, bool expected)
+    public void ValidateSim_CheckFirstDigits89(string value, bool expected)
     {
         var result = SIMCardValidation.ValidateSim(value);
 
@@ -402,7 +402,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     [InlineData("89148000005339755555",true)]
     [InlineData("89652021000371234219",true)]
     [Trait("Category", "UnitTest")]
-    public async Task LuhnAlgorithm_ForOddNumbers(string value, bool expected) {
+    public void LuhnAlgorithm_ForOddNumbers(string value, bool expected) {
         
         var result = SIMCardValidation.LuhnAlgorithm(value);
 
@@ -415,7 +415,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     [InlineData("8914800000533975555", false)]
     [InlineData("89652021 000371234219", true)]
     [Trait("Category", "UnitTest")]
-    public async Task ValidateSim_CheckDifferentOutcomes(string value, bool expected)
+    public void ValidateSim_CheckDifferentOutcomes(string value, bool expected)
     {
         var result = SIMCardValidation.ValidateSim(value);
 
@@ -428,7 +428,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     [InlineData("keep current", true, false)]
     [InlineData("keeP Current", false, true)]
     [Trait("Category", "UnitTest")]
-    public async Task ValidateSimAction_False(string action,bool newOperator, bool expected)
+    public void ValidateSimAction_False(string action,bool newOperator, bool expected)
     {
         
         var result = SIMCardValidation.ValidateSimAction(action, newOperator);
