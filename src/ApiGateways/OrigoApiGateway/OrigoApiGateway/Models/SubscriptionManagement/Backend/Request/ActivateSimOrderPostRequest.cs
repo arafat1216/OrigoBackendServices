@@ -1,4 +1,6 @@
-﻿namespace OrigoApiGateway.Models.SubscriptionManagement.Backend.Request
+﻿using System;
+
+namespace OrigoApiGateway.Models.SubscriptionManagement.Backend.Request
 {
     public record ActivateSimOrderPostRequest
     {
@@ -6,6 +8,7 @@
         public int OperatorId { get; set; }
         public string SimNumber { get; set; }
         public string SimType { get; set; }
+        public Guid CallerId { get; set; }
         
         
   }

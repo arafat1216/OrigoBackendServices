@@ -626,9 +626,9 @@ namespace OrigoApiGateway.Controllers
         /// <param name="order"></param>
         /// <returns></returns>
         [Route("{organizationId:Guid}/activate-sim")]
-        [ProducesResponseType(typeof(ActivateSimOrderPostRequest), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(OrigoActivateSimOrder), (int)HttpStatusCode.OK)]
         [HttpPost]
-        public async Task<ActionResult> ActivateSimCard(Guid organizationId, [FromBody] ActivateSimOrderPostRequest order)
+        public async Task<ActionResult> ActivateSimCard(Guid organizationId, [FromBody] NewActivateSimOrder order)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
@@ -645,9 +645,14 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
             }
-            //Guid.TryParse(actor, out Guid callerId);
+            Guid.TryParse(actor, out Guid callerId);
 
-            return CreatedAtAction(nameof(ActivateSimCard), order);
+            var requestModel = Mapper.Map<ActivateSimOrderPostRequest>(order);
+            requestModel.CallerId = callerId;
+
+            var response = await SubscriptionManagementService.ActivateSimCardForCustomerAsync(organizationId, requestModel);
+
+            return CreatedAtAction(nameof(ActivateSimCard), response);
         }
 
 
