@@ -203,6 +203,17 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 {
                     throw new InvalidPhoneNumberException("Not valid mobile number");
                 }
+
+                var subscriptionProduct = customersOperator.AvailableSubscriptionProducts.FirstOrDefault(sp => sp.SubscriptionName == subscriptionOrder.ProductName);
+                if (subscriptionProduct != null)
+                {
+                    var datapackage = subscriptionProduct.DataPackages.FirstOrDefault(d => d.DataPackageName == subscriptionOrder.PackageName);
+                    if (datapackage == null) throw new CustomerSettingsException($"Customer does not have datapackage {subscriptionOrder.PackageName} with product {subscriptionOrder.ProductName} as a setting");
+                }
+                else
+                {
+                    throw new CustomerSettingsException($"Customer does not have product {subscriptionOrder.ProductName} as a setting");
+                }
             }
             else
             {
