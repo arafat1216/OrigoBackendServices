@@ -164,8 +164,8 @@ public class
         {
             MobileNumber = "+47 41414141",
             OperatorName = "Telia - NO",
-            ProductName = "Fri Flyt",
-            PackageName = "5 GB",
+            ProductName = "TOTAL BEDRIFT",
+            PackageName = "20GB",
             SubscriptionOwner = "Ola Normann",
             CallerId = Guid.NewGuid()
         };
@@ -182,8 +182,8 @@ public class
         var postRequest = new NewChangeSubscriptionOrder
         {
             OperatorName = "Telenor - NO",
-            ProductName = "Fri Flyt",
-            PackageName = "5 GB",
+            ProductName = "TOTAL BEDRIFT",
+            PackageName = "20GB",
             SubscriptionOwner = "Ola Normann",
             CallerId = Guid.NewGuid()
         };
@@ -234,8 +234,8 @@ public class
         {
             MobileNumber = "+47 41414141",
             OperatorName = "Telia - NO",
-            ProductName = "Fri Flyt",
-            PackageName = "5 GB",
+            ProductName = "TOTAL BEDRIFT",
+            PackageName = "20GB",
             CallerId = Guid.NewGuid()
         };
 
@@ -251,8 +251,8 @@ public class
         {
             MobileNumber = "+47041414141",
             OperatorName = "Telia - NO",
-            ProductName = "Fri Flyt",
-            PackageName = "5 GB",
+            ProductName = "TOTAL BEDRIFT",
+            PackageName = "20GB",
             CallerId = Guid.NewGuid()
         };
 
@@ -269,8 +269,8 @@ public class
         {
             MobileNumber = " ",
             OperatorName = "Telia - NO",
-            ProductName = "Fri Flyt",
-            PackageName = "5 GB",
+            ProductName = "TOTAL BEDRIFT",
+            PackageName = "20GB",
             CallerId = Guid.NewGuid()
         };
 
@@ -281,21 +281,87 @@ public class
             response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
-    public async Task PostChangeSubscriptionOrder_ReturnsNotFound_CustomerWithNotValiOperator()
+    public async Task PostChangeSubscriptionOrder_BadReuest_CustomerDoesNotHaveOperatorInSettings()
     {
         var postRequest = new NewChangeSubscriptionOrder
         {
-            MobileNumber = "+47 41730800",
+            MobileNumber = "+4741730873",
             OperatorName = "Telenor - NO",
-            ProductName = "Fri Flyt",
-            PackageName = "5 GB",
+            ProductName = "TOTAL BEDRIFT",
+            PackageName = "20GB",
             CallerId = Guid.NewGuid()
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.Equal(
-            $"Customer does not have this operator {postRequest.OperatorName} as a setting",
+            $"Customer does not have this operator Telenor - NO as a setting",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostChangeSubscriptionOrder_BadReuest_CustomerDoesNotHaveProductInSettings()
+    {
+        var postRequest = new NewChangeSubscriptionOrder
+        {
+            MobileNumber = "+4741730873",
+            OperatorName = "Telia - NO",
+            ProductName = "lol",
+            PackageName = "20GB",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(
+            $"Customer does not have product lol as a setting",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostChangeSubscriptionOrder_BadRequest_CustomerDoesNotHaveDatapackageForProduct()
+    {
+        var postRequest = new NewChangeSubscriptionOrder
+        {
+            MobileNumber = "+4741730873",
+            OperatorName = "Telia - NO",
+            ProductName = "TOTAL BEDRIFT",
+            PackageName = "2GB",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(
+            $"Customer does not have datapackage 2GB with product TOTAL BEDRIFT as a setting",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostChangeSubscriptionOrder_BadRequest_ProductDontHaveDataPackages()
+    {
+        var customerSubscriptionProduct = new NewSubscriptionProduct
+        {
+            Name = "Prod",
+            OperatorId = _operatorId,
+            DataPackages = null,
+            CallerId = Guid.NewGuid()
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(customerSubscriptionProduct));
+        var createResponse = await _httpClient.PostAsJsonAsync(
+            $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products", customerSubscriptionProduct);
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+
+        var postRequest = new NewChangeSubscriptionOrder
+        {
+            MobileNumber = "+4741730873",
+            OperatorName = "Telia - NO",
+            ProductName = "Prod",
+            PackageName = "2GB",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(
+            $"Customer does not have datapackage 2GB with product Prod as a setting",
             response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
