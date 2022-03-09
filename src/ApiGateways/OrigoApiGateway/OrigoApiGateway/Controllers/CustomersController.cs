@@ -630,8 +630,6 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         public async Task<ActionResult> ActivateSimCard(Guid organizationId, [FromBody] NewActivateSimOrder order)
         {
-            try
-            {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -655,23 +653,6 @@ namespace OrigoApiGateway.Controllers
                 var response = await SubscriptionManagementService.ActivateSimCardForCustomerAsync(organizationId, requestModel);
 
                 return CreatedAtAction(nameof(ActivateSimCard), response);
-            }
-            catch (InvalidPhoneNumberException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (InvalidSimException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (HttpRequestException)
-            {
-                return BadRequest();
-            }
         }
 
 

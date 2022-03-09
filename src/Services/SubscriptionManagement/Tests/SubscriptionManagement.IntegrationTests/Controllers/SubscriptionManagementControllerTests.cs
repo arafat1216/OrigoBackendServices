@@ -398,7 +398,7 @@ public class
             response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
-    public async Task PostActivateSim_ReturnsNotFound_InvalidOperator()
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidOperator()
     {
         var postRequest = new NewActivateSimOrder
         {
@@ -410,7 +410,7 @@ public class
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
              $"No operator with OperatorId 5 found.",
             response.Content.ReadAsStringAsync().Result);
