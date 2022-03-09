@@ -14,8 +14,8 @@ namespace SubscriptionManagementServices.Models
         {
             MobileNumber = mobileNumber;
             OperatorName = @operator;
-            SimNumber = simNumber;
-            SimType = simType;
+            SimCardNumber = simNumber;
+            SimCardType = simType;
             OrganizationId = organizationId;
             SubscriptionOrderId = Guid.NewGuid();
             CreatedBy = callerId;
@@ -24,13 +24,13 @@ namespace SubscriptionManagementServices.Models
 
         public string MobileNumber { get; set; }
         public string OperatorName { get; set; }
-        public string SimNumber { get; set; } 
-        public string SimType { get; set; }
+        public string SimCardNumber { get; set; } 
+        public string SimCardType { get; set; }
         public Guid OrganizationId { get; set; }
 
         #region ISubscriptionOrder Implementation
 
-        [NotMapped] public string OrderType => $"ActivateSimCard - {SimType}";
+        [NotMapped] public string OrderType => $"ActivateSimCard - {SimCardType}";
 
         [NotMapped] public string PhoneNumber => MobileNumber;
 
