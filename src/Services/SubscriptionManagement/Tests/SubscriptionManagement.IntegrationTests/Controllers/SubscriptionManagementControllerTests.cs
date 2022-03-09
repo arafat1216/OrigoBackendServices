@@ -372,7 +372,7 @@ public class
             MobileNumber = "+4741730800",
             OperatorId = 1,
             SimNumber = "89652021000371234219",
-            SimType = "RegularSIM",
+            SimType = "Regular",
             CallerId = Guid.NewGuid()
         };
 
@@ -380,21 +380,21 @@ public class
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
     [Fact]
-    public async Task PostActivateSim_ReturnsBadRequest_InvalidSim()
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidSimNumber()
     {
         var postRequest = new NewActivateSimOrder
         {
             MobileNumber = "+4741730800",
             OperatorId = 1,
             SimNumber = "89652021000",
-            SimType = "RegularSIM",
+            SimType = "Regular",
             CallerId = Guid.NewGuid()
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
-           $"SIM card number not valid 89652021000",
+           $"SIM card number: 89652021000 not valid.",
             response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
@@ -405,14 +405,68 @@ public class
             MobileNumber = "+4741730800",
             OperatorId = 5,
             SimNumber = "89652021000371234219",
-            SimType = "RegularSIM",
+            SimType = "Regular",
             CallerId = Guid.NewGuid()
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.Equal(
-             $"No operator with OperatorId 5 found",
+             $"No operator with OperatorId 5 found.",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidSimType()
+    {
+        var postRequest = new NewActivateSimOrder
+        {
+            MobileNumber = "+4741730800",
+            OperatorId = 1,
+            SimNumber = "89652021000371234219",
+            SimType = "RegularSIM",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(
+             $"SIM card type: RegularSIM not valid.",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidPhoneNumber()
+    {
+        var postRequest = new NewActivateSimOrder
+        {
+            MobileNumber = "+47417308",
+            OperatorId = 1,
+            SimNumber = "89652021000371234219",
+            SimType = "Regular",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(
+             $"Phone number +47417308 not valid for countrycode nb.",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidPhoneNumberWithOperatorCountry()
+    {
+        var postRequest = new NewActivateSimOrder
+        {
+            MobileNumber = "+4741730800",
+            OperatorId = 2,
+            SimNumber = "89652021000371234219",
+            SimType = "Regular",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(
+             $"Phone number +4741730800 not valid for countrycode se.",
             response.Content.ReadAsStringAsync().Result);
     }
 

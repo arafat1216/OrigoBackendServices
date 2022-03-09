@@ -278,16 +278,20 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         if (@operator == null)
         {
             throw new InvalidOperatorIdInputDataException(
-                $"No operator with OperatorId {simOrder.OperatorId} found");
+                $"No operator with OperatorId {simOrder.OperatorId} found.");
         }
         
         if (!SIMCardValidation.ValidateSim(simOrder.SimNumber))
             throw new InvalidSimException(
-                    $"SIM card number not valid {simOrder.SimNumber}");
+                    $"SIM card number: {simOrder.SimNumber} not valid.");
+
+        if (!SIMCardValidation.ValidateSimType(simOrder.SimType))
+            throw new InvalidSimException(
+                    $"SIM card type: {simOrder.SimType} not valid.");
 
         if (!PhoneNumberUtility.ValidatePhoneNumber(simOrder.MobileNumber,@operator.Country))
             throw new InvalidPhoneNumberException(
-                    $"Phone number {simOrder.MobileNumber} not valid for countrycode {@operator.Country}");
+                    $"Phone number {simOrder.MobileNumber} not valid for countrycode {@operator.Country}.");
 
         var newActivateSimOrder = new ActivateSimOrder(simOrder.MobileNumber, @operator.OperatorName, simOrder.SimNumber, simOrder.SimType, organizationId, simOrder.CallerId);
 
