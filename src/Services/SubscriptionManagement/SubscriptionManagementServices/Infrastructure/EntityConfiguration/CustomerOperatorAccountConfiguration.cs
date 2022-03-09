@@ -17,7 +17,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             builder.ToTable("CustomerOperatorAccount");
 
             //Properties
-            builder.Property(x => x.AccountName).HasMaxLength(50);
+            builder.Property(x => x.AccountName).HasMaxLength(40);
             builder.Property(x => x.AccountNumber).HasMaxLength(50).IsRequired();
             builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
             builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");

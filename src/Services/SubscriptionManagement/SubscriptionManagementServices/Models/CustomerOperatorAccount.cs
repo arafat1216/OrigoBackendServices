@@ -25,7 +25,7 @@ namespace SubscriptionManagementServices.Models
             OrganizationId = organizationId;
             ConnectedOrganizationNumber = connectedOrganizationNumber ?? string.Empty;
             AccountNumber = accountNumber;
-            AccountName = accountName;
+            AccountName = accountName.Length <= 40 ? accountName : accountName[..40];
             OperatorId = operatorId;
             CreatedBy = callerId;
             UpdatedBy = callerId;
