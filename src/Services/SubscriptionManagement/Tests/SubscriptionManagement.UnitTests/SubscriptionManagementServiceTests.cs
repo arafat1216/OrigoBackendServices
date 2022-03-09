@@ -435,4 +435,24 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         Assert.Equal(expected, result);
     }
+    
+    [Theory]
+    [InlineData("Regular", true)]
+    [InlineData("Data", true)]
+    [InlineData("Twin", true)]
+    [InlineData("k", false)]
+    [InlineData("regular", true)]
+    [InlineData("REGULAR", true)]
+    [InlineData("", false)]
+    [InlineData("            ", false)]
+    [InlineData("Dta", false)]
+    [InlineData("TwInSim", false)]
+    [Trait("Category", "UnitTest")]
+    public void ValidateSimType(string simType, bool expected)
+    {
+
+        var result = SIMCardValidation.ValidateSimType(simType);
+
+        Assert.Equal(expected, result);
+    }
 }

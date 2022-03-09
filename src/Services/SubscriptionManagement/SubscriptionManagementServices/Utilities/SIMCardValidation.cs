@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using Common.Enums;
+using System.Text.RegularExpressions;
 
 namespace SubscriptionManagementServices.Utilities
 {
@@ -69,6 +70,23 @@ namespace SubscriptionManagementServices.Utilities
             }
 
             return true;
+        }
+        public static bool ValidateSimType(string simType)
+        {
+            //remove wihtspace
+            string simTrimmed = Regex.Replace(simType, @"\s+", "");
+            if (string.IsNullOrEmpty(simTrimmed) || simTrimmed.Length < 1) return false;
+            //make all lower case
+            string simLowerCase = simTrimmed.ToLower();
+            //First character uppercase
+            string simFirstUpperCase = char.ToUpper(simLowerCase[0]) + simLowerCase.Substring(1);
+
+            SIMTypes isEnum;
+
+            if (Enum.TryParse<SIMTypes>(simFirstUpperCase, out isEnum)) return true;
+           
+            return false;
+           
         }
     }
 }
