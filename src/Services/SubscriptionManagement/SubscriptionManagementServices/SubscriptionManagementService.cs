@@ -281,11 +281,11 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 $"No operator with OperatorId {simOrder.OperatorId} found");
         }
         
-        if (!SIMCardValidation.ValidateSim(simOrder.SimNumber))
+        if (!SIMCardValidation.ValidateSim(simOrder.SimCardNumber))
             throw new InvalidSimException(
-                    $"SIM card number not valid {simOrder.SimNumber}");
+                    $"SIM card number not valid {simOrder.SimCardNumber}");
 
-        var newActivateSimOrder = new ActivateSimOrder(simOrder.MobileNumber, @operator.OperatorName, simOrder.SimNumber, simOrder.SimType, organizationId, simOrder.CallerId);
+        var newActivateSimOrder = new ActivateSimOrder(simOrder.MobileNumber, @operator.OperatorName, simOrder.SimCardNumber, simOrder.SimCardType, organizationId, simOrder.CallerId);
 
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(newActivateSimOrder);
 
