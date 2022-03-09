@@ -236,9 +236,24 @@ namespace SubscriptionManagement.API.Controllers
 
                 return CreatedAtAction(nameof(ActivateSim), addedOrder);
             }
+            catch (InvalidPhoneNumberException ex)
+            {
+                _logger.LogError("SubscriptionController - ActivateSim failed with InvalidPhoneNumberException", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperatorIdInputDataException ex)
+            {
+                _logger.LogError("SubscriptionController - ActivateSim failed with InvalidOperatorIdInputDataException", ex.Message);
+                return NotFound(ex.Message);
+            }
+            catch (InvalidSimException ex)
+            {
+                _logger.LogError("SubscriptionController - ActivateSim failed with InvalidSimException", ex.Message);
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError("SubscriptionController - ActivateSim failed with Exception", ex.Message);
                 return BadRequest(ex.Message);
             }
         }

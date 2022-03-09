@@ -501,6 +501,7 @@ namespace OrigoApiGateway.Services
                     return await postSubscription.Content.ReadFromJsonAsync<OrigoChangeSubscriptionOrder>();
                 }
                 var error = await postSubscription.Content.ReadAsStringAsync();
+
                 if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
                 {
                     throw new InvalidPhoneNumberException(error);
@@ -531,6 +532,19 @@ namespace OrigoApiGateway.Services
                 if (postSubscription.StatusCode == HttpStatusCode.Created)
                 {
                     return await postSubscription.Content.ReadFromJsonAsync<OrigoActivateSimOrder>();
+                }
+                
+                var error = await postSubscription.Content.ReadAsStringAsync();
+
+                if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    if(error.Contains("Phone")) throw new InvalidPhoneNumberException(error);
+                    if (error.Contains("SIM")) throw new InvalidSimException(error);
+                }
+
+                if (postSubscription.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new ResourceNotFoundException(error, _logger);
                 }
 
                 throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());

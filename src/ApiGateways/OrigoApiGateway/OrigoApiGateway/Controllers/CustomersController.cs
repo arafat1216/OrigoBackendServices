@@ -630,29 +630,48 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         public async Task<ActionResult> ActivateSimCard(Guid organizationId, [FromBody] NewActivateSimOrder order)
         {
-            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-            if (role == PredefinedRole.EndUser.ToString())
+            try
             {
-                return Forbid();
-            }
-
-            if (role != PredefinedRole.SystemAdmin.ToString())
-            {
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+                Guid.TryParse(actor, out Guid callerId);
+
+                var requestModel = Mapper.Map<ActivateSimOrderPostRequest>(order);
+                requestModel.CallerId = callerId;
+
+                var response = await SubscriptionManagementService.ActivateSimCardForCustomerAsync(organizationId, requestModel);
+
+                return CreatedAtAction(nameof(ActivateSimCard), response);
             }
-            Guid.TryParse(actor, out Guid callerId);
-
-            var requestModel = Mapper.Map<ActivateSimOrderPostRequest>(order);
-            requestModel.CallerId = callerId;
-
-            var response = await SubscriptionManagementService.ActivateSimCardForCustomerAsync(organizationId, requestModel);
-
-            return CreatedAtAction(nameof(ActivateSimCard), response);
+            catch (InvalidPhoneNumberException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidSimException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (HttpRequestException)
+            {
+                return BadRequest();
+            }
         }
 
 

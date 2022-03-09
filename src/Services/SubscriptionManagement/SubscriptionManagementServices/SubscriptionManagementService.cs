@@ -270,6 +270,10 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             throw new InvalidSimException(
                     $"SIM card number not valid {simOrder.SimNumber}");
 
+        if (!PhoneNumberUtility.ValidatePhoneNumber(simOrder.MobileNumber,@operator.Country))
+            throw new InvalidPhoneNumberException(
+                    $"Phone number {simOrder.MobileNumber} not valid for countrycode {@operator.Country}");
+
         var newActivateSimOrder = new ActivateSimOrder(simOrder.MobileNumber, @operator.OperatorName, simOrder.SimNumber, simOrder.SimType, organizationId, simOrder.CallerId);
 
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(newActivateSimOrder);
