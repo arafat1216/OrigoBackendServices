@@ -77,7 +77,12 @@ namespace SubscriptionManagementServices.Infrastructure
                 .ToListAsync<ISubscriptionOrder>();
             subscriptionOrderList.AddRange(orderSimSubscriptionOrders);
 
-            return subscriptionOrderList.OrderByDescending(o=> o.CreatedDate).ToList();
+            var activateSimOrders = await _subscriptionManagementContext.ActivateSimOrders
+                .Where(o => o.OrganizationId == organizationId)
+                .ToListAsync<ISubscriptionOrder>();
+            subscriptionOrderList.AddRange(activateSimOrders);
+
+            return subscriptionOrderList.OrderByDescending(o=> o.CreatedDate).Take(15).ToList();
         }
 
         public async Task<T> AddSubscriptionOrder(T subscriptionOrder)

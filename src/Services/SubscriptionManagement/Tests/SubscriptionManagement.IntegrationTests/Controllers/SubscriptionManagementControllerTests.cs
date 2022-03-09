@@ -371,8 +371,8 @@ public class
         {
             MobileNumber = "+4741730800",
             OperatorId = 1,
-            SimNumber = "89652021000371234219",
-            SimType = "Regular",
+            SimCardNumber = "89652021000371234219",
+            SimCardType = "Regular",
             CallerId = Guid.NewGuid()
         };
 
@@ -386,8 +386,8 @@ public class
         {
             MobileNumber = "+4741730800",
             OperatorId = 1,
-            SimNumber = "89652021000",
-            SimType = "Regular",
+            SimCardNumber = "89652021000",
+            SimCardType = "Regular",
             CallerId = Guid.NewGuid()
         };
 
@@ -404,8 +404,8 @@ public class
         {
             MobileNumber = "+4741730800",
             OperatorId = 5,
-            SimNumber = "89652021000371234219",
-            SimType = "Regular",
+            SimCardNumber = "89652021000371234219",
+            SimCardType = "Regular",
             CallerId = Guid.NewGuid()
         };
 
@@ -422,8 +422,8 @@ public class
         {
             MobileNumber = "+4741730800",
             OperatorId = 1,
-            SimNumber = "89652021000371234219",
-            SimType = "RegularSIM",
+            SimCardNumber = "89652021000371234219",
+            SimCardType = "RegularSIM",
             CallerId = Guid.NewGuid()
         };
 
@@ -440,8 +440,8 @@ public class
         {
             MobileNumber = "+47417308",
             OperatorId = 1,
-            SimNumber = "89652021000371234219",
-            SimType = "Regular",
+            SimCardNumber = "89652021000371234219",
+            SimCardType = "Regular",
             CallerId = Guid.NewGuid()
         };
 
@@ -458,8 +458,8 @@ public class
         {
             MobileNumber = "+4741730800",
             OperatorId = 2,
-            SimNumber = "89652021000371234219",
-            SimType = "Regular",
+            SimCardNumber = "89652021000371234219",
+            SimCardType = "Regular",
             CallerId = Guid.NewGuid()
         };
 
