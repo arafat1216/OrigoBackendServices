@@ -33,7 +33,6 @@ namespace SubscriptionManagementServices.Utilities
             {
                 var key = string.IsNullOrWhiteSpace(prefix) ? property.Name : $"{prefix}.{property.Name}";
                 var value = getter(@object);
-
                 if (value == null)
                 {
                     dictionary.Add(key, null);
