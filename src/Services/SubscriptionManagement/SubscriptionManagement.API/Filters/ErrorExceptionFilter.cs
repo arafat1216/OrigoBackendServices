@@ -25,7 +25,7 @@ namespace SubscriptionManagement.API.Filters
                 context.Result = new BadRequestObjectResult(exception.Message);
                 return;
             }
-
+            
             var errorMessage = _hostEnvironment.IsDevelopment() ?
                 exception.StackTrace : "Unexpected error occurred. Please try again.";
 

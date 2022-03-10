@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OrigoApiGateway.Exceptions;
 using System;
 
 namespace OrigoApiGateway.Filters
@@ -21,7 +22,7 @@ namespace OrigoApiGateway.Filters
             var exception = context.Exception;
             _logger.LogError(exception.Message, exception);
 
-            if (exception is ArgumentException)
+            if (exception is ArgumentException or SubscriptionManagementException)
             {
                 context.Result = new BadRequestObjectResult(exception.Message);
                 return;

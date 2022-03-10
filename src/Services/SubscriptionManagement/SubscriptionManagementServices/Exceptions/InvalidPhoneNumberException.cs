@@ -1,8 +1,8 @@
-﻿using System;
+﻿
 
-namespace Common.Exceptions
+namespace SubscriptionManagementServices.Exceptions
 {
-    public class InvalidPhoneNumberException : Exception
+    public class InvalidPhoneNumberException : SubscriptionManagementException
     {
         public InvalidPhoneNumberException()
         {

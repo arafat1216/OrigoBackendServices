@@ -201,7 +201,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 
                 if (!PhoneNumberUtility.ValidatePhoneNumber(subscriptionOrder.MobileNumber, @operator?.Country ?? string.Empty))
                 {
-                    throw new InvalidPhoneNumberException("Not valid mobile number");
+                    throw new InvalidPhoneNumberException(
+                    $"Phone number {subscriptionOrder.MobileNumber} not valid for countrycode {@operator?.Country}.");
                 }
 
                 var subscriptionProduct = customersOperator.AvailableSubscriptionProducts.FirstOrDefault(sp => sp.SubscriptionName == subscriptionOrder.ProductName);

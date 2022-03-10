@@ -1,12 +1,12 @@
-﻿using System;
+﻿
 using System.Runtime.Serialization;
 
 
-namespace Common.Exceptions
+namespace SubscriptionManagementServices.Exceptions
 {
         
-        public class InvalidSimException : Exception
-        {
+        public class InvalidSimException : SubscriptionManagementException
+    {
             public InvalidSimException()
             {
             }

@@ -490,8 +490,7 @@ namespace OrigoApiGateway.Services
         public async Task<OrigoChangeSubscriptionOrder> ChangeSubscriptionOrderAsync(Guid organizationId,
             ChangeSubscriptionOrderPostRequest subscriptionOrderModel)
         {
-            try
-            {
+            
                 var requestUri = $"{_options.ApiPath}/{organizationId}/change-subscription";
 
                 var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, subscriptionOrderModel);
@@ -500,47 +499,33 @@ namespace OrigoApiGateway.Services
                 {
                     return await postSubscription.Content.ReadFromJsonAsync<OrigoChangeSubscriptionOrder>();
                 }
-                var error = await postSubscription.Content.ReadAsStringAsync();
-
                 if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
                 {
-                    throw new InvalidPhoneNumberException(error);
+                    throw new SubscriptionManagementException(await postSubscription.Content.ReadAsStringAsync());
                 }
-
-                if (postSubscription.StatusCode == HttpStatusCode.NotFound)
-                {
-                    throw new ResourceNotFoundException(error,_logger);
-                }
-
                 throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
-            }
-            catch (HttpRequestException ex)
-            {
-                _logger.LogError(ex, "ChangeSubscriptionOrderAsync failed with HttpRequestException.");
-                throw;
-            }
+           
         }
 
+       
         public async Task<OrigoActivateSimOrder> ActivateSimCardForCustomerAsync(Guid organizationId, ActivateSimOrderPostRequest activateSimOrder)
         {
-            try
-            {
-                var requestUri = $"{_options.ApiPath}/{organizationId}/activate-sim";
+            
+            var requestUri = $"{_options.ApiPath}/{organizationId}/activate-sim";
 
-                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, activateSimOrder);
+            var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, activateSimOrder);
 
                 if (postSubscription.StatusCode == HttpStatusCode.Created)
                 {
                     return await postSubscription.Content.ReadFromJsonAsync<OrigoActivateSimOrder>();
                 }
+                if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    throw new SubscriptionManagementException(await postSubscription.Content.ReadAsStringAsync());
+                }
 
-                throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
-            }
-            catch (HttpRequestException ex)
-            {
-                _logger.LogError(ex, "ActivateSimCardForCustomerAsync failed with HttpRequestException.");
-                throw;
-            }
+            throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
+
         }
     }
 }

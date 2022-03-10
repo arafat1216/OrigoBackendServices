@@ -259,7 +259,7 @@ public class
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
-            $"Not valid mobile number",
+            $"Phone number +47041414141 not valid for countrycode nb.",
             response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
@@ -277,7 +277,7 @@ public class
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
-            $"Not valid mobile number",
+            $"Phone number   not valid for countrycode nb.",
             response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
@@ -293,7 +293,7 @@ public class
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
             $"Customer does not have this operator Telenor - NO as a setting",
             response.Content.ReadAsStringAsync().Result);
@@ -311,7 +311,7 @@ public class
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
             $"Customer does not have product lol as a setting",
             response.Content.ReadAsStringAsync().Result);
@@ -329,7 +329,7 @@ public class
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
             $"Customer does not have datapackage 2GB with product TOTAL BEDRIFT as a setting",
             response.Content.ReadAsStringAsync().Result);
@@ -359,7 +359,7 @@ public class
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
             $"Customer does not have datapackage 2GB with product Prod as a setting",
             response.Content.ReadAsStringAsync().Result);

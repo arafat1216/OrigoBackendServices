@@ -1,7 +1,7 @@
 ﻿
 namespace SubscriptionManagementServices.Exceptions
 {
-    public class CustomerSettingsException : Exception
+    public class CustomerSettingsException : SubscriptionManagementException
     {
         public CustomerSettingsException()
         {
