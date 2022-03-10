@@ -25,7 +25,7 @@
         /// <summary>
         ///     Data package name
         /// </summary>
-        public string DataPackage { get; set; }
+        public string? DataPackage { get; set; }
 
         /// <summary>
         ///     SIM card number
