@@ -7,7 +7,6 @@ using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
 using System.Reflection;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 var apiVersion = new ApiVersion(1, 0);
 
