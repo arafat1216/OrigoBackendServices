@@ -12,7 +12,7 @@ namespace SubscriptionManagementServices;
 
 public class SubscriptionManagementService : ISubscriptionManagementService
 {
-    private readonly ISubscriptionManagementRepository<ISubscriptionOrder>  _subscriptionManagementRepository;
+    private readonly ISubscriptionManagementRepository<ISubscriptionOrder> _subscriptionManagementRepository;
     private readonly ICustomerSettingsRepository _customerSettingsRepository;
     private readonly IOperatorRepository _operatorRepository;
     private readonly IMapper _mapper;
@@ -22,7 +22,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
     public SubscriptionManagementService(ISubscriptionManagementRepository<ISubscriptionOrder> subscriptionManagementRepository,
         ICustomerSettingsRepository customerSettingsRepository,
         IOperatorRepository operatorRepository,
-        IOptions<TransferSubscriptionDateConfiguration> transferSubscriptionOrderConfigurationOptions, 
+        IOptions<TransferSubscriptionDateConfiguration> transferSubscriptionOrderConfigurationOptions,
         IMapper mapper,
         IEmailService emailService)
     {
@@ -56,13 +56,13 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
                 throw new ArgumentException(
                     $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workday ahead or more is allowed.");
-            
+
             //Sim Number validation
             if (!SIMCardValidation.ValidateSim(order.SIMCardNumber))
                 throw new ArgumentException(
                         $"SIM card number not valid {order.SIMCardNumber}");
             //Sim Action validation
-            if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, false)) 
+            if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, false))
                 throw new ArgumentException(
                         $"SIM card action not valid {order.SIMCardAction}");
         }
@@ -76,14 +76,14 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                     DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
                     throw new ArgumentException(
                         $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForNewOperator} workdays ahead or more allowed.");
-                
+
                 //Sim Number validation
                 if (!SIMCardValidation.ValidateSim(order.SIMCardNumber))
                     throw new ArgumentException(
                             $"SIM card number not valid {order.SIMCardNumber}");
 
                 //Sim Action validation
-                if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, true)) 
+                if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, true))
                     throw new ArgumentException(
                             $"SIM card action not valid {order.SIMCardAction}");
             }
@@ -122,7 +122,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         CustomerOperatorAccount? customerOperatorAccount = null;
         if (order.OperatorAccountId.HasValue)
         {
-            customerOperatorAccount = customerSettings.CustomerOperatorSettings.FirstOrDefault(o =>  o.Operator.OperatorName == newOperatorName)
+            customerOperatorAccount = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == newOperatorName)
                 ?.CustomerOperatorAccounts.FirstOrDefault(p => p.Id == order.OperatorAccountId);
             if (customerSubscriptionProduct == null)
                 throw new ArgumentException(
@@ -139,7 +139,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             order.CallerId);
         var subscriptionOrder = await _subscriptionManagementRepository.AddSubscriptionOrder(transferToBusinessSubscriptionOrder);
 
-        await _emailService.SendEmailAsync($"[{subscriptionOrder.SubscriptionOrderId}]-[{subscriptionOrder.OrderType}]", subscriptionOrder);
+        await _emailService.SendAsync(subscriptionOrder.OrderType, subscriptionOrder.SubscriptionOrderId, subscriptionOrder);
 
         return _mapper.Map<TransferToBusinessSubscriptionOrderDTO>(subscriptionOrder);
     }
@@ -177,14 +177,14 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         order.OrganizationId = organizationId;
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(order);
 
-        await _emailService.SendEmailAsync($"[{added.SubscriptionOrderId}]-[{added.OrderType}]", added);
+        await _emailService.SendAsync(added.OrderType, added.SubscriptionOrderId, added);
 
         return _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(added);
     }
 
     public async Task<IList<SubscriptionOrderListItemDTO>> GetSubscriptionOrderLog(Guid organizationId)
     {
-        IList<ISubscriptionOrder> subscriptionOrders =  await _subscriptionManagementRepository.GetAllSubscriptionOrdersForCustomer(organizationId);
+        IList<ISubscriptionOrder> subscriptionOrders = await _subscriptionManagementRepository.GetAllSubscriptionOrdersForCustomer(organizationId);
         return _mapper.Map<IList<SubscriptionOrderListItemDTO>>(subscriptionOrders);
     }
 
@@ -195,10 +195,11 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         {
             var customersOperator = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == subscriptionOrder.OperatorName);
 
-            if (customersOperator != null) {
+            if (customersOperator != null)
+            {
 
                 var @operator = await _operatorRepository.GetOperatorAsync(customersOperator.Operator.Id);
-                
+
                 if (!PhoneNumberUtility.ValidatePhoneNumber(subscriptionOrder.MobileNumber, @operator?.Country ?? string.Empty))
                 {
                     throw new InvalidPhoneNumberException("Not valid mobile number");
@@ -210,7 +211,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                     if (!String.IsNullOrEmpty(subscriptionOrder.PackageName))
                     {
                         var datapackage = subscriptionProduct.DataPackages.FirstOrDefault(d => d.DataPackageName == subscriptionOrder.PackageName);
-                        
+
                         if (datapackage == null) throw new CustomerSettingsException($"Customer does not have datapackage {subscriptionOrder.PackageName} with product {subscriptionOrder.ProductName} as a setting");
                     }
                 }
@@ -228,14 +229,14 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         {
             throw new CustomerSettingsException($"Customer has no settings");
         }
-        
-        var changeSubscriptionOrder = new ChangeSubscriptionOrder(subscriptionOrder.MobileNumber, subscriptionOrder.ProductName, subscriptionOrder.PackageName, subscriptionOrder.OperatorName, subscriptionOrder.SubscriptionOwner,organizationId, subscriptionOrder.CallerId);
+
+        var changeSubscriptionOrder = new ChangeSubscriptionOrder(subscriptionOrder.MobileNumber, subscriptionOrder.ProductName, subscriptionOrder.PackageName, subscriptionOrder.OperatorName, subscriptionOrder.SubscriptionOwner, organizationId, subscriptionOrder.CallerId);
 
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(changeSubscriptionOrder);
 
-        await _emailService.SendEmailAsync(changeSubscriptionOrder.OrderType, changeSubscriptionOrder);
+        await _emailService.SendAsync(changeSubscriptionOrder.OrderType, added.SubscriptionOrderId, changeSubscriptionOrder);
 
-        return _mapper.Map<ChangeSubscriptionOrderDTO>(added); 
+        return _mapper.Map<ChangeSubscriptionOrderDTO>(added);
     }
 
     public async Task<CancelSubscriptionOrderDTO> CancelSubscriptionOrder(Guid organizationId, NewCancelSubscriptionOrder subscriptionOrder)
@@ -250,7 +251,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             subscriptionOrder.DateOfTermination, @operator.OperatorName, organizationId, subscriptionOrder.CallerId);
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(cancelSubscriptionOrder);
 
-        await _emailService.SendEmailAsync(cancelSubscriptionOrder.OrderType, cancelSubscriptionOrder);
+        await _emailService.SendAsync(cancelSubscriptionOrder.OrderType, added.SubscriptionOrderId, cancelSubscriptionOrder);
 
         return _mapper.Map<CancelSubscriptionOrderDTO>(added);
     }
@@ -267,7 +268,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             subscriptionOrder.Address.Postcode, subscriptionOrder.Address.City, subscriptionOrder.Address.Country, @operator.OperatorName, subscriptionOrder.Quantity, organizationId, subscriptionOrder.CallerId);
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(orderSimSubscriptionOrder);
 
-        await _emailService.SendEmailAsync(orderSimSubscriptionOrder.OrderType, orderSimSubscriptionOrder);
+        await _emailService.SendAsync(orderSimSubscriptionOrder.OrderType, added.SubscriptionOrderId, orderSimSubscriptionOrder);
 
         return _mapper.Map<OrderSimSubscriptionOrderDTO>(added);
     }
@@ -280,7 +281,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             throw new InvalidOperatorIdInputDataException(
                 $"No operator with OperatorId {simOrder.OperatorId} found");
         }
-        
+
         if (!SIMCardValidation.ValidateSim(simOrder.SimCardNumber))
             throw new InvalidSimException(
                     $"SIM card number not valid {simOrder.SimCardNumber}");
@@ -289,7 +290,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(newActivateSimOrder);
 
-        await _emailService.SendEmailAsync(newActivateSimOrder.OrderType, newActivateSimOrder);
+        await _emailService.SendAsync(newActivateSimOrder.OrderType, added.SubscriptionOrderId, newActivateSimOrder);
 
         var mapped = _mapper.Map<ActivateSimOrderDTO>(newActivateSimOrder);
         mapped.OperatorId = @operator.Id;
