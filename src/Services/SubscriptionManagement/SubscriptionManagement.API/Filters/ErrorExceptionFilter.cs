@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Common.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SubscriptionManagementServices.Exceptions;
 
@@ -24,7 +25,7 @@ namespace SubscriptionManagement.API.Filters
                 context.Result = new BadRequestObjectResult(exception.Message);
                 return;
             }
-
+            
             var errorMessage = _hostEnvironment.IsDevelopment() ?
                 exception.StackTrace : "Unexpected error occurred. Please try again.";
 

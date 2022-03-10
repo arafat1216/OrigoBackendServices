@@ -1,10 +1,8 @@
 using AutoMapper;
-using Common.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using SubscriptionManagement.API.Filters;
 using SubscriptionManagement.API.ViewModels;
 using SubscriptionManagementServices;
-using SubscriptionManagementServices.Exceptions;
 using SubscriptionManagementServices.ServiceModels;
 using System.Net;
 using Swashbuckle.AspNetCore.Annotations;
@@ -142,28 +140,9 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{organizationId:Guid}/change-subscription")]
         public async Task<IActionResult> ChangeSubscriptionOrder(Guid organizationId, [FromBody] NewChangeSubscriptionOrder subscriptionOrder)
         {
-            try
-            {
                 var addedOrder = await _subscriptionServices.ChangeSubscriptionOrder(organizationId, subscriptionOrder);
 
                 return CreatedAtAction(nameof(ChangeSubscriptionOrder), addedOrder);
-
-            } 
-            catch (InvalidPhoneNumberException ex) 
-            {
-                _logger.LogError("SubscriptionController - ChangeSubscriptionOrder failed with InvalidPhoneNumberException", ex.Message);
-                return BadRequest(ex.Message);
-            } 
-            catch (CustomerSettingsException ex)
-            {
-                _logger.LogError("SubscriptionController - ChangeSubscriptionOrder failed with CustomerSettingsException", ex.Message);
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("SubscriptionController - ChangeSubscriptionOrder failed with Exception", ex.Message);
-                return BadRequest();
-            }
         }
 
         /// <summary>
@@ -230,17 +209,11 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{organizationId:Guid}/activate-sim")]
         public async Task<IActionResult> ActivateSim(Guid organizationId, [FromBody] NewActivateSimOrder simOrder)
         {
-            try
-            {
+           
                 var addedOrder = await _subscriptionServices.ActivateSimAsync(organizationId, simOrder);
 
                 return CreatedAtAction(nameof(ActivateSim), addedOrder);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return BadRequest(ex.Message);
-            }
+            
         }
 
         /// <summary>

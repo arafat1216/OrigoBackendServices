@@ -332,7 +332,7 @@ public class
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
-            $"Not valid mobile number",
+            $"Phone number +47041414141 not valid for countrycode nb.",
             response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
@@ -350,7 +350,7 @@ public class
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
-            $"Not valid mobile number",
+            $"Phone number   not valid for countrycode nb.",
             response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
@@ -366,7 +366,7 @@ public class
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
             $"Customer does not have this operator Telenor - NO as a setting",
             response.Content.ReadAsStringAsync().Result);
@@ -384,7 +384,7 @@ public class
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
             $"Customer does not have product lol as a setting",
             response.Content.ReadAsStringAsync().Result);
@@ -402,7 +402,7 @@ public class
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
             $"Customer does not have datapackage 2GB with product TOTAL BEDRIFT as a setting",
             response.Content.ReadAsStringAsync().Result);
@@ -432,7 +432,7 @@ public class
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
             $"Customer does not have datapackage 2GB with product Prod as a setting",
             response.Content.ReadAsStringAsync().Result);
@@ -445,7 +445,7 @@ public class
             MobileNumber = "+4741730800",
             OperatorId = 1,
             SimCardNumber = "89652021000371234219",
-            SimCardType = "RegularSIM",
+            SimCardType = "Regular",
             CallerId = Guid.NewGuid()
         };
 
@@ -453,21 +453,21 @@ public class
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
     [Fact]
-    public async Task PostActivateSim_ReturnsBadRequest_InvalidSim()
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidSimNumber()
     {
         var postRequest = new NewActivateSimOrder
         {
             MobileNumber = "+4741730800",
             OperatorId = 1,
             SimCardNumber = "89652021000",
-            SimCardType = "RegularSIM",
+            SimCardType = "Regular",
             CallerId = Guid.NewGuid()
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
-           $"SIM card number not valid 89652021000",
+           $"SIM card number: 89652021000 not valid.",
             response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
@@ -478,6 +478,24 @@ public class
             MobileNumber = "+4741730800",
             OperatorId = 5,
             SimCardNumber = "89652021000371234219",
+            SimCardType = "Regular",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(
+             $"No operator with OperatorId 5 found.",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidSimType()
+    {
+        var postRequest = new NewActivateSimOrder
+        {
+            MobileNumber = "+4741730800",
+            OperatorId = 1,
+            SimCardNumber = "89652021000371234219",
             SimCardType = "RegularSIM",
             CallerId = Guid.NewGuid()
         };
@@ -485,7 +503,43 @@ public class
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
-             $"No operator with OperatorId 5 found",
+             $"SIM card type: RegularSIM not valid.",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidPhoneNumber()
+    {
+        var postRequest = new NewActivateSimOrder
+        {
+            MobileNumber = "+47417308",
+            OperatorId = 1,
+            SimCardNumber = "89652021000371234219",
+            SimCardType = "Regular",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(
+             $"Phone number +47417308 not valid for countrycode nb.",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidPhoneNumberWithOperatorCountry()
+    {
+        var postRequest = new NewActivateSimOrder
+        {
+            MobileNumber = "+4741730800",
+            OperatorId = 2,
+            SimCardNumber = "89652021000371234219",
+            SimCardType = "Regular",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(
+             $"Phone number +4741730800 not valid for countrycode se.",
             response.Content.ReadAsStringAsync().Result);
     }
 }

@@ -201,7 +201,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 
                 if (!PhoneNumberUtility.ValidatePhoneNumber(subscriptionOrder.MobileNumber, @operator?.Country ?? string.Empty))
                 {
-                    throw new InvalidPhoneNumberException("Not valid mobile number");
+                    throw new InvalidPhoneNumberException(
+                    $"Phone number {subscriptionOrder.MobileNumber} not valid for countrycode {@operator?.Country}.");
                 }
 
                 var subscriptionProduct = customersOperator.AvailableSubscriptionProducts.FirstOrDefault(sp => sp.SubscriptionName == subscriptionOrder.ProductName);
@@ -278,12 +279,20 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         if (@operator == null)
         {
             throw new InvalidOperatorIdInputDataException(
-                $"No operator with OperatorId {simOrder.OperatorId} found");
+                $"No operator with OperatorId {simOrder.OperatorId} found.");
         }
         
         if (!SIMCardValidation.ValidateSim(simOrder.SimCardNumber))
             throw new InvalidSimException(
-                    $"SIM card number not valid {simOrder.SimCardNumber}");
+                    $"SIM card number: {simOrder.SimCardNumber} not valid.");
+
+        if (!SIMCardValidation.ValidateSimType(simOrder.SimCardType))
+            throw new InvalidSimException(
+                    $"SIM card type: {simOrder.SimCardType} not valid.");
+
+        if (!PhoneNumberUtility.ValidatePhoneNumber(simOrder.MobileNumber,@operator.Country))
+            throw new InvalidPhoneNumberException(
+                    $"Phone number {simOrder.MobileNumber} not valid for countrycode {@operator.Country}.");
 
         var newActivateSimOrder = new ActivateSimOrder(simOrder.MobileNumber, @operator.OperatorName, simOrder.SimCardNumber, simOrder.SimCardType, organizationId, simOrder.CallerId);
 
