@@ -8,7 +8,7 @@
         public string PhoneNumber { get; }
         public string? SalesforceTicketId { get; set; }
         public string NewSubscriptionOrderOwnerName { get; }
-        public DateTime TransferDate { get; }
+        public DateTime OrderExecutionDate { get; }
         public Guid CreatedBy { get; }
     }
 }
