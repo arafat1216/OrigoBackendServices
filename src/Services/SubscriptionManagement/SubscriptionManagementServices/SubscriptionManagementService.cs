@@ -56,13 +56,13 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
                 throw new ArgumentException(
                     $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workday ahead or more is allowed.");
-            
+
             //Sim Number validation
             if (!SIMCardValidation.ValidateSim(order.SIMCardNumber))
                 throw new ArgumentException(
                         $"SIM card number not valid {order.SIMCardNumber}");
             //Sim Action validation
-            if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, false)) 
+            if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, false))
                 throw new ArgumentException(
                         $"SIM card action not valid {order.SIMCardAction}");
         }
@@ -76,14 +76,14 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                     DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
                     throw new ArgumentException(
                         $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForNewOperator} workdays ahead or more allowed.");
-                
+
                 //Sim Number validation
                 if (!SIMCardValidation.ValidateSim(order.SIMCardNumber))
                     throw new ArgumentException(
                             $"SIM card number not valid {order.SIMCardNumber}");
 
                 //Sim Action validation
-                if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, true)) 
+                if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, true))
                     throw new ArgumentException(
                             $"SIM card action not valid {order.SIMCardAction}");
             }
@@ -105,10 +105,15 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             throw new ArgumentException(
                 $"No subscription product exists with ID {order.SubscriptionProductId}");
 
-        var dataPackage =
-            customerSubscriptionProduct.DataPackages.FirstOrDefault(dp => dp.DataPackageName == order.DataPackage);
-        if (dataPackage == null)
-            throw new ArgumentException($"No DataPackage exists with name {order.DataPackage}");
+        
+        //Datapackages only check if there is a value from request
+        if (!string.IsNullOrEmpty(order.DataPackage))
+        {
+            var dataPackage =
+                customerSubscriptionProduct.DataPackages.FirstOrDefault(dp => dp.DataPackageName == order.DataPackage);
+            if (dataPackage == null)
+                throw new ArgumentException($"No DataPackage exists with name {order.DataPackage}");
+        }
 
         var subscriptionAddOnProducts =
             order.AddOnProducts.Select(m => new SubscriptionAddOnProduct(m, order.CallerId));
@@ -130,7 +135,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         }
 
         var transferToBusinessSubscriptionOrder = new TransferToBusinessSubscriptionOrder(order.SIMCardNumber, order.SIMCardAction, customerSubscriptionProduct
-            , organizationId, customerOperatorAccount, dataPackage.DataPackageName,
+            , organizationId, customerOperatorAccount, order?.DataPackage,
             order.OrderExecutionDate, order.MobileNumber, JsonSerializer.Serialize(order.CustomerReferenceFields),
             subscriptionAddOnProducts.ToList(), order.NewOperatorAccount?.NewOperatorAccountOwner,
             order.NewOperatorAccount?.NewOperatorAccountPayer,
