@@ -19,7 +19,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         /// <summary>
         ///     New operator account identifier
         /// </summary>
-        public int OperatorAccountId { get; set; }
+        public int? OperatorAccountId { get; set; }
 
         /// <summary>
         ///     Subscription product identifier

@@ -254,14 +254,17 @@ namespace SubscriptionManagement.API.Controllers
         /// <param name="customerOperatorAccount">Details of customer operator account</param>
         /// <returns>new customer operator account</returns>
         [HttpPost]
-        [ProducesResponseType(typeof(CustomerOperatorAccount), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CustomerOperatorAccount), (int)HttpStatusCode.Created)]
         [Route("{organizationId:Guid}/operator-accounts")]
         [SwaggerOperation(Tags = new[] { "Customer Operator Accounts" })]
         public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] NewOperatorAccount customerOperatorAccount)
         {
-            var newCustomerOperatorAccount = await _customerSettingsService.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName, customerOperatorAccount.OperatorId, customerOperatorAccount.CallerId, customerOperatorAccount.ConnectedOrganizationNumber ?? string.Empty);
+            var newCustomerOperatorAccount = await _customerSettingsService.AddOperatorAccountForCustomerAsync(
+                organizationId, customerOperatorAccount.AccountNumber, customerOperatorAccount.AccountName,
+                customerOperatorAccount.OperatorId, customerOperatorAccount.CallerId,
+                customerOperatorAccount.ConnectedOrganizationNumber ?? string.Empty);
 
-            return Ok(newCustomerOperatorAccount);
+            return CreatedAtAction(nameof(AddOperatorAccountForCustomer), newCustomerOperatorAccount);
         }
 
         [HttpDelete]

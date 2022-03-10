@@ -75,6 +75,26 @@ public class
     }
 
     [Fact]
+    public async Task CreateAndCheckOperatorAccountName40Chars()
+    {
+        var newOperatorAccount = new NewOperatorAccount()
+        {
+            AccountNumber = "12343",
+            AccountName = "123456789012345678901234567890123456789012345678901234567890",
+            OperatorId = _operatorId,
+            CallerId = Guid.NewGuid()
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newOperatorAccount));
+        var createResponse = await _httpClient.PostAsJsonAsync(
+            $"/api/v1/SubscriptionManagement/{_organizationId}/operator-accounts", newOperatorAccount);
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var operatorAccounts = await  _httpClient.GetFromJsonAsync<IList<CustomerOperatorAccount>>($"/api/v1/SubscriptionManagement/{_organizationId}/operator-accounts");
+        var operatorAccount = operatorAccounts!.FirstOrDefault(o => o.AccountNumber == "12343");
+
+        Assert.Equal("1234567890123456789012345678901234567890", operatorAccount!.AccountName);
+    }
+
+    [Fact]
     public async Task PostTransferPrivateToBusinessSubscriptionOrder_ReturnsCreated()
     {
         var newTransferToBusinessFromPrivate = new TransferToBusinessSubscriptionOrderDTO
@@ -126,6 +146,59 @@ public class
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
+
+    [Fact]
+    public async Task PostTransferPrivateToBusinessSubscriptionOrder_WithNewOperatorAccount_ReturnsCreated()
+    {
+        var newTransferToBusinessFromPrivate = new TransferToBusinessSubscriptionOrderDTO
+        {
+            BusinessSubscription =
+                new BusinessSubscriptionDTO
+                {
+                    Name = "Comp1",
+                    Address = "The Road 1",
+                    PostalCode = "1459",
+                    PostalPlace = "Oslo",
+                    Country = "NO",
+                    OrganizationNumber = "911111111"
+                },
+            PrivateSubscription =
+                new PrivateSubscriptionDTO
+                {
+                    OperatorName = "TELEFONIA",
+                    FirstName = "Ola",
+                    LastName = "Nordmann",
+                    Address = "Hjemmeveien 1",
+                    PostalCode = "1234",
+                    PostalPlace = "HEIMSTADEN",
+                    Country = "NO",
+                    BirthDate = new DateTime(1971, 10, 21),
+                    Email = "me@example.com"
+                },
+            MobileNumber = "+4791111111",
+            SubscriptionProductId = _subscriptionProductId,
+            DataPackage = "20GB",
+            AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
+            NewOperatorAccount = new NewOperatorAccountRequestedDTO { NewOperatorAccountOwner = "", OperatorId = _operatorId, NewOperatorAccountPayer = "me" },
+            CustomerReferenceFields = new List<NewCustomerReferenceValue>
+            {
+                new() { Name = "URef1", Type = "User", CallerId = _callerId, Value = "VAL1"},
+                new() { Name = "URef2", Type = "User", CallerId = _callerId, Value = "VAL2"},
+                new() { Name = "AccURef1", Type = "Account", CallerId = _callerId, Value = "VAL3"}
+            },
+            OrderExecutionDate = DateTime.UtcNow.AddDays(7),
+            SIMCardAction = "NEW",
+            SIMCardNumber = "89722020101228153578",
+            CallerId = _callerId
+        };
+
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newTransferToBusinessFromPrivate));
+        var response = await _httpClient.PostAsJsonAsync(
+            $"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-business", newTransferToBusinessFromPrivate);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
 
     [Fact]
     public async Task PostTransferToPrivateSubscriptionOrder_ReturnsCreated()
@@ -469,7 +542,4 @@ public class
              $"Phone number +4741730800 not valid for countrycode se.",
             response.Content.ReadAsStringAsync().Result);
     }
-
-
-
 }

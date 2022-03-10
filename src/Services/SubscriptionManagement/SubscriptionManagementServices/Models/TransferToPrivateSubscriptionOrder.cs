@@ -25,7 +25,7 @@ namespace SubscriptionManagementServices.Models
 
         [NotMapped]
         public string NewSubscriptionOrderOwnerName => $"{UserInfo?.FirstName} {UserInfo?.LastName}";
-        [NotMapped] public DateTime TransferDate => OrderExecutionDate;
+        [NotMapped] public DateTime ExecutionDate => OrderExecutionDate;
         public string? SalesforceTicketId { get; set; }
         #endregion
     }

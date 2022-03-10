@@ -328,6 +328,7 @@ namespace OrigoApiGateway.Services
 
                 var response = await HttpClient.PostAsJsonAsync(requestUri, newCustomerOperatorAccount);
 
+                response.EnsureSuccessStatusCode();
                 var newOperatorAccount = await response.Content.ReadFromJsonAsync<OrigoCustomerOperatorAccount>();
 
                 return newOperatorAccount;

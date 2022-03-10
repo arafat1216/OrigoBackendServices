@@ -40,7 +40,7 @@ namespace SubscriptionManagementServices.Models
 
         [NotMapped] public string NewSubscriptionOrderOwnerName => SubscriptionOwner != null ? SubscriptionOwner : "Owner not specified";
 
-        [NotMapped] public DateTime TransferDate => DateTime.UtcNow;
+        [NotMapped] public DateTime OrderExecutionDate => CreatedDate;
 
         public Guid SubscriptionOrderId { get; set; }
         public string? SalesforceTicketId { get; set; }
