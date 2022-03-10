@@ -1,5 +1,6 @@
 ﻿using Common.Logging;
 using CustomerServices.Infrastructure;
+using CustomerServices.Infrastructure.Context;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

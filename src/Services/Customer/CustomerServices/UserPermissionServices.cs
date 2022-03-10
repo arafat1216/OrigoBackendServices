@@ -4,6 +4,7 @@ using Common.Logging;
 using Common.Utilities;
 using CustomerServices.Exceptions;
 using CustomerServices.Infrastructure;
+using CustomerServices.Infrastructure.Context;
 using CustomerServices.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
