@@ -25,7 +25,15 @@ namespace SubscriptionManagement.UnitTests
                 PostalPlace = "Ptal"
             };
 
-            var res = sut.Execute(PrivateSubscription);
+            var result1 = sut.Execute(PrivateSubscription);
+
+            var transferToBusiness = new TransferToBusinessSubscriptionOrder
+            {
+                PrivateSubscription = new PrivateSubscription { },
+                BusinessSubscription = new BusinessSubscription { },
+            };
+
+            var result2 = sut.Execute(transferToBusiness);
         }
     }
 }
