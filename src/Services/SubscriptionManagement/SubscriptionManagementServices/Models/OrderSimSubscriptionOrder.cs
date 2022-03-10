@@ -53,7 +53,7 @@ namespace SubscriptionManagementServices.Models
 
         [NotMapped] public string NewSubscriptionOrderOwnerName => SendToName;
 
-        [NotMapped] public DateTime TransferDate => DateTime.UtcNow;
+        [NotMapped] public DateTime OrderExecutionDate => CreatedDate;
 
         public Guid SubscriptionOrderId { get; set; }
         public string? SalesforceTicketId { get; set; }

@@ -87,7 +87,7 @@ namespace SubscriptionManagementServices.Models
         public string NewSubscriptionOrderOwnerName =>
             PrivateSubscription != null ? $"{PrivateSubscription?.FirstName} {PrivateSubscription?.LastName}" : BusinessSubscription?.Name ?? string.Empty;
 
-        [NotMapped] public DateTime TransferDate => OrderExecutionDate;
+        [NotMapped] public DateTime ExecutionDate => OrderExecutionDate;
         public string? SalesforceTicketId { get; set; }
         #endregion
     }
