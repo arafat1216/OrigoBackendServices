@@ -408,7 +408,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    //OrderExecutionDate = DateTime.UtcNow.AddDays(1.5),
+                    
                     OrderExecutionDate = DateTime.Parse("2022-03-25T00:00:00.000Z"),
                     OperatorAccountId = 1,
                     PrivateSubscription = new PrivateSubscriptionDTO
@@ -485,7 +485,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.NotEmpty(order.SIMCardAction);
         Assert.NotEmpty(order.MobileNumber);
         Assert.NotEmpty(order.SIMCardNumber);
-        Assert.Equal("25.03.2022 00:00:00", order.OrderExecutionDate.ToUniversalTime().ToString());
+        Assert.IsType<DateTime>(order.OrderExecutionDate);
+        Assert.NotEmpty(order.OrderExecutionDate.ToString());
         Assert.NotNull(order.DataPackage);
         Assert.NotNull(order.OperatorName);
         Assert.Equal(2,order.AddOnProducts.Count);
