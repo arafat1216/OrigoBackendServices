@@ -50,11 +50,11 @@ namespace SubscriptionManagement.UnitTests
         public async Task Add_AddCustomerReferenceField_CheckTotalIncreased()
         {
             var initialCustomerReferenceFields = await _customerSettingsService.GetCustomerReferenceFieldsAsync(ORGANIZATION_ONE_ID);
-            Assert.Equal(0, initialCustomerReferenceFields.Count);
+            Assert.Equal(1, initialCustomerReferenceFields.Count);
 
             await _customerSettingsService.AddCustomerReferenceFieldAsync(ORGANIZATION_ONE_ID, "EmployeeID", "user", Guid.NewGuid());
             var updatedCustomerReferenceFields = await _customerSettingsService.GetCustomerReferenceFieldsAsync(ORGANIZATION_ONE_ID);
-            Assert.Equal(1, updatedCustomerReferenceFields.Count);
+            Assert.Equal(2, updatedCustomerReferenceFields.Count);
         }
 
         [Fact]

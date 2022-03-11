@@ -102,10 +102,10 @@ namespace SubscriptionManagement.API.Controllers
         /// <param name="subscriptionOrder">Details of the subscription order</param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(TransferToBusinessSubscriptionOrderDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(TransferToBusinessSubscriptionOrderDTOResponse), (int)HttpStatusCode.Created)]
         [SwaggerOperation(Tags = new[] { "Subscription Orders" })]
         [Route("{organizationId:Guid}/transfer-to-business")]
-        public async Task<ActionResult<TransferToBusinessSubscriptionOrderDTO>> TransferSubscription(Guid organizationId, [FromBody] TransferToBusinessSubscriptionOrderDTO subscriptionOrder)
+        public async Task<ActionResult<TransferToBusinessSubscriptionOrderDTOResponse>> TransferSubscription(Guid organizationId, [FromBody] TransferToBusinessSubscriptionOrderDTO subscriptionOrder)
         {
             var privateSubscription = await _subscriptionServices.TransferPrivateToBusinessSubscriptionOrderAsync(organizationId, subscriptionOrder);
 

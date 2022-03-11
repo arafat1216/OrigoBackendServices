@@ -34,7 +34,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         _emailService = emailService;
     }
 
-    public async Task<TransferToBusinessSubscriptionOrderDTO> TransferPrivateToBusinessSubscriptionOrderAsync(
+    public async Task<TransferToBusinessSubscriptionOrderDTOResponse> TransferPrivateToBusinessSubscriptionOrderAsync(
         Guid organizationId, TransferToBusinessSubscriptionOrderDTO order)
     {
         var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
@@ -130,6 +130,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 throw new ArgumentException($"The field name {field.Name} is not valid for this customer.");
 
         CustomerOperatorAccount? customerOperatorAccount = null;
+
         if (order.OperatorAccountId.HasValue)
         {
             customerOperatorAccount = customerSettings.CustomerOperatorSettings.FirstOrDefault(o =>  o.Operator.OperatorName == newOperatorName)
@@ -145,13 +146,15 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             subscriptionAddOnProducts.ToList(), order.NewOperatorAccount?.NewOperatorAccountOwner,
             order.NewOperatorAccount?.NewOperatorAccountPayer,
             _mapper.Map<PrivateSubscription>(order.PrivateSubscription),
-            _mapper.Map<BusinessSubscription>(order.BusinessSubscription),
+            _mapper.Map<BusinessSubscription>(order.BusinessSubscription),newOperatorName,
             order.CallerId);
         var subscriptionOrder = await _subscriptionManagementRepository.AddSubscriptionOrder(transferToBusinessSubscriptionOrder);
 
         await _emailService.SendEmailAsync($"[{subscriptionOrder.SubscriptionOrderId}]-[{subscriptionOrder.OrderType}]", subscriptionOrder);
 
-        return _mapper.Map<TransferToBusinessSubscriptionOrderDTO>(subscriptionOrder);
+        var mapping = _mapper.Map<TransferToBusinessSubscriptionOrderDTOResponse>(subscriptionOrder); 
+
+        return mapping;
     }
 
     private async Task<string> GetNewOperatorName(TransferToBusinessSubscriptionOrderDTO order, CustomerSettings customerSettings)
