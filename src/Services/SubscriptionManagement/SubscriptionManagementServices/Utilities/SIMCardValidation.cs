@@ -57,6 +57,8 @@ namespace SubscriptionManagementServices.Utilities
             // It's a pass if the result is a multiple of 10
             return sum % 10 == 0;
         }
+
+        //Should only be allowed to keep the current sim if operator is same
         public static bool ValidateSimAction(string action, bool differentOperator)
         {
             //remove wihtspace

@@ -112,7 +112,7 @@ public class
             PrivateSubscription =
                 new PrivateSubscriptionDTO
                 {
-                    OperatorName = "TELEFONIA",
+                    OperatorName = "Telia - NO",
                     FirstName = "Ola",
                     LastName = "Nordmann",
                     Address = "Hjemmeveien 1",
@@ -590,6 +590,106 @@ public class
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-business", postRequest);
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+    }
+    [Fact]
+    public async Task PostTransferPrivateToBusinessSubscriptionOrder_ReturnCreated_NullForSimWhenSimCardActionIsOrder()
+    {
+        var referenceFields = new NewCustomerReferenceValue
+        {
+            Name = "URef1",
+            Type = "User",
+            Value = "dfghjkl",
+        };
+
+
+        var postRequest = new TransferToBusinessSubscriptionOrderDTO
+        {
+            PrivateSubscription = new PrivateSubscriptionDTO
+            {
+                FirstName = "Ole",
+                LastName = "Brum",
+                Address = "K. K. Lien vei 54F",
+                PostalCode = "4812",
+                PostalPlace = "KONGSHAVN",
+                Country = "M@H.COM",
+                Email = "me@example.com",
+                BirthDate = DateTime.Parse("1986-06-04T00:00:00.000Z"),
+                OperatorName = "Telia - NO"
+            },
+            MobileNumber = "+4747474744",
+            OperatorAccountId = 100,
+            SubscriptionProductId = 200,
+            DataPackage = null,
+            SIMCardNumber = null,
+            SIMCardAction = "Order",
+            OrderExecutionDate = DateTime.Parse("2022-03-17T00:00:00.000Z"),
+            CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
+            AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
+            BusinessSubscription = new BusinessSubscriptionDTO
+            {
+                Name = "D&D METAL",
+                OrganizationNumber = "995053179",
+                Address = "Josipa Kozarca BB",
+                PostalCode = "9090",
+                PostalPlace = "HR-31207 OSIJEK-TENJA",
+                Country = "HR",
+                OperatorName = "Telia - NO"
+            }
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-business", postRequest);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+    }
+    [Fact]
+    public async Task PostTransferPrivateToBusinessSubscriptionOrder_ReturnBadRequest_ActionIsNewAndNoSimCardNumber()
+    {
+        var referenceFields = new NewCustomerReferenceValue
+        {
+            Name = "URef1",
+            Type = "User",
+            Value = "dfghjkl",
+        };
+
+
+        var postRequest = new TransferToBusinessSubscriptionOrderDTO
+        {
+            PrivateSubscription = new PrivateSubscriptionDTO
+            {
+                FirstName = "Ole",
+                LastName = "Brum",
+                Address = "K. K. Lien vei 54F",
+                PostalCode = "4812",
+                PostalPlace = "KONGSHAVN",
+                Country = "M@H.COM",
+                Email = "me@example.com",
+                BirthDate = DateTime.Parse("1986-06-04T00:00:00.000Z"),
+                OperatorName = "Telia - NO"
+            },
+            MobileNumber = "+4747474744",
+            OperatorAccountId = 100,
+            SubscriptionProductId = 200,
+            DataPackage = null,
+            SIMCardNumber = null,
+            SIMCardAction = "NEW",
+            OrderExecutionDate = DateTime.Parse("2022-03-17T00:00:00.000Z"),
+            CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
+            AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
+            BusinessSubscription = new BusinessSubscriptionDTO
+            {
+                Name = "D&D METAL",
+                OrganizationNumber = "995053179",
+                Address = "Josipa Kozarca BB",
+                PostalCode = "9090",
+                PostalPlace = "HR-31207 OSIJEK-TENJA",
+                Country = "HR",
+                OperatorName = "Telia - NO"
+            }
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-business", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
     }
 
