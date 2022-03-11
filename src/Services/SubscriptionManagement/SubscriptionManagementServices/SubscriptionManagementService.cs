@@ -47,8 +47,10 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         //Same private operator as business operator 
         if (newOperatorName == order.PrivateSubscription?.OperatorName)
         {
-            if (string.IsNullOrEmpty(order.SIMCardNumber))
+            
+            if (string.IsNullOrEmpty(order.SIMCardNumber) && order.SIMCardAction != "Order")
                 throw new ArgumentException("SIM card number is required.");
+            
 
             if (order.OrderExecutionDate <
                 DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator) ||
@@ -57,6 +59,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 throw new ArgumentException(
                     $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workday ahead or more is allowed.");
 
+            if (order.SIMCardAction != "Order") { 
             //Sim Number validation
             if (!SIMCardValidation.ValidateSim(order.SIMCardNumber))
                 throw new ArgumentException(
@@ -65,10 +68,11 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, false))
                 throw new ArgumentException(
                         $"SIM card action not valid {order.SIMCardAction}");
+            }
         }
         else
-        {   //Not ordering a new sim card 
-            if (!string.IsNullOrEmpty(order.SIMCardNumber))
+        {   //Not ordering a new sim card
+            if (!string.IsNullOrEmpty(order.SIMCardNumber) && order.SIMCardAction != "Order")
             {
                 if (order.OrderExecutionDate <
                     DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperator) ||
@@ -89,6 +93,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             }
             else
             {
+                if (order.SIMCardAction != "Order") throw new ArgumentException($"Ordertype is {order.SIMCardAction} but there is no SIM card number");
                 //Ordering a new sim card - no need for sim card number
                 if (order.OrderExecutionDate <
                     DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM) ||

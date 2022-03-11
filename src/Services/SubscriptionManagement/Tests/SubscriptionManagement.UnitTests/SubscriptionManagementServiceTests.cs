@@ -165,6 +165,33 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.IsType<ArgumentException>(exceptionThirtyDay);
         Assert.Equal("Invalid transfer date. 4 workdays ahead or more allowed.", exceptionThirtyDay.Message);
     }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_SimCardNumberNullAndSimCardTypeNew_Exception()
+    {
+        var exception = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
+                new TransferToBusinessSubscriptionOrderDTO
+                {
+                    PrivateSubscription = new PrivateSubscriptionDTO
+                    {
+                        OperatorName = "Op2"
+                    },
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(1),
+                    OperatorAccountId = 1,
+                    SIMCardNumber = "",
+                    SIMCardAction = "New",
+                    BusinessSubscription = new BusinessSubscriptionDTO
+                    {
+                        OperatorName = "Op1"
+                    }
+                }
+                ));
+
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
+        Assert.Equal("Ordertype is New but there is no SIM card number", exception.Message);
+    }
 
     [Fact]
     [Trait("Category", "UnitTest")]
@@ -185,7 +212,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     {
                         OperatorName = "Op1"
                     },
-                    SIMCardNumber = ""
+                    SIMCardNumber = "",
+                    SIMCardAction = "Order"
                 }
                 ));
 
@@ -208,7 +236,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     {
                         OperatorName = "Op1"
                     },
-                    SIMCardNumber = ""
+                    SIMCardNumber = "",
+                    SIMCardAction = "Order"
                 }
                 ));
 
