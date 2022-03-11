@@ -76,8 +76,14 @@ namespace SubscriptionManagement.UnitTests
             customerOperatorSettings.Add(customerOperatorSettingTwo);
             context.Add(customerOperatorSettingOne);
 
+            var customerReferences = new List<CustomerReferenceField>();
+            var customerReferenceFieldOne = new CustomerReferenceField("UserRef1",SubscriptionManagementServices.Types.CustomerReferenceTypes.User,CALLER_ONE_ID);
+            customerReferences.Add(customerReferenceFieldOne);
+
+            context.Add(customerReferenceFieldOne);
+
             context.AddRange(
-               new CustomerSettings(ORGANIZATION_ONE_ID, customerOperatorSettings)
+               new CustomerSettings(ORGANIZATION_ONE_ID, customerOperatorSettings, customerReferences)
               );
 
             context.SaveChanges();
