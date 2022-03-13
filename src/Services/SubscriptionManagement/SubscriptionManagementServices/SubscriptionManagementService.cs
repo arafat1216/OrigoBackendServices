@@ -33,7 +33,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         _emailService = emailService;
     }
 
-    public async Task<TransferToBusinessSubscriptionOrderDTO> TransferPrivateToBusinessSubscriptionOrderAsync(
+    public async Task<TransferToBusinessSubscriptionOrderDTOResponse> TransferPrivateToBusinessSubscriptionOrderAsync(
         Guid organizationId, TransferToBusinessSubscriptionOrderDTO order)
     {
         var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
@@ -46,8 +46,10 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         //Same private operator as business operator 
         if (newOperatorName == order.PrivateSubscription?.OperatorName)
         {
-            if (string.IsNullOrEmpty(order.SIMCardNumber))
+            
+            if (string.IsNullOrEmpty(order.SIMCardNumber) && order.SIMCardAction != "Order")
                 throw new ArgumentException("SIM card number is required.");
+            
 
             if (order.OrderExecutionDate <
                 DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator) ||
@@ -56,6 +58,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 throw new ArgumentException(
                     $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workday ahead or more is allowed.");
 
+            if (order.SIMCardAction != "Order") { 
             //Sim Number validation
             if (!SIMCardValidation.ValidateSim(order.SIMCardNumber))
                 throw new ArgumentException(
@@ -64,10 +67,11 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, false))
                 throw new ArgumentException(
                         $"SIM card action not valid {order.SIMCardAction}");
+            }
         }
         else
-        {   //Not ordering a new sim card 
-            if (!string.IsNullOrEmpty(order.SIMCardNumber))
+        {   //Not ordering a new sim card
+            if (!string.IsNullOrEmpty(order.SIMCardNumber) && order.SIMCardAction != "Order")
             {
                 if (order.OrderExecutionDate <
                     DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperator) ||
@@ -88,6 +92,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             }
             else
             {
+                if (order.SIMCardAction != "Order") throw new ArgumentException($"Ordertype is {order.SIMCardAction} but there is no SIM card number");
                 //Ordering a new sim card - no need for sim card number
                 if (order.OrderExecutionDate <
                     DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM) ||
@@ -126,6 +131,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             }
 
         CustomerOperatorAccount? customerOperatorAccount = null;
+
         if (order.OperatorAccountId.HasValue)
         {
             customerOperatorAccount = customerSettings.CustomerOperatorSettings.FirstOrDefault(o =>  o.Operator.OperatorName == newOperatorName)
@@ -141,13 +147,15 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             subscriptionAddOnProducts.ToList(), order.NewOperatorAccount?.NewOperatorAccountOwner,
             order.NewOperatorAccount?.NewOperatorAccountPayer,
             _mapper.Map<PrivateSubscription>(order.PrivateSubscription),
-            _mapper.Map<BusinessSubscription>(order.BusinessSubscription),
+            _mapper.Map<BusinessSubscription>(order.BusinessSubscription),newOperatorName,
             order.CallerId);
         var subscriptionOrder = await _subscriptionManagementRepository.AddSubscriptionOrder(transferToBusinessSubscriptionOrder);
 
         await _emailService.SendEmailAsync($"[{subscriptionOrder.SubscriptionOrderId}]-[{subscriptionOrder.OrderType}]", subscriptionOrder);
 
-        return _mapper.Map<TransferToBusinessSubscriptionOrderDTO>(subscriptionOrder);
+        var mapping = _mapper.Map<TransferToBusinessSubscriptionOrderDTOResponse>(subscriptionOrder); 
+
+        return mapping;
     }
 
     private async Task<string> GetNewOperatorName(TransferToBusinessSubscriptionOrderDTO order, CustomerSettings customerSettings)

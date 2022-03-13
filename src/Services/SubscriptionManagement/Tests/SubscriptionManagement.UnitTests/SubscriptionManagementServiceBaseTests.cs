@@ -59,11 +59,31 @@ namespace SubscriptionManagement.UnitTests
             var customerOperatorSettings = new List<CustomerOperatorSettings>();
            
             var customerOperatorSettingOne = new CustomerOperatorSettings(operatorOne, new List<CustomerSubscriptionProduct>{customerSubscriptionProductOne}, customerOperatorAccounts);
+            //Setup for operatorsettings two
+            var customerOperatorAccountsForOperatorTwo = new List<CustomerOperatorAccount>();
+            var customerOperatorAccountForOperatorTwo = new CustomerOperatorAccount(4, ORGANIZATION_ONE_ID, "", "AC_NUM4", "AC_NAME4", operatorTwo.Id, CALLER_ONE_ID);
+            customerOperatorAccountsForOperatorTwo.Add(customerOperatorAccountForOperatorTwo);
+            context.Add(customerOperatorAccountForOperatorTwo);
+
+            var subscriptionProductTwo = new SubscriptionProduct("Sub2", operatorTwo, null, CALLER_ONE_ID);
+            context.AddRange(subscriptionProductTwo);
+            var customerSubscriptionProductTwo = new CustomerSubscriptionProduct("Sub2", operatorTwo, CALLER_ONE_ID, null);
+            context.AddRange(customerSubscriptionProductTwo);
+
+            var customerOperatorSettingTwo = new CustomerOperatorSettings(operatorTwo, new List<CustomerSubscriptionProduct> { customerSubscriptionProductTwo  }, customerOperatorAccountsForOperatorTwo);
+            
             customerOperatorSettings.Add(customerOperatorSettingOne);
+            customerOperatorSettings.Add(customerOperatorSettingTwo);
             context.Add(customerOperatorSettingOne);
 
+            var customerReferences = new List<CustomerReferenceField>();
+            var customerReferenceFieldOne = new CustomerReferenceField("UserRef1",SubscriptionManagementServices.Types.CustomerReferenceTypes.User,CALLER_ONE_ID);
+            customerReferences.Add(customerReferenceFieldOne);
+
+            context.Add(customerReferenceFieldOne);
+
             context.AddRange(
-               new CustomerSettings(ORGANIZATION_ONE_ID, customerOperatorSettings)
+               new CustomerSettings(ORGANIZATION_ONE_ID, customerOperatorSettings, customerReferences)
               );
 
             context.SaveChanges();

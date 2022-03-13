@@ -167,6 +167,33 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.IsType<ArgumentException>(exceptionThirtyDay);
         Assert.Equal("Invalid transfer date. 4 workdays ahead or more allowed.", exceptionThirtyDay.Message);
     }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_SimCardNumberNullAndSimCardTypeNew_Exception()
+    {
+        var exception = await Record.ExceptionAsync(() =>
+            _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
+                new TransferToBusinessSubscriptionOrderDTO
+                {
+                    PrivateSubscription = new PrivateSubscriptionDTO
+                    {
+                        OperatorName = "Op2"
+                    },
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(1),
+                    OperatorAccountId = 1,
+                    SIMCardNumber = "",
+                    SIMCardAction = "New",
+                    BusinessSubscription = new BusinessSubscriptionDTO
+                    {
+                        OperatorName = "Op1"
+                    }
+                }
+                ));
+
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
+        Assert.Equal("Ordertype is New but there is no SIM card number", exception.Message);
+    }
 
     [Fact]
     [Trait("Category", "UnitTest")]
@@ -187,7 +214,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     {
                         OperatorName = "Op1"
                     },
-                    SIMCardNumber = ""
+                    SIMCardNumber = "",
+                    SIMCardAction = "Order"
                 }
                 ));
 
@@ -210,7 +238,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     {
                         OperatorName = "Op1"
                     },
-                    SIMCardNumber = ""
+                    SIMCardNumber = "",
+                    SIMCardAction = "Order"
                 }
                 ));
 
@@ -371,6 +400,103 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 });
 
         Assert.NotNull(order);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_CheckingViewModelMapping()
+    {
+        var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
+                new TransferToBusinessSubscriptionOrderDTO
+                {
+                    
+                    OrderExecutionDate = DateTime.Parse("2022-03-25T00:00:00.000Z"),
+                    OperatorAccountId = 1,
+                    PrivateSubscription = new PrivateSubscriptionDTO
+                    {
+                        OperatorName = "Op1",
+                        FirstName = "[FName]",
+                        LastName = "[LName]",
+                        Address = "[Address]",
+                        Country = "Country",
+                        BirthDate = DateTime.UtcNow.AddMonths(-100),
+                        Email = "email@mail.com",
+                        PostalCode = "[Postal code]",
+                        PostalPlace = "[Postal Place]",
+                        RealOwner = new PrivateSubscriptionDTO
+                        {
+                            OperatorName = "Op1",
+                            FirstName = "[FName]",
+                            LastName = "[LName]",
+                            Address = "[Address]",
+                            Country = "Country",
+                            BirthDate = DateTime.UtcNow.AddMonths(-100),
+                            Email = "email@mail.com",
+                            PostalCode = "[Postal code]",
+                            PostalPlace = "[Postal Place]"
+                        }
+                    },
+                    BusinessSubscription = new BusinessSubscriptionDTO
+                    {
+                        Name = "Org",
+                        Address = "[Address]",
+                        Country = "Country",
+                        PostalPlace= "[Postal Place]",
+                        PostalCode = "[Postal code]",
+                        OrganizationNumber = "21212121212"
+                    },
+                    SIMCardNumber = "89722020101228153578",
+                    SIMCardAction = "New",
+                    MobileNumber = "[MobileNumber]",
+                    SubscriptionProductId = 1,
+                    DataPackage = "Data Package",
+                    AddOnProducts = new List<string> { "P1", "P2" },
+                    CustomerReferenceFields = new List<NewCustomerReferenceValue> { new NewCustomerReferenceValue() { Name = "UserRef1", Type = "User", Value = "VAL" } }
+                }
+                );
+
+        Assert.NotNull(order);
+        Assert.NotNull(order.PrivateSubscription);
+        Assert.NotNull(order.PrivateSubscription?.OperatorName);
+        Assert.NotNull(order.PrivateSubscription?.FirstName);
+        Assert.NotNull(order.PrivateSubscription?.LastName);
+        Assert.NotNull(order.PrivateSubscription?.Address);
+        Assert.NotNull(order.PrivateSubscription?.Country);
+        Assert.NotNull(order.PrivateSubscription?.BirthDate);
+        Assert.NotNull(order.PrivateSubscription?.PostalCode);
+        Assert.NotNull(order.PrivateSubscription?.PostalPlace);
+
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.OperatorName);
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.FirstName);
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.LastName);
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.Address);
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.Country);
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.BirthDate);
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.PostalCode);
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.PostalPlace);
+
+        Assert.NotNull(order.BusinessSubscription?.Name);
+        Assert.NotNull(order.BusinessSubscription?.OrganizationNumber);
+        Assert.NotNull(order.BusinessSubscription?.Address);
+        Assert.NotNull(order.BusinessSubscription?.Country);
+        Assert.NotNull(order.BusinessSubscription?.PostalCode);
+        Assert.NotNull(order.BusinessSubscription?.PostalPlace);
+
+        Assert.NotNull(order.SubscriptionProductName);
+        Assert.NotEmpty(order.SIMCardAction);
+        Assert.NotEmpty(order.MobileNumber);
+        Assert.NotEmpty(order.SIMCardNumber);
+        Assert.IsType<DateTime>(order.OrderExecutionDate);
+        Assert.NotEmpty(order.OrderExecutionDate.ToString());
+        Assert.NotNull(order.DataPackage);
+        Assert.NotNull(order.OperatorName);
+        Assert.Equal(2,order.AddOnProducts.Count);
+        Assert.Equal("P1", order.AddOnProducts[0]);
+        Assert.Equal("P2", order.AddOnProducts[1]);
+        Assert.Equal(1,order.CustomerReferenceFields.Count);
+        Assert.Equal("UserRef1", order.CustomerReferenceFields[0].Name);
+        Assert.Equal("VAL", order.CustomerReferenceFields[0].Value);
+        Assert.Equal("User", order.CustomerReferenceFields[0].Type);
+        
     }
 
     [Theory]

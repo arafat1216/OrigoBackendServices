@@ -1,36 +1,33 @@
-﻿using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
-using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
-using System;
-using System.Collections.Generic;
+﻿
 
-namespace OrigoApiGateway.Models.SubscriptionManagement
+namespace SubscriptionManagementServices.ServiceModels
 {
-    public record OrigoTransferToBusinessSubscriptionOrder
+    public class TransferToBusinessSubscriptionOrderDTOResponse
     {
         /// <summary>
         /// The current owner the subscription will be transferred from.
         /// </summary>
-        public PrivateSubscription? PrivateSubscription { get; set; }
-        public BusinessSubscription? BusinessSubscription { get; set; }
+        public PrivateSubscriptionDTO? PrivateSubscription { get; set; } = null;
+        public BusinessSubscriptionDTO? BusinessSubscription { get; set; } = null;
         /// <summary>
         /// The mobile number to be transferred
         /// </summary>
         public string MobileNumber { get; set; }
 
         /// <summary>
-        ///     New operator account name
+        ///     New operator
         /// </summary>
         public string? OperatorName { get; set; }
 
         /// <summary>
         ///     Customer Subscription product name
         /// </summary>
-        public string? SubscriptionProductName { get; set; }
+        public string SubscriptionProductName { get; set; }
 
         /// <summary>
         ///     Data package name
         /// </summary>
-        public string DataPackage { get; set; }
+        public string? DataPackage { get; set; }
 
         /// <summary>
         ///     SIM card number
@@ -53,6 +50,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
         public IList<string> AddOnProducts { get; set; } = new List<string>();
 
         public IList<NewCustomerReferenceValue> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceValue>();
-        public OrigoNewOperatorAccount? NewOperatorAccount { get; set; }
+        public NewOperatorAccountResponseDTO? NewOperatorAccount { get; set; }
+        public Guid CallerId { get; set; }
     }
 }
