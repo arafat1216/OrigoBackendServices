@@ -9,6 +9,15 @@ namespace Common.Model;
 /// </summary>
 public class ErrorResponseDetail
 {
+    public ErrorResponseDetail(OrigoErrorCodes code, string message, Guid trackingCode)
+    {
+        Code = code;
+        Message = message;
+        TrackingCode = trackingCode;
+    }
+
+    private ErrorResponseDetail() { }
+
     /// <summary>
     /// The error code used uniquely across the solutions.
     /// </summary>
@@ -18,6 +27,7 @@ public class ErrorResponseDetail
     /// A message describing the error.
     /// </summary>
     public string Message { get; protected set; }
+
     /// <summary>
     /// A unique id given by the place in code where this happened.
     /// Must be created as a fixed GUID where this is created.

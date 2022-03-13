@@ -45,10 +45,9 @@ public class CustomerSettingsService : ICustomerSettingsService
         if (customerSettings == null) customerSettings = new CustomerSettings(organizationId, callerId);
 
         if (string.IsNullOrWhiteSpace(name))
-            throw new InvalidCustomerReferenceInputDataException("Value for name not set.");
+            throw new InvalidCustomerReferenceInputDataException("Value for name not set.", Guid.Parse("a94abe10-a30b-11ec-abc5-00155d8454bd"));
         if (!Enum.TryParse(type, true, out CustomerReferenceTypes customerReferenceFieldType))
-            throw new InvalidCustomerReferenceInputDataException(
-                "Invalid value for type. Should be 'account' or 'user'.");
+            throw new InvalidCustomerReferenceInputDataException("Invalid value for type. Should be 'account' or 'user'.", Guid.Parse("b5e2a5de-a30b-11ec-9d2f-00155d8454bd"));
 
         var customerReferenceField = new CustomerReferenceField(name, customerReferenceFieldType, callerId);
         customerSettings.AddCustomerReferenceField(customerReferenceField, callerId);

@@ -331,7 +331,7 @@ public class
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
+        Assert.Contains(
             $"Phone number +47041414141 not valid for countrycode nb.",
             response.Content.ReadAsStringAsync().Result);
     }
@@ -349,7 +349,7 @@ public class
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
+        Assert.Contains(
             $"Phone number   not valid for countrycode nb.",
             response.Content.ReadAsStringAsync().Result);
     }
@@ -367,7 +367,7 @@ public class
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
+        Assert.Contains(
             $"Customer does not have this operator Telenor - NO as a setting",
             response.Content.ReadAsStringAsync().Result);
     }
@@ -385,7 +385,7 @@ public class
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
+        Assert.Contains(
             $"Customer does not have product lol as a setting",
             response.Content.ReadAsStringAsync().Result);
     }
@@ -403,7 +403,7 @@ public class
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
+        Assert.Contains(
             $"Customer does not have datapackage 2GB with product TOTAL BEDRIFT as a setting",
             response.Content.ReadAsStringAsync().Result);
     }
@@ -433,7 +433,7 @@ public class
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
+        Assert.Contains(
             $"Customer does not have datapackage 2GB with product Prod as a setting",
             response.Content.ReadAsStringAsync().Result);
     }
@@ -466,7 +466,7 @@ public class
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
+        Assert.Contains(
            $"SIM card number: 89652021000 not valid.",
             response.Content.ReadAsStringAsync().Result);
     }
@@ -484,7 +484,7 @@ public class
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
+        Assert.Contains(
              $"No operator with OperatorId 5 found.",
             response.Content.ReadAsStringAsync().Result);
     }
@@ -502,7 +502,7 @@ public class
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
+        Assert.Contains(
              $"SIM card type: RegularSIM not valid.",
             response.Content.ReadAsStringAsync().Result);
     }
@@ -520,7 +520,7 @@ public class
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
+        Assert.Contains(
              $"Phone number +47417308 not valid for countrycode nb.",
             response.Content.ReadAsStringAsync().Result);
     }
@@ -538,7 +538,7 @@ public class
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
+        Assert.Contains(
              $"Phone number +4741730800 not valid for countrycode se.",
             response.Content.ReadAsStringAsync().Result);
     }

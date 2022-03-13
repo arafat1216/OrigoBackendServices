@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 
 namespace Common.Model
@@ -9,6 +10,7 @@ namespace Common.Model
     /// </summary>
     public class ErrorResponse
     {
+        private readonly List<ErrorResponseDetail> _details = new();
         /// <summary>
         /// Type of error according to http status code list.
         /// </summary>
@@ -20,10 +22,15 @@ namespace Common.Model
         /// <summary>
         /// Tracing information.
         /// </summary>
-        public string TraceId { get; set; }
+        public Guid TraceId { get; set; }
         /// <summary>
         /// Detailed descriptions of one or more errors.
         /// </summary>
-        public IReadOnlyCollection<ErrorResponseDetail> Details { get; set; }
+        public IReadOnlyCollection<ErrorResponseDetail> Details => _details.AsReadOnly();
+
+        public void AddErrorResponseDetails(IList<ErrorResponseDetail> errorResponseDetails)
+        {
+            _details.AddRange(errorResponseDetails);
+        }
     }
 }

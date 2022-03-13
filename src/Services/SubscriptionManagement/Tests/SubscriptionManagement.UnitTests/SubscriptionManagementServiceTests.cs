@@ -9,9 +9,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Moq;
 using SubscriptionManagementServices;
+using SubscriptionManagementServices.Exceptions;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
+using SubscriptionManagementServices.Types;
 using SubscriptionManagementServices.Utilities;
 using Xunit;
 
@@ -299,7 +301,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     [Trait("Category", "UnitTest")]
     public async Task TransferSubscription_Invalid_CustomerRef()
     {
-        var exception = await Record.ExceptionAsync(() =>
+        const string missingCustomerReferenceField = "X";
+        var exception = await Assert.ThrowsAsync<CustomerReferenceFieldMissingException>(() =>
              _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
@@ -328,13 +331,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
-                    CustomerReferenceFields = new List<NewCustomerReferenceValue> { new() { Name = "X", Type = "Y", Value = "VAL"} }
+                    CustomerReferenceFields = new List<NewCustomerReferenceValue> { new() { Name = missingCustomerReferenceField, Type = CustomerReferenceTypes.User.ToString(), Value = "VAL" } }
                 }
                 ));
-
-        Assert.NotNull(exception);
-        Assert.IsType<ArgumentException>(exception);
-        Assert.Equal("The field name X is not valid for this customer.", exception.Message);
+        Assert.Equal($"The field name {missingCustomerReferenceField} is not valid for this customer.", exception.Message);
     }
 
     [Fact]

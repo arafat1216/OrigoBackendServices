@@ -1,20 +1,13 @@
-﻿
+﻿using Common.Enums;
 
-namespace SubscriptionManagementServices.Exceptions
+namespace SubscriptionManagementServices.Exceptions;
+
+public class InvalidPhoneNumberException : SubscriptionManagementException
 {
-    public class InvalidPhoneNumberException : SubscriptionManagementException
+    public InvalidPhoneNumberException(string mobileNumber, string country, Guid trackingId,
+        Exception? innerException = null) : base(
+        $"Phone number {mobileNumber} not valid for countrycode {country}.", trackingId,
+        OrigoErrorCodes.InvalidPhoneNumber, innerException)
     {
-        public InvalidPhoneNumberException()
-        {
-        }
-
-        public InvalidPhoneNumberException(string message) : base(message)
-        {
-        }
-
-        public InvalidPhoneNumberException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
     }
 }
-

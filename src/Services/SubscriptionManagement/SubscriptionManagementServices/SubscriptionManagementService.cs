@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using AutoMapper;
-using Common.Exceptions;
 using Common.Utilities;
 using Microsoft.Extensions.Options;
 using SubscriptionManagementServices.Exceptions;
@@ -122,7 +121,9 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         var existingFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId);
         foreach (var field in order.CustomerReferenceFields)
             if (existingFields.All(m => m.Name != field.Name))
-                throw new ArgumentException($"The field name {field.Name} is not valid for this customer.");
+            {
+                throw new CustomerReferenceFieldMissingException(field.Name, new Guid("19021914-a132-11ec-9fb7-00155d9e3768"));
+            }
 
         CustomerOperatorAccount? customerOperatorAccount = null;
         if (order.OperatorAccountId.HasValue)
@@ -206,8 +207,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 
                 if (!PhoneNumberUtility.ValidatePhoneNumber(subscriptionOrder.MobileNumber, @operator?.Country ?? string.Empty))
                 {
-                    throw new InvalidPhoneNumberException(
-                    $"Phone number {subscriptionOrder.MobileNumber} not valid for countrycode {@operator?.Country}.");
+                    throw new InvalidPhoneNumberException(subscriptionOrder.MobileNumber, @operator?.Country ?? string.Empty, Guid.Parse("4945485a-a30b-11ec-b5fc-00155d8454bd"));
                 }
 
                 var subscriptionProduct = customersOperator.AvailableSubscriptionProducts.FirstOrDefault(sp => sp.SubscriptionName == subscriptionOrder.ProductName);
@@ -216,23 +216,26 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                     if (!String.IsNullOrEmpty(subscriptionOrder.PackageName))
                     {
                         var datapackage = subscriptionProduct.DataPackages.FirstOrDefault(d => d.DataPackageName == subscriptionOrder.PackageName);
-                        
-                        if (datapackage == null) throw new CustomerSettingsException($"Customer does not have datapackage {subscriptionOrder.PackageName} with product {subscriptionOrder.ProductName} as a setting");
+
+                        if (datapackage == null)
+                            throw new CustomerSettingsException(
+                                $"Customer does not have datapackage {subscriptionOrder.PackageName} with product {subscriptionOrder.ProductName} as a setting",
+                                Guid.Parse("23281134-a30b-11ec-bed3-00155d8454bd"));
                     }
                 }
                 else
                 {
-                    throw new CustomerSettingsException($"Customer does not have product {subscriptionOrder.ProductName} as a setting");
+                    throw new CustomerSettingsException($"Customer does not have product {subscriptionOrder.ProductName} as a setting", Guid.Parse("0e1fe424-a30b-11ec-acf0-00155d8454bd"));
                 }
             }
             else
             {
-                throw new CustomerSettingsException($"Customer does not have this operator {subscriptionOrder.OperatorName} as a setting");
+                throw new CustomerSettingsException($"Customer does not have this operator {subscriptionOrder.OperatorName} as a setting", Guid.Parse("19de70aa-a30b-11ec-aad3-00155d8454bd"));
             }
         }
         else
         {
-            throw new CustomerSettingsException($"Customer has no settings");
+            throw new CustomerSettingsException($"Customer has no settings", Guid.Parse("30bd977e-a30b-11ec-b545-00155d8454bd"));
         }
         
         var changeSubscriptionOrder = new ChangeSubscriptionOrder(subscriptionOrder.MobileNumber, subscriptionOrder.ProductName, subscriptionOrder.PackageName, subscriptionOrder.OperatorName, subscriptionOrder.SubscriptionOwner,organizationId, subscriptionOrder.CallerId);
@@ -249,8 +252,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         var @operator = await _operatorRepository.GetOperatorAsync(subscriptionOrder.OperatorId);
         if (@operator == null)
         {
-            throw new InvalidOperatorIdInputDataException(
-                $"No operator with OperatorId {subscriptionOrder.OperatorId} found");
+            throw new InvalidOperatorIdInputDataException(subscriptionOrder.OperatorId, Guid.Parse("67b12c32-a30b-11ec-9200-00155d8454bd"));
         }
         var cancelSubscriptionOrder = new CancelSubscriptionOrder(subscriptionOrder.MobileNumber,
             subscriptionOrder.DateOfTermination, @operator.OperatorName, organizationId, subscriptionOrder.CallerId);
@@ -266,8 +268,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         var @operator = await _operatorRepository.GetOperatorAsync(subscriptionOrder.OperatorId);
         if (@operator == null)
         {
-            throw new InvalidOperatorIdInputDataException(
-                $"No operator with OperatorId {subscriptionOrder.OperatorId} found");
+            throw new InvalidOperatorIdInputDataException(subscriptionOrder.OperatorId, Guid.Parse("759f2498-a30b-11ec-b131-00155d8454bd"));
         }
         var orderSimSubscriptionOrder = new OrderSimSubscriptionOrder(subscriptionOrder.SendToName, subscriptionOrder.Address.Street,
             subscriptionOrder.Address.Postcode, subscriptionOrder.Address.City, subscriptionOrder.Address.Country, @operator.OperatorName, subscriptionOrder.Quantity, organizationId, subscriptionOrder.CallerId);
@@ -283,21 +284,17 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         var @operator = await _operatorRepository.GetOperatorAsync(simOrder.OperatorId);
         if (@operator == null)
         {
-            throw new InvalidOperatorIdInputDataException(
-                $"No operator with OperatorId {simOrder.OperatorId} found.");
+            throw new InvalidOperatorIdInputDataException(simOrder.OperatorId, Guid.Parse("8bc6fdc8-a30a-11ec-81d3-00155d8454bd"));
         }
         
         if (!SIMCardValidation.ValidateSim(simOrder.SimCardNumber))
-            throw new InvalidSimException(
-                    $"SIM card number: {simOrder.SimCardNumber} not valid.");
+            throw new InvalidSimException($"SIM card number: {simOrder.SimCardNumber} not valid.", Guid.Parse("ccbd55d4-a30a-11ec-be10-00155d8454bd"));
 
         if (!SIMCardValidation.ValidateSimType(simOrder.SimCardType))
-            throw new InvalidSimException(
-                    $"SIM card type: {simOrder.SimCardType} not valid.");
+            throw new InvalidSimException($"SIM card type: {simOrder.SimCardType} not valid.", Guid.Parse("d79a3e18-a30a-11ec-ae47-00155d8454bd"));
 
         if (!PhoneNumberUtility.ValidatePhoneNumber(simOrder.MobileNumber,@operator.Country))
-            throw new InvalidPhoneNumberException(
-                    $"Phone number {simOrder.MobileNumber} not valid for countrycode {@operator.Country}.");
+            throw new InvalidPhoneNumberException(simOrder.MobileNumber, @operator.Country, Guid.Parse("6bffdff0-a30a-11ec-940a-00155d8454bd"));
 
         var newActivateSimOrder = new ActivateSimOrder(simOrder.MobileNumber, @operator.OperatorName, simOrder.SimCardNumber, simOrder.SimCardType, organizationId, simOrder.CallerId);
 
