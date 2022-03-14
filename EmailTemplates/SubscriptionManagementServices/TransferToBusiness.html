@@ -9,25 +9,25 @@
         Name
     </p>
     <p>
-        {{FirstName}} {{LastName}}
+        {{PrivateSubscription.FirstName}} {{PrivateSubscription.LastName}}
     </p>
     <p style="font-weight: bold;">
         Born
     </p>
     <p>
-        {{BirthDate}}
+        {{PrivateSubscription.BirthDate}}
     </p>
     <p style="font-weight: bold;">
         Address
     </p>
     <p>
-        {{Address}}, {{PostalCode}}, {{PostalPlace}}, {{Country}}
+        {{PrivateSubscription.Address}}, {{PrivateSubscription.PostalCode}}, {{PrivateSubscription.PostalPlace}}, {{PrivateSubscription.Country}}
     </p>
     <p style="font-weight: bold;">
         Email
     </p>
     <p>
-        {{Email}}
+        {{PrivateSubscription.Email}}
     </p>
 </div>
 
@@ -39,61 +39,139 @@
         Name
     </p>
     <p>
-        {{RealOwner.FirstName}} {{RealOwner.LastName}}
+        {{PrivateSubscription.RealOwner.FirstName}} {{PrivateSubscription.RealOwner.LastName}}
     </p>
     <p style="font-weight: bold;">
         Born
     </p>
     <p>
-        {{RealOwner.BirthDate}}
+        {{PrivateSubscription.RealOwner.BirthDate}}
     </p>
     <p style="font-weight: bold;">
         Address
     </p>
     <p>
-        {{RealOwner.Address}}, {{RealOwner.PostalCode}}, {{RealOwner.PostalPlace}}, {{RealOwner.Country}}
+        {{PrivateSubscription.RealOwner.Address}}, {{PrivateSubscription.RealOwner.PostalCode}}, {{PrivateSubscription.RealOwner.PostalPlace}}, {{PrivateSubscription.RealOwner.Country}}
     </p>
     <p style="font-weight: bold;">
         Email
     </p>
     <p>
-        {{RealOwner.Email}}
+        {{PrivateSubscription.RealOwner.Email}}
     </p>
 </div>
 
 <div>
     <p style="font-weight: bold; font-size: 18px;">
-        Mobile Number
+        Company
+    </p>
+    <p style="font-weight: bold;">
+        Name
     </p>
     <p>
-        {{MobileNumber}}
+        {{BusinessSubscription.Name}}
+    </p>
+    <p style="font-weight: bold;">
+        Organization Number
+    </p>
+    <p>
+        {{BusinessSubscription.OrganizationNumber}}
+    </p>
+    <p style="font-weight: bold;">
+        Address
+    </p>
+    <p>
+        {{BusinessSubscription.Address}}, {{BusinessSubscription.PostalCode}}, {{BusinessSubscription.PostalPlace}}, {{BusinessSubscription.Country}}
     </p>
 </div>
 
 <div>
     <p style="font-weight: bold; font-size: 18px;">
+        Operator
+    </p>
+
+    <p style="font-weight: bold;">
         Operator Name
     </p>
     <p>
         {{OperatorName}}
     </p>
-</div>
 
-<div>
-    <p style="font-weight: bold; font-size: 18px;">
-        New Subscription
+    <p style="font-weight: bold;">
+        Operator Account Payer
     </p>
     <p>
-        {{NewSubscription}}
+        {{OperatorAccountPayer}}
+    </p>
+
+    <p style="font-weight: bold;">
+        Operator Account Owner
+    </p>
+    <p>
+        {{OperatorAccountName}}
+    </p>
+
+    <p style="font-weight: bold;">
+        Operator Account Name
+    </p>
+    <p>
+        {{OperatorAccountOwner}}
+    </p>
+
+    <p style="font-weight: bold;">
+        MobileNumber
+    </p>
+    <p>
+        {{MobileNumber}}
+    </p>
+
+    <p style="font-weight: bold;">
+        SimCard Number
+    </p>
+    <p>
+        {{SimCardNumber}}
+    </p>
+
+    <p style="font-weight: bold;">
+        SIMCard Action
+    </p>
+    <p>
+        {{SIMCardAction}}
     </p>
 </div>
 
 <div>
     <p style="font-weight: bold; font-size: 18px;">
+        Product
+    </p>
+    <p style="font-weight: bold;">
+        Product Name
+    </p>
+    <p>
+        {{SubscriptionProductName}}
+    </p>
+
+    <p style="font-weight: bold;">
+        DataPackage
+    </p>
+    <p>
+        {{DataPackageName}}
+    </p>
+
+    <p style="font-weight: bold;">
         Transfer Date
     </p>
     <p>
         {{OrderExecutionDate}}
+    </p>
+</div>
+
+<div>
+    <p style="font-weight: bold; font-size: 18px;">
+        Customer Reference Fields
+    </p>
+    <p>
+        {{CustomerReferenceFields}}
     </p>
 </div>
 

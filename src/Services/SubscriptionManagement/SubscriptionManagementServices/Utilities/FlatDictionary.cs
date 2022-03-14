@@ -35,7 +35,7 @@ namespace SubscriptionManagementServices.Utilities
                 var value = getter(@object);
                 if (value == null)
                 {
-                    dictionary.Add(key, null);
+                    dictionary.Add(key, string.Empty);
                     continue;
                 }
 
