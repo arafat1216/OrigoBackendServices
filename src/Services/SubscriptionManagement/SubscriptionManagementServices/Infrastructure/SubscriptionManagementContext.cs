@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SubscriptionManagementServices.Infrastructure.EntityConfiguration;
 using SubscriptionManagementServices.Models;
+using SubscriptionManagementServices.SeedData;
 
 namespace SubscriptionManagementServices.Infrastructure
 {
@@ -49,6 +50,7 @@ namespace SubscriptionManagementServices.Infrastructure
             modelBuilder.ApplyConfiguration(new CancelSubscriptionOrderConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new ActivateSimOrderConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new OrderSimSubscriptionOrderConfiguration(_isSQLite));
+            modelBuilder.SeedGlobalProducts();
         }
     }
 }
