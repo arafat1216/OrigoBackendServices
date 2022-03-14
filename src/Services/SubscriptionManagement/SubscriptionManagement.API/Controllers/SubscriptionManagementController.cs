@@ -158,17 +158,10 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{organizationId:Guid}/subscription-cancel")]
         public async Task<IActionResult> CancelSubscriptionOrder(Guid organizationId, [FromBody] NewCancelSubscriptionOrder subscriptionOrder)
         {
-            try
-            {
+            
                 var addedOrder = await _subscriptionServices.CancelSubscriptionOrder(organizationId, subscriptionOrder);
 
                 return CreatedAtAction(nameof(CancelSubscriptionOrder), addedOrder);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return BadRequest(ex.Message);
-            }
         }
 
         /// <summary>

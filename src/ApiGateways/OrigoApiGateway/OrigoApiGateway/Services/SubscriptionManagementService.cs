@@ -382,8 +382,6 @@ namespace OrigoApiGateway.Services
         public async Task<TransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrderForCustomerAsync(
             Guid organizationId, TransferToPrivateSubscriptionOrder order, Guid callerId)
         {
-            try
-            {
                 string requestUri = $"{_options.ApiPath}/{organizationId}/transfer-to-private";
                 var transferToPrivateSubscriptionOrderDTO = _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(order);
                 transferToPrivateSubscriptionOrderDTO.CallerId = callerId;
@@ -397,14 +395,12 @@ namespace OrigoApiGateway.Services
                 {
                     return await postSubscription.Content.ReadFromJsonAsync<TransferToPrivateSubscriptionOrder>();
                 }
+                if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    throw new SubscriptionManagementException(await postSubscription.Content.ReadAsStringAsync());
+                }
 
-                throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
-            }
-            catch (HttpRequestException ex)
-            {
-                _logger.LogError(ex, "AddSubscriptionForCustomerAsync failed with HttpRequestException.");
-                throw;
-            }
+            throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
         }
 
         public async Task<IList<OrigoSubscriptionOrderListItem>> GetSubscriptionOrders(Guid organizationId)
@@ -443,8 +439,7 @@ namespace OrigoApiGateway.Services
         public async Task<OrigoCancelSubscriptionOrder> CancelSubscriptionOrderForCustomerAsync(Guid organizationId,
             CancelSubscriptionOrder order, Guid callerId)
         {
-            try
-            {
+            
                 var requestUri = $"{_options.ApiPath}/{organizationId}/subscription-cancel";
 
                 var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, order);
@@ -453,14 +448,13 @@ namespace OrigoApiGateway.Services
                 {
                     return await postSubscription.Content.ReadFromJsonAsync<OrigoCancelSubscriptionOrder>();
                 }
+                if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    throw new SubscriptionManagementException(await postSubscription.Content.ReadAsStringAsync());
+                }
 
                 throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
-            }
-            catch (HttpRequestException ex)
-            {
-                _logger.LogError(ex, "CancelSubscriptionOrderForCustomerAsync failed with HttpRequestException.");
-                throw;
-            }
+            
         }
 
         public async Task<OrigoOrderSim> OrderSimCardForCustomerAsync(Guid organizationId, OrderSim order, Guid callerId)
