@@ -1,7 +1,7 @@
 ﻿using CustomerServices.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace CustomerServices.Infrastructure
+namespace CustomerServices.Infrastructure.Context
 {
     public static class ModelBuilderExtensions
     {

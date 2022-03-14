@@ -77,7 +77,7 @@ namespace CustomerServices
         /// <returns>Organization</returns>
         public async Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool onlyCustomer = false)
         {
-            var organization = (!onlyCustomer) ? await _customerRepository.GetOrganizationAsync(customerId) : await _customerRepository.GetCustomerAsync(customerId);
+            var organization = onlyCustomer ? await _customerRepository.GetCustomerAsync(customerId) : await _customerRepository.GetOrganizationAsync(customerId);
 
             if (organization != null)
             {

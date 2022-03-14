@@ -19,7 +19,7 @@ namespace SubscriptionManagementServices.Models
             string mobileNumber, string customerReferenceFields,
             List<SubscriptionAddOnProduct> subscriptionAddOnProducts, string? newOperatorAccountOwner,
             string? newOperatorAccountPayer, PrivateSubscription? privateSubscription,
-            BusinessSubscription? businessSubscription, Guid callerId)
+            BusinessSubscription? businessSubscription, string newOperatorName, Guid callerId)
         {
             SubscriptionOrderId = Guid.NewGuid();
             SimCardNumber = simCardNumber;
@@ -32,6 +32,10 @@ namespace SubscriptionManagementServices.Models
                 OperatorName = customerOperatorAccount.Operator.OperatorName;
                 OperatorAccountNumber = customerOperatorAccount.AccountNumber;
                 OperatorAccountOrganizationNumber = customerOperatorAccount.ConnectedOrganizationNumber;
+            }
+            else
+            {
+                OperatorName = newOperatorName;
             }
             DataPackageName = dataPackageName;
             OrderExecutionDate = orderExecutionDate;

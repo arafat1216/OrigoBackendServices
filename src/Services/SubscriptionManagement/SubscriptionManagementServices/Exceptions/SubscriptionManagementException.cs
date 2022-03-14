@@ -1,29 +1,31 @@
-﻿using System.Runtime.Serialization;
+﻿using Common.Model;
+using System.Runtime.Serialization;
 
 namespace SubscriptionManagementServices.Exceptions
 {
     [Serializable]
     public class SubscriptionManagementException : Exception
     {
+        readonly ErrorResponse _errorResponse;
 
-        public SubscriptionManagementException()
+        public SubscriptionManagementException(string message, Guid traceId, Common.Enums.OrigoErrorCodes errorCode, Exception? innerException) : base(message, innerException)
         {
+            var subscriptionManagementInnerException = innerException as SubscriptionManagementException;
+            List<ErrorResponseDetail> innerExceptionErrorResponseDetails = new();
+            if (subscriptionManagementInnerException is not null)
+            {
+                innerExceptionErrorResponseDetails = subscriptionManagementInnerException._errorResponse.Details.ToList();
+            }
+            _errorResponse = new ErrorResponse
+            {
+                Message = message,
+                HttpStatusCode = System.Net.HttpStatusCode.BadRequest,
+                TraceId = Guid.NewGuid()
+            };
+            innerExceptionErrorResponseDetails.Add(new ErrorResponseDetail(errorCode, message, traceId));
+            _errorResponse.AddErrorResponseDetails(innerExceptionErrorResponseDetails);
         }
 
-        public SubscriptionManagementException(Exception exception)
-        {
-        }
-
-        public SubscriptionManagementException(string message) : base(message)
-        {
-        }
-
-        public SubscriptionManagementException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected SubscriptionManagementException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+        public ErrorResponse ErrorResponse => _errorResponse;
     }
 }

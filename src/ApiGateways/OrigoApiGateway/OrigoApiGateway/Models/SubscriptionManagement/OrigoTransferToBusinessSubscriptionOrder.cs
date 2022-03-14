@@ -1,4 +1,5 @@
 ﻿using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
+using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using System;
 using System.Collections.Generic;
 
@@ -17,14 +18,14 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
         public string MobileNumber { get; set; }
 
         /// <summary>
-        ///     New operator account identifier
+        ///     New operator account name
         /// </summary>
-        public int? OperatorAccountId { get; set; }
+        public string? OperatorName { get; set; }
 
         /// <summary>
-        ///     Customer Subscription product identifier
+        ///     Customer Subscription product name
         /// </summary>
-        public int SubscriptionProductId { get; set; }
+        public string? SubscriptionProductName { get; set; }
 
         /// <summary>
         ///     Data package name
@@ -52,6 +53,6 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
         public IList<string> AddOnProducts { get; set; } = new List<string>();
 
         public IList<NewCustomerReferenceValue> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceValue>();
-        public NewOperatorAccountRequested? NewOperatorAccount { get; set; }
+        public OrigoNewOperatorAccount? NewOperatorAccount { get; set; }
     }
 }

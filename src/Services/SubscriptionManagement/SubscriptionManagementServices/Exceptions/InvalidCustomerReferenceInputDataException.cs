@@ -1,29 +1,12 @@
-﻿using System.Runtime.Serialization;
+﻿using Common.Enums;
 
-namespace SubscriptionManagementServices.Exceptions
+namespace SubscriptionManagementServices.Exceptions;
+
+[Serializable]
+public class InvalidCustomerReferenceInputDataException : SubscriptionManagementException
 {
-    [Serializable]
-    public class InvalidCustomerReferenceInputDataException : SubscriptionManagementException
+    public InvalidCustomerReferenceInputDataException(string message, Guid trackingId, Exception? innerException = null)
+        : base(message, trackingId, OrigoErrorCodes.CustomerReferenceFieldMissing, innerException)
     {
-
-        public InvalidCustomerReferenceInputDataException()
-        {
-        }
-
-        public InvalidCustomerReferenceInputDataException(Exception exception)
-        {
-        }
-
-        public InvalidCustomerReferenceInputDataException(string message) : base(message)
-        {
-        }
-
-        public InvalidCustomerReferenceInputDataException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected InvalidCustomerReferenceInputDataException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 }

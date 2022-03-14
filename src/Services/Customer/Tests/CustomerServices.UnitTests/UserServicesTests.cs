@@ -13,6 +13,7 @@ using AutoMapper;
 using CustomerServices.Mappings;
 using CustomerServices.ServiceModels;
 using Xunit;
+using CustomerServices.Infrastructure.Context;
 
 namespace CustomerServices.UnitTests
 {

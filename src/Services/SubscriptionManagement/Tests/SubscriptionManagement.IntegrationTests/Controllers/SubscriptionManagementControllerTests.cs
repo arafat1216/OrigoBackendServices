@@ -112,7 +112,7 @@ public class
             PrivateSubscription =
                 new PrivateSubscriptionDTO
                 {
-                    OperatorName = "TELEFONIA",
+                    OperatorName = "Telia - NO",
                     FirstName = "Ola",
                     LastName = "Nordmann",
                     Address = "Hjemmeveien 1",
@@ -331,8 +331,8 @@ public class
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
-            $"Not valid mobile number",
+        Assert.Contains(
+            $"Phone number +47041414141 not valid for countrycode nb.",
             response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
@@ -349,8 +349,8 @@ public class
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
-            $"Not valid mobile number",
+        Assert.Contains(
+            $"Phone number   not valid for countrycode nb.",
             response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
@@ -366,8 +366,8 @@ public class
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        Assert.Equal(
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains(
             $"Customer does not have this operator Telenor - NO as a setting",
             response.Content.ReadAsStringAsync().Result);
     }
@@ -384,8 +384,8 @@ public class
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        Assert.Equal(
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains(
             $"Customer does not have product lol as a setting",
             response.Content.ReadAsStringAsync().Result);
     }
@@ -402,8 +402,8 @@ public class
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        Assert.Equal(
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains(
             $"Customer does not have datapackage 2GB with product TOTAL BEDRIFT as a setting",
             response.Content.ReadAsStringAsync().Result);
     }
@@ -432,8 +432,8 @@ public class
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/change-subscription", postRequest);
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        Assert.Equal(
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains(
             $"Customer does not have datapackage 2GB with product Prod as a setting",
             response.Content.ReadAsStringAsync().Result);
     }
@@ -445,7 +445,7 @@ public class
             MobileNumber = "+4741730800",
             OperatorId = 1,
             SimCardNumber = "89652021000371234219",
-            SimCardType = "RegularSIM",
+            SimCardType = "Regular",
             CallerId = Guid.NewGuid()
         };
 
@@ -453,21 +453,21 @@ public class
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
     [Fact]
-    public async Task PostActivateSim_ReturnsBadRequest_InvalidSim()
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidSimNumber()
     {
         var postRequest = new NewActivateSimOrder
         {
             MobileNumber = "+4741730800",
             OperatorId = 1,
             SimCardNumber = "89652021000",
-            SimCardType = "RegularSIM",
+            SimCardType = "Regular",
             CallerId = Guid.NewGuid()
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
-           $"SIM card number not valid 89652021000",
+        Assert.Contains(
+           $"SIM card number: 89652021000 not valid.",
             response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
@@ -478,14 +478,219 @@ public class
             MobileNumber = "+4741730800",
             OperatorId = 5,
             SimCardNumber = "89652021000371234219",
+            SimCardType = "Regular",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains(
+             $"No operator with OperatorId 5 found.",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidSimType()
+    {
+        var postRequest = new NewActivateSimOrder
+        {
+            MobileNumber = "+4741730800",
+            OperatorId = 1,
+            SimCardNumber = "89652021000371234219",
             SimCardType = "RegularSIM",
             CallerId = Guid.NewGuid()
         };
 
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(
-             $"No operator with OperatorId 5 found",
+        Assert.Contains(
+             $"SIM card type: RegularSIM not valid.",
             response.Content.ReadAsStringAsync().Result);
     }
+    [Fact]
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidPhoneNumber()
+    {
+        var postRequest = new NewActivateSimOrder
+        {
+            MobileNumber = "+47417308",
+            OperatorId = 1,
+            SimCardNumber = "89652021000371234219",
+            SimCardType = "Regular",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains(
+             $"Phone number +47417308 not valid for countrycode nb.",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostActivateSim_ReturnsBadRequest_InvalidPhoneNumberWithOperatorCountry()
+    {
+        var postRequest = new NewActivateSimOrder
+        {
+            MobileNumber = "+4741730800",
+            OperatorId = 2,
+            SimCardNumber = "89652021000371234219",
+            SimCardType = "Regular",
+            CallerId = Guid.NewGuid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/activate-sim", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains(
+             $"Phone number +4741730800 not valid for countrycode se.",
+            response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task PostTransferPrivateToBusinessSubscriptionOrder_ReturnCreated_AllowingNullForProductDataPackages()
+    {
+        var referenceFields = new NewCustomerReferenceValue
+        {
+            Name = "URef1",
+            Type = "User",
+            Value = "dfghjkl",
+        };
+
+
+        var postRequest = new TransferToBusinessSubscriptionOrderDTO
+        {
+            PrivateSubscription = new PrivateSubscriptionDTO
+            {
+                FirstName = "Ole",
+                LastName = "Brum",
+                Address = "K. K. Lien vei 54F",
+                PostalCode = "4812",
+                PostalPlace = "KONGSHAVN",
+                Country = "M@H.COM",
+                Email = "me@example.com",
+                BirthDate = DateTime.Parse("1986-06-04T00:00:00.000Z"),
+                OperatorName = "Telia - NO"
+            },
+            MobileNumber = "+4747474744",
+            OperatorAccountId = 100, 
+            SubscriptionProductId = 200,
+            DataPackage = null,
+            SIMCardNumber = "89202051293671023971",
+            SIMCardAction = "New",
+            OrderExecutionDate = DateTime.Parse("2022-03-17T00:00:00.000Z"),
+            CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
+            AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
+            BusinessSubscription = new BusinessSubscriptionDTO
+            {
+                Name = "D&D METAL",
+                OrganizationNumber = "995053179",
+                Address = "Josipa Kozarca BB",
+                PostalCode= "9090",
+                PostalPlace = "HR-31207 OSIJEK-TENJA",
+                Country = "HR",
+                OperatorName = "Telia - NO"
+            }
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-business", postRequest);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+    }
+    [Fact]
+    public async Task PostTransferPrivateToBusinessSubscriptionOrder_ReturnCreated_NullForSimWhenSimCardActionIsOrder()
+    {
+        var referenceFields = new NewCustomerReferenceValue
+        {
+            Name = "URef1",
+            Type = "User",
+            Value = "dfghjkl",
+        };
+
+
+        var postRequest = new TransferToBusinessSubscriptionOrderDTO
+        {
+            PrivateSubscription = new PrivateSubscriptionDTO
+            {
+                FirstName = "Ole",
+                LastName = "Brum",
+                Address = "K. K. Lien vei 54F",
+                PostalCode = "4812",
+                PostalPlace = "KONGSHAVN",
+                Country = "M@H.COM",
+                Email = "me@example.com",
+                BirthDate = DateTime.Parse("1986-06-04T00:00:00.000Z"),
+                OperatorName = "Telia - NO"
+            },
+            MobileNumber = "+4747474744",
+            OperatorAccountId = 100,
+            SubscriptionProductId = 200,
+            DataPackage = null,
+            SIMCardNumber = null,
+            SIMCardAction = "Order",
+            OrderExecutionDate = DateTime.Parse("2022-03-17T00:00:00.000Z"),
+            CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
+            AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
+            BusinessSubscription = new BusinessSubscriptionDTO
+            {
+                Name = "D&D METAL",
+                OrganizationNumber = "995053179",
+                Address = "Josipa Kozarca BB",
+                PostalCode = "9090",
+                PostalPlace = "HR-31207 OSIJEK-TENJA",
+                Country = "HR",
+                OperatorName = "Telia - NO"
+            }
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-business", postRequest);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+    }
+    [Fact]
+    public async Task PostTransferPrivateToBusinessSubscriptionOrder_ReturnBadRequest_ActionIsNewAndNoSimCardNumber()
+    {
+        var referenceFields = new NewCustomerReferenceValue
+        {
+            Name = "URef1",
+            Type = "User",
+            Value = "dfghjkl",
+        };
+
+
+        var postRequest = new TransferToBusinessSubscriptionOrderDTO
+        {
+            PrivateSubscription = new PrivateSubscriptionDTO
+            {
+                FirstName = "Ole",
+                LastName = "Brum",
+                Address = "K. K. Lien vei 54F",
+                PostalCode = "4812",
+                PostalPlace = "KONGSHAVN",
+                Country = "M@H.COM",
+                Email = "me@example.com",
+                BirthDate = DateTime.Parse("1986-06-04T00:00:00.000Z"),
+                OperatorName = "Telia - NO"
+            },
+            MobileNumber = "+4747474744",
+            OperatorAccountId = 100,
+            SubscriptionProductId = 200,
+            DataPackage = null,
+            SIMCardNumber = null,
+            SIMCardAction = "NEW",
+            OrderExecutionDate = DateTime.Parse("2022-03-17T00:00:00.000Z"),
+            CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
+            AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
+            BusinessSubscription = new BusinessSubscriptionDTO
+            {
+                Name = "D&D METAL",
+                OrganizationNumber = "995053179",
+                Address = "Josipa Kozarca BB",
+                PostalCode = "9090",
+                PostalPlace = "HR-31207 OSIJEK-TENJA",
+                Country = "HR",
+                OperatorName = "Telia - NO"
+            }
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-business", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+    }
+
 }

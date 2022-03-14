@@ -1,30 +1,11 @@
-﻿using System.Runtime.Serialization;
+﻿using Common.Enums;
 
-namespace SubscriptionManagementServices.Exceptions
+namespace SubscriptionManagementServices.Exceptions;
+
+public class InvalidSimException : SubscriptionManagementException
 {
-
-    [Serializable]
-    internal class InvalidSimException : SubscriptionManagementException
+    public InvalidSimException(string message, Guid trackingId, Exception? innerException = null) : base(message,
+        trackingId, OrigoErrorCodes.InvalidSimCard, innerException)
     {
-        public InvalidSimException()
-        {
-        }
-
-        public InvalidSimException(Exception exception)
-        {
-        }
-
-        public InvalidSimException(string message) : base(message)
-        {
-        }
-
-        public InvalidSimException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected InvalidSimException(SerializationInfo info, StreamingContext context) : base(info,
-            context)
-        {
-        }
     }
 }

@@ -19,11 +19,19 @@ namespace SubscriptionManagement.API.Filters
             var exception = context.Exception;
             _logger.LogError(exception.Message, exception);
 
-            if (exception is ArgumentException or SubscriptionManagementException)
+            if (exception is ArgumentException)
             {
                 context.Result = new BadRequestObjectResult(exception.Message);
                 return;
             }
+
+            if(exception is SubscriptionManagementException subscriptionManagementException)
+            {
+                context.Result = new BadRequestObjectResult(subscriptionManagementException.ErrorResponse);
+                return;
+            }
+
+
 
             var errorMessage = _hostEnvironment.IsDevelopment() ?
                 exception.StackTrace : "Unexpected error occurred. Please try again.";

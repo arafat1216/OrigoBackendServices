@@ -1,28 +1,13 @@
-﻿using System.Runtime.Serialization;
+﻿using Common.Enums;
 
 namespace SubscriptionManagementServices.Exceptions;
 
 [Serializable]
 public class InvalidOperatorIdInputDataException : SubscriptionManagementException
 {
-    public InvalidOperatorIdInputDataException()
-    {
-    }
-
-    public InvalidOperatorIdInputDataException(Exception exception)
-    {
-    }
-
-    public InvalidOperatorIdInputDataException(string message) : base(message)
-    {
-    }
-
-    public InvalidOperatorIdInputDataException(string message, Exception innerException) : base(message, innerException)
-    {
-    }
-
-    protected InvalidOperatorIdInputDataException(SerializationInfo info, StreamingContext context) : base(info,
-        context)
+    public InvalidOperatorIdInputDataException(int operatorId, Guid trackingId, Exception? innerException = null) :
+        base($"No operator with OperatorId {operatorId} found.", trackingId, OrigoErrorCodes.InvalidOperatorId,
+            innerException)
     {
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 
-namespace CustomerServices.Infrastructure
+namespace CustomerServices.Infrastructure.Context
 {
     // ReSharper disable once UnusedType.Global
     public class LoggingContextFactory : IDesignTimeDbContextFactory<LoggingDbContext>

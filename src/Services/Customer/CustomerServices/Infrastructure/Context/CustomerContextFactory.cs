@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 
-namespace CustomerServices.Infrastructure
+namespace CustomerServices.Infrastructure.Context
 {
     // ReSharper disable once UnusedType.Global
     public class CustomerContextFactory : IDesignTimeDbContextFactory<CustomerContext>
