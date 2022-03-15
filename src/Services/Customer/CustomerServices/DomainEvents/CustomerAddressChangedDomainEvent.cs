@@ -11,7 +11,7 @@ namespace CustomerServices.DomainEvents
             OldAddress = oldAddress;
         }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer Address changed from {OldAddress} to {Organization.Address}.";
         }

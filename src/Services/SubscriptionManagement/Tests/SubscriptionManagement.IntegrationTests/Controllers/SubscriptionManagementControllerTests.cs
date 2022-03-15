@@ -218,8 +218,8 @@ public class
                 Email = "me@example.com"
             },
             MobileNumber = "+4791111111",
-            NewSubscription = "Another subscription",
-            OperatorName = "Telenor",
+            NewSubscription = "TOTAL BEDRIFT",
+            OperatorName = "Telia - NO",
             OrderExecutionDate = DateTime.UtcNow.AddDays(20),
             CallerId = Guid.NewGuid()
         };
@@ -228,6 +228,64 @@ public class
             $"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-private", newTransferFromPrivate);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+    [Fact]
+    public async Task PostTransferToPrivateSubscriptionOrder_ReturnsBadRequest_CustomerSettingsOperatorDoesNotHaveSubscriptionProduct()
+    {
+        var newTransferFromPrivate = new TransferToPrivateSubscriptionOrderDTO
+        {
+            PrivateSubscription = new PrivateSubscriptionDTO
+            {
+                OperatorName = "TELEFONIA",
+                FirstName = "Ola",
+                LastName = "Nordmann",
+                Address = "Hjemmeveien 1",
+                PostalCode = "1234",
+                PostalPlace = "HEIMSTADEN",
+                Country = "NO",
+                BirthDate = new DateTime(1971, 10, 21),
+                Email = "me@example.com"
+            },
+            MobileNumber = "+4791111111",
+            NewSubscription = "Not A Product",
+            OperatorName = "Telia - NO",
+            OrderExecutionDate = DateTime.UtcNow.AddDays(20),
+            CallerId = Guid.NewGuid()
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newTransferFromPrivate));
+        var response = await _httpClient.PostAsJsonAsync(
+            $"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-private", newTransferFromPrivate);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+    [Fact]
+    public async Task PostTransferToPrivateSubscriptionOrder_ReturnsBadRequest_InvalidPhoneNumber()
+    {
+        var newTransferFromPrivate = new TransferToPrivateSubscriptionOrderDTO
+        {
+            PrivateSubscription = new PrivateSubscriptionDTO
+            {
+                OperatorName = "TELEFONIA",
+                FirstName = "Ola",
+                LastName = "Nordmann",
+                Address = "Hjemmeveien 1",
+                PostalCode = "1234",
+                PostalPlace = "HEIMSTADEN",
+                Country = "NO",
+                BirthDate = new DateTime(1971, 10, 21),
+                Email = "me@example.com"
+            },
+            MobileNumber = "+47450045",
+            NewSubscription = "TOTAL BEDRIFT",
+            OperatorName = "Telia - NO",
+            OrderExecutionDate = DateTime.UtcNow.AddDays(20),
+            CallerId = Guid.NewGuid()
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newTransferFromPrivate));
+        var response = await _httpClient.PostAsJsonAsync(
+            $"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-private", newTransferFromPrivate);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]

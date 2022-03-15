@@ -10,10 +10,11 @@ namespace CustomerServices.DomainEvents
             OrganizationPreferences = organizationPreferences;
             OldDefaultDepartmentClassification = oldDefaultDepartmentClassification;
         }
+
         public OrganizationPreferences OrganizationPreferences { get; protected set; }
         public string OldDefaultDepartmentClassification { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer default department classification changed from {OldDefaultDepartmentClassification} to {OrganizationPreferences.DefaultDepartmentClassification}.";
         }

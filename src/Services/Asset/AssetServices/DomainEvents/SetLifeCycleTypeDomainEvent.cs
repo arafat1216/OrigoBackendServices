@@ -21,7 +21,7 @@ namespace AssetServices.DomainEvents
             PreviousLifecycleType = previousLifecycleType;
         }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Lifecycle changed from {PreviousLifecycleType} to {Asset.LifecycleType}.";
         }

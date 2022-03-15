@@ -10,10 +10,11 @@ namespace CustomerServices.DomainEvents
             OrganizationPreferences = organizationPreferences;
             OldWebPage = oldWebPage;
         }
+
         public OrganizationPreferences OrganizationPreferences { get; protected set; }
         public string OldWebPage { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer webpage changed from {OldWebPage} to {OrganizationPreferences.WebPage}.";
         }

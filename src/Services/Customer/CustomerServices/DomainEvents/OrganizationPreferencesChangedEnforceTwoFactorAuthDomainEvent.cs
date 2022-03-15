@@ -13,7 +13,7 @@ namespace CustomerServices.DomainEvents
         public OrganizationPreferences OrganizationPreferences { get; protected set; }
         public string OldTwoFactorAuth { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer changed two factor authentication from {OldTwoFactorAuth} to {OrganizationPreferences.EnforceTwoFactorAuth}.";
         }

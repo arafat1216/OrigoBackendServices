@@ -10,9 +10,11 @@ namespace CustomerServices.DomainEvents
             User = user;
             OldEmail = oldEmail;
         }
+
         public User User { get; protected set; }
         public string OldEmail { get; protected set; }
-        public override string EventMessage(string languageCode = "nb-NO")
+
+        public override string EventMessage()
         {
             return $"User email changed from {OldEmail} to {User.Email}.";
         }

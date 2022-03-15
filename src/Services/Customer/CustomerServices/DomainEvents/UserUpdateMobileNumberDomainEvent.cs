@@ -12,10 +12,12 @@ namespace CustomerServices.DomainEvents
             OldMobileNumber = oldMobileNumber;
             CallerId = callerId;
         }
+
         public User User { get; protected set; }
         public string OldMobileNumber { get; protected set; }
         public Guid CallerId { get; protected set; }
-        public override string EventMessage(string languageCode = "nb-NO")
+
+        public override string EventMessage()
         {
             return $"User mobile phone number changed from {OldMobileNumber} to {User.MobileNumber}.";
         }

@@ -19,7 +19,7 @@ namespace AssetServices.DomainEvents
         public Guid CallerId { get; protected set; }
         public Guid? PreviousUserId { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Asset assigned to user {Asset.AssetHolderId} from user {PreviousUserId}.";
         }

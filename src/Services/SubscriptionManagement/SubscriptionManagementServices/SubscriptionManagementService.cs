@@ -187,6 +187,33 @@ public class SubscriptionManagementService : ISubscriptionManagementService
     public async Task<TransferToPrivateSubscriptionOrderDTO> TransferToPrivateSubscriptionOrderAsync(
         Guid organizationId, TransferToPrivateSubscriptionOrderDTO subscriptionOrder)
     {
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        if (customerSettings != null)
+        {
+            var customersOperator = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == subscriptionOrder.OperatorName)
+                ?.AvailableSubscriptionProducts.FirstOrDefault(prod => prod.SubscriptionName == subscriptionOrder.NewSubscription);
+
+            if (customersOperator != null)
+            {
+                var @operator = await _operatorRepository.GetOperatorAsync(customersOperator.Operator.Id);
+
+                if (!PhoneNumberUtility.ValidatePhoneNumber(subscriptionOrder.MobileNumber, @operator?.Country ?? string.Empty))
+                {
+                    throw new InvalidPhoneNumberException(subscriptionOrder.MobileNumber, @operator?.Country ?? string.Empty, Guid.Parse("4945485a-a30b-11ec-b5fc-00155d8454bd"));
+                }
+                
+            }
+            else
+            {
+                throw new CustomerSettingsException($"Customer does not have subscription product {subscriptionOrder.NewSubscription} for operator {subscriptionOrder.OperatorName} as a setting", Guid.Parse("0e1fe424-a30b-11ec-acf0-00155d8454bd"));
+
+            }
+        }
+        else 
+        { 
+            throw new CustomerSettingsException($"Customer has no settings", Guid.Parse("30bd977e-a30b-11ec-b545-00155d8454bd")); 
+        }
+
         var order = _mapper.Map<TransferToPrivateSubscriptionOrder>(subscriptionOrder);
         order.OrganizationId = organizationId;
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(order);
@@ -263,6 +290,10 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         {
             throw new InvalidOperatorIdInputDataException(subscriptionOrder.OperatorId, Guid.Parse("67b12c32-a30b-11ec-9200-00155d8454bd"));
         }
+
+        if (!PhoneNumberUtility.ValidatePhoneNumber(subscriptionOrder.MobileNumber, @operator.Country))
+            throw new InvalidPhoneNumberException(subscriptionOrder.MobileNumber, @operator.Country, Guid.Parse("6bffdff0-a30a-11ec-940a-00155d8454bd"));
+
         var cancelSubscriptionOrder = new CancelSubscriptionOrder(subscriptionOrder.MobileNumber,
             subscriptionOrder.DateOfTermination, @operator.OperatorName, organizationId, subscriptionOrder.CallerId);
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(cancelSubscriptionOrder);

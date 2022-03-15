@@ -20,7 +20,7 @@ namespace AssetServices.DomainEvents
             PreviousModel = previousModel;
         }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Asset changed from {PreviousModel} to {Asset.ProductName}.";
         }
