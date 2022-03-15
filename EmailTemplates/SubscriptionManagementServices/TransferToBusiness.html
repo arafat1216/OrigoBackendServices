@@ -1,178 +1,53 @@
-<b>Order Type: </b> {{OrderType}}
-<hr>
+### Order Type: {{OrderType}}
+---
+#### User
+**Name:**  {{PrivateSubscription.FirstName}} {{PrivateSubscription.LastName}}
 
-<div>
-    <p style="font-weight: bold; font-size: 18px;">
-        User
-    </p>
-    <p style="font-weight: bold;">
-        Name
-    </p>
-    <p>
-        {{PrivateSubscription.FirstName}} {{PrivateSubscription.LastName}}
-    </p>
-    <p style="font-weight: bold;">
-        Born
-    </p>
-    <p>
-        {{PrivateSubscription.BirthDate}}
-    </p>
-    <p style="font-weight: bold;">
-        Address
-    </p>
-    <p>
-        {{PrivateSubscription.Address}}, {{PrivateSubscription.PostalCode}}, {{PrivateSubscription.PostalPlace}}, {{PrivateSubscription.Country}}
-    </p>
-    <p style="font-weight: bold;">
-        Email
-    </p>
-    <p>
-        {{PrivateSubscription.Email}}
-    </p>
-</div>
+**Born:**  {{PrivateSubscription.BirthDate}}
 
-<div>
-    <p style="font-weight: bold; font-size: 18px;">
-        Owner
-    </p>
-    <p style="font-weight: bold;">
-        Name
-    </p>
-    <p>
-        {{PrivateSubscription.RealOwner.FirstName}} {{PrivateSubscription.RealOwner.LastName}}
-    </p>
-    <p style="font-weight: bold;">
-        Born
-    </p>
-    <p>
-        {{PrivateSubscription.RealOwner.BirthDate}}
-    </p>
-    <p style="font-weight: bold;">
-        Address
-    </p>
-    <p>
-        {{PrivateSubscription.RealOwner.Address}}, {{PrivateSubscription.RealOwner.PostalCode}}, {{PrivateSubscription.RealOwner.PostalPlace}}, {{PrivateSubscription.RealOwner.Country}}
-    </p>
-    <p style="font-weight: bold;">
-        Email
-    </p>
-    <p>
-        {{PrivateSubscription.RealOwner.Email}}
-    </p>
-</div>
+**Address:**  {{PrivateSubscription.Address}}, {{PrivateSubscription.PostalCode}}, {{PrivateSubscription.PostalPlace}}, {{PrivateSubscription.Country}}
 
-<div>
-    <p style="font-weight: bold; font-size: 18px;">
-        Company
-    </p>
-    <p style="font-weight: bold;">
-        Name
-    </p>
-    <p>
-        {{BusinessSubscription.Name}}
-    </p>
-    <p style="font-weight: bold;">
-        Organization Number
-    </p>
-    <p>
-        {{BusinessSubscription.OrganizationNumber}}
-    </p>
-    <p style="font-weight: bold;">
-        Address
-    </p>
-    <p>
-        {{BusinessSubscription.Address}}, {{BusinessSubscription.PostalCode}}, {{BusinessSubscription.PostalPlace}}, {{BusinessSubscription.Country}}
-    </p>
-</div>
+**Email:**  {{PrivateSubscription.Email}}
 
-<div>
-    <p style="font-weight: bold; font-size: 18px;">
-        Operator
-    </p>
+#### Owner
+**Name:**  {{PrivateSubscription.RealOwner.FirstName}} {{PrivateSubscription.RealOwner.LastName}}
 
-    <p style="font-weight: bold;">
-        Operator Name
-    </p>
-    <p>
-        {{OperatorName}}
-    </p>
+**Born:**  {{PrivateSubscription.RealOwner.BirthDate}}
 
-    <p style="font-weight: bold;">
-        Operator Account Payer
-    </p>
-    <p>
-        {{OperatorAccountPayer}}
-    </p>
+**Address:**  {{PrivateSubscription.RealOwner.Address}}, {{PrivateSubscription.RealOwner.PostalCode}}, {{PrivateSubscription.RealOwner.PostalPlace}}, {{PrivateSubscription.RealOwner.Country}}
 
-    <p style="font-weight: bold;">
-        Operator Account Owner
-    </p>
-    <p>
-        {{OperatorAccountName}}
-    </p>
+**Email:**  {{PrivateSubscription.RealOwner.Email}}
 
-    <p style="font-weight: bold;">
-        Operator Account Name
-    </p>
-    <p>
-        {{OperatorAccountOwner}}
-    </p>
+#### Company
+**Name: ** {{BusinessSubscription.Name}}
 
-    <p style="font-weight: bold;">
-        MobileNumber
-    </p>
-    <p>
-        {{MobileNumber}}
-    </p>
+**Organization Number: ** {{BusinessSubscription.OrganizationNumber}}
 
-    <p style="font-weight: bold;">
-        SimCard Number
-    </p>
-    <p>
-        {{SimCardNumber}}
-    </p>
+**Address: ** {{BusinessSubscription.Address}}, {{BusinessSubscription.PostalCode}}, {{BusinessSubscription.PostalPlace}}, {{BusinessSubscription.Country}}
 
-    <p style="font-weight: bold;">
-        SIMCard Action
-    </p>
-    <p>
-        {{SIMCardAction}}
-    </p>
-</div>
+#### Operator
+**Operator Name: ** {{OperatorName}}
 
-<div>
-    <p style="font-weight: bold; font-size: 18px;">
-        Product
-    </p>
-    <p style="font-weight: bold;">
-        Product Name
-    </p>
-    <p>
-        {{SubscriptionProductName}}
-    </p>
+**Operator Account Payer: ** {{OperatorAccountPayer}}
 
-    <p style="font-weight: bold;">
-        DataPackage
-    </p>
-    <p>
-        {{DataPackageName}}
-    </p>
+**Operator Account Owner: ** {{OperatorAccountName}}
 
-    <p style="font-weight: bold;">
-        Transfer Date
-    </p>
-    <p>
-        {{OrderExecutionDate}}
-    </p>
-</div>
+**Operator Account Name: ** {{OperatorAccountOwner}}
 
-<div>
-    <p style="font-weight: bold; font-size: 18px;">
-        Customer Reference Fields
-    </p>
-    <p>
-        {{CustomerReferenceFields}}
-    </p>
-</div>
+**MobileNumber: ** {{MobileNumber}}
 
+**SimCard Number: ** {{SimCardNumber}}
 
+**SIMCard Action: ** {{SIMCardAction}}
+
+#### Product
+**Product Name: ** {{SubscriptionProductName}}
+
+**DataPackage: ** {{DataPackageName}}
+
+**Transfer Date: ** {{OrderExecutionDate}}
+
+#### Customer Reference Fields
+```
+{{CustomerReferenceFields}}
+```

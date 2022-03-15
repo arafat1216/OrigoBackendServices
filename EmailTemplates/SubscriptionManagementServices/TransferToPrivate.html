@@ -1,100 +1,31 @@
-<b>Order Type: </b> {{OrderType}}
-<hr>
+### Order Type: {{OrderType}}
+---
+#### User
+**Name:**  {{FirstName}} {{LastName}}
 
-<div>
-    <p style="font-weight: bold; font-size: 18px;">
-        User
-    </p>
-    <p style="font-weight: bold;">
-        Name
-    </p>
-    <p>
-        {{FirstName}} {{LastName}}
-    </p>
-    <p style="font-weight: bold;">
-        Born
-    </p>
-    <p>
-        {{BirthDate}}
-    </p>
-    <p style="font-weight: bold;">
-        Address
-    </p>
-    <p>
-        {{Address}}, {{PostalCode}}, {{PostalPlace}}, {{Country}}
-    </p>
-    <p style="font-weight: bold;">
-        Email
-    </p>
-    <p>
-        {{Email}}
-    </p>
-</div>
+**Born:**  {{BirthDate}}
 
-<div>
-    <p style="font-weight: bold; font-size: 18px;">
-        Owner
-    </p>
-    <p style="font-weight: bold;">
-        Name
-    </p>
-    <p>
-        {{RealOwner.FirstName}} {{RealOwner.LastName}}
-    </p>
-    <p style="font-weight: bold;">
-        Born
-    </p>
-    <p>
-        {{RealOwner.BirthDate}}
-    </p>
-    <p style="font-weight: bold;">
-        Address
-    </p>
-    <p>
-        {{RealOwner.Address}}, {{RealOwner.PostalCode}}, {{RealOwner.PostalPlace}}, {{RealOwner.Country}}
-    </p>
-    <p style="font-weight: bold;">
-        Email
-    </p>
-    <p>
-        {{RealOwner.Email}}
-    </p>
-</div>
+**Address:**  {{Address}}, {{PostalCode}}, {{PostalPlace}}, {{Country}}
 
-<div>
-    <p style="font-weight: bold; font-size: 18px;">
-        Mobile Number
-    </p>
-    <p>
-        {{MobileNumber}}
-    </p>
-</div>
+**Email:**  {{Email}}
 
-<div>
-    <p style="font-weight: bold; font-size: 18px;">
-        Operator Name
-    </p>
-    <p>
-        {{OperatorName}}
-    </p>
-</div>
+#### Owner
+**Name:**  {{RealOwner.FirstName}} {{RealOwner.LastName}}
 
-<div>
-    <p style="font-weight: bold; font-size: 18px;">
-        New Subscription
-    </p>
-    <p>
-        {{NewSubscription}}
-    </p>
-</div>
+**Born:**  {{RealOwner.BirthDate}}
 
-<div>
-    <p style="font-weight: bold; font-size: 18px;">
-        Transfer Date
-    </p>
-    <p>
-        {{OrderExecutionDate}}
-    </p>
-</div>
+**Address:**  {{RealOwner.Address}}, {{RealOwner.PostalCode}}, {{RealOwner.PostalPlace}}, {{RealOwner.Country}}
 
+**Email:**  {{RealOwner.Email}}
 
+#### Mobile Number
+{{MobileNumber}}
+
+#### Operator Name
+{{OperatorName}}
+
+#### New Subscription
+{{NewSubscription}}
+
+#### Transfer Date
+{{OrderExecutionDate}}
