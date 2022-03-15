@@ -14,7 +14,7 @@ namespace AssetServices.DomainEvents
         public CustomerLabel CustomerLabel { get; protected set; }
         public bool PreviousDeleteState  { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"CustomerLabel {Id} was soft-deleted: IsDeleted was changed from {PreviousDeleteState} to {CustomerLabel.IsDeleted}.";
         }

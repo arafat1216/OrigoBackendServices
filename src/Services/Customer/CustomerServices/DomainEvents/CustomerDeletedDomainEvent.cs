@@ -10,7 +10,7 @@ namespace CustomerServices.DomainEvents
             Organization = organization;
         }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer was deleted {Organization.OrganizationId}.";
         }

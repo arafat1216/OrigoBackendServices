@@ -11,7 +11,7 @@ namespace CustomerServices.DomainEvents
             OldOrganizationNumber = oldOrganizationNumber;
         }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer organization number changed from {OldOrganizationNumber} to {Organization.OrganizationNumber}.";
         }

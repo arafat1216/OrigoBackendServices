@@ -20,7 +20,7 @@ namespace AssetServices.DomainEvents
             PreviousPurchaseDate = previousPurchaseDate;
         }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Asset changed purchase date from {PreviousPurchaseDate:yyyy-MM-dd} to {Asset.PurchaseDate:yyyy-MM-dd}.";
         }

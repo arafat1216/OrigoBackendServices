@@ -15,7 +15,7 @@ namespace SubscriptionManagementServices.DomainEvents
         public CustomerOperatorSettings CustomerOperatorSettings { get; set; }
         public Guid CallerId { get; set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer operator settings for customer: {CustomerId} was created";
         }

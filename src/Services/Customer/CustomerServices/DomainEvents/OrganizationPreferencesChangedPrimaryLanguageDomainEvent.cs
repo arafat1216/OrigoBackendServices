@@ -10,10 +10,11 @@ namespace CustomerServices.DomainEvents
             OrganizationPreferences = organizationPreferences;
             OldPrimaryLanguage = oldPrimaryLanguage;
         }
+
         public OrganizationPreferences OrganizationPreferences { get; protected set; }
         public string OldPrimaryLanguage { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer changed primary language from {OldPrimaryLanguage} to {OrganizationPreferences.PrimaryLanguage}.";
         }

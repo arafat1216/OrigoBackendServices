@@ -12,7 +12,7 @@ namespace CustomerServices.DomainEvents
 
         public Department DeletedDepartment { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Department {Id} removed.";
         }

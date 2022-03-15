@@ -9,9 +9,10 @@ namespace CustomerServices.DomainEvents
         {
             OrganizationPreferences = organizationPreferences;
         }
+
         public OrganizationPreferences OrganizationPreferences { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Organization preferences for customer {OrganizationPreferences.OrganizationId} was deleted.";
         }

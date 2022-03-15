@@ -18,7 +18,7 @@ namespace AssetServices.DomainEvents
         public int LabelId { get; protected set; }
         public bool PreviousValue { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             string state = (PreviousValue == true) ? "reactivated" : "deactivated"; // previous value was IsDeleted true, current false: meaning reactivate
             string assignedOrNot = (PreviousValue == true) ? "assigned to" : "unassigned from"; 

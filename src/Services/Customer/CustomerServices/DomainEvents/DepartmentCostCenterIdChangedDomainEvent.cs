@@ -14,7 +14,7 @@ namespace CustomerServices.DomainEvents
 
         public Department Department { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Department cost center id changed from {OldCostCenterId} to {Department.CostCenterId}.";
         }

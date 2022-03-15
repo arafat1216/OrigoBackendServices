@@ -29,7 +29,7 @@ public class CustomerSubscriptionProductRemovedDomainEvent : BaseEvent
     public CustomerSubscriptionProduct CustomerSubscriptionProduct { get; set; }
     public Guid CustomerId { get; set; }
 
-    public override string EventMessage(string languageCode = "nb-NO")
+    public override string EventMessage()
     {
         return
             $"Customer subscription product {CustomerSubscriptionProduct.SubscriptionName} was removed for customer id {CustomerId}";

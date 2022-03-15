@@ -12,7 +12,7 @@ namespace CustomerServices.DomainEvents
 
         public User NewUser { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"User {Id} created.";
         }

@@ -10,9 +10,11 @@ namespace CustomerServices.DomainEvents
             Location = location;
             OldCity = oldCity;
         }
+
         public Location Location { get; protected set; }
         public string OldCity { get; protected set; }
-        public override string EventMessage(string languageCode = "nb-NO")
+
+        public override string EventMessage()
         {
             return $"Location city changed from {OldCity} to {Location.City}.";
         }

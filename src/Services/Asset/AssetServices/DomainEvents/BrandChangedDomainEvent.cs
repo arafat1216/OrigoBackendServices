@@ -20,7 +20,7 @@ namespace AssetServices.DomainEvents
             PreviousBrand = previousBrand;
         }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Brand changed from {PreviousBrand} to {Asset.Brand}.";
         }
