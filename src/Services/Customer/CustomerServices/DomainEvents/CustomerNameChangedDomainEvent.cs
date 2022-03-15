@@ -11,7 +11,7 @@ namespace CustomerServices.DomainEvents
             OldName = oldName;
         }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer name changed from {OldName} to {Organization.Name}.";
         }

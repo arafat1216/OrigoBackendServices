@@ -22,7 +22,7 @@ namespace AssetServices.DomainEvents
         public Guid CallerId { get; set; }
         public string Text { get; set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"{Asset.ProductName} created with {Text}";
         }

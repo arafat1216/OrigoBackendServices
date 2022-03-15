@@ -10,10 +10,11 @@ namespace CustomerServices.DomainEvents
             OrganizationPreferences = organizationPreferences;
             OldNotes = oldNotes;
         }
+
         public OrganizationPreferences OrganizationPreferences { get; protected set; }
         public string OldNotes { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer changed organization notes from {OldNotes} to {OrganizationPreferences.OrganizationNotes}.";
         }

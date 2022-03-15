@@ -16,7 +16,7 @@ namespace SubscriptionManagementServices.DomainEvents
         public Guid CustomerId { get; set; }
         public int OperatorId { get; set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer operator setting for operator id {OperatorId} for customer {CustomerId} was removed";
         }

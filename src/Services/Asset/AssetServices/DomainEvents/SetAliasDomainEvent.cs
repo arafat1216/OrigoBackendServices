@@ -17,7 +17,7 @@ namespace AssetServices.DomainEvents
             PreviousAlias = previousAlias;
         }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Asset alias changed from {PreviousAlias} to {Asset.Alias}.";
         }

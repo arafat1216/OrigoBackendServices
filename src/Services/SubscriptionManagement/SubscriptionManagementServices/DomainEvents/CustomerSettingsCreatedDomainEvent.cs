@@ -14,7 +14,7 @@ namespace SubscriptionManagementServices.DomainEvents
         public CustomerSettings CustomerSettings { get; set; }
         public Guid CallerId { get; set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer settings with customer id: {CustomerSettings.CustomerId} was created";
         }

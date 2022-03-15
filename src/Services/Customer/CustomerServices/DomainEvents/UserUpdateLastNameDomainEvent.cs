@@ -15,7 +15,7 @@ namespace CustomerServices.DomainEvents
 
         public string OldLastName { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"User last name changed from {OldLastName} to {User.LastName}.";
         }

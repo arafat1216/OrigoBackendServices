@@ -14,7 +14,7 @@ namespace SubscriptionManagementServices.DomainEvents
         public ChangeSubscriptionOrder ChangeSubscriptionOrder { get; set; }
         public Guid CallerId { get; set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer with id {ChangeSubscriptionOrder.OrganizationId} added a new {ChangeSubscriptionOrder.OrderType} for employee {ChangeSubscriptionOrder.SubscriptionOwner}. Changed subscription to {ChangeSubscriptionOrder.ProductName} for operator {ChangeSubscriptionOrder.OperatorName}";
         }

@@ -11,7 +11,7 @@ namespace CustomerServices.DomainEvents
             OldContactPerson = oldContactPerson;
         }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Contact person changed from {OldContactPerson} to {Organization.ContactPerson}.";
         }

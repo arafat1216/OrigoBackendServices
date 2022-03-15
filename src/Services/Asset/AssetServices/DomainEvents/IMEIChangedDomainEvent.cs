@@ -13,7 +13,7 @@ namespace AssetServices.DomainEvents
         }
         public T Asset { get; protected set; }
         //public IList<long> PreviousIMEI { get; protected set; }
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Asset changed IMEI number.";
         }

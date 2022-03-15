@@ -11,11 +11,12 @@ namespace CustomerServices.DomainEvents
             User = user;
             OldEmployeeId = oldEmplyeeId;
         }
+
         public User User { get; protected set; }
 
         public string OldEmployeeId { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"User employeeId changed from {OldEmployeeId} to {User.EmployeeId}.";
         }

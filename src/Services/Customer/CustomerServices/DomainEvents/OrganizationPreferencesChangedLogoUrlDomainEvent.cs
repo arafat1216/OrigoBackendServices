@@ -10,10 +10,11 @@ namespace CustomerServices.DomainEvents
             OrganizationPreferences = organizationPreferences;
             OldLogoURL = oldLogoURL;
         }
+
         public OrganizationPreferences OrganizationPreferences { get; protected set; }
         public string OldLogoURL { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer changed logo URL from {OldLogoURL} to {OrganizationPreferences.LogoUrl}.";
         }

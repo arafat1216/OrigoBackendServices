@@ -16,7 +16,7 @@ namespace Common.Logging
 
         public Guid Id { get; protected set; }
         public DateTime CreationDate { get; }
-        public virtual string EventMessage(string languageCode = "nb-NO")
+        public virtual string EventMessage()
         {
             return $"Event for {Id}";
         }
