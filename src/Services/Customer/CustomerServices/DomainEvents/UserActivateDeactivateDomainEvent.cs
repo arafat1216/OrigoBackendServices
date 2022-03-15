@@ -10,10 +10,11 @@ namespace CustomerServices.DomainEvents
             User = user;
             OldState = oldState;
         }
+
         public User User { get; protected set; }
         public bool OldState { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"User state changed from {OldState.ToString()} to {User.IsActive.ToString()}.";
         }

@@ -14,7 +14,7 @@ namespace SubscriptionManagementServices.DomainEvents
 
         public CustomerReferenceField CustomerReferenceField { get; set; }
         public Guid CustomerId { get; set; }
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer reference field {CustomerReferenceField.Name} was removed for customer id {CustomerId}";
         }

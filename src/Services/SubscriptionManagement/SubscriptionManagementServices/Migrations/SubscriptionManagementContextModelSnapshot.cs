@@ -304,8 +304,8 @@ namespace SubscriptionManagementServices.Migrations
 
                     b.Property<string>("AccountName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
 
                     b.Property<string>("AccountNumber")
                         .IsRequired()
@@ -581,6 +581,638 @@ namespace SubscriptionManagementServices.Migrations
                     b.HasIndex("SubscriptionProductId");
 
                     b.ToTable("DataPackage", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "1 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 1,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "4 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 1,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "8 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 1,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "20 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 1,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "40 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 1,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "60 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 1,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 1 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 3,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 2 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 3,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 3 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 3,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 5 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 3,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 10 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 3,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 15 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 3,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 13,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 25 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 3,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 14,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 35 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 3,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 15,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 50 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 3,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 16,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 75 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 3,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 17,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 100 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 3,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 18,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 150 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 3,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 19,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 200 MB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 4,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 20,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 1 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 4,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 21,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 3 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 4,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 22,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 5 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 4,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 23,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 10 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 4,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 24,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 15 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 4,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 25,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 25 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 4,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 26,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 35 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 4,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 27,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 50 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 4,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 28,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 75 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 4,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 29,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Surf 100 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 4,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 30,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "100 MB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 5,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 31,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "200 MB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 5,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 32,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "10 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 6,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 33,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "15 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 6,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 34,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "20 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 6,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 35,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "25 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 7,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 36,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "35 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 7,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 37,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "40 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 7,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 38,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "30 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 8,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 39,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "50 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 8,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 40,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "100 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 8,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 41,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "60 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 9,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 42,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "100 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 10,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 43,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "5 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 11,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 44,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "10 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 12,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 45,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "15 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 13,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 46,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "100 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 14,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 47,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Avtalepris S",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 18,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 48,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Avtalepris small+",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 18,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 49,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Avtalepris M",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 18,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 50,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Avtalepris Basis",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 18,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 51,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Avtalepris Fri",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 18,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 52,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Avtalepris Respons",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 18,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 53,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "Avtalepris Variabel",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 18,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 54,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "10 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 19,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 55,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "15 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 19,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 56,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "30 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 19,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 57,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "50 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 19,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 58,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "5 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 20,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 59,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "20 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 20,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 60,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "40 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 20,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 61,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "80 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 20,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 62,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "150 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 20,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 63,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DataPackageName = "500 GB",
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            SubscriptionProductId = 20,
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        });
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.Operator", b =>
@@ -902,6 +1534,218 @@ namespace SubscriptionManagementServices.Migrations
                     b.HasIndex("OperatorId");
 
                     b.ToTable("SubscriptionProduct", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift fri +",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift fri L",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift total",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift total extra",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift small",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift total A",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift total B",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift total C",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift total D",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift total E",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift total+ A",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift total+ B",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 13,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift total+ C",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 14,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift total+ D",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 15,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift flyt M",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 16,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift flyt S",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 17,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 3,
+                            SubscriptionName = "Bedrift XS",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 18,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 1,
+                            SubscriptionName = "Telia smart",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 19,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 1,
+                            SubscriptionName = "Telia Smart Avtalepris L",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 20,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 1,
+                            SubscriptionName = "Mobilt bredbånd",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        },
+                        new
+                        {
+                            Id = 21,
+                            CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsDeleted = false,
+                            OperatorId = 1,
+                            SubscriptionName = "Telia Ubegrenset",
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                        });
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.TransferToBusinessSubscriptionOrder", b =>

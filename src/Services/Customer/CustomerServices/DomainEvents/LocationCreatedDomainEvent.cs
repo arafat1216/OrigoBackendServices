@@ -11,7 +11,7 @@ namespace CustomerServices.DomainEvents
             Location = location;
         }
         public Location Location { get; protected set; }
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Location created {Location.LocationId}.";
         }

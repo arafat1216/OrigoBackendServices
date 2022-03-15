@@ -16,7 +16,7 @@ namespace SubscriptionManagementServices.DomainEvents
         public CustomerSubscriptionProduct CustomerSubscriptionProduct { get; set; }
         public Guid CallerId { get; set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Subscription {CustomerSubscriptionProduct.SubscriptionName}, for customer id {CustomerId} was added";
         }

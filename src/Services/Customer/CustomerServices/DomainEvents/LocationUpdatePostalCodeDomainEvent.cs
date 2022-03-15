@@ -10,9 +10,11 @@ namespace CustomerServices.DomainEvents
             Location = location;
             OldPostalCode = oldPostalCode;
         }
+
         public Location Location { get; protected set; }
         public string OldPostalCode { get; protected set; }
-        public override string EventMessage(string languageCode = "nb-NO")
+
+        public override string EventMessage()
         {
             return $"Location postal code changed from {OldPostalCode} to {Location.PostalCode}.";
         }

@@ -1,6 +1,4 @@
-﻿
-
-using Common.Logging;
+﻿using Common.Logging;
 using SubscriptionManagementServices.Models;
 
 namespace SubscriptionManagementServices.DomainEvents
@@ -18,10 +16,8 @@ namespace SubscriptionManagementServices.DomainEvents
         public Guid CustomerId { get; set; }
         public Guid CallerId { get; set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
-            //var datapackegesString = String.Join(", ", DataPackages.Select(a => a.DataPackageName));
-            
             return $"Datapackges was added to customer id {CustomerId}";
         }
     }

@@ -11,7 +11,7 @@ namespace CustomerServices.DomainEvents
             OldPrimaryLocation = oldPrimaryLocation;
         }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer primary location changed from {OldPrimaryLocation} to {Organization.PrimaryLocation}.";
         }

@@ -11,7 +11,7 @@ namespace CustomerServices.DomainEvents
             OldParentId = oldParentId;
         }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"Customer parent id changed from {OldParentId} to {Organization.ParentId}.";
         }

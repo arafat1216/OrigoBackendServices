@@ -16,7 +16,7 @@ namespace AssetServices.DomainEvents
         public int AssetId { get; protected set; }
         public int LabelId { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"AssetLabel {AssetLabelExternalId} created. Asset {AssetId} was assigned to CustomerLabel {LabelId}.";
         }

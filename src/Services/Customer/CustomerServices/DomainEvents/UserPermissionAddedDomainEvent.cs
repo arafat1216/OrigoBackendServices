@@ -12,7 +12,7 @@ namespace CustomerServices.DomainEvents
 
         public UserPermissions UserPermissions { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"User permissions added.";
         }

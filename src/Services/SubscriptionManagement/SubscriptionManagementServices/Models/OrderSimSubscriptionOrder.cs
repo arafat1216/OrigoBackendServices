@@ -47,7 +47,7 @@ namespace SubscriptionManagementServices.Models
 
         #region ISubscriptionOrder Implementation
 
-        [NotMapped] public string OrderType => "OrderSimSubscriptionOrder";
+        [NotMapped] public string OrderType => "OrderSim";
 
         [NotMapped] public string PhoneNumber => string.Empty;
 

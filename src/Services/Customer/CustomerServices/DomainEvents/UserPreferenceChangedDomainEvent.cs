@@ -16,7 +16,7 @@ namespace CustomerServices.DomainEvents
 
         public Guid UserId { get; protected set; }
 
-        public override string EventMessage(string languageCode = "nb-NO")
+        public override string EventMessage()
         {
             return $"User preferences changed.";
         }

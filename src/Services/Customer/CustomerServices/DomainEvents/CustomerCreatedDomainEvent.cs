@@ -7,7 +7,7 @@ namespace CustomerServices.DomainEvents
     public class CustomerCreatedDomainEvent : BaseEvent
     {
 
-        public CustomerCreatedDomainEvent(Organization newCustomer):base(newCustomer.OrganizationId)
+        public CustomerCreatedDomainEvent(Organization newCustomer) : base(newCustomer.OrganizationId)
         {
             NewCustomer = newCustomer;
         }
