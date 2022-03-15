@@ -2,6 +2,6 @@
 {
     public interface IEmailService
     {
-        Task SendEmailAsync(string subject, object data);
+        Task SendAsync(string orderType, Guid subscriptionOrderId, object data);
     }
 }

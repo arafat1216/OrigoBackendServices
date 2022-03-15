@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Azure.Storage.Blobs;
+using Microsoft.Extensions.Options;
+using SubscriptionManagementServices.Utilities;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -12,12 +14,12 @@ namespace SubscriptionManagementServices
         public EmailService(IOptions<EmailConfiguration> emailConfiguration)
         {
             _emailConfiguration = emailConfiguration.Value;
-            
+
             if (!string.IsNullOrEmpty(_emailConfiguration.BaseUrl))
                 _httpClient = new HttpClient() { BaseAddress = new Uri(_emailConfiguration.BaseUrl) };
         }
 
-        public async Task SendEmailAsync(string subject, object data)
+        private async Task SendAsync(string subject, string body, Dictionary<string, string> variable)
         {
             if (string.IsNullOrEmpty(_emailConfiguration.BaseUrl)) return;
 
@@ -34,11 +36,11 @@ namespace SubscriptionManagementServices
                     }
                 },
                 { "content", new Dictionary<string, object> {
-                        {"body", JsonSerializer.Serialize(data)}
+                        {"body", body},
+                        {"variables", variable}
                     }
                 }
             };
-
                 var response = await _httpClient.PostAsJsonAsync("/notification", new List<Dictionary<string, object>> { request });
 
                 response.EnsureSuccessStatusCode();
@@ -46,6 +48,35 @@ namespace SubscriptionManagementServices
             catch (Exception)
             {
 
+            }
+        }
+
+        public async Task SendAsync(string orderType, Guid subscriptionOrderId, object data)
+        {
+            var variables = new FlatDictionary().Execute(data);
+            var templateName = string.Empty;
+            foreach (var item in _emailConfiguration.Templates)
+            {
+                if (orderType.Contains(item.Key))
+                    templateName = item.Value;
+            }
+
+            if(string.IsNullOrEmpty(templateName)) return;
+
+            try
+            {
+                var blobContainerClient = new BlobContainerClient(_emailConfiguration.AzureStorageConnectionString, _emailConfiguration.TemplateContainer);
+                var blobClient = blobContainerClient.GetBlobClient(templateName);
+                var templateContent = (await blobClient.DownloadAsync()).Value.Content;
+
+                using var reader = new StreamReader(templateContent);
+                var body = await reader.ReadToEndAsync();
+
+                await SendAsync($"[{orderType}]-[{subscriptionOrderId}]", body, variables);
+
+            }
+            catch (Exception)
+            {
             }
         }
     }

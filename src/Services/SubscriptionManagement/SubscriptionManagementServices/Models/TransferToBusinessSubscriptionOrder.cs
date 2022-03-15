@@ -10,7 +10,7 @@ namespace SubscriptionManagementServices.Models
 
         public TransferToBusinessSubscriptionOrder()
         {
-
+            _subscriptionAddOnProducts = new List<SubscriptionAddOnProduct>();
         }
 
         public TransferToBusinessSubscriptionOrder(string? simCardNumber, string simCardAction,
