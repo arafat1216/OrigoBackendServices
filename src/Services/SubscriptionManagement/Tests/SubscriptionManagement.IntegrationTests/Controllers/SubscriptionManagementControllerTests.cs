@@ -631,7 +631,7 @@ public class
             DataPackage = null,
             SIMCardNumber = "89202051293671023971",
             SIMCardAction = "New",
-            OrderExecutionDate = DateTime.Parse("2022-03-17T00:00:00.000Z"),
+            OrderExecutionDate = DateTime.UtcNow.AddDays(3),
             CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
             AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
             BusinessSubscription = new BusinessSubscriptionDTO
@@ -681,7 +681,7 @@ public class
             DataPackage = null,
             SIMCardNumber = null,
             SIMCardAction = "Order",
-            OrderExecutionDate = DateTime.Parse("2022-03-17T00:00:00.000Z"),
+            OrderExecutionDate = DateTime.UtcNow.AddDays(3),
             CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
             AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
             BusinessSubscription = new BusinessSubscriptionDTO

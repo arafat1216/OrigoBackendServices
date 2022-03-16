@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Options;
 using SubscriptionManagementServices.Utilities;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace SubscriptionManagementServices
 {
@@ -10,13 +9,16 @@ namespace SubscriptionManagementServices
     {
         private readonly EmailConfiguration _emailConfiguration;
         private readonly HttpClient _httpClient;
+        private readonly IFlatDictionaryProvider _flatDictionaryProvider;
 
-        public EmailService(IOptions<EmailConfiguration> emailConfiguration)
+        public EmailService(IOptions<EmailConfiguration> emailConfiguration, IFlatDictionaryProvider flatDictionaryProvider)
         {
             _emailConfiguration = emailConfiguration.Value;
 
             if (!string.IsNullOrEmpty(_emailConfiguration.BaseUrl))
                 _httpClient = new HttpClient() { BaseAddress = new Uri(_emailConfiguration.BaseUrl) };
+
+            _flatDictionaryProvider = flatDictionaryProvider;
         }
 
         private async Task SendAsync(string subject, string body, Dictionary<string, string> variable)
@@ -53,7 +55,7 @@ namespace SubscriptionManagementServices
 
         public async Task SendAsync(string orderType, Guid subscriptionOrderId, object data)
         {
-            var variables = new FlatDictionary().Execute(data);
+            var variables = _flatDictionaryProvider.Execute(data);
             var templateName = string.Empty;
             foreach (var item in _emailConfiguration.Templates)
             {

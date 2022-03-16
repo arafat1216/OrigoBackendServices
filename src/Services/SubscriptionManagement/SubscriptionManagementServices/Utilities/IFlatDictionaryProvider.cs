@@ -1,6 +1,6 @@
 ﻿namespace SubscriptionManagementServices.Utilities
 {
-    interface IFlatDictionaryProvider
+   public interface IFlatDictionaryProvider
     {
         Dictionary<string, string> Execute(object @object, string prefix = "");
     }
