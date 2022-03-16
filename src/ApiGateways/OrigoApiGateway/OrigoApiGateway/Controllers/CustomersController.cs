@@ -641,6 +641,41 @@ namespace OrigoApiGateway.Controllers
                 var response = await SubscriptionManagementService.ActivateSimCardForCustomerAsync(organizationId, requestModel);
                 return CreatedAtAction(nameof(ActivateSimCard), response);
         }
+        /// <summary>
+        /// Order new subscription
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        [Route("{organizationId:Guid}/new-subscription")]
+        [ProducesResponseType(typeof(NewSubscriptionOrder), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [HttpPost]
+        public async Task<ActionResult> NewSubscriptionOrder(Guid organizationId, [FromBody] NewSubscriptionOrder order)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            if (role == PredefinedRole.EndUser.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+            Guid.TryParse(actor, out Guid callerId);
+
+            var requestModel = Mapper.Map<NewSubscriptionOrderPostRequest>(order);
+            requestModel.CallerId = callerId;
+
+            //var response = await SubscriptionManagementService.NewSubscriptionOrder(organizationId, requestModel);
+            return CreatedAtAction(nameof(NewSubscriptionOrder), order);
+        }
 
 
         [Route("{organizationId:Guid}/subscription-orders")]
