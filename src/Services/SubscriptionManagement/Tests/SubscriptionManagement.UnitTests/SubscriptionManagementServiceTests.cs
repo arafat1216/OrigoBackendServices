@@ -22,6 +22,7 @@ namespace SubscriptionManagement.UnitTests;
 public class SubscriptionManagementServiceTests : SubscriptionManagementServiceBaseTests
 {
     private readonly ISubscriptionManagementService _subscriptionManagementService;
+    private readonly ICustomerSettingsService _customerSettingsService;
     private readonly IMapper? _mapper;
 
     public SubscriptionManagementServiceTests() : base(new DbContextOptionsBuilder<SubscriptionManagementContext>()
@@ -51,6 +52,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 MaxDaysForAll = 30,
                 MinDaysForCurrentOperator = 1
             }), _mapper, new Mock<IEmailService>().Object);
+
+        _customerSettingsService = new CustomerSettingsService(customerSettingsRepository, operatorRepository, _mapper);
     }
 
 
@@ -580,5 +583,30 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var result = SIMCardValidation.ValidateSimType(simType);
 
         Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public void AddSubscriptionProduct()
+    {
+        var subscriptionProduct = _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, 1, "GP1", new List<string> { "5 GB" }, CALLER_ONE_ID);
+        Assert.NotNull(subscriptionProduct);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public void UpdateSubscriptionProduct()
+    {
+        var subscriptionProduct = _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, 1, "GP1", new List<string> { "5 GB" }, CALLER_ONE_ID);
+        Assert.NotNull(subscriptionProduct);
+
+        _customerSettingsService.UpdateOperatorSubscriptionProductForCustomerAsync(
+            ORGANIZATION_ONE_ID,
+            new CustomerSubscriptionProductDTO
+            {
+                Datapackages = new List<string> { "6 GB" },
+                IsGlobal = false,
+                SubscriptionName = "GP1"
+            });
     }
 }

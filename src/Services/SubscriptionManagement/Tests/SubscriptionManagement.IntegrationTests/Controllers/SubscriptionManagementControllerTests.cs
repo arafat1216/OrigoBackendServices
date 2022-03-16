@@ -67,7 +67,7 @@ public class
             await _httpClient.GetFromJsonAsync<IList<CustomerSubscriptionProductDTO>>(
                 $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products");
         var retrievedNewCustomerSubscriptionProduct = modelList!.FirstOrDefault(p =>
-            p.Name == customerSubscriptionProduct.Name && !p.isGlobal);
+            p.SubscriptionName == customerSubscriptionProduct.Name && !p.IsGlobal);
         var deleteResponse = await _httpClient.DeleteAsync(
             $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products/{retrievedNewCustomerSubscriptionProduct!.Id}");
 

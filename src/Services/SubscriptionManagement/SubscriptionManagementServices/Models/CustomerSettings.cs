@@ -215,7 +215,9 @@ namespace SubscriptionManagementServices.Models
                 throw new ArgumentException("A customer subscription product not found. Unable to update.");
             }
 
-            foundProduct.SubscriptionName = customerSubscriptionProduct.Name;
+            if(!customerSubscriptionProduct.IsGlobal)
+                foundProduct.SubscriptionName = customerSubscriptionProduct.SubscriptionName;
+
             // Check for any new data packages.
             foreach (var datapackage in customerSubscriptionProduct.Datapackages)
             {
