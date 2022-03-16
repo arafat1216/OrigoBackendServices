@@ -23,8 +23,6 @@ namespace SubscriptionManagementServices
 
         private async Task SendAsync(string subject, string body, Dictionary<string, string> variable)
         {
-            if (string.IsNullOrEmpty(_emailConfiguration.BaseUrl)) return;
-
             try
             {
                 var request = new Dictionary<string, object>
@@ -55,6 +53,8 @@ namespace SubscriptionManagementServices
 
         public async Task SendAsync(string orderType, Guid subscriptionOrderId, object data)
         {
+            if (string.IsNullOrEmpty(_emailConfiguration.BaseUrl)) return;
+            
             var variables = _flatDictionaryProvider.Execute(data);
             var templateName = string.Empty;
             foreach (var item in _emailConfiguration.Templates)
