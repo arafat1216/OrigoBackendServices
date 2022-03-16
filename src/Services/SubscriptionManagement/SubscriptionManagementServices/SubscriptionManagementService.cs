@@ -151,7 +151,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             order.CallerId);
         var subscriptionOrder = await _subscriptionManagementRepository.AddSubscriptionOrder(transferToBusinessSubscriptionOrder);
 
-        await _emailService.SendAsync(subscriptionOrder.OrderType, subscriptionOrder.SubscriptionOrderId, subscriptionOrder);
+        await _emailService.SendAsync(subscriptionOrder.OrderType, subscriptionOrder.SubscriptionOrderId, order);
 
         var mapping = _mapper.Map<TransferToBusinessSubscriptionOrderDTOResponse>(subscriptionOrder); 
 
@@ -218,7 +218,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         order.OrganizationId = organizationId;
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(order);
 
-        await _emailService.SendAsync(added.OrderType, added.SubscriptionOrderId, added);
+        await _emailService.SendAsync(added.OrderType, added.SubscriptionOrderId, order);
 
         return _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(added);
     }
@@ -278,7 +278,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(changeSubscriptionOrder);
 
-        await _emailService.SendAsync(changeSubscriptionOrder.OrderType, added.SubscriptionOrderId, changeSubscriptionOrder);
+        await _emailService.SendAsync(changeSubscriptionOrder.OrderType, added.SubscriptionOrderId, subscriptionOrder);
 
         return _mapper.Map<ChangeSubscriptionOrderDTO>(added);
     }
@@ -298,7 +298,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             subscriptionOrder.DateOfTermination, @operator.OperatorName, organizationId, subscriptionOrder.CallerId);
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(cancelSubscriptionOrder);
 
-        await _emailService.SendAsync(cancelSubscriptionOrder.OrderType, added.SubscriptionOrderId, cancelSubscriptionOrder);
+        await _emailService.SendAsync(cancelSubscriptionOrder.OrderType, added.SubscriptionOrderId, subscriptionOrder);
 
         return _mapper.Map<CancelSubscriptionOrderDTO>(added);
     }
@@ -314,7 +314,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             subscriptionOrder.Address.Postcode, subscriptionOrder.Address.City, subscriptionOrder.Address.Country, @operator.OperatorName, subscriptionOrder.Quantity, organizationId, subscriptionOrder.CallerId);
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(orderSimSubscriptionOrder);
 
-        await _emailService.SendAsync(orderSimSubscriptionOrder.OrderType, added.SubscriptionOrderId, orderSimSubscriptionOrder);
+        await _emailService.SendAsync(orderSimSubscriptionOrder.OrderType, added.SubscriptionOrderId, subscriptionOrder);
 
         return _mapper.Map<OrderSimSubscriptionOrderDTO>(added);
     }
@@ -340,7 +340,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(newActivateSimOrder);
 
-        await _emailService.SendAsync(newActivateSimOrder.OrderType, added.SubscriptionOrderId, newActivateSimOrder);
+        await _emailService.SendAsync(newActivateSimOrder.OrderType, added.SubscriptionOrderId, simOrder);
 
         var mapped = _mapper.Map<ActivateSimOrderDTO>(newActivateSimOrder);
         mapped.OperatorId = @operator.Id;

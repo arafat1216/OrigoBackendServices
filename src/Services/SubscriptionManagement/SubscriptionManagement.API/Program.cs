@@ -6,6 +6,7 @@ using SubscriptionManagement.API.Filters;
 using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
+using SubscriptionManagementServices.Utilities;
 using System.Reflection;
 
 var apiVersion = new ApiVersion(1, 0);
@@ -76,6 +77,7 @@ builder.Services.AddScoped<ICustomerSettingsService, CustomerSettingsService>();
 builder.Services.AddScoped<ICustomerSettingsRepository, CustomerSettingsRepository>();
 builder.Services.AddScoped<ErrorExceptionFilter>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IFlatDictionaryProvider, FlatDictionary>();
 builder.Services.AddMediatR(typeof(SubscriptionManagementContext));
 
 
