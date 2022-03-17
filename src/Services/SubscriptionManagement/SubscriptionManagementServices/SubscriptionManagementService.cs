@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using AutoMapper;
+using Common.Enums;
 using Common.Utilities;
 using Microsoft.Extensions.Options;
 using SubscriptionManagementServices.Exceptions;
@@ -346,5 +347,110 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         mapped.OperatorId = @operator.Id;
 
         return mapped;
+    }
+
+    public async Task<NewSubscriptionOrderDTO> NewSubscriptionOrderAsync(Guid organizationId, NewSubscriptionOrderRequestDTO newSubscriptionOrder)
+    {
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+
+        //Using the customer operator account if there is one
+        CustomerOperatorAccount? customerOperatorAccount = null;
+        CustomerSubscriptionProduct? customerSubscriptionProduct;
+
+        if (customerSettings != null)
+        {
+            var @operator = await _operatorRepository.GetOperatorAsync(newSubscriptionOrder.OperatorId);
+            if(@operator == null) throw new InvalidOperatorIdInputDataException(newSubscriptionOrder.OperatorId, Guid.Parse("58e42fa5-2d54-400d-baa5-a1c516379542"));
+
+            if (!PhoneNumberUtility.ValidatePhoneNumber(newSubscriptionOrder.MobileNumber, @operator.Country))
+                throw new InvalidPhoneNumberException(newSubscriptionOrder.MobileNumber, @operator.Country, Guid.Parse("1b2627d5-90c1-4dc9-ad81-3adeeb02478e"));
+
+            customerOperatorAccount = customerSettings.CustomerOperatorSettings.FirstOrDefault(oa => oa.Operator.Id == newSubscriptionOrder.OperatorId)?.CustomerOperatorAccounts.FirstOrDefault(oa => oa.Id == newSubscriptionOrder.OperatorAccountId);
+            if (customerOperatorAccount == null && newSubscriptionOrder.NewOperatorAccount == null) throw new CustomerSettingsException($"Customer don't have a customer operator account", Guid.Parse("8ddc95d1-ed32-4daa-9fce-32ad556add6e"));
+
+            customerSubscriptionProduct = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.Id == newSubscriptionOrder.OperatorId)?
+                .AvailableSubscriptionProducts.FirstOrDefault(sp => sp.Id == newSubscriptionOrder.SubscriptionProductId);
+
+            if (customerSubscriptionProduct != null)
+            {
+                if(!string.IsNullOrEmpty(newSubscriptionOrder.DataPackage)) { 
+                var datapackages = customerSubscriptionProduct.DataPackages.FirstOrDefault(dp => dp.DataPackageName == newSubscriptionOrder.DataPackage);
+                if (datapackages == null) throw new CustomerSettingsException($"Customer don't have data package {newSubscriptionOrder.DataPackage} with subscription id {newSubscriptionOrder.SubscriptionProductId}",Guid.Parse("26b43ecc-9315-4099-af46-5d8868ced778"));
+                    
+                }
+            }
+            else
+            {
+                throw new CustomerSettingsException($"Customer don't have subscription with id {newSubscriptionOrder.SubscriptionProductId} for operator with id {newSubscriptionOrder.OperatorId}", Guid.Parse("592e923f-4c62-4c13-8971-0e00f6e72b9e"));
+            }
+
+        }
+        else
+        {
+            throw new CustomerSettingsException($"Customer dont have setting", Guid.Parse("3186539a-6897-4e89-9df5-0d5a0d056322"));
+        }
+
+        var simCardAction = SIMCardValidation.GetSimCardAction(newSubscriptionOrder.SimCardAction);
+
+        if (simCardAction == 0 || simCardAction == default) throw new InvalidSimException($"Sim card action {newSubscriptionOrder.SimCardAction} not valid",Guid.Parse("aa5e4edd-d0c1-4ce3-b808-a919e4ded5ad"));
+
+        if (simCardAction == SIMAction.Order) 
+        {
+            if(newSubscriptionOrder.SimCardAddress == null) throw new InvalidSimException($"Sim card address needs to be filled in when action is {newSubscriptionOrder.SimCardAction}", Guid.Parse("5ba2e574-51f2-48dc-b9a8-0dea7af598f3"));
+            
+            if (newSubscriptionOrder.OrderExecutionDate <
+                    DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM) ||
+                    newSubscriptionOrder.OrderExecutionDate >
+                    DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
+                throw new ArgumentException(
+                    $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM} workdays ahead or more is allowed.");
+        } 
+        
+
+        if (simCardAction == SIMAction.New) 
+        {
+            if(!SIMCardValidation.ValidateSim(newSubscriptionOrder.SimCardNumber)) throw new InvalidSimException($"Sim card number {newSubscriptionOrder.SimCardNumber} is not valid", Guid.Parse("8779d13a-a355-41d8-9f83-dab6cb3cfd53"));
+
+            if (newSubscriptionOrder.OrderExecutionDate <
+               DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator) ||
+               newSubscriptionOrder.OrderExecutionDate >
+               DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
+                throw new ArgumentException(
+                    $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workday ahead or more is allowed.");
+        }
+        
+
+        
+        var subscriptionAddOnProducts = newSubscriptionOrder.AddOnProducts.Select(ap => new SubscriptionAddOnProduct(ap, newSubscriptionOrder.CallerId));
+        
+        
+        var existingFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId);
+        foreach (var field in newSubscriptionOrder.CustomerReferenceFields)
+                    if (existingFields.All(m => m.Name != field.Name))
+                    {
+                        throw new CustomerReferenceFieldMissingException(field.Name, new Guid("458d37f4-857f-42d5-b4c2-b617f6c8eb1d"));
+                    }
+
+
+        var newSubscription = new NewSubscriptionOrder(organizationId,newSubscriptionOrder.MobileNumber,
+                                                       newSubscriptionOrder.OperatorId,
+                                                       customerOperatorAccount,
+                                                       newSubscriptionOrder.NewOperatorAccount?.NewOperatorAccountOwner, 
+                                                       newSubscriptionOrder.NewOperatorAccount?.NewOperatorAccountPayer,
+                                                       customerSubscriptionProduct.SubscriptionName,
+                                                       newSubscriptionOrder.DataPackage,
+                                                       newSubscriptionOrder.OrderExecutionDate,
+                                                       newSubscriptionOrder.SimCardNumber,
+                                                       newSubscriptionOrder.SimCardAction,
+                                                       _mapper.Map<SimCardAddress>(newSubscriptionOrder.SimCardAddress),
+                                                       JsonSerializer.Serialize(newSubscriptionOrder.CustomerReferenceFields),
+                                                       subscriptionAddOnProducts.ToList(),
+                                                       _mapper.Map<PrivateSubscription>(newSubscriptionOrder.PrivateSubscription),
+                                                       _mapper.Map<BusinessSubscription>(newSubscriptionOrder.BusinessSubscription),
+                                                       newSubscriptionOrder.CallerId);
+
+        var subscriptionOrder = await _subscriptionManagementRepository.AddSubscriptionOrder(newSubscription);
+        await _emailService.SendAsync(newSubscription.OrderType, subscriptionOrder.SubscriptionOrderId, newSubscription);
+        return _mapper.Map<NewSubscriptionOrderDTO>(subscriptionOrder);
     }
 }

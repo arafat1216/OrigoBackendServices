@@ -208,6 +208,25 @@ namespace SubscriptionManagement.API.Controllers
                 return CreatedAtAction(nameof(ActivateSim), addedOrder);
             
         }
+        /// <summary>
+        /// New Subscription Order
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ProducesResponseType(typeof(NewSubscriptionOrderDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [SwaggerOperation(Tags = new[] { "Subscription Orders" })]
+        [Route("{organizationId:Guid}/new-subscription")]
+        public async Task<IActionResult> NewSubscriptionOrder(Guid organizationId, [FromBody] NewSubscriptionOrderRequestDTO order)
+        {
+
+            var addedOrder = await _subscriptionServices.NewSubscriptionOrderAsync(organizationId, order);
+
+            return CreatedAtAction(nameof(NewSubscriptionOrder), addedOrder);
+
+        }
 
         /// <summary>
         /// Gets a list of all subscription orders for a customer

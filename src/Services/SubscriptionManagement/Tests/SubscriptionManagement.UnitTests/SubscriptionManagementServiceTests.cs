@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common.Enums;
 using Common.Logging;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -498,6 +499,104 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.Equal("User", order.CustomerReferenceFields[0].Type);
         
     }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task NewSubscriptionOrder_CheckingViewModelMapping()
+    {
+        var order = await _subscriptionManagementService.NewSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
+                new NewSubscriptionOrderRequestDTO
+                {
+
+                    OrderExecutionDate = DateTime.Parse("2022-03-25T00:00:00.000Z"),
+                    OperatorAccountId = 1,
+                    PrivateSubscription = new PrivateSubscriptionDTO
+                    {
+                        OperatorName = "Op1",
+                        FirstName = "[FName]",
+                        LastName = "[LName]",
+                        Address = "[Address]",
+                        Country = "Country",
+                        BirthDate = DateTime.UtcNow.AddMonths(-100),
+                        Email = "email@mail.com",
+                        PostalCode = "[Postal code]",
+                        PostalPlace = "[Postal Place]",
+                        RealOwner = new PrivateSubscriptionDTO
+                        {
+                            OperatorName = "Op1",
+                            FirstName = "[FName]",
+                            LastName = "[LName]",
+                            Address = "[Address]",
+                            Country = "Country",
+                            BirthDate = DateTime.UtcNow.AddMonths(-100),
+                            Email = "email@mail.com",
+                            PostalCode = "[Postal code]",
+                            PostalPlace = "[Postal Place]"
+                        }
+                    },
+                    BusinessSubscription = new BusinessSubscriptionDTO
+                    {
+                        Name = "Org",
+                        Address = "[Address]",
+                        Country = "Country",
+                        PostalPlace = "[Postal Place]",
+                        PostalCode = "[Postal code]",
+                        OrganizationNumber = "21212121212"
+                    },
+                    OperatorId = 10,
+                    SimCardNumber = "89722020101228153578",
+                    SimCardAction = "New",
+                    MobileNumber = "+4741414141",
+                    SubscriptionProductId = 1,
+                    DataPackage = "Data Package",
+                    AddOnProducts = new List<string> { "P1", "P2" },
+                    CustomerReferenceFields = new List<NewCustomerReferenceValue> { new NewCustomerReferenceValue() { Name = "UserRef1", Type = "User", Value = "VAL" } }
+                }
+                );
+
+        Assert.NotNull(order);
+        Assert.NotNull(order.PrivateSubscription);
+        Assert.NotNull(order.PrivateSubscription?.OperatorName);
+        Assert.NotNull(order.PrivateSubscription?.FirstName);
+        Assert.NotNull(order.PrivateSubscription?.LastName);
+        Assert.NotNull(order.PrivateSubscription?.Address);
+        Assert.NotNull(order.PrivateSubscription?.Country);
+        Assert.NotNull(order.PrivateSubscription?.BirthDate);
+        Assert.NotNull(order.PrivateSubscription?.PostalCode);
+        Assert.NotNull(order.PrivateSubscription?.PostalPlace);
+
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.OperatorName);
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.FirstName);
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.LastName);
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.Address);
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.Country);
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.BirthDate);
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.PostalCode);
+        Assert.NotNull(order.PrivateSubscription?.RealOwner?.PostalPlace);
+
+        Assert.NotNull(order.BusinessSubscription?.Name);
+        Assert.NotNull(order.BusinessSubscription?.OrganizationNumber);
+        Assert.NotNull(order.BusinessSubscription?.Address);
+        Assert.NotNull(order.BusinessSubscription?.Country);
+        Assert.NotNull(order.BusinessSubscription?.PostalCode);
+        Assert.NotNull(order.BusinessSubscription?.PostalPlace);
+
+        Assert.NotNull(order.SubscriptionProductName);
+        Assert.NotEmpty(order.SimCardAction);
+        Assert.NotEmpty(order.MobileNumber);
+        Assert.NotEmpty(order.SimCardNumber);
+        Assert.IsType<DateTime>(order.OrderExecutionDate);
+        Assert.NotEmpty(order.OrderExecutionDate.ToString());
+        Assert.NotNull(order.DataPackage);
+        Assert.Equal(10,order.OperatorId);
+        Assert.Equal(2, order.AddOnProducts.Count);
+        Assert.Equal("P1", order.AddOnProducts[0]);
+        Assert.Equal("P2", order.AddOnProducts[1]);
+        Assert.Equal(1, order.CustomerReferenceFields.Count);
+        Assert.Equal("UserRef1", order.CustomerReferenceFields[0].Name);
+        Assert.Equal("VAL", order.CustomerReferenceFields[0].Value);
+        Assert.Equal("User", order.CustomerReferenceFields[0].Type);
+
+    }
 
     [Theory]
     [InlineData("89470000100031227032275", false)]
@@ -580,5 +679,27 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var result = SIMCardValidation.ValidateSimType(simType);
 
         Assert.Equal(expected, result);
+    }
+  
+    [Theory]
+    [InlineData("Keep",SIMAction.Keep)]
+    [InlineData("New",SIMAction.New)]
+    [InlineData("Order",SIMAction.Order)]
+    [InlineData("Keep ", SIMAction.Keep)]
+    [InlineData(" New", SIMAction.New)]
+    public void GetSimCardAction_ValidSimCardActions(string actionString, SIMAction action)
+    {
+        var result = SIMCardValidation.GetSimCardAction(actionString);
+
+        Assert.Equal(result, action);
+    }
+    [Theory]
+    [InlineData(" ")]
+    [InlineData("N ew")]
+    [InlineData("This is not an enum")]
+    public void GetSimCardAction_InValidSimCardActions(string actionString)
+    {
+        var result = SIMCardValidation.GetSimCardAction(actionString);
+        Assert.True(Convert.ToInt32(result) == 0);
     }
 }
