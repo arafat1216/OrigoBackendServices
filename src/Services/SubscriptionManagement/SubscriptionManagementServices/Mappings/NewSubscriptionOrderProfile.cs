@@ -12,7 +12,8 @@ namespace SubscriptionManagementServices.Mappings
             CreateMap<NewSubscriptionOrder, NewSubscriptionOrderDTO>()
                     .ForMember(dto => dto.SimCardAddress, opts => opts.MapFrom(sa => new SimCardAddressRequestDTO
                     {
-                        Address = sa.SimCardAddress.Address, Country = sa.SimCardAddress.Country, PostalCode = sa.SimCardAddress.PostalCode,FirstName = sa.SimCardAddress.FirstName, LastName = sa.SimCardAddress.LastName
+                        Address = sa.SimCardAddress.Address, Country = sa.SimCardAddress.Country,
+                        PostalPlace = sa.SimCardAddress.PostalPlace,PostalCode = sa.SimCardAddress.PostalCode,FirstName = sa.SimCardAddress.FirstName, LastName = sa.SimCardAddress.LastName
                     }))
                     .ForMember(dto => dto.DataPackage, opts => opts.MapFrom(dp => dp.DataPackageName))
                     .ForMember(dto => dto.CustomerReferenceFields, opts => opts.MapFrom(m => JsonSerializer.Deserialize<IList<NewCustomerReferenceValue>>(m.CustomerReferenceFields, new JsonSerializerOptions { })))
