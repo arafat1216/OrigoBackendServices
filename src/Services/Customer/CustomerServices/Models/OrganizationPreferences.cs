@@ -13,8 +13,6 @@ namespace CustomerServices.Models
         public bool EnforceTwoFactorAuth { get; protected set; }
         public string PrimaryLanguage { get; protected set; }
         public short DefaultDepartmentClassification { get; protected set; }
-        public DateTime CreatedAt { get; protected set; }
-        public DateTime UpdatedAt { get; protected set; }
 
 
         /// <summary>
@@ -32,8 +30,6 @@ namespace CustomerServices.Models
             EnforceTwoFactorAuth = enforceTwoFactorAuth;
             PrimaryLanguage = primaryLanguage;
             DefaultDepartmentClassification = defaultDepartmentClassification;
-            CreatedAt = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
             CreatedBy = callerId;
             UpdatedBy = callerId;
             AddDomainEvent(new OrganizationPreferencesAddedDomainEvent(this));
@@ -105,7 +101,6 @@ namespace CustomerServices.Models
 
             if (isUpdated)
             {
-                UpdatedAt = DateTime.UtcNow;
                 LastUpdatedDate = DateTime.UtcNow;
                 UpdatedBy = newPreferences.UpdatedBy;
             }
@@ -159,7 +154,6 @@ namespace CustomerServices.Models
             }
             if (isUpdated)
             {
-                UpdatedAt = DateTime.UtcNow;
                 LastUpdatedDate = DateTime.UtcNow;
                 UpdatedBy = newPreferences.UpdatedBy;
             }
@@ -168,7 +162,6 @@ namespace CustomerServices.Models
         public void Delete(Guid callerId)
         {
             IsDeleted = true;
-            UpdatedAt = DateTime.UtcNow;
             LastUpdatedDate = DateTime.UtcNow;
             UpdatedBy = callerId;
             AddDomainEvent(new OrganizationPreferencesDeletedDomainEvent(this));
