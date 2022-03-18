@@ -27,7 +27,7 @@ namespace SubscriptionManagementServices.Models
         [JsonIgnore]
         public Operator Operator { get; protected set; }
         [JsonIgnore]
-        public CustomerStandardPrivateSubscriptionProduct StandardPrivateSubscriptionProduct { get; protected set; }
+        public CustomerStandardPrivateSubscriptionProduct? StandardPrivateSubscriptionProduct { get; set; }
         [JsonIgnore]
         public ICollection<CustomerSubscriptionProduct> AvailableSubscriptionProducts { get; protected set; } = new List<CustomerSubscriptionProduct>();
         [JsonIgnore]

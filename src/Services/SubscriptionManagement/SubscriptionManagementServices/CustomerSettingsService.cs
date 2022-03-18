@@ -192,4 +192,24 @@ public class CustomerSettingsService : ICustomerSettingsService
 
         return operatorSubscriptionProducts;
     }
+
+    public async Task<CustomerStandardPrivateSubscriptionProductDTO> PostStandardPrivateSubscriptionProductsAsync(Guid organizationId, NewCustomerStandardPrivateSubscriptionProduct standardProduct)
+    {
+        var @operator = await _operatorRepository.GetOperatorAsync(standardProduct.OperatorId);
+        if (@operator == null) throw new InvalidOperatorIdInputDataException(standardProduct.OperatorId, Guid.Parse("177884de-87e4-4918-b5ed-363b5f0b9713"));
+
+
+        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+
+        if (customerSetting == null) throw new CustomerSettingsException($"Missing customer settings for customer with id: {organizationId}",Guid.Parse("83851bd9-0586-438c-9260-f454269832ca"));
+
+        var customerStandardProduct = customerSetting.AddCustomerStandardPrivateSubscriptionProduct(standardProduct);
+        
+        await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSetting);
+
+        var mapping =  _mapper.Map<CustomerStandardPrivateSubscriptionProductDTO>(customerStandardProduct);
+        mapping.OperatorName = @operator.OperatorName;
+
+        return mapping;
+    }
 }
