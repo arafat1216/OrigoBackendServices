@@ -73,6 +73,13 @@ namespace SubscriptionManagementServices.Utilities
 
             return true;
         }
+
+        public static SIMAction GetSimCardAction(string action)
+        {
+            SIMAction isEnum;
+            Enum.TryParse<SIMAction>(action, true, out isEnum);
+            return isEnum;
+        }
         public static bool ValidateSimType(string simType)
         {
             //remove wihtspace

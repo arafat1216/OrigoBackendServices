@@ -60,6 +60,10 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         /// User information
         /// </summary>
         public PrivateSubscription? PrivateSubscription { get; set; } = null;
+        /// <summary>
+        ///  Company information if non-personal subscription
+        /// </summary>
+        public BusinessSubscription? BusinessSubscription { get; set; } = null;
 
     }
 }

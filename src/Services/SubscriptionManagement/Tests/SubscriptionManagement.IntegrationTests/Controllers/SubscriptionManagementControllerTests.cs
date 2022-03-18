@@ -750,5 +750,181 @@ public class
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
     }
+    [Fact]
+    public async Task PostNewSubscriptionOrder_ReturnCreated()
+    {
+        var referenceFields = new NewCustomerReferenceValue
+        {
+            Name = "URef1",
+            Type = "User",
+            Value = "dfghjkl",
+        };
+
+
+        var postRequest = new NewSubscriptionOrderRequestDTO
+        {
+            PrivateSubscription = new PrivateSubscriptionDTO
+            {
+                FirstName = "Ole",
+                LastName = "Brum",
+                Address = "K. K. Lien vei 54F",
+                PostalCode = "4812",
+                PostalPlace = "KONGSHAVN",
+                Country = "M@H.COM",
+                Email = "me@example.com",
+                BirthDate = DateTime.Parse("1986-06-04T00:00:00.000Z"),
+                OperatorName = "Telia - NO"
+            },
+            OperatorId = 1,
+            MobileNumber = "+4747474744",
+            OperatorAccountId = 100,
+            SubscriptionProductId = 200,
+            SimCardNumber = "89202051293671023971",
+            SimCardAction = "NEW",
+            OrderExecutionDate = DateTime.UtcNow.AddDays(3),
+            CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
+            AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
+            BusinessSubscription = new BusinessSubscriptionDTO
+            {
+                Name = "D&D METAL",
+                OrganizationNumber = "995053179",
+                Address = "Josipa Kozarca BB",
+                PostalCode = "9090",
+                PostalPlace = "HR-31207 OSIJEK-TENJA",
+                Country = "HR",
+                OperatorName = "Telia - NO"
+            }
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/new-subscription", postRequest);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+    [Fact]
+    public async Task PostNewSubscriptionOrder_ReturnBadRequest_ActionNewSimAndSimCardNumber()
+    {
+        var referenceFields = new NewCustomerReferenceValue
+        {
+            Name = "URef1",
+            Type = "User",
+            Value = "dfghjkl",
+        };
+
+
+        var postRequest = new NewSubscriptionOrderRequestDTO
+        {
+            PrivateSubscription = new PrivateSubscriptionDTO
+            {
+                FirstName = "Ole",
+                LastName = "Brum",
+                Address = "K. K. Lien vei 54F",
+                PostalCode = "4812",
+                PostalPlace = "KONGSHAVN",
+                Country = "M@H.COM",
+                Email = "me@example.com",
+                BirthDate = DateTime.Parse("1986-06-04T00:00:00.000Z"),
+                OperatorName = "Telia - NO"
+            },
+            OperatorId = 1,
+            MobileNumber = "+4747474744",
+            OperatorAccountId = 100,
+            SubscriptionProductId = 200,
+            SimCardAction = "NEW",
+            OrderExecutionDate = DateTime.UtcNow.AddDays(3),
+            CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
+            AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
+            BusinessSubscription = new BusinessSubscriptionDTO
+            {
+                Name = "D&D METAL",
+                OrganizationNumber = "995053179",
+                Address = "Josipa Kozarca BB",
+                PostalCode = "9090",
+                PostalPlace = "HR-31207 OSIJEK-TENJA",
+                Country = "HR",
+                OperatorName = "Telia - NO"
+            }
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/new-subscription", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+    [Fact]
+    public async Task PostNewSubscriptionOrder_ReturnBadRequest_ActionOrderSimAndNoAddress()
+    {
+        var referenceFields = new NewCustomerReferenceValue
+        {
+            Name = "URef1",
+            Type = "User",
+            Value = "dfghjkl",
+        };
+
+
+        var postRequest = new NewSubscriptionOrderRequestDTO
+        {
+            PrivateSubscription = new PrivateSubscriptionDTO
+            {
+                FirstName = "Ole",
+                LastName = "Brum",
+                Address = "K. K. Lien vei 54F",
+                PostalCode = "4812",
+                PostalPlace = "KONGSHAVN",
+                Country = "M@H.COM",
+                Email = "me@example.com",
+                BirthDate = DateTime.Parse("1986-06-04T00:00:00.000Z"),
+                OperatorName = "Telia - NO"
+            },
+            OperatorId = 1,
+            MobileNumber = "+4747474744",
+            OperatorAccountId = 100,
+            SubscriptionProductId = 200,
+            SimCardAction = "Order",
+            OrderExecutionDate = DateTime.UtcNow.AddDays(3),
+            CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
+            AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" }
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/new-subscription", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+    [Fact]
+    public async Task PostNewSubscriptionOrder_ReturnBadRequest_NoOperatorAccountIdAndNoNewOperatorAccount()
+    {
+        var referenceFields = new NewCustomerReferenceValue
+        {
+            Name = "URef1",
+            Type = "User",
+            Value = "dfghjkl",
+        };
+
+
+        var postRequest = new NewSubscriptionOrderRequestDTO
+        {
+            PrivateSubscription = new PrivateSubscriptionDTO
+            {
+                FirstName = "Ole",
+                LastName = "Brum",
+                Address = "K. K. Lien vei 54F",
+                PostalCode = "4812",
+                PostalPlace = "KONGSHAVN",
+                Country = "M@H.COM",
+                Email = "me@example.com",
+                BirthDate = DateTime.Parse("1986-06-04T00:00:00.000Z"),
+                OperatorName = "Telia - NO"
+            },
+            OperatorId = 1,
+            MobileNumber = "+4747474744",
+            OperatorAccountId = 0,
+            SubscriptionProductId = 200,
+            SimCardAction = "Order",
+            OrderExecutionDate = DateTime.UtcNow.AddDays(3),
+            CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
+            AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" }
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/new-subscription", postRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+
+
 
 }

@@ -673,7 +673,7 @@ namespace OrigoApiGateway.Controllers
             var requestModel = Mapper.Map<NewSubscriptionOrderPostRequest>(order);
             requestModel.CallerId = callerId;
 
-            //var response = await SubscriptionManagementService.NewSubscriptionOrder(organizationId, requestModel);
+            var response = await SubscriptionManagementService.NewSubscriptionOrder(organizationId, requestModel);
             return CreatedAtAction(nameof(NewSubscriptionOrder), order);
         }
 

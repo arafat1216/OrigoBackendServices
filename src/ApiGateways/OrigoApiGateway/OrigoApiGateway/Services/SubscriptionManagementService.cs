@@ -522,5 +522,23 @@ namespace OrigoApiGateway.Services
             throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
 
         }
+
+        public async Task<OrigoNewSubscriptionOrder> NewSubscriptionOrder(Guid organizationId, NewSubscriptionOrderPostRequest requestModel)
+        {
+            var requestUri = $"{_options.ApiPath}/{organizationId}/new-subscription";
+
+            var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, requestModel);
+
+            if (postSubscription.StatusCode == HttpStatusCode.Created)
+            {
+                return await postSubscription.Content.ReadFromJsonAsync<OrigoNewSubscriptionOrder>();
+            }
+            if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
+            {
+                throw new SubscriptionManagementException(await postSubscription.Content.ReadAsStringAsync());
+            }
+
+            throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
+        }
     }
 }
