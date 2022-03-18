@@ -414,6 +414,19 @@ namespace SubscriptionManagement.API.Controllers
             return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), addSubscriptionProduct);
         }
 
+        [HttpPatch]
+        [Route("{organizationId:Guid}/subscription-products/{subscriptionProductId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
+        public async Task<ActionResult<SubscriptionProduct>> UpdateOperatorSubscriptionProductForCustomer(Guid organizationId, int subscriptionProductId, [FromBody] UpdatedSubscriptionProduct subscriptionProduct)
+        {
+            var customerSubscriptionProductDTO = _mapper.Map<CustomerSubscriptionProductDTO>(subscriptionProduct);
+            customerSubscriptionProductDTO.Id = subscriptionProductId;
+            var updatedSubscriptionProduct = await _customerSettingsService.UpdateSubscriptionProductForCustomerAsync(organizationId, customerSubscriptionProductDTO);
+            return Ok(updatedSubscriptionProduct);
+        }
+
         /// <summary>
         /// Add standard private subscription product
         /// </summary>
@@ -430,19 +443,6 @@ namespace SubscriptionManagement.API.Controllers
             var subscriptionProducts = await _customerSettingsService.PostStandardPrivateSubscriptionProductsAsync(organizationId, standardProduct);
 
             return Ok(subscriptionProducts);
-        }
-
-        [HttpPatch]
-        [Route("{organizationId:Guid}/subscription-products/{subscriptionProductId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
-        public async Task<ActionResult<SubscriptionProduct>> UpdateOperatorSubscriptionProductForCustomer(Guid organizationId, int subscriptionProductId, [FromBody] UpdatedSubscriptionProduct subscriptionProduct)
-        {
-            var customerSubscriptionProductDTO = _mapper.Map<CustomerSubscriptionProductDTO>(subscriptionProduct);
-            customerSubscriptionProductDTO.Id = subscriptionProductId;
-            var updatedSubscriptionProduct = await _customerSettingsService.UpdateSubscriptionProductForCustomerAsync(organizationId, customerSubscriptionProductDTO);
-            return Ok(updatedSubscriptionProduct);
         }
     }
 }
