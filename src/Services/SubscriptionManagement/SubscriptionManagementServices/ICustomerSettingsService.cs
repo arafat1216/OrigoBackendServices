@@ -24,7 +24,7 @@ namespace SubscriptionManagementServices
         Task<IList<CustomerSubscriptionProductDTO>> GetAllCustomerSubscriptionProductsAsync(Guid organizationId);
         Task<IList<GlobalSubscriptionProductDTO>> GetAllOperatorSubscriptionProductAsync();
         Task<CustomerSubscriptionProductDTO?> DeleteOperatorSubscriptionProductForCustomerAsync(Guid organizationId, int subscriptionId);
-        Task<CustomerSubscriptionProductDTO> UpdateOperatorSubscriptionProductForCustomerAsync(Guid organizationId, CustomerSubscriptionProductDTO subscriptionId);
+        Task<CustomerSubscriptionProductDTO> UpdateSubscriptionProductForCustomerAsync(Guid organizationId, CustomerSubscriptionProductDTO subscriptionId);
 
     }
 }

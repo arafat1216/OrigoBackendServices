@@ -126,6 +126,67 @@ namespace SubscriptionManagement.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
+        public async Task UpdateSubscriptionProductForCustomer_WithoutGlobalProduct()
+        {
+            var addedCustomerSubscriptionProduct = await _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(
+                ORGANIZATION_ONE_ID,
+                1, 
+                "ProductName", 
+                new List<string> { "s1", "s2" }, 
+                Guid.NewGuid());
+
+            await _customerSettingsService.UpdateSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, new CustomerSubscriptionProductDTO
+            {
+                Id = addedCustomerSubscriptionProduct.Id,
+                Datapackages = new List<string> { "s3" },
+                SubscriptionName = "ProductName X"
+            });
+
+            var allProducts = await _customerSettingsService.GetAllCustomerSubscriptionProductsAsync(ORGANIZATION_ONE_ID);
+
+            var updatedSubscriptionProduct = allProducts.FirstOrDefault(m=>m.Id == addedCustomerSubscriptionProduct.Id);
+            Assert.Equal(3, updatedSubscriptionProduct!.Datapackages.Count);
+            Assert.Equal(new List<string> { "s1", "s2", "s3" }, updatedSubscriptionProduct.Datapackages);
+            Assert.Equal("ProductName", updatedSubscriptionProduct.SubscriptionName);
+        }
+
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task UpdateSubscriptionProductForCustomer_WithGlobalProduct()
+        {
+            var newDataPackages = new List<string>
+        {
+            "Data Package"
+        };
+            var operators = await _operatorRepository.GetAllOperatorsAsync();
+            var operatorId = operators.FirstOrDefault(a => a.OperatorName == "Op1");
+
+
+            var subscriptionProductForCustomer = await _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(
+                ORGANIZATION_ONE_ID, 
+                operatorId!.Id, 
+                "SubscriptionName", 
+                newDataPackages, 
+                CALLER_ONE_ID);
+
+            await _customerSettingsService.UpdateSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, new CustomerSubscriptionProductDTO
+            {
+                Id = subscriptionProductForCustomer.Id,
+                Datapackages = new List<string> { "s3" },
+                SubscriptionName = "SubscriptionName Updated"
+            });
+
+            var allProducts = await _customerSettingsService.GetAllCustomerSubscriptionProductsAsync(ORGANIZATION_ONE_ID);
+
+            var updatedSubscriptionProduct = allProducts.FirstOrDefault(m => m.Id == subscriptionProductForCustomer.Id);
+            Assert.Equal(2, updatedSubscriptionProduct!.Datapackages.Count);
+            Assert.Equal(new List<string> { "Data Package", "s3" }, updatedSubscriptionProduct.Datapackages);
+            Assert.Equal("SubscriptionName Updated", updatedSubscriptionProduct.SubscriptionName);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
         public async Task GetAllOperatorAccountsForCustomer_Check_Total()
         {
             var accounts = await _customerSettingsService.GetAllOperatorAccountsForCustomerAsync(ORGANIZATION_ONE_ID);

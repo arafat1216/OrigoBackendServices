@@ -9,6 +9,10 @@ namespace SubscriptionManagement.API.Mappings
         {
             CreateMap<ViewModels.SubscriptionProduct, CustomerSubscriptionProductDTO>();
             CreateMap<CustomerSubscriptionProductDTO, ViewModels.SubscriptionProduct>();
+            CreateMap<ViewModels.ExistingSubscriptionProduct, CustomerSubscriptionProductDTO>()
+                .ForMember(d=>d.Id, opts=>opts.Ignore())
+                .ForMember(d => d.OperatorId, opts => opts.Ignore())
+                .ForMember(d => d.IsGlobal, opts => opts.Ignore());
         }
     }
 }

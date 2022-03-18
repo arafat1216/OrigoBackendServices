@@ -592,21 +592,4 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var subscriptionProduct = _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, 1, "GP1", new List<string> { "5 GB" }, CALLER_ONE_ID);
         Assert.NotNull(subscriptionProduct);
     }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public void UpdateSubscriptionProduct()
-    {
-        var subscriptionProduct = _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, 1, "GP1", new List<string> { "5 GB" }, CALLER_ONE_ID);
-        Assert.NotNull(subscriptionProduct);
-
-        _customerSettingsService.UpdateOperatorSubscriptionProductForCustomerAsync(
-            ORGANIZATION_ONE_ID,
-            new CustomerSubscriptionProductDTO
-            {
-                Datapackages = new List<string> { "6 GB" },
-                IsGlobal = false,
-                SubscriptionName = "GP1"
-            });
-    }
 }
