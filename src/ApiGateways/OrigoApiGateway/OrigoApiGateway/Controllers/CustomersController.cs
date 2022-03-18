@@ -368,7 +368,7 @@ namespace OrigoApiGateway.Controllers
                 var updatedSubscriptionProducts = await SubscriptionManagementService.UpdateOperatorSubscriptionProductForCustomerAsync(organizationId, subscriptionProductId, subscriptionProduct);
 
                 //return the updated subscription product
-                return Ok();
+                return Ok(updatedSubscriptionProducts);
             }
             catch (Exception ex)
             {

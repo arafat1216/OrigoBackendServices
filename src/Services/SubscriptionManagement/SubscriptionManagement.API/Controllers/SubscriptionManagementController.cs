@@ -400,12 +400,12 @@ namespace SubscriptionManagement.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
-        public async Task<ActionResult<SubscriptionProduct>> UpdateOperatorSubscriptionProductForCustomer(Guid organizationId, int subscriptionProductId, [FromBody] ExistingSubscriptionProduct subscriptionProduct)
+        public async Task<ActionResult<SubscriptionProduct>> UpdateOperatorSubscriptionProductForCustomer(Guid organizationId, int subscriptionProductId, [FromBody] UpdatedSubscriptionProduct subscriptionProduct)
         {
-            var updatedSubscriptionProducts = await _customerSettingsService.UpdateSubscriptionProductForCustomerAsync(organizationId, _mapper.Map<CustomerSubscriptionProductDTO>(subscriptionProduct));
-            updatedSubscriptionProducts.Id = subscriptionProductId;
-            var mappedSubscriptionProduct = _mapper.Map<SubscriptionProduct>(updatedSubscriptionProducts);
-            return Ok(mappedSubscriptionProduct);
+            var customerSubscriptionProductDTO = _mapper.Map<CustomerSubscriptionProductDTO>(subscriptionProduct);
+            customerSubscriptionProductDTO.Id = subscriptionProductId;
+            var updatedSubscriptionProduct = await _customerSettingsService.UpdateSubscriptionProductForCustomerAsync(organizationId, customerSubscriptionProductDTO);
+            return Ok(updatedSubscriptionProduct);
         }
     }
 }

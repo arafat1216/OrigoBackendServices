@@ -130,7 +130,7 @@ namespace SubscriptionManagement.UnitTests
         {
             var addedCustomerSubscriptionProduct = await _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(
                 ORGANIZATION_ONE_ID,
-                1, 
+                operatorId: 1, 
                 "ProductName", 
                 new List<string> { "s1", "s2" }, 
                 Guid.NewGuid());

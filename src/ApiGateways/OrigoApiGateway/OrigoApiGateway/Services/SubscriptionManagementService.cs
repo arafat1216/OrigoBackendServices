@@ -18,6 +18,7 @@ using System.Text.Json;
 using OrigoApiGateway.Models;
 using Common.Exceptions;
 using OrigoApiGateway.Exceptions;
+using System.Text;
 
 namespace OrigoApiGateway.Services
 {
@@ -200,10 +201,9 @@ namespace OrigoApiGateway.Services
             try
             {
                 string requestUri = $"{_options.ApiPath}/{customerId}/subscription-products/{subscriptionProductId}";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, subscriptionProduct);
-
+                var response = await HttpClient.PatchAsync(requestUri, JsonContent.Create(subscriptionProduct));
+                response.EnsureSuccessStatusCode();
                 var newSubscriptionProduct = await response.Content.ReadFromJsonAsync<OrigoSubscriptionProduct>();
-
                 return newSubscriptionProduct;
             }
             catch (HttpRequestException ex)
