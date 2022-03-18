@@ -426,5 +426,23 @@ namespace SubscriptionManagement.API.Controllers
             var updatedSubscriptionProduct = await _customerSettingsService.UpdateSubscriptionProductForCustomerAsync(organizationId, customerSubscriptionProductDTO);
             return Ok(updatedSubscriptionProduct);
         }
+
+        /// <summary>
+        /// Add standard private subscription product
+        /// </summary>
+        /// <param name="organizationId">Customer identifier</param>
+        /// <param name="standardProduct">Details of the standard private subscription product</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("{organizationId:Guid}/standard-private-subscription-products")]
+        [ProducesResponseType(typeof(CustomerSubscriptionProductDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
+        public async Task<ActionResult<IEnumerable<CustomerSubscriptionProductDTO>>> PostStandardPrivateSubscriptionProducts(Guid organizationId, NewCustomerStandardPrivateSubscriptionProduct standardProduct)
+        {
+            var subscriptionProducts = await _customerSettingsService.PostStandardPrivateSubscriptionProductsAsync(organizationId, standardProduct);
+
+            return Ok(subscriptionProducts);
+        }
     }
 }

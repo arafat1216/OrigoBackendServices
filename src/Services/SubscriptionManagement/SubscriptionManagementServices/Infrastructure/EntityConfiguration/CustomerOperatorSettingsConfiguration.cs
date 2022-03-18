@@ -27,5 +27,7 @@ internal class CustomerOperatorSettingsConfiguration : IEntityTypeConfiguration<
         builder.HasMany(s => s.CustomerOperatorAccounts).WithOne(a => a.CustomerOperatorSetting);
 
         builder.HasMany(s => s.AvailableSubscriptionProducts).WithOne(a => a.CustomerOperatorSettings).OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(a => a.StandardPrivateSubscriptionProduct);
     }
 }

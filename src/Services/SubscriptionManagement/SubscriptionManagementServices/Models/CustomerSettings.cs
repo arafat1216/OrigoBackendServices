@@ -2,6 +2,7 @@
 using SubscriptionManagementServices.DomainEvents;
 using System.Text.Json.Serialization;
 using SubscriptionManagementServices.ServiceModels;
+using SubscriptionManagementServices.Exceptions;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -223,6 +224,20 @@ namespace SubscriptionManagementServices.Models
             foundProduct.SetDataPackages(customerSubscriptionProduct.Datapackages);
 
             return foundProduct;
+        }
+
+        public CustomerStandardPrivateSubscriptionProduct AddCustomerStandardPrivateSubscriptionProduct(NewCustomerStandardPrivateSubscriptionProduct standardProduct)
+        {
+
+            var customerOperatorSetting = CustomerOperatorSettings.FirstOrDefault(a => a.Operator.Id == standardProduct.OperatorId);
+            if (customerOperatorSetting == null) throw new CustomerSettingsException($"Customer don't have operator with id {standardProduct.OperatorId} as a setting",Guid.Parse("e0903419-480c-4ea2-926b-14bf84f3819b"));
+
+            var customerStandardPrivateSubscriptionProduct = new CustomerStandardPrivateSubscriptionProduct(standardProduct.DataPackage,standardProduct.SubscriptionName, standardProduct.CallerId);
+
+            customerOperatorSetting.StandardPrivateSubscriptionProduct = customerStandardPrivateSubscriptionProduct;
+            AddDomainEvent(new CustomerStandardPrivateSubscriptionProductAddedDomainEvent(CustomerId, customerOperatorSetting.Operator.OperatorName, customerStandardPrivateSubscriptionProduct, standardProduct.CallerId));
+
+            return customerStandardPrivateSubscriptionProduct;
         }
     }
 }
