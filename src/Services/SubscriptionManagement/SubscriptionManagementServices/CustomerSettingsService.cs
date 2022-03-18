@@ -31,7 +31,6 @@ public class CustomerSettingsService : ICustomerSettingsService
         return _mapper.Map<List<OperatorDTO>>(customerSettings?.CustomerOperatorSettings.Select(o => o.Operator).OrderBy(co => co.OperatorName));
     }
 
-
     public async Task<IList<CustomerReferenceFieldDTO>> GetCustomerReferenceFieldsAsync(Guid organizationId)
     {
         var customerReferenceFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId);
@@ -156,7 +155,7 @@ public class CustomerSettingsService : ICustomerSettingsService
         return _mapper.Map<CustomerSubscriptionProductDTO>(removedProduct);
     }
 
-    public async Task<CustomerSubscriptionProductDTO> UpdateOperatorSubscriptionProductForCustomerAsync(Guid organizationId,
+    public async Task<CustomerSubscriptionProductDTO> UpdateSubscriptionProductForCustomerAsync(Guid organizationId,
         CustomerSubscriptionProductDTO subscriptionProduct)
     {
         var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
@@ -167,7 +166,6 @@ public class CustomerSettingsService : ICustomerSettingsService
         await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSettings);
         return _mapper.Map<CustomerSubscriptionProductDTO>(updateSubscriptionProduct);
     }
-
 
     public async Task<IList<CustomerSubscriptionProductDTO>> GetAllCustomerSubscriptionProductsAsync(
         Guid organizationId)
@@ -181,7 +179,6 @@ public class CustomerSettingsService : ICustomerSettingsService
             ? new List<CustomerSubscriptionProductDTO>()
             : _mapper.Map<List<CustomerSubscriptionProductDTO>>(subscriptionProducts.OrderBy(p => p.SubscriptionName));
     }
-
 
     public async Task<IList<GlobalSubscriptionProductDTO>> GetAllOperatorSubscriptionProductAsync()
     {

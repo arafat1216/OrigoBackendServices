@@ -23,6 +23,7 @@ namespace SubscriptionManagement.UnitTests;
 public class SubscriptionManagementServiceTests : SubscriptionManagementServiceBaseTests
 {
     private readonly ISubscriptionManagementService _subscriptionManagementService;
+    private readonly ICustomerSettingsService _customerSettingsService;
     private readonly IMapper? _mapper;
 
     public SubscriptionManagementServiceTests() : base(new DbContextOptionsBuilder<SubscriptionManagementContext>()
@@ -52,6 +53,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 MaxDaysForAll = 30,
                 MinDaysForCurrentOperator = 1
             }), _mapper, new Mock<IEmailService>().Object);
+
+        _customerSettingsService = new CustomerSettingsService(customerSettingsRepository, operatorRepository, _mapper);
     }
 
 
@@ -701,5 +704,13 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var result = SIMCardValidation.GetSimCardAction(actionString);
         Assert.True(Convert.ToInt32(result) == 0);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public void AddSubscriptionProduct()
+    {
+        var subscriptionProduct = _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, 1, "GP1", new List<string> { "5 GB" }, CALLER_ONE_ID);
+        Assert.NotNull(subscriptionProduct);
     }
 }

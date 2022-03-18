@@ -140,9 +140,9 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{organizationId:Guid}/change-subscription")]
         public async Task<IActionResult> ChangeSubscriptionOrder(Guid organizationId, [FromBody] NewChangeSubscriptionOrder subscriptionOrder)
         {
-                var addedOrder = await _subscriptionServices.ChangeSubscriptionOrder(organizationId, subscriptionOrder);
+            var addedOrder = await _subscriptionServices.ChangeSubscriptionOrder(organizationId, subscriptionOrder);
 
-                return CreatedAtAction(nameof(ChangeSubscriptionOrder), addedOrder);
+            return CreatedAtAction(nameof(ChangeSubscriptionOrder), addedOrder);
         }
 
         /// <summary>
@@ -158,10 +158,10 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{organizationId:Guid}/subscription-cancel")]
         public async Task<IActionResult> CancelSubscriptionOrder(Guid organizationId, [FromBody] NewCancelSubscriptionOrder subscriptionOrder)
         {
-            
-                var addedOrder = await _subscriptionServices.CancelSubscriptionOrder(organizationId, subscriptionOrder);
 
-                return CreatedAtAction(nameof(CancelSubscriptionOrder), addedOrder);
+            var addedOrder = await _subscriptionServices.CancelSubscriptionOrder(organizationId, subscriptionOrder);
+
+            return CreatedAtAction(nameof(CancelSubscriptionOrder), addedOrder);
         }
 
         /// <summary>
@@ -202,11 +202,11 @@ namespace SubscriptionManagement.API.Controllers
         [Route("{organizationId:Guid}/activate-sim")]
         public async Task<IActionResult> ActivateSim(Guid organizationId, [FromBody] NewActivateSimOrder simOrder)
         {
-           
-                var addedOrder = await _subscriptionServices.ActivateSimAsync(organizationId, simOrder);
 
-                return CreatedAtAction(nameof(ActivateSim), addedOrder);
-            
+            var addedOrder = await _subscriptionServices.ActivateSimAsync(organizationId, simOrder);
+
+            return CreatedAtAction(nameof(ActivateSim), addedOrder);
+
         }
         /// <summary>
         /// New Subscription Order
@@ -287,24 +287,6 @@ namespace SubscriptionManagement.API.Controllers
         {
             await _customerSettingsService.DeleteCustomerOperatorAccountAsync(organizationId, accountNumber, operatorId);
             return Ok();
-        }
-
-        /// <summary>
-        /// Add subscription product
-        /// </summary>
-        /// <param name="organizationId">Customer identifier</param>
-        /// <param name="subscriptionProduct">Details of the subscription product</param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("{organizationId:Guid}/subscription-products")]
-        [ProducesResponseType(typeof(SubscriptionProduct), (int)HttpStatusCode.Created)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
-        public async Task<ActionResult<CustomerSubscriptionProduct>> AddSubscriptionProductForCustomer(Guid organizationId, [FromBody] NewSubscriptionProduct subscriptionProduct)
-        {
-            var addSubscriptionProduct = await _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(organizationId, subscriptionProduct.OperatorId, subscriptionProduct.Name, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
-
-            return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), addSubscriptionProduct);
         }
 
         /// <summary>
@@ -414,16 +396,35 @@ namespace SubscriptionManagement.API.Controllers
             return Ok(deletedSubscriptionProducts);
         }
 
-        [HttpPatch]
+        /// <summary>
+        /// Add subscription product
+        /// </summary>
+        /// <param name="organizationId">Customer identifier</param>
+        /// <param name="subscriptionProduct">Details of the subscription product</param>
+        /// <returns></returns>
+        [HttpPost]
         [Route("{organizationId:Guid}/subscription-products")]
-        [ProducesResponseType(typeof(IList<SubscriptionProduct>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(SubscriptionProduct), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
+        public async Task<ActionResult<CustomerSubscriptionProduct>> AddSubscriptionProductForCustomer(Guid organizationId, [FromBody] NewSubscriptionProduct subscriptionProduct)
+        {
+            var addSubscriptionProduct = await _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(organizationId, subscriptionProduct.OperatorId, subscriptionProduct.Name, subscriptionProduct.DataPackages, subscriptionProduct.CallerId);
+
+            return CreatedAtAction(nameof(AddSubscriptionProductForCustomer), addSubscriptionProduct);
+        }
+
+        [HttpPatch]
+        [Route("{organizationId:Guid}/subscription-products/{subscriptionProductId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
-        public async Task<ActionResult<SubscriptionProduct>> UpdateOperatorSubscriptionProductForCustomer(Guid organizationId, [FromBody] SubscriptionProduct subscriptionProduct)
+        public async Task<ActionResult<SubscriptionProduct>> UpdateOperatorSubscriptionProductForCustomer(Guid organizationId, int subscriptionProductId, [FromBody] UpdatedSubscriptionProduct subscriptionProduct)
         {
-            var updatedSubscriptionProducts = await _customerSettingsService.UpdateOperatorSubscriptionProductForCustomerAsync(organizationId, _mapper.Map<CustomerSubscriptionProductDTO>(subscriptionProduct));
-            var mappedSubscriptionProduct = _mapper.Map<SubscriptionProduct>(updatedSubscriptionProducts);
-            return Ok(mappedSubscriptionProduct);
+            var customerSubscriptionProductDTO = _mapper.Map<CustomerSubscriptionProductDTO>(subscriptionProduct);
+            customerSubscriptionProductDTO.Id = subscriptionProductId;
+            var updatedSubscriptionProduct = await _customerSettingsService.UpdateSubscriptionProductForCustomerAsync(organizationId, customerSubscriptionProductDTO);
+            return Ok(updatedSubscriptionProduct);
         }
     }
 }

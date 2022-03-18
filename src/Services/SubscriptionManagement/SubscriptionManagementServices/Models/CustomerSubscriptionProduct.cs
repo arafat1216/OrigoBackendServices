@@ -73,6 +73,17 @@ namespace SubscriptionManagementServices.Models
             }
         }
 
+        public void SetDataPackages(IList<string> dataPackages)
+        {
+            foreach (var dataPackage in dataPackages)
+            {
+                if(!_dataPackages.Any(m=>m.DataPackageName == dataPackage))
+                {
+                    _dataPackages.Add(new DataPackage { DataPackageName = dataPackage });
+                }
+            }
+        }
+
         [JsonIgnore]
         public SubscriptionProduct? GlobalSubscriptionProduct { get; set; }
     }
