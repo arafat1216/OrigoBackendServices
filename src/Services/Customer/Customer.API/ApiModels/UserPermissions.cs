@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Customer.API.ViewModels
+namespace Customer.API.ApiModels
 {
     public class UserPermissions
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Customer.API.ViewModels
+namespace Customer.API.ApiModels
 {
     public record NewUser
     {

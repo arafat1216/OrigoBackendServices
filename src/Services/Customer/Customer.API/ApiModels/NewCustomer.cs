@@ -1,4 +1,4 @@
-﻿namespace Customer.API.ViewModels
+﻿namespace Customer.API.ApiModels
 {
     public record NewCustomer
     {

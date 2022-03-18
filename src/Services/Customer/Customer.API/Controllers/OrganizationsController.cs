@@ -1,5 +1,5 @@
 ﻿using Common.Exceptions;
-using Customer.API.ViewModels;
+using Customer.API.ApiModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;

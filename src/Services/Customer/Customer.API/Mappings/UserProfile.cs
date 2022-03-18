@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Customer.API.ViewModels;
+using Customer.API.ApiModels;
 using CustomerServices.ServiceModels;
 
 namespace Customer.API.Mappings

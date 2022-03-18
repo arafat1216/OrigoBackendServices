@@ -1,4 +1,4 @@
-﻿using Customer.API.ViewModels;
+﻿using Customer.API.ApiModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
@@ -61,7 +61,7 @@ namespace Customer.API.Controllers
         [HttpPut]
         [ProducesResponseType(typeof(UserPermissions), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<ViewModels.UserPermissions>> AssignUserPermissions(string userName, [FromBody] NewUserPermission userRole)
+        public async Task<ActionResult<ApiModels.UserPermissions>> AssignUserPermissions(string userName, [FromBody] NewUserPermission userRole)
         {
             try
             {

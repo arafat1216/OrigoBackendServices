@@ -1,4 +1,4 @@
-﻿using Customer.API.ViewModels;
+﻿using Customer.API.ApiModels;
 using CustomerServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
