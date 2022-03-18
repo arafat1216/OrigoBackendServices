@@ -50,7 +50,24 @@ namespace SubscriptionManagementServices.Models
             OrderExecutionDate = orderExecutionDate;
             SimCardNumber = simCardNumber;
             SimCardAction = simCardAction;
-            SimCardAddress = simCardAddress;
+            if (simCardAddress != null)
+            {
+                SimCardReceiverAddress = simCardAddress.Address;
+                SimCardReceiverFirstName = simCardAddress.FirstName;
+                SimCardReceiverLastName = simCardAddress.LastName;
+                SimCardReceiverCountry = simCardAddress.Country;
+                SimCardReceiverPostalCode = simCardAddress.PostalCode;
+                SimCardReceiverPostalPlace = simCardAddress.PostalPlace;
+            }
+            else
+            {
+                SimCardReceiverAddress = businessSubscription.Address;
+                SimCardReceiverCountry= businessSubscription.Country;
+                SimCardReceiverPostalCode= businessSubscription.PostalCode;
+                SimCardReceiverPostalPlace= businessSubscription.PostalPlace;
+                SimCardReceiverFirstName = businessSubscription.Name;
+                SimCardReceiverLastName = businessSubscription.OrganizationNumber;
+            }
             CustomerReferenceFields = customerReferenceFields;
             _subscriptionAddOnProducts = subscriptionAddOnProducts;
             PrivateSubscription = privateSubscription;
@@ -77,8 +94,14 @@ namespace SubscriptionManagementServices.Models
         [StringLength(22)]
         public string? SimCardNumber { get; set; }
         public string SimCardAction { get; set; }
-        public SimCardAddress? SimCardAddress { get; set; }
+        public string? SimCardReceiverFirstName { get; set; }
+        public string? SimCardReceiverLastName { get; set; }
+        public string? SimCardReceiverAddress { get; set; }
+        public string? SimCardReceiverPostalCode { get; set; }
+        public string? SimCardReceiverPostalPlace { get; set; }
+        public string? SimCardReceiverCountry { get; set; }
         public string CustomerReferenceFields { get; set; }
+
         private readonly List<SubscriptionAddOnProduct> _subscriptionAddOnProducts;
         [JsonIgnore]
         public IReadOnlyCollection<SubscriptionAddOnProduct> SubscriptionAddOnProducts => _subscriptionAddOnProducts.AsReadOnly();
@@ -92,7 +115,7 @@ namespace SubscriptionManagementServices.Models
 
         [NotMapped]
         public string NewSubscriptionOrderOwnerName =>
-            PrivateSubscription != null ? $"{PrivateSubscription?.FirstName} {PrivateSubscription?.LastName}" : $"{SimCardAddress?.FirstName} {SimCardAddress?.LastName}" ?? string.Empty;
+            PrivateSubscription != null ? $"{PrivateSubscription?.FirstName} {PrivateSubscription?.LastName}" : $"{SimCardReceiverFirstName} {SimCardReceiverLastName}" ?? string.Empty;
 
         [NotMapped] public DateTime ExecutionDate => OrderExecutionDate;
         public string? SalesforceTicketId { get; set; }

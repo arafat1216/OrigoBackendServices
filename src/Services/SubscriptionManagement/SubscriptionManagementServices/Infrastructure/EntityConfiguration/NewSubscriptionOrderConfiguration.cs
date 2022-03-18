@@ -28,8 +28,6 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 
             builder.HasOne(e => e.BusinessSubscription);
 
-            builder.HasOne(e => e.SimCardAddress);
-
             builder.Property(e => e.Id)
                    .HasColumnOrder(0);
             builder.Property(e => e.SubscriptionOrderId)

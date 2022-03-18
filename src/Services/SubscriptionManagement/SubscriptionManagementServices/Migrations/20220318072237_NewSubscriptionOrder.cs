@@ -10,30 +10,6 @@ namespace SubscriptionManagementServices.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "SimCardAddress",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PostalPlace = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Country = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SimCardAddress", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "NewSubscriptionOrder",
                 columns: table => new
                 {
@@ -55,7 +31,12 @@ namespace SubscriptionManagementServices.Migrations
                     BusinessSubscriptionId = table.Column<int>(type: "int", nullable: true),
                     SimCardNumber = table.Column<string>(type: "nvarchar(22)", maxLength: 22, nullable: true),
                     SimCardAction = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SimCardAddressId = table.Column<int>(type: "int", nullable: true),
+                    SimCardReceiverFirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SimCardReceiverLastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SimCardReceiverAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SimCardReceiverPostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SimCardReceiverPostalPlace = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SimCardReceiverCountry = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CustomerReferenceFields = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SalesforceTicketId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
@@ -77,11 +58,6 @@ namespace SubscriptionManagementServices.Migrations
                         name: "FK_NewSubscriptionOrder_PrivateSubscription_PrivateSubscriptionId",
                         column: x => x.PrivateSubscriptionId,
                         principalTable: "PrivateSubscription",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_NewSubscriptionOrder_SimCardAddress_SimCardAddressId",
-                        column: x => x.SimCardAddressId,
-                        principalTable: "SimCardAddress",
                         principalColumn: "Id");
                 });
 
@@ -120,11 +96,6 @@ namespace SubscriptionManagementServices.Migrations
                 column: "PrivateSubscriptionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_NewSubscriptionOrder_SimCardAddressId",
-                table: "NewSubscriptionOrder",
-                column: "SimCardAddressId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_NewSubscriptionOrderAddOnProducts_SubscriptionAddOnProductsId",
                 table: "NewSubscriptionOrderAddOnProducts",
                 column: "SubscriptionAddOnProductsId");
@@ -137,9 +108,6 @@ namespace SubscriptionManagementServices.Migrations
 
             migrationBuilder.DropTable(
                 name: "NewSubscriptionOrder");
-
-            migrationBuilder.DropTable(
-                name: "SimCardAddress");
         }
     }
 }

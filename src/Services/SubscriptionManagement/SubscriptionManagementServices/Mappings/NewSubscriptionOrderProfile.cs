@@ -10,14 +10,22 @@ namespace SubscriptionManagementServices.Mappings
         public NewSubscriptionOrderProfile()
         {
             CreateMap<NewSubscriptionOrder, NewSubscriptionOrderDTO>()
-                    .ForMember(dto => dto.SimCardAddress, opts => opts.MapFrom(sa => new SimCardAddressRequestDTO
-                    {
-                        Address = sa.SimCardAddress.Address, Country = sa.SimCardAddress.Country,
-                        PostalPlace = sa.SimCardAddress.PostalPlace,PostalCode = sa.SimCardAddress.PostalCode,FirstName = sa.SimCardAddress.FirstName, LastName = sa.SimCardAddress.LastName
-                    }))
+                    .ForMember(dto => dto.SimCardAddress, opts => opts.MapFrom(m => new SimCardAddressRequestDTO {
+                        FirstName = m.SimCardReceiverFirstName,
+                        LastName = m.SimCardReceiverLastName,
+                        Address = m.SimCardReceiverAddress,
+                        Country = m.SimCardReceiverCountry,
+                        PostalCode = m.SimCardReceiverPostalCode,
+                        PostalPlace = m.SimCardReceiverPostalPlace }))
                     .ForMember(dto => dto.DataPackage, opts => opts.MapFrom(dp => dp.DataPackageName))
                     .ForMember(dto => dto.CustomerReferenceFields, opts => opts.MapFrom(m => JsonSerializer.Deserialize<IList<NewCustomerReferenceValue>>(m.CustomerReferenceFields, new JsonSerializerOptions { })))
-                    .ForMember(dto => dto.NewOperatorAccount, opts => opts.MapFrom(m => new NewOperatorAccountRequestedDTO { OperatorId = m.OperatorId, NewOperatorAccountOwner = m.OperatorAccountOwner, NewOperatorAccountPayer = m.OperatorAccountPayer }))
+                    .ForMember(dto => dto.NewOperatorAccount, opts => {
+                        opts.Condition(m => m.OperatorAccountName == null);
+                        opts.MapFrom(m => new NewOperatorAccountRequestedDTO { OperatorId = m.OperatorId, NewOperatorAccountOwner = m.OperatorAccountOwner, NewOperatorAccountPayer = m.OperatorAccountPayer });
+                    }).ForMember(dto => dto.OperatorAccountId, opts => {
+                        opts.Condition(m=>m .OperatorAccountName != null);
+                        opts.MapFrom(m => m.OperatorId); ;
+                    })
                     .ForMember(dto => dto.AddOnProducts, opt => opt.MapFrom(m => m.SubscriptionAddOnProducts.Select(a => a.AddOnProductName)));
 
         }

@@ -32,7 +32,7 @@ namespace SubscriptionManagementServices.Infrastructure
         public DbSet<ActivateSimOrder> ActivateSimOrders => Set<ActivateSimOrder>();
         public DbSet<OrderSimSubscriptionOrder> OrderSimSubscriptionOrders => Set<OrderSimSubscriptionOrder>();
         public DbSet<NewSubscriptionOrder> NewSubscriptionOrders => Set<NewSubscriptionOrder>();
-        public DbSet<SimCardAddress> SimCardAddress => Set<SimCardAddress>();
+        
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -54,7 +54,7 @@ namespace SubscriptionManagementServices.Infrastructure
             modelBuilder.ApplyConfiguration(new ActivateSimOrderConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new OrderSimSubscriptionOrderConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new NewSubscriptionOrderConfiguration(_isSQLite));
-            modelBuilder.ApplyConfiguration(new SimCardAddressConfiguration(_isSQLite));
+            
             modelBuilder.SeedGlobalProducts();
         }
     }

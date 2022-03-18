@@ -1,9 +1,6 @@
-﻿
-using Common.Seedwork;
-
-namespace SubscriptionManagementServices.Models
+﻿namespace SubscriptionManagementServices.Models
 {
-    public class SimCardAddress : Entity
+    public class SimCardAddress
     {
         public SimCardAddress()
         {

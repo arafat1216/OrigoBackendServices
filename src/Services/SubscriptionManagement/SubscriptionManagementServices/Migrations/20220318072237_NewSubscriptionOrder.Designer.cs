@@ -12,7 +12,7 @@ using SubscriptionManagementServices.Infrastructure;
 namespace SubscriptionManagementServices.Migrations
 {
     [DbContext(typeof(SubscriptionManagementContext))]
-    [Migration("20220317090151_NewSubscriptionOrder")]
+    [Migration("20220318072237_NewSubscriptionOrder")]
     partial class NewSubscriptionOrder
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1308,12 +1308,27 @@ namespace SubscriptionManagementServices.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("SimCardAddressId")
-                        .HasColumnType("int");
-
                     b.Property<string>("SimCardNumber")
                         .HasMaxLength(22)
                         .HasColumnType("nvarchar(22)");
+
+                    b.Property<string>("SimCardReceiverAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SimCardReceiverCountry")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SimCardReceiverFirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SimCardReceiverLastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SimCardReceiverPostalCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SimCardReceiverPostalPlace")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("SubscriptionOrderId")
                         .HasColumnType("uniqueidentifier")
@@ -1331,8 +1346,6 @@ namespace SubscriptionManagementServices.Migrations
                     b.HasIndex("BusinessSubscriptionId");
 
                     b.HasIndex("PrivateSubscriptionId");
-
-                    b.HasIndex("SimCardAddressId");
 
                     b.ToTable("NewSubscriptionOrder", (string)null);
                 });
@@ -1571,59 +1584,6 @@ namespace SubscriptionManagementServices.Migrations
                     b.HasIndex("RealOwnerId");
 
                     b.ToTable("PrivateSubscription", (string)null);
-                });
-
-            modelBuilder.Entity("SubscriptionManagementServices.Models.SimCardAddress", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
-
-                    b.Property<Guid>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("LastUpdatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
-
-                    b.Property<string>("PostalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PostalPlace")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SimCardAddress", (string)null);
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.SubscriptionAddOnProduct", b =>
@@ -2213,15 +2173,9 @@ namespace SubscriptionManagementServices.Migrations
                         .WithMany()
                         .HasForeignKey("PrivateSubscriptionId");
 
-                    b.HasOne("SubscriptionManagementServices.Models.SimCardAddress", "SimCardAddress")
-                        .WithMany()
-                        .HasForeignKey("SimCardAddressId");
-
                     b.Navigation("BusinessSubscription");
 
                     b.Navigation("PrivateSubscription");
-
-                    b.Navigation("SimCardAddress");
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.PrivateSubscription", b =>
