@@ -1,4 +1,5 @@
 ﻿using CustomerServices.Exceptions;
+using CustomerServices.Infrastructure;
 using CustomerServices.Models;
 using Microsoft.Extensions.Logging;
 using System;

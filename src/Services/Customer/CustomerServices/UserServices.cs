@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CustomerServices.Exceptions;
+using CustomerServices.Infrastructure;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
 using Microsoft.Extensions.Logging;
