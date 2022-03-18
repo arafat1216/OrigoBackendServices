@@ -2,6 +2,7 @@
 using SubscriptionManagementServices.DomainEvents;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -14,41 +15,64 @@ namespace SubscriptionManagementServices.Models
         public NewSubscriptionOrder(Guid organizationId,
                                     string mobileNumber,
                                     int operatorId,
-                                    string? operatorAccountNumber,
-                                    string? operatorAccountName,
+                                    CustomerOperatorAccount? existingAccount,
                                     string? operatorAccountOwner,
                                     string? operatorAccountPayer,
-                                    string? operatorAccountOrganizationNumber,
                                     string subscriptionProductName,
                                     string? dataPackageName,
                                     DateTime orderExecutionDate,
-                                    string? simCardNumber, string simCardAction,
+                                    string? simCardNumber, 
+                                    string simCardAction,
                                     SimCardAddress? simCardAddress,
                                     string customerReferenceFields,
-                                    List<SubscriptionAddOnProduct> subscriptionAddOnProducts,
+                                    List<SubscriptionAddOnProduct>? subscriptionAddOnProducts,
                                     PrivateSubscription? privateSubscription,
-                                    string? salesforceTicketId,
+                                    BusinessSubscription? businessSubscription,
                                     Guid callerId)
         {
             OrganizationId = organizationId;
             MobileNumber = mobileNumber;
             OperatorId = operatorId;
-            OperatorAccountNumber = operatorAccountNumber;
-            OperatorAccountName = operatorAccountName;
-            OperatorAccountOwner = operatorAccountOwner;
-            OperatorAccountPayer = operatorAccountPayer;
-            OperatorAccountOrganizationNumber = operatorAccountOrganizationNumber;
+            if (existingAccount != null) 
+            {
+                OperatorAccountNumber = existingAccount.AccountNumber;
+                OperatorAccountName = existingAccount.AccountName;
+                OperatorAccountOrganizationNumber = existingAccount.ConnectedOrganizationNumber;
+                OperatorId = existingAccount.OperatorId;
+            }
+            else
+            {
+                OperatorAccountPayer = operatorAccountPayer;
+                OperatorAccountOwner = operatorAccountOwner;
+            }
             SubscriptionProductName = subscriptionProductName;
             DataPackageName = dataPackageName;
             OrderExecutionDate = orderExecutionDate;
             SimCardNumber = simCardNumber;
             SimCardAction = simCardAction;
-            SimCardAddress = simCardAddress;
+            if (simCardAddress != null)
+            {
+                SimCardReceiverAddress = simCardAddress.Address;
+                SimCardReceiverFirstName = simCardAddress.FirstName;
+                SimCardReceiverLastName = simCardAddress.LastName;
+                SimCardReceiverCountry = simCardAddress.Country;
+                SimCardReceiverPostalCode = simCardAddress.PostalCode;
+                SimCardReceiverPostalPlace = simCardAddress.PostalPlace;
+            }
+            else
+            {
+                SimCardReceiverAddress = businessSubscription.Address;
+                SimCardReceiverCountry= businessSubscription.Country;
+                SimCardReceiverPostalCode= businessSubscription.PostalCode;
+                SimCardReceiverPostalPlace= businessSubscription.PostalPlace;
+                SimCardReceiverFirstName = businessSubscription.Name;
+                SimCardReceiverLastName = businessSubscription.OrganizationNumber;
+            }
             CustomerReferenceFields = customerReferenceFields;
             _subscriptionAddOnProducts = subscriptionAddOnProducts;
             PrivateSubscription = privateSubscription;
+            BusinessSubscription = businessSubscription;
             SubscriptionOrderId = Guid.NewGuid();
-            SalesforceTicketId = salesforceTicketId;
             CreatedBy = callerId;
             AddDomainEvent(new NewSubscriptionOrderCreatedDomainEvent(this, callerId));
         }
@@ -57,21 +81,29 @@ namespace SubscriptionManagementServices.Models
         public Guid OrganizationId { get; set; }
         public string MobileNumber { get; set; }
         public int OperatorId { get; set; }
+        public string SubscriptionProductName { get; set; }
+        public string? DataPackageName { get; set; }
+        public DateTime OrderExecutionDate { get; set; }
         public string? OperatorAccountNumber { get; set; }
         public string? OperatorAccountName { get; set; }
         public string? OperatorAccountOwner { get; set; }
         public string? OperatorAccountPayer { get; set; }
         public string? OperatorAccountOrganizationNumber { get; set; }
-        public string SubscriptionProductName { get; set; }
-        public string? DataPackageName { get; set; }
-        public DateTime OrderExecutionDate { get; set; }
+        public PrivateSubscription? PrivateSubscription { get; set; }
+        public BusinessSubscription? BusinessSubscription { get; set; }
         [StringLength(22)]
         public string? SimCardNumber { get; set; }
         public string SimCardAction { get; set; }
-        public SimCardAddress? SimCardAddress { get; set; }
-        public PrivateSubscription? PrivateSubscription { get; set; }
+        public string? SimCardReceiverFirstName { get; set; }
+        public string? SimCardReceiverLastName { get; set; }
+        public string? SimCardReceiverAddress { get; set; }
+        public string? SimCardReceiverPostalCode { get; set; }
+        public string? SimCardReceiverPostalPlace { get; set; }
+        public string? SimCardReceiverCountry { get; set; }
         public string CustomerReferenceFields { get; set; }
+
         private readonly List<SubscriptionAddOnProduct> _subscriptionAddOnProducts;
+        [JsonIgnore]
         public IReadOnlyCollection<SubscriptionAddOnProduct> SubscriptionAddOnProducts => _subscriptionAddOnProducts.AsReadOnly();
 
         
@@ -83,7 +115,7 @@ namespace SubscriptionManagementServices.Models
 
         [NotMapped]
         public string NewSubscriptionOrderOwnerName =>
-            PrivateSubscription != null ? $"{PrivateSubscription?.FirstName} {PrivateSubscription?.LastName}" : $"{SimCardAddress?.FirstName} {SimCardAddress?.LastName}" ?? string.Empty;
+            PrivateSubscription != null ? $"{PrivateSubscription?.FirstName} {PrivateSubscription?.LastName}" : $"{SimCardReceiverFirstName} {SimCardReceiverLastName}" ?? string.Empty;
 
         [NotMapped] public DateTime ExecutionDate => OrderExecutionDate;
         public string? SalesforceTicketId { get; set; }
