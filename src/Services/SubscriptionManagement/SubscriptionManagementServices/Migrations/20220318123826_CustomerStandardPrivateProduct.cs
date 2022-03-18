@@ -17,10 +17,9 @@ namespace SubscriptionManagementServices.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OperatorName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DataPackage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SubscriptionName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CustomerSubscriptionProductId = table.Column<int>(type: "int", nullable: true),
-                    CustomerOperatorSettingsId = table.Column<int>(type: "int", nullable: false),
+                    DataPackage = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomerOperatorSettingId = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
@@ -32,27 +31,18 @@ namespace SubscriptionManagementServices.Migrations
                 {
                     table.PrimaryKey("PK_CustomerStandardPrivateSubscriptionProduct", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CustomerStandardPrivateSubscriptionProduct_CustomerOperatorSettings_CustomerOperatorSettingsId",
-                        column: x => x.CustomerOperatorSettingsId,
+                        name: "FK_CustomerStandardPrivateSubscriptionProduct_CustomerOperatorSettings_CustomerOperatorSettingId",
+                        column: x => x.CustomerOperatorSettingId,
                         principalTable: "CustomerOperatorSettings",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CustomerStandardPrivateSubscriptionProduct_CustomerSubscriptionProduct_CustomerSubscriptionProductId",
-                        column: x => x.CustomerSubscriptionProductId,
-                        principalTable: "CustomerSubscriptionProduct",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CustomerStandardPrivateSubscriptionProduct_CustomerOperatorSettingsId",
+                name: "IX_CustomerStandardPrivateSubscriptionProduct_CustomerOperatorSettingId",
                 table: "CustomerStandardPrivateSubscriptionProduct",
-                column: "CustomerOperatorSettingsId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CustomerStandardPrivateSubscriptionProduct_CustomerSubscriptionProductId",
-                table: "CustomerStandardPrivateSubscriptionProduct",
-                column: "CustomerSubscriptionProductId");
+                column: "CustomerOperatorSettingId",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

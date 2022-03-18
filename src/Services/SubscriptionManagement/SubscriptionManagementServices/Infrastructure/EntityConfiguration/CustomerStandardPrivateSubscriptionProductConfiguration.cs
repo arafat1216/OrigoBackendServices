@@ -22,9 +22,6 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 
             builder.Property(e => e.Id)
                    .HasColumnOrder(0);
-
-            builder.HasOne(e => e.CustomerOperatorSettings);
-            builder.HasOne(e => e.CustomerSubscriptionProduct);
         }
     }
 }

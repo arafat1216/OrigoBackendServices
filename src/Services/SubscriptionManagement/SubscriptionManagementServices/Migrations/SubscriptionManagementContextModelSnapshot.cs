@@ -516,10 +516,7 @@ namespace SubscriptionManagementServices.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
-                    b.Property<int>("CustomerOperatorSettingsId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("CustomerSubscriptionProductId")
+                    b.Property<int>("CustomerOperatorSettingId")
                         .HasColumnType("int");
 
                     b.Property<string>("DataPackage")
@@ -551,9 +548,8 @@ namespace SubscriptionManagementServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerOperatorSettingsId");
-
-                    b.HasIndex("CustomerSubscriptionProductId");
+                    b.HasIndex("CustomerOperatorSettingId")
+                        .IsUnique();
 
                     b.ToTable("CustomerStandardPrivateSubscriptionProduct", (string)null);
                 });
@@ -2191,18 +2187,12 @@ namespace SubscriptionManagementServices.Migrations
             modelBuilder.Entity("SubscriptionManagementServices.Models.CustomerStandardPrivateSubscriptionProduct", b =>
                 {
                     b.HasOne("SubscriptionManagementServices.Models.CustomerOperatorSettings", "CustomerOperatorSettings")
-                        .WithMany()
-                        .HasForeignKey("CustomerOperatorSettingsId")
+                        .WithOne("StandardPrivateSubscriptionProduct")
+                        .HasForeignKey("SubscriptionManagementServices.Models.CustomerStandardPrivateSubscriptionProduct", "CustomerOperatorSettingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SubscriptionManagementServices.Models.CustomerSubscriptionProduct", "CustomerSubscriptionProduct")
-                        .WithMany()
-                        .HasForeignKey("CustomerSubscriptionProductId");
-
                     b.Navigation("CustomerOperatorSettings");
-
-                    b.Navigation("CustomerSubscriptionProduct");
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.CustomerSubscriptionProduct", b =>
@@ -2303,6 +2293,9 @@ namespace SubscriptionManagementServices.Migrations
                     b.Navigation("AvailableSubscriptionProducts");
 
                     b.Navigation("CustomerOperatorAccounts");
+
+                    b.Navigation("StandardPrivateSubscriptionProduct")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.CustomerSettings", b =>

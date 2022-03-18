@@ -10,13 +10,12 @@ namespace SubscriptionManagementServices.Models
         {
         }
 
-        public CustomerStandardPrivateSubscriptionProduct(Guid organizationId, string? dataPackage, string subscriptionName, CustomerSubscriptionProduct? customerSubscriptionProduct, CustomerOperatorSettings customerOperatorSettings, Guid callerId)
+        public CustomerStandardPrivateSubscriptionProduct(Guid organizationId,string operatorName, string? dataPackage, string subscriptionName, CustomerOperatorSettings customerOperatorSettings, Guid callerId)
         {
             OrganizationId = organizationId;
-            OperatorName = CustomerOperatorSettings.Operator.OperatorName;
+            OperatorName = operatorName;
             DataPackage = dataPackage;
             SubscriptionName = subscriptionName;
-            CustomerSubscriptionProduct = customerSubscriptionProduct;
             CustomerOperatorSettings = customerOperatorSettings;
             CreatedBy = callerId;
             AddDomainEvent(new CustomerStandardPrivateSubscriptionProductAddedDomainEvent(this, callerId));
@@ -26,8 +25,7 @@ namespace SubscriptionManagementServices.Models
         public string? OperatorName { get; set; }
         public string SubscriptionName { get; set; }
         public string? DataPackage { get; set; }
-        [JsonIgnore]
-        public CustomerSubscriptionProduct? CustomerSubscriptionProduct { get; set; }
+        public int CustomerOperatorSettingId { get; set; }
         [JsonIgnore]
         public CustomerOperatorSettings CustomerOperatorSettings { get; set; }
 
