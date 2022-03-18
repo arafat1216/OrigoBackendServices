@@ -67,11 +67,45 @@ public class
             await _httpClient.GetFromJsonAsync<IList<CustomerSubscriptionProductDTO>>(
                 $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products");
         var retrievedNewCustomerSubscriptionProduct = modelList!.FirstOrDefault(p =>
-            p.Name == customerSubscriptionProduct.Name && !p.isGlobal);
+            p.SubscriptionName == customerSubscriptionProduct.Name && !p.IsGlobal);
         var deleteResponse = await _httpClient.DeleteAsync(
             $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products/{retrievedNewCustomerSubscriptionProduct!.Id}");
 
         Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task CreateAndUpdateCustomerSubscriptionProduct()
+    {
+        var customerSubscriptionProduct = new NewSubscriptionProduct
+        {
+            Name = "A customer subscription product",
+            OperatorId = _operatorId,
+            DataPackages = new List<string> { "20GB" },
+            CallerId = Guid.NewGuid()
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(customerSubscriptionProduct));
+        var createResponse = await _httpClient.PostAsJsonAsync(
+            $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products", customerSubscriptionProduct);
+
+        var newCustomerSubscriptionProduct = await createResponse.Content.ReadFromJsonAsync<CustomerSubscriptionProductDTO>();
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        Assert.Equal("A customer subscription product", newCustomerSubscriptionProduct!.SubscriptionName);
+        Assert.Equal(1, newCustomerSubscriptionProduct!.Datapackages.Count);
+
+        var updatedSubscriptionProduct = new UpdatedSubscriptionProduct
+        {
+            Datapackages = new List<string> { "25GB" },
+            SubscriptionName = "A customer subscription product"
+        };
+
+        var patchResponse = await _httpClient.PatchAsync(
+            $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products/{newCustomerSubscriptionProduct.Id}", JsonContent.Create(updatedSubscriptionProduct));
+        
+        var customerSubscriptionProductDTO = await patchResponse.Content.ReadFromJsonAsync<CustomerSubscriptionProductDTO>();
+        Assert.Equal(HttpStatusCode.OK, patchResponse.StatusCode);
+        Assert.Equal(newCustomerSubscriptionProduct.SubscriptionName, customerSubscriptionProductDTO!.SubscriptionName);
+        Assert.Equal(new List<string> { "20GB" , "25GB" }, customerSubscriptionProductDTO!.Datapackages);
     }
 
     [Fact]
@@ -88,7 +122,7 @@ public class
         var createResponse = await _httpClient.PostAsJsonAsync(
             $"/api/v1/SubscriptionManagement/{_organizationId}/operator-accounts", newOperatorAccount);
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
-        var operatorAccounts = await  _httpClient.GetFromJsonAsync<IList<CustomerOperatorAccount>>($"/api/v1/SubscriptionManagement/{_organizationId}/operator-accounts");
+        var operatorAccounts = await _httpClient.GetFromJsonAsync<IList<CustomerOperatorAccount>>($"/api/v1/SubscriptionManagement/{_organizationId}/operator-accounts");
         var operatorAccount = operatorAccounts!.FirstOrDefault(o => o.AccountNumber == "12343");
 
         Assert.Equal("1234567890123456789012345678901234567890", operatorAccount!.AccountName);
@@ -347,7 +381,7 @@ public class
         var newOrderSimSubscriptionOrder = new NewOrderSimSubscriptionOrder()
         {
             SendToName = "My Name",
-            Address = new Address(){Street = "No name", Postcode = "1111", City = "Oslo", Country = "Norway"},
+            Address = new Address() { Street = "No name", Postcode = "1111", City = "Oslo", Country = "Norway" },
             OperatorId = _operatorId,
             Quantity = 2,
             CallerId = Guid.NewGuid()
@@ -626,7 +660,7 @@ public class
                 OperatorName = "Telia - NO"
             },
             MobileNumber = "+4747474744",
-            OperatorAccountId = 100, 
+            OperatorAccountId = 100,
             SubscriptionProductId = 200,
             DataPackage = null,
             SIMCardNumber = "89202051293671023971",
@@ -639,7 +673,7 @@ public class
                 Name = "D&D METAL",
                 OrganizationNumber = "995053179",
                 Address = "Josipa Kozarca BB",
-                PostalCode= "9090",
+                PostalCode = "9090",
                 PostalPlace = "HR-31207 OSIJEK-TENJA",
                 Country = "HR",
                 OperatorName = "Telia - NO"

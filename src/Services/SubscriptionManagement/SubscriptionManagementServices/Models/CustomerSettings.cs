@@ -23,8 +23,8 @@ namespace SubscriptionManagementServices.Models
             }
         }
 
-        public CustomerSettings(){}
-        
+        public CustomerSettings() { }
+
         public CustomerSettings(Guid customerId, Guid callerId)
         {
             CustomerId = customerId;
@@ -79,17 +79,18 @@ namespace SubscriptionManagementServices.Models
             if (customerOperatorSetting == null)
             {
                 customerOperatorSetting = new CustomerOperatorSettings(@operator, null, callerId);
-                AddDomainEvent(new CustomerOperatorSettingsAddedDomainEvent(CustomerId,customerOperatorSetting, callerId));
+                AddDomainEvent(new CustomerOperatorSettingsAddedDomainEvent(CustomerId, customerOperatorSetting, callerId));
                 _customerOperatorSettings.Add(customerOperatorSetting);
             }
 
             var foundSubscriptionProduct = customerOperatorSetting.AvailableSubscriptionProducts.FirstOrDefault(p => p.SubscriptionName == productName);
             if (foundSubscriptionProduct == null)
             {
-               
-               var dataPackages = selectedDataPackages?.Select(dataPackage => new DataPackage(dataPackage, callerId)).ToList();
+
+                var dataPackages = selectedDataPackages?.Select(dataPackage => new DataPackage(dataPackage, callerId)).ToList();
                 var globalDataPackages = new List<DataPackage>();
-                if (globalSubscriptionProduct != null && globalSubscriptionProduct.DataPackages.Any() && selectedDataPackages != null) {
+                if (globalSubscriptionProduct != null && globalSubscriptionProduct.DataPackages.Any() && selectedDataPackages != null)
+                {
                     foreach (var dataPackage in selectedDataPackages)
                     {
                         var existingDataPackage = globalSubscriptionProduct.DataPackages.FirstOrDefault(a => a.DataPackageName == dataPackage);
@@ -114,7 +115,7 @@ namespace SubscriptionManagementServices.Models
                 else
                 {
                     //Custom
-                    AddDomainEvent(new DatapackagesAddedDomainEvent(dataPackages,CustomerId, callerId));
+                    AddDomainEvent(new DatapackagesAddedDomainEvent(dataPackages, CustomerId, callerId));
                     AddDomainEvent(new CustomerSubscriptionProductAddedDomainEvent(CustomerId, customerSubscriptionProduct, callerId));
                 }
             }
@@ -141,7 +142,7 @@ namespace SubscriptionManagementServices.Models
                 return null;
             }
             _customerReferenceFields.Remove(customerReferenceField);
-            AddDomainEvent(new CustomerReferenceFieldRemovedDomainEvent(customerReferenceField,CustomerId));
+            AddDomainEvent(new CustomerReferenceFieldRemovedDomainEvent(customerReferenceField, CustomerId));
             return customerReferenceField;
         }
 
@@ -170,7 +171,7 @@ namespace SubscriptionManagementServices.Models
         public CustomerOperatorAccount AddCustomerOperatorAccount(string accountNumber, string accountName, Operator @operator, Guid callerId, string? connectedOrganizationNumber)
         {
             var customerOperatorSettings = _customerOperatorSettings.FirstOrDefault(o => o.Operator.Id == @operator.Id);
-            var customerOperatorAccount = new CustomerOperatorAccount(CustomerId,connectedOrganizationNumber, accountNumber, accountName, @operator.Id, callerId);
+            var customerOperatorAccount = new CustomerOperatorAccount(CustomerId, connectedOrganizationNumber, accountNumber, accountName, @operator.Id, callerId);
             if (customerOperatorSettings == null)
             {
                 customerOperatorSettings = new CustomerOperatorSettings(@operator, new List<CustomerOperatorAccount> { customerOperatorAccount }, callerId);
@@ -184,7 +185,7 @@ namespace SubscriptionManagementServices.Models
                         $"A customer operator account with organization ID ({CustomerId}) and account number {accountNumber} already exists.");
                 }
             }
-            
+
             customerOperatorAccount.CustomerOperatorSetting = customerOperatorSettings;
             customerOperatorSettings.CustomerOperatorAccounts.Add(customerOperatorAccount);
             return customerOperatorAccount;
@@ -210,29 +211,17 @@ namespace SubscriptionManagementServices.Models
 
         public CustomerSubscriptionProduct UpdateSubscriptionProduct(CustomerSubscriptionProductDTO customerSubscriptionProduct)
         {
-            var foundProduct = CustomerOperatorSettings.SelectMany(os => os.AvailableSubscriptionProducts)?.FirstOrDefault();
+            var foundProduct = CustomerOperatorSettings.SelectMany(os => os.AvailableSubscriptionProducts)?.FirstOrDefault(m => m.Id == customerSubscriptionProduct.Id);
             if (foundProduct == null)
             {
                 throw new ArgumentException("A customer subscription product not found. Unable to update.");
             }
 
-            foundProduct.SubscriptionName = customerSubscriptionProduct.Name;
-            // Check for any new data packages.
-            foreach (var datapackage in customerSubscriptionProduct.Datapackages)
-            {
-                if (foundProduct.DataPackages.All(dp => dp.DataPackageName != datapackage))
-                {
-                    foundProduct.DataPackages.Add(new DataPackage(datapackage, Guid.Empty));
-                }
-            }
-            // Check if any data packages have been deleted.
-            foreach (var datapackage in foundProduct.DataPackages)
-            {
-                if (customerSubscriptionProduct.Datapackages.All(dataPackageName => dataPackageName != datapackage.DataPackageName))
-                {
-                    foundProduct.DataPackages.Remove(datapackage);
-                }
-            }
+
+            if (foundProduct.GlobalSubscriptionProduct != null)
+                foundProduct.SubscriptionName = customerSubscriptionProduct.SubscriptionName;
+
+            foundProduct.SetDataPackages(customerSubscriptionProduct.Datapackages);
 
             return foundProduct;
         }

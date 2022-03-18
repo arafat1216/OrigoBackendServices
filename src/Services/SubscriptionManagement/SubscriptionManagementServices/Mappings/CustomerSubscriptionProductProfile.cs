@@ -11,9 +11,9 @@ public class CustomerSubscriptionProductProfile : Profile
         CreateMap<CustomerSubscriptionProduct, CustomerSubscriptionProductDTO>()
             .ForMember(destination => destination.Datapackages,
                 opt => opt.MapFrom(src => src.DataPackages.Select(s => s.DataPackageName)))
-            .ForMember(destination => destination.isGlobal, 
+            .ForMember(destination => destination.IsGlobal, 
                 opt => opt.MapFrom(src => src.GlobalSubscriptionProduct != null))
-            .ForMember(destination => destination.Name, 
+            .ForMember(destination => destination.SubscriptionName, 
                 opt => opt.MapFrom(src => src.SubscriptionName))
             .ForMember(destination => destination.OperatorId,
                 opt => opt.MapFrom(src => src.Operator.Id));

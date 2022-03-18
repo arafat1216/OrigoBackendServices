@@ -121,7 +121,68 @@ namespace SubscriptionManagement.UnitTests
         {
             var addedCustomerSubscriptionProduct = await _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID,
                 1, "ProductName", new List<string> { "s1", "s2" }, Guid.NewGuid());
-            Assert.Equal("ProductName", addedCustomerSubscriptionProduct.Name);
+            Assert.Equal("ProductName", addedCustomerSubscriptionProduct.SubscriptionName);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task UpdateSubscriptionProductForCustomer_WithoutGlobalProduct()
+        {
+            var addedCustomerSubscriptionProduct = await _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(
+                ORGANIZATION_ONE_ID,
+                operatorId: 1, 
+                "ProductName", 
+                new List<string> { "s1", "s2" }, 
+                Guid.NewGuid());
+
+            await _customerSettingsService.UpdateSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, new CustomerSubscriptionProductDTO
+            {
+                Id = addedCustomerSubscriptionProduct.Id,
+                Datapackages = new List<string> { "s3" },
+                SubscriptionName = "ProductName X"
+            });
+
+            var allProducts = await _customerSettingsService.GetAllCustomerSubscriptionProductsAsync(ORGANIZATION_ONE_ID);
+
+            var updatedSubscriptionProduct = allProducts.FirstOrDefault(m=>m.Id == addedCustomerSubscriptionProduct.Id);
+            Assert.Equal(3, updatedSubscriptionProduct!.Datapackages.Count);
+            Assert.Equal(new List<string> { "s1", "s2", "s3" }, updatedSubscriptionProduct.Datapackages);
+            Assert.Equal("ProductName", updatedSubscriptionProduct.SubscriptionName);
+        }
+
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task UpdateSubscriptionProductForCustomer_WithGlobalProduct()
+        {
+            var newDataPackages = new List<string>
+        {
+            "Data Package"
+        };
+            var operators = await _operatorRepository.GetAllOperatorsAsync();
+            var operatorId = operators.FirstOrDefault(a => a.OperatorName == "Op1");
+
+
+            var subscriptionProductForCustomer = await _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(
+                ORGANIZATION_ONE_ID, 
+                operatorId!.Id, 
+                "SubscriptionName", 
+                newDataPackages, 
+                CALLER_ONE_ID);
+
+            await _customerSettingsService.UpdateSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, new CustomerSubscriptionProductDTO
+            {
+                Id = subscriptionProductForCustomer.Id,
+                Datapackages = new List<string> { "s3" },
+                SubscriptionName = "SubscriptionName Updated"
+            });
+
+            var allProducts = await _customerSettingsService.GetAllCustomerSubscriptionProductsAsync(ORGANIZATION_ONE_ID);
+
+            var updatedSubscriptionProduct = allProducts.FirstOrDefault(m => m.Id == subscriptionProductForCustomer.Id);
+            Assert.Equal(2, updatedSubscriptionProduct!.Datapackages.Count);
+            Assert.Equal(new List<string> { "Data Package", "s3" }, updatedSubscriptionProduct.Datapackages);
+            Assert.Equal("SubscriptionName Updated", updatedSubscriptionProduct.SubscriptionName);
         }
 
         [Fact]
@@ -216,8 +277,8 @@ namespace SubscriptionManagement.UnitTests
             var subscriptionProductForCustomer = await _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, operatorId!.Id, "SubscriptionName", newDataPackages, CALLER_ONE_ID);
             Assert.NotNull(subscriptionProductForCustomer);
             Assert.Equal(1, subscriptionProductForCustomer.Datapackages.Count);
-            Assert.True(subscriptionProductForCustomer.isGlobal);
-            Assert.Equal("SubscriptionName", subscriptionProductForCustomer.Name);
+            Assert.True(subscriptionProductForCustomer.IsGlobal);
+            Assert.Equal("SubscriptionName", subscriptionProductForCustomer.SubscriptionName);
             Assert.Equal(operatorId.Id, subscriptionProductForCustomer.OperatorId);
         }
         [Fact]
@@ -236,8 +297,8 @@ namespace SubscriptionManagement.UnitTests
             var subscriptionProductForCustomer = await _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, operatorId!.Id, "Custom Product", newDataPackages, CALLER_ONE_ID);
             Assert.NotNull(subscriptionProductForCustomer);
             Assert.Equal(2, subscriptionProductForCustomer.Datapackages.Count);
-            Assert.False(subscriptionProductForCustomer.isGlobal);
-            Assert.Equal("Custom Product", subscriptionProductForCustomer.Name);
+            Assert.False(subscriptionProductForCustomer.IsGlobal);
+            Assert.Equal("Custom Product", subscriptionProductForCustomer.SubscriptionName);
             Assert.Equal(operatorId.Id, subscriptionProductForCustomer.OperatorId);
         }
         [Fact]
@@ -256,8 +317,8 @@ namespace SubscriptionManagement.UnitTests
             var subscriptionProductForCustomer = await _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, operatorId!.Id, "SubscriptionName", newDataPackages, CALLER_ONE_ID);
             Assert.NotNull(subscriptionProductForCustomer);
             Assert.Equal(0, subscriptionProductForCustomer.Datapackages.Count);
-            Assert.True(subscriptionProductForCustomer.isGlobal);
-            Assert.Equal("SubscriptionName", subscriptionProductForCustomer.Name);
+            Assert.True(subscriptionProductForCustomer.IsGlobal);
+            Assert.Equal("SubscriptionName", subscriptionProductForCustomer.SubscriptionName);
             Assert.Equal(operatorId.Id, subscriptionProductForCustomer.OperatorId);
         }
         [Fact]
@@ -276,8 +337,8 @@ namespace SubscriptionManagement.UnitTests
             var subscriptionProductForCustomer = await _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(new Guid("00000000-0000-0000-0000-000000000000"), operatorId!.Id, "SubscriptionName", newDataPackages, CALLER_ONE_ID);
             Assert.NotNull(subscriptionProductForCustomer);
             Assert.Equal(1, subscriptionProductForCustomer.Datapackages.Count);
-            Assert.True(subscriptionProductForCustomer.isGlobal);
-            Assert.Equal("SubscriptionName", subscriptionProductForCustomer.Name);
+            Assert.True(subscriptionProductForCustomer.IsGlobal);
+            Assert.Equal("SubscriptionName", subscriptionProductForCustomer.SubscriptionName);
             Assert.Equal(operatorId.Id, subscriptionProductForCustomer.OperatorId);
         }
     }
