@@ -1,4 +1,6 @@
-﻿namespace Customer.API.ViewModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Customer.API.ViewModels
 {
     public class NewLocation
     {
@@ -8,6 +10,8 @@
         public string Address2 { get; set; }
         public string PostalCode { get; set; }
         public string City { get; set; }
+
+        [RegularExpression("^[a-z]{2}")] // Exactly 2 lowercase characters
         public string Country { get; set; }
     }
 }

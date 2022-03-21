@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Customer.API.ViewModels
 {
     public record Organization
     {
-        public System.Guid OrganizationId { get; set; }
+        public Guid OrganizationId { get; set; }
 
         public string Name { get; set; }
 
