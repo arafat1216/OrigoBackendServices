@@ -7,6 +7,7 @@
         CustomerAdmin = 3,
         GroupAdmin = 4,
         PartnerAdmin = 5,
+        PartnerReadOnlyAdmin = 7,
         SystemAdmin = 6
     }
 }
