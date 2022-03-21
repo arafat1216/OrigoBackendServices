@@ -51,19 +51,29 @@ namespace SubscriptionManagementServices
             }
         }
 
-        public async Task SendAsync(string orderType, Guid subscriptionOrderId, object data)
+        public async Task SendAsync(string orderType, Guid subscriptionOrderId, object data, Dictionary<string, string> others = null)
         {
             if (string.IsNullOrEmpty(_emailConfiguration.BaseUrl)) return;
-            
+
             var variables = _flatDictionaryProvider.Execute(data);
+
+            variables["OrderType"] = orderType;
+
+            if (others != null)
+            {
+                foreach (var item in others)
+                    variables[item.Key] = item.Value;
+            }
+
             var templateName = string.Empty;
+
             foreach (var item in _emailConfiguration.Templates)
             {
                 if (orderType.Contains(item.Key))
                     templateName = item.Value;
             }
 
-            if(string.IsNullOrEmpty(templateName)) return;
+            if (string.IsNullOrEmpty(templateName)) return;
 
             try
             {
