@@ -1,10 +1,9 @@
-﻿using CustomerServices.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CustomerServices.Infrastructure
+namespace CustomerServices.Models
 {
     public interface IOrganizationRepository
     {

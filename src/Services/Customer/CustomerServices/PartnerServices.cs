@@ -1,5 +1,4 @@
-﻿using CustomerServices.Infrastructure;
-using CustomerServices.Models;
+﻿using CustomerServices.Models;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

@@ -1,5 +1,4 @@
 ﻿using Common.Enums;
-using CustomerServices.Infrastructure;
 using CustomerServices.Models;
 using CustomerServices.SeedData;
 using Microsoft.Extensions.Logging;
