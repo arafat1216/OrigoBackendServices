@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Customer.API.ApiModels
+namespace Customer.API.ViewModels
 {
     public record Organization
     {

@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace Customer.API.ApiModels
+namespace Customer.API.ViewModels
 {
-    public record DeleteOrganization
+    public class NewPartner
     {
         public Guid OrganizationId { get; set; }
         public Guid CallerId { get; set; }
-        public bool HardDelete { get; set; }
     }
 }

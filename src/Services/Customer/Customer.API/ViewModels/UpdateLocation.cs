@@ -1,7 +1,12 @@
-﻿namespace Customer.API.ApiModels
+﻿using System;
+
+namespace Customer.API.ViewModels
 {
-    public class NewLocation
+    public class UpdateLocation
     {
+        public Guid LocationId { get; set; }
+        public Guid CallerId { get; set; }
+
         public string Name { get; set; }
         public string Description { get; set; }
         public string Address1 { get; set; }

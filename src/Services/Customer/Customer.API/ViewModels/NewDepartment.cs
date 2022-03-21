@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Customer.API.ApiModels
+namespace Customer.API.ViewModels
 {
     public class NewDepartment
     {
