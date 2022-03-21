@@ -11,5 +11,5 @@
 {{Quantity}}
 
 #### Address
-{{Street}}, {{Postcode}}, {{City}}, {{Country}}
+{{Address.Street}}, {{Address.Postcode}}, {{Address.City}}, {{Address.Country}}
 
