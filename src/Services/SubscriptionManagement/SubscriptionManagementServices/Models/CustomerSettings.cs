@@ -239,5 +239,15 @@ namespace SubscriptionManagementServices.Models
 
             return customerStandardPrivateSubscriptionProduct;
         }
+        public CustomerStandardPrivateSubscriptionProduct RemoveCustomerStandardPrivateSubscriptionProduct(int operatorId, Guid callerId)
+        {
+            var customerOperatorSetting = CustomerOperatorSettings.FirstOrDefault(a => a.Operator.Id == operatorId && a.StandardPrivateSubscriptionProduct != null);
+            if (customerOperatorSetting == null) throw new CustomerSettingsException($"Customer don't have standard private product set up for {operatorId}", Guid.Parse("1242b8f2-27dd-4ca6-b91c-ac1de548bc11"));
+
+            var standardProduct = customerOperatorSetting.StandardPrivateSubscriptionProduct;
+            customerOperatorSetting.StandardPrivateSubscriptionProduct = null;
+            AddDomainEvent(new CustomerStandardPrivateSubscriptionProductRemovedDomainEvent(standardProduct, operatorId, callerId, CustomerId));
+            return standardProduct;
+        }
     }
 }

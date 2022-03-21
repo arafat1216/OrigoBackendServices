@@ -435,14 +435,56 @@ namespace SubscriptionManagement.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("{organizationId:Guid}/standard-private-subscription-products")]
-        [ProducesResponseType(typeof(CustomerSubscriptionProductDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CustomerStandardPrivateSubscriptionProductDTO), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
-        public async Task<ActionResult<IEnumerable<CustomerSubscriptionProductDTO>>> PostStandardPrivateSubscriptionProducts(Guid organizationId, NewCustomerStandardPrivateSubscriptionProduct standardProduct)
+        public async Task<ActionResult<CustomerStandardPrivateSubscriptionProductDTO>> PostStandardPrivateSubscriptionProducts(Guid organizationId, NewCustomerStandardPrivateSubscriptionProduct standardProduct)
         {
             var subscriptionProducts = await _customerSettingsService.PostStandardPrivateSubscriptionProductsAsync(organizationId, standardProduct);
 
+            return CreatedAtAction(nameof(PostStandardPrivateSubscriptionProducts), subscriptionProducts);
+        }
+        /// <summary>
+        /// Get all standard private subscription product for customer
+        /// </summary>
+        /// <param name="organizationId">Customer identifier</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{organizationId:Guid}/standard-private-subscription-products")]
+        [ProducesResponseType(typeof(CustomerStandardPrivateSubscriptionProductDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
+        public async Task<ActionResult<IEnumerable<CustomerStandardPrivateSubscriptionProductDTO>>> GetStandardPrivateSubscriptionProducts(Guid organizationId)
+        {
+            
+            var subscriptionProducts = await _customerSettingsService.GetStandardPrivateSubscriptionProductsAsync(organizationId);
+
             return Ok(subscriptionProducts);
+        }
+
+
+        /// <summary>
+        /// Delete standard private subscription product
+        /// </summary>
+        /// <param name="organizationId">Customer identifier</param>
+        /// <param name="operatorId">The operator to delete from</param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route("{organizationId:Guid}/standard-private-subscription-products/{operatorId:Int}")]
+        [ProducesResponseType(typeof(CustomerStandardPrivateSubscriptionProductDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
+        public async Task<ActionResult<CustomerStandardPrivateSubscriptionProductDTO>> DeleteStandardPrivateSubscriptionProducts(Guid organizationId, int operatorId, [FromBody] Guid callerId)
+        {
+            
+            var deletedSubscriptionProducts = await _customerSettingsService.DeleteStandardPrivateSubscriptionProductsAsync(organizationId, operatorId, callerId);
+            if (deletedSubscriptionProducts == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(deletedSubscriptionProducts);
         }
     }
 }

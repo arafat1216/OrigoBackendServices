@@ -193,12 +193,12 @@ public class CustomerSettingsService : ICustomerSettingsService
     public async Task<CustomerStandardPrivateSubscriptionProductDTO> PostStandardPrivateSubscriptionProductsAsync(Guid organizationId, NewCustomerStandardPrivateSubscriptionProduct standardProduct)
     {
         var @operator = await _operatorRepository.GetOperatorAsync(standardProduct.OperatorId);
-        if (@operator == null) throw new InvalidOperatorIdInputDataException(standardProduct.OperatorId, Guid.Parse("177884de-87e4-4918-b5ed-363b5f0b9713"));
+        if (@operator == null) throw new InvalidOperatorIdInputDataException(standardProduct.OperatorId, Guid.Parse("d1f782a4-248d-4d14-9a17-af96106e5c91"));
 
 
         var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
 
-        if (customerSetting == null) throw new CustomerSettingsException($"Missing customer settings for customer with id: {organizationId}",Guid.Parse("83851bd9-0586-438c-9260-f454269832ca"));
+        if (customerSetting == null) throw new CustomerSettingsException($"Missing customer settings for customer with id: {organizationId}",Guid.Parse("2d376d22-980b-43af-8f5b-543c0a66518c"));
 
         var customerStandardProduct = customerSetting.AddCustomerStandardPrivateSubscriptionProduct(standardProduct);
         
@@ -208,5 +208,44 @@ public class CustomerSettingsService : ICustomerSettingsService
         mapping.OperatorName = @operator.OperatorName;
 
         return mapping;
+    }
+
+    public async Task<IList<CustomerStandardPrivateSubscriptionProductDTO>> GetStandardPrivateSubscriptionProductsAsync(Guid organizationId)
+    {
+        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        
+        if (customerSetting == null) throw new CustomerSettingsException($"Missing customer settings for customer with id: {organizationId}", Guid.Parse("a253af73-7936-4258-9964-86b7828b3b2a"));
+
+        var standardPrivateProduct = customerSetting.CustomerOperatorSettings.Where(a => a.StandardPrivateSubscriptionProduct != null)
+                  .Select(emp => new CustomerStandardPrivateSubscriptionProductDTO
+                  {
+                      DataPackage = emp.StandardPrivateSubscriptionProduct.DataPackage,
+                      OperatorName = emp.Operator.OperatorName,
+                      SubscriptionName = emp.StandardPrivateSubscriptionProduct.SubscriptionName
+                  }).ToList();
+     
+        if (standardPrivateProduct == null) throw new CustomerSettingsException($"Customer with id: {organizationId} don't have standard private subscription product set up", Guid.Parse("8cf64bb9-68d6-4dc4-8fec-f05d5dda6583"));
+
+        return standardPrivateProduct;
+    }
+
+    public async Task<CustomerStandardPrivateSubscriptionProductDTO> DeleteStandardPrivateSubscriptionProductsAsync(Guid organizationId, int operatorId, Guid callerId)
+    {
+
+        var @operator = await _operatorRepository.GetOperatorAsync(operatorId);
+        if (@operator == null) throw new InvalidOperatorIdInputDataException(operatorId, Guid.Parse("1ed448d7-ad4f-4971-96a4-f2d39c554c94"));
+
+
+        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        if (customerSetting == null) throw new CustomerSettingsException($"Missing customer settings for customer with id: {organizationId}", Guid.Parse("574e9a9b-a9c8-4a5d-836b-da81199cedc2"));
+
+
+        var deletedStandardSubscription = customerSetting.RemoveCustomerStandardPrivateSubscriptionProduct(operatorId, callerId);
+        await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSetting);
+
+        var mapped = _mapper.Map<CustomerStandardPrivateSubscriptionProductDTO>(deletedStandardSubscription);
+        mapped.OperatorName = @operator.OperatorName;
+
+        return mapped;
     }
 }
