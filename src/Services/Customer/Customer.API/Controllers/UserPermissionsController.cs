@@ -69,10 +69,12 @@ namespace Customer.API.Controllers
                 if (userPermission == null) return NotFound();
 
                 var permissionNames = new List<string>();
+
                 foreach (var roleGrantedPermission in userPermission.Role.GrantedPermissions)
                 {
                     permissionNames.AddRange(roleGrantedPermission.Permissions.Select(p => p.Name));
                 }
+
                 var userPermissionAdded = new UserPermissions(new ReadOnlyCollection<string>(permissionNames), new ReadOnlyCollection<Guid>(userPermission.AccessList), userPermission.Role.Name, userPermission.User.UserId);
                 return Ok(userPermissionAdded);
             }
@@ -80,6 +82,11 @@ namespace Customer.API.Controllers
             {
                 _logger.LogError("{0}", userEx);
                 return NotFound($"User with user name: {userName}. Not found.");
+            }
+            catch (InvalidRoleNameException ex)
+            {
+                _logger.LogError("{0}", ex);
+                return NotFound($"Role {userRole.Role} not found.");
             }
             catch (Exception ex)
             {
@@ -99,10 +106,12 @@ namespace Customer.API.Controllers
                 if (userPermission == null) return NotFound();
 
                 var permissionNames = new List<string>();
+
                 foreach (var roleGrantedPermission in userPermission.Role.GrantedPermissions)
                 {
                     permissionNames.AddRange(roleGrantedPermission.Permissions.Select(p => p.Name));
                 }
+
                 var userPermissionAdded = new UserPermissions(new ReadOnlyCollection<string>(permissionNames), new ReadOnlyCollection<Guid>(userPermission.AccessList), userPermission.Role.Name, userPermission.User.UserId);
                 return Ok(userPermissionAdded);
             }
@@ -110,6 +119,11 @@ namespace Customer.API.Controllers
             {
                 _logger.LogError("{0}", userEx);
                 return NotFound($"User with user name: {userName}. Not found.");
+            }
+            catch (InvalidRoleNameException ex)
+            {
+                _logger.LogError("{0}", ex);
+                return NotFound($"Role {userRole.Role} not found.");
             }
             catch (Exception ex)
             {

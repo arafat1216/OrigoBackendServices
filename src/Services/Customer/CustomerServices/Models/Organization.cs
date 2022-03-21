@@ -18,8 +18,6 @@ namespace CustomerServices.Models
         public Guid OrganizationId { get; protected set; }
         public Guid? ParentId { get; protected set; }
         public Guid? PrimaryLocation { get; protected set; }
-        public DateTime CreatedAt { get; protected set; }
-        public DateTime UpdatedAt { get; protected set; }
 
         public string Name { get; protected set; }
 
@@ -68,8 +66,6 @@ namespace CustomerServices.Models
             Location = organizationLocation;
             PrimaryLocation = (organizationLocation == null) ? Guid.Empty : organizationLocation.LocationId;
             CreatedBy = callerId;
-            CreatedAt = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
             UpdatedBy = callerId;
             IsDeleted = false;
             IsCustomer = isCustomer;
@@ -133,7 +129,6 @@ namespace CustomerServices.Models
             
             if (isUpdated)
             {
-                UpdatedAt = DateTime.UtcNow;
                 LastUpdatedDate = DateTime.UtcNow;
                 UpdatedBy = organization.CreatedBy;
             }
@@ -192,7 +187,6 @@ namespace CustomerServices.Models
 
             if (isUpdated)
             {
-                UpdatedAt = DateTime.UtcNow;
                 LastUpdatedDate = DateTime.UtcNow;
                 UpdatedBy = organization.CreatedBy;
             }
@@ -201,7 +195,6 @@ namespace CustomerServices.Models
         public void Delete(Guid callerId)
         {
             IsDeleted = true;
-            UpdatedAt = DateTime.UtcNow;
             LastUpdatedDate = DateTime.UtcNow;
             DeletedBy = callerId;
             AddDomainEvent(new CustomerDeletedDomainEvent(this));
