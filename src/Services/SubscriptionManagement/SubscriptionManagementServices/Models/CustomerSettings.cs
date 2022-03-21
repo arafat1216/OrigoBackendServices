@@ -219,9 +219,9 @@ namespace SubscriptionManagementServices.Models
 
 
             if (foundProduct.GlobalSubscriptionProduct != null)
-                foundProduct.SubscriptionName = customerSubscriptionProduct.SubscriptionName;
+                foundProduct.SubscriptionName = customerSubscriptionProduct.Name;
 
-            foundProduct.SetDataPackages(customerSubscriptionProduct.Datapackages);
+            foundProduct.SetDataPackages(customerSubscriptionProduct.DataPackages);
 
             return foundProduct;
         }

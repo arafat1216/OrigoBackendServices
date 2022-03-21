@@ -4,7 +4,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
 {
     public class UpdateSubscriptionProduct
     {
-        public string SubscriptionName { get; set; }
-        public IList<string> Datapackages { get; set; }
+        public string Name { get; set; }
+        public IList<string> DataPackages { get; set; }
     }
 }

@@ -67,7 +67,7 @@ public class
             await _httpClient.GetFromJsonAsync<IList<CustomerSubscriptionProductDTO>>(
                 $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products");
         var retrievedNewCustomerSubscriptionProduct = modelList!.FirstOrDefault(p =>
-            p.SubscriptionName == customerSubscriptionProduct.Name && !p.IsGlobal);
+            p.Name == customerSubscriptionProduct.Name && !p.IsGlobal);
         var deleteResponse = await _httpClient.DeleteAsync(
             $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products/{retrievedNewCustomerSubscriptionProduct!.Id}");
 
@@ -90,13 +90,13 @@ public class
 
         var newCustomerSubscriptionProduct = await createResponse.Content.ReadFromJsonAsync<CustomerSubscriptionProductDTO>();
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
-        Assert.Equal("A customer subscription product", newCustomerSubscriptionProduct!.SubscriptionName);
-        Assert.Equal(1, newCustomerSubscriptionProduct!.Datapackages.Count);
+        Assert.Equal("A customer subscription product", newCustomerSubscriptionProduct!.Name);
+        Assert.Equal(1, newCustomerSubscriptionProduct!.DataPackages.Count);
 
         var updatedSubscriptionProduct = new UpdatedSubscriptionProduct
         {
-            Datapackages = new List<string> { "25GB" },
-            SubscriptionName = "A customer subscription product"
+            DataPackages = new List<string> { "25GB" },
+            Name = "A customer subscription product"
         };
 
         var patchResponse = await _httpClient.PatchAsync(
@@ -104,8 +104,8 @@ public class
         
         var customerSubscriptionProductDTO = await patchResponse.Content.ReadFromJsonAsync<CustomerSubscriptionProductDTO>();
         Assert.Equal(HttpStatusCode.OK, patchResponse.StatusCode);
-        Assert.Equal(newCustomerSubscriptionProduct.SubscriptionName, customerSubscriptionProductDTO!.SubscriptionName);
-        Assert.Equal(new List<string> { "20GB" , "25GB" }, customerSubscriptionProductDTO!.Datapackages);
+        Assert.Equal(newCustomerSubscriptionProduct.Name, customerSubscriptionProductDTO!.Name);
+        Assert.Equal(new List<string> { "20GB" , "25GB" }, customerSubscriptionProductDTO!.DataPackages);
     }
 
     [Fact]
