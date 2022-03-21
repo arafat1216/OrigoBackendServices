@@ -19,46 +19,46 @@
 **Email:**  {{PrivateSubscription.RealOwner.Email}}
 
 #### Company
-**Name: ** {{BusinessSubscription.Name}}
+**Name:** {{BusinessSubscription.Name}}
 
-**Organization Number: ** {{BusinessSubscription.OrganizationNumber}}
+**Organization Number:** {{BusinessSubscription.OrganizationNumber}}
 
-**Address: ** {{BusinessSubscription.Address}}, {{BusinessSubscription.PostalCode}}, {{BusinessSubscription.PostalPlace}}, {{BusinessSubscription.Country}}
+**Address:** {{BusinessSubscription.Address}}, {{BusinessSubscription.PostalCode}}, {{BusinessSubscription.PostalPlace}}, {{BusinessSubscription.Country}}
 
 #### Operator
-**Operator Name: ** {{OperatorName}}
+**Operator Name:** {{OperatorName}}
 
-**Operator Account Payer: ** {{OperatorAccountPayer}}
+**Operator Account Payer:** {{OperatorAccountPayer}}
 
-**Operator Account Owner: ** {{OperatorAccountName}}
+**Operator Account Owner:** {{OperatorAccountName}}
 
-**Operator Account Name: ** {{OperatorAccountOwner}}
+**Operator Account Name:** {{OperatorAccountOwner}}
 
-**MobileNumber: ** {{MobileNumber}}
+**MobileNumber:** {{MobileNumber}}
 
-**SimCard Number: ** {{SimCardNumber}}
+**SimCard Number:** {{SimCardNumber}}
 
-**SIMCard Action: ** {{SIMCardAction}}
+**SIMCard Action:** {{SIMCardAction}}
 
 ### SIM Card Address
-**First Name: ** {{SimCardAddress.FirstName}}
-**Last Name: ** {{SimCardAddress.LastName}}
-**Address: ** {{SimCardAddress.Address}}
-**Postal Code: ** {{SimCardAddress.PostalCode}}
-**Postal Place: ** {{SimCardAddress.PostalPlace}}
-**Country: ** {{SimCardAddress.Country}}
+**First Name:** {{SimCardAddress.FirstName}}
+**Last Name:** {{SimCardAddress.LastName}}
+**Address:** {{SimCardAddress.Address}}
+**Postal Code:** {{SimCardAddress.PostalCode}}
+**Postal Place:** {{SimCardAddress.PostalPlace}}
+**Country:** {{SimCardAddress.Country}}
 
 #### Product
-**Product Name: ** {{SubscriptionProductName}}
+**Product Name:** {{SubscriptionProductName}}
 
-**DataPackage: ** {{DataPackageName}}
+**DataPackage:** {{DataPackageName}}
 
-**Transfer Date: ** {{OrderExecutionDate}}
+**Transfer Date:** {{OrderExecutionDate}}
 
 #### Customer Reference Fields
 | Name    | Type    | Value   |
 |---------|---------|---------|
-| {{CustomerReferenceFields[0].Name}} | {{CustomerReferenceFields[0].Type}} | CustomerReferenceFields[0].Value |
-| {{CustomerReferenceFields[1].Name}} | {{CustomerReferenceFields[1].Type}} | CustomerReferenceFields[1].Value |
-| {{CustomerReferenceFields[2].Name}} | {{CustomerReferenceFields[2].Type}} | CustomerReferenceFields[2].Value |
-| {{CustomerReferenceFields[3].Name}} | {{CustomerReferenceFields[3].Type}} | CustomerReferenceFields[3].Value |
+| {{CustomerReferenceFields[0].Name}} | {{CustomerReferenceFields[0].Type}} | {{CustomerReferenceFields[0].Value}} |
+| {{CustomerReferenceFields[1].Name}} | {{CustomerReferenceFields[1].Type}} | {{CustomerReferenceFields[1].Value}} |
+| {{CustomerReferenceFields[2].Name}} | {{CustomerReferenceFields[2].Type}} | {{CustomerReferenceFields[2].Value}} |
+| {{CustomerReferenceFields[3].Name}} | {{CustomerReferenceFields[3].Type}} | {{CustomerReferenceFields[3].Value}} |
