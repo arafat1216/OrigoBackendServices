@@ -8,7 +8,8 @@ namespace SubscriptionManagementServices.Mappings
     {
         public SubscriptionOrderProfile()
         {
-            CreateMap<ISubscriptionOrder, SubscriptionOrderListItemDTO>();
+            CreateMap<ISubscriptionOrder, SubscriptionOrderListItemDTO>()
+                .ForMember(d => d.OrderNumber, opts => opts.MapFrom(s => s.SalesforceTicketId));
         }
     }
 }

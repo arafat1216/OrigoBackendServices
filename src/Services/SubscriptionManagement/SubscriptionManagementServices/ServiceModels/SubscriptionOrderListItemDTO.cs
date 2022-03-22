@@ -8,5 +8,6 @@
         public string NewSubscriptionOrderOwnerName { get; set; }
         public DateTime OrderExecutionDate { get; set; }
         public Guid CreatedBy { get; set; }
+        public string OrderNumber { get; set; }
     }
 }
