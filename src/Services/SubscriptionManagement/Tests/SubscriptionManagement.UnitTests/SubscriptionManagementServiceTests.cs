@@ -665,12 +665,12 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     }
     
     [Theory]
-    [InlineData("Regular", true)]
+    [InlineData("Main", true)]
     [InlineData("Data", true)]
     [InlineData("Twin", true)]
     [InlineData("k", false)]
-    [InlineData("regular", true)]
-    [InlineData("REGULAR", true)]
+    [InlineData("main", true)]
+    [InlineData("MAIN", true)]
     [InlineData("", false)]
     [InlineData("            ", false)]
     [InlineData("Dta", false)]
