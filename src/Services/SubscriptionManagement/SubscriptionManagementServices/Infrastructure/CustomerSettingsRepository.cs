@@ -6,6 +6,7 @@ using Common.Utilities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SubscriptionManagementServices.Models;
+using SubscriptionManagementServices.ServiceModels;
 
 namespace SubscriptionManagementServices.Infrastructure
 {
@@ -27,6 +28,8 @@ namespace SubscriptionManagementServices.Infrastructure
             return await _subscriptionManagementContext.CustomerSettings
                 .Include(cs => cs.CustomerOperatorSettings)
                 .ThenInclude(o => o.Operator)
+                .Include(cs => cs.CustomerOperatorSettings)
+                .ThenInclude(o => o.StandardPrivateSubscriptionProduct)
                 .Include(cs => cs.CustomerOperatorSettings)
                 .ThenInclude(o => o.CustomerOperatorAccounts)
                 .Include(cs => cs.CustomerOperatorSettings)

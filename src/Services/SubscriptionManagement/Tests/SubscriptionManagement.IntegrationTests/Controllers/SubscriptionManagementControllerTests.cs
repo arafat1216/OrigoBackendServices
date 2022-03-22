@@ -958,7 +958,62 @@ public class
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task PostStandardPrivateSubscriptionProducts_ReturnsCreated()
+    {
+        var standardProduct = new NewCustomerStandardPrivateSubscriptionProduct
+        {
+            OperatorId = 1,
+            SubscriptionName = "Subscription",
+            DataPackage = "7GB",
+            CallerId = new Guid()
+        };
 
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/standard-private-subscription-products", standardProduct);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+    [Fact]
+    public async Task GetStandardPrivateSubscriptionProducts_ReturnsOK()
+    {
+        var standardProduct = new NewCustomerStandardPrivateSubscriptionProduct
+        {
+            OperatorId = 1,
+            SubscriptionName = "Subscription",
+            DataPackage = "7GB",
+            CallerId = new Guid()
+        };
 
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/standard-private-subscription-products", standardProduct);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        var responseGet = await _httpClient.GetAsync($"/api/v1/SubscriptionManagement/{_organizationId}/standard-private-subscription-products");
+        Assert.Equal(HttpStatusCode.OK, responseGet.StatusCode);
+        var read = await responseGet.Content.ReadFromJsonAsync<IList<SubscriptionManagementServices.Models.CustomerStandardPrivateSubscriptionProduct>>();
+        Assert.Equal(1, read?.Count);
+    }
+    [Fact]
+    public async Task DeleteStandardPrivateSubscriptionProducts_ReturnsOK()
+    {
+        var standardProduct = new NewCustomerStandardPrivateSubscriptionProduct
+        {
+            OperatorId = 1,
+            SubscriptionName = "Subscription",
+            DataPackage = "7GB",
+            CallerId = new Guid()
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/standard-private-subscription-products", standardProduct);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        var requestUri = $"/api/v1/SubscriptionManagement/{_organizationId}/standard-private-subscription-products/{1}";
+        HttpRequestMessage request = new HttpRequestMessage
+        {
+            Content = JsonContent.Create(_callerId),
+            Method = HttpMethod.Delete,
+            RequestUri = new Uri(requestUri, UriKind.Relative)
+        };
+        var responseDelete = await _httpClient.SendAsync(request);
+        Assert.Equal(HttpStatusCode.OK, responseDelete.StatusCode);
+    }
 
 }
