@@ -49,8 +49,8 @@ namespace CustomerServices.Infrastructure.Context.EntityConfiguration
                    .WithOne(e => e.Partner);
 
             // Enable eager loading so it's always included
-            builder.Navigation(e => e.Organization)
-                   .AutoInclude();
+            //builder.Navigation(e => e.Organization)
+            //       .AutoInclude();
         }
     }
 }
