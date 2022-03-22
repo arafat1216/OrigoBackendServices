@@ -44,12 +44,14 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             throw new ArgumentException("Operator account id or new operator information must be provided.");
 
         var newOperatorName = await GetNewOperatorName(order, customerSettings);
+       
+        var simCardAction = SIMCardValidation.GetSimCardAction(order.SIMCardAction);
         //Same private operator as business operator 
         if (newOperatorName == order.PrivateSubscription?.OperatorName)
         {
 
-            if (string.IsNullOrEmpty(order.SIMCardNumber) && order.SIMCardAction != "Order")
-                throw new ArgumentException("SIM card number is required.");
+            if (string.IsNullOrEmpty(order.SIMCardNumber) && simCardAction == SIMAction.New)
+                throw new InvalidSimException($"SIM card number is required.",Guid.Parse("6a522a0f-9af4-4a6f-8bfa-9d70a954f3b0"));
 
 
             if (order.OrderExecutionDate <
@@ -59,21 +61,21 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 throw new ArgumentException(
                     $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workday ahead or more is allowed.");
 
-            if (order.SIMCardAction != "Order")
+            if (simCardAction == SIMAction.New)
             {
                 //Sim Number validation
                 if (!SIMCardValidation.ValidateSim(order.SIMCardNumber))
-                    throw new ArgumentException(
-                            $"SIM card number not valid {order.SIMCardNumber}");
+                    throw new InvalidSimException(
+                            $"SIM card number not valid {order.SIMCardNumber}",Guid.Parse("adc42940-5aef-4d0b-be14-78304a3b606d"));
                 //Sim Action validation
                 if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, false))
-                    throw new ArgumentException(
-                            $"SIM card action not valid {order.SIMCardAction}");
+                    throw new InvalidSimException(
+                            $"SIM card action not valid {order.SIMCardAction}",Guid.Parse("662734a2-d010-431d-bbd9-1360fb3e8656"));
             }
         }
         else
         {   //Not ordering a new sim card
-            if (!string.IsNullOrEmpty(order.SIMCardNumber) && order.SIMCardAction != "Order")
+            if (simCardAction == SIMAction.Keep || simCardAction == SIMAction.New)
             {
                 if (order.OrderExecutionDate <
                     DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperator) ||
@@ -82,19 +84,28 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                     throw new ArgumentException(
                         $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForNewOperator} workdays ahead or more allowed.");
 
-                //Sim Number validation
-                if (!SIMCardValidation.ValidateSim(order.SIMCardNumber))
-                    throw new ArgumentException(
-                            $"SIM card number not valid {order.SIMCardNumber}");
+                if (!string.IsNullOrEmpty(order.SIMCardNumber) && simCardAction == SIMAction.New)
+                {
+                    //Sim Number validation
+                    if (!SIMCardValidation.ValidateSim(order.SIMCardNumber))
+                        throw new InvalidSimException(
+                                $"SIM card number not valid {order.SIMCardNumber}",Guid.Parse("6574dcc6-cb01-4f0c-9849-a6299e61da99"));
 
-                //Sim Action validation
-                if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, true))
-                    throw new ArgumentException(
-                            $"SIM card action not valid {order.SIMCardAction}");
+                    //Sim Action validation
+                    if (!SIMCardValidation.ValidateSimAction(order.SIMCardAction, true))
+                        throw new InvalidSimException(
+                                $"SIM card action not valid {order.SIMCardAction}", Guid.Parse("da55d6d1-9323-4165-8c9a-f114820a922d"));
+                }
+                else
+                {
+                    throw new InvalidSimException(
+                                $"SIM card action is {simCardAction} and Sim card number is empty",Guid.Parse("a2eb272a-3f60-411a-9f23-fe1c08686655"));
+                }
+                
             }
             else
             {
-                if (order.SIMCardAction != "Order") throw new ArgumentException($"Ordertype is {order.SIMCardAction} but there is no SIM card number");
+                if (simCardAction != SIMAction.Order) throw new ArgumentException($"Ordertype is {order.SIMCardAction} but there is no SIM card number");
                 //Ordering a new sim card - no need for sim card number
                 if (order.OrderExecutionDate <
                     DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM) ||
@@ -170,6 +181,11 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             if (customerOperatorAccount == null)
                 throw new ArgumentException($"Customer operator account id {order.OperatorAccountId} not found.");
             newOperatorName = customerOperatorAccount.Operator.OperatorName;
+
+            //Phone number validation
+            if (!PhoneNumberUtility.ValidatePhoneNumber(order.MobileNumber, customerOperatorAccount.Operator.Country))
+                throw new InvalidPhoneNumberException(order.MobileNumber, customerOperatorAccount.Operator.Country, Guid.Parse("5a9245c4-9ae3-4bda-9a02-fbc741ca3c9d"));
+
         }
         else
         {
@@ -181,6 +197,9 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             if (operatorForNewOperatorAccount == null)
                 throw new ArgumentException("Operator id for new operator account not found.");
             newOperatorName = operatorForNewOperatorAccount.OperatorName;
+            //Phone number validation
+            if (!PhoneNumberUtility.ValidatePhoneNumber(order.MobileNumber, operatorForNewOperatorAccount.Country)) 
+                throw new InvalidPhoneNumberException(order.MobileNumber, operatorForNewOperatorAccount.Country, Guid.Parse("5a9245c4-9ae3-4bda-9a02-fbc741ca3c9d"));
         }
 
         return newOperatorName;

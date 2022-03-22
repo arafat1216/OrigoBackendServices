@@ -71,13 +71,14 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     {
                         OperatorName = "Op1"
                     },
-                    OperatorAccountId = 1
+                    OperatorAccountId = 1,
+                    MobileNumber = "+4793606565"
                 }
                 ));
 
         Assert.NotNull(exceptionOneDay);
         Assert.IsType<ArgumentException>(exceptionOneDay);
-        Assert.Equal("SIM card number is required.", exceptionOneDay.Message);
+        Assert.Equal("Invalid transfer date. 1 workday ahead or more is allowed.", exceptionOneDay.Message);
     }
 
     [Fact]
@@ -94,7 +95,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         OperatorName = "Op1"
                     },
                     SIMCardNumber = "[SIMCardNumber]",
-                    OperatorAccountId = 1
+                    OperatorAccountId = 1,
+                    MobileNumber = "+4793606565"
                 }
                 ));
 
@@ -112,7 +114,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     {
                         OperatorName = "Op1"
                     },
-                    SIMCardNumber = "[SIMCardNumber]"
+                    SIMCardNumber = "[SIMCardNumber]",
+                    MobileNumber = "+4793606565"
                 }
                 ));
 
@@ -140,13 +143,14 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     {
                         OperatorName = "Op1"
                     },
-                    SIMCardNumber = "[SIMCardNumber]"
+                    SIMCardAction = "Order",
+                    MobileNumber = "+4745454847"
                 }
                 ));
 
         Assert.NotNull(exception);
         Assert.IsType<ArgumentException>(exception);
-        Assert.Equal("Invalid transfer date. 4 workdays ahead or more allowed.", exception.Message);
+        Assert.Equal("Invalid transfer date. 10 workdays ahead or more is allowed.", exception.Message);
 
         var exceptionThirtyDay = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
@@ -163,19 +167,20 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     {
                         OperatorName = "Op1"
                     },
-                    SIMCardNumber = "[SIMCardNumber]"
+                    SIMCardAction = "Order",
+                    MobileNumber = "+4745454847"
                 }
                 ));
 
         Assert.NotNull(exceptionThirtyDay);
         Assert.IsType<ArgumentException>(exceptionThirtyDay);
-        Assert.Equal("Invalid transfer date. 4 workdays ahead or more allowed.", exceptionThirtyDay.Message);
+        Assert.Equal("Invalid transfer date. 10 workdays ahead or more is allowed.", exceptionThirtyDay.Message);
     }
     [Fact]
     [Trait("Category", "UnitTest")]
     public async Task TransferSubscription_SimCardNumberNullAndSimCardTypeNew_Exception()
     {
-        var exception = await Record.ExceptionAsync(() =>
+        var exception = await Assert.ThrowsAsync<InvalidSimException>(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
@@ -183,10 +188,11 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     {
                         OperatorName = "Op2"
                     },
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(1),
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(5),
                     OperatorAccountId = 1,
                     SIMCardNumber = "",
                     SIMCardAction = "New",
+                    MobileNumber = "+4748494690",
                     BusinessSubscription = new BusinessSubscriptionDTO
                     {
                         OperatorName = "Op1"
@@ -195,8 +201,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 ));
 
         Assert.NotNull(exception);
-        Assert.IsType<ArgumentException>(exception);
-        Assert.Equal("Ordertype is New but there is no SIM card number", exception.Message);
+        Assert.Equal("SIM card action is New and Sim card number is empty", exception.Message);
     }
 
     [Fact]
@@ -219,7 +224,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         OperatorName = "Op1"
                     },
                     SIMCardNumber = "",
-                    SIMCardAction = "Order"
+                    SIMCardAction = "Order",
+                    MobileNumber = "+4790262589"
                 }
                 ));
 
@@ -243,7 +249,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         OperatorName = "Op1"
                     },
                     SIMCardNumber = "",
-                    SIMCardAction = "Order"
+                    SIMCardAction = "Order",
+                    MobileNumber = "+4792603232"
                 }
                 ));
 
@@ -275,7 +282,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     },
                     SIMCardNumber = "89722020101228153578",
                     SIMCardAction = "[SIMCardAction]",
-                    MobileNumber = "[MobileNumber]",
+                    MobileNumber = "+4790988787",
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
@@ -318,8 +325,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         PostalPlace = "[Postal Place]"
                     },
                     SIMCardNumber = "89722020101228153578",
-                    SIMCardAction = "[SIMCardAction]",
-                    MobileNumber = "[MobileNumber]",
+                    SIMCardAction = "New",
+                    MobileNumber = "+4745654842",
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
@@ -359,8 +366,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         PostalPlace = "[Postal Place]"
                     },
                     SIMCardNumber = "89722020101228153578",
-                    SIMCardAction = "[SIMCardAction]",
-                    MobileNumber = "[MobileNumber]",
+                    SIMCardAction = "New",
+                    MobileNumber = "+4741414141",
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
@@ -397,8 +404,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         PostalPlace = "[Postal Place]"
                     },
                     SIMCardNumber = "89722020101228153578",
-                    SIMCardAction = "[SIMCardAction]",
-                    MobileNumber = "[MobileNumber]",
+                    SIMCardAction = "New",
+                    MobileNumber = "+4795603669",
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package"
                 });
@@ -450,7 +457,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     },
                     SIMCardNumber = "89722020101228153578",
                     SIMCardAction = "New",
-                    MobileNumber = "[MobileNumber]",
+                    MobileNumber = "+4741454848",
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
@@ -599,6 +606,119 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.Equal("VAL", order.CustomerReferenceFields[0].Value);
         Assert.Equal("User", order.CustomerReferenceFields[0].Type);
 
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_Valid_KeepSIM_NoSIMCardNumber_SameOperator()
+    {
+        var result = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
+                new TransferToBusinessSubscriptionOrderDTO
+                {
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                    NewOperatorAccount = new NewOperatorAccountRequestedDTO
+                    {
+                        OperatorId = 10, // Op1
+                        NewOperatorAccountPayer = "[OperatorAccountPayer]",
+                        NewOperatorAccountOwner = "[OperatorAccountOwner]"
+                    },
+                    PrivateSubscription = new PrivateSubscriptionDTO
+                    {
+                        OperatorName = "Op1",
+                        FirstName = "[FName]",
+                        LastName = "[LName]",
+                        Address = "[Address]",
+                        Country = "Country",
+                        BirthDate = DateTime.UtcNow.AddMonths(-100),
+                        Email = "email@mail.com",
+                        PostalCode = "[Postal code]",
+                        PostalPlace = "[Postal Place]"
+                    },
+                    SIMCardAction = "Keep",
+                    MobileNumber = "+4741414141",
+                    SubscriptionProductId = 1,
+                    DataPackage = "Data Package",
+                    AddOnProducts = new List<string> { "P1", "P2" },
+                    CustomerReferenceFields = new List<NewCustomerReferenceValue>()
+                }
+                );
+
+        Assert.NotNull(result);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_Invalid_KeepSIM_WithDifferentOperator()
+    {
+        var exception = await Assert.ThrowsAsync<InvalidSimException>(() =>
+        _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
+                new TransferToBusinessSubscriptionOrderDTO
+                {
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                    NewOperatorAccount = new NewOperatorAccountRequestedDTO
+                    {
+                        OperatorId = 10, // Op1
+                        NewOperatorAccountPayer = "[OperatorAccountPayer]",
+                        NewOperatorAccountOwner = "[OperatorAccountOwner]"
+                    },
+                    PrivateSubscription = new PrivateSubscriptionDTO
+                    {
+                        OperatorName = "Op2",
+                        FirstName = "[FName]",
+                        LastName = "[LName]",
+                        Address = "[Address]",
+                        Country = "Country",
+                        BirthDate = DateTime.UtcNow.AddMonths(-100),
+                        Email = "email@mail.com",
+                        PostalCode = "[Postal code]",
+                        PostalPlace = "[Postal Place]"
+                    },
+                    SIMCardAction = "Keep",
+                    MobileNumber = "+4741414141",
+                    SubscriptionProductId = 1,
+                    DataPackage = "Data Package",
+                    AddOnProducts = new List<string> { "P1", "P2" },
+                    CustomerReferenceFields = new List<NewCustomerReferenceValue>()
+                }));
+
+        Assert.NotNull(exception);
+        Assert.Equal("SIM card action is Keep and Sim card number is empty", exception.Message);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_Invalid_PhoneNumber()
+    {
+        var exception = await Assert.ThrowsAsync<InvalidPhoneNumberException>(() =>
+        _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
+                new TransferToBusinessSubscriptionOrderDTO
+                {
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                    NewOperatorAccount = new NewOperatorAccountRequestedDTO
+                    {
+                        OperatorId = 10, // Op1
+                        NewOperatorAccountPayer = "[OperatorAccountPayer]",
+                        NewOperatorAccountOwner = "[OperatorAccountOwner]"
+                    },
+                    PrivateSubscription = new PrivateSubscriptionDTO
+                    {
+                        OperatorName = "Op2",
+                        FirstName = "[FName]",
+                        LastName = "[LName]",
+                        Address = "[Address]",
+                        Country = "Country",
+                        BirthDate = DateTime.UtcNow.AddMonths(-100),
+                        Email = "email@mail.com",
+                        PostalCode = "[Postal code]",
+                        PostalPlace = "[Postal Place]"
+                    },
+                    SIMCardAction = "Keep",
+                    MobileNumber = "+474141",
+                    SubscriptionProductId = 1,
+                    DataPackage = "Data Package",
+                    AddOnProducts = new List<string> { "P1", "P2" },
+                    CustomerReferenceFields = new List<NewCustomerReferenceValue>()
+                }));
+
+        Assert.NotNull(exception);
+        Assert.Equal("Phone number +474141 not valid for countrycode No.", exception.Message);
     }
 
     [Theory]
