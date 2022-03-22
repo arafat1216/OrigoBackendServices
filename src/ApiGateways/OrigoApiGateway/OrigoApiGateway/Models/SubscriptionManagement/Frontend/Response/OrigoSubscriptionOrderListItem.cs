@@ -10,5 +10,6 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response
         public string NewSubscriptionOrderOwnerName { get; set; }
         public DateTime OrderExecutionDate { get; set; }
         public string CreatedBy { get; set; }
+        public string OrderNumber { get; set; }
     }
 }
