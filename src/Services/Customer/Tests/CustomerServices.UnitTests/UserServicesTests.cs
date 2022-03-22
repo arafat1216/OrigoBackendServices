@@ -14,6 +14,7 @@ using CustomerServices.Mappings;
 using CustomerServices.ServiceModels;
 using Xunit;
 using CustomerServices.Infrastructure.Context;
+using Common.Interfaces;
 
 namespace CustomerServices.UnitTests
 {
@@ -194,15 +195,15 @@ namespace CustomerServices.UnitTests
 
             // Act
             var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "TEST", "TEST", "hello@mail.com", "+479898989", "hhhh", new UserPreference("EN", EMPTY_CALLER_ID), EMPTY_CALLER_ID,"Role");
-            var user = await userServices.GetAllUsersAsync(CUSTOMER_ONE_ID);
+            var user = await userServices.GetAllUsersAsync(CUSTOMER_ONE_ID, new System.Threading.CancellationToken());
 
-            Assert.Equal(3, user.Count);
-            Assert.Contains("TEST", user[2].FirstName);
-            Assert.Contains("TEST", user[2].LastName);
-            Assert.Contains("hello@mail.com", user[2].Email);
-            Assert.Contains("+479898989", user[2].MobileNumber);
-            Assert.Contains("hhhh", user[2].EmployeeId);
-            Assert.IsType<List<UserDTO>>(user);
+            Assert.Equal(3, user.Items.Count);
+            Assert.Contains("TEST", user.Items[2].FirstName);
+            Assert.Contains("TEST", user.Items[2].LastName);
+            Assert.Contains("hello@mail.com", user.Items[2].Email);
+            Assert.Contains("+479898989", user.Items[2].MobileNumber);
+            Assert.Contains("hhhh", user.Items[2].EmployeeId);
+            Assert.IsType<PagedModel<UserDTO>>(user);
 
         }
 
