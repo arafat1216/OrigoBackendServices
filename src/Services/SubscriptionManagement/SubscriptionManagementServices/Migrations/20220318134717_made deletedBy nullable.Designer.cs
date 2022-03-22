@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SubscriptionManagementServices.Infrastructure;
 
@@ -11,9 +12,10 @@ using SubscriptionManagementServices.Infrastructure;
 namespace SubscriptionManagementServices.Migrations
 {
     [DbContext(typeof(SubscriptionManagementContext))]
-    partial class SubscriptionManagementContextModelSnapshot : ModelSnapshot
+    [Migration("20220318134717_made deletedBy nullable")]
+    partial class madedeletedBynullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -406,9 +408,6 @@ namespace SubscriptionManagementServices.Migrations
                     b.Property<int>("OperatorId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StandardPrivateSubscriptionProductId")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -417,8 +416,6 @@ namespace SubscriptionManagementServices.Migrations
                     b.HasIndex("CustomerSettingsId");
 
                     b.HasIndex("OperatorId");
-
-                    b.HasIndex("StandardPrivateSubscriptionProductId");
 
                     b.ToTable("CustomerOperatorSettings", (string)null);
                 });
@@ -502,49 +499,6 @@ namespace SubscriptionManagementServices.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CustomerSettings", (string)null);
-                });
-
-            modelBuilder.Entity("SubscriptionManagementServices.Models.CustomerStandardPrivateSubscriptionProduct", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnOrder(0);
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
-
-                    b.Property<string>("DataPackage")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastUpdatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
-
-                    b.Property<string>("SubscriptionName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CustomerStandardPrivateSubscriptionProduct", (string)null);
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.CustomerSubscriptionProduct", b =>
@@ -2167,13 +2121,7 @@ namespace SubscriptionManagementServices.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SubscriptionManagementServices.Models.CustomerStandardPrivateSubscriptionProduct", "StandardPrivateSubscriptionProduct")
-                        .WithMany()
-                        .HasForeignKey("StandardPrivateSubscriptionProductId");
-
                     b.Navigation("Operator");
-
-                    b.Navigation("StandardPrivateSubscriptionProduct");
                 });
 
             modelBuilder.Entity("SubscriptionManagementServices.Models.CustomerReferenceField", b =>
