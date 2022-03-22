@@ -688,6 +688,61 @@ namespace OrigoApiGateway.Controllers
             return Ok(response);
         }
 
+        [Route("{organizationId:Guid}/standard-private-subscription-products")]
+        [ProducesResponseType(typeof(IList<OrigoCustomerStandardPrivateSubscriptionProduct>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
+        [HttpGet]
+        public async Task<ActionResult> GetCustomerStandardPrivateSubscriptionProduct(Guid organizationId)
+        {
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            Guid callerId;
+            Guid.TryParse(actor, out callerId);
+
+            var response = await SubscriptionManagementService.GetCustomerStandardPrivateSubscriptionProductAsync(organizationId);
+
+            return Ok(response);
+        }
+        [HttpPost]
+        [Route("{organizationId:Guid}/standard-private-subscription-products")]
+        [ProducesResponseType(typeof(OrigoCustomerStandardPrivateSubscriptionProduct), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
+        public async Task<ActionResult> PostCustomerStandardPrivateSubscriptionProduct(Guid organizationId, [FromBody] NewStandardPrivateProduct standardPrivateProduct)
+        {
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            Guid callerId;
+            Guid.TryParse(actor, out callerId);
+
+            var mapped = Mapper.Map<NewStandardPrivateProductDTO>(standardPrivateProduct);
+            mapped.CallerId = callerId;
+
+
+            var response = await SubscriptionManagementService.PostCustomerStandardPrivateSubscriptionProductAsync(organizationId, mapped);
+
+            return Ok(response);
+        }
+
+        [HttpDelete]
+        [Route("{organizationId:Guid}/standard-private-subscription-products/{operatorId:Int}")]
+        [ProducesResponseType(typeof(OrigoCustomerStandardPrivateSubscriptionProduct), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
+        public async Task<ActionResult> DeleteCustomerStandardPrivateSubscriptionProduct(Guid organizationId, int operatorId)
+        {
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            Guid callerId;
+            Guid.TryParse(actor, out callerId);
+
+            var response = await SubscriptionManagementService.DeleteCustomerStandardPrivateSubscriptionProductAsync(organizationId,operatorId,callerId);
+
+            return Ok(response);
+        }
+
 
     }
 }

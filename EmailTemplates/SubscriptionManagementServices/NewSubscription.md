@@ -40,6 +40,14 @@
 
 **SIMCard Action:** {{SIMCardAction}}
 
+### SIM Card Address
+**First Name:** {{SimCardAddress.FirstName}}
+**Last Name:** {{SimCardAddress.LastName}}
+**Address:** {{SimCardAddress.Address}}
+**Postal Code:** {{SimCardAddress.PostalCode}}
+**Postal Place:** {{SimCardAddress.PostalPlace}}
+**Country:** {{SimCardAddress.Country}}
+
 #### Product
 **Product Name:** {{SubscriptionProductName}}
 
