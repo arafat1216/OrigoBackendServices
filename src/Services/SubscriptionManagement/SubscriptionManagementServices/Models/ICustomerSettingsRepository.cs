@@ -1,4 +1,6 @@
-﻿namespace SubscriptionManagementServices.Models
+﻿using SubscriptionManagementServices.ServiceModels;
+
+namespace SubscriptionManagementServices.Models
 {
     public interface ICustomerSettingsRepository
     {

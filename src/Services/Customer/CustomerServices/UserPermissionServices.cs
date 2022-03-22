@@ -32,8 +32,8 @@ namespace CustomerServices
         private async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
         {
             var numberOfRecordsSaved = 0;
-            //Use of an EF Core resiliency strategy when using multiple DbContexts within an explicit BeginTransaction():
-            //See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency            
+            // Use of an EF Core resiliency strategy when using multiple DbContexts within an explicit BeginTransaction():
+            // See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency            
             await ResilientTransaction.New(_customerContext).ExecuteAsync(async () =>
             {
                 // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
@@ -65,6 +65,9 @@ namespace CustomerServices
             return role;
         }
 
+        // TODO: Add full and proper docs.
+        /// <exception cref="InvalidRoleNameException"></exception>
+        /// <exception cref="UserNameDoesNotExistException"></exception>
         public async Task<UserPermissions> AssignUserPermissionsAsync(string userName, string roleName, IList<Guid> accessList, Guid callerId)
         {
             if (!Enum.TryParse(roleName, out PredefinedRole roleType))
@@ -72,15 +75,19 @@ namespace CustomerServices
                 throw new InvalidRoleNameException();
             }
             var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.Email.Trim().ToLower() == userName.Trim().ToLower());
+
             if (user == null)
                 throw new UserNameDoesNotExistException();
+
             var userPermissions = await GetUserPermissionsAsync(userName);
             var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)roleType);
             var departments = await _customerContext.Departments.Where(d => d.Customer == user.Customer).ToListAsync();
+            
             if (roleType == PredefinedRole.DepartmentManager && !accessList.Any()) // Can't be department manager without access to a department.
             {
                 return null;
             }
+
             if (roleType == PredefinedRole.DepartmentManager &&
                      (!departments.Any(d => accessList.Contains(d.ExternalDepartmentId)) || 
                       (userPermission != null && departments.Any(d => userPermission.AccessList.Contains(d.ExternalDepartmentId))))) // Check if the lists contains at least one department id.
@@ -114,15 +121,21 @@ namespace CustomerServices
             return userPermission;
         }
 
+        // TODO: Add full and proper docs.
+        /// <exception cref="InvalidRoleNameException"></exception>
+        /// <exception cref="UserNameDoesNotExistException"></exception>
         public async Task<UserPermissions> RemoveUserPermissionsAsync(string userName, string roleName, IList<Guid> accessList, Guid callerId)
         {
             if (!Enum.TryParse(roleName, out PredefinedRole roleType))
             {
                 throw new InvalidRoleNameException();
             }
+
             var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.Email.Trim().ToLower() == userName.Trim().ToLower());
+            
             if (user == null)
                 throw new UserNameDoesNotExistException();
+
             var userPermissions = await GetUserPermissionsAsync(userName);
             var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)roleType);
             if (userPermission != null)
@@ -154,7 +167,6 @@ namespace CustomerServices
         public async Task<IList<string>> GetAllRolesAsync()
         {
             return await _customerContext.Roles.Select(r => r.Name).ToListAsync();
-
         }
     }
 }

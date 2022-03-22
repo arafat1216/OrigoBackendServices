@@ -19,6 +19,7 @@ using OrigoApiGateway.Models;
 using Common.Exceptions;
 using OrigoApiGateway.Exceptions;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace OrigoApiGateway.Services
 {
@@ -539,6 +540,66 @@ namespace OrigoApiGateway.Services
             }
 
             throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
+        }
+
+        public async Task<IList<OrigoCustomerStandardPrivateSubscriptionProduct>> GetCustomerStandardPrivateSubscriptionProductAsync(Guid organizationId)
+        {
+            var requestUri = $"{_options.ApiPath}/{organizationId}/standard-private-subscription-products";
+
+            var response = await HttpClient.GetAsync(requestUri);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return await response.Content.ReadFromJsonAsync<IList<OrigoCustomerStandardPrivateSubscriptionProduct>>();
+            }
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                throw new SubscriptionManagementException(await response.Content.ReadAsStringAsync());
+            }
+
+            throw new HttpRequestException(await response.Content.ReadAsStringAsync());
+        }
+
+        public async Task<OrigoCustomerStandardPrivateSubscriptionProduct> PostCustomerStandardPrivateSubscriptionProductAsync(Guid organizationId, NewStandardPrivateProductDTO standardPrivateProduct)
+        {
+            var requestUri = $"{_options.ApiPath}/{organizationId}/standard-private-subscription-products";
+
+            var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, standardPrivateProduct);
+
+            if (postSubscription.StatusCode == HttpStatusCode.Created)
+            {
+                return await postSubscription.Content.ReadFromJsonAsync<OrigoCustomerStandardPrivateSubscriptionProduct>();
+            }
+            if (postSubscription.StatusCode == HttpStatusCode.BadRequest || postSubscription.StatusCode == HttpStatusCode.NotFound)
+            {
+                throw new SubscriptionManagementException(await postSubscription.Content.ReadAsStringAsync());
+            }
+
+            throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
+        }
+
+        public async Task<OrigoCustomerStandardPrivateSubscriptionProduct> DeleteCustomerStandardPrivateSubscriptionProductAsync(Guid organizationId, int operatorId, Guid callerId)
+        {
+            var requestUri = $"{_options.ApiPath}/{organizationId}/standard-private-subscription-products/{operatorId}";
+
+            HttpRequestMessage request = new HttpRequestMessage
+            {
+                Content = JsonContent.Create(callerId),
+                Method = HttpMethod.Delete,
+                RequestUri = new Uri(requestUri, UriKind.Relative)
+            };
+
+            var response = await HttpClient.SendAsync(request);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return await response.Content.ReadFromJsonAsync<OrigoCustomerStandardPrivateSubscriptionProduct>();
+            }
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                throw new SubscriptionManagementException(await response.Content.ReadAsStringAsync());
+            }
+
+            throw new HttpRequestException(await response.Content.ReadAsStringAsync());
         }
     }
 }
