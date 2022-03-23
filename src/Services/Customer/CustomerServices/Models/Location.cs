@@ -2,6 +2,8 @@
 using CustomerServices.DomainEvents;
 using System;
 
+#nullable enable
+
 namespace CustomerServices.Models
 {
     public class Location : Entity
