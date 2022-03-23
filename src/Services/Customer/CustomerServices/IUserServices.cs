@@ -1,7 +1,9 @@
-﻿using CustomerServices.Models;
+﻿using Common.Interfaces;
+using CustomerServices.Models;
 using CustomerServices.ServiceModels;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CustomerServices
@@ -9,7 +11,7 @@ namespace CustomerServices
     public interface IUserServices
     {
         Task<int> GetUsersCountAsync(Guid customerId);
-        Task<IList<UserDTO>> GetAllUsersAsync(Guid customerId);
+        Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100);
         Task<UserDTO> GetUserWithRoleAsync(Guid customerId, Guid userId);
         Task<UserDTO> GetUserWithRoleAsync(Guid userId);
         Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,

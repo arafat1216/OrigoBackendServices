@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
@@ -103,20 +105,20 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IEnumerable<OrigoUser>> GetAllUsersAsync(Guid customerId, IReadOnlyCollection<Guid> filteredDepartmentList = null)
+        public async Task<PagedModel<OrigoUser>> GetAllUsersAsync(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 1000)
         {
             try
             {
-                var users = await HttpClient.GetFromJsonAsync<IList<UserDTO>>($"{_options.ApiPath}/{customerId}/users");
-                //if (filteredDepartmentList != null)
-                //{
+                var users = await HttpClient.GetFromJsonAsync<PagedModel<UserDTO>>($"{_options.ApiPath}/{customerId}/users?q={search}&page={page}&limit={limit}");
 
-                //}
-                //foreach (var item in users)
-                //{
-                //    item.AssignedToDepartments
-                //}
-                return _mapper.Map<List<OrigoUser>>(users);
+                //return _mapper.Map<List<OrigoUser>>(users);
+                return new PagedModel<OrigoUser>
+                {
+                    Items = _mapper.Map<IList<OrigoUser>>(users.Items),
+                    CurrentPage = users.CurrentPage,
+                    PageSize = users.PageSize,
+                    TotalItems = users.TotalItems
+                };
             }
             catch (HttpRequestException exception)
             {
