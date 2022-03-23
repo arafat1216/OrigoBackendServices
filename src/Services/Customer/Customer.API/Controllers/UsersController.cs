@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.Interfaces;
 using Customer.API.ViewModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Customer.API.Controllers
@@ -45,11 +47,19 @@ namespace Customer.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(List<User>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<List<User>>> GetAllUsers(Guid customerId)
+        public async Task<ActionResult<PagedModel<User>>> GetAllUsers(Guid customerId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
-            var users = await _userServices.GetAllUsersAsync(customerId);
-            if (users == null) return NotFound();
-            return Ok(_mapper.Map<List<User>>(users));
+            var users = await _userServices.GetAllUsersAsync(customerId, cancellationToken, search, page, limit);
+            if (users.Items == null || users.Items.Count == 0) return NotFound();
+            var response = new PagedModel<User>()
+            {
+                Items = _mapper.Map<IList<User>>(users.Items),
+                CurrentPage = users.CurrentPage,
+                PageSize = users.PageSize,
+                TotalItems = users.TotalItems,
+                TotalPages = users.TotalPages
+            };
+            return Ok(response);
         }
 
         [Route("{userId:Guid}")]

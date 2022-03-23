@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Common.Enums;
+using Common.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
@@ -13,13 +15,14 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    //[Authorize]
+    [Authorize]
     [Route("origoapi/v{version:apiVersion}/Customers/{organizationId:guid}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
@@ -66,7 +69,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(List<OrigoUser>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
-        public async Task<ActionResult<List<OrigoUser>>> GetAllUsers(Guid organizationId)
+        public async Task<ActionResult<PagedModel<OrigoUser>>> GetAllUsers(Guid organizationId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
@@ -84,8 +87,8 @@ namespace OrigoApiGateway.Controllers
                 }
             }
 
-            var users = await _userServices.GetAllUsersAsync(organizationId);
-            if (users == null) return NotFound();
+            var users = await _userServices.GetAllUsersAsync(organizationId, cancellationToken, search, page, limit);
+            if (users.Items == null || users.Items.Count == 0) return NotFound();
             return Ok(users);
         }
 

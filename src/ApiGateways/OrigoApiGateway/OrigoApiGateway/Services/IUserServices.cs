@@ -1,6 +1,8 @@
-﻿using OrigoApiGateway.Models;
+﻿using Common.Interfaces;
+using OrigoApiGateway.Models;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
@@ -10,7 +12,7 @@ namespace OrigoApiGateway.Services
         Task<int> GetUsersCountAsync(Guid customerId);
         Task<OrigoUser> GetUserAsync(Guid customerId, Guid userId);
         Task<OrigoUser> GetUserAsync(Guid userId);
-        Task<IEnumerable<OrigoUser>> GetAllUsersAsync(Guid customerId, IReadOnlyCollection<Guid> filteredDepartments = null);
+        Task<PagedModel<OrigoUser>> GetAllUsersAsync(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 1000);
         Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser, Guid callerId);
         Task<OrigoUser> PutUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser, Guid callerId);
         Task<OrigoUser> PatchUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser, Guid callerId);

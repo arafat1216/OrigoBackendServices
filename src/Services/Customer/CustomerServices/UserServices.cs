@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.Interfaces;
 using CustomerServices.Exceptions;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CustomerServices
@@ -34,18 +36,25 @@ namespace CustomerServices
             return _customerRepository.GetUsersCount(customerId);
         }
 
-        public async Task<IList<UserDTO>> GetAllUsersAsync(Guid customerId)
+        public async Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
         {
-            var allUsers = await _customerRepository.GetAllUsersAsync(customerId);
+            var allUsers = await _customerRepository.GetAllUsersAsync(customerId,cancellationToken, search, page, limit);
             var list = new List<UserDTO>();
-            foreach (var user in allUsers)
+            foreach (var user in allUsers.Items)
             {
                 var userDTO = _mapper.Map<UserDTO>(user);
                 userDTO.Role = await GetRoleNameForUser(user.Email);
                 list.Add(userDTO);
             }
 
-            return list;
+            return new PagedModel<UserDTO>
+            {
+                Items = list,
+                CurrentPage = allUsers.CurrentPage,
+                PageSize = allUsers.PageSize,
+                TotalItems = allUsers.TotalItems,
+                TotalPages = allUsers.TotalPages
+            };
         }
 
         private async Task<string> GetRoleNameForUser(string userEmail)
@@ -152,7 +161,7 @@ namespace CustomerServices
 
             // Do not call if there is no change
             if (isActive == user.IsActive)
-            { 
+            {
                 userDTO = _mapper.Map<UserDTO>(user);
                 userDTO.Role = role;
                 return userDTO;

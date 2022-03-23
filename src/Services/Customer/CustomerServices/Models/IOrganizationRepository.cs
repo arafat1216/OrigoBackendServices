@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
@@ -46,7 +47,7 @@ namespace CustomerServices.Models
         Task<User> GetUserByUserName(string emailAddress);
         Task<User> GetUserByMobileNumber(string mobileNumber);
         Task<int> GetUsersCount(Guid customerId);
-        Task<IList<User>> GetAllUsersAsync(Guid customerId);
+        Task<PagedModel<User>> GetAllUsersAsync(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100);
         Task<User> GetUserAsync(Guid customerId, Guid userId);
         Task<User> GetUserAsync(Guid userId);
         Task<User> AddUserAsync(User newUser);

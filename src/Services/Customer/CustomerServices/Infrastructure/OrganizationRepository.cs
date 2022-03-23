@@ -1,4 +1,5 @@
 ﻿using Common.Extensions;
+using Common.Interfaces;
 using Common.Logging;
 using Common.Utilities;
 using CustomerServices.Infrastructure.Context;
@@ -271,13 +272,22 @@ namespace CustomerServices.Infrastructure
                 .CountAsync();
         }
 
-        public async Task<IList<User>> GetAllUsersAsync(Guid customerId)
+        public async Task<PagedModel<User>> GetAllUsersAsync(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
         {
+            if (!string.IsNullOrEmpty(search))
+                return await _customerContext.Users
+                    .Include(u => u.Customer)
+                    .Include(u => u.UserPreference)
+                    .Where(u => u.Customer.OrganizationId == customerId && u.FirstName.ToLower().Contains(search.ToLower()) || u.LastName.ToLower().Contains(search.ToLower()) || u.Email.ToLower().Contains(search.ToLower()))
+                    .OrderBy(u => u.FirstName)
+                    .PaginateAsync(page, limit, cancellationToken);
+
             return await _customerContext.Users
-                .Include(u => u.Customer)
-                .Include(u => u.UserPreference)
-                .Where(u => u.Customer.OrganizationId == customerId)
-                .ToListAsync();
+                    .Include(u => u.Customer)
+                    .Include(u => u.UserPreference)
+                    .Where(u => u.Customer.OrganizationId == customerId)
+                    .OrderBy(u => u.FirstName)
+                    .PaginateAsync(page, limit, cancellationToken);
         }
 
         public async Task<User?> GetUserAsync(Guid customerId, Guid userId)
