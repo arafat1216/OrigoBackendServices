@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
+using System.IO;
 using System.Reflection;
 
 namespace Customer.API
@@ -36,16 +37,41 @@ namespace Customer.API
             services.AddRouting(options => options.LowercaseUrls = true);
 
             services.AddControllers().AddDapr();
+
             services.AddApiVersioning(config =>
             {
                 config.DefaultApiVersion = _apiVersion;
                 config.AssumeDefaultVersionWhenUnspecified = true;
             });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc($"v{_apiVersion.MajorVersion}",
                     new OpenApiInfo { Title = "Customer Management", Version = $"v{_apiVersion.MajorVersion}" });
+
+                c.EnableAnnotations();
+
+                // Setup for multiple XML documentation files (for referenced projects)
+                var xmlFiles = new[]
+                {
+                    // Include the current assembly (this project)
+                    $"{Assembly.GetExecutingAssembly().GetName().Name}.xml",
+
+                    // Include from another project below here
+                    // Example: $"{Assembly.GetAssembly(typeof(Translation))?.GetName().Name}.xml"
+                };
+
+                // Loop over and include each of the generated XML documentation files so it is added to Swagger.
+                foreach (var xmlCommentFile in xmlFiles)
+                {
+                    var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentFile);
+                    if (File.Exists(xmlCommentsFullPath))
+                    {
+                        c.IncludeXmlComments(xmlCommentsFullPath);
+                    }
+                }
             });
+
             services.AddApplicationInsightsTelemetry();
             services.AddDbContext<CustomerContext>(options => options.UseSqlServer(
                 Configuration.GetConnectionString("CustomerConnectionString"), sqlOptions =>
