@@ -117,7 +117,8 @@ namespace OrigoApiGateway.Services
                     Items = _mapper.Map<IList<OrigoUser>>(users.Items),
                     CurrentPage = users.CurrentPage,
                     PageSize = users.PageSize,
-                    TotalItems = users.TotalItems
+                    TotalItems = users.TotalItems,
+                    TotalPages = users.TotalPages
                 };
             }
             catch (HttpRequestException exception)
