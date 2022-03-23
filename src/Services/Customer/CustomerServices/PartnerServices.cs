@@ -49,20 +49,12 @@ namespace CustomerServices
             return partnerResult;
         }
 
-        /// <summary>
-        ///     Returns a given partner with it's <see cref="Organization"/> entity attached.
-        /// </summary>
-        /// <returns> The retrieved <see cref="Partner"/>, or <see langword="null"/> if no matches was found. </returns>
         public async Task<Partner?> GetPartnerAsync(Guid partnerId)
         {
             var partner = await _organizationRepository.GetPartnerAsync(partnerId);
             return partner;
         }
 
-        /// <summary>
-        ///     Returns all partners with their <see cref="Organization"/> entities attached.
-        /// </summary>
-        /// <returns> A list containing all partners. </returns>
         public async Task<IList<Partner>> GetPartnersAsync()
         {
             var partners = await _organizationRepository.GetPartnersAsync();
