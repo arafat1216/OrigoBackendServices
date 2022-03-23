@@ -58,7 +58,7 @@ namespace SubscriptionManagement.UnitTests
             context.AddRange(customerOperatorAccountOne, customerOperatorAccountTwo, customerOperatorAccountThree);
             var customerOperatorSettings = new List<CustomerOperatorSettings>();
            
-            var customerOperatorSettingOne = new CustomerOperatorSettings(operatorOne, new List<CustomerSubscriptionProduct>{customerSubscriptionProductOne}, customerOperatorAccounts);
+            var customerOperatorSettingOne = new CustomerOperatorSettings(operatorOne, new List<CustomerSubscriptionProduct>{customerSubscriptionProductOne}, customerOperatorAccounts, null);
             //Setup for operatorsettings two
             var customerOperatorAccountsForOperatorTwo = new List<CustomerOperatorAccount>();
             var customerOperatorAccountForOperatorTwo = new CustomerOperatorAccount(4, ORGANIZATION_ONE_ID, "", "AC_NUM4", "AC_NAME4", operatorTwo.Id, CALLER_ONE_ID);
@@ -70,7 +70,7 @@ namespace SubscriptionManagement.UnitTests
             var customerSubscriptionProductTwo = new CustomerSubscriptionProduct("Sub2", operatorTwo, CALLER_ONE_ID, null);
             context.AddRange(customerSubscriptionProductTwo);
 
-            var customerOperatorSettingTwo = new CustomerOperatorSettings(operatorTwo, new List<CustomerSubscriptionProduct> { customerSubscriptionProductTwo  }, customerOperatorAccountsForOperatorTwo);
+            var customerOperatorSettingTwo = new CustomerOperatorSettings(operatorTwo, new List<CustomerSubscriptionProduct> { customerSubscriptionProductTwo  }, customerOperatorAccountsForOperatorTwo, null);
             
             customerOperatorSettings.Add(customerOperatorSettingOne);
             customerOperatorSettings.Add(customerOperatorSettingTwo);

@@ -232,34 +232,33 @@ public class
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
-
-
+    
     [Fact]
-    public async Task PostTransferToPrivateSubscriptionOrder_ReturnsCreated()
+    public async void PostTransferToPrivateSubscriptionOrder_ReturnsCreated_WhenPrivateSubscription()
     {
-        var newTransferFromPrivate = new TransferToPrivateSubscriptionOrderDTO
+
+        var request = new TransferToPrivateSubscriptionOrderDTO
         {
             PrivateSubscription = new PrivateSubscriptionDTO
             {
-                OperatorName = "TELEFONIA",
-                FirstName = "Ola",
+                OperatorName = "Telia - NO",
+                FirstName = "Kari",
                 LastName = "Nordmann",
-                Address = "Hjemmeveien 1",
+                Address = "Addresse 1",
                 PostalCode = "1234",
-                PostalPlace = "HEIMSTADEN",
+                PostalPlace = "Oslo",
                 Country = "NO",
                 BirthDate = new DateTime(1971, 10, 21),
                 Email = "me@example.com"
             },
-            MobileNumber = "+4791111111",
-            NewSubscription = "TOTAL BEDRIFT",
+            MobileNumber = "+4745454545",
+            NewSubscription= "PrivateSubscription",
             OperatorName = "Telia - NO",
-            OrderExecutionDate = DateTime.UtcNow.AddDays(20),
-            CallerId = Guid.NewGuid()
+            OrderExecutionDate= DateTime.UtcNow.AddDays(20),
+            CallerId= Guid.NewGuid()
         };
-        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newTransferFromPrivate));
         var response = await _httpClient.PostAsJsonAsync(
-            $"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-private", newTransferFromPrivate);
+            $"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-private", request);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }

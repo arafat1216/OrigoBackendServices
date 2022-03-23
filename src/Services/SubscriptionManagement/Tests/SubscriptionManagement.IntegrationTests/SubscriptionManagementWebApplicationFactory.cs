@@ -55,11 +55,16 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
                 var customerOperatorAccount = new CustomerOperatorAccount(OPERATOR_ACCOUNT_ID, ORGANIZATION_ID, "1111111111111", "435543", "CC1", firstOperator!.Id, Guid.Empty);
                 subscriptionManagementContext.CustomerOperatorAccounts.Add(customerOperatorAccount);
 
+                var standardPrivateProduct = new CustomerStandardPrivateSubscriptionProduct("PrivateDataPackage","PrivateSubscription",Guid.Empty);
+                subscriptionManagementContext.CustomerStandardPrivateSubscriptionProducts.Add(standardPrivateProduct);
+
                 var customerOperatorSettings = new List<CustomerOperatorSettings>
                 {
                     new (firstOperator,
                         new List<CustomerSubscriptionProduct> { customerSubscriptionProduct },
-                        new List<CustomerOperatorAccount> { customerOperatorAccount })
+                        new List<CustomerOperatorAccount> { customerOperatorAccount },
+                        standardPrivateProduct
+                        )
                 };
                 var customerReferenceFields = new List<CustomerReferenceField>
                 {
