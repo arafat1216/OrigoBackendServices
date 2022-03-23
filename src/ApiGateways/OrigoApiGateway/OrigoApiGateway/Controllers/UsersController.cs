@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Common.Enums;
+using Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -68,7 +69,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(List<OrigoUser>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
-        public async Task<ActionResult<List<OrigoUser>>> GetAllUsers(Guid organizationId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
+        public async Task<ActionResult<PagedModel<OrigoUser>>> GetAllUsers(Guid organizationId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString())
