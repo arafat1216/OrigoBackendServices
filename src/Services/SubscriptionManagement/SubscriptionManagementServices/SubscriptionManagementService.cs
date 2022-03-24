@@ -315,14 +315,29 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
         if (!PhoneNumberUtility.ValidatePhoneNumber(subscriptionOrder.MobileNumber, @operator.Country))
             throw new InvalidPhoneNumberException(subscriptionOrder.MobileNumber, @operator.Country, Guid.Parse("6bffdff0-a30a-11ec-940a-00155d8454bd"));
+        
+        //Date validation
+        if (subscriptionOrder.DateOfTermination <
+                DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator) ||
+                subscriptionOrder.DateOfTermination >
+                DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
+        {
+            if (subscriptionOrder.DateOfTermination <
+                DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator)) throw new ArgumentException(
+                $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workday ahead or more is allowed.");
+            else throw new ArgumentException(
+                 $"Invalid transfer date. Not more then {_transferSubscriptionDateConfiguration.MaxDaysForAll} workdays ahead is allowed.");
+        }
 
         var cancelSubscriptionOrder = new CancelSubscriptionOrder(subscriptionOrder.MobileNumber,
             subscriptionOrder.DateOfTermination, @operator.OperatorName, organizationId, subscriptionOrder.CallerId);
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(cancelSubscriptionOrder);
 
         await _emailService.SendAsync(cancelSubscriptionOrder.OrderType, added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
+        var cancelMapped = _mapper.Map<CancelSubscriptionOrderDTO>(added);
+        cancelMapped.OperatorId = @operator.Id;
 
-        return _mapper.Map<CancelSubscriptionOrderDTO>(added);
+        return cancelMapped;
     }
 
     public async Task<OrderSimSubscriptionOrderDTO> OrderSim(Guid organizationId, NewOrderSimSubscriptionOrder subscriptionOrder)
