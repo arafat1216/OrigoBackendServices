@@ -13,12 +13,12 @@ namespace CustomerServices
     public class OrganizationServices : IOrganizationServices
     {
         private readonly ILogger<OrganizationServices> _logger;
-        private readonly IOrganizationRepository _customerRepository;
+        private readonly IOrganizationRepository _organizationRepository;
 
         public OrganizationServices(ILogger<OrganizationServices> logger, IOrganizationRepository customerRepository)
         {
             _logger = logger;
-            _customerRepository = customerRepository;
+            _organizationRepository = customerRepository;
         }
 
         /// <summary>
@@ -31,23 +31,23 @@ namespace CustomerServices
             if (!hierarchical)
             {
 
-                var orgs = (customersOnly) ? await _customerRepository.GetCustomersAsync() : await _customerRepository.GetOrganizationsAsync();
+                var orgs = (customersOnly) ? await _organizationRepository.GetCustomersAsync() : await _organizationRepository.GetOrganizationsAsync();
                 foreach (Organization o in orgs)
                 {
-                    o.Preferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
-                    o.Location = await _customerRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
+                    o.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
+                    o.Location = await _organizationRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
                 }
                 return orgs;
             }
             else
             {
                 Guid? p = Guid.Empty;
-                var organizations = (customersOnly) ? await _customerRepository.GetCustomersAsync(p) : await _customerRepository.GetOrganizationsAsync(p);
+                var organizations = (customersOnly) ? await _organizationRepository.GetCustomersAsync(p) : await _organizationRepository.GetOrganizationsAsync(p);
                 foreach (Organization o in organizations)
                 {
-                    o.ChildOrganizations = await _customerRepository.GetOrganizationsAsync(o.OrganizationId);
-                    o.Preferences = await _customerRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
-                    o.Location = await _customerRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
+                    o.ChildOrganizations = await _organizationRepository.GetOrganizationsAsync(o.OrganizationId);
+                    o.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
+                    o.Location = await _organizationRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
                 }
                 return organizations;
             }
@@ -60,12 +60,12 @@ namespace CustomerServices
         /// <returns>A list of Organizations</returns>
         public async Task<IList<Organization>> GetOrganizationsByParentId(Guid? parentId)
         {
-            return await _customerRepository.GetOrganizationsAsync(parentId);
+            return await _organizationRepository.GetOrganizationsAsync(parentId);
         }
 
         public async Task<Organization> GetOrganizationAsync(Guid customerId)
         {
-            return await _customerRepository.GetOrganizationAsync(customerId);
+            return await _organizationRepository.GetOrganizationAsync(customerId);
         }
 
         /// <summary>
@@ -77,17 +77,17 @@ namespace CustomerServices
         /// <returns>Organization</returns>
         public async Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool onlyCustomer = false)
         {
-            var organization = onlyCustomer ? await _customerRepository.GetCustomerAsync(customerId) : await _customerRepository.GetOrganizationAsync(customerId);
+            var organization = onlyCustomer ? await _organizationRepository.GetCustomerAsync(customerId) : await _organizationRepository.GetOrganizationAsync(customerId);
 
             if (organization != null)
             {
                 if (includePreferences)
                 {
-                    organization.Preferences = await _customerRepository.GetOrganizationPreferencesAsync(customerId);
+                    organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(customerId);
                 }
                 if (includeLocation)
                 {
-                    organization.Location = await _customerRepository.GetOrganizationLocationAsync(organization.PrimaryLocation);
+                    organization.Location = await _organizationRepository.GetOrganizationLocationAsync(organization.PrimaryLocation);
                 }
             }
 
@@ -96,17 +96,17 @@ namespace CustomerServices
 
         public async Task<Organization> GetCustomerAsync(Guid customerId)
         {
-            return await _customerRepository.GetCustomerAsync(customerId);
+            return await _organizationRepository.GetCustomerAsync(customerId);
         }
 
         public async Task<Organization> GetOrganizationByOrganizationNumberAsync(string organizationNumber)
         {
-            return await _customerRepository.GetOrganizationByOrganizationNumber(organizationNumber);
+            return await _organizationRepository.GetOrganizationByOrganizationNumber(organizationNumber);
         }
 
         public async Task<IList<CustomerUserCount>> GetCustomerUsersAsync()
         {
-            return await _customerRepository.GetOrganizationUserCountsAsync();
+            return await _organizationRepository.GetOrganizationUserCountsAsync();
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace CustomerServices
         /// <returns></returns>
         public async Task<Organization> AddOrganizationAsync(Organization newOrganization)
         {
-            return await _customerRepository.AddAsync(newOrganization);
+            return await _organizationRepository.AddAsync(newOrganization);
         }
 
         public async Task<Organization> PutOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
@@ -172,7 +172,7 @@ namespace CustomerServices
 
                 organizationOriginal.UpdateOrganization(newOrganization);
 
-                await _customerRepository.SaveEntitiesAsync();
+                await _organizationRepository.SaveEntitiesAsync();
 
                 return organizationOriginal;
             }
@@ -278,7 +278,7 @@ namespace CustomerServices
 
                 organizationOriginal.PatchOrganization(newOrganization);
 
-                await _customerRepository.SaveEntitiesAsync();
+                await _organizationRepository.SaveEntitiesAsync();
 
                 return organizationOriginal;
             }
@@ -320,7 +320,7 @@ namespace CustomerServices
         {
             try
             {
-                var organization = await _customerRepository.GetOrganizationAsync(updateOrganization.OrganizationId);
+                var organization = await _organizationRepository.GetOrganizationAsync(updateOrganization.OrganizationId);
                 if (usingPatch)
                 {
                     organization.PatchOrganization(updateOrganization);
@@ -330,7 +330,7 @@ namespace CustomerServices
                     organization.UpdateOrganization(updateOrganization);
                 }
 
-                await _customerRepository.SaveEntitiesAsync();
+                await _organizationRepository.SaveEntitiesAsync();
 
                 return organization;
             }
@@ -345,7 +345,7 @@ namespace CustomerServices
         {
             try
             {
-                var organization = await _customerRepository.GetOrganizationAsync(organizationId);
+                var organization = await _organizationRepository.GetOrganizationAsync(organizationId);
 
                 if (organization == null)
                     throw new CustomerNotFoundException();
@@ -362,12 +362,12 @@ namespace CustomerServices
 
                 // set IsDelete, caller and date of change
                 organization.Delete(callerId);
-                await _customerRepository.SaveEntitiesAsync();
+                await _organizationRepository.SaveEntitiesAsync();
 
                 // Complete delete, removed from database
                 if (hardDelete)
                 {
-                    return await _customerRepository.DeleteOrganizationAsync(organization);
+                    return await _organizationRepository.DeleteOrganizationAsync(organization);
                 }
 
                 return organization;
@@ -383,7 +383,7 @@ namespace CustomerServices
         {
             try
             {
-                var preferences = await _customerRepository.GetOrganizationPreferencesAsync(organizationId);
+                var preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organizationId);
                 if (preferences == null)
                     return null;
 
@@ -405,14 +405,14 @@ namespace CustomerServices
 
         public async Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences)
         {
-            return await _customerRepository.AddOrganizationPreferencesAsync(organizationPreferences);
+            return await _organizationRepository.AddOrganizationPreferencesAsync(organizationPreferences);
         }
 
         public async Task<OrganizationPreferences> UpdateOrganizationPreferencesAsync(OrganizationPreferences preferences, bool usingPatch = false)
         {
             try
             {
-                var currentPreferences = await _customerRepository.GetOrganizationPreferencesAsync(preferences.OrganizationId);
+                var currentPreferences = await _organizationRepository.GetOrganizationPreferencesAsync(preferences.OrganizationId);
                 if (currentPreferences == null)
                     return null;
 
@@ -421,7 +421,7 @@ namespace CustomerServices
                 else
                     currentPreferences.UpdatePreferences(preferences);
 
-                await _customerRepository.SaveEntitiesAsync();
+                await _organizationRepository.SaveEntitiesAsync();
                 return currentPreferences;
             }
             catch (Exception ex)
@@ -435,15 +435,15 @@ namespace CustomerServices
         {
             try
             {
-                var preferences = await _customerRepository.GetOrganizationPreferencesAsync(organizationId);
+                var preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organizationId);
                 if (preferences == null) // object is already deleted
                     return null;
                 preferences.Delete(callerId);
-                await _customerRepository.SaveEntitiesAsync();
+                await _organizationRepository.SaveEntitiesAsync();
 
                 if (hardDelete)
                 {
-                    return await _customerRepository.DeleteOrganizationPreferencesAsync(preferences);
+                    return await _organizationRepository.DeleteOrganizationPreferencesAsync(preferences);
                 }
 
                 return preferences;
@@ -457,8 +457,8 @@ namespace CustomerServices
 
         public async Task<OrganizationPreferences> RemoveOrganizationPreferencesAsync(Guid organizationId)
         {
-            var organizationPreferences = await _customerRepository.GetOrganizationPreferencesAsync(organizationId);
-            return await _customerRepository.DeleteOrganizationPreferencesAsync(organizationPreferences);
+            var organizationPreferences = await _organizationRepository.GetOrganizationPreferencesAsync(organizationId);
+            return await _organizationRepository.DeleteOrganizationPreferencesAsync(organizationPreferences);
         }
 
         /// <summary>
@@ -468,19 +468,19 @@ namespace CustomerServices
         /// <returns>Null or Location</returns>
         public async Task<Location> GetLocationAsync(Guid locationId)
         {
-            return await _customerRepository.GetOrganizationLocationAsync(locationId);
+            return await _organizationRepository.GetOrganizationLocationAsync(locationId);
         }
 
         public async Task<Location> AddOrganizationLocationAsync(Location location)
         {
-            return await _customerRepository.AddOrganizationLocationAsync(location);
+            return await _organizationRepository.AddOrganizationLocationAsync(location);
         }
 
         public async Task<Location> UpdateOrganizationLocationAsync(Location updateLocation, bool usingPatch = false)
         {
             try
             {
-                var currentLocation = await _customerRepository.GetOrganizationLocationAsync(updateLocation.LocationId);
+                var currentLocation = await _organizationRepository.GetOrganizationLocationAsync(updateLocation.LocationId);
                 if (currentLocation == null)
                 {
                     return null;
@@ -491,7 +491,7 @@ namespace CustomerServices
                 else
                     currentLocation.UpdateLocation(updateLocation);
 
-                await _customerRepository.SaveEntitiesAsync();
+                await _organizationRepository.SaveEntitiesAsync();
                 return currentLocation;
             }
             catch (Exception ex)
@@ -505,15 +505,15 @@ namespace CustomerServices
         {
             try
             {
-                var location = await _customerRepository.GetOrganizationLocationAsync(locationId);
+                var location = await _organizationRepository.GetOrganizationLocationAsync(locationId);
                 if (location == null) // object is already deleted
                     return null;
                 location.Delete(callerId);
-                await _customerRepository.SaveEntitiesAsync();
+                await _organizationRepository.SaveEntitiesAsync();
 
                 if (hardDelete)
                 {
-                    return await _customerRepository.DeleteOrganizationLocationAsync(location);
+                    return await _organizationRepository.DeleteOrganizationLocationAsync(location);
                 }
 
                 return location;
@@ -530,7 +530,7 @@ namespace CustomerServices
         {
             try
             {
-                var customer = await _customerRepository.GetOrganizationAsync(customerId);
+                var customer = await _organizationRepository.GetOrganizationAsync(customerId);
 
                 if (customer == null)
                     return null;
@@ -558,7 +558,7 @@ namespace CustomerServices
         {
             try
             {
-                var customer = await _customerRepository.GetOrganizationAsync(customerId);
+                var customer = await _organizationRepository.GetOrganizationAsync(customerId);
                 if (customer == null)
                     return null;
 
