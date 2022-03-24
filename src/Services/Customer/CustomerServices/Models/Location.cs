@@ -16,13 +16,13 @@ namespace CustomerServices.Models
         public string? PostalCode { get; protected set; }
         public string? City { get; protected set; }
         public string? Country { get; protected set; }
-        public DateTime CreatedAt { get; protected set; }
-        public DateTime UpdatedAt { get; protected set; }
 
         /// <summary>
         /// Added to prevent Entity framework No suitable constructor found exception.
         /// </summary>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected Location()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         { }
 
         public Location(Guid locationId, Guid callerId, string name, string description, string address1, string address2, string postalCode, string city, string country)
@@ -35,8 +35,6 @@ namespace CustomerServices.Models
             PostalCode = postalCode;
             City = city;
             Country = country;
-            CreatedAt = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
             CreatedBy = callerId;
             UpdatedBy = callerId;
             AddDomainEvent(new LocationCreatedDomainEvent(this));
@@ -66,7 +64,6 @@ namespace CustomerServices.Models
             PostalCode = (updateLocation.PostalCode == null) ? "" : updateLocation.PostalCode;
             City = (updateLocation.City == null) ? "" : updateLocation.City;
             Country = (updateLocation.Country == null) ? "" : updateLocation.Country;
-            UpdatedAt = DateTime.UtcNow;
             UpdatedBy = updateLocation.CreatedBy;
             AddDomainEvent(new LocationUpdatedDomainEvent(this));
         }
@@ -125,7 +122,6 @@ namespace CustomerServices.Models
             }
             if (isUpdated)
             {
-                UpdatedAt = DateTime.UtcNow;
                 LastUpdatedDate = DateTime.UtcNow;
                 UpdatedBy = updateLocation.CreatedBy;
             }
@@ -134,7 +130,6 @@ namespace CustomerServices.Models
         public void Delete(Guid callerId)
         {
             IsDeleted = true;
-            UpdatedAt = DateTime.UtcNow;
             LastUpdatedDate = DateTime.UtcNow;
             DeletedBy = callerId;
             AddDomainEvent(new LocationDeletedDomainEvent(this));
