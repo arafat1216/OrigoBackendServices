@@ -4,6 +4,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response
 {
     public class OrigoSubscriptionOrderListItem
     {
+        public Guid SubscriptionOrderId { get; set; }
         public DateTime CreatedDate { get; set; }
         public string OrderType { get; set; }
         public string PhoneNumber { get; set; }
