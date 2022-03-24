@@ -20,6 +20,9 @@ namespace Customer.API.ViewModels
 
         public string City { get; set; }
 
+        /// <summary>
+        ///     The country, using the <c>ISO 3166-1 (alpha-2)</c> standard.
+        /// </summary>
         [RegularExpression("^[a-z]{2}")] // Exactly 2 lowercase characters
         public string Country { get; set; }
     }
