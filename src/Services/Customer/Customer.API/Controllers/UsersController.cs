@@ -198,6 +198,7 @@ namespace Customer.API.Controllers
         /// When it is false, the entry is permanently deleted from the system.This should only be run under very specific circumstances by the automated cleanup tools, and only on assets that is already soft-deleted.
         /// Default value : true
         /// </summary>
+        /// <param name="customerId"></param>
         /// <param name="userId"></param>
         /// <param name="callerId"></param>
         /// <param name="softDelete"></param>
@@ -208,11 +209,11 @@ namespace Customer.API.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(bool), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> DeleteUser(Guid userId, [FromBody] Guid callerId, bool softDelete = true)
+        public async Task<ActionResult> DeleteUser(Guid customerId, Guid userId, [FromBody] Guid callerId, bool softDelete = true)
         {
             try
             {
-                var deletedUser = await _userServices.DeleteUserAsync(userId, callerId, softDelete);
+                var deletedUser = await _userServices.DeleteUserAsync(customerId, userId, callerId, softDelete);
                 if (deletedUser == null)
                     return NotFound("The requested resource don't exist.");
                 // TODO: Ask about this status code 302. Does this make sense??

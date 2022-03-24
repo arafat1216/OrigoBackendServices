@@ -6,6 +6,8 @@ namespace CustomerServices.Infrastructure.Context
 {
     public class CustomerContext : DbContext
     {
+        private readonly bool _isSQLite;
+
         public DbSet<Organization> Organizations => Set<Organization>();
         public DbSet<Department> Departments => Set<Department>();
         public DbSet<User> Users => Set<User>();
@@ -22,15 +24,23 @@ namespace CustomerServices.Infrastructure.Context
 
         public CustomerContext(DbContextOptions<CustomerContext> options) : base(options)
         {
+            foreach (var extension in options.Extensions)
+            {
+                if (!extension.GetType().ToString().Contains("Sqlite"))
+                    continue;
+
+                _isSQLite = true;
+                break;
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new OrganizationConfiguration());
-            modelBuilder.ApplyConfiguration(new UserConfiguration());
-            modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
-            modelBuilder.ApplyConfiguration(new PartnerConfiguration());
-            modelBuilder.ApplyConfiguration(new UserPermissionsConfiguration());
+            modelBuilder.ApplyConfiguration(new OrganizationConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new UserConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new DepartmentConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new PartnerConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new UserPermissionsConfiguration(_isSQLite));
 
             modelBuilder.Seed();
         }

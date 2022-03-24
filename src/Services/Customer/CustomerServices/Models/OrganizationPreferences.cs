@@ -4,6 +4,9 @@ using System;
 
 namespace CustomerServices.Models
 {
+    /// <summary>
+    ///     Represents the settings and preferences for a single <see cref="Organization"/>.
+    /// </summary>
     public class OrganizationPreferences : Entity
     {
         public Guid OrganizationId { get; set; }
@@ -53,7 +56,7 @@ namespace CustomerServices.Models
 
             if (WebPage != newPreferences.WebPage)
             {
-               string oldWebPage = WebPage;
+                string oldWebPage = WebPage;
                 WebPage = newPreferences.WebPage;
                 isUpdated = true;
                 AddDomainEvent(new OrganizationPreferencesChangedWebPageDomainEvent(this, oldWebPage));

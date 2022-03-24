@@ -3,6 +3,7 @@ using CustomerServices.DomainEvents;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace CustomerServices.Models
@@ -109,6 +110,23 @@ namespace CustomerServices.Models
             _departments.Remove(department);
         }
 
+        internal void UnAssignAllDepartments(Guid OrganizationId)
+        {
+            var userDepartments = _departments.Where(department => department.Customer.OrganizationId == OrganizationId).ToList();
+
+            foreach (var department in userDepartments)
+            {
+                _departments.Remove(department);
+            }
+
+            var manageToDepartments = _managesDepartments.Where(department => department.Customer.OrganizationId == OrganizationId).ToList();
+
+            foreach (var department in manageToDepartments)
+            {
+                _managesDepartments.Remove(department);
+            }
+        }
+
         public void AssignManagerToDepartment(Department department, Guid callerId)
         {
             if (_managesDepartments == null)
@@ -151,7 +169,8 @@ namespace CustomerServices.Models
             AddDomainEvent(new UserDeletedDomainEvent(this));
             IsDeleted = isDeleted;
             LastUpdatedDate = DateTime.UtcNow;
-            UserPreference.SetDeleteStatus(true);
+            
+            UserPreference?.SetDeleteStatus(true);
         }
 
         internal void ChangeFirstName(string firstName, Guid callerId)

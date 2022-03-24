@@ -6,42 +6,92 @@ using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations.Schema;
 
+#nullable enable
+
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 namespace CustomerServices.Models
 {
+    /// <summary>
+    ///     Represents a single juridical entity (in a national registry). Although a organization is typically a customer, it may also be
+    ///     used for other juridical entities used through the solution, such as partners, service providers, etc.
+    /// </summary>
     public class Organization : Entity, IAggregateRoot
     {
-        private IList<User> users;
+        /// <summary>
+        ///     Backing field for <see cref="Users"/>.
+        /// </summary>
+        private IList<User> _users;
 
+        /// <summary>
+        ///     The organizations external ID
+        /// </summary>
         public Guid OrganizationId { get; protected set; }
+
+        /// <summary>
+        ///     If this is a child-organization, then this is the ID of it's parent. If it don't have any parents, this will be <see langword="null"/>.
+        /// </summary>
         public Guid? ParentId { get; protected set; }
+
+        /// <summary>
+        ///     The <see cref="Partner"/> that "owns" and handles the customer-relations with this organization. <para>   
+        /// 
+        ///     This value is required whenever <see cref="IsCustomer"/> is <see langword="true"/>. <br/>
+        ///     This value will be <see langword="null"/> for special/custom organization entries (e.g. service-providers) that don't have any active
+        ///     customer-relationship, and therefore should not be managed by a partner. </para>
+        /// </summary>
+        public Partner? Partner { get; protected set; }
+
         public Guid? PrimaryLocation { get; protected set; }
 
+        /// <summary>
+        ///     The name of the organization.
+        /// </summary>
         public string Name { get; protected set; }
 
+        /// <summary>
+        ///     The organization-number as used in the national registry.
+        /// </summary>
         public string OrganizationNumber { get; protected set; }
 
         public Address Address { get; protected set; }
 
         public ContactPerson ContactPerson { get; protected set; }
-        
+
+        /// <summary>
+        ///     If the value is <see langword="false"/>, then the organization is not currently considered a customer. This is typically for special 
+        ///     organizations such as service-providers, partners or other legal entities where we need to store the corresponding organization and
+        ///     contact details. Please note that these organizations may potentially also become a customer at a later date. <para>
+        ///     
+        ///     If the value is <see langword="true"/>, the organization is considered an active customer. </para><para>
+        ///     
+        ///     Note that whenever <see cref="IsCustomer"/> is set to <see langword="true"/>, the organization typically have stricter
+        ///     checks and validations on the provided data. In additional there are typically additional requirements for customers that may need to
+        ///     be provided before the value is updated. </para>
+        /// </summary>
         public bool IsCustomer { get; protected set; }
 
         [NotMapped]
-        public ICollection<Organization> ChildOrganizations { get; set; }
-        [NotMapped]
-        public OrganizationPreferences Preferences { get; set; }
+        public virtual ICollection<Organization> ChildOrganizations { get; set; }
 
+        /// <summary>
+        ///     The organizations preferences and settings.
+        /// </summary>
         [NotMapped]
-        public Location Location { get; set; }
+        public virtual OrganizationPreferences Preferences { get; set; }
+
+        /// <summary>
+        ///     The organization's primary location/address.
+        /// </summary>
+        [NotMapped]
+        public virtual Location Location { get; set; }
 
         [JsonIgnore]
         public IList<User> Users
         {
-            get { return users?.ToImmutableList(); }
-            protected set { users = value; }
+            get { return _users?.ToImmutableList(); }
+            protected set { _users = value; }
         }
 
         [JsonIgnore]
@@ -75,6 +125,7 @@ namespace CustomerServices.Models
         public void UpdateOrganization(Organization organization)
         {
             bool isUpdated = false;
+
             if (ParentId != organization.ParentId)
             {
                 var previousparentId = ParentId.ToString();
@@ -90,7 +141,7 @@ namespace CustomerServices.Models
                 AddDomainEvent(new CustomerPrimaryLocationChangedDomainEvent(this, previousPrimaryLocation));
                 isUpdated = true;
             }
-            
+
             if (Name != organization.Name)
             {
                 var oldName = Name;
@@ -98,7 +149,7 @@ namespace CustomerServices.Models
                 AddDomainEvent(new CustomerNameChangedDomainEvent(this, oldName));
                 isUpdated = true;
             }
-            
+
             if (OrganizationNumber != organization.OrganizationNumber)
             {
                 var oldNumber = OrganizationNumber;
@@ -114,7 +165,7 @@ namespace CustomerServices.Models
                 AddDomainEvent(new CustomerAddressChangedDomainEvent(this, oldAddress));
                 isUpdated = true;
             }
-            
+
             if (ContactPerson != organization.ContactPerson)
             {
                 var oldContactPerson = ContactPerson;
@@ -123,10 +174,16 @@ namespace CustomerServices.Models
                 isUpdated = true;
             }
 
-            
+            if (Partner != organization.Partner)
+            {
+                ChangePartner(Partner, UpdatedBy);
+                isUpdated = true;
+            }
+
+
             Preferences = organization.Preferences; // preferences cannot be changed here
             Location = organization.Location; // Is either a new empty location object, or an existing one. Not modified.
-            
+
             if (isUpdated)
             {
                 LastUpdatedDate = DateTime.UtcNow;
@@ -177,6 +234,12 @@ namespace CustomerServices.Models
                 isUpdated = true;
             }
 
+            if (Partner != organization.Partner)
+            {
+                ChangePartner(Partner, UpdatedBy);
+                isUpdated = true;
+            }
+
             if (ContactPerson != organization.ContactPerson && organization.ContactPerson != null)
             {
                 var oldContactPerson = ContactPerson;
@@ -211,7 +274,7 @@ namespace CustomerServices.Models
         public void RemoveDepartment(Department department, Guid callerId)
         {
             UpdatedBy = callerId;
-            LastUpdatedDate= DateTime.UtcNow;
+            LastUpdatedDate = DateTime.UtcNow;
             department.SetDeletedBy(callerId);
             AddDomainEvent(new DepartmentRemovedDomainEvent(department));
             Departments.Remove(department);
@@ -230,7 +293,7 @@ namespace CustomerServices.Models
         public void ChangeDepartmentDescription(Department department, string description, Guid callerId)
         {
             UpdatedBy = callerId;
-            LastUpdatedDate= DateTime.UtcNow;
+            LastUpdatedDate = DateTime.UtcNow;
             department.SetUpdatedBy(callerId);
             var oldDepartmentDescription = department.Description;
             department.Description = description;
@@ -245,6 +308,30 @@ namespace CustomerServices.Models
             var oldDepartmentCostCenterId = department.CostCenterId;
             department.CostCenterId = costCenterId;
             AddDomainEvent(new DepartmentCostCenterIdChangedDomainEvent(department, oldDepartmentCostCenterId));
+        }
+
+        /// <summary>
+        ///     Changes the organizations partner. <para>
+        ///     
+        ///     When the partner is changed or assigned, <see cref="IsCustomer"/> is set to <see langword="true"/>. 
+        ///     If the partner gets removed, then <see cref="IsCustomer"/> will also be set as <see langword="false"/>. </para>
+        /// </summary>
+        /// <param name="partner"> The new partner. </param>
+        /// <param name="callerId"> The ID of the user performing the operation. </param>
+        public void ChangePartner(Partner? partner, Guid callerId)
+        {
+            Partner? oldPartner = Partner;
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
+            Partner = partner;
+
+            // Update the customer status along with the partner assignment.
+            if (partner is null)
+                IsCustomer = false;
+            else
+                IsCustomer = true;
+
+            AddDomainEvent(new OrganizationPartnerChangedDomainEvent(this, oldPartner?.ExternalId));
         }
 
         public void ChangeDepartmentsParentDepartment(Department department, Department parentDepartment, Guid callerId)
