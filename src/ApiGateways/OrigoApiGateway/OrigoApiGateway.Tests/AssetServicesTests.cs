@@ -103,7 +103,7 @@ namespace OrigoApiGateway.Tests
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper);
+            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper);
 
             // Act
             var assetsFromUser = await assetService.GetAssetsForUserAsync(new Guid(CUSTOMER_ID), Guid.NewGuid());
@@ -182,7 +182,7 @@ namespace OrigoApiGateway.Tests
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper);
+            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper);
             IList<Guid> assetGuidList = new List<Guid>();
             assetGuidList.Add(new Guid("64add3ea-74ae-48a3-aad7-1a811f25ccdc"));
             assetGuidList.Add(new Guid("ef8710e8-ca5c-4832-ae27-139100d1ae63"));
@@ -248,7 +248,7 @@ namespace OrigoApiGateway.Tests
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper);
+            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper);
 
             IList<NewLabel> newLabels = new List<NewLabel>();
             newLabels.Add(new NewLabel { Text = "Manager", Color = Common.Enums.LabelColor.Red });
@@ -309,7 +309,7 @@ namespace OrigoApiGateway.Tests
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper);
+            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper);
 
             IList<Guid> guidList = new List<Guid>();
             guidList.Add(new Guid(LABEL_THREE_ID));
@@ -382,7 +382,7 @@ namespace OrigoApiGateway.Tests
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper);
+            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper);
 
             IList<Label> labels = new List<Label>();
             labels.Add(new Label { Id = new Guid(LABEL_ONE_ID), Text = "Administrator", Color = Common.Enums.LabelColor.Blue });

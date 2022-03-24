@@ -30,18 +30,6 @@ namespace AssetServices.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("Alias")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("AssetCategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("AssetHolderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AssetTag")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Brand")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -51,15 +39,15 @@ namespace AssetServices.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("ExternalId")
@@ -73,37 +61,22 @@ namespace AssetServices.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
-                    b.Property<int>("LifecycleType")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("ManagedByDepartmentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ProductName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<DateTime>("PurchaseDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssetCategoryId");
+                    b.ToTable("Assets");
 
-                    b.ToTable("Asset", (string)null);
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Asset");
                 });
 
-            modelBuilder.Entity("AssetServices.Models.AssetCategory", b =>
+            modelBuilder.Entity("AssetServices.Models.AssetImei", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -111,57 +84,25 @@ namespace AssetServices.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long>("Imei")
+                        .HasColumnType("bigint");
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastUpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ParentAssetCategoryId")
+                    b.Property<int?>("MobilePhoneId")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("TabletId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentAssetCategoryId");
+                    b.HasIndex("MobilePhoneId");
 
-                    b.ToTable("AssetCategory", (string)null);
+                    b.HasIndex("TabletId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedBy = new Guid("f7474a3b-2da6-444e-b2a1-590ca2c5eb00"),
-                            CreatedDate = new DateTime(2022, 3, 18, 14, 45, 46, 630, DateTimeKind.Local).AddTicks(9005),
-                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            IsDeleted = false,
-                            LastUpdatedDate = new DateTime(2022, 3, 18, 14, 45, 46, 630, DateTimeKind.Local).AddTicks(9050),
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedBy = new Guid("24af9a79-a4d0-4d10-ace8-a249679fedaa"),
-                            CreatedDate = new DateTime(2022, 3, 18, 14, 45, 46, 630, DateTimeKind.Local).AddTicks(9111),
-                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            IsDeleted = false,
-                            LastUpdatedDate = new DateTime(2022, 3, 18, 14, 45, 46, 630, DateTimeKind.Local).AddTicks(9114),
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        });
+                    b.ToTable("AssetImei");
                 });
 
-            modelBuilder.Entity("AssetServices.Models.AssetCategoryTranslation", b =>
+            modelBuilder.Entity("AssetServices.Models.AssetLifecycle", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -169,139 +110,84 @@ namespace AssetServices.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("AssetCategoryId")
+                    b.Property<string>("Alias")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("AssetId")
                         .HasColumnType("int");
+
+                    b.Property<int>("AssetLifecycleStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AssetLifecycleType")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ContractHolderUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContractReferenceName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<int>("CurrencyCode")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndPeriod")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Language")
-                        .HasMaxLength(2)
-                        .HasColumnType("nvarchar(2)");
-
                     b.Property<DateTime>("LastUpdatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<Guid?>("ManagedByDepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("StartPeriod")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssetCategoryId");
+                    b.HasIndex("AssetId");
 
-                    b.ToTable("AssetCategoryTranslation");
+                    b.HasIndex("ContractHolderUserId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AssetCategoryId = 1,
-                            CreatedBy = new Guid("c12bfc55-1d63-41c0-bd2b-87a41c623112"),
-                            CreatedDate = new DateTime(2022, 3, 18, 14, 45, 46, 630, DateTimeKind.Local).AddTicks(9147),
-                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            Description = "Mobile phone",
-                            IsDeleted = false,
-                            Language = "EN",
-                            LastUpdatedDate = new DateTime(2022, 3, 18, 14, 45, 46, 630, DateTimeKind.Local).AddTicks(9151),
-                            Name = "Mobile phone",
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        },
-                        new
-                        {
-                            Id = 2,
-                            AssetCategoryId = 1,
-                            CreatedBy = new Guid("d9c3892a-c056-4f73-bc26-7b15c45bae17"),
-                            CreatedDate = new DateTime(2022, 3, 18, 14, 45, 46, 630, DateTimeKind.Local).AddTicks(9168),
-                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            Description = "Mobiltelefon",
-                            IsDeleted = false,
-                            Language = "NO",
-                            LastUpdatedDate = new DateTime(2022, 3, 18, 14, 45, 46, 630, DateTimeKind.Local).AddTicks(9170),
-                            Name = "Mobiltelefon",
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        },
-                        new
-                        {
-                            Id = 3,
-                            AssetCategoryId = 2,
-                            CreatedBy = new Guid("3b1e77ac-948b-450f-9b73-8752336054b1"),
-                            CreatedDate = new DateTime(2022, 3, 18, 14, 45, 46, 630, DateTimeKind.Local).AddTicks(9176),
-                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            Description = "Tablet",
-                            IsDeleted = false,
-                            Language = "EN",
-                            LastUpdatedDate = new DateTime(2022, 3, 18, 14, 45, 46, 630, DateTimeKind.Local).AddTicks(9178),
-                            Name = "Tablet",
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        },
-                        new
-                        {
-                            Id = 4,
-                            AssetCategoryId = 2,
-                            CreatedBy = new Guid("13446b9e-4a92-450f-b508-55ff58b8b2b6"),
-                            CreatedDate = new DateTime(2022, 3, 18, 14, 45, 46, 630, DateTimeKind.Local).AddTicks(9183),
-                            DeletedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            Description = "Nettbrett",
-                            IsDeleted = false,
-                            Language = "NO",
-                            LastUpdatedDate = new DateTime(2022, 3, 18, 14, 45, 46, 630, DateTimeKind.Local).AddTicks(9186),
-                            Name = "Nettbrett",
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
-                        });
-                });
-
-            modelBuilder.Entity("AssetServices.Models.AssetLabel", b =>
-                {
-                    b.Property<int>("AssetId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LabelId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ExternalId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastUpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("AssetId", "LabelId");
-
-                    b.HasIndex("LabelId");
-
-                    b.ToTable("AssetLabel", (string)null);
+                    b.ToTable("AssetLifeCycles");
                 });
 
             modelBuilder.Entity("AssetServices.Models.CustomerLabel", b =>
@@ -311,6 +197,9 @@ namespace AssetServices.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int?>("AssetLifecycleId")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -338,99 +227,126 @@ namespace AssetServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CustomerLabel", (string)null);
+                    b.HasIndex("AssetLifecycleId");
+
+                    b.ToTable("CustomerLabels");
                 });
 
-            modelBuilder.Entity("AssetServices.Models.HardwareAsset", b =>
+            modelBuilder.Entity("AssetServices.Models.User", b =>
                 {
-                    b.HasBaseType("AssetServices.Models.Asset");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.Property<string>("MacAddress")
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SerialNumber")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.ToTable("HardwareAsset", (string)null);
-                });
+                    b.HasKey("Id");
 
-            modelBuilder.Entity("AssetServices.Models.SoftwareAsset", b =>
-                {
-                    b.HasBaseType("AssetServices.Models.Asset");
-
-                    b.Property<string>("SerialKey")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.ToTable("SoftwareAsset", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("AssetServices.Models.MobilePhone", b =>
                 {
-                    b.HasBaseType("AssetServices.Models.HardwareAsset");
+                    b.HasBaseType("AssetServices.Models.Asset");
 
-                    b.ToTable("MobilePhone", (string)null);
+                    b.Property<string>("MacAddress")
+                        .IsRequired()
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SerialNumber")
+                        .IsRequired()
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasDiscriminator().HasValue("MobilePhone");
                 });
 
             modelBuilder.Entity("AssetServices.Models.Subscription", b =>
                 {
-                    b.HasBaseType("AssetServices.Models.SoftwareAsset");
+                    b.HasBaseType("AssetServices.Models.Asset");
 
-                    b.ToTable("Subscription", (string)null);
+                    b.Property<string>("SerialKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasDiscriminator().HasValue("Subscription");
                 });
 
             modelBuilder.Entity("AssetServices.Models.Tablet", b =>
                 {
-                    b.HasBaseType("AssetServices.Models.HardwareAsset");
+                    b.HasBaseType("AssetServices.Models.Asset");
 
-                    b.ToTable("Tablet", (string)null);
+                    b.Property<string>("MacAddress")
+                        .IsRequired()
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SerialNumber")
+                        .IsRequired()
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasDiscriminator().HasValue("Tablet");
                 });
 
-            modelBuilder.Entity("AssetServices.Models.Asset", b =>
+            modelBuilder.Entity("AssetServices.Models.AssetImei", b =>
                 {
-                    b.HasOne("AssetServices.Models.AssetCategory", "AssetCategory")
-                        .WithMany()
-                        .HasForeignKey("AssetCategoryId");
+                    b.HasOne("AssetServices.Models.MobilePhone", null)
+                        .WithMany("Imeis")
+                        .HasForeignKey("MobilePhoneId");
 
-                    b.Navigation("AssetCategory");
+                    b.HasOne("AssetServices.Models.Tablet", null)
+                        .WithMany("Imeis")
+                        .HasForeignKey("TabletId");
                 });
 
-            modelBuilder.Entity("AssetServices.Models.AssetCategory", b =>
-                {
-                    b.HasOne("AssetServices.Models.AssetCategory", "ParentAssetCategory")
-                        .WithMany()
-                        .HasForeignKey("ParentAssetCategoryId");
-
-                    b.Navigation("ParentAssetCategory");
-                });
-
-            modelBuilder.Entity("AssetServices.Models.AssetCategoryTranslation", b =>
-                {
-                    b.HasOne("AssetServices.Models.AssetCategory", null)
-                        .WithMany("Translations")
-                        .HasForeignKey("AssetCategoryId");
-                });
-
-            modelBuilder.Entity("AssetServices.Models.AssetLabel", b =>
+            modelBuilder.Entity("AssetServices.Models.AssetLifecycle", b =>
                 {
                     b.HasOne("AssetServices.Models.Asset", "Asset")
-                        .WithMany("AssetLabels")
-                        .HasForeignKey("AssetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany()
+                        .HasForeignKey("AssetId");
 
-                    b.HasOne("AssetServices.Models.CustomerLabel", "Label")
-                        .WithMany("AssetLabels")
-                        .HasForeignKey("LabelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("AssetServices.Models.User", "ContractHolderUser")
+                        .WithMany()
+                        .HasForeignKey("ContractHolderUserId");
 
                     b.Navigation("Asset");
 
-                    b.Navigation("Label");
+                    b.Navigation("ContractHolderUser");
                 });
 
             modelBuilder.Entity("AssetServices.Models.CustomerLabel", b =>
                 {
+                    b.HasOne("AssetServices.Models.AssetLifecycle", null)
+                        .WithMany("Labels")
+                        .HasForeignKey("AssetLifecycleId");
+
                     b.OwnsOne("AssetServices.Models.Label", "Label", b1 =>
                         {
                             b1.Property<int>("CustomerLabelId")
@@ -440,101 +356,34 @@ namespace AssetServices.Migrations
                                 .HasColumnType("int");
 
                             b1.Property<string>("Text")
+                                .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
                             b1.HasKey("CustomerLabelId");
 
-                            b1.ToTable("CustomerLabel");
+                            b1.ToTable("CustomerLabels");
 
                             b1.WithOwner()
                                 .HasForeignKey("CustomerLabelId");
                         });
 
-                    b.Navigation("Label");
+                    b.Navigation("Label")
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("AssetServices.Models.HardwareAsset", b =>
+            modelBuilder.Entity("AssetServices.Models.AssetLifecycle", b =>
                 {
-                    b.HasOne("AssetServices.Models.Asset", null)
-                        .WithOne()
-                        .HasForeignKey("AssetServices.Models.HardwareAsset", "Id")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
-
-                    b.OwnsMany("AssetServices.Models.AssetImei", "Imeis", b1 =>
-                        {
-                            b1.Property<int>("HardwareAssetId")
-                                .HasColumnType("int");
-
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("int");
-
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"), 1L, 1);
-
-                            b1.Property<long>("Imei")
-                                .HasColumnType("bigint");
-
-                            b1.HasKey("HardwareAssetId", "Id");
-
-                            b1.ToTable("AssetImei");
-
-                            b1.WithOwner()
-                                .HasForeignKey("HardwareAssetId");
-                        });
-
-                    b.Navigation("Imeis");
-                });
-
-            modelBuilder.Entity("AssetServices.Models.SoftwareAsset", b =>
-                {
-                    b.HasOne("AssetServices.Models.Asset", null)
-                        .WithOne()
-                        .HasForeignKey("AssetServices.Models.SoftwareAsset", "Id")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
+                    b.Navigation("Labels");
                 });
 
             modelBuilder.Entity("AssetServices.Models.MobilePhone", b =>
                 {
-                    b.HasOne("AssetServices.Models.HardwareAsset", null)
-                        .WithOne()
-                        .HasForeignKey("AssetServices.Models.MobilePhone", "Id")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("AssetServices.Models.Subscription", b =>
-                {
-                    b.HasOne("AssetServices.Models.SoftwareAsset", null)
-                        .WithOne()
-                        .HasForeignKey("AssetServices.Models.Subscription", "Id")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
+                    b.Navigation("Imeis");
                 });
 
             modelBuilder.Entity("AssetServices.Models.Tablet", b =>
                 {
-                    b.HasOne("AssetServices.Models.HardwareAsset", null)
-                        .WithOne()
-                        .HasForeignKey("AssetServices.Models.Tablet", "Id")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("AssetServices.Models.Asset", b =>
-                {
-                    b.Navigation("AssetLabels");
-                });
-
-            modelBuilder.Entity("AssetServices.Models.AssetCategory", b =>
-                {
-                    b.Navigation("Translations");
-                });
-
-            modelBuilder.Entity("AssetServices.Models.CustomerLabel", b =>
-                {
-                    b.Navigation("AssetLabels");
+                    b.Navigation("Imeis");
                 });
 #pragma warning restore 612, 618
         }

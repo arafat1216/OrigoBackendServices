@@ -5,7 +5,7 @@ namespace Common.Logging
 {
     public class BaseEvent : INotification, IEvent
     {
-        public BaseEvent()
+        protected BaseEvent()
         { }
 
         protected BaseEvent(Guid id)

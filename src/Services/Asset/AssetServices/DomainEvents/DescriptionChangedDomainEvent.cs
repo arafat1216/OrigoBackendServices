@@ -19,7 +19,7 @@ namespace AssetServices.DomainEvents
 
         public override string EventMessage()
         {
-            return $"Asset tag changed from {PreviousTag} to {Asset.Note}.";
+            return $"Asset tag changed from {PreviousTag} to Asset.Note.";
         }
     }
 }
