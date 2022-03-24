@@ -118,16 +118,14 @@ namespace CustomerServices.Infrastructure
 
         public async Task<Organization?> GetOrganizationAsync(Guid organizationId,
                                                               Expression<Func<Organization, bool>>? whereFilter = null,
-                                                              bool includeDepartments = false,
-                                                              bool includePreferences = false,
-                                                              bool includeLocation = false,
-                                                              bool includeAddress = false,
                                                               bool customersOnly = true,
-                                                              bool excludeDeleted = true)
+                                                              bool excludeDeleted = true,
+                                                              bool includeDepartments = false,
+                                                              bool includeAddress = false)
         {
             IQueryable<Organization> query = _customerContext.Set<Organization>();
 
-            // Where filtering
+            // Parameterized where filtering
             if (whereFilter is not null)
                 query = query.Where(whereFilter);
 
@@ -137,12 +135,9 @@ namespace CustomerServices.Infrastructure
             if (excludeDeleted)
                 query = query.Where(e => !e.IsDeleted);
 
-            // Includes
+            // Parameterized Includes
             if (includeAddress)
                 query = query.Include(e => e.Address);
-
-            if (includeLocation)
-                query = query.Include(e => e.Location);
 
             if (includeDepartments)
                 query = query.Include(e => e.Departments);

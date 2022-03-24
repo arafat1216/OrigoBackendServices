@@ -20,15 +20,33 @@ namespace CustomerServices.Models
         Task<IList<Organization>> GetCustomersAsync();
         Task<IList<Organization>> GetCustomersAsync(Guid? parentId);
 
+        /// <summary>
+        ///     Retrieves a single organization using it's ID. Optional parameters may be provided to apply additional filtering, and for enabling eager loading. <br/>
+        ///     The use of named parameters is recommended. <para>
+        ///     
+        ///     Example: <code>
+        ///         Organization org = new OrganizationRepository().GetOrganizationAsync(
+        ///             Guid.Empty, 
+        ///             whereFilter: entity => (entity.PrimaryLocation == Guid.Empty || entity.PrimaryLocation == null), 
+        ///             customersOnly: true
+        ///         )
+        ///     </code></para>
+        /// </summary>
+        /// <param name="organizationId"> The ID of the organization that is retrieved. </param>
+        /// <param name="whereFilter"> A parameterized "<c>.Where()</c>" filter condition that is added to the query. </param>
+        /// <param name="customersOnly"> When <see langword="true"/>, a parameterized "<c>.Where()</c>" filter condition is added to the
+        ///     query, causing only organizations where "<c><see cref="Organization.IsCustomer"/> == <see langword="true"/></c>" to be retrieved. </param>
+        /// <param name="excludeDeleted"> When <see langword="true"/>, a parameterized "<c>.Where()</c>" filter condition is added to the query, 
+        ///     causing soft-deleted organizations (<c><see cref="Organization.IsDeleted"/> == <see langword="true"/></c>) to be excluded from the results. </param>
+        /// <param name="includeDepartments"> When <see langword="true"/>, it eagerly includes <see cref="Organization.Departments"/>. </param>
+        /// <param name="includeAddress"> When <see langword="true"/>, it eagerly includes <see cref="Organization.Address"/>. </param>
+        /// <returns> If found, the queried organization. If no matches are found, it returns <see langword="null"/>. </returns>
         Task<Organization?> GetOrganizationAsync(Guid organizationId,
                                                  Expression<Func<Organization, bool>>? whereFilter = null,
-                                                 bool includeDepartments = false,
-                                                 bool includePreferences = false,
-                                                 bool includeLocation = false,
-                                                 bool includeAddress = false,
                                                  bool customersOnly = true,
-                                                 bool excludeDeleted = true);
-
+                                                 bool excludeDeleted = true,
+                                                 bool includeDepartments = false,
+                                                 bool includeAddress = false);
 
         /// <summary>
         ///     Finds an entity with the given primary key.
