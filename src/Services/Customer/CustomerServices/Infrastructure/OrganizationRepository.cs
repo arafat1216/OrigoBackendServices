@@ -9,8 +9,11 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+
+#nullable enable
 
 namespace CustomerServices.Infrastructure
 {
@@ -48,10 +51,6 @@ namespace CustomerServices.Infrastructure
             return location;
         }
 
-        public async Task<IList<Organization>> GetOrganizationsAsync()
-        {
-            return await _customerContext.Organizations.Where(o => !o.IsDeleted).ToListAsync();
-        }
 
         public async Task<IList<CustomerUserCount>> GetOrganizationUserCountsAsync()
         {
@@ -66,6 +65,13 @@ namespace CustomerServices.Infrastructure
             .ToListAsync();
         }
 
+        public async Task<IList<Organization>> GetOrganizationsAsync()
+        {
+            return await _customerContext.Organizations
+                .Where(o => !o.IsDeleted)
+                .ToListAsync();
+        }
+
         /// <summary>
         /// Get all organizations who has parentId as parent organization.
         /// If parentId is null, it will find all root organizations in the database.
@@ -76,7 +82,10 @@ namespace CustomerServices.Infrastructure
         {
             if (parentId == Guid.Empty)
                 parentId = null;
-            return await _customerContext.Organizations.Where(p => p.ParentId == parentId && !p.IsDeleted).ToListAsync();
+
+            return await _customerContext.Organizations
+                .Where(p => p.ParentId == parentId && !p.IsDeleted)
+                .ToListAsync();
         }
 
         /// <summary>
@@ -85,7 +94,10 @@ namespace CustomerServices.Infrastructure
         /// <returns></returns>
         public async Task<IList<Organization>> GetCustomersAsync()
         {
-            return await _customerContext.Organizations.Where(o => !o.IsDeleted && o.IsCustomer == true).ToListAsync();
+            return await _customerContext.Organizations
+                                         .Where(o => !o.IsDeleted && o.IsCustomer == true)
+                                         .AsNoTracking()
+                                         .ToListAsync();
         }
 
         /// <summary>
@@ -98,30 +110,79 @@ namespace CustomerServices.Infrastructure
         {
             if (parentId == Guid.Empty)
                 parentId = null;
-            return await _customerContext.Organizations.Where(p => p.ParentId == parentId && !p.IsDeleted && p.IsCustomer == true).ToListAsync();
+
+            return await _customerContext.Organizations
+                .Where(p => p.ParentId == parentId && !p.IsDeleted && p.IsCustomer == true)
+                .ToListAsync();
         }
 
-        public async Task<Organization> GetOrganizationAsync(Guid customerId)
+        public async Task<Organization?> GetOrganizationAsync(Guid organizationId,
+                                                              Expression<Func<Organization, bool>>? filter = null,
+                                                              bool includeDepartments = true,
+                                                              bool includePreferences = false,
+                                                              bool includeLocation = false,
+                                                              bool includeAddress = false,
+                                                              bool customersOnly = true,
+                                                              bool excludeDeleted = true)
+        {
+            IQueryable<Organization> query = _customerContext.Set<Organization>();
+
+            // Where filtering
+            if (filter is not null)
+                query = query.Where(filter);
+
+            if (customersOnly)
+                query = query.Where(e => e.IsCustomer);
+
+            if (excludeDeleted)
+                query = query.Where(e => !e.IsDeleted);
+
+            // Supply with includes on a as-needed-basis.
+
+            //if (includePreferences)
+            //    query = query.Include(e => e.Preferences);
+
+            if (includeAddress)
+                query = query.Include(e => e.Address);
+
+            if (includeLocation)
+                query = query.Include(e => e.Location);
+
+            if (includeDepartments)
+                query = query.Include(e => e.Departments);
+
+            return await query.FirstOrDefaultAsync(e => e.OrganizationId == organizationId);
+        }
+
+        /*
+        public async Task<Organization?> GetOrganizationAsync(Guid customerId)
         {
             return await _customerContext.Organizations
-            .Include(p => p.Departments)
-            .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
+                                         .Include(p => p.Departments)
+                                         .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
+        }
+        */
+
+        public async Task<Organization?> GetOrganizationAsync(int id)
+        {
+            return await _customerContext.Organizations
+                                         .FindAsync(id);
         }
 
-        public async Task<Organization> GetCustomerAsync(Guid customerId)
+        public async Task<Organization?> GetCustomerAsync(Guid customerId)
         {
             return await _customerContext.Organizations
             .Include(p => p.Departments)
             .FirstOrDefaultAsync(c => c.OrganizationId == customerId && c.IsCustomer == true);
         }
 
-        public async Task<OrganizationPreferences> GetOrganizationPreferencesAsync(Guid organizationId)
+        public async Task<OrganizationPreferences?> GetOrganizationPreferencesAsync(Guid organizationId)
         {
             return await _customerContext.OrganizationPreferences
                 .FirstOrDefaultAsync(c => c.OrganizationId == organizationId);
         }
 
-        public async Task<Location> GetOrganizationLocationAsync(Guid? locationId)
+        public async Task<Location?> GetOrganizationLocationAsync(Guid? locationId)
         {
             return await _customerContext.Locations
                 .FirstOrDefaultAsync(c => c.LocationId == locationId);
@@ -172,26 +233,21 @@ namespace CustomerServices.Infrastructure
             return organizationLocation;
         }
 
-        private async Task<Organization> GetCustomerReadOnlyAsync(Guid customerId)
-        {
-            return await _customerContext.Organizations
-                .Include(p => p.Departments)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
-        }
-
-        public async Task<Organization> GetOrganizationByOrganizationNumber(string organizationNumber)
+        public async Task<Organization?> GetOrganizationByOrganizationNumber(string organizationNumber)
         {
             if (organizationNumber == null)
                 return null;
-            return await _customerContext.Organizations.Where(c => c.OrganizationNumber == organizationNumber && !c.IsDeleted)
+
+            return await _customerContext.Organizations
+                .Where(c => c.OrganizationNumber == organizationNumber && !c.IsDeleted)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<User> GetUserByUserName(string emailAddress)
+        public async Task<User?> GetUserByUserName(string emailAddress)
         {
             if (emailAddress == null)
                 return null;
+
             return await _customerContext.Users
                 .Include(u => u.Customer)
                 .Include(u => u.Departments)
@@ -199,38 +255,39 @@ namespace CustomerServices.Infrastructure
                 .Where(u => u.Email == emailAddress)
                 .FirstOrDefaultAsync();
         }
-        public async Task<User> GetUserByMobileNumber(string mobileNumber)
+        public async Task<User?> GetUserByMobileNumber(string mobileNumber)
         {
             if (mobileNumber == null)
                 return null;
-            return await _customerContext.Users.Where(u => u.MobileNumber == mobileNumber)
+
+            return await _customerContext.Users
+                .Where(u => u.MobileNumber == mobileNumber)
                 .FirstOrDefaultAsync();
         }
 
         public async Task<int> GetUsersCount(Guid customerId)
         {
-            return await _customerContext.Users.Where(u => u.Customer.OrganizationId == customerId && u.IsActive).CountAsync();
+            return await _customerContext.Users
+                .Where(u => u.Customer.OrganizationId == customerId && u.IsActive)
+                .CountAsync();
         }
 
         public async Task<PagedModel<User>> GetAllUsersAsync(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
         {
-            if (!string.IsNullOrEmpty(search))
-                return await _customerContext.Users
+            var users = _customerContext.Users
                     .Include(u => u.Customer)
                     .Include(u => u.UserPreference)
-                    .Where(u => u.Customer.OrganizationId == customerId && u.FirstName.ToLower().Contains(search.ToLower()) || u.LastName.ToLower().Contains(search.ToLower()) || u.Email.ToLower().Contains(search.ToLower()))
-                    .OrderBy(u => u.FirstName)
-                    .PaginateAsync(page, limit, cancellationToken);
+                    .Where(u => u.Customer.OrganizationId == customerId);
 
-            return await _customerContext.Users
-                    .Include(u => u.Customer)
-                    .Include(u => u.UserPreference)
-                    .Where(u => u.Customer.OrganizationId == customerId)
-                    .OrderBy(u => u.FirstName)
-                    .PaginateAsync(page, limit, cancellationToken);
+            if (!string.IsNullOrEmpty(search))
+                users = users.Where(u => u.FirstName.ToLower().Contains(search.ToLower()) ||
+                u.LastName.ToLower().Contains(search.ToLower()) ||
+                u.Email.ToLower().Contains(search.ToLower()));
+
+            return await users.OrderBy(u => u.FirstName).PaginateAsync(page, limit, cancellationToken);
         }
 
-        public async Task<User> GetUserAsync(Guid customerId, Guid userId)
+        public async Task<User?> GetUserAsync(Guid customerId, Guid userId)
         {
             return await _customerContext.Users
                 .Include(u => u.Customer)
@@ -240,11 +297,13 @@ namespace CustomerServices.Infrastructure
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<User> GetUserAsync(Guid userId)
+        public async Task<User?> GetUserAsync(Guid userId)
         {
             return await _customerContext.Users
                 .Include(u => u.Customer).Where(u => u.UserId == userId)
                 .Include(u => u.UserPreference)
+                .Include(u => u.Departments)
+                .Include(u => u.ManagesDepartments)
                 .FirstOrDefaultAsync();
         }
 
@@ -294,7 +353,7 @@ namespace CustomerServices.Infrastructure
             return await _customerContext.Departments.Where(p => p.Customer.OrganizationId == customerId).ToListAsync();
         }
 
-        public async Task<Department> GetDepartmentAsync(Guid customerId, Guid departmentId)
+        public async Task<Department?> GetDepartmentAsync(Guid customerId, Guid departmentId)
         {
             return await _customerContext.Departments.Include(d => d.ParentDepartment).FirstOrDefaultAsync(p => p.Customer.OrganizationId == customerId && p.ExternalDepartmentId == departmentId);
         }
@@ -315,21 +374,33 @@ namespace CustomerServices.Infrastructure
 
         public async Task<Partner> AddPartnerAsync(Partner partner)
         {
-            _customerContext.Partners.Add(partner);
+            _customerContext.Partners
+                            .Add(partner);
+
             await SaveEntitiesAsync();
             return partner;
         }
 
-        public async Task<Partner> GetPartnerAsync(Guid partnerId)
+        public async Task<Partner?> GetPartnerAsync(Guid partnerId)
         {
-            return await _customerContext.Partners.Where(partner => !partner.IsDeleted && partner.ExternalId == partnerId).Include(partner => partner.Organization).FirstOrDefaultAsync();
+            return await _customerContext.Partners
+                                         .Where(partner => !partner.IsDeleted && partner.ExternalId == partnerId)
+                                         .Include(e => e.Organization)
+                                         .FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> OrganizationIsPartner(int organizationId)
+        {
+            return await _customerContext.Partners
+                                         .AnyAsync(e => e.Organization.Id == organizationId);
         }
 
         public async Task<IList<Partner>> GetPartnersAsync()
         {
-            return await _customerContext.Partners.Where(partner => !partner.IsDeleted)
-                .Include(partner => partner.Organization).ToListAsync();
-
+            return await _customerContext.Partners
+                                         .Where(partner => !partner.IsDeleted)
+                                         .Include(e => e.Organization)
+                                         .ToListAsync();
         }
     }
 }

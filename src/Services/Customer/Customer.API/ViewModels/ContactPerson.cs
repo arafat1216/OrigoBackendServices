@@ -1,4 +1,6 @@
-﻿namespace Customer.API.ViewModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Customer.API.ViewModels
 {
     public record ContactPerson
     {
@@ -13,8 +15,12 @@
         public ContactPerson(){}
 
         public string FirstName { get; set; }
+
         public string LastName { get; set; }
+
+        [EmailAddress]
         public string Email { get; set; }
+
         public string PhoneNumber { get; set; }
     }
 }

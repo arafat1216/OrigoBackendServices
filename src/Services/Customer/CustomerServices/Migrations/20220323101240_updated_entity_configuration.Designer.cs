@@ -4,6 +4,7 @@ using CustomerServices.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CustomerServices.Migrations
 {
     [DbContext(typeof(CustomerContext))]
-    partial class CustomerContextModelSnapshot : ModelSnapshot
+    [Migration("20220323101240_updated_entity_configuration")]
+    partial class updated_entity_configuration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -138,6 +140,9 @@ namespace CustomerServices.Migrations
                     b.Property<string>("Country")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -165,6 +170,9 @@ namespace CustomerServices.Migrations
 
                     b.Property<string>("PostalCode")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -375,7 +383,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 1,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 24, 12, 13, 38, 286, DateTimeKind.Utc).AddTicks(9736),
+                            CreatedDate = new DateTime(2022, 3, 23, 10, 12, 39, 627, DateTimeKind.Utc).AddTicks(939),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanCreateCustomer",
@@ -385,7 +393,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 2,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 24, 12, 13, 38, 286, DateTimeKind.Utc).AddTicks(9742),
+                            CreatedDate = new DateTime(2022, 3, 23, 10, 12, 39, 627, DateTimeKind.Utc).AddTicks(941),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanReadCustomer",
@@ -395,7 +403,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 3,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 24, 12, 13, 38, 286, DateTimeKind.Utc).AddTicks(9743),
+                            CreatedDate = new DateTime(2022, 3, 23, 10, 12, 39, 627, DateTimeKind.Utc).AddTicks(942),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanUpdateCustomer",
@@ -405,7 +413,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 4,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 24, 12, 13, 38, 286, DateTimeKind.Utc).AddTicks(9744),
+                            CreatedDate = new DateTime(2022, 3, 23, 10, 12, 39, 627, DateTimeKind.Utc).AddTicks(942),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CanDeleteCustomer",
@@ -451,7 +459,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 1,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 24, 12, 13, 38, 287, DateTimeKind.Utc).AddTicks(71),
+                            CreatedDate = new DateTime(2022, 3, 23, 10, 12, 39, 627, DateTimeKind.Utc).AddTicks(1093),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "FullCustomerAccess",
@@ -497,7 +505,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 1,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 24, 12, 13, 38, 287, DateTimeKind.Utc).AddTicks(140),
+                            CreatedDate = new DateTime(2022, 3, 23, 10, 12, 39, 627, DateTimeKind.Utc).AddTicks(1119),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "EndUser",
@@ -507,7 +515,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 2,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 24, 12, 13, 38, 287, DateTimeKind.Utc).AddTicks(143),
+                            CreatedDate = new DateTime(2022, 3, 23, 10, 12, 39, 627, DateTimeKind.Utc).AddTicks(1122),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "DepartmentManager",
@@ -517,7 +525,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 3,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 24, 12, 13, 38, 287, DateTimeKind.Utc).AddTicks(144),
+                            CreatedDate = new DateTime(2022, 3, 23, 10, 12, 39, 627, DateTimeKind.Utc).AddTicks(1122),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CustomerAdmin",
@@ -527,7 +535,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 4,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 24, 12, 13, 38, 287, DateTimeKind.Utc).AddTicks(145),
+                            CreatedDate = new DateTime(2022, 3, 23, 10, 12, 39, 627, DateTimeKind.Utc).AddTicks(1123),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "GroupAdmin",
@@ -537,7 +545,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 5,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 24, 12, 13, 38, 287, DateTimeKind.Utc).AddTicks(145),
+                            CreatedDate = new DateTime(2022, 3, 23, 10, 12, 39, 627, DateTimeKind.Utc).AddTicks(1123),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "PartnerAdmin",
@@ -547,7 +555,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 7,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 24, 12, 13, 38, 287, DateTimeKind.Utc).AddTicks(147),
+                            CreatedDate = new DateTime(2022, 3, 23, 10, 12, 39, 627, DateTimeKind.Utc).AddTicks(1124),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "PartnerReadOnlyAdmin",
@@ -557,7 +565,7 @@ namespace CustomerServices.Migrations
                         {
                             Id = 6,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2022, 3, 24, 12, 13, 38, 287, DateTimeKind.Utc).AddTicks(147),
+                            CreatedDate = new DateTime(2022, 3, 23, 10, 12, 39, 627, DateTimeKind.Utc).AddTicks(1124),
                             IsDeleted = false,
                             LastUpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "SystemAdmin",
