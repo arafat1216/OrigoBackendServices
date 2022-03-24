@@ -19,11 +19,10 @@ namespace CustomerServices.Models
         Task<IList<Organization>> GetOrganizationsAsync(Guid? parentId);
         Task<IList<Organization>> GetCustomersAsync();
         Task<IList<Organization>> GetCustomersAsync(Guid? parentId);
-        //Task<Organization> GetOrganizationAsync(Guid customerId);
 
         Task<Organization?> GetOrganizationAsync(Guid organizationId,
-                                                 Expression<Func<Organization, bool>>? filter = null,
-                                                 bool includeDepartments = true,
+                                                 Expression<Func<Organization, bool>>? whereFilter = null,
+                                                 bool includeDepartments = false,
                                                  bool includePreferences = false,
                                                  bool includeLocation = false,
                                                  bool includeAddress = false,

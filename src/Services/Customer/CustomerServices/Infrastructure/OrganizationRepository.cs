@@ -117,8 +117,8 @@ namespace CustomerServices.Infrastructure
         }
 
         public async Task<Organization?> GetOrganizationAsync(Guid organizationId,
-                                                              Expression<Func<Organization, bool>>? filter = null,
-                                                              bool includeDepartments = true,
+                                                              Expression<Func<Organization, bool>>? whereFilter = null,
+                                                              bool includeDepartments = false,
                                                               bool includePreferences = false,
                                                               bool includeLocation = false,
                                                               bool includeAddress = false,
@@ -128,8 +128,8 @@ namespace CustomerServices.Infrastructure
             IQueryable<Organization> query = _customerContext.Set<Organization>();
 
             // Where filtering
-            if (filter is not null)
-                query = query.Where(filter);
+            if (whereFilter is not null)
+                query = query.Where(whereFilter);
 
             if (customersOnly)
                 query = query.Where(e => e.IsCustomer);
@@ -137,11 +137,7 @@ namespace CustomerServices.Infrastructure
             if (excludeDeleted)
                 query = query.Where(e => !e.IsDeleted);
 
-            // Supply with includes on a as-needed-basis.
-
-            //if (includePreferences)
-            //    query = query.Include(e => e.Preferences);
-
+            // Includes
             if (includeAddress)
                 query = query.Include(e => e.Address);
 
@@ -153,15 +149,6 @@ namespace CustomerServices.Infrastructure
 
             return await query.FirstOrDefaultAsync(e => e.OrganizationId == organizationId);
         }
-
-        /*
-        public async Task<Organization?> GetOrganizationAsync(Guid customerId)
-        {
-            return await _customerContext.Organizations
-                                         .Include(p => p.Departments)
-                                         .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
-        }
-        */
 
         public async Task<Organization?> GetOrganizationAsync(int id)
         {
