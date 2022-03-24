@@ -302,6 +302,8 @@ namespace CustomerServices.Infrastructure
             return await _customerContext.Users
                 .Include(u => u.Customer).Where(u => u.UserId == userId)
                 .Include(u => u.UserPreference)
+                .Include(u => u.Departments)
+                .Include(u => u.ManagesDepartments)
                 .FirstOrDefaultAsync();
         }
 

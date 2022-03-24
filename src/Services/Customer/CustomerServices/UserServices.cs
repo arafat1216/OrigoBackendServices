@@ -289,22 +289,23 @@ namespace CustomerServices
             return userDTO;
         }
 
-        public async Task<UserDTO> DeleteUserAsync(Guid userId, Guid callerId, bool softDelete = true)
+        public async Task<UserDTO> DeleteUserAsync(Guid customerId, Guid userId, Guid callerId, bool softDelete = true)
         {
             var user = await _customerRepository.GetUserAsync(userId);
-            if (user == null) return null;
-            if (user.IsDeleted && !softDelete)
-                await _customerRepository.DeleteUserAsync(user);
-            if (user.IsDeleted && softDelete)
+            
+            if (!softDelete)
                 throw new UserDeletedException();
 
+            if (user == null || user.IsDeleted) return null;
+            
+            user.UnAssignAllDepartments(customerId);
+            
             user.SetDeleteStatus(true, callerId);
+            await _customerRepository.SaveEntitiesAsync();
 
             //Get the users role and assign it to the users DTO
             UserDTO userDTO = _mapper.Map<UserDTO>(user);
-            userDTO.Role = await GetRoleNameForUser(user.Email);
-
-            await _customerRepository.SaveEntitiesAsync();
+            
             return userDTO;
         }
 
