@@ -1,10 +1,6 @@
 ﻿using CustomerServices.Infrastructure.Context.EntityConfiguration;
 using CustomerServices.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-using System;
 
 namespace CustomerServices.Infrastructure.Context
 {
@@ -48,57 +44,5 @@ namespace CustomerServices.Infrastructure.Context
 
             modelBuilder.Seed();
         }
-
-        #region Save overrides (inject automated timestamps)
-
-        /// <inheritdoc/>
-        public override int SaveChanges()
-        {
-            AddTimestamps();
-            return base.SaveChanges();
-        }
-
-        /// <inheritdoc/>
-        public override int SaveChanges(bool acceptAllChangesOnSuccess)
-        {
-            AddTimestamps();
-            return base.SaveChanges(acceptAllChangesOnSuccess);
-        }
-
-        /// <inheritdoc/>
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            AddTimestamps();
-            return base.SaveChangesAsync(cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
-        {
-            AddTimestamps();
-            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-        }
-
-        /// <summary>
-        ///     Automatically updates the create, update and delete timestamps for all entries that utilizes the <see cref="Common.Seedwork.Entity"/> class.
-        /// </summary>
-        private void AddTimestamps()
-        {
-            var entities = ChangeTracker.Entries()
-                                        .Where(x => x.Entity is Common.Seedwork.Entity
-                                            && (x.State == EntityState.Added || x.State == EntityState.Modified || x.State == EntityState.Deleted));
-
-            foreach (var entity in entities)
-            {
-                var now = DateTime.UtcNow;
-
-                entity.Property("LastUpdatedDate").CurrentValue = now;
-
-                if (entity.State == EntityState.Added)
-                    entity.Property("CreatedDate").CurrentValue = now;
-            }
-        }
-
-        #endregion
     }
 }
