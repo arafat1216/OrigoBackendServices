@@ -5,12 +5,13 @@ namespace SubscriptionManagementServices.Models
 {
     public class CustomerOperatorSettings : Entity
     {
-        public CustomerOperatorSettings(Operator @operator, ICollection<CustomerSubscriptionProduct> subscriptionProducts, ICollection<CustomerOperatorAccount> customerOperatorAccounts)
+        public CustomerOperatorSettings(Operator @operator, ICollection<CustomerSubscriptionProduct> subscriptionProducts, ICollection<CustomerOperatorAccount> customerOperatorAccounts, CustomerStandardPrivateSubscriptionProduct? standardPrivateSubscriptionProduct)
         {
 
             Operator = @operator;
             AvailableSubscriptionProducts = subscriptionProducts;
             CustomerOperatorAccounts = customerOperatorAccounts;
+            StandardPrivateSubscriptionProduct = standardPrivateSubscriptionProduct;
         }
 
         public CustomerOperatorSettings(Operator @operator, ICollection<CustomerOperatorAccount>? customerOperatorAccounts, Guid callerId)

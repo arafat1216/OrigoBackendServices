@@ -211,12 +211,13 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
         if (customerSettings != null)
         {
-            var customersOperator = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == subscriptionOrder.OperatorName)
-                ?.AvailableSubscriptionProducts.FirstOrDefault(prod => prod.SubscriptionName == subscriptionOrder.NewSubscription);
+            var privateStandardProduct = customerSettings.CustomerOperatorSettings.
+                FirstOrDefault(o => o.Operator.OperatorName == subscriptionOrder.OperatorName && 
+                o.StandardPrivateSubscriptionProduct?.SubscriptionName == subscriptionOrder.NewSubscription);
 
-            if (customersOperator != null)
+            if (privateStandardProduct != null)
             {
-                var @operator = await _operatorRepository.GetOperatorAsync(customersOperator.Operator.Id);
+                var @operator = await _operatorRepository.GetOperatorAsync(privateStandardProduct.Operator.Id);
 
                 if (!PhoneNumberUtility.ValidatePhoneNumber(subscriptionOrder.MobileNumber, @operator?.Country ?? string.Empty))
                 {
@@ -226,7 +227,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             }
             else
             {
-                throw new CustomerSettingsException($"Customer does not have subscription product {subscriptionOrder.NewSubscription} for operator {subscriptionOrder.OperatorName} as a setting", Guid.Parse("0e1fe424-a30b-11ec-acf0-00155d8454bd"));
+                throw new CustomerSettingsException($"Customer does not have private standard subscription product {subscriptionOrder.NewSubscription} for operator {subscriptionOrder.OperatorName}.", Guid.Parse("0e1fe424-a30b-11ec-acf0-00155d8454bd"));
 
             }
         }
