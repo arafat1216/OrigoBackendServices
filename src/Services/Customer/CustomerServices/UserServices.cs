@@ -16,7 +16,7 @@ namespace CustomerServices
     {
         // ReSharper disable once NotAccessedField.Local
         private readonly ILogger<UserServices> _logger;
-        private readonly IOrganizationRepository _customerRepository;
+        private readonly IOrganizationRepository _organizationRepository;
         private readonly IOktaServices _oktaServices;
         private readonly IMapper _mapper;
         private readonly IUserPermissionServices _userPermissionServices;
@@ -25,7 +25,7 @@ namespace CustomerServices
             IOktaServices oktaServices, IMapper mapper, IUserPermissionServices userPermissionServices)
         {
             _logger = logger;
-            _customerRepository = customerRepository;
+            _organizationRepository = customerRepository;
             _oktaServices = oktaServices;
             _mapper = mapper;
             _userPermissionServices = userPermissionServices;
@@ -33,12 +33,12 @@ namespace CustomerServices
 
         public Task<int> GetUsersCountAsync(Guid customerId)
         {
-            return _customerRepository.GetUsersCount(customerId);
+            return _organizationRepository.GetUsersCount(customerId);
         }
 
         public async Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
         {
-            var allUsers = await _customerRepository.GetAllUsersAsync(customerId,cancellationToken, search, page, limit);
+            var allUsers = await _organizationRepository.GetAllUsersAsync(customerId,cancellationToken, search, page, limit);
             var list = new List<UserDTO>();
             foreach (var user in allUsers.Items)
             {
@@ -67,12 +67,12 @@ namespace CustomerServices
 
         public async Task<User> GetUserAsync(Guid customerId, Guid userId)
         {
-            return await _customerRepository.GetUserAsync(customerId, userId);
+            return await _organizationRepository.GetUserAsync(customerId, userId);
         }
 
         public async Task<UserDTO> GetUserWithRoleAsync(Guid customerId, Guid userId)
         {
-            var userDTO = _mapper.Map<UserDTO>(await _customerRepository.GetUserAsync(customerId, userId));
+            var userDTO = _mapper.Map<UserDTO>(await _organizationRepository.GetUserAsync(customerId, userId));
             if (userDTO == null)
                 return null;
             userDTO.Role = await GetRoleNameForUser(userDTO.Email);
@@ -81,7 +81,7 @@ namespace CustomerServices
 
         public async Task<UserDTO> GetUserWithRoleAsync(Guid userId)
         {
-            var userDTO = _mapper.Map<UserDTO>(await _customerRepository.GetUserAsync(userId));
+            var userDTO = _mapper.Map<UserDTO>(await _organizationRepository.GetUserAsync(userId));
             if (userDTO == null)
                 return null;
             userDTO.Role = await GetRoleNameForUser(userDTO.Email);
@@ -91,7 +91,7 @@ namespace CustomerServices
         public async Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
             string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId, string role)
         {
-            var customer = await _customerRepository.GetOrganizationAsync(customerId);
+            var customer = await _organizationRepository.GetOrganizationAsync(customerId);
             if (customer == null) throw new CustomerNotFoundException();
             if (userPreference == null || userPreference.Language == null)
             {
@@ -99,18 +99,18 @@ namespace CustomerServices
                 userPreference = new UserPreference("EN", callerId);
             }
             // Check if email address is used by another user
-            var emailInUse = await _customerRepository.GetUserByUserName(email);
+            var emailInUse = await _organizationRepository.GetUserByUserName(email);
             if (emailInUse != null)
                 throw new UserNameIsInUseException("Email address is already in use.");
 
             //Check if mobile number is used by another user
-            var mobileNumberInUse = await _customerRepository.GetUserByMobileNumber(mobileNumber);
+            var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber);
             if (mobileNumberInUse != null) throw new InvalidPhoneNumberException("Phone number already in use.");
 
             var newUser = new User(customer, Guid.NewGuid(), firstName, lastName, email, mobileNumber, employeeId,
                 userPreference, callerId);
 
-            newUser = await _customerRepository.AddUserAsync(newUser);
+            newUser = await _organizationRepository.AddUserAsync(newUser);
 
             var oktaUserId = await _oktaServices.AddOktaUserAsync(newUser.UserId, newUser.FirstName, newUser.LastName,
                 newUser.Email, newUser.MobileNumber, true);
@@ -145,7 +145,7 @@ namespace CustomerServices
             if (user == null)
                 throw new UserNotFoundException($"Unable to find {userId}");
             user.ActivateUser(oktaUserId, callerId);
-            await _customerRepository.SaveEntitiesAsync();
+            await _organizationRepository.SaveEntitiesAsync();
             return user;
         }
 
@@ -199,7 +199,7 @@ namespace CustomerServices
             userDTO = _mapper.Map<UserDTO>(user);
             userDTO.Role = role;
 
-            await _customerRepository.SaveEntitiesAsync();
+            await _organizationRepository.SaveEntitiesAsync();
             return userDTO;
         }
 
@@ -216,7 +216,7 @@ namespace CustomerServices
             if (email != default && user.Email?.ToLower().Trim() != email?.ToLower().Trim())
             {
                 // Check if email address is used by another user
-                var username = await _customerRepository.GetUserByUserName(email);
+                var username = await _organizationRepository.GetUserByUserName(email);
                 if (username != null && username.Id != user.Id)
                     throw new UserNameIsInUseException("Email address is already in use.");
                 user.ChangeEmailAddress(email, callerId);
@@ -225,7 +225,7 @@ namespace CustomerServices
             if (mobileNumber != default && user.MobileNumber?.Trim() != mobileNumber?.Trim())
             {
                 // Check if mobile address is used by another user
-                var mobileNumberInUse = await _customerRepository.GetUserByMobileNumber(mobileNumber);
+                var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber);
                 if (mobileNumberInUse != null) throw new InvalidPhoneNumberException("Phone number already in use.");
                 user.ChangeMobileNumber(mobileNumber, callerId);
             }
@@ -241,7 +241,7 @@ namespace CustomerServices
 
             userDTO.Role = role;
 
-            await _customerRepository.SaveEntitiesAsync();
+            await _organizationRepository.SaveEntitiesAsync();
             return userDTO;
         }
 
@@ -259,7 +259,7 @@ namespace CustomerServices
             if (email != default && user.Email?.ToLower().Trim() != email?.ToLower().Trim())
             {
                 // Check if email address is used by another user
-                var username = await _customerRepository.GetUserByUserName(email);
+                var username = await _organizationRepository.GetUserByUserName(email);
                 if (username != null && username.Id != user.Id)
                     throw new UserNameIsInUseException("Email address is already in use.");
             }
@@ -268,7 +268,7 @@ namespace CustomerServices
             if (mobileNumber != default && user.MobileNumber?.Trim() != mobileNumber?.Trim())
             {
                 // Check if mobile address is used by another user
-                var mobileNumberInUse = await _customerRepository.GetUserByMobileNumber(mobileNumber);
+                var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber);
                 if (mobileNumberInUse != null) throw new InvalidPhoneNumberException("Phone number already in use.");
             }
             user.ChangeMobileNumber(mobileNumber, callerId);
@@ -285,13 +285,13 @@ namespace CustomerServices
 
             userDTO.Role = role;
 
-            await _customerRepository.SaveEntitiesAsync();
+            await _organizationRepository.SaveEntitiesAsync();
             return userDTO;
         }
 
         public async Task<UserDTO> DeleteUserAsync(Guid customerId, Guid userId, Guid callerId, bool softDelete = true)
         {
-            var user = await _customerRepository.GetUserAsync(userId);
+            var user = await _organizationRepository.GetUserAsync(userId);
             
             if (!softDelete)
                 throw new UserDeletedException();
@@ -301,7 +301,7 @@ namespace CustomerServices
             user.UnAssignAllDepartments(customerId);
             
             user.SetDeleteStatus(true, callerId);
-            await _customerRepository.SaveEntitiesAsync();
+            await _organizationRepository.SaveEntitiesAsync();
 
             //Get the users role and assign it to the users DTO
             UserDTO userDTO = _mapper.Map<UserDTO>(user);
@@ -312,7 +312,7 @@ namespace CustomerServices
         public async Task<UserDTO> AssignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
             var user = await GetUserAsync(customerId, userId);
-            var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
+            var department = await _organizationRepository.GetDepartmentAsync(customerId, departmentId);
             if (user == null || department == null)
                 return null;
             user.AssignDepartment(department, callerId);
@@ -321,14 +321,14 @@ namespace CustomerServices
             UserDTO userDTO = _mapper.Map<UserDTO>(user);
             userDTO.Role = await GetRoleNameForUser(user.Email);
 
-            await _customerRepository.SaveEntitiesAsync();
+            await _organizationRepository.SaveEntitiesAsync();
             return userDTO;
         }
 
         public async Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
             var user = await GetUserAsync(customerId, userId);
-            var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
+            var department = await _organizationRepository.GetDepartmentAsync(customerId, departmentId);
             if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
             if (department == null)
             {
@@ -336,13 +336,13 @@ namespace CustomerServices
             }
 
             user.AssignManagerToDepartment(department, callerId);
-            await _customerRepository.SaveEntitiesAsync();
+            await _organizationRepository.SaveEntitiesAsync();
         }
 
         public async Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
             var user = await GetUserAsync(customerId, userId);
-            var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
+            var department = await _organizationRepository.GetDepartmentAsync(customerId, departmentId);
             if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
             if (department == null)
             {
@@ -350,13 +350,13 @@ namespace CustomerServices
             }
 
             user.UnassignManagerFromDepartment(department, callerId);
-            await _customerRepository.SaveEntitiesAsync();
+            await _organizationRepository.SaveEntitiesAsync();
         }
 
         public async Task<UserDTO> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
             var user = await GetUserAsync(customerId, userId);
-            var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
+            var department = await _organizationRepository.GetDepartmentAsync(customerId, departmentId);
             if (user == null || department == null)
                 return null;
             user.UnassignDepartment(department, callerId);
@@ -365,7 +365,7 @@ namespace CustomerServices
             UserDTO userDTO = _mapper.Map<UserDTO>(user);
             userDTO.Role = await GetRoleNameForUser(user.Email);
 
-            await _customerRepository.SaveEntitiesAsync();
+            await _organizationRepository.SaveEntitiesAsync();
             return userDTO;
         }
     }

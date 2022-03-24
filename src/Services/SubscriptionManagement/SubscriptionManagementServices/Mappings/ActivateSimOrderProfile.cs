@@ -9,6 +9,7 @@ namespace SubscriptionManagementServices.Mappings
         public ActivateSimOrderProfile()
         {
             CreateMap<ActivateSimOrder, ActivateSimOrderDTO>();
+            CreateMap<ActivateSimOrder, ActivateSimOrderDTOResponse>();
         }
     }
 }

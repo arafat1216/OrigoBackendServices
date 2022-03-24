@@ -486,5 +486,26 @@ namespace SubscriptionManagement.API.Controllers
 
             return Ok(deletedSubscriptionProducts);
         }
+
+        /// <summary>
+        /// Gets a detailed view for a subscription order for a customer
+        /// </summary>
+        /// <param name="organizationId">Customer identifier</param>
+        /// <param name="OrderId">Order identifier</param>
+        /// <param name="orderType">Order type/param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{organizationId:Guid}/subscription-orders-detail-view/{OrderId:Guid}/{orderType:int}")]
+        [ProducesResponseType(typeof(DetailViewSubscriptionOrderLog), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [SwaggerOperation(Tags = new[] { "Subscription Orders" })]
+        public async Task<ActionResult<DetailViewSubscriptionOrderLog>> GetDetailViewSubscriptionOrderLog(Guid organizationId,Guid orderId, int orderType)
+        {
+
+            var subscriptionProducts = await _subscriptionServices.GetDetailViewSubscriptionOrderLogAsync(organizationId, orderId, orderType);
+
+            return Ok(subscriptionProducts);
+        }
+       
     }
 }

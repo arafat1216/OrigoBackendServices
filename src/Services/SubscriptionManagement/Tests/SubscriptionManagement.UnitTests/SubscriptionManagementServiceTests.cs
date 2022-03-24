@@ -420,7 +420,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new TransferToBusinessSubscriptionOrderDTO
                 {
                     
-                    OrderExecutionDate = DateTime.Parse("2022-03-25T00:00:00.000Z"),
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
                     OperatorAccountId = 1,
                     PrivateSubscription = new PrivateSubscriptionDTO
                     {
@@ -517,7 +517,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new NewSubscriptionOrderRequestDTO
                 {
 
-                    OrderExecutionDate = DateTime.Parse("2022-03-25T00:00:00.000Z"),
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
                     OperatorAccountId = 1,
                     PrivateSubscription = new PrivateSubscriptionDTO
                     {
