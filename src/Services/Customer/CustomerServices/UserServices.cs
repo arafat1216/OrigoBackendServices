@@ -91,7 +91,7 @@ namespace CustomerServices
         public async Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
             string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId, string role)
         {
-            var customer = await _organizationRepository.GetOrganizationAsync(customerId);
+            var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
             if (customer == null) throw new CustomerNotFoundException();
             if (userPreference == null || userPreference.Language == null)
             {

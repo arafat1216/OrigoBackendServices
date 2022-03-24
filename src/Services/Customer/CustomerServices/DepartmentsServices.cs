@@ -30,7 +30,7 @@ namespace CustomerServices
 
         public async Task<Department> AddDepartmentAsync(Guid customerId, Guid newDepartmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, Guid callerId)
         {
-            var customer = await _customerRepository.GetOrganizationAsync(customerId);
+            var customer = await _customerRepository.GetOrganizationAsync(customerId, includeDepartments: true);
             if (customer == null)
             {
                 throw new CustomerNotFoundException();
@@ -46,7 +46,7 @@ namespace CustomerServices
 
         public async Task<Department> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, Guid callerId)
         {
-            var customer = await _customerRepository.GetOrganizationAsync(customerId);
+            var customer = await _customerRepository.GetOrganizationAsync(customerId, includeDepartments: true);
             if (customer == null)
             {
                 throw new CustomerNotFoundException();
@@ -58,10 +58,10 @@ namespace CustomerServices
             {
                 return null;
             }
-           
+
             customer.ChangeDepartmentName(departmentToUpdate, name, callerId);
             customer.ChangeDepartmentCostCenterId(departmentToUpdate, costCenterId, callerId);
-            customer.ChangeDepartmentDescription(departmentToUpdate, description,callerId);
+            customer.ChangeDepartmentDescription(departmentToUpdate, description, callerId);
 
             if (!departmentToUpdate.HasSubdepartment(parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
             {
@@ -74,7 +74,7 @@ namespace CustomerServices
 
         public async Task<Department> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, Guid callerId)
         {
-            var customer = await _customerRepository.GetOrganizationAsync(customerId);
+            var customer = await _customerRepository.GetOrganizationAsync(customerId, includeDepartments: true);
             if (customer == null)
             {
                 throw new CustomerNotFoundException();
@@ -109,7 +109,7 @@ namespace CustomerServices
 
         public async Task<Department> DeleteDepartmentAsync(Guid customerId, Guid departmentId, Guid callerId)
         {
-            var customer = await _customerRepository.GetOrganizationAsync(customerId);
+            var customer = await _customerRepository.GetOrganizationAsync(customerId, includeDepartments: true);
             if (customer == null)
             {
                 throw new CustomerNotFoundException();
@@ -121,7 +121,7 @@ namespace CustomerServices
             var departmentsToDelete = department.Subdepartments(departments);
             foreach (var deleteDepartment in departmentsToDelete)
             {
-                customer.RemoveDepartment(deleteDepartment,callerId);
+                customer.RemoveDepartment(deleteDepartment, callerId);
             }
             await _customerRepository.DeleteDepartmentsAsync(departmentsToDelete);
             return department;
