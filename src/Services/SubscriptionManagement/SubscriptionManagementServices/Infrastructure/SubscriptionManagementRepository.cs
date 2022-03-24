@@ -92,5 +92,66 @@ namespace SubscriptionManagementServices.Infrastructure
             var numberOfRecords = await SaveEntitiesAsync();
             return (T)added.Entity;
         }
+
+        public async Task<OrderSimSubscriptionOrder> GetOrderSimOrder(Guid subscriptionOrder)
+        {
+            var order = await _subscriptionManagementContext.OrderSimSubscriptionOrders
+                .FirstOrDefaultAsync(s => s.SubscriptionOrderId == subscriptionOrder);
+
+            return order ?? throw new ArgumentException($"Can't find the order with id: {subscriptionOrder}");
+        }
+        public async Task<ActivateSimOrder> GetActivateSimOrder(Guid subscriptionOrder)
+        {
+            var order = await _subscriptionManagementContext.ActivateSimOrders
+                .FirstOrDefaultAsync(s => s.SubscriptionOrderId == subscriptionOrder);
+
+            return order ?? throw new ArgumentException($"Can't find the order with id: {subscriptionOrder}");
+        }
+
+        public async Task<TransferToBusinessSubscriptionOrder> GetTransferToBusinessOrder(Guid subscriptionOrder)
+        {
+            var order = await _subscriptionManagementContext.TransferSubscriptionOrders
+                .Include(p => p.PrivateSubscription)
+                .Include(b => b.BusinessSubscription)
+                .Include(a => a.SubscriptionAddOnProducts)
+                .FirstOrDefaultAsync(s => s.SubscriptionOrderId == subscriptionOrder);
+
+            return order ?? throw new ArgumentException($"Can't find the order with id: {subscriptionOrder}");
+        }
+
+        public async Task<TransferToPrivateSubscriptionOrder> GetTransferToPrivateOrder(Guid subscriptionOrder)
+        {
+            var order = await _subscriptionManagementContext.TransferToPrivateSubscriptionOrders
+                .Include(p => p.UserInfo)
+                .FirstOrDefaultAsync(s => s.SubscriptionOrderId == subscriptionOrder);
+
+            return order ?? throw new ArgumentException($"Can't find the order with id: {subscriptionOrder}");
+        }
+        public async Task<NewSubscriptionOrder> GetNewSubscriptionOrder(Guid subscriptionOrder)
+        {
+            var order = await _subscriptionManagementContext.NewSubscriptionOrders
+                .Include(p => p.PrivateSubscription)
+                .Include(b => b.BusinessSubscription)
+                .Include(a => a.SubscriptionAddOnProducts)
+                .FirstOrDefaultAsync(s => s.SubscriptionOrderId == subscriptionOrder);
+
+            return order ?? throw new ArgumentException($"Can't find the order with id: {subscriptionOrder}");
+        }
+
+        public async Task<ChangeSubscriptionOrder> GetChangeSubscriptionOrder(Guid subscriptionOrder)
+        {
+            var order = await _subscriptionManagementContext.ChangeSubscriptionOrder
+               .FirstOrDefaultAsync(s => s.SubscriptionOrderId == subscriptionOrder);
+
+            return order ?? throw new ArgumentException($"Can't find the order with id: {subscriptionOrder}");
+        }
+
+        public async Task<CancelSubscriptionOrder> GetCancelSubscriptionOrder(Guid subscriptionOrder)
+        {
+            var order = await _subscriptionManagementContext.CancelSubscriptionOrders
+                .FirstOrDefaultAsync(s => s.SubscriptionOrderId == subscriptionOrder);
+            
+            return order ?? throw new ArgumentException($"Can't find the order with id: {subscriptionOrder}");
+        }
     }
 }

@@ -1,26 +1,25 @@
 ﻿namespace SubscriptionManagementServices.ServiceModels
 {
-    public class TransferToPrivateSubscriptionOrderDTO
+    public class TransferToPrivateSubscriptionOrderDTOResponse
     {
-        public TransferToPrivateSubscriptionOrderDTO()
+        public TransferToPrivateSubscriptionOrderDTOResponse()
         {
         }
 
-        public TransferToPrivateSubscriptionOrderDTO(TransferToPrivateSubscriptionOrderDTO DTO)
+        public TransferToPrivateSubscriptionOrderDTOResponse(TransferToPrivateSubscriptionOrderDTOResponse DTO)
         {
             PrivateSubscription = DTO.PrivateSubscription;
             MobileNumber = DTO.MobileNumber;
             OperatorName = DTO.OperatorName;
-            NewSubscription = DTO.NewSubscription;
+            NewSubscriptionName = DTO.NewSubscriptionName;
             OrderExecutionDate = DTO.OrderExecutionDate;
-            CallerId = DTO.CallerId;
+            
         }
 
         public PrivateSubscriptionDTO PrivateSubscription { get; set; }
         public string MobileNumber { get; set; }
         public string OperatorName { get; set; }
-        public string NewSubscription { get; set; }
+        public string NewSubscriptionName { get; set; }
         public DateTime OrderExecutionDate { get; set; }
-        public Guid CallerId { get; set; }
     }
 }

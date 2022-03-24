@@ -9,6 +9,7 @@ namespace SubscriptionManagementServices.Mappings
         public CancelSubscriptionOrderProfile()
         {
             CreateMap<CancelSubscriptionOrder, CancelSubscriptionOrderDTO>();
+            CreateMap<CancelSubscriptionOrder, CancelSubscriptionOrderDTOResponse>();
         }
     }
 }

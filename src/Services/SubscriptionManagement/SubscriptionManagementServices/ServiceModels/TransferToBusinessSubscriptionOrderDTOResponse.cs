@@ -4,6 +4,27 @@ namespace SubscriptionManagementServices.ServiceModels
 {
     public class TransferToBusinessSubscriptionOrderDTOResponse
     {
+        public TransferToBusinessSubscriptionOrderDTOResponse()
+        {
+        }
+
+        public TransferToBusinessSubscriptionOrderDTOResponse(TransferToBusinessSubscriptionOrderDTOResponse DTO)
+        {
+            PrivateSubscription = DTO.PrivateSubscription;
+            BusinessSubscription = DTO.BusinessSubscription;
+            MobileNumber = DTO.MobileNumber;
+            OperatorName = DTO.OperatorName;
+            SubscriptionProductName = DTO.SubscriptionProductName;
+            DataPackage = DTO.DataPackage;
+            SIMCardNumber = DTO.SIMCardNumber;
+            SIMCardAction = DTO.SIMCardAction;
+            OrderExecutionDate = DTO.OrderExecutionDate;
+            AddOnProducts = DTO.AddOnProducts;
+            CustomerReferenceFields = DTO.CustomerReferenceFields;
+            NewOperatorAccount = DTO.NewOperatorAccount;
+            CallerId = DTO.CallerId;
+        }
+
         /// <summary>
         /// The current owner the subscription will be transferred from.
         /// </summary>

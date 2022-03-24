@@ -473,4 +473,66 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         await _emailService.SendAsync(newSubscription.OrderType, subscriptionOrder.SubscriptionOrderId, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName }, { "SubscriptionProductName", newSubscription.SubscriptionProductName } });
         return _mapper.Map<NewSubscriptionOrderDTO>(subscriptionOrder);
     }
+
+    public async Task<DetailViewSubscriptionOrderLog> GetDetailViewSubscriptionOrderLogAsync(Guid organizationId, Guid orderId, int orderType)
+    {
+        DetailViewSubscriptionOrderLog detailViewSubscriptionOrder;
+
+        switch (orderType)
+        {
+            //OrderSim
+            case 1:
+                var orderSim = await _subscriptionManagementRepository.GetOrderSimOrder(orderId);
+                var mappedOrderSim =  _mapper.Map<OrderSimSubscriptionOrderDTO>(orderSim);
+                detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedOrderSim);
+                break;
+
+            //ActivateSimCard
+            case 2:
+                var activateSim = await _subscriptionManagementRepository.GetActivateSimOrder(orderId);
+                var mappedactivateSim = _mapper.Map<ActivateSimOrderDTOResponse>(activateSim);
+                detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedactivateSim);
+                break;
+
+            //TransferToBusiness
+            case 3:
+                var transferToBusiness = await _subscriptionManagementRepository.GetTransferToBusinessOrder(orderId);
+                var mappedT2B = _mapper.Map<TransferToBusinessSubscriptionOrderDTOResponse>(transferToBusiness);
+                detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedT2B);
+                break;
+
+            //TransferToPrivate
+            case 4:
+                var transferToPrivate = await _subscriptionManagementRepository.GetTransferToPrivateOrder(orderId);
+                var mappedT2P = _mapper.Map<TransferToPrivateSubscriptionOrderDTOResponse>(transferToPrivate);
+                detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedT2P);
+                break;
+
+            //New Subscription
+            case 5:
+                var newSubscription = await _subscriptionManagementRepository.GetNewSubscriptionOrder(orderId);
+                var mappedNewSubscription = _mapper.Map<NewSubscriptionOrderDTO>(newSubscription);
+                detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedNewSubscription);
+                break;
+
+            //ChangeSubscription
+            case 6:
+                var changeSubscription = await _subscriptionManagementRepository.GetChangeSubscriptionOrder(orderId);
+                var mappedChangeSubscription = _mapper.Map<ChangeSubscriptionOrderDTO>(changeSubscription);
+                detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedChangeSubscription);
+                break;
+
+            //CancelSubscription - operator id does not map
+            case 7:
+                var cancelSubscription = await _subscriptionManagementRepository.GetCancelSubscriptionOrder(orderId);
+                var mappedCancelSubscription = _mapper.Map<CancelSubscriptionOrderDTOResponse>(cancelSubscription);
+                detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedCancelSubscription);
+                break;
+ 
+            default:
+                throw new ArgumentOutOfRangeException("Could not find ordertype");
+                
+        }
+        return detailViewSubscriptionOrder;
+    }
 }
