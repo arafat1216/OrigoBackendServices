@@ -83,38 +83,11 @@ namespace AssetServices.Infrastructure
                     .PaginateAsync(page, limit, cancellationToken);
         }
 
-        public Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList)
+        public async Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList)
         {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IList<Asset>> GetAssetsFromListAsync(Guid customerId, IList<Guid> assetGuidList)
-        {
-            //if (assetGuidList.Any())
-            //{
-            //    var temp = await _assetContext.HardwareAsset
-            //        .Include(a => a.AssetCategory)
-            //        .ThenInclude(c => c.Translations)
-            //        .Include(b => b.AssetLabels.Where(c => (!c.IsDeleted)))
-            //        .ThenInclude(b => b.Label)
-            //        .Where(a => (a.CustomerId == customerId && assetGuidList.Contains(a.ExternalId))).ToListAsync();
-
-            //    IList<Asset> result = new List<Asset>();
-            //    foreach (var asset in temp)
-            //    {
-            //        // should not be necessary...
-            //        foreach (AssetLifecycleLabel al in asset.AssetLabels)
-            //        {
-            //            if (al.IsDeleted || al.Label.IsDeleted)
-            //            {
-            //                asset.AssetLabels.Remove(al);
-            //            }
-            //        }
-            //        result.Add(asset);
-            //    }
-            //    return result;
-            //}
-            return null;
+            return await _assetContext.AssetLifeCycles.Include(al => al.Asset)
+                .Include(al => al.Labels)
+                .Where(al => assetGuidList.Contains(al.ExternalId)).ToListAsync();
         }
 
         public async Task<IList<CustomerLabel>> AddCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
@@ -190,7 +163,6 @@ namespace AssetServices.Infrastructure
         {
             return await _assetContext.Users.FirstOrDefaultAsync(u => u.ExternalId == userId);
         }
-
 
         public async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
         {

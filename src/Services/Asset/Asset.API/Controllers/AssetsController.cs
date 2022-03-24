@@ -295,7 +295,7 @@ namespace Asset.API.Controllers
         public async Task<ActionResult<ViewModels.Asset>> Get(Guid customerId, Guid assetId)
         {
             var assetLifecycle = await _assetServices.GetAssetLifecyclesForCustomerAsync(customerId, assetId);
-            return Ok(assetLifecycle);
+            return Ok(_mapper.Map<ViewModels.Asset>(assetLifecycle));
         }
 
         [Route("customers/{customerId:guid}")]

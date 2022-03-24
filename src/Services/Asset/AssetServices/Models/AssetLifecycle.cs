@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AssetServices.DomainEvents;
 using AssetServices.DomainEvents.AssetLifecycleEvents;
 using Common.Enums;
 using Common.Seedwork;
@@ -117,6 +116,16 @@ public class AssetLifecycle : Entity, IAggregateRoot
 
     private readonly List<CustomerLabel> _labels = new();
 
+    public AssetLifecycle(Guid externalId)
+    {
+        ExternalId = externalId;
+    }
+
+    public AssetLifecycle()
+    {
+        
+    }
+
     /// <summary>
     /// All labels associated with this asset lifecycle.
     /// </summary>
@@ -200,5 +209,14 @@ public class AssetLifecycle : Entity, IAggregateRoot
         LastUpdatedDate = DateTime.UtcNow;
         _assetLifecycleType = lifecycleType;
         AddDomainEvent(new AssignLifecycleTypeToAssetLifecycleDomainEvent(this, callerId, lifecycleType));
+    }
+
+    public void UpdateAssetStatus(AssetLifecycleStatus lifecycleStatus, Guid callerId)
+    {
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        var previousLifecycleStatus = _assetLifecycleStatus;
+        _assetLifecycleStatus = lifecycleStatus;
+        AddDomainEvent(new AssignLifecycleStatusToAssetLifecycleDomainEvent(this, callerId, previousLifecycleStatus));
     }
 }

@@ -62,19 +62,6 @@ namespace AssetServices
             }
         }
 
-        public async Task<IList<AssetLifecycleDTO>> GetAssetLifecyclesForCustomerFromListAsync(Guid customerId, IList<Guid> assetGuids)
-        {
-            try
-            {
-                var assetLifecyclesFromList = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids);
-                return _mapper.Map<IList<AssetLifecycleDTO>>( assetLifecyclesFromList);
-            }
-            catch (Exception exception)
-            {
-                throw new ReadingDataException(exception);
-            }
-        }
-
         public async Task<AssetLifecycleDTO?> GetAssetLifecyclesForCustomerAsync(Guid customerId, Guid assetId)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
@@ -199,60 +186,44 @@ namespace AssetServices
 
         public async Task<IList<AssetLifecycleDTO>> AssignLabelsToAssetsAsync(Guid customerId, Guid callerId, IList<Guid> assetGuids, IList<Guid> labelGuids)
         {
-            //try
-            //{
-            //    IList<Asset> assets = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids);
-            //    if (assets == null || assets.Count == 0)
-            //    {
-            //        throw new ResourceNotFoundException("No assets were found using the given AssetIds. Did you enter the correct customer Id?", _logger);
-            //    }
+            try
+            {
+                var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids);
+                if (assetLifecycles == null || assetLifecycles.Count == 0)
+                {
+                    throw new ResourceNotFoundException("No assets were found using the given AssetIds. Did you enter the correct customer Id?", _logger);
+                }
 
-            //    IList <CustomerLabel> customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelGuids);
-            //    if (customerLabels == null)
-            //    {
-            //        throw new ResourceNotFoundException("No labels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
-            //    }
+                var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelGuids);
+                if (customerLabels == null)
+                {
+                    throw new ResourceNotFoundException("No labels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
+                }
 
-            //    foreach(Asset asset in assets)
-            //    {
-            //        await AssignLabelsToAssetAsync(asset, customerLabels, callerId);
-            //    }
+                foreach (var assetLifecycle in assetLifecycles)
+                {
+                    foreach (var customerLabel in customerLabels)
+                    {
+                        if (assetLifecycle.Labels.All(l => l.ExternalId != customerLabel.ExternalId))
+                        {
+                            assetLifecycle.AssignCustomerLabel(customerLabel, callerId);
+                        }
+                    }
+                }
 
-            //    return assets;
-            //}
-            //catch (ResourceNotFoundException)
-            //{
-            //    throw; // no need to log same exception again
-            //}
-            //catch (Exception ex)
-            //{
-            //    _logger.LogError(ex, "Unknown error. Unable to assign given labels to assets.");
-            //    throw;
-            //}
-            return new List<AssetLifecycleDTO>();
-        }
+                await _assetLifecycleRepository.SaveEntitiesAsync();
 
-        public async Task AssignLabelsToAssetAsync(Asset asset, IList<CustomerLabel> customerLabels, Guid callerId)
-        {
-            //IList<AssetLifecycleLabel> newLabels = new List<AssetLifecycleLabel>();
-            //foreach (CustomerLabel customerLabel in customerLabels)
-            //{
-            //    if (customerLabel.IsDeleted == false)
-            //    {
-            //        var assetLabel = await _assetLifecycleRepository.GetAssetLabelForAssetAsync(asset.Id, customerLabel.Id);
-            //        if (assetLabel == null)
-            //        {
-            //            newLabels.Add(new AssetLifecycleLabel(asset.Id, customerLabel.Id, callerId));
-            //        }
-            //        else if (assetLabel.IsDeleted == true)
-            //        {
-            //            assetLabel.SetActiveStatus(callerId, false);
-            //        }
-            //        // else, label already assigned
-            //    }
-            //}
-
-            //await _assetLifecycleRepository.AddAssetLabelsForAsset(newLabels);
+                return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecycles);
+            }
+            catch (ResourceNotFoundException)
+            {
+                throw; // no need to log same exception again
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unknown error. Unable to assign given labels to assets.");
+                throw;
+            }
         }
 
         public async Task<IList<AssetLifecycleDTO>> UnAssignLabelsToAssetsAsync(Guid customerId, Guid callerId, IList<Guid> assetGuids, IList<Guid> labelGuids)
@@ -415,16 +386,9 @@ namespace AssetServices
                 return new List<AssetLifecycleDTO>();
             }
 
-            foreach (AssetLifecycle asset in assetLifecycles)
+            foreach (var assetLifecycle in assetLifecycles)
             {
-
-                //asset.UpdateAssetStatus(status, callerId);
-
-                //if (asset.LifecycleType != LifecycleType.NoLifecycle || asset.AssetCategory == null || String.IsNullOrWhiteSpace(asset.ExternalId.ToString()))
-                //{
-                //    asset.UpdateAssetStatus(AssetStatus.InputRequired, callerId);
-                //}
-
+                assetLifecycle.UpdateAssetStatus(lifecycleStatus, callerId);
             }
 
             await _assetLifecycleRepository.SaveEntitiesAsync();

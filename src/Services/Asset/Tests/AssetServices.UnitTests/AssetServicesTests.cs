@@ -105,8 +105,8 @@ namespace AssetServices.UnitTests
             Assert.Equal("alias_2", updatedAssetsLifecycles[1].Alias);
             Assert.Equal("alias_3", updatedAssetsLifecycles[2].Alias);
             Assert.Equal(AssetLifecycleStatus.Active, updatedAssetsLifecycles[0].AssetLifecycleStatus);
-            Assert.Equal(AssetLifecycleStatus.InputRequired, updatedAssetsLifecycles[1].AssetLifecycleStatus);
-            Assert.Equal(AssetLifecycleStatus.InputRequired, updatedAssetsLifecycles[2].AssetLifecycleStatus);
+            Assert.Equal(AssetLifecycleStatus.Active, updatedAssetsLifecycles[1].AssetLifecycleStatus);
+            Assert.Equal(AssetLifecycleStatus.Active, updatedAssetsLifecycles[2].AssetLifecycleStatus);
         }
 
         [Fact]
@@ -421,7 +421,7 @@ namespace AssetServices.UnitTests
                 labelGuids.Add(label.ExternalId);
             }
 
-            var assetLifecycle = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, ASSET_THREE_ID);
+            var assetLifecycle = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_THREE_ID);
             IList<Guid> assetGuids = new List<Guid>
             {
                 assetLifecycle.ExternalId
@@ -450,7 +450,7 @@ namespace AssetServices.UnitTests
                 labelGuids.Add(label.ExternalId);
             }
 
-            var assetLifecycle = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, ASSET_THREE_ID);
+            var assetLifecycle = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_THREE_ID);
             IList<Guid> assetGuids = new List<Guid>
             {
                 assetLifecycle.ExternalId
