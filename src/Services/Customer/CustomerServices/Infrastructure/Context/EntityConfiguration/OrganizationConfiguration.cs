@@ -1,5 +1,6 @@
 ﻿using CustomerServices.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CustomerServices.Infrastructure.Context.EntityConfiguration
@@ -9,16 +10,36 @@ namespace CustomerServices.Infrastructure.Context.EntityConfiguration
     /// </summary>
     internal class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
     {
+        private readonly bool _isSqlLite;
+
+        public OrganizationConfiguration(bool isSqlLite)
+        {
+            _isSqlLite = isSqlLite;
+        }
+
         public void Configure(EntityTypeBuilder<Organization> builder)
         {
             builder.ToTable("Organization");
+
+            builder.HasAlternateKey(e => e.OrganizationId);
 
             /*
              * Properties
              */
 
-            builder.Property(s => s.LastUpdatedDate)
-                   .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Property(e => e.CreatedDate)
+                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "GETUTCDATE()")
+                   .ValueGeneratedOnAdd()
+                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+
+            builder.Property(e => e.LastUpdatedDate)
+                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "GETUTCDATE()")
+                   .ValueGeneratedOnAddOrUpdate();
+
+            builder.Property(e => e.OrganizationId)
+                   .HasDefaultValueSql("NEWID()")
+                   .ValueGeneratedOnAdd()
+                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
         }
     }
 }

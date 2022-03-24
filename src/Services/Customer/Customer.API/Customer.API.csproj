@@ -24,4 +24,8 @@
     <ProjectReference Include="..\CustomerServices\CustomerServices.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="WriteModels\" />
+  </ItemGroup>
+
 </Project>
