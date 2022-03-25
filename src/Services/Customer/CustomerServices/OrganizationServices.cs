@@ -64,7 +64,7 @@ namespace CustomerServices
             return await _organizationRepository.GetOrganizationsAsync(whereFilter: entity => entity.ParentId == parentId);
         }
 
-        public async Task<Organization> GetOrganizationAsync(Guid customerId)
+        public async Task<Organization?> GetOrganizationAsync(Guid customerId)
         {
             return await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
         }
@@ -81,7 +81,7 @@ namespace CustomerServices
             var organization = onlyCustomer ? await _organizationRepository.GetCustomerAsync(customerId)
                                             : await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
 
-            if (organization != null)
+            if (organization is not null)
             {
                 if (includePreferences)
                 {
@@ -96,7 +96,7 @@ namespace CustomerServices
             return organization;
         }
 
-        public async Task<Organization> GetCustomerAsync(Guid customerId)
+        public async Task<Organization?> GetCustomerAsync(Guid customerId)
         {
             return await _organizationRepository.GetCustomerAsync(customerId);
         }
@@ -111,15 +111,45 @@ namespace CustomerServices
             return await _organizationRepository.GetOrganizationUserCountsAsync();
         }
 
-        /// <summary>
-        /// Add the given Organization to the database.
-        /// </summary>
-        /// <param name="newOrganization">An Organization entity, to be added to the database</param>
-        /// <returns></returns>
+
         public async Task<Organization> AddOrganizationAsync(Organization newOrganization)
         {
+            // If it has a parent, make sure it exist!
+            if (newOrganization.ParentId != null)
+            {
+                var parentOrganization = await GetOrganizationAsync((Guid)newOrganization.ParentId);
+
+                if (parentOrganization == null)
+                    throw new CustomerNotFoundException("The parent organization was not found.");
+                if (parentOrganization.ParentId != null)
+                    throw new ArgumentException("The parent is not valid. All parent-organizations must be top-level organizations, and cannot have other parent.");
+            }
+
+            // Make sure we don't add an already existing organization-number.
+            if (await GetOrganizationByOrganizationNumberAsync(newOrganization.OrganizationNumber) != null)
+                throw new DuplicateException($"A organization with the provided organization-number already exist.");
+
+            // Handle locations
+            if (newOrganization.Location is null && newOrganization.PrimaryLocation is null)
+            {
+                throw new ArgumentException($"No location have been provided. Provide one of the following: {nameof(newOrganization.Location)} or {nameof(newOrganization.PrimaryLocation)}.");
+            }
+            else if (newOrganization.Location is not null && newOrganization.PrimaryLocation is not null)
+            {
+                throw new DuplicateException($"Only one of the following should be provided: {nameof(newOrganization.Location)} or {nameof(newOrganization.PrimaryLocation)}.");
+            }
+            else if (newOrganization.PrimaryLocation != null)
+            {
+                var location = await _organizationRepository.GetOrganizationLocationAsync(newOrganization.PrimaryLocation);
+            }
+
+
+
             return await _organizationRepository.AddAsync(newOrganization);
+
+
         }
+
 
         public async Task<Organization> PutOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
                                                                string street, string postCode, string city, string country,
@@ -129,7 +159,7 @@ namespace CustomerServices
             {
                 // Check id
                 var organizationOriginal = await GetOrganizationAsync(organizationId, true, true);
-                if (organizationOriginal == null)
+                if (organizationOriginal is null)
                     throw new CustomerNotFoundException("Organization with the given id was not found.");
 
                 // Check parent
@@ -139,21 +169,21 @@ namespace CustomerServices
                 // string fields
                 if (name == null || name == string.Empty)
                     throw new RequiredFieldIsEmptyException("The name field is required and cannot be one of: (null || string.Empty). Null is allowed for patch queries.");
-                organizationNumber = (organizationNumber == null) ? "" : organizationNumber;
+                organizationNumber = (organizationNumber is null) ? "" : organizationNumber;
 
                 // Check organizationNumber
                 var organizationFromOrgNumber = await GetOrganizationByOrganizationNumberAsync(organizationNumber);
-                if (organizationFromOrgNumber != null && organizationFromOrgNumber.OrganizationId != organizationOriginal.OrganizationId)
+                if (organizationFromOrgNumber is not null && organizationFromOrgNumber.OrganizationId != organizationOriginal.OrganizationId)
                     throw new InvalidOrganizationNumberException($"Organization numbers must be unique. An Organization with organization number {organizationNumber} already exists.");
 
                 // PrimaryLocation
                 Location newLocation;
-                if (primaryLocation == null || primaryLocation == Guid.Empty)
+                if (primaryLocation is null || primaryLocation == Guid.Empty)
                     newLocation = new Location(Guid.Empty, callerId, "", "", "", "", "", "", "");
                 else
                 {
                     newLocation = await GetLocationAsync((Guid)primaryLocation);
-                    if (newLocation == null)
+                    if (newLocation is null)
                         throw new LocationNotFoundException();
                 }
 
@@ -323,6 +353,10 @@ namespace CustomerServices
             try
             {
                 var organization = await _organizationRepository.GetOrganizationAsync(updateOrganization.OrganizationId, includeDepartments: true);
+
+                if (organization is null)
+                    throw new CustomerNotFoundException();
+
                 if (usingPatch)
                 {
                     organization.PatchOrganization(updateOrganization);
@@ -349,7 +383,7 @@ namespace CustomerServices
             {
                 var organization = await _organizationRepository.GetOrganizationAsync(organizationId, includeDepartments: true);
 
-                if (organization == null)
+                if (organization is null)
                     throw new CustomerNotFoundException();
 
                 if (organization.IsDeleted && !hardDelete)
@@ -386,11 +420,13 @@ namespace CustomerServices
             try
             {
                 var preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organizationId);
-                if (preferences == null)
-                    return null;
 
+                // TODO: We should likely throw an exception here
+                if (preferences is null)
+                    return null;
                 if (preferences.IsDeleted)
                     throw new EntityIsDeletedException();
+
                 return preferences;
             }
             catch (EntityIsDeletedException ex)
@@ -415,7 +451,9 @@ namespace CustomerServices
             try
             {
                 var currentPreferences = await _organizationRepository.GetOrganizationPreferencesAsync(preferences.OrganizationId);
-                if (currentPreferences == null)
+
+                // TODO: We should likely throw an exception here
+                if (currentPreferences is null)
                     return null;
 
                 if (usingPatch)
@@ -438,8 +476,11 @@ namespace CustomerServices
             try
             {
                 var preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organizationId);
-                if (preferences == null) // object is already deleted
+
+                // TODO: We should likely throw an exception here
+                if (preferences is null) // object is already deleted
                     return null;
+
                 preferences.Delete(callerId);
                 await _organizationRepository.SaveEntitiesAsync();
 
@@ -483,10 +524,10 @@ namespace CustomerServices
             try
             {
                 var currentLocation = await _organizationRepository.GetOrganizationLocationAsync(updateLocation.LocationId);
-                if (currentLocation == null)
-                {
+
+                // TODO: We should likely throw an exception here
+                if (currentLocation is null)
                     return null;
-                }
 
                 if (usingPatch)
                     currentLocation.PatchLocation(updateLocation);
@@ -508,8 +549,11 @@ namespace CustomerServices
             try
             {
                 var location = await _organizationRepository.GetOrganizationLocationAsync(locationId);
-                if (location == null) // object is already deleted
+
+                // TODO: We should likely throw an exception here
+                if (location is null) // object is already deleted
                     return null;
+
                 location.Delete(callerId);
                 await _organizationRepository.SaveEntitiesAsync();
 
@@ -534,12 +578,10 @@ namespace CustomerServices
             {
                 var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
 
-                if (customer == null)
-                    return null;
+                if (customer is null)
+                    throw new CustomerNotFoundException();
 
                 string salt = customer.OrganizationId.ToString();
-
-
                 var encryptedMessage = Encryption.EncryptData(message, salt, secretKey, iv);
 
                 return encryptedMessage;
@@ -561,8 +603,9 @@ namespace CustomerServices
             try
             {
                 var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
-                if (customer == null)
-                    return null;
+
+                if (customer is null)
+                    throw new CustomerNotFoundException();
 
                 string salt = customer.OrganizationId.ToString();
                 var decryptedMessage = Encryption.DecryptData(encryptedData, salt, secretKey, iv);
@@ -586,10 +629,10 @@ namespace CustomerServices
             if (parentId != null && parentId != Guid.Empty)
             {
                 var parentOrganization = await GetOrganizationAsync((Guid)parentId, false, false);
-                if (parentOrganization == null)
+                if (parentOrganization is null)
                     return false; // not found
 
-                if (parentOrganization.ParentId != null && parentOrganization.ParentId != Guid.Empty)
+                if (parentOrganization.ParentId is not null && parentOrganization.ParentId != Guid.Empty)
                     return false; // invalid hierarchy depth
 
                 var childList = await GetOrganizationsByParentId(organizationId);
