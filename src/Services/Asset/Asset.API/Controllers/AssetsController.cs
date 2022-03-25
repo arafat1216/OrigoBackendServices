@@ -13,13 +13,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text.Json;
-using AssetServices.Models;
 using AutoMapper;
 using Common.Enums;
 using Common.Exceptions;
-using Common.Interfaces;
-using AssetCategory = Asset.API.ViewModels.AssetCategory;
-using Label = Asset.API.ViewModels.Label;
 
 namespace Asset.API.Controllers
 {
