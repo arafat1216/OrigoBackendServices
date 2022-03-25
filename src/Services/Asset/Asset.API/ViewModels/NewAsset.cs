@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Asset.API.ViewModels
 {
-    public class NewAsset
+    public record NewAsset
     {
         /// <summary>
         /// The category this asset belongs to.

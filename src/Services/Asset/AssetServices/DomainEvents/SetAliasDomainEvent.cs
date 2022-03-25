@@ -19,7 +19,7 @@ namespace AssetServices.DomainEvents
 
         public override string EventMessage()
         {
-            return $"Asset alias changed from {PreviousAlias} to {Asset.Alias}.";
+            return $"Asset alias changed from {PreviousAlias} to Asset.Alias.";
         }
     }
 }

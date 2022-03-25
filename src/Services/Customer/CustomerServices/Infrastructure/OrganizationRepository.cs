@@ -117,19 +117,17 @@ namespace CustomerServices.Infrastructure
         }
 
         public async Task<Organization?> GetOrganizationAsync(Guid organizationId,
-                                                              Expression<Func<Organization, bool>>? filter = null,
-                                                              bool includeDepartments = true,
-                                                              bool includePreferences = false,
-                                                              bool includeLocation = false,
-                                                              bool includeAddress = false,
+                                                              Expression<Func<Organization, bool>>? whereFilter = null,
                                                               bool customersOnly = true,
-                                                              bool excludeDeleted = true)
+                                                              bool excludeDeleted = true,
+                                                              bool includeDepartments = false,
+                                                              bool includeAddress = false)
         {
             IQueryable<Organization> query = _customerContext.Set<Organization>();
 
-            // Where filtering
-            if (filter is not null)
-                query = query.Where(filter);
+            // Parameterized where filtering
+            if (whereFilter is not null)
+                query = query.Where(whereFilter);
 
             if (customersOnly)
                 query = query.Where(e => e.IsCustomer);
@@ -137,31 +135,15 @@ namespace CustomerServices.Infrastructure
             if (excludeDeleted)
                 query = query.Where(e => !e.IsDeleted);
 
-            // Supply with includes on a as-needed-basis.
-
-            //if (includePreferences)
-            //    query = query.Include(e => e.Preferences);
-
+            // Parameterized Includes
             if (includeAddress)
                 query = query.Include(e => e.Address);
-
-            if (includeLocation)
-                query = query.Include(e => e.Location);
 
             if (includeDepartments)
                 query = query.Include(e => e.Departments);
 
             return await query.FirstOrDefaultAsync(e => e.OrganizationId == organizationId);
         }
-
-        /*
-        public async Task<Organization?> GetOrganizationAsync(Guid customerId)
-        {
-            return await _customerContext.Organizations
-                                         .Include(p => p.Departments)
-                                         .FirstOrDefaultAsync(c => c.OrganizationId == customerId);
-        }
-        */
 
         public async Task<Organization?> GetOrganizationAsync(int id)
         {

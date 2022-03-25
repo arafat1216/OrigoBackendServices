@@ -65,7 +65,7 @@ namespace CustomerServices
 
         public async Task<Organization> GetOrganizationAsync(Guid customerId)
         {
-            return await _organizationRepository.GetOrganizationAsync(customerId);
+            return await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
         }
 
         /// <summary>
@@ -77,7 +77,8 @@ namespace CustomerServices
         /// <returns>Organization</returns>
         public async Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool onlyCustomer = false)
         {
-            var organization = onlyCustomer ? await _organizationRepository.GetCustomerAsync(customerId) : await _organizationRepository.GetOrganizationAsync(customerId);
+            var organization = onlyCustomer ? await _organizationRepository.GetCustomerAsync(customerId) 
+                                            : await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
 
             if (organization != null)
             {
@@ -320,7 +321,7 @@ namespace CustomerServices
         {
             try
             {
-                var organization = await _organizationRepository.GetOrganizationAsync(updateOrganization.OrganizationId);
+                var organization = await _organizationRepository.GetOrganizationAsync(updateOrganization.OrganizationId, includeDepartments: true);
                 if (usingPatch)
                 {
                     organization.PatchOrganization(updateOrganization);
@@ -345,7 +346,7 @@ namespace CustomerServices
         {
             try
             {
-                var organization = await _organizationRepository.GetOrganizationAsync(organizationId);
+                var organization = await _organizationRepository.GetOrganizationAsync(organizationId, includeDepartments: true);
 
                 if (organization == null)
                     throw new CustomerNotFoundException();
@@ -530,7 +531,7 @@ namespace CustomerServices
         {
             try
             {
-                var customer = await _organizationRepository.GetOrganizationAsync(customerId);
+                var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
 
                 if (customer == null)
                     return null;
@@ -558,7 +559,7 @@ namespace CustomerServices
         {
             try
             {
-                var customer = await _organizationRepository.GetOrganizationAsync(customerId);
+                var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
                 if (customer == null)
                     return null;
 

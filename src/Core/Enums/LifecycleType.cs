@@ -4,7 +4,7 @@
     {
         NoLifecycle = 0,
         Leasing = 1,
-        CompanyPurchased = 2,
+        Transactional = 2,
         BYOD = 3
     }
 }

@@ -12,18 +12,18 @@ namespace AssetServices.DomainEvents
     {
         public T Asset { get; protected set; }
         public Guid CallerId { get; protected set; }
-        public AssetStatus PreviousStatus { get; protected set; }
+        public AssetLifecycleStatus PreviousLifecycleStatus { get; protected set; }
 
-        public UpdateAssetStatusDomainEvent(T asset, Guid callerId, AssetStatus previousStatus) : base(asset.ExternalId)
+        public UpdateAssetStatusDomainEvent(T asset, Guid callerId, AssetLifecycleStatus previousLifecycleStatus) : base(asset.ExternalId)
         {
             Asset = asset;
             CallerId = callerId;
-            PreviousStatus = previousStatus;
+            PreviousLifecycleStatus = previousLifecycleStatus;
         }
 
         public override string EventMessage()
         {
-            return $"Status changed from {PreviousStatus} to {Asset.Status}.";
+            return $"Status changed from {PreviousLifecycleStatus} to Asset.LifecycleStatus.";
         }
     }
 }

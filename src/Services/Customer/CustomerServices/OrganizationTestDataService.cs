@@ -60,7 +60,7 @@ namespace CustomerServices
             {
                 foreach (Organization organization in Organizations)
                 {
-                    var org = await _organizationRepository.GetOrganizationAsync(organization.OrganizationId);
+                    var org = await _organizationRepository.GetOrganizationAsync(organization.OrganizationId, includeDepartments: true);
                     if (org == null)
                     {
                         await _organizationRepository.AddAsync(organization);
@@ -87,7 +87,7 @@ namespace CustomerServices
             {
                 foreach (var item in Organizations)
                 {
-                    var organization = await _organizationRepository.GetOrganizationAsync(item.OrganizationId);
+                    var organization = await _organizationRepository.GetOrganizationAsync(item.OrganizationId, includeDepartments: true);
                     IList<Department> departments = Seed.GetDepartmentDataForOrganization(organization);
                     foreach (Department department in departments)
                     {
@@ -129,7 +129,7 @@ namespace CustomerServices
             {
                 foreach (var item in Organizations)
                 {
-                    var organization = await _organizationRepository.GetOrganizationAsync(item.OrganizationId);
+                    var organization = await _organizationRepository.GetOrganizationAsync(item.OrganizationId, includeDepartments: true);
                     IList<User> users = Seed.GetUsersForOrganization(organization);
                     Guid[] accessList = Seed.GetAccessList(organization.OrganizationId);
                     foreach (User user in users)

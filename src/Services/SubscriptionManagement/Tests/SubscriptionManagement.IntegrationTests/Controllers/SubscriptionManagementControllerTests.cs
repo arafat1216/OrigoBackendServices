@@ -1014,5 +1014,20 @@ public class
         var responseDelete = await _httpClient.SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, responseDelete.StatusCode);
     }
+    [Fact]
+    public async Task CancelSubscription_dateOfTermination()
+    {
+        var cancel = new NewCancelSubscriptionOrder
+        {
+            OperatorId = 1,
+            MobileNumber = "+4741454546",
+            CallerId = new Guid()
+        };
 
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-cancel", cancel);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains(
+         $"Invalid transfer date. 1 workday ahead or more is allowed.",
+        response.Content.ReadAsStringAsync().Result);
+    }
 }

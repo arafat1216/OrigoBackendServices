@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using AssetServices.DomainEvents.AssetLifecycleEvents;
 
 namespace AssetServices.Models
 {
@@ -12,25 +13,15 @@ namespace AssetServices.Models
         [JsonConstructor]
         public Tablet() { }
 
-        public Tablet(Guid externalId, Guid customerId, Guid callerId, string alias, AssetCategory assetCategory, string serialNumber, string brand, string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<AssetImei> imei, string macAddress, AssetStatus status, string note, string assetTag, string description, Guid? managedByDepartmentId = null)
+        public Tablet(Guid externalId, Guid callerId, string serialNumber, string brand, string productName,
+            IList<AssetImei> imei, string macAddress)
         {
             ExternalId = externalId;
-            CustomerId = customerId;
-            AssetCategory = assetCategory;
             SerialNumber = serialNumber;
             Brand = brand;
             ProductName = productName;
-            LifecycleType = lifecycleType;
-            PurchaseDate = purchaseDate;
-            AssetHolderId = assetHolderId;
             _imeis.AddRange(imei.ToList());
             MacAddress = macAddress;
-            Status = status;
-            Note = note;
-            AssetTag = assetTag;
-            Description = description;
-            ManagedByDepartmentId = managedByDepartmentId;
-            Alias = alias;
             CreatedBy = callerId;
             UpdatedBy = callerId;
 
@@ -41,34 +32,6 @@ namespace AssetServices.Models
                 text = "serial number: " + SerialNumber;
             }
             AddDomainEvent(new AssetCreatedDomainEvent<Tablet>(this, callerId, text));
-        }
-
-        /// <summary>
-        /// Sets the alias of the asset
-        /// </summary>
-        /// <param name="alias"></param>
-        public override void SetAlias(string alias, Guid callerId)
-        {
-            var previousAlias = Alias;
-            Alias = alias;
-            AddDomainEvent(new SetAliasDomainEvent<Tablet>(this, callerId, previousAlias));
-            base.SetAlias(alias, callerId); 
-        }
-
-        public override void SetLifeCycleType(LifecycleType newLifecycleType, Guid callerId)
-        {
-            var previousLifecycleType = LifecycleType;
-            LifecycleType = newLifecycleType;
-            AddDomainEvent(new SetLifeCycleTypeDomainEvent<Tablet>(this, callerId, previousLifecycleType));
-            base.SetLifeCycleType(newLifecycleType, callerId);
-        }
-
-        public override void UpdateAssetStatus(AssetStatus status, Guid callerId)
-        {
-            var previousStatus = Status;
-            Status = status;
-            AddDomainEvent(new UpdateAssetStatusDomainEvent<Tablet>(this, callerId, previousStatus));
-            base.UpdateAssetStatus(status, callerId);
         }
 
         public override void UpdateBrand(string brand, Guid callerId)
@@ -85,46 +48,6 @@ namespace AssetServices.Models
             ProductName = model;
             AddDomainEvent(new ModelChangedDomainEvent<Tablet>(this, callerId, previousModel));
             base.UpdateProductName(model, callerId);    
-        }
-
-        public override void ChangePurchaseDate(DateTime purchaseDate, Guid callerId)
-        {
-            var previousPurchaseDate = PurchaseDate;
-            PurchaseDate = purchaseDate;
-            AddDomainEvent(new PurchaseDateChangedDomainEvent<Tablet>(this, callerId, previousPurchaseDate));
-            base.ChangePurchaseDate(purchaseDate, callerId);
-        }
-
-        public override void AssignAssetToUser(Guid? userId, Guid callerId)
-        {
-            var oldUserId = AssetHolderId;
-            AssetHolderId = userId;
-            AddDomainEvent(new AssignAssetToUserDomainEvent<Tablet>(this, callerId, oldUserId));
-            base.AssignAssetToUser(userId, callerId);
-        }
-
-        public override void UpdateNote(string note, Guid callerId)
-        {
-            var previousNote = Note;
-            Note = note;
-            AddDomainEvent(new NoteChangedDomainEvent<Tablet>(this, callerId, previousNote));
-            base.UpdateNote(note, callerId);
-        }
-
-        public override void UpdateDescription(string description, Guid callerId)
-        {
-            var previousDescription = Description;
-            Description = description;
-            AddDomainEvent(new DescriptionChangedDomainEvent<Tablet>(this, callerId, previousDescription));
-            base.UpdateDescription(description, callerId);
-        }
-
-        public override void UpdateTag(string tag, Guid callerId)
-        {
-            var previousTag = AssetTag;
-            AssetTag = tag;
-            AddDomainEvent(new TagUpdatedDomainEvent<Tablet>(this, callerId, previousTag));
-            base.UpdateTag(tag, callerId);
         }
 
         public override void ChangeSerialNumber(string serialNumber, Guid callerId)
