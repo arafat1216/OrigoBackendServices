@@ -268,14 +268,14 @@ namespace Asset.API.Controllers
 
         [Route("lifecycles")]
         [HttpGet]
-        [ProducesResponseType(typeof(IList<(string Name, int EnumValue)>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<AssetLifecycleType>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public ActionResult GetLifecycles()
         {
             var lifecycles = _assetServices.GetLifecycles();
-            var lifecycleList = lifecycles.Where(l => l.EnumValue == 0)
-                .Select(lifecycle => (lifecycle.Name, lifecycle.EnumValue)).ToList();
+            var lifecycleList = lifecycles.Where(l => l.EnumValue is 0 or 2)
+                .Select(lifecycle => new AssetLifecycleType{Name = lifecycle.Name, EnumValue = lifecycle.EnumValue}).ToList();
             return Ok(lifecycleList);
         }
 

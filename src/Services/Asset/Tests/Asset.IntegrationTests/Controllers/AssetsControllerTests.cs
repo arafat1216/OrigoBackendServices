@@ -14,17 +14,14 @@ using Xunit.Abstractions;
 
 namespace Asset.IntegrationTests.Controllers;
 
-public class
-    AssetsControllerTests : IClassFixture<
-        AssetWebApplicationFactory<AssetsController>>
+public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<AssetsController>>
 {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly HttpClient _httpClient;
     private readonly Guid _callerId = Guid.Parse("1d64e718-97cb-11ec-ad86-00155d64bd3d");
     private readonly Guid _organizationId;
 
-    public AssetsControllerTests(
-        AssetWebApplicationFactory<AssetsController> factory,
+    public AssetsControllerTests(AssetWebApplicationFactory<AssetsController> factory,
         ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
@@ -65,7 +62,7 @@ public class
         _testOutputHelper.WriteLine(requestUri);
         var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newAsset);
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
-        
+
         PagedAssetList? pagedAssetList = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
         Assert.Equal(1, pagedAssetList!.Assets.Count);
         Assert.Equal(@alias, pagedAssetList.Assets[0].Alias);
@@ -94,5 +91,16 @@ public class
         Assert.Equal(managedByDepartmentId, assetLifecycle.ManagedByDepartmentId);
         Assert.Equal(firstImei, assetLifecycle.Imei.FirstOrDefault());
         Assert.Equal(description, assetLifecycle.Description);
+    }
+
+    [Fact]
+    public async Task CheckLifecyclesReturned()
+    {
+        var requestUri = $"/api/v1/Assets/lifecycles";
+        var lifecycles = await _httpClient.GetFromJsonAsync<IList<AssetLifecycleType>>(requestUri);
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(lifecycles));
+        Assert.Equal(2, lifecycles!.Count);
+        Assert.Equal("Transactional", lifecycles.FirstOrDefault(l => l.EnumValue == 2)!.Name);
+
     }
 }

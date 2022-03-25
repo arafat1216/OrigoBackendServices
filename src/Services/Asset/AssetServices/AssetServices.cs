@@ -341,21 +341,17 @@ namespace AssetServices
             return _mapper.Map<AssetLifecycleDTO>(assetLifeCycle);
         }
 
-        public IList<AssetLifecycleType> GetLifecycles()
+        public IList<(string Name, int EnumValue)> GetLifecycles()
         {
-            Array arr = Enum.GetValues(typeof(Common.Enums.LifecycleType));
-            IList<AssetLifecycleType> assetLifecycles = new List<AssetLifecycleType>();
+            var lifecycleEnumArray = Enum.GetValues(typeof(LifecycleType));
+            IList<(string Name, int EnumValue)> lifecycleList = new List<(string Name, int EnumValue)>();
 
-            foreach (Common.Enums.LifecycleType e in arr)
+            foreach (LifecycleType lifecycleTypeElement in lifecycleEnumArray)
             {
-                assetLifecycles.Add(new AssetLifecycleType()
-                {
-                    Name = Enum.GetName(typeof(Common.Enums.LifecycleType), e),
-                    EnumValue = (int)e
-                });
+                lifecycleList.Add((Enum.GetName(typeof(LifecycleType), lifecycleTypeElement), (int) lifecycleTypeElement));
             }
 
-            return assetLifecycles;
+            return lifecycleList;
         }
 
         public async Task<AssetLifecycleDTO?> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, Guid callerId, LifecycleType newLifecycleType)
