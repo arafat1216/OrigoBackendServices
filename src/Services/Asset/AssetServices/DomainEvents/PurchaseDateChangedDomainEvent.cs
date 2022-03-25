@@ -7,22 +7,22 @@ using Common.Logging;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 namespace AssetServices.DomainEvents
 {
-    public class PurchaseDateChangedDomainEvent<T> : BaseEvent where T:Asset
+    public class PurchaseDateChangedDomainEvent<T> : BaseEvent where T:AssetLifecycle
     {
-        public T Asset { get; protected set; }
+        public T AssetLifecycle { get; protected set; }
         public Guid CallerId { get; protected set; }
         public DateTime PreviousPurchaseDate { get; protected set; }
 
-        public PurchaseDateChangedDomainEvent(T asset, Guid callerId, DateTime previousPurchaseDate) : base(asset.ExternalId)
+        public PurchaseDateChangedDomainEvent(T assetLifecycle, Guid callerId, DateTime previousPurchaseDate) : base(assetLifecycle.ExternalId)
         {
-            Asset = asset;
+            AssetLifecycle = assetLifecycle;
             CallerId = callerId;
             PreviousPurchaseDate = previousPurchaseDate;
         }
 
         public override string EventMessage()
         {
-            return $"Asset changed purchase date from {PreviousPurchaseDate:yyyy-MM-dd} to {Asset.PurchaseDate:yyyy-MM-dd}.";
+            return $"Asset changed purchase date from {PreviousPurchaseDate:yyyy-MM-dd} to {AssetLifecycle.PurchaseDate:yyyy-MM-dd}.";
         }
     }
 }

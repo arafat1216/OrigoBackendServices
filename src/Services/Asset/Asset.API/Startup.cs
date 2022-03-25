@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using AssetServices;
 using AssetServices.Infrastructure;
+using AssetServices.Mappings;
 using AssetServices.Models;
 using Common.Logging;
 using MediatR;
@@ -32,6 +33,7 @@ namespace Asset.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers().AddDapr();
+            services.AddHealthChecks();
             services.AddApiVersioning(config =>
             {
                 config.DefaultApiVersion = _apiVersion;
@@ -42,6 +44,7 @@ namespace Asset.API
                 c.SwaggerDoc($"v{_apiVersion.MajorVersion}",
                     new OpenApiInfo {Title = "Asset Management", Version = $"v{_apiVersion.MajorVersion}"});
             });
+            services.AddAutoMapper(Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(AssetLifecycleProfile)));
             services.AddApplicationInsightsTelemetry();
 
             services.AddDbContext<AssetsContext>(options => options.UseSqlServer(
@@ -63,20 +66,8 @@ namespace Asset.API
             services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
             services.AddScoped<IAssetServices, AssetServices.AssetServices>();
             services.AddScoped<IAssetTestDataService, AssetTestDataService>();
-            services.AddScoped<IAssetRepository, AssetRepository>();
+            services.AddScoped<IAssetLifecycleRepository, AssetLifecycleRepository>();
             services.AddMediatR(typeof(Startup));
-
-            //services.AddHealthChecks()
-            //    .AddCheck("self", () => HealthCheckResult.Healthy("Gateway is ok"), tags: new[]{"Origo API Gateway"})
-            //    .AddSqlServer(
-            //        connectionString: Configuration.GetConnectionString("AssetsDbConnection"),
-            //        healthQuery: "SELECT 1;",
-            //        name: "sql",
-            //        failureStatus: HealthStatus.Degraded,
-            //        tags: new string[] { "db", "sql", "sqlserver" }
-            //    );
-
-            //services.AddHealthChecksUI().AddInMemoryStorage();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -91,8 +82,11 @@ namespace Asset.API
             app.UseRouting();
 
             app.UseAuthorization();
-
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHealthChecks("/healthcheck");
+                endpoints.MapControllers();
+            });
         }
     }
 }

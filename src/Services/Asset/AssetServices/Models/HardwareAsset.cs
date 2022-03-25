@@ -19,7 +19,7 @@ namespace AssetServices.Models
         /// <summary>
         /// A list of all the IMEI numbers this asset has
         /// </summary>
-        protected readonly List<AssetImei> _imeis = new List<AssetImei>();
+        protected readonly List<AssetImei> _imeis = new();
         public IReadOnlyCollection<AssetImei> Imeis => _imeis.AsReadOnly();
 
         /// <summary>
@@ -95,12 +95,6 @@ namespace AssetServices.Models
 
             bool validAsset = true;
             // General (all types)
-            if (CustomerId == Guid.Empty)
-            {
-                ErrorMsgList.Add("CustomerId - Cannot be Guid.Empty");
-                validAsset = false;
-            }
-
             if (string.IsNullOrEmpty(Brand))
             {
                 ErrorMsgList.Add("Brand - Cannot be null or empty");
@@ -110,18 +104,6 @@ namespace AssetServices.Models
             if (string.IsNullOrEmpty(ProductName))
             {
                 ErrorMsgList.Add("Model - Cannot be null or empty");
-                validAsset = false;
-            }
-
-            if (PurchaseDate == DateTime.MinValue)
-            {
-                ErrorMsgList.Add("PurchaseDate - Cannot be DateTime.MinValue");
-                validAsset = false;
-            }
-
-            if (PurchaseDate > DateTime.UtcNow)
-            {
-                ErrorMsgList.Add("PurchaseDate - Cannot be set in the future");
                 validAsset = false;
             }
 

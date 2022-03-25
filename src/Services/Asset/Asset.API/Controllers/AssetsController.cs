@@ -1,8 +1,6 @@
 ﻿using Asset.API.ViewModels;
 using AssetServices;
 using AssetServices.Exceptions;
-using Common.Enums;
-using Common.Exceptions;
 using Common.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -15,6 +13,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text.Json;
+using AutoMapper;
+using Common.Enums;
+using Common.Exceptions;
 
 namespace Asset.API.Controllers
 {
@@ -27,13 +28,16 @@ namespace Asset.API.Controllers
     public class AssetsController : ControllerBase
     {
         private readonly IAssetServices _assetServices;
+        private readonly IMapper _mapper;
+
         // ReSharper disable once NotAccessedField.Local
         private readonly ILogger<AssetsController> _logger;
 
-        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices)
+        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices, IMapper mapper)
         {
             _logger = logger;
             _assetServices = assetServices;
+            _mapper = mapper;
         }
 
         [Route("customers/count")]
@@ -64,32 +68,8 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> GetAssetsForUser(Guid customerId, Guid userId)
         {
-            var assets = await _assetServices.GetAssetsForUserAsync(customerId, userId);
-            if (assets == null)
-            {
-                return NotFound();
-            }
-            var assetList = new List<object>();
-            foreach (var asset in assets)
-            {
-                ViewModels.Asset assetToReturn;
-                var phone = asset as AssetServices.Models.MobilePhone;
-                var tablet = asset as AssetServices.Models.Tablet;
-
-                if (phone != null)
-                    assetToReturn = new MobilePhone(phone);
-                else if (tablet != null)
-                    assetToReturn = new Tablet(tablet);
-                else
-                    assetToReturn = new ViewModels.Asset(asset);
-                assetList.Add(assetToReturn);
-            }
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            return Ok(JsonSerializer.Serialize<object>(assetList, options));
+            var assetLifecycles = await _assetServices.GetAssetLifecyclesForUserAsync(customerId, userId);
+            return Ok(_mapper.Map<ViewModels.Asset>(assetLifecycles));
         }
 
         [Route("customers/{customerId:guid}/labels")]
@@ -157,47 +137,14 @@ namespace Asset.API.Controllers
             return Ok(JsonSerializer.Serialize<object>(labelList, options));
         }
 
-        [Route("customers/{customerId:guid}/labels/delete")]
-        [HttpPost]
-        [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
+        [Route("customers/{customerId:guid}/labels")]
+        [HttpDelete]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> DeleteLabelsForCustomer(Guid customerId, [FromBody] DeleteCustomerLabelsData data)
+        public async Task<ActionResult> DeleteLabelsForCustomer(Guid customerId, [FromBody] DeleteCustomerLabelsData customerLabelsData)
         {
-            try
-            {
-                var customerLabels = await _assetServices.GetCustomerLabelsAsync(data.LabelGuids);
-                
-                var labels = await _assetServices.SoftDeleteLabelsForCustomerAsync(customerId, data.CallerId, data.LabelGuids);
-
-                IList<int> labelInts = new List<int>();
-                foreach (AssetServices.Models.CustomerLabel label in customerLabels)
-                {
-                    labelInts.Add(label.Id);
-                }
-
-                await _assetServices.SoftDeleteAssetLabelsAsync(data.CallerId, labelInts);
-
-                
-                var labelList = new List<object>();
-                foreach (AssetServices.Models.CustomerLabel label in labels)
-                {
-                    labelList.Add(new ViewModels.Label(label));
-                }
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    WriteIndented = true
-                };
-                return Ok(JsonSerializer.Serialize<object>(labelList, options));
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
+            await _assetServices.DeleteLabelsForCustomerAsync(customerId, customerLabelsData.CallerId, customerLabelsData.LabelGuids);
+            return Ok();
         }
 
         [Route("customers/{customerId:guid}/labels/update")]
@@ -244,44 +191,8 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> AssignLabelsToAssets(Guid customerId, [FromBody] AssetLabels assetLabels)
         {
-            try
-            {
-                IList<Guid> assetGuids = assetLabels.AssetGuids;
-                IList<Guid> labelGuids = assetLabels.LabelGuids;
-
-                IList<AssetServices.Models.Asset> assets = await _assetServices.AssignLabelsToAssetsAsync(customerId, assetLabels.CallerId, assetGuids, labelGuids);
-                
-                var assetList = new List<object>();
-                foreach (var asset in assets)
-                {
-                    ViewModels.Asset assetToReturn;
-                    var phone = asset as AssetServices.Models.MobilePhone;
-                    var tablet = asset as AssetServices.Models.Tablet;
-
-                    if (phone != null)
-                        assetToReturn = new MobilePhone(phone);
-                    else if (tablet != null)
-                        assetToReturn = new Tablet(tablet);
-                    else
-                        assetToReturn = new ViewModels.Asset(asset);
-                    assetList.Add(assetToReturn);
-                }
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    WriteIndented = true
-                };
-                return Ok(JsonSerializer.Serialize<object>(assetList, options));
-
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
+            var assets = await _assetServices.AssignLabelsToAssetsAsync(customerId, assetLabels.CallerId, assetLabels.AssetGuids, assetLabels.LabelGuids);
+            return Ok(_mapper.Map<IList<ViewModels.Asset>>(assets));
         }
 
         [Route("customers/{customerId:guid}/labels/unassign")]
@@ -290,45 +201,8 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UnAssignLabelsToAssets(Guid customerId, [FromBody] AssetLabels assetLabels)
         {
-            try
-            {
-                IList<Guid> assetGuids = assetLabels.AssetGuids;
-                IList<Guid> labelGuids = assetLabels.LabelGuids;
-
-                IList<AssetServices.Models.Asset> assets = await _assetServices.UnAssignLabelsToAssetsAsync(customerId, assetLabels.CallerId, assetGuids, labelGuids);
-                if (assets == null)
-                    return NotFound("No assets with given Ids where found. Did you enter the correct customerId?");
-                var assetList = new List<object>();
-                foreach (var asset in assets)
-                {
-                    ViewModels.Asset assetToReturn;
-                    var phone = asset as AssetServices.Models.MobilePhone;
-                    var tablet = asset as AssetServices.Models.Tablet;
-
-                    if (phone != null)
-                        assetToReturn = new MobilePhone(phone);
-                    else if (tablet != null)
-                        assetToReturn = new Tablet(tablet);
-                    else
-                        assetToReturn = new ViewModels.Asset(asset);
-                    assetList.Add(assetToReturn);
-                }
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    WriteIndented = true
-                };
-                return Ok(JsonSerializer.Serialize<object>(assetList, options));
-
-            }
-            catch(ResourceNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
+            var assets = await _assetServices.UnAssignLabelsToAssetsAsync(customerId, assetLabels.CallerId, assetLabels.AssetGuids, assetLabels.LabelGuids);
+            return Ok(_mapper.Map<IList<ViewModels.Asset>>(assets));
         }
 
         [Route("customers/{customerId:guid}")]
@@ -337,40 +211,9 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<PagedAssetList>> Get(Guid customerId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
-            var pagedAssetResult = await _assetServices.GetAssetsForCustomerAsync(customerId, search, page, limit, cancellationToken);
-            if (pagedAssetResult == null)
-            {
-                return NotFound();
-            }
-
-            var assetList = new List<object>();
-            foreach (var asset in pagedAssetResult.Items)
-            {
-                ViewModels.Asset assetToReturn;
-                var phone = asset as AssetServices.Models.MobilePhone;
-                var tablet = asset as AssetServices.Models.Tablet;
-
-                if (phone != null)
-                    assetToReturn = new MobilePhone(phone);
-                else if (tablet != null)
-                    assetToReturn = new Tablet(tablet);
-                else
-                    assetToReturn = new ViewModels.Asset(asset);
-                assetList.Add(assetToReturn);
-            }
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true,
-            };
-            return Ok(JsonSerializer.Serialize<object>(
-            new PagedAssetList
-            {
-                CurrentPage = pagedAssetResult.CurrentPage,
-                TotalItems = pagedAssetResult.TotalItems,
-                TotalPages = pagedAssetResult.TotalPages,
-                Assets = assetList
-            }, options));
+            var pagedAssetResult = await _assetServices.GetAssetLifecyclesForCustomerAsync(customerId, search, page, limit, cancellationToken);
+            var pagedAssetList = _mapper.Map<PagedAssetList>(pagedAssetResult);
+            return Ok(pagedAssetList);
         }
 
         [Route("{assetId:Guid}/customers/{customerId:guid}")]
@@ -379,27 +222,8 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<ViewModels.Asset>> Get(Guid customerId, Guid assetId)
         {
-            var asset = await _assetServices.GetAssetForCustomerAsync(customerId, assetId);
-            if (asset == null)
-            {
-                return NotFound();
-            }
-
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true,
-            };
-
-            var phone = asset as AssetServices.Models.MobilePhone;
-            if (phone != null)
-                return Ok(JsonSerializer.Serialize<object>(new MobilePhone(phone), options));
-
-            var tablet = asset as AssetServices.Models.Tablet;
-            if (tablet != null)
-                return Ok(JsonSerializer.Serialize<object>(new Tablet(tablet), options));
-
-            return Ok(JsonSerializer.Serialize<object>(new ViewModels.Asset(asset), options));
+            var assetLifecycle = await _assetServices.GetAssetLifecyclesForCustomerAsync(customerId, assetId);
+            return Ok(_mapper.Map<ViewModels.Asset>(assetLifecycle));
         }
 
         [Route("customers/{customerId:guid}")]
@@ -410,21 +234,10 @@ namespace Asset.API.Controllers
         {
             try
             {
-                var updatedAsset = await _assetServices.AddAssetForCustomerAsync(customerId, asset.CallerId,  asset.Alias, asset.SerialNumber,
+                var updatedAsset = await _assetServices.AddAssetLifecycleForCustomerAsync(customerId, asset.CallerId,  asset.Alias, asset.SerialNumber,
                     asset.AssetCategoryId, asset.Brand, asset.ProductName, asset.LifecycleType, asset.PurchaseDate,
                     asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, asset.Note, asset.AssetTag, asset.Description);
-
-                var phone = updatedAsset as AssetServices.Models.MobilePhone;
-                if (phone != null)
-                    return CreatedAtAction(nameof(CreateAsset), new { id = phone.ExternalId }, new MobilePhone(phone));
-
-                var tablet = updatedAsset as AssetServices.Models.Tablet;
-                if (tablet != null)
-                    return CreatedAtAction(nameof(CreateAsset), new { id = tablet.ExternalId }, new Tablet(tablet));
-
-                var updatedAssetView = new ViewModels.Asset(updatedAsset);
-
-                return CreatedAtAction(nameof(CreateAsset), new { id = updatedAssetView.Id }, updatedAssetView);
+                return CreatedAtAction(nameof(CreateAsset), new { id = updatedAsset.ExternalId }, _mapper.Map<ViewModels.Asset>(updatedAsset));
             }
             catch (AssetCategoryNotFoundException)
             {
@@ -449,77 +262,21 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> SetAssetStatusOnAssets(Guid customerId, [FromBody] UpdateAssetsStatus data, int assetStatus)
         {
-            try
-            {
-                    if (assetStatus != (int)AssetStatus.Inactive && assetStatus != (int)AssetStatus.Active)
-                    {
-                        return BadRequest("Invalid AssetStatus, possible values are: \n" + (int)AssetStatus.Active + " - " + Enum.GetName(AssetStatus.Active) + "\n" 
-                            + (int)AssetStatus.Inactive + " - " + Enum.GetName(AssetStatus.Inactive));
-                    }
-                    
-
-                var updatedAssets = await _assetServices.UpdateMultipleAssetsStatus(customerId, data.CallerId, data.AssetGuidList, (AssetStatus)assetStatus);
-                if (updatedAssets == null)
-                {
-                    return NotFound("Given organization does not exist or none of the assets were found");
-                }
-
-                var assetList = new List<object>();
-                foreach (var asset in updatedAssets)
-                {
-                    ViewModels.Asset assetToReturn;
-                    var phone = asset as AssetServices.Models.MobilePhone;
-                    var tablet = asset as AssetServices.Models.Tablet;
-
-                    if (phone != null)
-                        assetToReturn = new MobilePhone(phone);
-                    else if (tablet != null)
-                        assetToReturn = new Tablet(tablet);
-                    else
-                        assetToReturn = new ViewModels.Asset(asset);
-                    assetList.Add(assetToReturn);
-                }
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    WriteIndented = true
-                };
-
-                return Ok(JsonSerializer.Serialize<object>(assetList, options));
-
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+            var updatedAssets = await _assetServices.UpdateStatusForMultipleAssetLifecycles(customerId, data.CallerId, data.AssetGuidList, (AssetLifecycleStatus)assetStatus);
+            return Ok(_mapper.Map<IList<ViewModels.Asset>>(updatedAssets));
         }
-
-
 
         [Route("lifecycles")]
         [HttpGet]
-        [ProducesResponseType(typeof(IList<AssetLifecycle>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<(string Name, int EnumValue)>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public ActionResult GetLifecycles()
         {
-            try
-            {
-                var lifecycles = _assetServices.GetLifecycles();
-                if (lifecycles == null)
-                {
-                    return NotFound();
-                }
-                var lifecycleList = new List<AssetLifecycle>();
-                // Only NoLifecycle should be supported at the moment.
-                foreach (var lifecycle in lifecycles.Where(l => l.EnumValue == 0)) lifecycleList.Add(new AssetLifecycle() { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue });
-
-                return Ok(lifecycleList);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
+            var lifecycles = _assetServices.GetLifecycles();
+            var lifecycleList = lifecycles.Where(l => l.EnumValue == 0)
+                .Select(lifecycle => (lifecycle.Name, lifecycle.EnumValue)).ToList();
+            return Ok(lifecycleList);
         }
 
         [Route("{assetId:Guid}/customers/{customerId:guid}/ChangeLifecycleType")]
@@ -530,45 +287,24 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid customerId, Guid assetId, [FromBody] UpdateAssetLifecycleType data)
         {
-            try
+            // Check if given int is within valid range of values
+            if (!Enum.IsDefined(typeof(LifecycleType), data.LifecycleType))
             {
-                // Check if given int is within valid range of values
-                if (!Enum.IsDefined(typeof(LifecycleType), data.LifecycleType))
+                Array arr = Enum.GetValues(typeof(LifecycleType));
+                StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", data.LifecycleType));
+                foreach (LifecycleType e in arr)
                 {
-                    Array arr = Enum.GetValues(typeof(LifecycleType));
-                    StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", data.LifecycleType));
-                    foreach (LifecycleType e in arr)
-                    {
-                        errorMessage.Append($"    -{(int)e} ({e})\n");
-                    }
-                    throw new InvalidLifecycleTypeException(errorMessage.ToString());
+                    errorMessage.Append($"    -{(int)e} ({e})\n");
                 }
-                LifecycleType lifecycleType = (LifecycleType)data.LifecycleType;
-                var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, data.AssetId, data.CallerId, lifecycleType);
-                if (updatedAsset == null)
-                {
-                    return NotFound();
-                }
-
-                var phone = updatedAsset as AssetServices.Models.MobilePhone;
-                if (phone != null)
-                    return Ok(new MobilePhone(phone));
-
-                var tablet = updatedAsset as AssetServices.Models.Tablet;
-                if (tablet != null)
-                    return Ok(new Tablet(tablet));
-
-                return Ok(new ViewModels.Asset(updatedAsset));
+                throw new InvalidLifecycleTypeException(errorMessage.ToString());
             }
-            catch (InvalidLifecycleTypeException ex)
+            var lifecycleType = (LifecycleType)data.LifecycleType;
+            var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, data.AssetId, data.CallerId, lifecycleType);
+            if (updatedAsset == null)
             {
-                return UnprocessableEntity(ex.Message);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest();
-            }
+            return Ok(_mapper.Map<ViewModels.Asset>(updatedAsset));
         }
 
         [Route("{assetId:Guid}/customers/{customerId:guid}/Update")]
@@ -580,20 +316,9 @@ namespace Asset.API.Controllers
             try
             {
                 var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.CallerId, asset.Alias, asset.SerialNumber, asset.Brand, asset.ProductName, asset.PurchaseDate, asset.Note, asset.AssetTag, asset.Description, asset.Imei);
-                if (updatedAsset == null)
-                {
-                    return NotFound();
-                }
 
-                var phone = updatedAsset as AssetServices.Models.MobilePhone;
-                if (phone != null)
-                    return Ok(new MobilePhone(phone));
-
-                var tablet = updatedAsset as AssetServices.Models.Tablet;
-                if (tablet != null)
-                    return Ok(new Tablet(tablet));
-
-                return Ok(new ViewModels.Asset(updatedAsset));
+                var value = _mapper.Map<ViewModels.Asset>(updatedAsset);
+                return Ok(value);
             }
             catch(InvalidAssetDataException ex)
             {
@@ -613,29 +338,8 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, [FromBody] AssignAssetToUser data)
         {
-            try
-            {
-                var updatedAsset = await _assetServices.AssignAsset(customerId, assetId, data.UserId, data.CallerId);
-                if (updatedAsset == null)
-                {
-                    return NotFound();
-                }
-
-                var phone = updatedAsset as AssetServices.Models.MobilePhone;
-                if (phone != null)
-                    return Ok(new MobilePhone(phone));
-
-                var tablet = updatedAsset as AssetServices.Models.Tablet;
-                if (tablet != null)
-                    return Ok(new Tablet(tablet));
-
-                return Ok(new ViewModels.Asset(updatedAsset));
-
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
+            var updatedAsset = await _assetServices.AssignAsset(customerId, assetId, data.UserId, data.CallerId);
+            return Ok(updatedAsset);
         }
 
         [Route("categories")]
@@ -646,15 +350,11 @@ namespace Asset.API.Controllers
         {
             try
             {
-                var assetCategories = await _assetServices.GetAssetCategoriesAsync(language);
-                if (assetCategories == null)
-                {
-                    return NotFound();
-                }
-                else if (language.Length != 2)
+                if (language.Length != 2)
                 {
                     return BadRequest("Language code is too long or too short.");
                 }
+                var assetCategories = _assetServices.GetAssetCategories(language);
                 if (!hierarchical)
                     return assetCategories.Select(ac => new AssetCategory(ac)).ToList();
 

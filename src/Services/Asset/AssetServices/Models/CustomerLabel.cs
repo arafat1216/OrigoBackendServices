@@ -23,8 +23,6 @@ namespace AssetServices.Models
         /// </summary>
         public Label Label { get; protected set; }
 
-        public virtual ICollection<AssetLabel> AssetLabels { get; set; }
-
         // Set to protected as DDD best practice
         protected CustomerLabel()
         { }
@@ -42,7 +40,6 @@ namespace AssetServices.Models
             CreatedBy = callerId;
             UpdatedBy = callerId;
             IsDeleted = false;
-            AddDomainEvent(new CustomerLabelCreatedDomainEvent(this));
         }
 
         /// <summary>
@@ -72,8 +69,6 @@ namespace AssetServices.Models
             Label = label;
             LastUpdatedDate = DateTime.UtcNow;
             UpdatedBy = callerId;
-            AddDomainEvent(new CustomerLabelChangedDomainEvent(this, previousLabel));
-
         }
 
         /// <summary>
