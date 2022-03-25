@@ -250,7 +250,7 @@ namespace CustomerServices.Infrastructure
 
             return await _customerContext.Users
                 .Include(u => u.Customer)
-                .Include(u => u.Departments)
+                .Include(u => u.Department)
                 .Include(u => u.UserPreference)
                 .Where(u => u.Email == emailAddress)
                 .FirstOrDefaultAsync();
@@ -291,7 +291,7 @@ namespace CustomerServices.Infrastructure
         {
             return await _customerContext.Users
                 .Include(u => u.Customer)
-                .Include(u => u.Departments)
+                .Include(u => u.Department)
                 .Include(u => u.UserPreference)
                 .Where(u => u.Customer.OrganizationId == customerId && u.UserId == userId)
                 .FirstOrDefaultAsync();
@@ -302,7 +302,7 @@ namespace CustomerServices.Infrastructure
             return await _customerContext.Users
                 .Include(u => u.Customer).Where(u => u.UserId == userId)
                 .Include(u => u.UserPreference)
-                .Include(u => u.Departments)
+                .Include(u => u.Department)
                 .Include(u => u.ManagesDepartments)
                 .FirstOrDefaultAsync();
         }

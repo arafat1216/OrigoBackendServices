@@ -50,9 +50,9 @@ namespace CustomerServices.Infrastructure.Context.EntityConfiguration
                    .WithMany(d => d.Managers)
                    .UsingEntity(join => join.ToTable("DepartmentManager"));
 
-            builder.HasMany(u => u.Departments)
-                   .WithMany(d => d.Users)
-                   .UsingEntity(join => join.ToTable("DepartmentUser"));
+            builder
+                .HasOne(e => e.Department)
+                .WithMany(d => d.Users);
         }
     }
 }
