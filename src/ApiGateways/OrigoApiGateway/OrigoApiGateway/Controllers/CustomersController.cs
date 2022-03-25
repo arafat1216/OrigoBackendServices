@@ -560,7 +560,10 @@ namespace OrigoApiGateway.Controllers
                 }
             }
             Guid.TryParse(actor, out Guid callerId);
-            var response = await SubscriptionManagementService.CancelSubscriptionOrderForCustomerAsync(organizationId, order, callerId);
+            var dto = Mapper.Map<CancelSubscriptionOrderDTO>(order);
+            dto.CallerId = callerId;
+
+            var response = await SubscriptionManagementService.CancelSubscriptionOrderForCustomerAsync(organizationId, dto);
 
             return CreatedAtAction(nameof(CancelSubscription), response);
         }
