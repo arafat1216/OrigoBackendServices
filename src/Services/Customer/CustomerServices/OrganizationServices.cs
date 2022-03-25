@@ -21,7 +21,7 @@ namespace CustomerServices
             _organizationRepository = customerRepository;
         }
 
-        public async Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false, Guid? partnerId = null)
+        public async Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false)
         {
             IList<Organization> organizations;
 

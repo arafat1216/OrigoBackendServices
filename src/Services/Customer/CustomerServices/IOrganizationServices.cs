@@ -20,7 +20,7 @@ namespace CustomerServices
         /// <param name="partnerId"> When provided, the results will only include organizations belonging to this partner. 
         ///     The partner-filter is disabled if the value is <see langword="null"/>. </param>
         /// <returns> A list containing all matching organizations. </returns>
-        Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false, Guid? partnerId = null);
+        Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false);
 
         Task<IList<CustomerUserCount>> GetCustomerUsersAsync();
         Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool onlyCustomer = false);
