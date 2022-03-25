@@ -9,12 +9,17 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text.Json;
+using AssetServices.Models;
 using AutoMapper;
 using Common.Enums;
+using Common.Exceptions;
 using Common.Interfaces;
+using AssetCategory = Asset.API.ViewModels.AssetCategory;
+using Label = Asset.API.ViewModels.Label;
 
 namespace Asset.API.Controllers
 {
@@ -190,44 +195,8 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> AssignLabelsToAssets(Guid customerId, [FromBody] AssetLabels assetLabels)
         {
-            try
-            {
-                IList<Guid> assetGuids = assetLabels.AssetGuids;
-                IList<Guid> labelGuids = assetLabels.LabelGuids;
-
-                //IList<AssetServices.Models.Asset> assets = await _assetServices.as.AssignLabelsToAssetsAsync(customerId, assetLabels.CallerId, assetGuids, labelGuids);
-                
-                //var assetList = new List<object>();
-                //foreach (var asset in assets)
-                //{
-                //    ViewModels.Asset assetToReturn;
-                //    var phone = asset as AssetServices.Models.MobilePhone;
-                //    var tablet = asset as AssetServices.Models.Tablet;
-
-                //    if (phone != null)
-                //        assetToReturn = new MobilePhone(phone);
-                //    else if (tablet != null)
-                //        assetToReturn = new Tablet(tablet);
-                //    else
-                //        assetToReturn = new ViewModels.Asset(asset);
-                //    assetList.Add(assetToReturn);
-                //}
-                //var options = new JsonSerializerOptions
-                //{
-                //    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                //    WriteIndented = true
-                //};
-                return Ok();
-
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
+            var assets = await _assetServices.AssignLabelsToAssetsAsync(customerId, assetLabels.CallerId, assetLabels.AssetGuids, assetLabels.LabelGuids);
+            return Ok(_mapper.Map<IList<ViewModels.Asset>>(assets));
         }
 
         [Route("customers/{customerId:guid}/labels/unassign")]
@@ -236,45 +205,8 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UnAssignLabelsToAssets(Guid customerId, [FromBody] AssetLabels assetLabels)
         {
-            try
-            {
-                //IList<Guid> assetGuids = assetLabels.AssetGuids;
-                //IList<Guid> labelGuids = assetLabels.LabelGuids;
-
-                //IList<AssetServices.Models.Asset> assets = await _assetServices.UnAssignLabelsToAssetsAsync(customerId, assetLabels.CallerId, assetGuids, labelGuids);
-                //if (assets == null)
-                //    return NotFound("No assets with given Ids where found. Did you enter the correct customerId?");
-                //var assetList = new List<object>();
-                //foreach (var asset in assets)
-                //{
-                //    ViewModels.Asset assetToReturn;
-                //    var phone = asset as AssetServices.Models.MobilePhone;
-                //    var tablet = asset as AssetServices.Models.Tablet;
-
-                //    if (phone != null)
-                //        assetToReturn = new MobilePhone(phone);
-                //    else if (tablet != null)
-                //        assetToReturn = new Tablet(tablet);
-                //    else
-                //        assetToReturn = new ViewModels.Asset(asset);
-                //    assetList.Add(assetToReturn);
-                //}
-                //var options = new JsonSerializerOptions
-                //{
-                //    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                //    WriteIndented = true
-                //};
-                return Ok();
-
-            }
-            catch(ResourceNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
+            var assets = await _assetServices.UnAssignLabelsToAssetsAsync(customerId, assetLabels.CallerId, assetLabels.AssetGuids, assetLabels.LabelGuids);
+            return Ok(_mapper.Map<IList<ViewModels.Asset>>(assets));
         }
 
         [Route("customers/{customerId:guid}")]
@@ -334,50 +266,8 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> SetAssetStatusOnAssets(Guid customerId, [FromBody] UpdateAssetsStatus data, int assetStatus)
         {
-            //try
-            //{
-            //        if (assetStatus != (int)AssetLifecycleStatus.Inactive && assetStatus != (int)AssetLifecycleStatus.Active)
-            //        {
-            //            return BadRequest("Invalid AssetStatus, possible values are: \n" + (int)AssetLifecycleStatus.Active + " - " + Enum.GetName(AssetLifecycleStatus.Active) + "\n" 
-            //                + (int)AssetLifecycleStatus.Inactive + " - " + Enum.GetName(AssetLifecycleStatus.Inactive));
-            //        }
-                    
-
-            //    var updatedAssets = await _assetServices.UpdateStatusForMultipleAssetLifecycles(customerId, data.CallerId, data.AssetGuidList, (AssetLifecycleStatus)assetStatus);
-            //    if (updatedAssets == null)
-            //    {
-            //        return NotFound("Given organization does not exist or none of the assets were found");
-            //    }
-
-            //    var assetList = new List<object>();
-            //    foreach (var asset in updatedAssets)
-            //    {
-            //        ViewModels.Asset assetToReturn;
-            //        var phone = asset as AssetServices.Models.MobilePhone;
-            //        var tablet = asset as AssetServices.Models.Tablet;
-
-            //        if (phone != null)
-            //            assetToReturn = new MobilePhone(phone);
-            //        else if (tablet != null)
-            //            assetToReturn = new Tablet(tablet);
-            //        else
-            //            assetToReturn = new ViewModels.Asset(asset);
-            //        assetList.Add(assetToReturn);
-            //    }
-            //    var options = new JsonSerializerOptions
-            //    {
-            //        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            //        WriteIndented = true
-            //    };
-
-            //    return Ok(JsonSerializer.Serialize<object>(assetList, options));
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            //}
-            return Ok();
+            var updatedAssets = await _assetServices.UpdateStatusForMultipleAssetLifecycles(customerId, data.CallerId, data.AssetGuidList, (AssetLifecycleStatus)assetStatus);
+            return Ok(_mapper.Map<IList<ViewModels.Asset>>(updatedAssets));
         }
 
         [Route("lifecycles")]
@@ -401,46 +291,24 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid customerId, Guid assetId, [FromBody] UpdateAssetLifecycleType data)
         {
-            //try
-            //{
-            //    // Check if given int is within valid range of values
-            //    if (!Enum.IsDefined(typeof(LifecycleType), data.LifecycleType))
-            //    {
-            //        Array arr = Enum.GetValues(typeof(LifecycleType));
-            //        StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", data.LifecycleType));
-            //        foreach (LifecycleType e in arr)
-            //        {
-            //            errorMessage.Append($"    -{(int)e} ({e})\n");
-            //        }
-            //        throw new InvalidLifecycleTypeException(errorMessage.ToString());
-            //    }
-            //    LifecycleType lifecycleType = (LifecycleType)data.LifecycleType;
-            //    var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, data.AssetId, data.CallerId, lifecycleType);
-            //    if (updatedAsset == null)
-            //    {
-            //        return NotFound();
-            //    }
-
-            //    var phone = updatedAsset as AssetServices.Models.MobilePhone;
-            //    if (phone != null)
-            //        return Ok(new MobilePhone(phone));
-
-            //    var tablet = updatedAsset as AssetServices.Models.Tablet;
-            //    if (tablet != null)
-            //        return Ok(new Tablet(tablet));
-
-            //    return Ok(new ViewModels.Asset(updatedAsset));
-            //}
-            //catch (InvalidLifecycleTypeException ex)
-            //{
-            //    return UnprocessableEntity(ex.Message);
-            //}
-            //catch (Exception ex)
-            //{
-            //    _logger.LogError("{0}", ex.Message);
-            //    return BadRequest();
-            //}
-            return Ok();
+            // Check if given int is within valid range of values
+            if (!Enum.IsDefined(typeof(LifecycleType), data.LifecycleType))
+            {
+                Array arr = Enum.GetValues(typeof(LifecycleType));
+                StringBuilder errorMessage = new StringBuilder(string.Format("The given value for lifecycle: {0} is out of bounds.\nValid options for lifecycle are:\n", data.LifecycleType));
+                foreach (LifecycleType e in arr)
+                {
+                    errorMessage.Append($"    -{(int)e} ({e})\n");
+                }
+                throw new InvalidLifecycleTypeException(errorMessage.ToString());
+            }
+            var lifecycleType = (LifecycleType)data.LifecycleType;
+            var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, data.AssetId, data.CallerId, lifecycleType);
+            if (updatedAsset == null)
+            {
+                return NotFound();
+            }
+            return Ok(_mapper.Map<ViewModels.Asset>(updatedAsset));
         }
 
         [Route("{assetId:Guid}/customers/{customerId:guid}/Update")]

@@ -147,7 +147,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 	ProjectSection(SolutionItems) = preProject
 		charts\customer-api\templates\_helpers.tpl = charts\customer-api\templates\_helpers.tpl
 		charts\customer-api\templates\collector-config.yaml = charts\customer-api\templates\collector-config.yaml
-		dapr-pubsub.yaml = dapr-pubsub.yaml
 		charts\customer-api\templates\deployment.yaml = charts\customer-api\templates\deployment.yaml
 		charts\customer-api\templates\ingress.yaml = charts\customer-api\templates\ingress.yaml
 		charts\customer-api\templates\NOTES.txt = charts\customer-api\templates\NOTES.txt
@@ -189,7 +188,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{976D98B1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.UnitTests", "Common.UnitTests\Common.UnitTests.csproj", "{8564F046-6C7D-4D6A-A3EA-F06F9D604434}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asset.IntegrationTests", "src\Services\Asset\Tests\Asset.IntegrationTests\Asset.IntegrationTests.csproj", "{F4E43C07-DBC2-4802-8C91-4046700BD444}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Asset.IntegrationTests", "src\Services\Asset\Tests\Asset.IntegrationTests\Asset.IntegrationTests.csproj", "{F4E43C07-DBC2-4802-8C91-4046700BD444}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
