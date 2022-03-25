@@ -438,7 +438,7 @@ namespace OrigoApiGateway.Services
         }
 
         public async Task<OrigoCancelSubscriptionOrder> CancelSubscriptionOrderForCustomerAsync(Guid organizationId,
-            CancelSubscriptionOrder order, Guid callerId)
+            CancelSubscriptionOrderDTO order)
         {
             
                 var requestUri = $"{_options.ApiPath}/{organizationId}/subscription-cancel";

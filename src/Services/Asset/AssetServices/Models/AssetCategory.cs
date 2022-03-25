@@ -10,19 +10,6 @@ namespace AssetServices.Models
         {
         }
 
-       /* public AssetCategory(AssetCategory parentAssetCategory, IList<AssetCategoryTranslation> translations, int id, DateTime createdDate, Guid createdBy, DateTime lastUpdatedDate, Guid updatedBy, bool isDeleted, Guid deletedBy)
-        {
-            ParentAssetCategory = parentAssetCategory;
-            Translations = translations;
-            Id = id;
-            CreatedDate = createdDate;
-            CreatedBy = createdBy;
-            LastUpdatedDate = lastUpdatedDate;
-            UpdatedBy = updatedBy;
-            IsDeleted = isDeleted;
-            DeletedBy = deletedBy;
-        }*/
-
         public AssetCategory(int id, AssetCategory parent, IList<AssetCategoryTranslation> translations)
         {
             Id = id;
@@ -30,7 +17,7 @@ namespace AssetServices.Models
             Translations = translations;
         }
 
-        public AssetCategory ParentAssetCategory { get; protected set; }
+        public AssetCategory? ParentAssetCategory { get; protected set; }
 
         public IList<AssetCategoryTranslation> Translations { get; set; }
 

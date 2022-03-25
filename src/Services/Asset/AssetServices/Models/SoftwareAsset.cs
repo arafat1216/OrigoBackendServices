@@ -17,12 +17,6 @@ namespace AssetServices.Models
 
             bool validAsset = true;
             // General (all types)
-            if (CustomerId == Guid.Empty)
-            {
-                ErrorMsgList.Add("CustomerId - Cannot be Guid.Empty");
-                validAsset = false;
-            }
-
             if (string.IsNullOrWhiteSpace(Brand))
             {
                 ErrorMsgList.Add("Brand - Cannot be null or empty");
@@ -32,18 +26,6 @@ namespace AssetServices.Models
             if (string.IsNullOrWhiteSpace(ProductName))
             {
                 ErrorMsgList.Add("Model - Cannot be null or empty");
-                validAsset = false;
-            }
-
-            if (PurchaseDate == DateTime.MinValue)
-            {
-                ErrorMsgList.Add("PurchaseDate - Cannot be DateTime.MinValue");
-                validAsset = false;
-            }
-
-            if (PurchaseDate > DateTime.UtcNow)
-            {
-                ErrorMsgList.Add("PurchaseDate - Cannot be set in the future");
                 validAsset = false;
             }
 

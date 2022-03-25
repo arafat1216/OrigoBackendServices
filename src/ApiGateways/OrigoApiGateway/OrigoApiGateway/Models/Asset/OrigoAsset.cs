@@ -94,9 +94,9 @@ namespace OrigoApiGateway.Models
 
         /// <summary>
         /// The status of the asset.
-        /// <see cref="Common.Enums.AssetStatus">AssetStatus</see>
+        /// <see cref="AssetStatus">AssetStatus</see>
         /// </summary>
-        public AssetStatus AssetStatus { get; init; }
+        public AssetLifecycleStatus AssetStatus { get; init; }
 
         public string AssetStatusName { get; init; }
 

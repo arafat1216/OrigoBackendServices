@@ -1,5 +1,6 @@
 ﻿using Common.Seedwork;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace AssetServices.Models
 {
@@ -11,6 +12,8 @@ namespace AssetServices.Models
         {
             Imei = imei;
         }
+
+        public int Id { get; set; }
 
         public long Imei { get; set; }
 
