@@ -268,9 +268,9 @@ namespace AssetServices
             }
         }
 
-        public async Task<AssetLifecycleDTO> AddAssetLifecycleForCustomerAsync(Guid customerId, Guid callerId, string alias, string serialNumber, int assetCategoryId, string brand,
-            string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<long> imei, string macAddress,
-            Guid? managedByDepartmentId, string note, string tag, string description)
+        public async Task<AssetLifecycleDTO> AddAssetLifecycleForCustomerAsync(Guid customerId, Guid callerId, string? alias, string? serialNumber, int assetCategoryId, string brand,
+            string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<long> imei, string? macAddress,
+            Guid? managedByDepartmentId, string? note, string? description)
         {
             AssetLifecycleStatus lifecycleStatus = AssetLifecycleStatus.Active;
 
@@ -295,19 +295,19 @@ namespace AssetServices
             var assetLifecycle = new AssetLifecycle
             {
                 CustomerId = customerId,
-                Alias = alias,
+                Alias = alias ?? string.Empty,
                 AssetLifecycleStatus = lifecycleStatus,
                 AssetLifecycleType = lifecycleType,
                 PurchaseDate = purchaseDate,
-                Note = note,
-                Description = description
+                Note = note ?? string.Empty,
+                Description = description ?? string.Empty
             };
 
             Asset asset = assetCategoryId == 1
-                ? new MobilePhone(Guid.NewGuid(), callerId, serialNumber, brand, productName,
-                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), macAddress)
-                : new Tablet(Guid.NewGuid(), callerId, serialNumber, brand, productName,
-                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), macAddress);
+                ? new MobilePhone(Guid.NewGuid(), callerId, serialNumber ?? string.Empty, brand, productName,
+                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), macAddress ?? string.Empty)
+                : new Tablet(Guid.NewGuid(), callerId, serialNumber ?? string.Empty, brand, productName,
+                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), macAddress ?? string.Empty);
             assetLifecycle.AssignAsset(asset, callerId);
             if (assetHolderId != null)
             {
