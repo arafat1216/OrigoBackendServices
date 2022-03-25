@@ -242,10 +242,16 @@ namespace AssetServices
                     throw new ResourceNotFoundException("No labels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
                 }
 
-                //foreach (Asset asset in assetLifecycles)
-                //{
-                //    await UnAssignLabelsToAssetAsync(asset, customerLabels, callerId);
-                //}
+                foreach (var assetLifecycle in assetLifecycles)
+                {
+                    foreach (var customerLabel in customerLabels)
+                    {
+                        if (assetLifecycle.Labels.Any(l => l.ExternalId == customerLabel.ExternalId))
+                        {
+                            assetLifecycle.RemoveCustomerLabel(customerLabel, callerId);
+                        }
+                    }
+                }
 
                 await _assetLifecycleRepository.SaveEntitiesAsync();
                 var assetLifecyclesFromList = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids);
@@ -260,23 +266,6 @@ namespace AssetServices
                 _logger.LogError(ex, "Unknown error. Unable to unassign given labels to assets.");
                 throw;
             }
-        }
-
-        public async Task UnAssignLabelsToAssetAsync(Asset asset, IList<CustomerLabel> customerLabels, Guid callerId)
-        {
-            //foreach (CustomerLabel customerLabel in customerLabels)
-            //{
-            //    if (customerLabel.IsDeleted == false)
-            //    {
-            //        var assetLabel = await _assetLifecycleRepository.GetAssetLabelForAssetAsync(asset.Id, customerLabel.Id);
-
-            //        // Update if necessary
-            //        if (assetLabel != null && assetLabel.IsDeleted == false)
-            //        {
-            //            assetLabel.SetActiveStatus(callerId, true); 
-            //        }
-            //    }
-            //}
         }
 
         public async Task<AssetLifecycleDTO> AddAssetLifecycleForCustomerAsync(Guid customerId, Guid callerId, string alias, string serialNumber, int assetCategoryId, string brand,
