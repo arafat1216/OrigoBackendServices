@@ -10,7 +10,6 @@ namespace CustomerServices.Models
 {
     public class User : Entity, IAggregateRoot
     {
-        private IList<Department> _departments = new List<Department>();
         private IList<Department> _managesDepartments = new List<Department>();
 
         public User(Organization customer, Guid userId, string firstName, string lastName, string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId)
@@ -82,11 +81,7 @@ namespace CustomerServices.Models
             IsActive = false;
         }
 
-        public IReadOnlyCollection<Department> Departments
-        {
-            get => new ReadOnlyCollection<Department>(_departments);
-            protected set => _departments = new List<Department>(value);
-        }
+        public Department? Department { get; set; }
 
         public IReadOnlyCollection<Department> ManagesDepartments
         {
@@ -99,7 +94,7 @@ namespace CustomerServices.Models
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
             AddDomainEvent(new UserAssignedToDepartmentDomainEvent(this, department.ExternalDepartmentId));
-            _departments.Add(department);
+            Department = department;
         }
 
         public void UnassignDepartment(Department department, Guid callerId)
@@ -107,17 +102,12 @@ namespace CustomerServices.Models
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
             AddDomainEvent(new UserUnassignedFromDepartmentDomainEvent(this, department.ExternalDepartmentId));
-            _departments.Remove(department);
+            Department = null;
         }
 
         internal void UnAssignAllDepartments(Guid OrganizationId)
         {
-            var userDepartments = _departments.Where(department => department.Customer.OrganizationId == OrganizationId).ToList();
-
-            foreach (var department in userDepartments)
-            {
-                _departments.Remove(department);
-            }
+            Department = null;
 
             var manageToDepartments = _managesDepartments.Where(department => department.Customer.OrganizationId == OrganizationId).ToList();
 
@@ -169,7 +159,7 @@ namespace CustomerServices.Models
             AddDomainEvent(new UserDeletedDomainEvent(this));
             IsDeleted = isDeleted;
             LastUpdatedDate = DateTime.UtcNow;
-            
+
             UserPreference?.SetDeleteStatus(true);
         }
 

@@ -38,7 +38,7 @@ namespace CustomerServices
 
         public async Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
         {
-            var allUsers = await _organizationRepository.GetAllUsersAsync(customerId,cancellationToken, search, page, limit);
+            var allUsers = await _organizationRepository.GetAllUsersAsync(customerId, cancellationToken, search, page, limit);
             var list = new List<UserDTO>();
             foreach (var user in allUsers.Items)
             {
@@ -178,7 +178,7 @@ namespace CustomerServices
                 }
                 else
                 {
-                    await _oktaServices.RemoveUserFromGroup(user.OktaUserId);
+                    await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
                     user.DeactivateUser(callerId);
                 }
             }
@@ -292,20 +292,26 @@ namespace CustomerServices
         public async Task<UserDTO> DeleteUserAsync(Guid customerId, Guid userId, Guid callerId, bool softDelete = true)
         {
             var user = await _organizationRepository.GetUserAsync(userId);
-            
+
             if (!softDelete)
                 throw new UserDeletedException();
 
             if (user == null || user.IsDeleted) return null;
-            
+
             user.UnAssignAllDepartments(customerId);
-            
+
             user.SetDeleteStatus(true, callerId);
+
             await _organizationRepository.SaveEntitiesAsync();
+
+            if (!string.IsNullOrEmpty(user.OktaUserId))
+            {
+                await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
+            }
 
             //Get the users role and assign it to the users DTO
             UserDTO userDTO = _mapper.Map<UserDTO>(user);
-            
+
             return userDTO;
         }
 
