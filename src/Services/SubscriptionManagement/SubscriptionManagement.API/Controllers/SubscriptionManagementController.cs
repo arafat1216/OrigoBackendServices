@@ -491,11 +491,11 @@ namespace SubscriptionManagement.API.Controllers
         /// Gets a detailed view for a subscription order for a customer
         /// </summary>
         /// <param name="organizationId">Customer identifier</param>
-        /// <param name="OrderId">Order identifier</param>
+        /// <param name="orderId">Order identifier</param>
         /// <param name="orderType">Order type/param>
         /// <returns></returns>
         [HttpGet]
-        [Route("{organizationId:Guid}/subscription-orders-detail-view/{OrderId:Guid}/{orderType:int}")]
+        [Route("{organizationId:Guid}/subscription-orders-detail-view/{orderId:Guid}/{orderType:int}")]
         [ProducesResponseType(typeof(DetailViewSubscriptionOrderLog), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [SwaggerOperation(Tags = new[] { "Subscription Orders" })]

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
+using SubscriptionManagementServices.Types;
 
 namespace SubscriptionManagementServices.Mappings
 {
@@ -9,7 +10,9 @@ namespace SubscriptionManagementServices.Mappings
         public SubscriptionOrderProfile()
         {
             CreateMap<ISubscriptionOrder, SubscriptionOrderListItemDTO>()
-                .ForMember(d => d.OrderNumber, opts => opts.MapFrom(s => s.SalesforceTicketId));
+                .ForMember(d => d.OrderNumber, opts => opts.MapFrom(s => s.SalesforceTicketId))
+                .ForMember(d => d.OrderTypeId, opts => opts.MapFrom(s => (int)s.OrderType));
+
         }
     }
 }

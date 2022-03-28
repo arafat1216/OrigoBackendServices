@@ -436,6 +436,21 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+        public async Task<OrigoSubscriptionOrderDetailView> GetSubscriptionOrderDetailViewAsync(Guid organizationId, Guid orderId, int orderType)
+        {
+            string requestUri = $"{_options.ApiPath}/{organizationId}/subscription-orders-detail-view/{orderId}/{orderType}";
+
+            var response = await HttpClient.GetAsync(requestUri);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return await response.Content.ReadFromJsonAsync<OrigoSubscriptionOrderDetailView>();
+            }
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                throw new SubscriptionManagementException(await response.Content.ReadAsStringAsync());
+            }
+            throw new HttpRequestException(await response.Content.ReadAsStringAsync());
+        }
 
         public async Task<OrigoCancelSubscriptionOrder> CancelSubscriptionOrderForCustomerAsync(Guid organizationId,
             CancelSubscriptionOrderDTO order)

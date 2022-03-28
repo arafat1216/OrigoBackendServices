@@ -1,5 +1,6 @@
 ﻿using Common.Seedwork;
 using SubscriptionManagementServices.DomainEvents;
+using SubscriptionManagementServices.Types;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SubscriptionManagementServices.Models
@@ -47,7 +48,7 @@ namespace SubscriptionManagementServices.Models
 
         #region ISubscriptionOrder Implementation
 
-        [NotMapped] public string OrderType => "OrderSim";
+        [NotMapped] public OrderTypes OrderType => OrderTypes.OrderSim;
 
         [NotMapped] public string PhoneNumber => string.Empty;
 

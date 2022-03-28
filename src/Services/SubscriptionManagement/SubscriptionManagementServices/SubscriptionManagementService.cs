@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using AutoMapper;
 using Common.Enums;
 using Common.Utilities;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Options;
 using SubscriptionManagementServices.Exceptions;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
+using SubscriptionManagementServices.Types;
 using SubscriptionManagementServices.Utilities;
 
 namespace SubscriptionManagementServices;
@@ -164,7 +166,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             order.CallerId);
         var subscriptionOrder = await _subscriptionManagementRepository.AddSubscriptionOrder(transferToBusinessSubscriptionOrder);
 
-        await _emailService.SendAsync(subscriptionOrder.OrderType, subscriptionOrder.SubscriptionOrderId, order, new Dictionary<string, string> { { "OperatorName", newOperatorName }, { "SubscriptionProductName", transferToBusinessSubscriptionOrder.SubscriptionProductName } });
+        await _emailService.SendAsync(OrderTypes.TransferToBusiness.ToString(), subscriptionOrder.SubscriptionOrderId, order, new Dictionary<string, string> { { "OperatorName", newOperatorName }, { "SubscriptionProductName", transferToBusinessSubscriptionOrder.SubscriptionProductName } });
 
         var mapping = _mapper.Map<TransferToBusinessSubscriptionOrderDTOResponse>(subscriptionOrder);
 
@@ -240,7 +242,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         order.OrganizationId = organizationId;
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(order);
 
-        await _emailService.SendAsync(added.OrderType, added.SubscriptionOrderId, order, new Dictionary<string, string> { { "OperatorName", subscriptionOrder.OperatorName }});
+        await _emailService.SendAsync(OrderTypes.TransferToPrivate.ToString(), added.SubscriptionOrderId, order, new Dictionary<string, string> { { "OperatorName", subscriptionOrder.OperatorName }});
 
         return _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(added);
     }
@@ -300,7 +302,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(changeSubscriptionOrder);
 
-        await _emailService.SendAsync(changeSubscriptionOrder.OrderType, added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", subscriptionOrder.OperatorName } });
+        await _emailService.SendAsync(OrderTypes.ChangeSubscription.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", subscriptionOrder.OperatorName } });
 
         return _mapper.Map<ChangeSubscriptionOrderDTO>(added);
     }
@@ -333,7 +335,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             subscriptionOrder.DateOfTermination, @operator.OperatorName, organizationId, subscriptionOrder.CallerId);
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(cancelSubscriptionOrder);
 
-        await _emailService.SendAsync(cancelSubscriptionOrder.OrderType, added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
+        await _emailService.SendAsync(OrderTypes.ChangeSubscription.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
         var cancelMapped = _mapper.Map<CancelSubscriptionOrderDTO>(added);
         cancelMapped.OperatorId = @operator.Id;
 
@@ -351,7 +353,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             subscriptionOrder.Address.Postcode, subscriptionOrder.Address.City, subscriptionOrder.Address.Country, @operator.OperatorName, subscriptionOrder.Quantity, organizationId, subscriptionOrder.CallerId);
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(orderSimSubscriptionOrder);
 
-        await _emailService.SendAsync(orderSimSubscriptionOrder.OrderType, added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
+        await _emailService.SendAsync(OrderTypes.OrderSim.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
 
         return _mapper.Map<OrderSimSubscriptionOrderDTO>(added);
     }
@@ -377,7 +379,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(newActivateSimOrder);
 
-        await _emailService.SendAsync(newActivateSimOrder.OrderType, added.SubscriptionOrderId, simOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
+        await _emailService.SendAsync(OrderTypes.ActivateSim.ToString(), added.SubscriptionOrderId, simOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
 
         var mapped = _mapper.Map<ActivateSimOrderDTO>(newActivateSimOrder);
         mapped.OperatorId = @operator.Id;
@@ -486,7 +488,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                                                        newSubscriptionOrder.CallerId);
 
         var subscriptionOrder = await _subscriptionManagementRepository.AddSubscriptionOrder(newSubscription);
-        await _emailService.SendAsync(newSubscription.OrderType, subscriptionOrder.SubscriptionOrderId, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName }, { "SubscriptionProductName", newSubscription.SubscriptionProductName } });
+        await _emailService.SendAsync(OrderTypes.NewSubscription.ToString(), subscriptionOrder.SubscriptionOrderId, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName }, { "SubscriptionProductName", newSubscription.SubscriptionProductName } });
         return _mapper.Map<NewSubscriptionOrderDTO>(subscriptionOrder);
     }
 
@@ -494,59 +496,59 @@ public class SubscriptionManagementService : ISubscriptionManagementService
     {
         DetailViewSubscriptionOrderLog detailViewSubscriptionOrder;
 
-        switch (orderType)
+        switch ((OrderTypes)orderType)
         {
-            //OrderSim
-            case 1:
+            case OrderTypes.OrderSim:
                 var orderSim = await _subscriptionManagementRepository.GetOrderSimOrder(orderId);
                 var mappedOrderSim =  _mapper.Map<OrderSimSubscriptionOrderDTO>(orderSim);
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedOrderSim);
                 break;
 
-            //ActivateSimCard
-            case 2:
+            case OrderTypes.ActivateSim:
                 var activateSim = await _subscriptionManagementRepository.GetActivateSimOrder(orderId);
                 var mappedactivateSim = _mapper.Map<ActivateSimOrderDTOResponse>(activateSim);
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedactivateSim);
                 break;
 
-            //TransferToBusiness
-            case 3:
+            case OrderTypes.TransferToBusiness:
                 var transferToBusiness = await _subscriptionManagementRepository.GetTransferToBusinessOrder(orderId);
                 var mappedT2B = _mapper.Map<TransferToBusinessSubscriptionOrderDTOResponse>(transferToBusiness);
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedT2B);
                 break;
 
-            //TransferToPrivate
-            case 4:
+            case OrderTypes.TransferToPrivate:
                 var transferToPrivate = await _subscriptionManagementRepository.GetTransferToPrivateOrder(orderId);
                 var mappedT2P = _mapper.Map<TransferToPrivateSubscriptionOrderDTOResponse>(transferToPrivate);
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedT2P);
                 break;
 
-            //New Subscription
-            case 5:
+            case OrderTypes.NewSubscription:
                 var newSubscription = await _subscriptionManagementRepository.GetNewSubscriptionOrder(orderId);
                 var mappedNewSubscription = _mapper.Map<NewSubscriptionOrderDTO>(newSubscription);
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedNewSubscription);
                 break;
 
-            //ChangeSubscription
-            case 6:
+            case OrderTypes.ChangeSubscription:
                 var changeSubscription = await _subscriptionManagementRepository.GetChangeSubscriptionOrder(orderId);
                 var mappedChangeSubscription = _mapper.Map<ChangeSubscriptionOrderDTO>(changeSubscription);
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedChangeSubscription);
                 break;
 
-            //CancelSubscription - operator id does not map
-            case 7:
+            case OrderTypes.CancelSubscription:
                 var cancelSubscription = await _subscriptionManagementRepository.GetCancelSubscriptionOrder(orderId);
                 var mappedCancelSubscription = _mapper.Map<CancelSubscriptionOrderDTOResponse>(cancelSubscription);
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedCancelSubscription);
                 break;
  
             default:
-                throw new ArgumentOutOfRangeException("Could not find ordertype");
+                var sb = new StringBuilder();
+                var enumValues = Enum.GetValues((typeof(OrderTypes)));
+                foreach (OrderTypes enumValue in (OrderTypes[])enumValues)
+                {
+                    sb.AppendLine($"{enumValue.ToString()} - {enumValue.GetHashCode().ToString()}");
+                }
+
+                throw new ArgumentException($"Could not find ordertype - current ordertypes\n{sb}");
                 
         }
         return detailViewSubscriptionOrder;
