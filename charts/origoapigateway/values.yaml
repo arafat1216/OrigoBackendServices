@@ -39,7 +39,7 @@ deployment:
         readOnly: true
 
 probes:
-  enabled: true
+  enabled: false
 
 ingress:
   enabled: true
