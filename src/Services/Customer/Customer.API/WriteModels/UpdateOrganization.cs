@@ -13,7 +13,7 @@ namespace Customer.API.WriteModels
 
         public AddressDTO Address { get; set; }
 
-        public ContactPerson ContactPerson { get; set; }
+        public ContactPersonDTO ContactPerson { get; set; }
 
         public Guid? PrimaryLocation { get; set; }
         public Guid? ParentId { get; set; }

@@ -34,25 +34,25 @@ namespace Customer.API.Controllers
 
         [Route("{organizationId:Guid}/{customerOnly:Bool}")]
         [HttpGet]
-        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.Gone)]
-        public async Task<ActionResult<Organization>> Get(Guid organizationId, bool includeOrganizationPreferences = true, bool includeLocation = true, bool customerOnly = false)
+        public async Task<ActionResult<OrganizationDTO>> Get(Guid organizationId, bool includeOrganizationPreferences = true, bool includeLocation = true, bool customerOnly = false)
         {
             try
             {
                 var organization = await _organizationServices.GetOrganizationAsync(organizationId, includeOrganizationPreferences, includeLocation, customerOnly);
                 if (organization == null) return NotFound();
 
-                var foundCustomer = new Organization
+                var foundCustomer = new OrganizationDTO
                 {
                     OrganizationId = organization.OrganizationId,
                     Name = organization.Name,
                     OrganizationNumber = organization.OrganizationNumber,
                     Address = new AddressDTO(organization.Address),
-                    ContactPerson = new ContactPerson(organization.ContactPerson),
-                    Preferences = (organization.Preferences == null) ? null : new OrganizationPreferences(organization.Preferences),
-                    Location = (organization.Location == null) ? null : new Location(organization.Location)
+                    ContactPerson = new ContactPersonDTO(organization.ContactPerson),
+                    Preferences = (organization.Preferences == null) ? null : new OrganizationPreferencesDTO(organization.Preferences),
+                    Location = (organization.Location == null) ? null : new LocationDTO(organization.Location)
                 };
                 return Ok(foundCustomer);
             }
@@ -69,40 +69,40 @@ namespace Customer.API.Controllers
 
         [HttpGet]
         [Route("{customersOnly:Bool}")]
-        [ProducesResponseType(typeof(IEnumerable<Organization>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<Organization>>> Get(bool hierarchical = false, bool customersOnly = false)
+        [ProducesResponseType(typeof(IEnumerable<OrganizationDTO>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IEnumerable<OrganizationDTO>>> Get(bool hierarchical = false, bool customersOnly = false)
         {
             try
             {
                 var organizations = await _organizationServices.GetOrganizationsAsync(hierarchical, customersOnly);
-                IList<Organization> list = new List<Organization>();
+                IList<OrganizationDTO> list = new List<OrganizationDTO>();
 
                 foreach (CustomerServices.Models.Organization org in organizations)
                 {
-                    var organizationView = new Organization
+                    var organizationView = new OrganizationDTO
                     {
                         OrganizationId = org.OrganizationId,
                         Name = org.Name,
                         OrganizationNumber = org.OrganizationNumber,
                         Address = new AddressDTO(org.Address),
-                        ContactPerson = new ContactPerson(org.ContactPerson),
-                        Preferences = (org.Preferences == null) ? null : new OrganizationPreferences(org.Preferences),
-                        Location = (org.Location == null) ? null : new Location(org.Location),
-                        ChildOrganizations = new List<Organization>()
+                        ContactPerson = new ContactPersonDTO(org.ContactPerson),
+                        Preferences = (org.Preferences == null) ? null : new OrganizationPreferencesDTO(org.Preferences),
+                        Location = (org.Location == null) ? null : new LocationDTO(org.Location),
+                        ChildOrganizations = new List<OrganizationDTO>()
                     };
                     if (org.ChildOrganizations != null)
                     {
                         foreach (CustomerServices.Models.Organization childOrg in org.ChildOrganizations)
                         {
-                            var childOrgView = new Organization
+                            var childOrgView = new OrganizationDTO
                             {
                                 OrganizationId = childOrg.OrganizationId,
                                 Name = childOrg.Name,
                                 OrganizationNumber = childOrg.OrganizationNumber,
                                 Address = new AddressDTO(childOrg.Address),
-                                ContactPerson = new ContactPerson(childOrg.ContactPerson),
-                                Preferences = (childOrg.Preferences == null) ? null : new OrganizationPreferences(childOrg.Preferences),
-                                Location = (childOrg.Location == null) ? null : new Location(childOrg.Location)
+                                ContactPerson = new ContactPersonDTO(childOrg.ContactPerson),
+                                Preferences = (childOrg.Preferences == null) ? null : new OrganizationPreferencesDTO(childOrg.Preferences),
+                                Location = (childOrg.Location == null) ? null : new LocationDTO(childOrg.Location)
                             };
                             organizationView.ChildOrganizations.Add(childOrgView);
                         }
@@ -140,10 +140,10 @@ namespace Customer.API.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.Conflict)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<Organization>> CreateOrganization([FromBody] NewOrganization organization)
+        public async Task<ActionResult<OrganizationDTO>> CreateOrganization([FromBody] NewOrganization organization)
         {
             try
             {
@@ -231,15 +231,15 @@ namespace Customer.API.Controllers
                 // Save new organization
                 var updatedOrganization = await _organizationServices.AddOrganizationAsync(newOrganization);
 
-                var updatedOrganizationView = new Organization
+                var updatedOrganizationView = new OrganizationDTO
                 {
                     OrganizationId = updatedOrganization.OrganizationId,
                     Name = updatedOrganization.Name,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
                     Address = new AddressDTO(updatedOrganization.Address),
-                    ContactPerson = new ContactPerson(updatedOrganization.ContactPerson),
-                    Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferences(updatedOrganization.Preferences),
-                    Location = (updatedOrganization.Location == null) ? null : new Location(updatedOrganization.Location)
+                    ContactPerson = new ContactPersonDTO(updatedOrganization.ContactPerson),
+                    Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(updatedOrganization.Preferences),
+                    Location = (updatedOrganization.Location == null) ? null : new LocationDTO(updatedOrganization.Location)
                 };
 
                 return CreatedAtAction(nameof(CreateOrganization), new { id = updatedOrganizationView.OrganizationId }, updatedOrganizationView);
@@ -260,8 +260,8 @@ namespace Customer.API.Controllers
 
         [Route("{organizationId:Guid}/organization")]
         [HttpPut]
-        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Organization>> UpdateOrganizationPut([FromBody] UpdateOrganization organization)
+        [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<OrganizationDTO>> UpdateOrganizationPut([FromBody] UpdateOrganization organization)
         {
             try
             {
@@ -283,15 +283,15 @@ namespace Customer.API.Controllers
                 var updatedOrganization = await _organizationServices.PutOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
                                                            organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber);
 
-                var updatedOrganizationView = new Organization
+                var updatedOrganizationView = new OrganizationDTO
                 {
                     OrganizationId = updatedOrganization.OrganizationId,
                     Name = updatedOrganization.Name,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
                     Address = new AddressDTO(updatedOrganization.Address),
-                    ContactPerson = new ContactPerson(updatedOrganization.ContactPerson),
-                    Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferences(updatedOrganization.Preferences),
-                    Location = (updatedOrganization.Location == null) ? null : new Location(updatedOrganization.Location)
+                    ContactPerson = new ContactPersonDTO(updatedOrganization.ContactPerson),
+                    Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(updatedOrganization.Preferences),
+                    Location = (updatedOrganization.Location == null) ? null : new LocationDTO(updatedOrganization.Location)
                 };
 
                 return updatedOrganizationView;
@@ -332,8 +332,8 @@ namespace Customer.API.Controllers
 
         [Route("{organizationId:Guid}/organization")]
         [HttpPost]
-        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Organization>> UpdateOrganizationPatch([FromBody] UpdateOrganization organization)
+        [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<OrganizationDTO>> UpdateOrganizationPatch([FromBody] UpdateOrganization organization)
         {
             try
             {
@@ -355,15 +355,15 @@ namespace Customer.API.Controllers
                 var updatedOrganization = await _organizationServices.PatchOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
                                                            organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber);
 
-                var updatedOrganizationView = new Organization
+                var updatedOrganizationView = new OrganizationDTO
                 {
                     OrganizationId = updatedOrganization.OrganizationId,
                     Name = updatedOrganization.Name,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
                     Address = new AddressDTO(updatedOrganization.Address),
-                    ContactPerson = new ContactPerson(updatedOrganization.ContactPerson),
-                    Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferences(updatedOrganization.Preferences),
-                    Location = (updatedOrganization.Location == null) ? null : new Location(updatedOrganization.Location)
+                    ContactPerson = new ContactPersonDTO(updatedOrganization.ContactPerson),
+                    Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(updatedOrganization.Preferences),
+                    Location = (updatedOrganization.Location == null) ? null : new LocationDTO(updatedOrganization.Location)
                 };
 
                 return updatedOrganizationView;
@@ -406,7 +406,7 @@ namespace Customer.API.Controllers
         [HttpDelete]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<Organization>> DeleteOrganization([FromBody] DeleteOrganization deleteOrganization)
+        public async Task<ActionResult<OrganizationDTO>> DeleteOrganization([FromBody] DeleteOrganization deleteOrganization)
         {
             try
             {
@@ -415,15 +415,15 @@ namespace Customer.API.Controllers
 
                 var removedOrganization = await _organizationServices.DeleteOrganizationAsync(deleteOrganization.OrganizationId, deleteOrganization.CallerId, deleteOrganization.HardDelete);
 
-                var removedOrganizationView = new Organization
+                var removedOrganizationView = new OrganizationDTO
                 {
                     OrganizationId = removedOrganization.OrganizationId,
                     Name = removedOrganization.Name,
                     OrganizationNumber = removedOrganization.OrganizationNumber,
                     Address = new AddressDTO(removedOrganization.Address),
-                    ContactPerson = new ContactPerson(removedOrganization.ContactPerson),
-                    Preferences = (removedOrganization.Preferences == null) ? null : new OrganizationPreferences(removedOrganization.Preferences),
-                    Location = (removedOrganization.Location == null) ? null : new Location(removedOrganization.Location)
+                    ContactPerson = new ContactPersonDTO(removedOrganization.ContactPerson),
+                    Preferences = (removedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(removedOrganization.Preferences),
+                    Location = (removedOrganization.Location == null) ? null : new LocationDTO(removedOrganization.Location)
                 };
                 return Ok(removedOrganizationView);
 
@@ -441,10 +441,10 @@ namespace Customer.API.Controllers
 
         [Route("{organizationId:Guid}/preferences")]
         [HttpGet]
-        [ProducesResponseType(typeof(OrganizationPreferences), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(OrganizationPreferencesDTO), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.Gone)]
-        public async Task<ActionResult<OrganizationPreferences>> GetOrganizationPreferences(Guid organizationId)
+        public async Task<ActionResult<OrganizationPreferencesDTO>> GetOrganizationPreferences(Guid organizationId)
         {
             try
             {
@@ -452,7 +452,7 @@ namespace Customer.API.Controllers
                 if (preferences == null)
                     return NotFound();
 
-                var preferencesView = new OrganizationPreferences(preferences);
+                var preferencesView = new OrganizationPreferencesDTO(preferences);
 
                 return Ok(preferencesView);
             }
@@ -469,8 +469,8 @@ namespace Customer.API.Controllers
 
         [Route("{organizationId:Guid}/preferences")]
         [HttpPost]
-        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrganizationPreferences>> UpdateOrganizationPreferencesPatch([FromBody] UpdateOrganizationPreferences preferences)
+        [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<OrganizationPreferencesDTO>> UpdateOrganizationPreferencesPatch([FromBody] UpdateOrganizationPreferences preferences)
         {
             try
             {
@@ -489,7 +489,7 @@ namespace Customer.API.Controllers
                 if (updatedPreferences == null)
                     return NotFound();
 
-                var updatedPreferencesView = new OrganizationPreferences(updatedPreferences);
+                var updatedPreferencesView = new OrganizationPreferencesDTO(updatedPreferences);
 
                 return Ok(updatedPreferencesView);
             }
@@ -501,8 +501,8 @@ namespace Customer.API.Controllers
 
         [Route("{organizationId:Guid}/preferences")]
         [HttpPut]
-        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrganizationPreferences>> UpdateOrganizationPreferencesPut([FromBody] UpdateOrganizationPreferences preferences)
+        [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<OrganizationPreferencesDTO>> UpdateOrganizationPreferencesPut([FromBody] UpdateOrganizationPreferences preferences)
         {
             try
             {
@@ -521,7 +521,7 @@ namespace Customer.API.Controllers
                 if (updatedPreferences == null)
                     return NotFound();
 
-                var updatedPreferencesView = new OrganizationPreferences(updatedPreferences);
+                var updatedPreferencesView = new OrganizationPreferencesDTO(updatedPreferences);
 
                 return Ok(updatedPreferencesView);
             }
@@ -533,8 +533,8 @@ namespace Customer.API.Controllers
 
         [Route("location")]
         [HttpPut]
-        [ProducesResponseType(typeof(Location), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Location>> UpdateOrganizationLocation([FromBody] UpdateLocation location)
+        [ProducesResponseType(typeof(LocationDTO), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<LocationDTO>> UpdateOrganizationLocation([FromBody] UpdateLocation location)
         {
             try
             {
@@ -553,7 +553,7 @@ namespace Customer.API.Controllers
                 if (updatedLocation == null)
                     return NotFound();
 
-                var updatedLocationView = new Location(updatedLocation);
+                var updatedLocationView = new LocationDTO(updatedLocation);
 
                 return Ok(updatedLocationView);
             }
@@ -565,8 +565,8 @@ namespace Customer.API.Controllers
 
         [Route("{locationId:Guid}/location")]
         [HttpDelete]
-        [ProducesResponseType(typeof(Location), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Location>> DeleteLocation(Guid locationId, Guid callerId, bool hardDelete = false)
+        [ProducesResponseType(typeof(LocationDTO), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<LocationDTO>> DeleteLocation(Guid locationId, Guid callerId, bool hardDelete = false)
         {
             if (locationId == Guid.Empty)
                 return BadRequest("Location id cannot be empty");
@@ -578,7 +578,7 @@ namespace Customer.API.Controllers
 
             await _organizationServices.DeleteOrganizationLocationAsync(locationId, callerId, hardDelete);
 
-            var deletedLocationView = new Location(location);
+            var deletedLocationView = new LocationDTO(location);
 
             return Ok(deletedLocationView);
         }

@@ -11,6 +11,6 @@ namespace Customer.API.WriteModels
 
         public AddressDTO CompanyAddress { get; set; }
 
-        public ContactPerson CustomerContactPerson { get; set; }
+        public ContactPersonDTO CustomerContactPerson { get; set; }
     }
 }

@@ -23,10 +23,10 @@ namespace Customer.API.ViewModels
         public AddressDTO? Address { get; init; }
 
         /// <inheritdoc cref="Organization.ContactPerson"/>
-        public ContactPerson? ContactPerson { get; init; }
+        public ContactPersonDTO? ContactPerson { get; init; }
 
         /// <inheritdoc cref="Organization.Location"/>
-        public Location? Location { get; init; }
+        public LocationDTO? Location { get; init; }
 
 
         public PartnerOrganization(CustomerServices.Models.Organization organization)
@@ -39,10 +39,10 @@ namespace Customer.API.ViewModels
                 Address = new AddressDTO(organization.Address);
 
             if (organization.ContactPerson is not null)
-                ContactPerson = new ContactPerson(organization.ContactPerson);
+                ContactPerson = new ContactPersonDTO(organization.ContactPerson);
 
             if (organization.Location is not null)
-                Location = new Location(organization.Location);
+                Location = new LocationDTO(organization.Location);
         }
     }
 }

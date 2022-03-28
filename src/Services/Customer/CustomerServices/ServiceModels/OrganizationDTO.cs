@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 
-namespace Customer.API.ViewModels
+namespace CustomerServices.ServiceModels
 {
     /// <inheritdoc cref="CustomerServices.Models.Organization"/>
-    public record Organization
+    public record OrganizationDTO
     {
         /// <inheritdoc cref="CustomerServices.Models.Organization.OrganizationId"/>
         public Guid OrganizationId { get; set; }
@@ -20,15 +20,15 @@ namespace Customer.API.ViewModels
         public AddressDTO Address { get; set; }
 
         /// <inheritdoc cref="CustomerServices.Models.Organization.ContactPerson"/>
-        public ContactPerson ContactPerson { get; set; }
+        public ContactPersonDTO ContactPerson { get; set; }
 
         /// <inheritdoc cref="CustomerServices.Models.Organization.Location"/>
-        public Location Location { get; set; }
+        public LocationDTO Location { get; set; }
 
         /// <inheritdoc cref="CustomerServices.Models.Organization.Preferences"/>
-        public OrganizationPreferences Preferences { get; set; }
+        public OrganizationPreferencesDTO Preferences { get; set; }
 
         /// <inheritdoc cref="CustomerServices.Models.Organization.ChildOrganizations"/>
-        public ICollection<Organization> ChildOrganizations { get; set; }
+        public ICollection<OrganizationDTO> ChildOrganizations { get; set; }
     }
 }

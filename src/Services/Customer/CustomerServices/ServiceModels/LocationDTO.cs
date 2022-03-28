@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Customer.API.ViewModels
+namespace CustomerServices.ServiceModels
 {
-    public class Location
+    public class LocationDTO
     {
-        public Location(CustomerServices.Models.Location organizationLocation)
+        public LocationDTO(CustomerServices.Models.Location organizationLocation)
         {
             Name = organizationLocation.Name;
             Description = organizationLocation.Description;
@@ -15,7 +15,7 @@ namespace Customer.API.ViewModels
             Country = organizationLocation.Country;
         }
 
-        public Location() { }
+        public LocationDTO() { }
 
         public string Name { get; set; }
 

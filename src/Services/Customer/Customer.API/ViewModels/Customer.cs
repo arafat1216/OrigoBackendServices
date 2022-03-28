@@ -13,6 +13,6 @@ namespace Customer.API.ViewModels
 
         public AddressDTO CompanyAddress { get; set; }
 
-        public ContactPerson CustomerContactPerson { get; set; }
+        public ContactPersonDTO CustomerContactPerson { get; set; }
     }
 }

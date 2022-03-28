@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Customer.API.ViewModels
+namespace CustomerServices.ServiceModels
 {
-    public class OrganizationPreferences
+    public class OrganizationPreferencesDTO
     {
-        public OrganizationPreferences(CustomerServices.Models.OrganizationPreferences organizationPreferences)
+        public OrganizationPreferencesDTO(CustomerServices.Models.OrganizationPreferences organizationPreferences)
         {
             WebPage = organizationPreferences.WebPage;
             LogoUrl = organizationPreferences.LogoUrl;

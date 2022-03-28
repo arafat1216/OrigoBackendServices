@@ -12,7 +12,7 @@ namespace Customer.API.WriteModels
 
         public AddressDTO Address { get; set; }
 
-        public ContactPerson ContactPerson { get; set; }
+        public ContactPersonDTO ContactPerson { get; set; }
 
         /// <summary>
         ///     The new location object that should be created and attached to the organization. <para>

@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Customer.API.ViewModels
+namespace CustomerServices.ServiceModels
 {
-    public record ContactPerson
+    public record ContactPersonDTO
     {
-        public ContactPerson(CustomerServices.Models.ContactPerson customerContactPerson)
+        public ContactPersonDTO(CustomerServices.Models.ContactPerson customerContactPerson)
         {
             FirstName = (customerContactPerson == null) ? "" : customerContactPerson.FirstName;
             LastName = (customerContactPerson == null) ? "" : customerContactPerson.LastName;
@@ -12,7 +12,7 @@ namespace Customer.API.ViewModels
             PhoneNumber = (customerContactPerson == null) ? "" : customerContactPerson.PhoneNumber;
         }
 
-        public ContactPerson(){}
+        public ContactPersonDTO() { }
 
         public string FirstName { get; set; }
 
