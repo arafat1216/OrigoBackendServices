@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomerServices.ServiceModels;
+using System;
 using System.Collections.Generic;
 
 namespace Customer.API.ViewModels
@@ -16,7 +17,7 @@ namespace Customer.API.ViewModels
         public string OrganizationNumber { get; set; }
 
         /// <inheritdoc cref="CustomerServices.Models.Organization.Address"/>
-        public Address Address { get; set; }
+        public AddressDTO Address { get; set; }
 
         /// <inheritdoc cref="CustomerServices.Models.Organization.ContactPerson"/>
         public ContactPerson ContactPerson { get; set; }

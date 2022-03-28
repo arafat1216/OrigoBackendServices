@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomerServices.ServiceModels;
+using System;
 
 namespace Customer.API.ViewModels
 {
@@ -10,7 +11,7 @@ namespace Customer.API.ViewModels
 
         public string OrgNumber { get; set; }
 
-        public Address CompanyAddress { get; set; }
+        public AddressDTO CompanyAddress { get; set; }
 
         public ContactPerson CustomerContactPerson { get; set; }
     }

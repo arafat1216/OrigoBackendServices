@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomerServices.ServiceModels;
+using System;
 
 #nullable enable
 
@@ -19,7 +20,7 @@ namespace Customer.API.ViewModels
         public string OrganizationNumber { get; init; }
 
         /// <inheritdoc cref="Organization.Address"/>
-        public Address? Address { get; init; }
+        public AddressDTO? Address { get; init; }
 
         /// <inheritdoc cref="Organization.ContactPerson"/>
         public ContactPerson? ContactPerson { get; init; }
@@ -35,7 +36,7 @@ namespace Customer.API.ViewModels
             OrganizationNumber = organization.OrganizationNumber;
 
             if (organization.Address is not null)
-                Address = new Address(organization.Address);
+                Address = new AddressDTO(organization.Address);
 
             if (organization.ContactPerson is not null)
                 ContactPerson = new ContactPerson(organization.ContactPerson);

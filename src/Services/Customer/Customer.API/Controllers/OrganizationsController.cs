@@ -2,6 +2,7 @@
 using Customer.API.ViewModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
+using CustomerServices.ServiceModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -20,12 +21,14 @@ namespace Customer.API.Controllers
     public class OrganizationsController : ControllerBase
     {
         private readonly IOrganizationServices _organizationServices;
+        private readonly IPartnerServices _partnerServices;
         private readonly ILogger<OrganizationsController> _logger;
 
-        public OrganizationsController(ILogger<OrganizationsController> logger, IOrganizationServices customerServices)
+        public OrganizationsController(ILogger<OrganizationsController> logger, IOrganizationServices customerServices, IPartnerServices partnerServices)
         {
             _logger = logger;
             _organizationServices = customerServices;
+            _partnerServices = partnerServices;
         }
 
         [Route("{organizationId:Guid}/{customerOnly:Bool}")]
@@ -45,7 +48,7 @@ namespace Customer.API.Controllers
                     OrganizationId = organization.OrganizationId,
                     Name = organization.Name,
                     OrganizationNumber = organization.OrganizationNumber,
-                    Address = new Address(organization.Address),
+                    Address = new AddressDTO(organization.Address),
                     ContactPerson = new ContactPerson(organization.ContactPerson),
                     Preferences = (organization.Preferences == null) ? null : new OrganizationPreferences(organization.Preferences),
                     Location = (organization.Location == null) ? null : new Location(organization.Location)
@@ -80,7 +83,7 @@ namespace Customer.API.Controllers
                         OrganizationId = org.OrganizationId,
                         Name = org.Name,
                         OrganizationNumber = org.OrganizationNumber,
-                        Address = new Address(org.Address),
+                        Address = new AddressDTO(org.Address),
                         ContactPerson = new ContactPerson(org.ContactPerson),
                         Preferences = (org.Preferences == null) ? null : new OrganizationPreferences(org.Preferences),
                         Location = (org.Location == null) ? null : new Location(org.Location),
@@ -95,7 +98,7 @@ namespace Customer.API.Controllers
                                 OrganizationId = childOrg.OrganizationId,
                                 Name = childOrg.Name,
                                 OrganizationNumber = childOrg.OrganizationNumber,
-                                Address = new Address(childOrg.Address),
+                                Address = new AddressDTO(childOrg.Address),
                                 ContactPerson = new ContactPerson(childOrg.ContactPerson),
                                 Preferences = (childOrg.Preferences == null) ? null : new OrganizationPreferences(childOrg.Preferences),
                                 Location = (childOrg.Location == null) ? null : new Location(childOrg.Location)
@@ -143,6 +146,11 @@ namespace Customer.API.Controllers
         {
             try
             {
+                var partner = await _partnerServices.GetPartnerAsync((Guid)organization.PartnerId);
+
+                if (partner is null)
+                    return NotFound("Partner not found");
+
                 // Location
                 CustomerServices.Models.Location organizationLocation;
                 if (organization.PrimaryLocation != Guid.Empty)
@@ -231,7 +239,7 @@ namespace Customer.API.Controllers
                     OrganizationId = updatedOrganization.OrganizationId,
                     Name = updatedOrganization.Name,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
-                    Address = new Address(updatedOrganization.Address),
+                    Address = new AddressDTO(updatedOrganization.Address),
                     ContactPerson = new ContactPerson(updatedOrganization.ContactPerson),
                     Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferences(updatedOrganization.Preferences),
                     Location = (updatedOrganization.Location == null) ? null : new Location(updatedOrganization.Location)
@@ -283,7 +291,7 @@ namespace Customer.API.Controllers
                     OrganizationId = updatedOrganization.OrganizationId,
                     Name = updatedOrganization.Name,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
-                    Address = new Address(updatedOrganization.Address),
+                    Address = new AddressDTO(updatedOrganization.Address),
                     ContactPerson = new ContactPerson(updatedOrganization.ContactPerson),
                     Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferences(updatedOrganization.Preferences),
                     Location = (updatedOrganization.Location == null) ? null : new Location(updatedOrganization.Location)
@@ -355,7 +363,7 @@ namespace Customer.API.Controllers
                     OrganizationId = updatedOrganization.OrganizationId,
                     Name = updatedOrganization.Name,
                     OrganizationNumber = updatedOrganization.OrganizationNumber,
-                    Address = new Address(updatedOrganization.Address),
+                    Address = new AddressDTO(updatedOrganization.Address),
                     ContactPerson = new ContactPerson(updatedOrganization.ContactPerson),
                     Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferences(updatedOrganization.Preferences),
                     Location = (updatedOrganization.Location == null) ? null : new Location(updatedOrganization.Location)
@@ -415,7 +423,7 @@ namespace Customer.API.Controllers
                     OrganizationId = removedOrganization.OrganizationId,
                     Name = removedOrganization.Name,
                     OrganizationNumber = removedOrganization.OrganizationNumber,
-                    Address = new Address(removedOrganization.Address),
+                    Address = new AddressDTO(removedOrganization.Address),
                     ContactPerson = new ContactPerson(removedOrganization.ContactPerson),
                     Preferences = (removedOrganization.Preferences == null) ? null : new OrganizationPreferences(removedOrganization.Preferences),
                     Location = (removedOrganization.Location == null) ? null : new Location(removedOrganization.Location)

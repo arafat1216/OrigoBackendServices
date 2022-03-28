@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Customer.API.ViewModels
+namespace CustomerServices.ServiceModels
 {
-    public record Address
+    public record AddressDTO
     {
-        public Address(CustomerServices.Models.Address customerCompanyAddress)
+        public AddressDTO(CustomerServices.Models.Address customerCompanyAddress)
         {
             Street = (customerCompanyAddress == null) ? "" : customerCompanyAddress.Street;
             PostCode = (customerCompanyAddress == null) ? "" : customerCompanyAddress.PostCode;
@@ -12,7 +12,7 @@ namespace Customer.API.ViewModels
             Country = (customerCompanyAddress == null) ? "" : customerCompanyAddress.Country;
         }
 
-        public Address(){}
+        public AddressDTO(){}
 
         public string Street { get; set; }
 

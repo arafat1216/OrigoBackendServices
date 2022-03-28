@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomerServices.ServiceModels;
+using System;
 
 namespace Customer.API.ViewModels
 {
@@ -8,7 +9,7 @@ namespace Customer.API.ViewModels
 
         public string OrganizationNumber { get; set; }
 
-        public Address Address { get; set; }
+        public AddressDTO Address { get; set; }
 
         public ContactPerson ContactPerson { get; set; }
 
@@ -40,6 +41,8 @@ namespace Customer.API.ViewModels
         public string ContactEmail { get; set; }
 
         public string InternalNotes { get; set; }
+
+        public Guid? PartnerId { get; set; }
 
         /// <summary>
         ///     Is organization also a customer?
