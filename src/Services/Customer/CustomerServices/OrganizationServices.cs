@@ -81,7 +81,7 @@ namespace CustomerServices
         /// <param name="includePreferences">Include OrganizationPreferences object of the organization if set to true</param>
         /// <param name="includeLocation">Include OrganizationLocation object of the organization if set to true</param>
         /// <returns>Organization</returns>
-        public async Task<Organization> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool onlyCustomer = false)
+        public async Task<Organization?> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool onlyCustomer = false)
         {
             var organization = onlyCustomer ? await _organizationRepository.GetCustomerAsync(customerId)
                                             : await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
@@ -118,7 +118,7 @@ namespace CustomerServices
             {
                 var parentOrganization = await GetOrganizationAsync((Guid)newOrganization.ParentId);
 
-                if (parentOrganization == null)
+                if (parentOrganization is null)
                     throw new CustomerNotFoundException("The parent organization was not found.");
                 if (parentOrganization.ParentId != null)
                     throw new ArgumentException("The parent is not valid. All parent-organizations must be top-level organizations, and cannot have other parent.");
@@ -253,7 +253,7 @@ namespace CustomerServices
             {
                 // Check id
                 var organizationOriginal = await GetOrganizationAsync(organizationId, true, true);
-                if (organizationOriginal == null)
+                if (organizationOriginal is null)
                     throw new CustomerNotFoundException("Organization with the given id was not found.");
 
                 // Check parent
@@ -280,7 +280,7 @@ namespace CustomerServices
                 // PrimaryLocation
                 Location newLocation;
                 if (primaryLocation == null)
-                    newLocation = (organizationOriginal.Location == null) ? new Location(Guid.Empty, callerId, "", "", "", "", "", "", "") : organizationOriginal.Location;
+                    newLocation = (organizationOriginal.Location is null) ? new Location(Guid.Empty, callerId, "", "", "", "", "", "", "") : organizationOriginal.Location;
                 else if (primaryLocation == Guid.Empty)
                     newLocation = new Location(Guid.Empty, callerId, "", "", "", "", "", "", "");
                 else
@@ -290,7 +290,7 @@ namespace CustomerServices
 
                     newLocation = await _organizationRepository.GetOrganizationLocationAsync((Guid)primaryLocation);
 
-                    if (newLocation == null)
+                    if (newLocation is null)
                         throw new LocationNotFoundException();
                 }
 

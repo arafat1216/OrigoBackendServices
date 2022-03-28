@@ -147,6 +147,14 @@ namespace Customer.API.Controllers
         {
             try
             {
+                CustomerServices.Models.Partner? partner = null;
+                if (organization.PartnerId is not null)
+                {
+                    partner = await _partnerServices.GetPartnerAsync((Guid)organization.PartnerId);
+
+                    if (partner is null)
+                        return NotFound("Partner not found");
+                }
 
                 // Location
                 CustomerServices.Models.Location organizationLocation;

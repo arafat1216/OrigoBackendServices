@@ -137,7 +137,7 @@ namespace CustomerServices.Infrastructure
         {
             return await _customerContext.Organizations
             .Include(p => p.Departments)
-            .FirstOrDefaultAsync(c => c.OrganizationId == customerId && c.IsCustomer == true);
+            .FirstOrDefaultAsync(c => c.OrganizationId == customerId && c.IsCustomer);
         }
 
         public async Task<OrganizationPreferences?> GetOrganizationPreferencesAsync(Guid organizationId)
@@ -219,6 +219,7 @@ namespace CustomerServices.Infrastructure
                 .Where(u => u.Email == emailAddress)
                 .FirstOrDefaultAsync();
         }
+
         public async Task<User?> GetUserByMobileNumber(string mobileNumber)
         {
             if (mobileNumber == null)

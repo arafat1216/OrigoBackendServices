@@ -124,6 +124,7 @@ namespace CustomerServices.Models
             UpdatedBy = callerId;
             IsDeleted = false;
             IsCustomer = isCustomer;
+
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
 

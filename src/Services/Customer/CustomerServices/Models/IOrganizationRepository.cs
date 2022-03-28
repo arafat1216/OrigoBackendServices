@@ -86,18 +86,18 @@ namespace CustomerServices.Models
         /// <returns> If found, the retrieved entity, or <see langword="null"/> if no results was found. </returns>
         Task<Organization?> GetOrganizationAsync(int id);
         Task<Organization?> GetCustomerAsync(Guid customerId);
-        Task<Organization> GetOrganizationByOrganizationNumber(string organizationNumber);
-        Task<OrganizationPreferences> GetOrganizationPreferencesAsync(Guid organizationId);
+        Task<Organization?> GetOrganizationByOrganizationNumber(string organizationNumber);
+        Task<OrganizationPreferences?> GetOrganizationPreferencesAsync(Guid organizationId);
         Task<Location?> GetOrganizationLocationAsync(Guid locationId);
         Task<Location> DeleteOrganizationLocationAsync(Location organizationLocation);
         Task<Organization> DeleteOrganizationAsync(Organization organization);
 
-        Task<User> GetUserByUserName(string emailAddress);
-        Task<User> GetUserByMobileNumber(string mobileNumber);
+        Task<User?> GetUserByUserName(string emailAddress);
+        Task<User?> GetUserByMobileNumber(string mobileNumber);
         Task<int> GetUsersCount(Guid customerId);
         Task<PagedModel<User>> GetAllUsersAsync(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100);
-        Task<User> GetUserAsync(Guid customerId, Guid userId);
-        Task<User> GetUserAsync(Guid userId);
+        Task<User?> GetUserAsync(Guid customerId, Guid userId);
+        Task<User?> GetUserAsync(Guid userId);
         Task<User> AddUserAsync(User newUser);
         Task<User> DeleteUserAsync(User user);
 
@@ -107,7 +107,7 @@ namespace CustomerServices.Models
         Task<OrganizationPreferences> DeleteOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
 
         Task<IList<Department>> GetDepartmentsAsync(Guid customerId);
-        Task<Department> GetDepartmentAsync(Guid customerId, Guid departmentId);
+        Task<Department?> GetDepartmentAsync(Guid customerId, Guid departmentId);
         Task<IList<Department>> DeleteDepartmentsAsync(IList<Department> department);
 
 
