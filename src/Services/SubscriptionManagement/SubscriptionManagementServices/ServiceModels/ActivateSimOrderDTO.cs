@@ -10,6 +10,7 @@ namespace SubscriptionManagementServices.ServiceModels
         public ActivateSimOrderDTO(ActivateSimOrderDTO DTO)
         {
             MobileNumber = DTO.MobileNumber;
+            OperatorName = DTO.OperatorName;
             OperatorId = DTO.OperatorId;
             SimCardNumber = DTO.SimCardNumber;
             SimCardType = DTO.SimCardType;
@@ -17,6 +18,7 @@ namespace SubscriptionManagementServices.ServiceModels
 
         public string MobileNumber { get; set; }
         public int OperatorId { get; set; }
+        public string OperatorName { get; set; }
         public string SimCardNumber { get; set; }
         public string SimCardType { get; set; }
     }

@@ -10,13 +10,16 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
         /// <summary>
         /// The current owner the subscription will be transferred from.
         /// </summary>
-        public PrivateSubscription? PrivateSubscription { get; set; }
-        public BusinessSubscription? BusinessSubscription { get; set; }
+        public OrigoPrivateSubscription? PrivateSubscription { get; set; }
+        public OrigoBusinessSubscription? BusinessSubscription { get; set; }
         /// <summary>
         /// The mobile number to be transferred
         /// </summary>
         public string MobileNumber { get; set; }
-
+        /// <summary>
+        ///     New operator account id
+        /// </summary>
+        public int? OperatorId { get; set; }
         /// <summary>
         ///     New operator account name
         /// </summary>

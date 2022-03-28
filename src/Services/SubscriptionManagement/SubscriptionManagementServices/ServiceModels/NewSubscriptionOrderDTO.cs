@@ -11,6 +11,7 @@ namespace SubscriptionManagementServices.ServiceModels
         {
             MobileNumber = DTO.MobileNumber;
             OperatorId = DTO.OperatorId;
+            OperatorName = DTO.OperatorName;
             OperatorAccountId = DTO.OperatorAccountId;
             NewOperatorAccount = DTO.NewOperatorAccount;
             SubscriptionProductName = DTO.SubscriptionProductName;
@@ -28,6 +29,7 @@ namespace SubscriptionManagementServices.ServiceModels
         public string MobileNumber { get; set; }
 
         public int OperatorId { get; set; }
+        public string OperatorName { get; set; }
 
         public int? OperatorAccountId { get; set; }
 
@@ -51,7 +53,7 @@ namespace SubscriptionManagementServices.ServiceModels
 
         public IList<NewCustomerReferenceValue> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceValue>();
 
-        public PrivateSubscriptionDTO? PrivateSubscription { get; set; } = null;
-        public BusinessSubscriptionDTO? BusinessSubscription { get; set; } = null;
+        public PrivateSubscriptionResponse? PrivateSubscription { get; set; } = null;
+        public BusinessSubscriptionResponse? BusinessSubscription { get; set; } = null;
     }
 }

@@ -10,6 +10,8 @@ namespace SubscriptionManagementServices.Mappings
         {
             CreateMap<PrivateSubscriptionDTO, PrivateSubscription>();
             CreateMap<PrivateSubscription, PrivateSubscriptionDTO>();
+            CreateMap<PrivateSubscription, PrivateSubscriptionResponse>();
+            CreateMap<PrivateSubscriptionResponse, PrivateSubscription>();
         }
     }
 }
