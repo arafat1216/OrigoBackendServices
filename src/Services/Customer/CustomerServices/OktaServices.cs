@@ -2,6 +2,8 @@
 using CustomerServices.ServiceModels;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -83,7 +85,7 @@ namespace CustomerServices
             }
         }
 
-        public async Task RemoveUserFromGroup(string userOktaId)
+        public async Task RemoveUserFromGroupAsync(string userOktaId)
         {
             using (var client = new HttpClient())
             {
@@ -206,16 +208,24 @@ namespace CustomerServices
 
         public async Task<bool> UserHasAppLinks(string userOktaId)
         {
+            var appLinks = await GetAppLinksAsync(userOktaId);
+            return appLinks.Any();
+        }
+
+        private async Task<List<OktaAppLinkDTO>> GetAppLinksAsync(string userOktaId)
+        {
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
                 client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
                 string url = _oktaOptions.OktaUrl + "users/" + userOktaId + "/appLinks";
                 var resMsg = await client.GetAsync(url);
-                string msg = await resMsg.Content.ReadAsStringAsync();
+
                 if (resMsg.IsSuccessStatusCode)
                 {
-                    return msg != "[]";  // if empty list, then user has no applink, else user has applinks
+                    string msg = await resMsg.Content.ReadAsStringAsync();
+
+                    return JsonSerializer.Deserialize<List<OktaAppLinkDTO>>(msg);
                 }
                 else
                 {

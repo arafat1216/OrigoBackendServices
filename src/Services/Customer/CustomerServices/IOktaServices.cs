@@ -1,5 +1,6 @@
 ﻿using CustomerServices.ServiceModels;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CustomerServices
@@ -7,7 +8,7 @@ namespace CustomerServices
     public interface IOktaServices
     {
         Task<string> AddOktaUserAsync(Guid? mytosSubsGuid, string firstName, string lastName, string email, string mobilePhone, bool activate, string countryCode = "+47");
-        Task RemoveUserFromGroup(string userOktaId);
+        Task RemoveUserFromGroupAsync(string userOktaId);
         Task AddUserToGroup(string userOktaId);
         Task<bool> UserExistsInOktaAsync(string userOktaId);
         Task<bool> UserHasAppLinks(string userOktaId);

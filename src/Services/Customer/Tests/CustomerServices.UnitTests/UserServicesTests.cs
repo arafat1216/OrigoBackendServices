@@ -158,7 +158,7 @@ namespace CustomerServices.UnitTests
             var user = await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, false, EMPTY_CALLER_ID);
 
             // Assert
-            oktaMock.Verify(mock => mock.RemoveUserFromGroup(It.IsAny<string>()), Times.Once());
+            oktaMock.Verify(mock => mock.RemoveUserFromGroupAsync(It.IsAny<string>()), Times.Once());
             Assert.False(user.IsActive);
         }
 
