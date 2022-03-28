@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Customer.API.ViewModels
+namespace Customer.API.WriteModels
 {
     public class UpdateOrganizationPreferences
     {

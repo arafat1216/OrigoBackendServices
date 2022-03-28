@@ -1,6 +1,7 @@
-﻿using CustomerServices.ServiceModels;
+﻿using Customer.API.ViewModels;
+using CustomerServices.ServiceModels;
 
-namespace Customer.API.ViewModels
+namespace Customer.API.WriteModels
 {
     public record NewCustomer
     {

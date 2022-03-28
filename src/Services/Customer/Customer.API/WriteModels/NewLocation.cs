@@ -1,14 +1,9 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Customer.API.ViewModels
+namespace Customer.API.WriteModels
 {
-    public class UpdateLocation
+    public class NewLocation
     {
-        public Guid LocationId { get; set; }
-
-        public Guid CallerId { get; set; }
-
         public string Name { get; set; }
 
         public string Description { get; set; }

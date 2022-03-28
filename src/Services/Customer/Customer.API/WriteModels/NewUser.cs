@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Customer.API.ViewModels;
+using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Customer.API.ViewModels
+namespace Customer.API.WriteModels
 {
     public record NewUser
     {

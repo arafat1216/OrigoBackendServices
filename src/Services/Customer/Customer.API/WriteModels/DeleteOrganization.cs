@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Customer.API.ViewModels
+namespace Customer.API.WriteModels
 {
     public record DeleteOrganization
     {

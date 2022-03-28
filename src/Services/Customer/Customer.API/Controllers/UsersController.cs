@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Common.Interfaces;
 using Customer.API.ViewModels;
+using Customer.API.WriteModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;

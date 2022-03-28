@@ -1,5 +1,6 @@
 ﻿using Common.Exceptions;
 using Customer.API.ViewModels;
+using Customer.API.WriteModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
 using CustomerServices.ServiceModels;
@@ -146,10 +147,6 @@ namespace Customer.API.Controllers
         {
             try
             {
-                var partner = await _partnerServices.GetPartnerAsync((Guid)organization.PartnerId);
-
-                if (partner is null)
-                    return NotFound("Partner not found");
 
                 // Location
                 CustomerServices.Models.Location organizationLocation;

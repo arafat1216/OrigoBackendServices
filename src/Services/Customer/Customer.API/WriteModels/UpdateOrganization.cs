@@ -1,7 +1,8 @@
-﻿using CustomerServices.ServiceModels;
+﻿using Customer.API.ViewModels;
+using CustomerServices.ServiceModels;
 using System;
 
-namespace Customer.API.ViewModels
+namespace Customer.API.WriteModels
 {
     public record UpdateOrganization
     {
