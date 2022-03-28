@@ -15,10 +15,40 @@ namespace CustomerServices.Models
 
         Task<Organization> AddAsync(Organization customer);
         Task<IList<CustomerUserCount>> GetOrganizationUserCountsAsync();
-        Task<IList<Organization>> GetOrganizationsAsync();
-        Task<IList<Organization>> GetOrganizationsAsync(Guid? parentId);
-        Task<IList<Organization>> GetCustomersAsync();
-        Task<IList<Organization>> GetCustomersAsync(Guid? parentId);
+
+        /// <summary>
+        ///     Retrieves all organization. Optional parameters may be provided to apply additional filtering, and for enabling eager loading. <br/>
+        ///     The use of named parameters is recommended. <para>
+        ///     
+        ///     Example: <code>
+        ///         var organizations = new OrganizationRepository().GetOrganizationsAsync(
+        ///             Guid.Empty, 
+        ///             whereFilter: entity => (entity.PrimaryLocation == Guid.Empty || entity.PrimaryLocation == null), 
+        ///             customersOnly: true
+        ///         )
+        ///     </code></para>
+        /// </summary>
+        /// <param name="whereFilter"> An optional, parameterized lambda-expression that applies a "<c>.Where()</c>" filter-condition to the query and it's
+        ///     retrieved dataset. This filter is not applied when the value is <see langword="null"/>. </param>
+        /// <param name="customersOnly"> When <see langword="true"/>, a parameterized "<c>.Where()</c>" filter condition is added to the
+        ///     query, causing only organizations where "<c><see cref="Organization.IsCustomer"/> == <see langword="true"/></c>" to be retrieved. </param>
+        /// <param name="excludeDeleted"> When <see langword="true"/>, a parameterized "<c>.Where()</c>" filter condition is added to the query, 
+        ///     causing soft-deleted organizations (<c><see cref="Organization.IsDeleted"/> == <see langword="true"/></c>) to be excluded from the results. </param>
+        /// <param name="includeDepartments"> When <see langword="true"/>, it eagerly includes <see cref="Organization.Departments"/>. </param>
+        /// <param name="includeAddress"> When <see langword="true"/>, it eagerly includes <see cref="Organization.Address"/>. </param>
+        /// <param name="asNoTracking"> When <see langword="true"/> then query will explicitly be run as no-tracking. If the value is <see langword="false"/> 
+        ///     the query will use the default behavior. <para>
+        ///     
+        ///     No tracking queries are useful when the results are used in a <i>read-only</i> scenario. They're quicker to execute because there's no need to set up the
+        ///     change tracking information. If you don't need to update the entities retrieved from the database, then a no-tracking query should be used. See 
+        ///     <see href="https://docs.microsoft.com/en-us/ef/core/querying/tracking"/> for more details. </para></param>
+        /// <returns> A list of all matching organizations. </returns>
+        Task<IList<Organization>> GetOrganizationsAsync(Expression<Func<Organization, bool>>? whereFilter = null,
+                                                        bool customersOnly = true,
+                                                        bool excludeDeleted = true,
+                                                        bool includeDepartments = false,
+                                                        bool includeAddress = false,
+                                                        bool asNoTracking = true);
 
         /// <summary>
         ///     Retrieves a single organization using it's ID. Optional parameters may be provided to apply additional filtering, and for enabling eager loading. <br/>
@@ -33,7 +63,8 @@ namespace CustomerServices.Models
         ///     </code></para>
         /// </summary>
         /// <param name="organizationId"> The ID of the organization that is retrieved. </param>
-        /// <param name="whereFilter"> A parameterized "<c>.Where()</c>" filter condition that is added to the query. </param>
+        /// <param name="whereFilter"> An optional, parameterized lambda-expression that applies a "<c>.Where()</c>" filter-condition to the query and it's
+        ///     retrieved dataset. This filter is not applied when the value is <see langword="null"/>. </param>
         /// <param name="customersOnly"> When <see langword="true"/>, a parameterized "<c>.Where()</c>" filter condition is added to the
         ///     query, causing only organizations where "<c><see cref="Organization.IsCustomer"/> == <see langword="true"/></c>" to be retrieved. </param>
         /// <param name="excludeDeleted"> When <see langword="true"/>, a parameterized "<c>.Where()</c>" filter condition is added to the query, 

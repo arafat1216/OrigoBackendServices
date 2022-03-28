@@ -30,7 +30,7 @@ namespace Customer.API.ViewModels
         ///     If this is a child-organization, this is the <see cref="Organization.OrganizationId"/> of the parent. 
         ///     For root-organization this value can be <see langword="null"/> or omitted.
         /// </summary>
-        public Guid ParentId { get; set; }
+        public Guid? ParentId { get; set; }
 
         /// <summary>
         ///     The ID of the user that is creating the entity.

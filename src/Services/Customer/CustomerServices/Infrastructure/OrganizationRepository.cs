@@ -65,55 +65,37 @@ namespace CustomerServices.Infrastructure
             .ToListAsync();
         }
 
-        public async Task<IList<Organization>> GetOrganizationsAsync()
+        public async Task<IList<Organization>> GetOrganizationsAsync(Expression<Func<Organization, bool>>? whereFilter = null,
+                                                                     bool customersOnly = true,
+                                                                     bool excludeDeleted = true,
+                                                                     bool includeDepartments = false,
+                                                                     bool includeAddress = false,
+                                                                     bool asNoTracking = true)
         {
-            return await _customerContext.Organizations
-                .Where(o => !o.IsDeleted)
-                .ToListAsync();
-        }
+            IQueryable<Organization> query = _customerContext.Set<Organization>();
 
-        /// <summary>
-        /// Get all organizations who has parentId as parent organization.
-        /// If parentId is null, it will find all root organizations in the database.
-        /// </summary>
-        /// <param name="parentId"></param>
-        /// <returns></returns>
-        public async Task<IList<Organization>> GetOrganizationsAsync(Guid? parentId)
-        {
-            if (parentId == Guid.Empty)
-                parentId = null;
+            // Parameterized where filtering
+            if (whereFilter is not null)
+                query = query.Where(whereFilter);
 
-            return await _customerContext.Organizations
-                .Where(p => p.ParentId == parentId && !p.IsDeleted)
-                .ToListAsync();
-        }
+            if (customersOnly)
+                query = query.Where(e => e.IsCustomer);
 
-        /// <summary>
-        /// Get all organizations who are also customers.
-        /// </summary>
-        /// <returns></returns>
-        public async Task<IList<Organization>> GetCustomersAsync()
-        {
-            return await _customerContext.Organizations
-                                         .Where(o => !o.IsDeleted && o.IsCustomer == true)
-                                         .AsNoTracking()
-                                         .ToListAsync();
-        }
+            if (excludeDeleted)
+                query = query.Where(e => !e.IsDeleted);
 
-        /// <summary>
-        /// Get all organizations who are also customers and who has parentId as parent organization.
-        /// If parentId is null, it will find all root customers in the database.
-        /// </summary>
-        /// <param name="parentId"></param>
-        /// <returns></returns>
-        public async Task<IList<Organization>> GetCustomersAsync(Guid? parentId)
-        {
-            if (parentId == Guid.Empty)
-                parentId = null;
+            // Parameterized Includes
+            if (includeAddress)
+                query = query.Include(e => e.Address);
 
-            return await _customerContext.Organizations
-                .Where(p => p.ParentId == parentId && !p.IsDeleted && p.IsCustomer == true)
-                .ToListAsync();
+            if (includeDepartments)
+                query = query.Include(e => e.Departments);
+
+            // Misc
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.ToListAsync();
         }
 
         public async Task<Organization?> GetOrganizationAsync(Guid organizationId,

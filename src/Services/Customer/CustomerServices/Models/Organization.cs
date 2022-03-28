@@ -25,7 +25,7 @@ namespace CustomerServices.Models
         private IList<User> _users;
 
         /// <summary>
-        ///     The organizations external ID
+        ///     The organization's external ID
         /// </summary>
         public Guid OrganizationId { get; protected set; }
 
@@ -76,7 +76,7 @@ namespace CustomerServices.Models
         public virtual ICollection<Organization> ChildOrganizations { get; set; }
 
         /// <summary>
-        ///     The organizations preferences and settings.
+        ///     The organization's preferences and settings.
         /// </summary>
         [NotMapped]
         public virtual OrganizationPreferences Preferences { get; set; }
@@ -98,7 +98,12 @@ namespace CustomerServices.Models
         public ICollection<Department> Departments { get; protected set; }
 
 
+        /// <summary>
+        ///     A default constructor reserved for EntityFramework. This should not be used in-code.
+        /// </summary>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected Organization()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
 
         }
