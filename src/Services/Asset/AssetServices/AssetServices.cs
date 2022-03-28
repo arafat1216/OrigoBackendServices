@@ -268,9 +268,9 @@ namespace AssetServices
             }
         }
 
-        public async Task<AssetLifecycleDTO> AddAssetLifecycleForCustomerAsync(Guid customerId, Guid callerId, string alias, string serialNumber, int assetCategoryId, string brand,
-            string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<long> imei, string macAddress,
-            Guid? managedByDepartmentId, string note, string tag, string description)
+        public async Task<AssetLifecycleDTO> AddAssetLifecycleForCustomerAsync(Guid customerId, Guid callerId, string? alias, string? serialNumber, int assetCategoryId, string brand,
+            string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<long> imei, string? macAddress,
+            Guid? managedByDepartmentId, string? note, string? description)
         {
             AssetLifecycleStatus lifecycleStatus = AssetLifecycleStatus.Active;
 
@@ -295,19 +295,19 @@ namespace AssetServices
             var assetLifecycle = new AssetLifecycle
             {
                 CustomerId = customerId,
-                Alias = alias,
+                Alias = alias ?? string.Empty,
                 AssetLifecycleStatus = lifecycleStatus,
                 AssetLifecycleType = lifecycleType,
                 PurchaseDate = purchaseDate,
-                Note = note,
-                Description = description
+                Note = note ?? string.Empty,
+                Description = description ?? string.Empty
             };
 
             Asset asset = assetCategoryId == 1
-                ? new MobilePhone(Guid.NewGuid(), callerId, serialNumber, brand, productName,
-                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), macAddress)
-                : new Tablet(Guid.NewGuid(), callerId, serialNumber, brand, productName,
-                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), macAddress);
+                ? new MobilePhone(Guid.NewGuid(), callerId, serialNumber ?? string.Empty, brand, productName,
+                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), macAddress ?? string.Empty)
+                : new Tablet(Guid.NewGuid(), callerId, serialNumber ?? string.Empty, brand, productName,
+                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), macAddress ?? string.Empty);
             assetLifecycle.AssignAsset(asset, callerId);
             if (assetHolderId != null)
             {
@@ -341,21 +341,17 @@ namespace AssetServices
             return _mapper.Map<AssetLifecycleDTO>(assetLifeCycle);
         }
 
-        public IList<AssetLifecycleType> GetLifecycles()
+        public IList<(string Name, int EnumValue)> GetLifecycles()
         {
-            Array arr = Enum.GetValues(typeof(Common.Enums.LifecycleType));
-            IList<AssetLifecycleType> assetLifecycles = new List<AssetLifecycleType>();
+            var lifecycleEnumArray = Enum.GetValues(typeof(LifecycleType));
+            IList<(string Name, int EnumValue)> lifecycleList = new List<(string Name, int EnumValue)>();
 
-            foreach (Common.Enums.LifecycleType e in arr)
+            foreach (LifecycleType lifecycleTypeElement in lifecycleEnumArray)
             {
-                assetLifecycles.Add(new AssetLifecycleType()
-                {
-                    Name = Enum.GetName(typeof(Common.Enums.LifecycleType), e),
-                    EnumValue = (int)e
-                });
+                lifecycleList.Add((Enum.GetName(typeof(LifecycleType), lifecycleTypeElement), (int) lifecycleTypeElement));
             }
 
-            return assetLifecycles;
+            return lifecycleList;
         }
 
         public async Task<AssetLifecycleDTO?> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, Guid callerId, LifecycleType newLifecycleType)
