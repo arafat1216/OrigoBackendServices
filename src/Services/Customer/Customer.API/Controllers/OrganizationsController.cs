@@ -143,37 +143,19 @@ namespace Customer.API.Controllers
         {
             try
             {
-                // Check if organization.parentId is set to a valid value
-                if (organization.ParentId != Guid.Empty)
-                {
-                    var parentOrg = await _organizationServices.GetOrganizationAsync(organization.ParentId, false, false);
-                    if (parentOrg == null)
-                        return BadRequest("Organization with given parentId does not exist.");
-                    if (!(parentOrg.ParentId == null || parentOrg.ParentId == Guid.Empty))
-                    {
-                        return BadRequest("Parent organization cannot itself have a parent organization.");
-                    }
-                }
-
-                // Check for organization number conflict
-                if (await _organizationServices.GetOrganizationByOrganizationNumberAsync(organization.OrganizationNumber) != null)
-                {
-                    return Conflict($"Organization with organization number {organization.OrganizationNumber} already exists");
-                }
-
                 // Location
                 CustomerServices.Models.Location organizationLocation;
                 if (organization.PrimaryLocation != Guid.Empty)
                 {
-                    var loc = await _organizationServices.GetLocationAsync(organization.PrimaryLocation);
+                    var location = await _organizationServices.GetLocationAsync(organization.PrimaryLocation);
 
-                    if (loc == null)
+                    if (location == null)
                     {
                         return BadRequest(string.Format("No Location object with the given Id was found: {0}", organization.PrimaryLocation));
                     }
                     else
                     {
-                        organizationLocation = loc;
+                        organizationLocation = location;
                     }
                 }
 
@@ -256,6 +238,14 @@ namespace Customer.API.Controllers
                 };
 
                 return CreatedAtAction(nameof(CreateOrganization), new { id = updatedOrganizationView.OrganizationId }, updatedOrganizationView);
+            }
+            catch (DuplicateException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (CustomerNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
