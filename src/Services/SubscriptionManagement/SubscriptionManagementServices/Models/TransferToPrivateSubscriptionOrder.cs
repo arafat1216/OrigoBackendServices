@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Common.Seedwork;
+using SubscriptionManagementServices.Types;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -20,7 +21,7 @@ namespace SubscriptionManagementServices.Models
         #region ISubscriptionOrder implementation
 
         public Guid SubscriptionOrderId { get; set; } = Guid.NewGuid();
-        [NotMapped] public string OrderType => "TransferToPrivate";
+        [NotMapped] public OrderTypes OrderType => OrderTypes.TransferToPrivate;
         [NotMapped] public string PhoneNumber => MobileNumber;
 
         [NotMapped]

@@ -42,6 +42,8 @@ namespace OrigoApiGateway.Services
         Task<OrigoCustomerStandardPrivateSubscriptionProduct> PostCustomerStandardPrivateSubscriptionProductAsync(Guid organizationId, NewStandardPrivateProductDTO standardPrivateProduct);
 
         Task<OrigoCustomerStandardPrivateSubscriptionProduct> DeleteCustomerStandardPrivateSubscriptionProductAsync(Guid organizationId,int operatorId, Guid callerId);
+        Task<OrigoSubscriptionOrderDetailView> GetSubscriptionOrderDetailViewAsync(Guid organizationId, Guid orderId, int orderType);
+
 
     }
 }

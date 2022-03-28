@@ -3,7 +3,7 @@
     public class DetailViewSubscriptionOrderLog
     {
         public TransferToBusinessSubscriptionOrderDTOResponse? TransferToBusiness { get; set; }
-        public TransferToPrivateSubscriptionOrderDTOResponse? TransferToPrivateSub { get; set; }
+        public TransferToPrivateSubscriptionOrderDTOResponse? TransferToPrivate { get; set; }
         public OrderSimSubscriptionOrderDTO? OrderSim { get; set; }
         public ActivateSimOrderDTOResponse? ActivateSim { get; set; }
         public NewSubscriptionOrderDTO? NewSubscription { get; set; }

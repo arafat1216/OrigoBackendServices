@@ -20,7 +20,7 @@ namespace SubscriptionManagementServices.Mappings
                    opts.MapFrom(m => new TransferToBusinessSubscriptionOrderDTOResponse(m)));
 
             CreateMap<TransferToPrivateSubscriptionOrderDTOResponse, DetailViewSubscriptionOrderLog>()
-                 .ForMember(dto => dto.TransferToPrivateSub,
+                 .ForMember(dto => dto.TransferToPrivate,
                  opts => opts.MapFrom(m => new TransferToPrivateSubscriptionOrderDTOResponse(m))); 
 
             CreateMap<ChangeSubscriptionOrderDTO, DetailViewSubscriptionOrderLog>()

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Common.Seedwork;
+using SubscriptionManagementServices.Types;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -84,7 +85,7 @@ namespace SubscriptionManagementServices.Models
         #region ISubscriptionOrder implementation
 
         public Guid SubscriptionOrderId { get; set; }
-        [NotMapped] public string OrderType => "TransferToBusiness";
+        [NotMapped] public OrderTypes OrderType => OrderTypes.TransferToBusiness;
         [NotMapped] public string PhoneNumber => MobileNumber;
 
         [NotMapped]

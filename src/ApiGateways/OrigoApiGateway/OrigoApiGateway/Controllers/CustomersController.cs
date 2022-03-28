@@ -690,6 +690,15 @@ namespace OrigoApiGateway.Controllers
 
             return Ok(response);
         }
+        [Route("{organizationId:Guid}/subscription-orders-detail-view/{orderId:Guid}/{orderType:int}")]
+        [ProducesResponseType(typeof(OrigoSubscriptionOrderDetailView), (int)HttpStatusCode.OK)]
+        [HttpGet]
+        public async Task<ActionResult> GetSubscriptionOrderDetailView(Guid organizationId, Guid orderId, int orderType)
+        {
+            var response = await SubscriptionManagementService.GetSubscriptionOrderDetailViewAsync(organizationId, orderId,orderType);
+
+            return Ok(response);
+        }
 
         [Route("{organizationId:Guid}/standard-private-subscription-products")]
         [ProducesResponseType(typeof(IList<OrigoCustomerStandardPrivateSubscriptionProduct>), (int)HttpStatusCode.OK)]

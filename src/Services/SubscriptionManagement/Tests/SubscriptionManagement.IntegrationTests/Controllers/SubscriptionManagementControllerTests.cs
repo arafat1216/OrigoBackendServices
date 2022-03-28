@@ -1030,4 +1030,57 @@ public class
          $"Invalid transfer date. 1 workday ahead or more is allowed.",
         response.Content.ReadAsStringAsync().Result);
     }
+    [Fact]
+    public async Task GetDetailViewSubscriptionOrderLog_ReturnOK()
+    {
+        
+        int orderType = 7;
+
+        var cancel = new NewCancelSubscriptionOrder
+        {
+            OperatorId = 1,
+            DateOfTermination = DateTime.UtcNow.AddDays(3),
+            MobileNumber = "+4741454546",
+            CallerId = new Guid()
+        };
+
+        var responseCancel = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-cancel", cancel);
+        Assert.Equal(HttpStatusCode.Created, responseCancel.StatusCode);
+        
+        var subscriptionOrderList = await _httpClient.GetFromJsonAsync<List<SubscriptionOrderListItemDTO>>($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-orders");
+        
+
+
+        string requestUri = $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-orders-detail-view/{subscriptionOrderList[0].SubscriptionOrderId}/{orderType}";
+        var response = await _httpClient.GetAsync(requestUri);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+    [Fact]
+    public async Task GetDetailViewSubscriptionOrderLog_ReturnBadRequestWrongOrderType()
+    {
+
+        int orderType = 5;
+
+        var cancel = new NewCancelSubscriptionOrder
+        {
+            OperatorId = 1,
+            DateOfTermination = DateTime.UtcNow.AddDays(3),
+            MobileNumber = "+4741454546",
+            CallerId = new Guid()
+        };
+
+        var responseCancel = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-cancel", cancel);
+        Assert.Equal(HttpStatusCode.Created, responseCancel.StatusCode);
+
+        var subscriptionOrderList = await _httpClient.GetFromJsonAsync<List<SubscriptionOrderListItemDTO>>($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-orders");
+
+
+
+        string requestUri = $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-orders-detail-view/{subscriptionOrderList[0].SubscriptionOrderId}/{orderType}";
+        var response = await _httpClient.GetAsync(requestUri);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains(
+        $"Can't find the order with id: {subscriptionOrderList[0].SubscriptionOrderId}",
+       response.Content.ReadAsStringAsync().Result);
+    }
 }
