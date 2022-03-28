@@ -146,7 +146,7 @@ namespace CustomerServices.Infrastructure
                 .FirstOrDefaultAsync(c => c.OrganizationId == organizationId);
         }
 
-        public async Task<Location?> GetOrganizationLocationAsync(Guid? locationId)
+        public async Task<Location?> GetOrganizationLocationAsync(Guid locationId)
         {
             return await _customerContext.Locations
                 .FirstOrDefaultAsync(c => c.LocationId == locationId);

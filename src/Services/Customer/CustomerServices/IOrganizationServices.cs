@@ -1,4 +1,5 @@
 ﻿using CustomerServices.Models;
+using CustomerServices.ServiceModels;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace CustomerServices
         Task<OrganizationPreferences> RemoveOrganizationPreferencesAsync(Guid organizationId);
         Task<Location> GetLocationAsync(Guid locationId);
         Task<Location> UpdateOrganizationLocationAsync(Location updateLocation, bool usingPatch = false);
-        Task<Location> DeleteOrganizationLocationAsync(Guid locationId, Guid callerId, bool hardDelete = false);
+        Task<LocationDTO> DeleteOrganizationLocationAsync(Guid locationId, Guid callerId, bool hardDelete = false);
         Task<Organization> AddOrganizationAsync(Organization newOrganization);
         Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
         Task<Location> AddOrganizationLocationAsync(Location location);

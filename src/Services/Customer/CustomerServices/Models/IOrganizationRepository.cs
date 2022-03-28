@@ -88,7 +88,7 @@ namespace CustomerServices.Models
         Task<Organization?> GetCustomerAsync(Guid customerId);
         Task<Organization> GetOrganizationByOrganizationNumber(string organizationNumber);
         Task<OrganizationPreferences> GetOrganizationPreferencesAsync(Guid organizationId);
-        Task<Location> GetOrganizationLocationAsync(Guid? locationId);
+        Task<Location?> GetOrganizationLocationAsync(Guid locationId);
         Task<Location> DeleteOrganizationLocationAsync(Location organizationLocation);
         Task<Organization> DeleteOrganizationAsync(Organization organization);
 

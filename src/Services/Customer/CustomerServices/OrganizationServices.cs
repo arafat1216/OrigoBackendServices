@@ -2,6 +2,7 @@
 using Common.Exceptions;
 using CustomerServices.Exceptions;
 using CustomerServices.Models;
+using CustomerServices.ServiceModels;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,9 @@ namespace CustomerServices
                 foreach (Organization o in organizations)
                 {
                     o.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
-                    o.Location = await _organizationRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
+
+                    if (o.PrimaryLocation is not null)
+                        o.Location = await _organizationRepository.GetOrganizationLocationAsync((Guid)o.PrimaryLocation);
                 }
             }
             else
@@ -46,7 +49,9 @@ namespace CustomerServices
                 {
                     o.ChildOrganizations = await _organizationRepository.GetOrganizationsAsync(whereFilter: entity => entity.ParentId == o.OrganizationId);
                     o.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
-                    o.Location = await _organizationRepository.GetOrganizationLocationAsync(o.PrimaryLocation);
+
+                    if (o.PrimaryLocation is not null)
+                        o.Location = await _organizationRepository.GetOrganizationLocationAsync((Guid)o.PrimaryLocation);
                 }
             }
 
@@ -87,18 +92,13 @@ namespace CustomerServices
                 {
                     organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(customerId);
                 }
-                if (includeLocation)
+                if (includeLocation && organization.PrimaryLocation is not null)
                 {
-                    organization.Location = await _organizationRepository.GetOrganizationLocationAsync(organization.PrimaryLocation);
+                    organization.Location = await _organizationRepository.GetOrganizationLocationAsync((Guid)organization.PrimaryLocation);
                 }
             }
 
             return organization;
-        }
-
-        public async Task<Organization?> GetCustomerAsync(Guid customerId)
-        {
-            return await _organizationRepository.GetCustomerAsync(customerId);
         }
 
         public async Task<Organization> GetOrganizationByOrganizationNumberAsync(string organizationNumber)
@@ -110,7 +110,6 @@ namespace CustomerServices
         {
             return await _organizationRepository.GetOrganizationUserCountsAsync();
         }
-
 
         public async Task<Organization> AddOrganizationAsync(Organization newOrganization)
         {
@@ -138,9 +137,9 @@ namespace CustomerServices
             {
                 throw new DuplicateException($"Only one of the following should be provided: {nameof(newOrganization.Location)} or {nameof(newOrganization.PrimaryLocation)}.");
             }
-            else if (newOrganization.PrimaryLocation != null)
+            else if (newOrganization.PrimaryLocation is not null)
             {
-                var location = await _organizationRepository.GetOrganizationLocationAsync(newOrganization.PrimaryLocation);
+                var location = await _organizationRepository.GetOrganizationLocationAsync((Guid)newOrganization.PrimaryLocation);
             }
 
 
@@ -182,7 +181,11 @@ namespace CustomerServices
                     newLocation = new Location(Guid.Empty, callerId, "", "", "", "", "", "", "");
                 else
                 {
-                    newLocation = await GetLocationAsync((Guid)primaryLocation);
+                    if (primaryLocation is null)
+                        throw new LocationNotFoundException();
+
+                    newLocation = await _organizationRepository.GetOrganizationLocationAsync((Guid)primaryLocation);
+
                     if (newLocation is null)
                         throw new LocationNotFoundException();
                 }
@@ -282,7 +285,11 @@ namespace CustomerServices
                     newLocation = new Location(Guid.Empty, callerId, "", "", "", "", "", "", "");
                 else
                 {
-                    newLocation = await GetLocationAsync((Guid)primaryLocation);
+                    if (primaryLocation is null)
+                        throw new LocationNotFoundException();
+
+                    newLocation = await _organizationRepository.GetOrganizationLocationAsync((Guid)primaryLocation);
+
                     if (newLocation == null)
                         throw new LocationNotFoundException();
                 }
@@ -544,7 +551,7 @@ namespace CustomerServices
             }
         }
 
-        public async Task<Location> DeleteOrganizationLocationAsync(Guid locationId, Guid callerId, bool hardDelete = false)
+        public async Task<LocationDTO> DeleteOrganizationLocationAsync(Guid locationId, Guid callerId, bool hardDelete = false)
         {
             try
             {
@@ -559,10 +566,11 @@ namespace CustomerServices
 
                 if (hardDelete)
                 {
-                    return await _organizationRepository.DeleteOrganizationLocationAsync(location);
+                    var result = await _organizationRepository.DeleteOrganizationLocationAsync(location);
+                    return new LocationDTO(result);
                 }
 
-                return location;
+                return new LocationDTO(location);
             }
             catch (Exception ex)
             {
