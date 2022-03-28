@@ -13,6 +13,7 @@ namespace SubscriptionManagementServices.ServiceModels
             PrivateSubscription = DTO.PrivateSubscription;
             BusinessSubscription = DTO.BusinessSubscription;
             MobileNumber = DTO.MobileNumber;
+            OperatorId = DTO.OperatorId;
             OperatorName = DTO.OperatorName;
             SubscriptionProductName = DTO.SubscriptionProductName;
             DataPackage = DTO.DataPackage;
@@ -28,17 +29,21 @@ namespace SubscriptionManagementServices.ServiceModels
         /// <summary>
         /// The current owner the subscription will be transferred from.
         /// </summary>
-        public PrivateSubscriptionDTO? PrivateSubscription { get; set; } = null;
-        public BusinessSubscriptionDTO? BusinessSubscription { get; set; } = null;
+        public PrivateSubscriptionResponse? PrivateSubscription { get; set; } = null;
+        public BusinessSubscriptionResponse? BusinessSubscription { get; set; } = null;
         /// <summary>
         /// The mobile number to be transferred
         /// </summary>
         public string MobileNumber { get; set; }
-
+        /// <summary>
+        ///   New operator id
+        /// </summary>
+        public int OperatorId { get; set; }
         /// <summary>
         ///     New operator
         /// </summary>
         public string? OperatorName { get; set; }
+        
 
         /// <summary>
         ///     Customer Subscription product name

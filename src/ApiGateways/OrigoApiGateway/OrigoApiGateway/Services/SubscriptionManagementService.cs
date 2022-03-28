@@ -380,7 +380,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<TransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrderForCustomerAsync(
+        public async Task<OrigoTransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrderForCustomerAsync(
             Guid organizationId, TransferToPrivateSubscriptionOrder order, Guid callerId)
         {
                 string requestUri = $"{_options.ApiPath}/{organizationId}/transfer-to-private";
@@ -394,7 +394,7 @@ namespace OrigoApiGateway.Services
 
                 if (postSubscription.StatusCode == HttpStatusCode.Created)
                 {
-                    return await postSubscription.Content.ReadFromJsonAsync<TransferToPrivateSubscriptionOrder>();
+                    return await postSubscription.Content.ReadFromJsonAsync<OrigoTransferToPrivateSubscriptionOrder>();
                 }
                 if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
                 {

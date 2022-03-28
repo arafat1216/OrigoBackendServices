@@ -123,7 +123,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         if (customerSubscriptionProduct == null)
             throw new ArgumentException(
                 $"No subscription product exists with ID {order.SubscriptionProductId}");
-
+       
 
         //Datapackages only check if there is a value from request
         if (!string.IsNullOrEmpty(order.DataPackage))
@@ -168,8 +168,20 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
         await _emailService.SendAsync(OrderTypes.TransferToBusiness.ToString(), subscriptionOrder.SubscriptionOrderId, order, new Dictionary<string, string> { { "OperatorName", newOperatorName }, { "SubscriptionProductName", transferToBusinessSubscriptionOrder.SubscriptionProductName } });
 
-        var mapping = _mapper.Map<TransferToBusinessSubscriptionOrderDTOResponse>(subscriptionOrder);
+        var operatorSettings = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == newOperatorName);
 
+        var mapping = _mapper.Map<TransferToBusinessSubscriptionOrderDTOResponse>(subscriptionOrder);
+        if (mapping != null && operatorSettings != null)
+        {
+            mapping.OperatorId = operatorSettings.Operator.Id;
+            if (mapping.NewOperatorAccount != null) mapping.NewOperatorAccount.NewOperatorId = operatorSettings.Operator.Id;
+            if (mapping.BusinessSubscription != null) 
+            { 
+                mapping.BusinessSubscription.OperatorId = operatorSettings.Operator.Id;
+                mapping.BusinessSubscription.OperatorName = newOperatorName; 
+            }
+            if (mapping.PrivateSubscription != null) mapping.PrivateSubscription.OperatorId = operatorSettings.Operator.Id;
+        }
         return mapping;
     }
 
@@ -207,7 +219,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         return newOperatorName;
     }
 
-    public async Task<TransferToPrivateSubscriptionOrderDTO> TransferToPrivateSubscriptionOrderAsync(
+    public async Task<TransferToPrivateSubscriptionOrderDTOResponse> TransferToPrivateSubscriptionOrderAsync(
         Guid organizationId, TransferToPrivateSubscriptionOrderDTO subscriptionOrder)
     {
         var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
@@ -243,8 +255,14 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(order);
 
         await _emailService.SendAsync(OrderTypes.TransferToPrivate.ToString(), added.SubscriptionOrderId, order, new Dictionary<string, string> { { "OperatorName", subscriptionOrder.OperatorName }});
-
-        return _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(added);
+        var mapped = _mapper.Map<TransferToPrivateSubscriptionOrderDTOResponse>(added);
+        var operatorSettings = customerSettings?.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == subscriptionOrder.OperatorName);
+        if (operatorSettings != null && mapped != null)
+        {
+            mapped.OperatorId = operatorSettings.Operator.Id;
+           if (mapped.PrivateSubscription != null) mapped.PrivateSubscription.OperatorId = operatorSettings.Operator.Id;
+        }
+        return mapped;
     }
 
     public async Task<IList<SubscriptionOrderListItemDTO>> GetSubscriptionOrderLog(Guid organizationId)
@@ -255,7 +273,11 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
     public async Task<ChangeSubscriptionOrderDTO> ChangeSubscriptionOrder(Guid organizationId, NewChangeSubscriptionOrder subscriptionOrder)
     {
+
         var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+
+        Operator @operator;
+
         if (customerSettings != null)
         {
             var customersOperator = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == subscriptionOrder.OperatorName);
@@ -263,7 +285,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             if (customersOperator != null)
             {
 
-                var @operator = await _operatorRepository.GetOperatorAsync(customersOperator.Operator.Id);
+                @operator = await _operatorRepository.GetOperatorAsync(customersOperator.Operator.Id);
 
                 if (!PhoneNumberUtility.ValidatePhoneNumber(subscriptionOrder.MobileNumber, @operator?.Country ?? string.Empty))
                 {
@@ -303,8 +325,10 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(changeSubscriptionOrder);
 
         await _emailService.SendAsync(OrderTypes.ChangeSubscription.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", subscriptionOrder.OperatorName } });
-
-        return _mapper.Map<ChangeSubscriptionOrderDTO>(added);
+        var mapped = _mapper.Map<ChangeSubscriptionOrderDTO>(added);
+        mapped.OperatorId = @operator.Id;
+        
+        return mapped;
     }
 
     public async Task<CancelSubscriptionOrderDTO> CancelSubscriptionOrder(Guid organizationId, NewCancelSubscriptionOrder subscriptionOrder)
@@ -355,7 +379,10 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
         await _emailService.SendAsync(OrderTypes.OrderSim.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
 
-        return _mapper.Map<OrderSimSubscriptionOrderDTO>(added);
+        var mapped = _mapper.Map<OrderSimSubscriptionOrderDTO>(added);
+        mapped.OperatorId = @operator.Id;
+        
+        return mapped;
     }
 
     public async Task<ActivateSimOrderDTO> ActivateSimAsync(Guid organizationId, NewActivateSimOrder simOrder)
@@ -489,55 +516,129 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
         var subscriptionOrder = await _subscriptionManagementRepository.AddSubscriptionOrder(newSubscription);
         await _emailService.SendAsync(OrderTypes.NewSubscription.ToString(), subscriptionOrder.SubscriptionOrderId, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName }, { "SubscriptionProductName", newSubscription.SubscriptionProductName } });
-        return _mapper.Map<NewSubscriptionOrderDTO>(subscriptionOrder);
+        var mapped = _mapper.Map<NewSubscriptionOrderDTO>(subscriptionOrder);
+
+        if (mapped != null)
+        {
+            mapped.OperatorName = @operator.OperatorName;
+            if(mapped.PrivateSubscription != null) mapped.PrivateSubscription.OperatorId = @operator.Id;
+            if (mapped.BusinessSubscription != null)
+            {
+                mapped.BusinessSubscription.OperatorName = @operator.OperatorName;
+                mapped.BusinessSubscription.OperatorId = @operator.Id;
+            }
+        }
+
+        return mapped;
     }
 
     public async Task<DetailViewSubscriptionOrderLog> GetDetailViewSubscriptionOrderLogAsync(Guid organizationId, Guid orderId, int orderType)
     {
         DetailViewSubscriptionOrderLog detailViewSubscriptionOrder;
+        CustomerOperatorSettings @operator;
+        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        if (customerSetting == null) throw new CustomerSettingsException($"Customer {organizationId} is not configured.",Guid.Parse("b0cdc324-f97a-4749-87dd-6a0e18a9aad6"));
+
 
         switch ((OrderTypes)orderType)
         {
             case OrderTypes.OrderSim:
                 var orderSim = await _subscriptionManagementRepository.GetOrderSimOrder(orderId);
                 var mappedOrderSim =  _mapper.Map<OrderSimSubscriptionOrderDTO>(orderSim);
+                @operator = customerSetting.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == orderSim.OperatorName);
+                if (@operator != null) mappedOrderSim.OperatorId = @operator.Operator.Id;
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedOrderSim);
+                detailViewSubscriptionOrder.CreatedBy = orderSim.CreatedBy;
+                detailViewSubscriptionOrder.CreatedDate = orderSim.CreatedDate;
                 break;
 
             case OrderTypes.ActivateSim:
                 var activateSim = await _subscriptionManagementRepository.GetActivateSimOrder(orderId);
-                var mappedactivateSim = _mapper.Map<ActivateSimOrderDTOResponse>(activateSim);
+                var mappedactivateSim = _mapper.Map<ActivateSimOrderDTO>(activateSim);
+                
+                @operator = customerSetting.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == activateSim.OperatorName);
+                if (@operator != null) mappedactivateSim.OperatorId = @operator.Operator.Id;
+
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedactivateSim);
+                detailViewSubscriptionOrder.CreatedBy = activateSim.CreatedBy;
+                detailViewSubscriptionOrder.CreatedDate = activateSim.CreatedDate;
                 break;
 
             case OrderTypes.TransferToBusiness:
                 var transferToBusiness = await _subscriptionManagementRepository.GetTransferToBusinessOrder(orderId);
                 var mappedT2B = _mapper.Map<TransferToBusinessSubscriptionOrderDTOResponse>(transferToBusiness);
+                @operator = customerSetting.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == transferToBusiness.OperatorName);
+                if (@operator != null) {
+                    if (mappedT2B.PrivateSubscription != null) mappedT2B.PrivateSubscription.OperatorId = @operator.Operator.Id;
+                    if (mappedT2B.BusinessSubscription != null)
+                    {
+                        mappedT2B.BusinessSubscription.OperatorId = @operator.Operator.Id;
+                        mappedT2B.BusinessSubscription.OperatorName = @operator.Operator.OperatorName;
+                    }
+                    mappedT2B.OperatorId = @operator.Operator.Id;
+                    if (mappedT2B.NewOperatorAccount != null) mappedT2B.OperatorId = @operator.Operator.Id;
+                }
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedT2B);
+                detailViewSubscriptionOrder.CreatedBy = transferToBusiness.CreatedBy;
+                detailViewSubscriptionOrder.CreatedDate = transferToBusiness.CreatedDate;
                 break;
 
             case OrderTypes.TransferToPrivate:
                 var transferToPrivate = await _subscriptionManagementRepository.GetTransferToPrivateOrder(orderId);
                 var mappedT2P = _mapper.Map<TransferToPrivateSubscriptionOrderDTOResponse>(transferToPrivate);
+                @operator = customerSetting.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == transferToPrivate.OperatorName);
+                if (@operator != null)
+                {
+                    mappedT2P.OperatorId = @operator.Operator.Id;
+                    if (mappedT2P.PrivateSubscription != null) mappedT2P.PrivateSubscription.OperatorId = @operator.Operator.Id;
+
+                }
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedT2P);
+                detailViewSubscriptionOrder.CreatedBy = transferToPrivate.CreatedBy;
+                detailViewSubscriptionOrder.CreatedDate = transferToPrivate.CreatedDate;
                 break;
 
             case OrderTypes.NewSubscription:
                 var newSubscription = await _subscriptionManagementRepository.GetNewSubscriptionOrder(orderId);
                 var mappedNewSubscription = _mapper.Map<NewSubscriptionOrderDTO>(newSubscription);
+
+                @operator = customerSetting.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.Id == newSubscription.OperatorId);
+                if(@operator != null)
+                {
+                    mappedNewSubscription.OperatorName = @operator.Operator.OperatorName;
+                    if (mappedNewSubscription.BusinessSubscription != null)
+                    {
+                        mappedNewSubscription.BusinessSubscription.OperatorName = @operator.Operator.OperatorName;
+                        mappedNewSubscription.BusinessSubscription.OperatorId = @operator?.Operator.Id;
+                    }
+                    if(mappedNewSubscription.PrivateSubscription != null) mappedNewSubscription.PrivateSubscription.OperatorId = @operator.Operator.Id;
+                }
+
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedNewSubscription);
+                detailViewSubscriptionOrder.CreatedBy = newSubscription.CreatedBy;
+                detailViewSubscriptionOrder.CreatedDate = newSubscription.CreatedDate;
                 break;
 
             case OrderTypes.ChangeSubscription:
                 var changeSubscription = await _subscriptionManagementRepository.GetChangeSubscriptionOrder(orderId);
                 var mappedChangeSubscription = _mapper.Map<ChangeSubscriptionOrderDTO>(changeSubscription);
+                @operator = customerSetting.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == changeSubscription.OperatorName);
+                if (@operator != null) mappedChangeSubscription.OperatorId = @operator.Operator.Id;
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedChangeSubscription);
+                detailViewSubscriptionOrder.CreatedBy = changeSubscription.CreatedBy;
+                detailViewSubscriptionOrder.CreatedDate = changeSubscription.CreatedDate;
                 break;
 
             case OrderTypes.CancelSubscription:
                 var cancelSubscription = await _subscriptionManagementRepository.GetCancelSubscriptionOrder(orderId);
-                var mappedCancelSubscription = _mapper.Map<CancelSubscriptionOrderDTOResponse>(cancelSubscription);
+
+                var mappedCancelSubscription = _mapper.Map<CancelSubscriptionOrderDTO>(cancelSubscription);
+                @operator = customerSetting.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == cancelSubscription.OperatorName);
+                if(@operator != null) mappedCancelSubscription.OperatorId = @operator.Operator.Id;
+
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedCancelSubscription);
+                detailViewSubscriptionOrder.CreatedBy = cancelSubscription.CreatedBy;
+                detailViewSubscriptionOrder.CreatedDate = cancelSubscription.CreatedDate;
                 break;
  
             default:

@@ -5,10 +5,12 @@
         public TransferToBusinessSubscriptionOrderDTOResponse? TransferToBusiness { get; set; }
         public TransferToPrivateSubscriptionOrderDTOResponse? TransferToPrivate { get; set; }
         public OrderSimSubscriptionOrderDTO? OrderSim { get; set; }
-        public ActivateSimOrderDTOResponse? ActivateSim { get; set; }
+        public ActivateSimOrderDTO? ActivateSim { get; set; }
         public NewSubscriptionOrderDTO? NewSubscription { get; set; }
         public ChangeSubscriptionOrderDTO? ChangeSubscription { get; set; }
-        public CancelSubscriptionOrderDTOResponse? CancelSubscription { get; set; }
+        public CancelSubscriptionOrderDTO? CancelSubscription { get; set; }
+        public Guid CreatedBy { get; set; }
+        public DateTime CreatedDate { get; set; }
 
     }
 }

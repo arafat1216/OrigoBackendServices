@@ -10,6 +10,7 @@ namespace SubscriptionManagementServices.ServiceModels
         public ChangeSubscriptionOrderDTO( ChangeSubscriptionOrderDTO DTO)
         {
             MobileNumber = DTO.MobileNumber;
+            OperatorId = DTO.OperatorId;
             OperatorName = DTO.OperatorName;
             ProductName = DTO.ProductName;
             PackageName = DTO.PackageName;
@@ -18,6 +19,7 @@ namespace SubscriptionManagementServices.ServiceModels
         }
 
             public string MobileNumber { get; set; }
+            public int OperatorId { get; set; }
             public string OperatorName { get; set; }
             public string ProductName { get; set; }
             public string? PackageName { get; set; }

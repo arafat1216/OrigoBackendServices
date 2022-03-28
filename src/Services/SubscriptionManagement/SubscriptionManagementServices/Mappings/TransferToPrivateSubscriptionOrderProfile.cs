@@ -14,6 +14,7 @@ namespace SubscriptionManagementServices.Mappings
 
             CreateMap<TransferToPrivateSubscriptionOrder, TransferToPrivateSubscriptionOrderDTO>()
                 .ForMember(dto => dto.PrivateSubscription, opts => opts.MapFrom(m => m.UserInfo))
+                .ForMember(dto => dto.NewSubscription, opts => opts.MapFrom(m => m.NewSubscription))
                 .ForMember(m => m.CallerId, opts => opts.MapFrom(dto => dto.CreatedBy));
 
             CreateMap<TransferToPrivateSubscriptionOrder, TransferToPrivateSubscriptionOrderDTOResponse>()
