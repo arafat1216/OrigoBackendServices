@@ -23,7 +23,7 @@ namespace CustomerServices.ServiceModels
         /// <summary>
         ///     The country, using the <c>ISO 3166-1 (alpha-2)</c> standard.
         /// </summary>
-        [RegularExpression("^[a-z]{2}")] // Exactly 2 lowercase characters
+        [RegularExpression("^[A-Z]{2}")] // Exactly 2 uppercase characters
         public string Country { get; set; }
     }
 }
