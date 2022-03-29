@@ -214,8 +214,8 @@ public class CustomerSettingsService : ICustomerSettingsService
     {
         var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
         
-        if (customerSetting == null) throw new CustomerSettingsException($"Missing customer settings for customer with id: {organizationId}", Guid.Parse("a253af73-7936-4258-9964-86b7828b3b2a"));
-
+        if (customerSetting == null) return new List<CustomerStandardPrivateSubscriptionProductDTO>();
+            
         var standardPrivateProduct = customerSetting.CustomerOperatorSettings.Where(a => a.StandardPrivateSubscriptionProduct != null)
                   .Select(emp => new CustomerStandardPrivateSubscriptionProductDTO
                   {
