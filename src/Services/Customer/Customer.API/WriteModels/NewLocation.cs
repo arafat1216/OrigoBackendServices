@@ -17,9 +17,19 @@ namespace Customer.API.WriteModels
         public string City { get; set; }
 
         /// <summary>
-        ///     The country, using the <c>ISO 3166-1 (alpha-2)</c> standard.
+        ///     Internal backing field for <see cref="Country"/>.
         /// </summary>
-        [RegularExpression("^[A-Z]{2}")] // Exactly 2 uppercase characters
-        public string Country { get; set; }
+        private string _country;
+
+        /// <summary>
+        ///     The country, using the uppercase <c>ISO 3166-1 (alpha-2)</c> standard.
+        /// </summary>
+        /// <example> US </example>
+        [RegularExpression("^[a-zA-Z]{2}")] // Exactly 2 characters
+        public string Country
+        {
+            get { return _country; }
+            set { _country = value.ToUpper(); }
+        }
     }
 }
