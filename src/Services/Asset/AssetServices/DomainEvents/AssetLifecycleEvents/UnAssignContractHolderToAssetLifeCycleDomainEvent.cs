@@ -20,7 +20,7 @@ namespace AssetServices.DomainEvents.AssetLifecycleEvents
 
         public override string EventMessage()
         {
-            return $"Asset lifecycle un-assigned from user with ID {PreviousContractHolder?.Id}.";
+            return $"Asset lifecycle un-assigned from user with ID {PreviousContractHolder?.ExternalId}.";
         }
     }
 }
