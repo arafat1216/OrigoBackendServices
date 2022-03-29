@@ -221,6 +221,7 @@ public class CustomerSettingsService : ICustomerSettingsService
                   {
                       DataPackage = emp.StandardPrivateSubscriptionProduct.DataPackage,
                       OperatorName = emp.Operator.OperatorName,
+                      OperatorId = emp.Operator.Id,
                       SubscriptionName = emp.StandardPrivateSubscriptionProduct.SubscriptionName
                   }).ToList();
      

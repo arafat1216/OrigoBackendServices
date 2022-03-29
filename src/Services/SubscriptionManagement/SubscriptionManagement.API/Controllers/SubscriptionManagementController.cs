@@ -119,7 +119,7 @@ namespace SubscriptionManagement.API.Controllers
         /// <param name="subscriptionOrder"></param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(TransferToPrivateSubscriptionOrderDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(TransferToPrivateSubscriptionOrderDTOResponse), (int)HttpStatusCode.Created)]
         [SwaggerOperation(Tags = new[] { "Subscription Orders" })]
         [Route("{organizationId:Guid}/transfer-to-private")]
         public async Task<IActionResult> TransferSubscriptionToPrivate(Guid organizationId, [FromBody] TransferToPrivateSubscriptionOrderDTO subscriptionOrder)
@@ -196,7 +196,7 @@ namespace SubscriptionManagement.API.Controllers
         /// <param name="simOrder"></param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(OrderSimSubscriptionOrderDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ActivateSimOrderDTO), (int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         [SwaggerOperation(Tags = new[] { "Subscription Orders" })]
         [Route("{organizationId:Guid}/activate-sim")]

@@ -10,6 +10,7 @@ namespace SubscriptionManagementServices.Mappings
         {
             CreateMap<BusinessSubscriptionDTO, BusinessSubscription>();
             CreateMap<BusinessSubscription, BusinessSubscriptionDTO>();
+            CreateMap<BusinessSubscription, BusinessSubscriptionResponse>();
         }
     }
 }

@@ -11,9 +11,9 @@ namespace SubscriptionManagementServices.Mappings
                 .ForMember(dto => dto.OrderSim, opts =>
                     opts.MapFrom(m => new OrderSimSubscriptionOrderDTO(m)));
 
-            CreateMap<ActivateSimOrderDTOResponse, DetailViewSubscriptionOrderLog>()
+            CreateMap<ActivateSimOrderDTO, DetailViewSubscriptionOrderLog>()
                 .ForMember(dto => dto.ActivateSim, opts =>
-                    opts.MapFrom(m => new ActivateSimOrderDTOResponse(m)));
+                    opts.MapFrom(m => new ActivateSimOrderDTO(m)));
 
             CreateMap<TransferToBusinessSubscriptionOrderDTOResponse, DetailViewSubscriptionOrderLog>()
                .ForMember(dto => dto.TransferToBusiness, opts =>
@@ -27,9 +27,9 @@ namespace SubscriptionManagementServices.Mappings
              .ForMember(dto => dto.ChangeSubscription, opts =>
                  opts.MapFrom(m => new ChangeSubscriptionOrderDTO(m)));
 
-            CreateMap<CancelSubscriptionOrderDTOResponse, DetailViewSubscriptionOrderLog>()
+            CreateMap<CancelSubscriptionOrderDTO, DetailViewSubscriptionOrderLog>()
             .ForMember(dto => dto.CancelSubscription, opts =>
-                opts.MapFrom(m => new CancelSubscriptionOrderDTOResponse(m)));
+                opts.MapFrom(m => new CancelSubscriptionOrderDTO(m)));
 
             CreateMap<NewSubscriptionOrderDTO, DetailViewSubscriptionOrderLog>()
             .ForMember(dto => dto.NewSubscription, opts =>

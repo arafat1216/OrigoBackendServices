@@ -239,7 +239,7 @@ public class
 
         var request = new TransferToPrivateSubscriptionOrderDTO
         {
-            PrivateSubscription = new PrivateSubscriptionDTO
+            PrivateSubscription = new PrivateSubscriptionResponse
             {
                 OperatorName = "Telia - NO",
                 FirstName = "Kari",
@@ -267,7 +267,7 @@ public class
     {
         var newTransferFromPrivate = new TransferToPrivateSubscriptionOrderDTO
         {
-            PrivateSubscription = new PrivateSubscriptionDTO
+            PrivateSubscription = new PrivateSubscriptionResponse
             {
                 OperatorName = "TELEFONIA",
                 FirstName = "Ola",
@@ -296,7 +296,7 @@ public class
     {
         var newTransferFromPrivate = new TransferToPrivateSubscriptionOrderDTO
         {
-            PrivateSubscription = new PrivateSubscriptionDTO
+            PrivateSubscription = new PrivateSubscriptionResponse
             {
                 OperatorName = "TELEFONIA",
                 FirstName = "Ola",

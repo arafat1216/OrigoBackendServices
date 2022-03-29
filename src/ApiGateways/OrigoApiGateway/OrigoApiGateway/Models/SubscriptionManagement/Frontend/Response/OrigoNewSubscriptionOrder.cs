@@ -9,6 +9,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response
         public string MobileNumber { get; set; }
 
         public int OperatorId { get; set; }
+        public string OperatorName { get; set; }
 
         public int? OperatorAccountId { get; set; }
 
@@ -32,7 +33,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response
 
         public IList<NewCustomerReferenceValue> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceValue>();
 
-        public PrivateSubscription? PrivateSubscription { get; set; } = null;
-        public BusinessSubscription? BusinessSubscription { get; set; } = null;
+        public OrigoPrivateSubscription? PrivateSubscription { get; set; } = null;
+        public OrigoBusinessSubscription? BusinessSubscription { get; set; } = null;
     }
 }

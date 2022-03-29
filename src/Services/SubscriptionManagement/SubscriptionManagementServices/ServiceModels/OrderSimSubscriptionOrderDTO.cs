@@ -10,6 +10,7 @@ public record OrderSimSubscriptionOrderDTO
     {
         SendToName = DTO.SendToName;
         Address = DTO.Address;
+        OperatorId = DTO.OperatorId;
         OperatorName = DTO.OperatorName;
         Quantity = DTO.Quantity;
         CallerId = DTO.CallerId;
@@ -22,7 +23,7 @@ public record OrderSimSubscriptionOrderDTO
     /// Send to either private or business address
     /// </summary>
     public Address Address { get; set; }
-
+    public int OperatorId { get; set; }
     public string OperatorName { get; set; }
     public int Quantity { get; set; }
     public Guid CallerId { get; set; }

@@ -479,6 +479,7 @@ namespace OrigoApiGateway.Controllers
         }
 
         [Route("{organizationId:Guid}/subscription-transfer-to-private")]
+        [ProducesResponseType(typeof(OrigoTransferToPrivateSubscriptionOrder), (int)HttpStatusCode.OK)]
         [HttpPost]
         public async Task<ActionResult> TransferSubscriptionToPrivate(Guid organizationId, [FromBody] TransferToPrivateSubscriptionOrder order)
         {
@@ -651,7 +652,7 @@ namespace OrigoApiGateway.Controllers
         /// <param name="order"></param>
         /// <returns></returns>
         [Route("{organizationId:Guid}/new-subscription")]
-        [ProducesResponseType(typeof(NewSubscriptionOrder), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(OrigoNewSubscriptionOrder), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         [HttpPost]
         public async Task<ActionResult> NewSubscriptionOrder(Guid organizationId, [FromBody] NewSubscriptionOrder order)
@@ -677,7 +678,7 @@ namespace OrigoApiGateway.Controllers
             requestModel.CallerId = callerId;
 
             var response = await SubscriptionManagementService.NewSubscriptionOrder(organizationId, requestModel);
-            return CreatedAtAction(nameof(NewSubscriptionOrder), order);
+            return CreatedAtAction(nameof(NewSubscriptionOrder), response);
         }
 
 

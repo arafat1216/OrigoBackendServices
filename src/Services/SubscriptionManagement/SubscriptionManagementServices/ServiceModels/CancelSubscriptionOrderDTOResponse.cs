@@ -18,6 +18,7 @@ namespace SubscriptionManagementServices.ServiceModels
 
         public Guid SubscriptionOrderId { get; set; }
         public string MobileNumber { get; set; }
+        
         public string OperatorName { get; set; }
         public DateTime DateOfTermination { get; set; }
         public Guid CreatedBy { get; set; }
