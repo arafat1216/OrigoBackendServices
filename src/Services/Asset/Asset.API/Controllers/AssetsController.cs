@@ -16,6 +16,7 @@ using System.Text.Json;
 using AutoMapper;
 using Common.Enums;
 using Common.Exceptions;
+using Dapr;
 
 namespace Asset.API.Controllers
 {
@@ -70,6 +71,16 @@ namespace Asset.API.Controllers
         {
             var assetLifecycles = await _assetServices.GetAssetLifecyclesForUserAsync(customerId, userId);
             return Ok(_mapper.Map<ViewModels.Asset>(assetLifecycles));
+        }
+
+        [Route("customers/{customerId:guid}/users/{userId:Guid}")]
+        [HttpPatch]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Topic("user_deleted_pub_sub", "user_topic")]
+        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UnAssignAssetsFromUser(Guid customerId, Guid userId, [FromBody] UnAssignAssetToUser data)
+        {
+            await _assetServices.UnAssignAssetLifecyclesForUserAsync(customerId, userId, data.DepartmentId, data.CallerId);
+            return Accepted();
         }
 
         [Route("customers/{customerId:guid}/labels")]
@@ -175,11 +186,11 @@ namespace Asset.API.Controllers
                 };
                 return Ok(JsonSerializer.Serialize<object>(labelList, options));
             }
-            catch(ResourceNotFoundException ex)
+            catch (ResourceNotFoundException ex)
             {
                 return NotFound(ex.Message);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -234,7 +245,7 @@ namespace Asset.API.Controllers
         {
             try
             {
-                var updatedAsset = await _assetServices.AddAssetLifecycleForCustomerAsync(customerId, asset.CallerId,  asset.Alias, asset.SerialNumber,
+                var updatedAsset = await _assetServices.AddAssetLifecycleForCustomerAsync(customerId, asset.CallerId, asset.Alias, asset.SerialNumber,
                     asset.AssetCategoryId, asset.Brand, asset.ProductName, asset.LifecycleType, asset.PurchaseDate,
                     asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, asset.Note, asset.Description);
                 return CreatedAtAction(nameof(CreateAsset), new { id = updatedAsset.ExternalId }, _mapper.Map<ViewModels.Asset>(updatedAsset));
@@ -275,7 +286,7 @@ namespace Asset.API.Controllers
         {
             var lifecycles = _assetServices.GetLifecycles();
             var lifecycleList = lifecycles.Where(l => l.EnumValue is 0 or 2)
-                .Select(lifecycle => new AssetLifecycleType{Name = lifecycle.Name, EnumValue = lifecycle.EnumValue}).ToList();
+                .Select(lifecycle => new AssetLifecycleType { Name = lifecycle.Name, EnumValue = lifecycle.EnumValue }).ToList();
             return Ok(lifecycleList);
         }
 
@@ -320,7 +331,7 @@ namespace Asset.API.Controllers
                 var value = _mapper.Map<ViewModels.Asset>(updatedAsset);
                 return Ok(value);
             }
-            catch(InvalidAssetDataException ex)
+            catch (InvalidAssetDataException ex)
             {
                 _logger?.LogError("{0}", ex.Message);
                 return BadRequest(ex.Message);

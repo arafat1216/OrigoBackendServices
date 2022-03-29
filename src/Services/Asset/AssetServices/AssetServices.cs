@@ -48,6 +48,21 @@ namespace AssetServices
             return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecyclesForUser);
         }
 
+        public async Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
+        {
+            var assetLifecyclesForUser = await _assetLifecycleRepository.GetAssetLifecyclesForUserAsync(customerId, userId);
+
+            if (assetLifecyclesForUser.Any()) return;
+
+            foreach (var assetLifecycle in assetLifecyclesForUser)
+            {
+                assetLifecycle.UnAssignContractHolder(callerId);
+                assetLifecycle.AssignDepartment(departmentId, callerId);
+            }
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+        }
+
         public async Task<PagedModel<AssetLifecycleDTO>> GetAssetLifecyclesForCustomerAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
         {
             try
@@ -257,7 +272,7 @@ namespace AssetServices
                 var assetLifecyclesFromList = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids);
                 return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecyclesFromList);
             }
-            catch(ResourceNotFoundException)
+            catch (ResourceNotFoundException)
             {
                 throw; // no need to log same exception again
             }
@@ -348,7 +363,7 @@ namespace AssetServices
 
             foreach (LifecycleType lifecycleTypeElement in lifecycleEnumArray)
             {
-                lifecycleList.Add((Enum.GetName(typeof(LifecycleType), lifecycleTypeElement), (int) lifecycleTypeElement));
+                lifecycleList.Add((Enum.GetName(typeof(LifecycleType), lifecycleTypeElement), (int)lifecycleTypeElement));
             }
 
             return lifecycleList;
@@ -451,7 +466,7 @@ namespace AssetServices
                     {
                         tablet.SetImei(uniqueListOfImeis, callerId);
                     }
-                    
+
                 }
             }
         }

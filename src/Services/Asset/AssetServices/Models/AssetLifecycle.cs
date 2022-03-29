@@ -164,6 +164,18 @@ public class AssetLifecycle : Entity, IAggregateRoot
     }
 
     /// <summary>
+    /// Un-Assign a contract holder which is in control of the asset. 
+    /// </summary>
+    /// <param name="callerId">The userid making this assignment</param>
+    public void UnAssignContractHolder(Guid callerId)
+    {
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, ContractHolderUser));
+        ContractHolderUser = null;
+    }
+
+    /// <summary>
     /// Assign a contract holder which is in control of the asset. 
     /// </summary>
     /// <param name="contractHolderUser">A user</param>

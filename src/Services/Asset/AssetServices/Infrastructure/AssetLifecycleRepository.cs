@@ -50,7 +50,8 @@ namespace AssetServices.Infrastructure
             var assetCountList = await _assetContext.AssetLifeCycles
             .Where(a => a.AssetLifecycleStatus == AssetLifecycleStatus.Active)
             .GroupBy(a => a.CustomerId)
-            .Select(group => new CustomerAssetCount(){
+            .Select(group => new CustomerAssetCount()
+            {
                 OrganizationId = group.Key,
                 Count = group.Count()
             })
