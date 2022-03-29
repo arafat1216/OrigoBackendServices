@@ -133,10 +133,6 @@ namespace CustomerServices
             {
                 throw new ArgumentException($"No location have been provided. Provide one of the following: {nameof(newOrganization.Location)} or {nameof(newOrganization.PrimaryLocation)}.");
             }
-            else if (newOrganization.Location is not null && newOrganization.PrimaryLocation is not null)
-            {
-                throw new DuplicateException($"Only one of the following should be provided: {nameof(newOrganization.Location)} or {nameof(newOrganization.PrimaryLocation)}.");
-            }
             else if (newOrganization.PrimaryLocation is not null)
             {
                 var location = await _organizationRepository.GetOrganizationLocationAsync((Guid)newOrganization.PrimaryLocation);
