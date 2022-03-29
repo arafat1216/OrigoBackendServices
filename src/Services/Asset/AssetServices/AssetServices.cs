@@ -57,7 +57,8 @@ namespace AssetServices
             foreach (var assetLifecycle in assetLifecyclesForUser)
             {
                 assetLifecycle.UnAssignContractHolder(callerId);
-                assetLifecycle.AssignDepartment(departmentId, callerId);
+                if (assetLifecycle.ManagedByDepartmentId == null)
+                    assetLifecycle.AssignDepartment(departmentId, callerId);
             }
 
             await _assetLifecycleRepository.SaveEntitiesAsync();

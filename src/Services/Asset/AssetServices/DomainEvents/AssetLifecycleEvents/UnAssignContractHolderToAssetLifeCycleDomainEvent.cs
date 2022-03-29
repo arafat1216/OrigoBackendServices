@@ -4,7 +4,7 @@ using System;
 
 namespace AssetServices.DomainEvents.AssetLifecycleEvents
 {
-    public class UnAssignContractHolderToAssetLifeCycleDomainEvent: BaseEvent
+    public class UnAssignContractHolderToAssetLifeCycleDomainEvent : BaseEvent
     {
         public UnAssignContractHolderToAssetLifeCycleDomainEvent(AssetLifecycle assetLifecycle, Guid callerId, User? previousContractHolderUser) : base(
         assetLifecycle.ExternalId)
@@ -20,7 +20,7 @@ namespace AssetServices.DomainEvents.AssetLifecycleEvents
 
         public override string EventMessage()
         {
-            return $"Asset lifecycle un-assigned from user {PreviousContractHolder?.Name}.";
+            return $"Asset lifecycle un-assigned from user with ID {PreviousContractHolder?.Id}.";
         }
     }
 }
