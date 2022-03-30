@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CustomerServices.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace CustomerServices.ServiceModels
 {
     public record ContactPersonDTO
     {
-        public ContactPersonDTO(CustomerServices.Models.ContactPerson customerContactPerson)
+        public ContactPersonDTO(ContactPerson customerContactPerson)
         {
             FirstName = (customerContactPerson == null) ? "" : customerContactPerson.FirstName;
             LastName = (customerContactPerson == null) ? "" : customerContactPerson.LastName;
@@ -21,6 +22,10 @@ namespace CustomerServices.ServiceModels
         [EmailAddress]
         public string Email { get; set; }
 
+        /// <summary>
+        /// The persons phone-number, standardized using the <c>E.164</c> format.
+        /// </summary>
+        /// <example>+4712345678</example>
         public string PhoneNumber { get; set; }
     }
 }

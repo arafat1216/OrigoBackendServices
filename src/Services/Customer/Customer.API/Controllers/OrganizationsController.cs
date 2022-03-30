@@ -4,8 +4,10 @@ using Customer.API.WriteModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
 using CustomerServices.ServiceModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -19,6 +21,7 @@ namespace Customer.API.Controllers
     [Route("api/v{version:apiVersion}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal Server Error: Returned when an unexpected error occurs.")]
     public class OrganizationsController : ControllerBase
     {
         private readonly IOrganizationServices _organizationServices;
@@ -59,11 +62,20 @@ namespace Customer.API.Controllers
             catch (EntityIsDeletedException ex)
             {
                 _logger.LogError("Entity is deleted. {0}", ex.Message);
-                return StatusCode((int)HttpStatusCode.Gone);
+                return StatusCode(StatusCodes.Status410Gone);
+            }
+            catch (CustomerNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                return BadRequest("Unknown error - Get Organization (single): " + ex.Message);
+                _logger.LogError($"OrganizationController - UpdateOrganizationPut: An unexpected error occurred: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
@@ -140,117 +152,17 @@ namespace Customer.API.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.Created)]
-        [ProducesResponseType((int)HttpStatusCode.Conflict)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<OrganizationDTO>> CreateOrganization([FromBody] NewOrganization organization)
+        [SwaggerResponse(StatusCodes.Status201Created, type: typeof(OrganizationDTO))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, description: "Returned when there are problems with the provided input.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, description: "Returned when one or more of the provided ID's don't exist.")]
+        [SwaggerResponse(StatusCodes.Status409Conflict, description: "Returned when the change would result in a conflict. Typically this is occurs when a user is trying to create new instances of an existing unique value.")]
+        public async Task<ActionResult<OrganizationDTO>> CreateOrganization([FromBody] NewOrganizationDTO organization)
         {
             try
             {
-                CustomerServices.Models.Partner? partner = null;
-                if (organization.PartnerId is not null)
-                {
-                    partner = await _partnerServices.GetPartnerAsync((Guid)organization.PartnerId);
+                var result = await _organizationServices.AddOrganizationAsync(organization);
 
-                    if (partner is null)
-                        return NotFound("Partner not found");
-                }
-
-                // Location
-                CustomerServices.Models.Location organizationLocation;
-                if (organization.PrimaryLocation != Guid.Empty)
-                {
-                    var location = await _organizationServices.GetLocationAsync(organization.PrimaryLocation);
-
-                    if (location == null)
-                    {
-                        return BadRequest(string.Format("No Location object with the given Id was found: {0}", organization.PrimaryLocation));
-                    }
-                    else
-                    {
-                        organizationLocation = location;
-                    }
-                }
-
-                // Allow creation of organization without a given Location object. Create a new location object from data in OrganizationAddress.
-                else if (organization.Location == null)
-                {
-                    organizationLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.Name, organization.InternalNotes,
-                                                                                organization.Address.Street, organization.Address.Street,
-                                                                                organization.Address.PostCode, organization.Address.City,
-                                                                                organization.Address.Country);
-
-                    organizationLocation.SetFieldsToEmptyIfNull();
-                    await _organizationServices.AddOrganizationLocationAsync(organizationLocation);
-                }
-                else
-                {
-                    organizationLocation = new CustomerServices.Models.Location(Guid.NewGuid(), organization.CallerId, organization.Location.Name, organization.Location.Description,
-                                                                                organization.Location.Address1, organization.Location.Address2,
-                                                                                organization.Location.PostalCode, organization.Location.City,
-                                                                                organization.Location.Country);
-
-                    organizationLocation.SetFieldsToEmptyIfNull();
-
-                    // only save the location if it does not already exist
-                    await _organizationServices.AddOrganizationLocationAsync(organizationLocation);
-                }
-
-                // Create entities from NewOrganization to reduce the number of fields required to make them in OrganizationServices
-                var organizationContactPerson = new CustomerServices.Models.ContactPerson(organization.ContactPerson?.FirstName, organization.ContactPerson?.LastName, organization.ContactPerson?.Email,
-                                                                                          organization.ContactPerson?.PhoneNumber);
-
-                var organizationAddress = new CustomerServices.Models.Address(organization.Address?.Street, organization.Address?.PostCode,
-                                                                              organization.Address?.City, organization.Address?.Country);
-
-                Guid? parentId = (organization.ParentId == Guid.Empty) ? null : organization.ParentId;
-                var newOrganization = new CustomerServices.Models.Organization(Guid.NewGuid(), organization.CallerId, parentId,
-                                                                               organization.Name, organization.OrganizationNumber,
-                                                                               organizationAddress, organizationContactPerson,
-                                                                               null, organizationLocation, organization.IsCustomer);
-
-                // organizationPreferences needs the OrganizationId from newOrganization, and is therefore made last
-                if (organization.Preferences != null)
-                {
-                    if (organization.Preferences.EnforceTwoFactorAuth == null)
-                        organization.Preferences.EnforceTwoFactorAuth = false;
-                    if (organization.Preferences.DefaultDepartmentClassification == null)
-                        organization.Preferences.DefaultDepartmentClassification = 0;
-
-                    var organizationPreferences = new CustomerServices.Models.OrganizationPreferences(newOrganization.OrganizationId, newOrganization.CreatedBy, organization.Preferences?.WebPage,
-                                                                                                 organization.Preferences?.LogoUrl, organization.Preferences?.OrganizationNotes,
-                                                                                                 (bool)organization.Preferences.EnforceTwoFactorAuth, organization.Preferences?.PrimaryLanguage,
-                                                                                                 (short)organization.Preferences.DefaultDepartmentClassification);
-
-                    // save the organization preferences
-                    await _organizationServices.AddOrganizationPreferencesAsync(organizationPreferences);
-                    newOrganization.Preferences = organizationPreferences;
-                }
-                else // Create an empty "default" variant of organization preferences
-                {
-                    var organizationPreferences = new CustomerServices.Models.OrganizationPreferences(newOrganization.OrganizationId, newOrganization.CreatedBy, "",
-                                                                                                 "", "", false, "EN", 0);
-
-                    // save the organization preferences
-                    await _organizationServices.AddOrganizationPreferencesAsync(organizationPreferences);
-                    newOrganization.Preferences = organizationPreferences;
-                }
-
-                // Save new organization
-                var updatedOrganization = await _organizationServices.AddOrganizationAsync(newOrganization);
-
-                var updatedOrganizationView = new OrganizationDTO
-                {
-                    OrganizationId = updatedOrganization.OrganizationId,
-                    Name = updatedOrganization.Name,
-                    OrganizationNumber = updatedOrganization.OrganizationNumber,
-                    Address = new AddressDTO(updatedOrganization.Address),
-                    ContactPerson = new ContactPersonDTO(updatedOrganization.ContactPerson),
-                    Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(updatedOrganization.Preferences),
-                    Location = (updatedOrganization.Location == null) ? null : new LocationDTO(updatedOrganization.Location)
-                };
-
-                return CreatedAtAction(nameof(CreateOrganization), new { id = updatedOrganizationView.OrganizationId }, updatedOrganizationView);
+                return CreatedAtAction(nameof(CreateOrganization), new { id = result.OrganizationId }, result);
             }
             catch (DuplicateException ex)
             {
@@ -260,9 +172,14 @@ namespace Customer.API.Controllers
             {
                 return NotFound(ex.Message);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-                return BadRequest("Unknown error: " + ex.Message);
+                _logger.LogError($"OrganizationController - CreateOrganization: An unexpected error occurred: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
@@ -333,8 +250,8 @@ namespace Customer.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError("OrganizationController - UpdateOrganizationPut: failed to update: " + ex.Message);
-                return BadRequest(ex.Message);
+                _logger.LogError($"OrganizationController - UpdateOrganizationPut: An unexpected error occurred: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
@@ -406,7 +323,7 @@ namespace Customer.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("OrganizationController - UpdateOrganizationPatch: failed to update: " + ex.Message);
-                return BadRequest(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
@@ -443,7 +360,8 @@ namespace Customer.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Unknown error (OrganizationsController - Delete Organization: " + ex.Message);
+                _logger.LogError($"OrganizationController - DeleteOrganizationAsync: An unexpected error occurred: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
@@ -457,12 +375,11 @@ namespace Customer.API.Controllers
             try
             {
                 var preferences = await _organizationServices.GetOrganizationPreferencesAsync(organizationId);
-                if (preferences == null)
+
+                if (preferences is null)
                     return NotFound();
-
-                var preferencesView = new OrganizationPreferencesDTO(preferences);
-
-                return Ok(preferencesView);
+                else
+                    return Ok(preferences);
             }
             catch (EntityIsDeletedException ex)
             {

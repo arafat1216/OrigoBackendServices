@@ -1,10 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CustomerServices.Models;
+using System.ComponentModel.DataAnnotations;
+
+#nullable enable
 
 namespace CustomerServices.ServiceModels
 {
     public class LocationDTO
     {
-        public LocationDTO(CustomerServices.Models.Location organizationLocation)
+        public LocationDTO() { }
+
+        public LocationDTO(Location organizationLocation)
         {
             Name = organizationLocation.Name;
             Description = organizationLocation.Description;
@@ -15,15 +20,13 @@ namespace CustomerServices.ServiceModels
             Country = organizationLocation.Country;
         }
 
-        public LocationDTO() { }
-
         public string Name { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public string Address1 { get; set; }
 
-        public string Address2 { get; set; }
+        public string? Address2 { get; set; }
 
         public string PostalCode { get; set; }
 

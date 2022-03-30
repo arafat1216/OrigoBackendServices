@@ -1,7 +1,23 @@
-﻿namespace CustomerServices.ServiceModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CustomerServices.ServiceModels
 {
     public record UserPreferenceDTO
     {
-        public string Language { get; init; }
+        /// <summary>
+        ///     Backing field for <see cref="Language"/>
+        /// </summary>
+        private string _language;
+
+        /// <summary>
+        ///     The organizations language preference, using the lowercase <c>ISO 639-1</c> standard.
+        /// </summary>
+        /// <example> en </example>
+        [RegularExpression("^[a-zA-Z]{2}")] // Exactly 2 characters
+        public string Language
+        {
+            get { return _language; }
+            init { _language = value.ToLower(); }
+        }
     }
 }

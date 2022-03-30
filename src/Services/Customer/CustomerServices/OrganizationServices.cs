@@ -3,6 +3,7 @@ using Common.Exceptions;
 using CustomerServices.Exceptions;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -111,8 +112,59 @@ namespace CustomerServices
             return await _organizationRepository.GetOrganizationUserCountsAsync();
         }
 
-        public async Task<Organization> AddOrganizationAsync(Organization newOrganization)
+        public async Task<OrganizationDTO> AddOrganizationAsync(NewOrganizationDTO newOrganization)
         {
+            // Make sure default values that should never be assigned are identified as null.
+            if (newOrganization.ParentId == Guid.Empty)
+                newOrganization.ParentId = null;
+            if (newOrganization.PartnerId == Guid.Empty)
+                newOrganization.PartnerId = null;
+            if (newOrganization.PrimaryLocation == Guid.Empty)
+                newOrganization.PrimaryLocation = null;
+
+            #region Location
+            Location location;
+
+            // Error checking
+            if (newOrganization.Location is null && newOrganization.PrimaryLocation is null)
+                throw new ArgumentException($"No location have been provided. Provide one of the following: {nameof(newOrganization.Location)} or {nameof(newOrganization.PrimaryLocation)}.");
+            else if (newOrganization.Location is not null && newOrganization.PrimaryLocation is not null)
+                throw new DuplicateException($"Only one of the following should be provided: {nameof(newOrganization.Location)} or {nameof(newOrganization.PrimaryLocation)}.");
+
+            // Value mapping (either use an existing location, or create a new one)
+            if (newOrganization.PrimaryLocation is not null)
+            {
+                location = await _organizationRepository.GetOrganizationLocationAsync((Guid)newOrganization.PrimaryLocation);
+
+                if (location is null)
+                    throw new ArgumentException("Location not found");
+            }
+            else
+            {
+                location = new Location(Guid.NewGuid(), newOrganization.CallerId, newOrganization.Location.Name,
+                                            newOrganization.Location.Description, newOrganization.Location.Address1,
+                                            newOrganization.Location.Address2, newOrganization.Location.PostalCode,
+                                            newOrganization.Location.City, newOrganization.Location.Country);
+
+                location = await _organizationRepository.AddOrganizationLocationAsync(location);
+            }
+            #endregion Location
+
+
+            #region Partner
+            Partner? partner = null;
+            // If it has a partner, make sure it exist!
+            if (newOrganization.PartnerId is not null)
+            {
+                partner = await _organizationRepository.GetPartnerAsync((Guid)newOrganization.PartnerId);
+
+                if (partner is null)
+                    throw new ArgumentException("Partner not found");
+            }
+            #endregion Partner
+
+
+            #region Parent
             // If it has a parent, make sure it exist!
             if (newOrganization.ParentId != null)
             {
@@ -123,26 +175,51 @@ namespace CustomerServices
                 if (parentOrganization.ParentId != null)
                     throw new ArgumentException("The parent is not valid. All parent-organizations must be top-level organizations, and cannot have other parent.");
             }
+            #endregion Parent
 
             // Make sure we don't add an already existing organization-number.
             if (await GetOrganizationByOrganizationNumberAsync(newOrganization.OrganizationNumber) != null)
                 throw new DuplicateException($"A organization with the provided organization-number already exist.");
 
-            // Handle locations
-            if (newOrganization.Location is null && newOrganization.PrimaryLocation is null)
+            var address = new Address(newOrganization.Address.Street, newOrganization.Address.PostCode, newOrganization.Address.City, newOrganization.Address.Country);
+            var contactPerson = new ContactPerson(newOrganization.ContactPerson.FirstName, newOrganization.ContactPerson.LastName, newOrganization.ContactPerson.Email, newOrganization.ContactPerson.PhoneNumber);
+            var organization = new Organization(Guid.NewGuid(), newOrganization.CallerId, newOrganization.ParentId,
+                                                newOrganization.Name, newOrganization.OrganizationNumber, address,
+                                                contactPerson, null, location,
+                                                newOrganization.IsCustomer);
+
+            organization = await _organizationRepository.AddAsync(organization);
+
+
+            #region Preferences
+
+            OrganizationPreferences preferences;
+
+            // OrganizationPreferences needs the OrganizationId from newOrganization, and is therefore made last
+            if (newOrganization.Preferences is not null)
             {
-                throw new ArgumentException($"No location have been provided. Provide one of the following: {nameof(newOrganization.Location)} or {nameof(newOrganization.PrimaryLocation)}.");
+                if (newOrganization.Preferences.EnforceTwoFactorAuth == null)
+                    newOrganization.Preferences.EnforceTwoFactorAuth = false;
+
+                if (newOrganization.Preferences.DefaultDepartmentClassification == null)
+                    newOrganization.Preferences.DefaultDepartmentClassification = 0;
+
+                organization.Preferences = new OrganizationPreferences(organization.OrganizationId, organization.CreatedBy, newOrganization.Preferences?.WebPage,
+                                                          newOrganization.Preferences?.LogoUrl, newOrganization.Preferences?.OrganizationNotes,
+                                                          (bool)newOrganization.Preferences.EnforceTwoFactorAuth, newOrganization.Preferences?.PrimaryLanguage,
+                                                          (short)newOrganization.Preferences.DefaultDepartmentClassification);
             }
-            else if (newOrganization.PrimaryLocation is not null)
+            else // When no preferences have been added, create an empty "default" variant
             {
-                var location = await _organizationRepository.GetOrganizationLocationAsync((Guid)newOrganization.PrimaryLocation);
+                organization.Preferences = new OrganizationPreferences(organization.OrganizationId, organization.CreatedBy, "", "", "", false, "en", 0);
             }
 
+            await _organizationRepository.AddOrganizationPreferencesAsync(organization.Preferences);
+
+            #endregion
 
 
-            return await _organizationRepository.AddAsync(newOrganization);
-
-
+            return new OrganizationDTO(organization);
         }
 
 
@@ -418,7 +495,7 @@ namespace CustomerServices
             }
         }
 
-        public async Task<OrganizationPreferences> GetOrganizationPreferencesAsync(Guid organizationId)
+        public async Task<OrganizationPreferencesDTO> GetOrganizationPreferencesAsync(Guid organizationId)
         {
             try
             {
@@ -430,7 +507,7 @@ namespace CustomerServices
                 if (preferences.IsDeleted)
                     throw new EntityIsDeletedException();
 
-                return preferences;
+                return new OrganizationPreferencesDTO(preferences);
             }
             catch (EntityIsDeletedException ex)
             {
@@ -442,11 +519,6 @@ namespace CustomerServices
                 _logger.LogError("OrganizationServices -GetOrganizationPreferences failed to be retrieved: " + ex.Message);
                 throw;
             }
-        }
-
-        public async Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences)
-        {
-            return await _organizationRepository.AddOrganizationPreferencesAsync(organizationPreferences);
         }
 
         public async Task<OrganizationPreferences> UpdateOrganizationPreferencesAsync(OrganizationPreferences preferences, bool usingPatch = false)
@@ -474,7 +546,7 @@ namespace CustomerServices
             }
         }
 
-        public async Task<OrganizationPreferences> DeleteOrganizationPreferencesAsync(Guid organizationId, Guid callerId, bool hardDelete = false)
+        private async Task<OrganizationPreferences> DeleteOrganizationPreferencesAsync(Guid organizationId, Guid callerId, bool hardDelete = false)
         {
             try
             {
@@ -499,12 +571,6 @@ namespace CustomerServices
                 _logger.LogError("OrganizationServices - DeleteOrganizationPreferencesAsync failed to delete: " + ex.Message);
                 throw;
             }
-        }
-
-        public async Task<OrganizationPreferences> RemoveOrganizationPreferencesAsync(Guid organizationId)
-        {
-            var organizationPreferences = await _organizationRepository.GetOrganizationPreferencesAsync(organizationId);
-            return await _organizationRepository.DeleteOrganizationPreferencesAsync(organizationPreferences);
         }
 
         /// <summary>
@@ -645,5 +711,6 @@ namespace CustomerServices
             }
             return true;
         }
+
     }
 }

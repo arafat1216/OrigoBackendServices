@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CustomerServices.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace CustomerServices.ServiceModels
 {
     public record AddressDTO
     {
-        public AddressDTO(CustomerServices.Models.Address customerCompanyAddress)
+        public AddressDTO(Address customerCompanyAddress)
         {
             Street = (customerCompanyAddress == null) ? "" : customerCompanyAddress.Street;
             PostCode = (customerCompanyAddress == null) ? "" : customerCompanyAddress.PostCode;

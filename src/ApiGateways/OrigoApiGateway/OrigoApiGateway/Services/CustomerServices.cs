@@ -129,6 +129,11 @@ namespace OrigoApiGateway.Services
                 newCustomerDTO.IsCustomer = true;
 
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", newCustomerDTO);
+
+#if DEBUG
+                var errorMessage = await response.Content.ReadAsStringAsync();
+#endif
+
                 if (!response.IsSuccessStatusCode && (int)response.StatusCode == 409)
                     throw new InvalidOrganizationNumberException(await response.Content.ReadAsStringAsync());
                 else if (!response.IsSuccessStatusCode)

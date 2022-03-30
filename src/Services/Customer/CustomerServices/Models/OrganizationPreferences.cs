@@ -10,9 +10,9 @@ namespace CustomerServices.Models
     public class OrganizationPreferences : Entity
     {
         public Guid OrganizationId { get; set; }
-        public string WebPage { get; protected set; }
-        public string LogoUrl { get; protected set; }
-        public string OrganizationNotes { get; protected set; }
+        public string? WebPage { get; protected set; }
+        public string? LogoUrl { get; protected set; }
+        public string? OrganizationNotes { get; protected set; }
         public bool EnforceTwoFactorAuth { get; protected set; }
         public string PrimaryLanguage { get; protected set; }
         public short DefaultDepartmentClassification { get; protected set; }
@@ -24,7 +24,7 @@ namespace CustomerServices.Models
         protected OrganizationPreferences()
         { }
 
-        public OrganizationPreferences(Guid organizationId, Guid callerId, string webPage, string logoUrl, string organizationNotes, bool enforceTwoFactorAuth, string primaryLanguage, short defaultDepartmentClassification)
+        public OrganizationPreferences(Guid organizationId, Guid callerId, string? webPage, string? logoUrl, string? organizationNotes, bool enforceTwoFactorAuth, string primaryLanguage, short defaultDepartmentClassification)
         {
             OrganizationId = organizationId;
             WebPage = webPage;
@@ -118,7 +118,6 @@ namespace CustomerServices.Models
                 WebPage = newPreferences.WebPage;
                 isUpdated = true;
                 AddDomainEvent(new OrganizationPreferencesChangedWebPageDomainEvent(this, oldWebPage));
-
             }
             if (LogoUrl != newPreferences.LogoUrl && newPreferences.LogoUrl != null)
             {
