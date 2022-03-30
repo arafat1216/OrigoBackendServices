@@ -23,7 +23,14 @@ namespace SubscriptionManagementServices.Mappings
                .ForMember(dto => dto.CallerId, opts => opts.MapFrom(m => m.CreatedBy))
                .ForMember(dto => dto.NewOperatorAccount, opts => {
                    opts.Condition(m => m.OperatorAccountOwner != null);
-                   opts.MapFrom(m => new NewOperatorAccountResponseDTO { NewOperatorName = m.OperatorName, NewOperatorAccountOwner = m.OperatorAccountOwner, NewOperatorAccountPayer = m.OperatorAccountPayer }); 
+                   opts.MapFrom(m => new NewOperatorAccountRequestedDTO
+                   { 
+                       OperatorName = m.OperatorName,
+                       NewOperatorAccountOwner = m.OperatorAccountOwner,
+                       NewOperatorAccountPayer = m.OperatorAccountPayer,
+                       OrganizationNumberOwner = m.OrganizationNumberOwner,
+                       OrganizationNumberPayer = m.OrganizationNumberPayer
+                   }); 
                
                })
                .ForMember(dto => dto.CustomerReferenceFields, opts => opts.MapFrom(m => JsonSerializer.Deserialize<IList<NewCustomerReferenceValue>>(m.CustomerReferenceFields, new JsonSerializerOptions { })))

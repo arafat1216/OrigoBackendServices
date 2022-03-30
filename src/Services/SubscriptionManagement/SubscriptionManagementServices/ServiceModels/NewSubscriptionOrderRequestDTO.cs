@@ -8,7 +8,8 @@ namespace SubscriptionManagementServices.ServiceModels
         public int OperatorId { get; set; }
 
         public int? OperatorAccountId { get; set; }
-
+        
+        public string? OperatorAccountPhoneNumber { get; set; }
         public NewOperatorAccountRequestedDTO? NewOperatorAccount { get; set; }
 
         public int SubscriptionProductId { get; set; }

@@ -54,7 +54,10 @@ public record TransferToBusinessSubscriptionOrderDTO
     public IList<string> AddOnProducts { get; set; } = new List<string>();
 
     public IList<NewCustomerReferenceValue> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceValue>();
-
+    /// <summary>
+    ///     A phone number reference to the operator account
+    /// </summary>
+    public string? OperatorAccountPhoneNumber { get; set; }
     public NewOperatorAccountRequested? NewOperatorAccount { get; set; }
 
     public Guid CallerId { get; set; }

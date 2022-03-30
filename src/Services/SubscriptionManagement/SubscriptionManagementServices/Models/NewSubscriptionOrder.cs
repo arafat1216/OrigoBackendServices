@@ -18,7 +18,10 @@ namespace SubscriptionManagementServices.Models
                                     int operatorId,
                                     CustomerOperatorAccount? existingAccount,
                                     string? operatorAccountOwner,
+                                    string? organizationNumberOwner,
                                     string? operatorAccountPayer,
+                                    string? organizationNumberpayer,
+                                    string? operatorAccountPhoneNumber,
                                     string subscriptionProductName,
                                     string? dataPackageName,
                                     DateTime orderExecutionDate,
@@ -45,7 +48,10 @@ namespace SubscriptionManagementServices.Models
             {
                 OperatorAccountPayer = operatorAccountPayer;
                 OperatorAccountOwner = operatorAccountOwner;
+                OrganizationNumberOwner = organizationNumberOwner;
+                OrganizationNumberPayer = organizationNumberpayer;
             }
+            OperatorAccountPhoneNumber = operatorAccountPhoneNumber;
             SubscriptionProductName = subscriptionProductName;
             DataPackageName = dataPackageName;
             OrderExecutionDate = orderExecutionDate;
@@ -86,9 +92,12 @@ namespace SubscriptionManagementServices.Models
         public string? DataPackageName { get; set; }
         public DateTime OrderExecutionDate { get; set; }
         public string? OperatorAccountNumber { get; set; }
+        public string? OperatorAccountPhoneNumber { get; set; }
         public string? OperatorAccountName { get; set; }
         public string? OperatorAccountOwner { get; set; }
+        public string? OrganizationNumberOwner { get; set; }
         public string? OperatorAccountPayer { get; set; }
+        public string? OrganizationNumberPayer { get; set; }
         public string? OperatorAccountOrganizationNumber { get; set; }
         public PrivateSubscription? PrivateSubscription { get; set; }
         public BusinessSubscription? BusinessSubscription { get; set; }

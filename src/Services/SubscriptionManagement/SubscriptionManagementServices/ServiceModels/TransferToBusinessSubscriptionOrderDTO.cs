@@ -13,11 +13,6 @@
         public string MobileNumber { get; set; }
 
         /// <summary>
-        ///     New operator account identifier
-        /// </summary>
-        public int? OperatorAccountId { get; set; }
-
-        /// <summary>
         ///     Customer Subscription product identifier
         /// </summary>
         public int SubscriptionProductId { get; set; }
@@ -48,6 +43,17 @@
         public IList<string> AddOnProducts { get; set; } = new List<string>();
 
         public IList<NewCustomerReferenceValue> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceValue>();
+        /// <summary>
+        ///     A phone number referencing the billing account
+        /// </summary>
+        public string? OperatorAccountPhoneNumber { get; set; }
+        /// <summary>
+        ///     New operator account identifier
+        /// </summary>
+        public int? OperatorAccountId { get; set; }
+        /// <summary>
+        ///     New operator account only for Telenor
+        /// </summary>
         public NewOperatorAccountRequestedDTO? NewOperatorAccount { get; set; }
         public Guid CallerId { get; set; }
     }

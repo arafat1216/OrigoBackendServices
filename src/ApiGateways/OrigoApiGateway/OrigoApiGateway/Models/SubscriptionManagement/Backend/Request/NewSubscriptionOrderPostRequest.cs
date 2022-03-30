@@ -11,7 +11,8 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Backend.Request
         public int OperatorId { get; set; }
        
         public int? OperatorAccountId { get; set; }
-       
+        public string? OperatorAccountPhoneNumber { get; set; }
+
         public NewOperatorAccountRequested? NewOperatorAccount { get; set; }
 
         public int SubscriptionProductId { get; set; }

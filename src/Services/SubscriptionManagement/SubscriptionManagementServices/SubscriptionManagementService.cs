@@ -157,10 +157,10 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         }
 
         var transferToBusinessSubscriptionOrder = new TransferToBusinessSubscriptionOrder(order.SIMCardNumber, order.SIMCardAction, customerSubscriptionProduct
-            , organizationId, customerOperatorAccount, order?.DataPackage,
+            , organizationId, customerOperatorAccount, order?.OperatorAccountPhoneNumber, order?.DataPackage,
             order.OrderExecutionDate, order.MobileNumber, JsonSerializer.Serialize(order.CustomerReferenceFields),
-            subscriptionAddOnProducts.ToList(), order.NewOperatorAccount?.NewOperatorAccountOwner,
-            order.NewOperatorAccount?.NewOperatorAccountPayer,
+            subscriptionAddOnProducts.ToList(), order.NewOperatorAccount?.NewOperatorAccountOwner, order.NewOperatorAccount?.OrganizationNumberOwner,
+            order.NewOperatorAccount?.NewOperatorAccountPayer, order.NewOperatorAccount?.OrganizationNumberPayer,
             _mapper.Map<PrivateSubscription>(order.PrivateSubscription),
             _mapper.Map<BusinessSubscription>(order.BusinessSubscription), newOperatorName,
             order.CallerId);
@@ -174,7 +174,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         if (mapping != null && operatorSettings != null)
         {
             mapping.OperatorId = operatorSettings.Operator.Id;
-            if (mapping.NewOperatorAccount != null) mapping.NewOperatorAccount.NewOperatorId = operatorSettings.Operator.Id;
+            if (mapping.NewOperatorAccount != null) mapping.NewOperatorAccount.OperatorId = operatorSettings.Operator.Id;
             if (mapping.BusinessSubscription != null) 
             { 
                 mapping.BusinessSubscription.OperatorId = operatorSettings.Operator.Id;
@@ -501,7 +501,10 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                                                        newSubscriptionOrder.OperatorId,
                                                        customerOperatorAccount,
                                                        newSubscriptionOrder.NewOperatorAccount?.NewOperatorAccountOwner,
+                                                       newSubscriptionOrder.NewOperatorAccount?.OrganizationNumberOwner,
                                                        newSubscriptionOrder.NewOperatorAccount?.NewOperatorAccountPayer,
+                                                       newSubscriptionOrder.NewOperatorAccount?.OrganizationNumberPayer,
+                                                       newSubscriptionOrder.OperatorAccountPhoneNumber,
                                                        customerSubscriptionProduct.SubscriptionName,
                                                        newSubscriptionOrder.DataPackage,
                                                        newSubscriptionOrder.OrderExecutionDate,
@@ -527,6 +530,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 mapped.BusinessSubscription.OperatorName = @operator.OperatorName;
                 mapped.BusinessSubscription.OperatorId = @operator.Id;
             }
+            if(mapped.NewOperatorAccount != null) mapped.NewOperatorAccount.OperatorName = @operator.OperatorName;
         }
 
         return mapped;

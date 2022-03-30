@@ -18,6 +18,11 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         /// </summary>
         public int? OperatorAccountId { get; set; }
         /// <summary>
+        ///     Reference for account
+        /// </summary>
+        public string? OperatorAccountPhoneNumber { get; set; }
+
+        /// <summary>
         ///     New operator account identifier
         /// </summary>
         public NewOperatorAccountRequested? NewOperatorAccount { get; set; }

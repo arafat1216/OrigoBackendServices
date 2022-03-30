@@ -24,6 +24,7 @@ namespace SubscriptionManagementServices.ServiceModels
             CustomerReferenceFields = DTO.CustomerReferenceFields;
             NewOperatorAccount = DTO.NewOperatorAccount;
             CallerId = DTO.CallerId;
+            OperatorAccountPhoneNumber = DTO.OperatorAccountPhoneNumber; 
         }
 
         /// <summary>
@@ -76,7 +77,8 @@ namespace SubscriptionManagementServices.ServiceModels
         public IList<string> AddOnProducts { get; set; } = new List<string>();
 
         public IList<NewCustomerReferenceValue> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceValue>();
-        public NewOperatorAccountResponseDTO? NewOperatorAccount { get; set; }
+        public string? OperatorAccountPhoneNumber { get; set; }
+        public NewOperatorAccountRequestedDTO? NewOperatorAccount { get; set; }
         public Guid CallerId { get; set; }
     }
 }

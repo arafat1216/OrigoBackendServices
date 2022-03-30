@@ -24,6 +24,7 @@ namespace SubscriptionManagementServices.ServiceModels
             CustomerReferenceFields = DTO.CustomerReferenceFields;
             PrivateSubscription = DTO.PrivateSubscription;
             BusinessSubscription = DTO.BusinessSubscription;
+            OperatorAccountPhoneNumber = DTO.OperatorAccountPhoneNumber;
         }
 
         public string MobileNumber { get; set; }
@@ -32,6 +33,7 @@ namespace SubscriptionManagementServices.ServiceModels
         public string OperatorName { get; set; }
 
         public int? OperatorAccountId { get; set; }
+        public string? OperatorAccountPhoneNumber { get; set; }
 
         public NewOperatorAccountRequestedDTO? NewOperatorAccount { get; set; }
 
