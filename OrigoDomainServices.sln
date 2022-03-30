@@ -190,7 +190,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.UnitTests", "Common.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Asset.IntegrationTests", "src\Services\Asset\Tests\Asset.IntegrationTests\Asset.IntegrationTests.csproj", "{F4E43C07-DBC2-4802-8C91-4046700BD444}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Customer.API.Tests", "src\Services\Customer\Tests\Customer.API.Tests\Customer.API.Tests.csproj", "{78F6DD26-CD86-4FB4-BAEB-E4377546A7E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Customer.API.IntegrationTests", "src\Services\Customer\Tests\Customer.API.Tests\Customer.API.IntegrationTests.csproj", "{78F6DD26-CD86-4FB4-BAEB-E4377546A7E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
