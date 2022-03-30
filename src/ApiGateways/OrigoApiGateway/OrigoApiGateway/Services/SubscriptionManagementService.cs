@@ -253,7 +253,7 @@ namespace OrigoApiGateway.Services
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError(ex, "AddCustomerReferenceFieldAsync failed with HttpRequestException." );
+                _logger.LogError(ex, "AddCustomerReferenceFieldAsync failed with HttpRequestException.");
                 throw;
             }
         }
@@ -289,7 +289,7 @@ namespace OrigoApiGateway.Services
                 var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, transferToBusinessSubscriptionOrderDTO, new JsonSerializerOptions
                 {
                     DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-                }) ;
+                });
 
                 if (postSubscription.StatusCode == HttpStatusCode.Created)
                 {
@@ -383,23 +383,23 @@ namespace OrigoApiGateway.Services
         public async Task<OrigoTransferToPrivateSubscriptionOrder> TransferToPrivateSubscriptionOrderForCustomerAsync(
             Guid organizationId, TransferToPrivateSubscriptionOrder order, Guid callerId)
         {
-                string requestUri = $"{_options.ApiPath}/{organizationId}/transfer-to-private";
-                var transferToPrivateSubscriptionOrderDTO = _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(order);
-                transferToPrivateSubscriptionOrderDTO.CallerId = callerId;
+            string requestUri = $"{_options.ApiPath}/{organizationId}/transfer-to-private";
+            var transferToPrivateSubscriptionOrderDTO = _mapper.Map<TransferToPrivateSubscriptionOrderDTO>(order);
+            transferToPrivateSubscriptionOrderDTO.CallerId = callerId;
 
-                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, transferToPrivateSubscriptionOrderDTO, new JsonSerializerOptions
-                {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-                });
+            var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, transferToPrivateSubscriptionOrderDTO, new JsonSerializerOptions
+            {
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+            });
 
-                if (postSubscription.StatusCode == HttpStatusCode.Created)
-                {
-                    return await postSubscription.Content.ReadFromJsonAsync<OrigoTransferToPrivateSubscriptionOrder>();
-                }
-                if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
-                {
-                    throw new SubscriptionManagementException(await postSubscription.Content.ReadAsStringAsync());
-                }
+            if (postSubscription.StatusCode == HttpStatusCode.Created)
+            {
+                return await postSubscription.Content.ReadFromJsonAsync<OrigoTransferToPrivateSubscriptionOrder>();
+            }
+            if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
+            {
+                throw new SubscriptionManagementException(await postSubscription.Content.ReadAsStringAsync());
+            }
 
             throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
         }
@@ -441,36 +441,46 @@ namespace OrigoApiGateway.Services
             string requestUri = $"{_options.ApiPath}/{organizationId}/subscription-orders-detail-view/{orderId}/{orderType}";
 
             var response = await HttpClient.GetAsync(requestUri);
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                return await response.Content.ReadFromJsonAsync<OrigoSubscriptionOrderDetailView>();
-            }
+
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
                 throw new SubscriptionManagementException(await response.Content.ReadAsStringAsync());
             }
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var detailView = await response.Content.ReadFromJsonAsync<OrigoSubscriptionOrderDetailView>();
+
+                if (Guid.TryParse(detailView.CreatedBy, out var userId))
+                {
+                    var user = await _userServices.GetUserAsync(userId);
+                    detailView.CreatedBy = user?.DisplayName ?? "";
+                }
+                return detailView;
+            }
+
             throw new HttpRequestException(await response.Content.ReadAsStringAsync());
         }
 
         public async Task<OrigoCancelSubscriptionOrder> CancelSubscriptionOrderForCustomerAsync(Guid organizationId,
             CancelSubscriptionOrderDTO order)
         {
-            
-                var requestUri = $"{_options.ApiPath}/{organizationId}/subscription-cancel";
 
-                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, order);
+            var requestUri = $"{_options.ApiPath}/{organizationId}/subscription-cancel";
 
-                if (postSubscription.StatusCode == HttpStatusCode.Created)
-                {
-                    return await postSubscription.Content.ReadFromJsonAsync<OrigoCancelSubscriptionOrder>();
-                }
-                if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
-                {
-                    throw new SubscriptionManagementException(await postSubscription.Content.ReadAsStringAsync());
-                }
+            var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, order);
 
-                throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
-            
+            if (postSubscription.StatusCode == HttpStatusCode.Created)
+            {
+                return await postSubscription.Content.ReadFromJsonAsync<OrigoCancelSubscriptionOrder>();
+            }
+            if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
+            {
+                throw new SubscriptionManagementException(await postSubscription.Content.ReadAsStringAsync());
+            }
+
+            throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
+
         }
 
         public async Task<OrigoOrderSim> OrderSimCardForCustomerAsync(Guid organizationId, OrderSim order, Guid callerId)
@@ -501,39 +511,39 @@ namespace OrigoApiGateway.Services
         public async Task<OrigoChangeSubscriptionOrder> ChangeSubscriptionOrderAsync(Guid organizationId,
             ChangeSubscriptionOrderPostRequest subscriptionOrderModel)
         {
-            
-                var requestUri = $"{_options.ApiPath}/{organizationId}/change-subscription";
 
-                var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, subscriptionOrderModel);
+            var requestUri = $"{_options.ApiPath}/{organizationId}/change-subscription";
 
-                if (postSubscription.StatusCode == HttpStatusCode.Created)
-                {
-                    return await postSubscription.Content.ReadFromJsonAsync<OrigoChangeSubscriptionOrder>();
-                }
-                if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
-                {
-                    throw new SubscriptionManagementException(await postSubscription.Content.ReadAsStringAsync());
-                }
-                throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
-           
+            var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, subscriptionOrderModel);
+
+            if (postSubscription.StatusCode == HttpStatusCode.Created)
+            {
+                return await postSubscription.Content.ReadFromJsonAsync<OrigoChangeSubscriptionOrder>();
+            }
+            if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
+            {
+                throw new SubscriptionManagementException(await postSubscription.Content.ReadAsStringAsync());
+            }
+            throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
+
         }
 
-       
+
         public async Task<OrigoActivateSimOrder> ActivateSimCardForCustomerAsync(Guid organizationId, ActivateSimOrderPostRequest activateSimOrder)
         {
-            
+
             var requestUri = $"{_options.ApiPath}/{organizationId}/activate-sim";
 
             var postSubscription = await HttpClient.PostAsJsonAsync(requestUri, activateSimOrder);
 
-                if (postSubscription.StatusCode == HttpStatusCode.Created)
-                {
-                    return await postSubscription.Content.ReadFromJsonAsync<OrigoActivateSimOrder>();
-                }
-                if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
-                {
-                    throw new SubscriptionManagementException(await postSubscription.Content.ReadAsStringAsync());
-                }
+            if (postSubscription.StatusCode == HttpStatusCode.Created)
+            {
+                return await postSubscription.Content.ReadFromJsonAsync<OrigoActivateSimOrder>();
+            }
+            if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
+            {
+                throw new SubscriptionManagementException(await postSubscription.Content.ReadAsStringAsync());
+            }
 
             throw new HttpRequestException(await postSubscription.Content.ReadAsStringAsync());
 

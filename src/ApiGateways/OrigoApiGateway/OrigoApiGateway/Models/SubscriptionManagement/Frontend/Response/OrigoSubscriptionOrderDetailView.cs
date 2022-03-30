@@ -12,7 +12,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response
         public OrigoNewSubscriptionOrder? NewSubscription { get; set; }
         public OrigoChangeSubscriptionOrder? ChangeSubscription { get; set; }
         public OrigoCancelSubscriptionOrder? CancelSubscription { get; set; }
-        public Guid CreatedBy { get; set; }
+        public string CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
     }
 }
