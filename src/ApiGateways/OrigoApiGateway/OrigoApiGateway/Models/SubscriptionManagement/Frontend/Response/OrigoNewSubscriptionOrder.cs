@@ -10,6 +10,8 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response
         public string OperatorName { get; set; }
 
         public int? OperatorAccountId { get; set; }
+        public string? OperatorAccountName { get; set; }
+        public string? OperatorAccountNumber { get; set; }
         public string? OperatorAccountPhoneNumber { get; set; }
 
         public OrigoNewOperatorAccount? NewOperatorAccount { get; set; }

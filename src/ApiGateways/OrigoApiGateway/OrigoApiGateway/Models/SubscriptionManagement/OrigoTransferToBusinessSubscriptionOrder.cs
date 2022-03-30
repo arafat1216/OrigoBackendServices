@@ -61,6 +61,9 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
         public IList<string> AddOnProducts { get; set; } = new List<string>();
 
         public IList<NewCustomerReferenceValue> CustomerReferenceFields { get; set; } = new List<NewCustomerReferenceValue>();
+        public int? OperatorAccountId { get; set; }
+        public string? OperatorAccountName { get; set; }
+        public string? OperatorAccountNumber { get; set; }
         public string? OperatorAccountPhoneNumber { get; set; }
         public OrigoNewOperatorAccount? NewOperatorAccount { get; set; }
     }

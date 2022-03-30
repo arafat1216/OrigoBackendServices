@@ -24,12 +24,16 @@ namespace SubscriptionManagementServices.ServiceModels
             PrivateSubscription = DTO.PrivateSubscription;
             BusinessSubscription = DTO.BusinessSubscription;
             OperatorAccountPhoneNumber = DTO.OperatorAccountPhoneNumber;
+            OperatorAccountNumber = DTO.OperatorAccountNumber;
+            OperatorAccountName = DTO.OperatorAccountName;
         }
 
         public int OperatorId { get; set; }
         public string OperatorName { get; set; }
 
         public int? OperatorAccountId { get; set; }
+        public string? OperatorAccountName { get; set; }
+        public string? OperatorAccountNumber { get; set; }
         public string? OperatorAccountPhoneNumber { get; set; }
 
         public NewOperatorAccountRequestedDTO? NewOperatorAccount { get; set; }

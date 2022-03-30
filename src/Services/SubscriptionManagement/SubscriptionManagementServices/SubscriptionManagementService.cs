@@ -184,6 +184,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 mapping.BusinessSubscription.OperatorName = newOperatorName; 
             }
             if (mapping.PrivateSubscription != null) mapping.PrivateSubscription.OperatorId = operatorSettings.Operator.Id;
+            if (mapping.OperatorAccountId == null && customerOperatorAccount != null) mapping.OperatorAccountId = customerOperatorAccount.Id;
         }
         return mapping;
     }
@@ -430,7 +431,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         {
             if (@operator == null) throw new InvalidOperatorIdInputDataException(newSubscriptionOrder.OperatorId, Guid.Parse("58e42fa5-2d54-400d-baa5-a1c516379542"));
 
-            customerOperatorAccount = customerSettings.CustomerOperatorSettings.FirstOrDefault(oa => oa.Operator.Id == newSubscriptionOrder.OperatorId)?.CustomerOperatorAccounts.FirstOrDefault(oa => oa.Id == newSubscriptionOrder.OperatorAccountId);
+            customerOperatorAccount = customerSettings.CustomerOperatorSettings.FirstOrDefault(oa => oa.Operator.Id == newSubscriptionOrder.OperatorId)?.CustomerOperatorAccounts
+                .FirstOrDefault(oa => oa.Id == newSubscriptionOrder.OperatorAccountId);
             if (customerOperatorAccount == null && newSubscriptionOrder.NewOperatorAccount == null) throw new CustomerSettingsException($"Customer don't have a customer operator account", Guid.Parse("8ddc95d1-ed32-4daa-9fce-32ad556add6e"));
 
             customerSubscriptionProduct = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.Id == newSubscriptionOrder.OperatorId)?
@@ -531,6 +533,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 mapped.BusinessSubscription.OperatorId = @operator.Id;
             }
             if(mapped.NewOperatorAccount != null) mapped.NewOperatorAccount.OperatorName = @operator.OperatorName;
+            if (mapped.OperatorAccountId == null && customerOperatorAccount != null) mapped.OperatorAccountId = customerOperatorAccount.Id;
+
         }
 
         return mapped;
@@ -581,6 +585,12 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                     }
                     mappedT2B.OperatorId = @operator.Operator.Id;
                     if (mappedT2B.NewOperatorAccount != null) mappedT2B.NewOperatorAccount.OperatorId = @operator.Operator.Id;
+
+                    if (mappedT2B.OperatorAccountNumber != null)
+                    {
+                        var operatorAccount = customerSetting.CustomerOperatorSettings?.FirstOrDefault()?.CustomerOperatorAccounts.FirstOrDefault(a => a.AccountNumber == mappedT2B.OperatorAccountNumber);
+                        mappedT2B.OperatorAccountId = operatorAccount?.Id;
+                    }
                 }
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedT2B);
                 detailViewSubscriptionOrder.CreatedBy = transferToBusiness.CreatedBy;
@@ -617,6 +627,12 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                     }
                     if(mappedNewSubscription.PrivateSubscription != null) mappedNewSubscription.PrivateSubscription.OperatorId = @operator.Operator.Id;
                     if(mappedNewSubscription.NewOperatorAccount != null) mappedNewSubscription.NewOperatorAccount.OperatorName = @operator.Operator.OperatorName;
+
+                    if (mappedNewSubscription.OperatorAccountNumber != null)
+                    {
+                        var operatorAccount = customerSetting.CustomerOperatorSettings?.FirstOrDefault()?.CustomerOperatorAccounts.FirstOrDefault(a => a.AccountNumber == mappedNewSubscription.OperatorAccountNumber);
+                        mappedNewSubscription.OperatorAccountId = operatorAccount?.Id;
+                    }
                 }
 
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedNewSubscription);

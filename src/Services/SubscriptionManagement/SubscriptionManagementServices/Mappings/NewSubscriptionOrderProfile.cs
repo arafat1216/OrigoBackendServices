@@ -27,9 +27,6 @@ namespace SubscriptionManagementServices.Mappings
                             NewOperatorAccountPayer = m.OperatorAccountPayer , 
                             OrganizationNumberOwner = m.OrganizationNumberOwner,
                             OrganizationNumberPayer = m.OrganizationNumberPayer});
-                    }).ForMember(dto => dto.OperatorAccountId, opts => {
-                        opts.Condition(m=>m .OperatorAccountName != null);
-                        opts.MapFrom(m => m.OperatorId); ;
                     })
                     .ForMember(dto => dto.AddOnProducts, opt => opt.MapFrom(m => m.SubscriptionAddOnProducts.Select(a => a.AddOnProductName)));
 
