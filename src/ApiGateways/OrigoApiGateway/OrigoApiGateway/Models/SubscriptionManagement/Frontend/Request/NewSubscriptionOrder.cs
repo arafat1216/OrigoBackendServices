@@ -6,10 +6,6 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
     public class NewSubscriptionOrder
     {
         /// <summary>
-        /// The mobile number to be transferred
-        /// </summary>
-        public string MobileNumber { get; set; }
-        /// <summary>
         /// The operator to be transferred to 
         /// </summary>
         public int OperatorId { get; set; }

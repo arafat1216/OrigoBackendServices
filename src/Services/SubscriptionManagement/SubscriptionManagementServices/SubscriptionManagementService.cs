@@ -430,9 +430,6 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         {
             if (@operator == null) throw new InvalidOperatorIdInputDataException(newSubscriptionOrder.OperatorId, Guid.Parse("58e42fa5-2d54-400d-baa5-a1c516379542"));
 
-            if (!PhoneNumberUtility.ValidatePhoneNumber(newSubscriptionOrder.MobileNumber, @operator.Country))
-                throw new InvalidPhoneNumberException(newSubscriptionOrder.MobileNumber, @operator.Country, Guid.Parse("1b2627d5-90c1-4dc9-ad81-3adeeb02478e"));
-
             customerOperatorAccount = customerSettings.CustomerOperatorSettings.FirstOrDefault(oa => oa.Operator.Id == newSubscriptionOrder.OperatorId)?.CustomerOperatorAccounts.FirstOrDefault(oa => oa.Id == newSubscriptionOrder.OperatorAccountId);
             if (customerOperatorAccount == null && newSubscriptionOrder.NewOperatorAccount == null) throw new CustomerSettingsException($"Customer don't have a customer operator account", Guid.Parse("8ddc95d1-ed32-4daa-9fce-32ad556add6e"));
 
@@ -500,7 +497,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             }
 
 
-        var newSubscription = new NewSubscriptionOrder(organizationId, newSubscriptionOrder.MobileNumber,
+        var newSubscription = new NewSubscriptionOrder(organizationId,
                                                        newSubscriptionOrder.OperatorId,
                                                        customerOperatorAccount,
                                                        newSubscriptionOrder.NewOperatorAccount?.NewOperatorAccountOwner,

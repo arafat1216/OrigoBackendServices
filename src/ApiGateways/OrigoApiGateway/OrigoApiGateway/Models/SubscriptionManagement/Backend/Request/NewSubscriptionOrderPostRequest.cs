@@ -6,8 +6,6 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Backend.Request
 {
     public record NewSubscriptionOrderPostRequest
     {
-        public string MobileNumber { get; set; }
-        
         public int OperatorId { get; set; }
        
         public int? OperatorAccountId { get; set; }

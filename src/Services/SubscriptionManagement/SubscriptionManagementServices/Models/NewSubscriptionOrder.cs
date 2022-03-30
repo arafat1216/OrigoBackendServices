@@ -14,7 +14,6 @@ namespace SubscriptionManagementServices.Models
         }
 
         public NewSubscriptionOrder(Guid organizationId,
-                                    string mobileNumber,
                                     int operatorId,
                                     CustomerOperatorAccount? existingAccount,
                                     string? operatorAccountOwner,
@@ -35,7 +34,6 @@ namespace SubscriptionManagementServices.Models
                                     Guid callerId)
         {
             OrganizationId = organizationId;
-            MobileNumber = mobileNumber;
             OperatorId = operatorId;
             if (existingAccount != null) 
             {
@@ -86,7 +84,6 @@ namespace SubscriptionManagementServices.Models
 
 
         public Guid OrganizationId { get; set; }
-        public string MobileNumber { get; set; }
         public int OperatorId { get; set; }
         public string SubscriptionProductName { get; set; }
         public string? DataPackageName { get; set; }
@@ -121,7 +118,7 @@ namespace SubscriptionManagementServices.Models
         #region ISubscriptionOrder Implementation
         public Guid SubscriptionOrderId { get; set; }
         [NotMapped] public OrderTypes OrderType => OrderTypes.NewSubscription;
-        [NotMapped] public string PhoneNumber => MobileNumber;
+        [NotMapped] public string PhoneNumber => null;
 
         [NotMapped]
         public string NewSubscriptionOrderOwnerName =>

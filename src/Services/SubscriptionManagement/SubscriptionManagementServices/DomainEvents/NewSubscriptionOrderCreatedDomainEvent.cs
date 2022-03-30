@@ -17,7 +17,7 @@ namespace SubscriptionManagementServices.DomainEvents
 
         public override string EventMessage()
         {
-            return $"Customer with id {NewSubscriptionOrder.OrganizationId} added a {NewSubscriptionOrder.OrderType} order for mobile number {NewSubscriptionOrder.MobileNumber}";
+            return $"Customer with id {NewSubscriptionOrder.OrganizationId} added a {NewSubscriptionOrder.OrderType} order.";
         }
     }
 }

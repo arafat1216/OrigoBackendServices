@@ -620,7 +620,6 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     OperatorId = 10,
                     SimCardNumber = "89722020101228153578",
                     SimCardAction = "New",
-                    MobileNumber = "+4741414141",
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
@@ -657,7 +656,6 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         Assert.NotNull(order.SubscriptionProductName);
         Assert.NotEmpty(order.SimCardAction);
-        Assert.NotEmpty(order.MobileNumber);
         Assert.NotEmpty(order.SimCardNumber);
         Assert.IsType<DateTime>(order.OrderExecutionDate);
         Assert.NotEmpty(order.OrderExecutionDate.ToString());

@@ -809,7 +809,6 @@ public class
                 OperatorName = "Telia - NO"
             },
             OperatorId = 1,
-            MobileNumber = "+4747474744",
             OperatorAccountId = 100,
             SubscriptionProductId = 200,
             SimCardNumber = "89202051293671023971",
@@ -858,7 +857,6 @@ public class
                 OperatorName = "Telia - NO"
             },
             OperatorId = 1,
-            MobileNumber = "+4747474744",
             OperatorAccountId = 100,
             SubscriptionProductId = 200,
             SimCardAction = "NEW",
@@ -906,7 +904,6 @@ public class
                 OperatorName = "Telia - NO"
             },
             OperatorId = 1,
-            MobileNumber = "+4747474744",
             OperatorAccountId = 100,
             SubscriptionProductId = 200,
             SimCardAction = "Order",
@@ -944,7 +941,6 @@ public class
                 OperatorName = "Telia - NO"
             },
             OperatorId = 1,
-            MobileNumber = "+4747474744",
             OperatorAccountId = 0,
             SubscriptionProductId = 200,
             SimCardAction = "Order",

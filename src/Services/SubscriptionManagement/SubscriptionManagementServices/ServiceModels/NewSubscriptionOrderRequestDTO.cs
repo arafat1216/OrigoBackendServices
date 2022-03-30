@@ -3,8 +3,6 @@ namespace SubscriptionManagementServices.ServiceModels
 {
     public class NewSubscriptionOrderRequestDTO
     {
-        public string MobileNumber { get; set; }
-
         public int OperatorId { get; set; }
 
         public int? OperatorAccountId { get; set; }

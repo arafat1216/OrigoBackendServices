@@ -7,7 +7,7 @@ namespace SubscriptionManagementServices.Models
         public Guid SubscriptionOrderId { get; set; }
         public DateTime CreatedDate { get;  }
         public OrderTypes OrderType { get;  }
-        public string PhoneNumber { get; }
+        public string? PhoneNumber { get; }
         public string? SalesforceTicketId { get; set; }
         public string NewSubscriptionOrderOwnerName { get; }
         public DateTime OrderExecutionDate { get; }
