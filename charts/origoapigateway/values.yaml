@@ -17,11 +17,11 @@ deployment:
     dapr.io/app-port: "80"
     dapr.io/log-level: "debug"
     dapr.io/config: "appconfig-origoapigateway"
-    dapr.io/sidecar-readiness-probe-timeout-seconds: 5
-    dapr.io/sidecar-readiness-probe-period-seconds: 10
-    dapr.io/sidecar-liveness-probe-delay-seconds: 5
-    dapr.io/sidecar-liveness-probe-timeout-seconds: 5
-    dapr.io/sidecar-liveness-probe-threshold: 5
+    dapr.io/sidecar-readiness-probe-timeout-seconds: "5"
+    dapr.io/sidecar-readiness-probe-period-seconds: "10"
+    dapr.io/sidecar-liveness-probe-delay-seconds: "5"
+    dapr.io/sidecar-liveness-probe-timeout-seconds: "5"
+    dapr.io/sidecar-liveness-probe-threshold: "5"
 
 
   env:
