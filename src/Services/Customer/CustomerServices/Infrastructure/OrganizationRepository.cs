@@ -301,13 +301,28 @@ namespace CustomerServices.Infrastructure
             //See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency            
             await ResilientTransaction.New(_customerContext).ExecuteAsync(async () =>
             {
-                // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
-                foreach (var @event in _customerContext.GetDomainEventsAsync())
+                var editedEntities = _customerContext.ChangeTracker.Entries()
+                                                                   .Where(E => E.State == EntityState.Modified)
+                                                                   .ToList();
+
+                editedEntities.ForEach(entity =>
                 {
-                    await _functionalEventLogService.SaveEventAsync(@event, _customerContext.Database.CurrentTransaction);
-                }
+                    entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
+                });
+
+                // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
                 await _customerContext.SaveChangesAsync(cancellationToken);
+
+                if (!_customerContext.IsSQLite)
+                {
+                    foreach (var @event in _customerContext.GetDomainEventsAsync())
+                    {
+                        await _functionalEventLogService.SaveEventAsync(@event, _customerContext.Database.CurrentTransaction!);
+                    }
+                }
+
                 numberOfRecordsSaved = await _customerContext.SaveChangesAsync(cancellationToken);
+
                 await _mediator.DispatchDomainEventsAsync(_customerContext);
             });
             return numberOfRecordsSaved;

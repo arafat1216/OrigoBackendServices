@@ -6,7 +6,7 @@ namespace CustomerServices.Infrastructure.Context
 {
     public class CustomerContext : DbContext
     {
-        private readonly bool _isSQLite;
+        public bool IsSQLite { get; }
 
         public DbSet<Organization> Organizations => Set<Organization>();
         public DbSet<Department> Departments => Set<Department>();
@@ -29,18 +29,18 @@ namespace CustomerServices.Infrastructure.Context
                 if (!extension.GetType().ToString().Contains("Sqlite"))
                     continue;
 
-                _isSQLite = true;
+                IsSQLite = true;
                 break;
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new OrganizationConfiguration(_isSQLite));
-            modelBuilder.ApplyConfiguration(new UserConfiguration(_isSQLite));
-            modelBuilder.ApplyConfiguration(new DepartmentConfiguration(_isSQLite));
-            modelBuilder.ApplyConfiguration(new PartnerConfiguration(_isSQLite));
-            modelBuilder.ApplyConfiguration(new UserPermissionsConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new OrganizationConfiguration(IsSQLite));
+            modelBuilder.ApplyConfiguration(new UserConfiguration(IsSQLite));
+            modelBuilder.ApplyConfiguration(new DepartmentConfiguration(IsSQLite));
+            modelBuilder.ApplyConfiguration(new PartnerConfiguration(IsSQLite));
+            modelBuilder.ApplyConfiguration(new UserPermissionsConfiguration(IsSQLite));
 
             modelBuilder.Seed();
         }
