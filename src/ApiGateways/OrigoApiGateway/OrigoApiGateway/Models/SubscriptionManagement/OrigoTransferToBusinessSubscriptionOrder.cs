@@ -44,6 +44,11 @@ namespace OrigoApiGateway.Models.SubscriptionManagement
         ///     SIM card number
         /// </summary>
         public string SIMCardAction { get; set; }
+        /// <summary>
+        ///     SIM card reciver address
+        /// </summary>
+        public SimCardAddress? SimCardAddress { get; set; } = null;
+
 
         /// <summary>
         ///     Date of transfer

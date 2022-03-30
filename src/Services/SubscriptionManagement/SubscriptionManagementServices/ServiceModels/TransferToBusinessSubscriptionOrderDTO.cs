@@ -31,6 +31,10 @@
         ///     SIM card number
         /// </summary>
         public string SIMCardAction { get; set; }
+        /// <summary>
+        ///     Order address to recive sim card
+        /// </summary>
+        public SimCardAddressRequestDTO? SimCardAddress { get; set; } = null;
 
         /// <summary>
         ///     Date of transfer

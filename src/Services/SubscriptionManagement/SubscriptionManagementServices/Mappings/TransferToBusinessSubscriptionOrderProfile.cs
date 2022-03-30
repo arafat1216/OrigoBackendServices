@@ -33,6 +33,15 @@ namespace SubscriptionManagementServices.Mappings
                    }); 
                
                })
+               .ForMember(dto => dto.SimCardAddress, opts => opts.MapFrom(m => new SimCardAddressRequestDTO
+               {
+                   FirstName = m.SimCardReciverFirstName,
+                   LastName = m.SimCardReciverLastName,
+                   Address = m.SimCardAddress,
+                   Country = m.SimCardCountry,
+                   PostalCode = m.SimCardPostalCode,
+                   PostalPlace = m.SimCardPostalPlace
+               }))
                .ForMember(dto => dto.CustomerReferenceFields, opts => opts.MapFrom(m => JsonSerializer.Deserialize<IList<NewCustomerReferenceValue>>(m.CustomerReferenceFields, new JsonSerializerOptions { })))
                .ForMember(d => d.DataPackage,opt => opt.MapFrom(m => m.DataPackageName))
                .ForMember(d => d.AddOnProducts, opt => opt.MapFrom(m => m.SubscriptionAddOnProducts.Select(a => a.AddOnProductName)));

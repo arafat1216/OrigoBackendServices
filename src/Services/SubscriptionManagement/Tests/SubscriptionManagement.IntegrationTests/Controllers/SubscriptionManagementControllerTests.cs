@@ -231,6 +231,10 @@ public class
             $"/api/v1/SubscriptionManagement/{_organizationId}/transfer-to-business", newTransferToBusinessFromPrivate);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        //Assert.Contains(
+        //   $"Phone number +47041414141 not valid for countrycode nb.",
+        //   response.Content.ReadAsStringAsync().Result);
+
     }
     
     [Fact]

@@ -14,7 +14,7 @@ namespace SubscriptionManagementServices.Models
             _subscriptionAddOnProducts = new List<SubscriptionAddOnProduct>();
         }
 
-        public TransferToBusinessSubscriptionOrder(string? simCardNumber, string simCardAction,
+        public TransferToBusinessSubscriptionOrder(string? simCardNumber, string simCardAction, SubscriptionManagementServices.ServiceModels.SimCardAddressRequestDTO? simCardAddress,
             CustomerSubscriptionProduct subscriptionProduct, Guid organizationId,
             CustomerOperatorAccount? customerOperatorAccount, string? operatorAccountNumber, string? dataPackageName, DateTime orderExecutionDate,
             string mobileNumber, string customerReferenceFields,
@@ -25,6 +25,15 @@ namespace SubscriptionManagementServices.Models
             SubscriptionOrderId = Guid.NewGuid();
             SimCardNumber = simCardNumber;
             SimCardAction = simCardAction;
+            if (simCardAddress != null)
+            {
+                SimCardAddress = simCardAddress.Address;
+                SimCardCountry = simCardAddress.Country;
+                SimCardPostalCode = simCardAddress.PostalCode;
+                SimCardReciverFirstName = simCardAddress.FirstName;
+                SimCardReciverLastName = simCardAddress.LastName;
+                SimCardPostalPlace = simCardAddress.PostalPlace;
+            }
             SubscriptionProductName = subscriptionProduct.SubscriptionName;
             OrganizationId = organizationId;
             if (customerOperatorAccount != null)
@@ -69,6 +78,12 @@ namespace SubscriptionManagementServices.Models
         [StringLength(22)]
         public string? SimCardNumber { get; set; }
         public string SimCardAction { get; set; }
+        public string? SimCardReciverFirstName { get; set; }
+        public string? SimCardReciverLastName { get; set; }
+        public string? SimCardPostalCode { get; set; }
+        public string? SimCardPostalPlace { get; set; }
+        public string? SimCardCountry { get; set; }
+        public string? SimCardAddress { get; set; }
         public Guid OrganizationId { get; set; }
         public string? DataPackageName { get; set; }
         public DateTime OrderExecutionDate { get; set; }

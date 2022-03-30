@@ -105,9 +105,12 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 }
                 
             }
+            
             else
             {
                 if (simCardAction != SIMAction.Order) throw new ArgumentException($"Ordertype is {order.SIMCardAction} but there is no SIM card number");
+                if (order.SimCardAddress == null) throw new InvalidSimException(
+                               $"SIM card action is {simCardAction} and Sim card address is empty", Guid.Parse("16dc9894-ddb7-448f-ab88-7e64caecf991"));
                 //Ordering a new sim card - no need for sim card number
                 if (order.OrderExecutionDate <
                     DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM) ||
@@ -156,7 +159,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                     $"No subscription product exists with ID {order.SubscriptionProductId}");
         }
 
-        var transferToBusinessSubscriptionOrder = new TransferToBusinessSubscriptionOrder(order.SIMCardNumber, order.SIMCardAction, customerSubscriptionProduct
+        var transferToBusinessSubscriptionOrder = new TransferToBusinessSubscriptionOrder(order.SIMCardNumber, order.SIMCardAction,order.SimCardAddress, customerSubscriptionProduct
             , organizationId, customerOperatorAccount, order?.OperatorAccountPhoneNumber, order?.DataPackage,
             order.OrderExecutionDate, order.MobileNumber, JsonSerializer.Serialize(order.CustomerReferenceFields),
             subscriptionAddOnProducts.ToList(), order.NewOperatorAccount?.NewOperatorAccountOwner, order.NewOperatorAccount?.OrganizationNumberOwner,
@@ -580,7 +583,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                         mappedT2B.BusinessSubscription.OperatorName = @operator.Operator.OperatorName;
                     }
                     mappedT2B.OperatorId = @operator.Operator.Id;
-                    if (mappedT2B.NewOperatorAccount != null) mappedT2B.OperatorId = @operator.Operator.Id;
+                    if (mappedT2B.NewOperatorAccount != null) mappedT2B.NewOperatorAccount.OperatorId = @operator.Operator.Id;
                 }
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedT2B);
                 detailViewSubscriptionOrder.CreatedBy = transferToBusiness.CreatedBy;
@@ -616,6 +619,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                         mappedNewSubscription.BusinessSubscription.OperatorId = @operator?.Operator.Id;
                     }
                     if(mappedNewSubscription.PrivateSubscription != null) mappedNewSubscription.PrivateSubscription.OperatorId = @operator.Operator.Id;
+                    if(mappedNewSubscription.NewOperatorAccount != null) mappedNewSubscription.NewOperatorAccount.OperatorName = @operator.Operator.OperatorName;
                 }
 
                 detailViewSubscriptionOrder = _mapper.Map<DetailViewSubscriptionOrderLog>(mappedNewSubscription);

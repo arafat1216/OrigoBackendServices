@@ -144,6 +144,15 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         OperatorName = "Op1"
                     },
                     SIMCardAction = "Order",
+                    SimCardAddress = new SimCardAddressRequestDTO
+                    {
+                        FirstName = "Peter",
+                        LastName = "Pan",
+                        Address = "Ocean Road",
+                        Country ="Wonderland",
+                        PostalCode = "1111",
+                        PostalPlace = "Beach"
+                    },
                     MobileNumber = "+4745454847"
                 }
                 ));
@@ -168,6 +177,15 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         OperatorName = "Op1"
                     },
                     SIMCardAction = "Order",
+                    SimCardAddress = new SimCardAddressRequestDTO
+                    {
+                        FirstName = "Peter",
+                        LastName = "Pan",
+                        Address = "Ocean Road",
+                        Country = "Wonderland",
+                        PostalCode = "1111",
+                        PostalPlace = "Beach"
+                    },
                     MobileNumber = "+4745454847"
                 }
                 ));
@@ -225,6 +243,15 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     },
                     SIMCardNumber = "",
                     SIMCardAction = "Order",
+                    SimCardAddress = new SimCardAddressRequestDTO
+                    {
+                        FirstName = "Peter",
+                        LastName = "Pan",
+                        Address = "Ocean Road",
+                        Country = "Wonderland",
+                        PostalCode = "1111",
+                        PostalPlace = "Beach"
+                    },
                     MobileNumber = "+4790262589"
                 }
                 ));
@@ -250,6 +277,15 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     },
                     SIMCardNumber = "",
                     SIMCardAction = "Order",
+                    SimCardAddress = new SimCardAddressRequestDTO
+                    {
+                        FirstName = "Peter",
+                        LastName = "Pan",
+                        Address = "Ocean Road",
+                        Country = "Wonderland",
+                        PostalCode = "1111",
+                        PostalPlace = "Beach"
+                    },
                     MobileNumber = "+4792603232"
                 }
                 ));
@@ -258,8 +294,37 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.IsType<ArgumentException>(exceptionThirtyDay);
         Assert.Equal("Invalid transfer date. 10 workdays ahead or more is allowed.", exceptionThirtyDay.Message);
     }
-
     [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_SimActionOrder_NoSimAddress()
+    {
+        var exception = await Record.ExceptionAsync(() =>
+             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
+                new TransferToBusinessSubscriptionOrderDTO
+                {
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(1),
+                    NewOperatorAccount = new NewOperatorAccountRequestedDTO
+                    {
+                        OperatorId = 11, // Op2
+                        NewOperatorAccountPayer = "[OperatorAccountPayer]",
+                        NewOperatorAccountOwner = "[OperatorAccountOwner]"
+                    },
+                    PrivateSubscription = new PrivateSubscriptionDTO
+                    {
+                        OperatorName = "Op1"
+                    },
+                    SIMCardNumber = "",
+                    SIMCardAction = "Order",
+                    MobileNumber = "+4790262589"
+                }
+                ));
+
+        Assert.NotNull(exception);
+        Assert.IsType<InvalidSimException>(exception);
+        Assert.Equal("SIM card action is Order and Sim card address is empty", exception.Message);
+    }
+
+        [Fact]
     [Trait("Category", "UnitTest")]
     public async Task TransferSubscription_Same_Operator_Valid()
     {

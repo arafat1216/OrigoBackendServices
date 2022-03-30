@@ -19,6 +19,7 @@ namespace SubscriptionManagementServices.ServiceModels
             DataPackage = DTO.DataPackage;
             SIMCardNumber = DTO.SIMCardNumber;
             SIMCardAction = DTO.SIMCardAction;
+            SimCardAddress= DTO.SimCardAddress;
             OrderExecutionDate = DTO.OrderExecutionDate;
             AddOnProducts = DTO.AddOnProducts;
             CustomerReferenceFields = DTO.CustomerReferenceFields;
@@ -65,6 +66,10 @@ namespace SubscriptionManagementServices.ServiceModels
         ///     SIM card number
         /// </summary>
         public string SIMCardAction { get; set; }
+        /// <summary>
+        ///     SIM card reciverAddress
+        /// </summary>
+        public SimCardAddressRequestDTO? SimCardAddress { get; set; } = null;
 
         /// <summary>
         ///     Date of transfer
