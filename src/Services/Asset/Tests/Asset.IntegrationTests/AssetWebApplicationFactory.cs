@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using AssetServices.Infrastructure;
+using AssetServices.Models;
+using Common.Enums;
 using Common.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -22,8 +25,12 @@ public class AssetWebApplicationFactory<TProgram> : WebApplicationFactory<TProgr
     private readonly DbConnection _dbConnection = new SqliteConnection("Data Source=:memory:");
 
     public readonly Guid ORGANIZATION_ID = Guid.Parse("7adbd9fa-97d1-11ec-8500-00155d64bd3d");
-
-
+    private readonly Guid CALLER_ID = new("da031680-abb0-11ec-849b-00155d3196a5");
+    private readonly Guid ASSETLIFECYCLE_ONE_ID = new("4e7413da-54c9-4f79-b882-f66ce48e5074");
+    private readonly Guid ASSETLIFECYCLE_TWO_ID = new("6c38b551-a5c2-4f53-8df8-221bf8485c61");
+    private readonly Guid ASSETLIFECYCLE_THREE_ID = new("80665d26-90b4-4a3a-a20d-686b64466f32");
+    private readonly Guid COMPANY_ID = new("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
+    protected readonly Guid ASSETHOLDER_ONE_ID = new("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureTestServices(services =>
@@ -37,7 +44,30 @@ public class AssetWebApplicationFactory<TProgram> : WebApplicationFactory<TProgr
             assetsContext.Database.EnsureCreated();
             try
             {
-                //assetsContext.Assets.Add(new AssetServices.Models.MobilePhone{});
+                var assetOne = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012345", "Samsung", "Samsung Galaxy S20", new List<AssetImei>() { new AssetImei(500119468586675) }, "B26EDC46046B");
+
+                var assetTwo = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012364", "Apple", "Apple iPhone 8", new List<AssetImei>() { new AssetImei(546366434558702) }, "487027C99FA1");
+
+                var assetThree = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012399", "Samsung", "Samsung Galaxy S21", new List<AssetImei>() { new AssetImei(512217111821626) }, "840F1D0C06AD");
+
+                var userOne = new User { ExternalId = ASSETHOLDER_ONE_ID };
+                var assetLifecycleOne = new AssetLifecycle(ASSETLIFECYCLE_ONE_ID) { CustomerId = COMPANY_ID, Alias = "alias_0", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired };
+                assetLifecycleOne.AssignAsset(assetOne, CALLER_ID);
+                assetLifecycleOne.AssignContractHolder(userOne, CALLER_ID);
+
+                var assetLifecycleTwo = new AssetLifecycle(ASSETLIFECYCLE_TWO_ID) { CustomerId = COMPANY_ID, Alias = "alias_1", AssetLifecycleStatus = AssetLifecycleStatus.Available };
+                assetLifecycleTwo.AssignAsset(assetTwo, CALLER_ID);
+                assetLifecycleTwo.AssignContractHolder(userOne, CALLER_ID);
+
+                var assetLifecycleThree = new AssetLifecycle(ASSETLIFECYCLE_THREE_ID) { CustomerId = COMPANY_ID, Alias = "alias_2", AssetLifecycleStatus = AssetLifecycleStatus.Active };
+                assetLifecycleThree.AssignAsset(assetThree, CALLER_ID);
+                assetLifecycleThree.AssignContractHolder(userOne, CALLER_ID);
+
+                assetsContext.SaveChanges();
+
+                assetsContext.Users.AddRange(userOne);
+                assetsContext.Assets.AddRange(assetOne, assetTwo, assetThree);
+                assetsContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree);
                 assetsContext.SaveChanges();
             }
             catch (Exception e)

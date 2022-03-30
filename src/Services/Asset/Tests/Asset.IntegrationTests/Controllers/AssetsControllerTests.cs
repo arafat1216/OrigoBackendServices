@@ -172,4 +172,29 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newAsset);
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
     }
+
+    [Fact]
+    public async Task UnAssignAssetsFromUser()
+    {
+        var data = new UnAssignAssetToUser
+        {
+            CallerId = _callerId,
+            DepartmentId = Guid.NewGuid()
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(data));
+        var userId = Guid.Parse("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
+        var customerId = Guid.Parse("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
+
+        var requestUri = $"/api/v1/Assets/customers/{customerId}/users/{userId}";
+        _testOutputHelper.WriteLine(requestUri);
+        var deleteResponse = await _httpClient.PatchAsync(requestUri, JsonContent.Create(data));
+        Assert.Equal(HttpStatusCode.Accepted, deleteResponse.StatusCode);
+
+        var pagedAssetList = await _httpClient.GetFromJsonAsync<PagedAssetList>($"/api/v1/Assets/customers/{customerId}");
+
+        Assert.NotNull(pagedAssetList);
+        Assert.Equal(3, pagedAssetList!.TotalItems);
+        Assert.All(pagedAssetList.Assets, m => Assert.Equal(data.DepartmentId, m.ManagedByDepartmentId));
+        Assert.All(pagedAssetList.Assets, m => Assert.Null(m.AssetHolderId));
+    }
 }

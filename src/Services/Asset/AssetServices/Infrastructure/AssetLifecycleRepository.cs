@@ -143,9 +143,31 @@ namespace AssetServices.Infrastructure
         public async Task<IList<AssetLifecycle>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId)
         {
             return await _assetContext.AssetLifeCycles
-                .Where(a => a.CustomerId == customerId && a.ContractHolderUser != null && a.ContractHolderUser.ExternalId == userId)
-                .AsNoTracking()
+                .Include(a => a.ContractHolderUser)
+                .Where(a => a.CustomerId == customerId && a.ContractHolderUser!.ExternalId == userId)
+                .AsTracking()
                 .ToListAsync();
+        }
+
+        public async Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
+        {
+            var assetLifecyclesForUser = _assetContext.AssetLifeCycles
+                .Include(a => a.ContractHolderUser)
+                .Where(a => a.CustomerId == customerId && a.ContractHolderUser!.ExternalId == userId);
+
+            if (!assetLifecyclesForUser.Any()) return;
+
+            foreach (var assetLifecycle in assetLifecyclesForUser)
+            {
+                assetLifecycle.UnAssignContractHolder(callerId);
+
+                if (assetLifecycle.ManagedByDepartmentId == null)
+                    assetLifecycle.AssignDepartment(departmentId, callerId);
+
+                _assetContext.Entry(assetLifecycle).State = EntityState.Modified;
+            }
+
+            await SaveEntitiesAsync();
         }
 
         public async Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetLifecycleId)

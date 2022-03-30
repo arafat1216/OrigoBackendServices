@@ -50,18 +50,7 @@ namespace AssetServices
 
         public async Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
-            var assetLifecyclesForUser = await _assetLifecycleRepository.GetAssetLifecyclesForUserAsync(customerId, userId);
-
-            if (assetLifecyclesForUser.Any()) return;
-
-            foreach (var assetLifecycle in assetLifecyclesForUser)
-            {
-                assetLifecycle.UnAssignContractHolder(callerId);
-                if (assetLifecycle.ManagedByDepartmentId == null)
-                    assetLifecycle.AssignDepartment(departmentId, callerId);
-            }
-
-            await _assetLifecycleRepository.SaveEntitiesAsync();
+            await _assetLifecycleRepository.UnAssignAssetLifecyclesForUserAsync(customerId: customerId, userId: userId, departmentId: departmentId, callerId: callerId);
         }
 
         public async Task<PagedModel<AssetLifecycleDTO>> GetAssetLifecyclesForCustomerAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)

@@ -16,6 +16,7 @@ using System.Reflection;
 using AssetServices.ServiceModel;
 using AutoMapper;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace AssetServices.UnitTests
 {
@@ -158,7 +159,7 @@ namespace AssetServices.UnitTests
             // Act
             var newAsset = await assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
                 "iPhone", "iPhone X", LifecycleType.NoLifecycle, new DateTime(2020, 1, 1), null, new List<long>() { 993100473611389 }, "a3:21:99:5d:a7:a2", null, "Unassigned asset", "description");
-            
+
             // Assert
             Assert.Equal(AssetLifecycleStatus.Active, newAsset.AssetLifecycleStatus);
         }
@@ -187,11 +188,11 @@ namespace AssetServices.UnitTests
             var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
 
-           
+
             // Act and assert
             await Assert.ThrowsAsync<InvalidAssetDataException>(() => assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
                 "iPhone", "iPhone X", LifecycleType.NoLifecycle, new DateTime(2020, 1, 1), null, new List<long>() { 45871892016466 }, "a3:21:99:5d:a7:a1", null, "Unassigned asset", "description"));
-           
+
         }
         [Fact]
         [Trait("Category", "UnitTest")]
@@ -224,12 +225,12 @@ namespace AssetServices.UnitTests
                 number1,
                 number1,
                 number2
-                
+
             };
 
             var uniqueIMEIList = AssetValidatorUtility.MakeUniqueIMEIList(listOfImeis);
             Assert.Equal(2, uniqueIMEIList.Count);
-            Assert.Equal(uniqueIMEIList[0],number1);
+            Assert.Equal(uniqueIMEIList[0], number1);
             Assert.Equal(uniqueIMEIList[1], number2);
         }
 
@@ -347,7 +348,7 @@ namespace AssetServices.UnitTests
             await using var context = new AssetsContext(ContextOptions);
             var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
-            
+
             IList<Label> labelsToAdd = new List<Label>();
             labelsToAdd.Add(new Label("Repair", LabelColor.Red));
             labelsToAdd.Add(new Label("Field", LabelColor.Blue));
@@ -393,7 +394,7 @@ namespace AssetServices.UnitTests
             IList<CustomerLabel> labels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
             labels[0].PatchLabel(Guid.Empty, new Label("Deprecated", LabelColor.Orange));
             labels[1].PatchLabel(Guid.Empty, new Label("Lost", LabelColor.Gray));
-            
+
             // Act
             await assetService.UpdateLabelsForCustomerAsync(COMPANY_ID, labels);
 
@@ -457,8 +458,8 @@ namespace AssetServices.UnitTests
             };
 
             await assetService.AssignLabelsToAssetsAsync(COMPANY_ID, Guid.Empty, assetGuids, labelGuids);
-            
-            
+
+
             // Act
             assetLifecycle = (await assetService.UnAssignLabelsToAssetsAsync(COMPANY_ID, Guid.Empty, assetGuids, labelGuids))[0];
 
@@ -467,6 +468,25 @@ namespace AssetServices.UnitTests
             //{
             //    Assert.True(al.IsDeleted);
             //}
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task UnAssignAssetLifecyclesForUser_Valid()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+
+            var departmentId = Guid.NewGuid();
+
+            await assetService.UnAssignAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_ONE_ID, departmentId, CALLER_ID);
+
+            var assetLifeCycles = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_ONE_ID);
+
+            // Assert
+            Assert.Equal(0, assetLifeCycles.Count);
         }
     }
 }

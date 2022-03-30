@@ -77,7 +77,7 @@ namespace Asset.API.Controllers
         [HttpPatch]
         [ApiExplorerSettings(IgnoreApi = true)]
         [Topic("user_deleted_pub_sub", "user_topic")]
-        public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UnAssignAssetsFromUser(Guid customerId, Guid userId, [FromBody] UnAssignAssetToUser data)
+        public async Task<ActionResult> UnAssignAssetsFromUser(Guid customerId, Guid userId, [FromBody] UnAssignAssetToUser data)
         {
             await _assetServices.UnAssignAssetLifecyclesForUserAsync(customerId, userId, data.DepartmentId, data.CallerId);
             return Accepted();
