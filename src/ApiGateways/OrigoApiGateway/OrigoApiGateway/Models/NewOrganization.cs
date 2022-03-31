@@ -42,5 +42,7 @@ namespace OrigoApiGateway.Models
         public string InternalNotes { get; init; }
                 
         public NewOrganizationPreferences Preferences { get; init; }
+
+        public Guid? PartnerId { get; set; }
     }
 }

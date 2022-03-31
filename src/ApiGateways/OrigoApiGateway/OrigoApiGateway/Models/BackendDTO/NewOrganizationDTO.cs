@@ -19,8 +19,9 @@ namespace OrigoApiGateway.Models.BackendDTO
         public string ContactEmail { get; set; }
         public string InternalNotes { get; set; }
 
+        public Guid? PartnerId { get; set; }
         public bool IsCustomer { get; set; }
-        
+                
         public NewOrganizationPreferences Preferences { get; set; }
     }
 }

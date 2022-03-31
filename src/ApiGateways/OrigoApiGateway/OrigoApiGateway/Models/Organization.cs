@@ -14,5 +14,6 @@ namespace OrigoApiGateway.Models
         public OrigoContactPerson ContactPerson { get; init; }
         public NewOrganizationPreferences Preferences { get; init; }
         public NewLocation Location { get; init; }
+        public Guid? PartnerId { get; set; }
     }
 }
