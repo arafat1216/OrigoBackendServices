@@ -161,7 +161,7 @@ stages:
             displayName: 'Run newman'
             inputs:
               filename: newman
-              arguments: 'run "$(Pipeline.Workspace)/postmanscripts/OrigoV2IntegrationTests.postman_collection.json" -e "$(Pipeline.Workspace)/postmanscripts/OrigoV2IntegrationTests-DevEnvironment.postman_environment.json" --disable-unicode'
+              arguments: 'run "$(Pipeline.Workspace)/postmanscripts/OrigoV2IntegrationTests.postman_collection.json" -e "$(Pipeline.Workspace)/postmanscripts/OrigoV2IntegrationTests-DevEnvironment.postman_environment.json" --disable-unicode,deployment.probes.enabled=true'
 
   - deployment: DeployPullRequest
     displayName: Deploy Pull request
