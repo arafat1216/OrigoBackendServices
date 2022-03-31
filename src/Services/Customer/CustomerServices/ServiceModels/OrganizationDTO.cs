@@ -21,6 +21,7 @@ namespace CustomerServices.ServiceModels
             Location = new LocationDTO(organization.Location);
             Preferences = new OrganizationPreferencesDTO(organization.Preferences);
             PartnerId = organization.Partner?.ExternalId;
+            ParentId = organization.ParentId;
 
             if (organization.ChildOrganizations is not null && organization.ChildOrganizations.Count != 0)
             {
@@ -34,6 +35,9 @@ namespace CustomerServices.ServiceModels
 
         /// <inheritdoc cref="Organization.OrganizationId"/>
         public Guid OrganizationId { get; set; }
+
+        /// <inheritdoc cref="Organization.ParentId"/>
+        public Guid? ParentId { get; set; }
 
         /// <inheritdoc cref="Organization.Name"/>
         public string Name { get; set; }

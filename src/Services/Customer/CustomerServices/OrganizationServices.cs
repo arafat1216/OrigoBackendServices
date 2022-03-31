@@ -191,7 +191,7 @@ namespace CustomerServices
             var organization = new Organization(Guid.NewGuid(), newOrganization.CallerId, newOrganization.ParentId,
                                                 newOrganization.Name, newOrganization.OrganizationNumber, address,
                                                 contactPerson, null, location,
-                                                newOrganization.IsCustomer);
+                                                partner, newOrganization.IsCustomer);
 
             organization = await _organizationRepository.AddAsync(organization);
 
@@ -229,8 +229,8 @@ namespace CustomerServices
 
 
         public async Task<Organization> PutOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
-                                                               string street, string postCode, string city, string country,
-                                                               string firstName, string lastName, string email, string phoneNumber)
+                                                             string street, string postCode, string city, string country,
+                                                             string firstName, string lastName, string email, string phoneNumber)
         {
             try
             {
@@ -281,7 +281,7 @@ namespace CustomerServices
                 ContactPerson newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
-                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.IsCustomer);
+                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer);
 
                 organizationOriginal.UpdateOrganization(newOrganization);
 
@@ -391,7 +391,7 @@ namespace CustomerServices
                 newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
-                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.IsCustomer);
+                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer);
 
                 organizationOriginal.PatchOrganization(newOrganization);
 

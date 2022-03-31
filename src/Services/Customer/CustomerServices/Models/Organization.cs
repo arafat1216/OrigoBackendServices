@@ -109,7 +109,8 @@ namespace CustomerServices.Models
         }
 
         public Organization(Guid organizationId, Guid callerId, Guid? parentId, string companyName, string orgNumber, Address companyAddress,
-            ContactPerson organizationContactPerson, OrganizationPreferences organizationPreferences, Location organizationLocation, bool isCustomer)
+                            ContactPerson organizationContactPerson, OrganizationPreferences organizationPreferences, Location organizationLocation, 
+                            Partner? partner, bool isCustomer)
         {
             Name = companyName;
             ParentId = parentId;
@@ -120,10 +121,11 @@ namespace CustomerServices.Models
             Preferences = organizationPreferences;
             Location = organizationLocation;
             PrimaryLocation = (organizationLocation == null) ? Guid.Empty : organizationLocation.LocationId;
+            Partner = partner;
+            IsCustomer = isCustomer;
             CreatedBy = callerId;
             UpdatedBy = callerId;
             IsDeleted = false;
-            IsCustomer = isCustomer;
 
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }

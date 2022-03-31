@@ -55,6 +55,7 @@ namespace CustomerServices.SeedData
                     city: "Chicago", // city 
                     country: "United States of America" // country
                     ),
+                 null,
                  true
                 );
 
@@ -97,6 +98,7 @@ namespace CustomerServices.SeedData
                     city: "Chicago",
                     country: "United States of America"
                     ),
+                null,
                 true
                 );
             #endregion

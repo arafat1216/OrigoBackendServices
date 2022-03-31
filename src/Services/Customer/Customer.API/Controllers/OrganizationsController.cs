@@ -55,8 +55,10 @@ namespace Customer.API.Controllers
                     Address = new AddressDTO(organization.Address),
                     ContactPerson = new ContactPersonDTO(organization.ContactPerson),
                     Preferences = (organization.Preferences == null) ? null : new OrganizationPreferencesDTO(organization.Preferences),
-                    Location = (organization.Location == null) ? null : new LocationDTO(organization.Location)
+                    Location = (organization.Location == null) ? null : new LocationDTO(organization.Location),
+                    PartnerId = organization.Partner?.ExternalId
                 };
+
                 return Ok(foundCustomer);
             }
             catch (EntityIsDeletedException ex)
@@ -100,7 +102,8 @@ namespace Customer.API.Controllers
                         ContactPerson = new ContactPersonDTO(org.ContactPerson),
                         Preferences = (org.Preferences == null) ? null : new OrganizationPreferencesDTO(org.Preferences),
                         Location = (org.Location == null) ? null : new LocationDTO(org.Location),
-                        ChildOrganizations = new List<OrganizationDTO>()
+                        ChildOrganizations = new List<OrganizationDTO>(),
+                        PartnerId = org.Partner?.ExternalId
                     };
                     if (org.ChildOrganizations != null)
                     {
@@ -216,7 +219,8 @@ namespace Customer.API.Controllers
                     Address = new AddressDTO(updatedOrganization.Address),
                     ContactPerson = new ContactPersonDTO(updatedOrganization.ContactPerson),
                     Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(updatedOrganization.Preferences),
-                    Location = (updatedOrganization.Location == null) ? null : new LocationDTO(updatedOrganization.Location)
+                    Location = (updatedOrganization.Location == null) ? null : new LocationDTO(updatedOrganization.Location),
+                    PartnerId = updatedOrganization.Partner?.ExternalId
                 };
 
                 return updatedOrganizationView;
@@ -288,7 +292,8 @@ namespace Customer.API.Controllers
                     Address = new AddressDTO(updatedOrganization.Address),
                     ContactPerson = new ContactPersonDTO(updatedOrganization.ContactPerson),
                     Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(updatedOrganization.Preferences),
-                    Location = (updatedOrganization.Location == null) ? null : new LocationDTO(updatedOrganization.Location)
+                    Location = (updatedOrganization.Location == null) ? null : new LocationDTO(updatedOrganization.Location),
+                    PartnerId = updatedOrganization.Partner?.ExternalId
                 };
 
                 return updatedOrganizationView;
@@ -348,7 +353,8 @@ namespace Customer.API.Controllers
                     Address = new AddressDTO(removedOrganization.Address),
                     ContactPerson = new ContactPersonDTO(removedOrganization.ContactPerson),
                     Preferences = (removedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(removedOrganization.Preferences),
-                    Location = (removedOrganization.Location == null) ? null : new LocationDTO(removedOrganization.Location)
+                    Location = (removedOrganization.Location == null) ? null : new LocationDTO(removedOrganization.Location),
+                    PartnerId = removedOrganization.Partner?.ExternalId
                 };
                 return Ok(removedOrganizationView);
 
@@ -402,14 +408,15 @@ namespace Customer.API.Controllers
                 if (preferences.OrganizationId == Guid.Empty)
                     return BadRequest("Organization Id cannot be empty");
 
-                CustomerServices.Models.OrganizationPreferences newPreference = new CustomerServices.Models.OrganizationPreferences(preferences.OrganizationId,
-                                                                                                                                    preferences.CallerId,
-                                                                                                                                    preferences.WebPage,
-                                                                                                                                    preferences.LogoUrl,
-                                                                                                                                    preferences.OrganizationNotes,
-                                                                                                                                    preferences.EnforceTwoFactorAuth,
-                                                                                                                                    preferences.PrimaryLanguage,
-                                                                                                                                    preferences.DefaultDepartmentClassification);
+                var newPreference = new CustomerServices.Models.OrganizationPreferences(preferences.OrganizationId,
+                                                                                        preferences.CallerId,
+                                                                                        preferences.WebPage,
+                                                                                        preferences.LogoUrl,
+                                                                                        preferences.OrganizationNotes,
+                                                                                        preferences.EnforceTwoFactorAuth,
+                                                                                        preferences.PrimaryLanguage,
+                                                                                        preferences.DefaultDepartmentClassification);
+
                 var updatedPreferences = await _organizationServices.UpdateOrganizationPreferencesAsync(newPreference, true);
                 if (updatedPreferences == null)
                     return NotFound();
@@ -434,14 +441,14 @@ namespace Customer.API.Controllers
                 if (preferences.OrganizationId == Guid.Empty)
                     return BadRequest("Organization Id cannot be empty");
 
-                CustomerServices.Models.OrganizationPreferences newPreference = new CustomerServices.Models.OrganizationPreferences(preferences.OrganizationId,
-                                                                                                                                    preferences.CallerId,
-                                                                                                                                    preferences.WebPage,
-                                                                                                                                    preferences.LogoUrl,
-                                                                                                                                    preferences.OrganizationNotes,
-                                                                                                                                    preferences.EnforceTwoFactorAuth,
-                                                                                                                                    preferences.PrimaryLanguage,
-                                                                                                                                    preferences.DefaultDepartmentClassification);
+                var newPreference = new CustomerServices.Models.OrganizationPreferences(preferences.OrganizationId,
+                                                                                        preferences.CallerId,
+                                                                                        preferences.WebPage,
+                                                                                        preferences.LogoUrl,
+                                                                                        preferences.OrganizationNotes,
+                                                                                        preferences.EnforceTwoFactorAuth,
+                                                                                        preferences.PrimaryLanguage,
+                                                                                        preferences.DefaultDepartmentClassification);
                 var updatedPreferences = await _organizationServices.UpdateOrganizationPreferencesAsync(newPreference);
                 if (updatedPreferences == null)
                     return NotFound();
@@ -465,16 +472,19 @@ namespace Customer.API.Controllers
             {
                 if (location.LocationId == Guid.Empty)
                     return BadRequest("Location id cannot be empty.");
-                CustomerServices.Models.Location newLocation = new CustomerServices.Models.Location(location.LocationId,
-                                                                                                    location.CallerId,
-                                                                                                    location.Name,
-                                                                                                    location.Description,
-                                                                                                    location.Address1,
-                                                                                                    location.Address2,
-                                                                                                    location.PostalCode,
-                                                                                                    location.City,
-                                                                                                    location.Country);
+
+                var newLocation = new CustomerServices.Models.Location(location.LocationId,
+                                                                       location.CallerId,
+                                                                       location.Name,
+                                                                       location.Description,
+                                                                       location.Address1,
+                                                                       location.Address2,
+                                                                       location.PostalCode,
+                                                                       location.City,
+                                                                       location.Country);
+
                 var updatedLocation = await _organizationServices.UpdateOrganizationLocationAsync(newLocation);
+
                 if (updatedLocation == null)
                     return NotFound();
 
