@@ -34,10 +34,10 @@ namespace OrigoApiGateway.Models
         /// 
         ///     The new location object that is created and used with the organization. </para>
         /// </summary>
-        public NewLocation? Location { get; init; }
+        public NewLocation? Location { get; set; }
     
         [EmailAddress]
-        public string ContactEmail { get; init; }
+        public string ContactEmail { get; set; }
 
         public string InternalNotes { get; init; }
                 

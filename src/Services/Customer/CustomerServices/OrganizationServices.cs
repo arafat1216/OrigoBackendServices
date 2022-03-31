@@ -122,6 +122,11 @@ namespace CustomerServices
             if (newOrganization.PrimaryLocation == Guid.Empty)
                 newOrganization.PrimaryLocation = null;
 
+            // TODO: This check should be added in, but we can't do so until the partner-implementation is completed in frontend. Otherwise it will always trigger.
+            // Basic checks
+            //if (newOrganization.PartnerId is null && newOrganization.IsCustomer)
+            //    throw new ArgumentException("The organization must have a partner before it can be set as a customer.");
+
             #region Location
             Location location;
 
@@ -177,6 +182,7 @@ namespace CustomerServices
             }
             #endregion Parent
 
+
             // Make sure we don't add an already existing organization-number.
             if (await GetOrganizationByOrganizationNumberAsync(newOrganization.OrganizationNumber) != null)
                 throw new DuplicateException($"A organization with the provided organization-number already exist.");
@@ -211,7 +217,7 @@ namespace CustomerServices
             }
             else // When no preferences have been added, create an empty "default" variant
             {
-                organization.Preferences = new OrganizationPreferences(organization.OrganizationId, organization.CreatedBy, "", "", "", false, "en", 0);
+                organization.Preferences = new OrganizationPreferences(organization.OrganizationId, organization.CreatedBy, null, null, null, false, "en", 0);
             }
 
             await _organizationRepository.AddOrganizationPreferencesAsync(organization.Preferences);

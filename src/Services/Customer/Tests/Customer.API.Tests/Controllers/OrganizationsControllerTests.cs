@@ -66,25 +66,7 @@ namespace Customer.API.Controllers.Tests
             var requestUri = $"/api/v1/organizations";
             _testOutputHelper.WriteLine(requestUri);
 
-            /*
-            var newOrganization = new NewOrganization
-            {
-                Address = _addressDTO,
-                CallerId = _callerId,
-                InternalNotes = "Notes",
-                ParentId = null,
-                PartnerId = null,
-                OrganizationNumber = "123456",
-                IsCustomer = false,
-                ContactPerson = _contactPersonDTO,
-                ContactEmail = "email@address.com",
-                Location = _newLocation,
-                Name = "My Company",
-                PrimaryLocation = Guid.Empty
-            };
-            */
-
-            var newOrganization = new NewOrganization
+            var newOrganization = new NewOrganizationDTO
             {
                 Name = "TE BØ",
                 OrganizationNumber = "919724617",
@@ -102,23 +84,32 @@ namespace Customer.API.Controllers.Tests
                     LastName = "test",
                     PhoneNumber = "+4790909090"
                 },
-                Location = null,
-                PrimaryLocation = Guid.Empty,
-                ParentId = Guid.Empty,
+                Location = new LocationDTO
+                {
+                    Name = "Default location",
+                    Description = null,
+                    Address1 = "Markveien 32F",
+                    Address2 = null,
+                    City = "OSLO",
+                    PostalCode = "0554",
+                    Country = "NO"
+                },
+                PrimaryLocation = null,
+                ParentId = null,
                 CallerId = Guid.Parse("fd93b1f9-3df8-4823-9215-306135992d25"),
-                ContactEmail = null,
+                ContactEmail = "asd@asd.aa",
                 InternalNotes = null,
                 IsCustomer = true,
                 Preferences = null
-        };
+            };
 
-        // Do the request
-        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newOrganization));
+            // Do the request
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(newOrganization));
             var response = await _httpClient.PostAsJsonAsync(requestUri, newOrganization);
-        var responseMessage = await response.Content.ReadAsStringAsync();
+            var responseMessage = await response.Content.ReadAsStringAsync();
 
-        // Check asserts
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            // Check asserts
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
-}
+    }
 }

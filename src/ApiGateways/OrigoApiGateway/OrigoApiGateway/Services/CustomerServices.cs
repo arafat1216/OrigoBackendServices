@@ -128,11 +128,32 @@ namespace OrigoApiGateway.Services
                 newCustomerDTO.CallerId = callerId;
                 newCustomerDTO.IsCustomer = true;
 
+                // TODO: This is a temp. workaround for adding in the required data that's missing from frontend.
+                if (newCustomer.ContactEmail is null || newCustomer.ContactEmail == string.Empty)
+                {
+                    newCustomer.ContactEmail = newCustomer.ContactPerson.Email;
+                }
+                if (newCustomer.Location is null)
+                {
+                    newCustomer.Location = new NewLocation
+                    {
+                        Name = "Default",
+                        Description = null,
+                        Address1 = newCustomer.Address.Street,
+                        Address2 = null,
+                        City = newCustomer.Address.City,
+                        PostalCode = newCustomer.Address.Postcode,
+                        Country = newCustomer.Address.Country
+                    };
+                }
+
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", newCustomerDTO);
 
 #if DEBUG
                 var errorMessage = await response.Content.ReadAsStringAsync();
 #endif
+
+
 
                 if (!response.IsSuccessStatusCode && (int)response.StatusCode == 409)
                     throw new InvalidOrganizationNumberException(await response.Content.ReadAsStringAsync());

@@ -78,14 +78,36 @@ namespace CustomerServices.ServiceModels
 
         public string? InternalNotes { get; set; }
 
+        /// <summary>
+        ///     The ID for the partner that "owns" and handles the customer-relations with this organization. <para>   
+        /// 
+        ///     This value is required whenever <c><see cref="IsCustomer"/></c> is <c><see langword="true"/></c>. <br/>
+        ///     This value will be <c><see langword="null"/></c> for special/custom organization entries (e.g. service-providers) that don't have any active
+        ///     customer-relationship, and therefore should not be managed by a partner. </para>
+        /// </summary>
         public Guid? PartnerId { get; set; }
 
         /// <summary>
-        ///     Is organization also a customer?
+        ///     If the value is <c><see langword="false"/></c>, then the organization is not currently considered a customer. This is typically for special 
+        ///     organizations such as service-providers, partners or other legal entities where we need to store the corresponding organization and
+        ///     contact details. Please note that these organizations may potentially also become a customer at a later date. <para>
+        ///     
+        ///     If the value is <c><see langword="true"/></c>, the organization is considered an active customer. </para><para>
+        ///     
+        ///     Note that whenever <c><see cref="IsCustomer"/></c> is set to <c><see langword="true"/></c>, the organization typically have stricter
+        ///     checks and validations on the provided data. In additional there are typically additional requirements for customers that may need to
+        ///     be provided before the value is updated. </para>
         /// </summary>
         public bool IsCustomer { get; set; }
 
-        public NewOrganizationPreferencesDTO Preferences { get; set; }
+        /// <summary>
+        ///     The organization's preferences/settings. <para>
+        ///     
+        ///     If the preferences is <c><see langword="null"/></c> or omitted, it will be
+        ///     created using the system's global default-values. The preferences should therefore
+        ///     always be provided if possible! </para>
+        /// </summary>
+        public NewOrganizationPreferencesDTO? Preferences { get; set; }
 
         /// <summary>
         ///     The ID of the user that is creating the entity.
