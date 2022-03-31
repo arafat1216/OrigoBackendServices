@@ -36,6 +36,7 @@ namespace CustomerServices.Models
         ///     causing soft-deleted organizations (<c><see cref="Organization.IsDeleted"/> == <see langword="true"/></c>) to be excluded from the results. </param>
         /// <param name="includeDepartments"> When <see langword="true"/>, it eagerly includes <see cref="Organization.Departments"/>. </param>
         /// <param name="includeAddress"> When <see langword="true"/>, it eagerly includes <see cref="Organization.Address"/>. </param>
+        /// <param name="includePartner"> When <see langword="true"/>, it eagerly includes <see cref="Organization.Partner"/>. </param>
         /// <param name="asNoTracking"> When <see langword="true"/> then query will explicitly be run as no-tracking. If the value is <see langword="false"/> 
         ///     the query will use the default behavior. <para>
         ///     
@@ -48,6 +49,7 @@ namespace CustomerServices.Models
                                                         bool excludeDeleted = true,
                                                         bool includeDepartments = false,
                                                         bool includeAddress = false,
+                                                        bool includePartner = true,
                                                         bool asNoTracking = true);
 
         /// <summary>
@@ -71,13 +73,15 @@ namespace CustomerServices.Models
         ///     causing soft-deleted organizations (<c><see cref="Organization.IsDeleted"/> == <see langword="true"/></c>) to be excluded from the results. </param>
         /// <param name="includeDepartments"> When <see langword="true"/>, it eagerly includes <see cref="Organization.Departments"/>. </param>
         /// <param name="includeAddress"> When <see langword="true"/>, it eagerly includes <see cref="Organization.Address"/>. </param>
+        /// <param name="includePartner"> When <see langword="true"/>, it eagerly includes <see cref="Organization.Partner"/>. </param>
         /// <returns> If found, the queried organization. If no matches are found, it returns <see langword="null"/>. </returns>
         Task<Organization?> GetOrganizationAsync(Guid organizationId,
                                                  Expression<Func<Organization, bool>>? whereFilter = null,
                                                  bool customersOnly = true,
                                                  bool excludeDeleted = true,
                                                  bool includeDepartments = false,
-                                                 bool includeAddress = false);
+                                                 bool includeAddress = false,
+                                                 bool includePartner = true);
 
         /// <summary>
         ///     Finds an entity with the given primary key.
@@ -85,7 +89,6 @@ namespace CustomerServices.Models
         /// <param name="id"> The primary key value. </param>
         /// <returns> If found, the retrieved entity, or <see langword="null"/> if no results was found. </returns>
         Task<Organization?> GetOrganizationAsync(int id);
-        Task<Organization?> GetCustomerAsync(Guid customerId);
         Task<Organization?> GetOrganizationByOrganizationNumber(string organizationNumber);
         Task<OrganizationPreferences?> GetOrganizationPreferencesAsync(Guid organizationId);
         Task<Location?> GetOrganizationLocationAsync(Guid locationId);

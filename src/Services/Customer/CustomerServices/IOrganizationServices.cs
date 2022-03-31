@@ -26,7 +26,7 @@ namespace CustomerServices
         Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false);
 
         Task<IList<CustomerUserCount>> GetCustomerUsersAsync();
-        Task<Organization?> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool onlyCustomer = false);
+        Task<Organization?> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool customersOnly = false);
         Task<Organization> UpdateOrganizationAsync(Organization updateOrganization, bool usingPatch = false);
         Task<Organization> PutOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
                                                                string street, string postCode, string city, string country,

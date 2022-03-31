@@ -70,6 +70,7 @@ namespace CustomerServices.Infrastructure
                                                                      bool excludeDeleted = true,
                                                                      bool includeDepartments = false,
                                                                      bool includeAddress = false,
+                                                                     bool includePartner = true,
                                                                      bool asNoTracking = true)
         {
             IQueryable<Organization> query = _customerContext.Set<Organization>();
@@ -91,6 +92,9 @@ namespace CustomerServices.Infrastructure
             if (includeDepartments)
                 query = query.Include(e => e.Departments);
 
+            if (includePartner)
+                query = query.Include(e => e.Partner);
+
             // Misc
             if (asNoTracking)
                 query = query.AsNoTracking();
@@ -103,7 +107,8 @@ namespace CustomerServices.Infrastructure
                                                               bool customersOnly = true,
                                                               bool excludeDeleted = true,
                                                               bool includeDepartments = false,
-                                                              bool includeAddress = false)
+                                                              bool includeAddress = false,
+                                                              bool includePartner = true)
         {
             IQueryable<Organization> query = _customerContext.Set<Organization>();
 
@@ -124,6 +129,9 @@ namespace CustomerServices.Infrastructure
             if (includeDepartments)
                 query = query.Include(e => e.Departments);
 
+            if (includePartner)
+                query = query.Include(e => e.Partner);
+
             return await query.FirstOrDefaultAsync(e => e.OrganizationId == organizationId);
         }
 
@@ -131,13 +139,6 @@ namespace CustomerServices.Infrastructure
         {
             return await _customerContext.Organizations
                                          .FindAsync(id);
-        }
-
-        public async Task<Organization?> GetCustomerAsync(Guid customerId)
-        {
-            return await _customerContext.Organizations
-            .Include(p => p.Departments)
-            .FirstOrDefaultAsync(c => c.OrganizationId == customerId && c.IsCustomer);
         }
 
         public async Task<OrganizationPreferences?> GetOrganizationPreferencesAsync(Guid organizationId)
