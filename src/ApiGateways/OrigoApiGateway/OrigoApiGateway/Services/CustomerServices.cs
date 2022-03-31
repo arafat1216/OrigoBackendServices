@@ -126,8 +126,7 @@ namespace OrigoApiGateway.Services
             {
                 var newCustomerDTO = _mapper.Map<NewOrganizationDTO>(newCustomer);
                 newCustomerDTO.CallerId = callerId;
-                newCustomerDTO.IsCustomer = false;
-                newCustomerDTO.ParentId = Guid.Empty;
+                newCustomerDTO.IsCustomer = true;
 
                 // TODO: This is a temp. workaround for adding in the required data that's missing from frontend.
                 if (newCustomer.ContactEmail is null || newCustomer.ContactEmail == string.Empty)
@@ -172,6 +171,40 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "CreateCustomerAsync unknown error.");
+                throw;
+            }
+        }
+        public async Task<Organization> CreateOrganizationAsync(NewOrganization newCustomer, Guid callerId)
+        {
+            try
+            {
+                var newCustomerDTO = _mapper.Map<NewOrganizationDTO>(newCustomer);
+                newCustomerDTO.CallerId = callerId;
+                newCustomerDTO.IsCustomer = false;
+                newCustomerDTO.ParentId = null;
+
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", newCustomerDTO);
+
+#if DEBUG
+                var errorMessage = await response.Content.ReadAsStringAsync();
+#endif
+
+                if (!response.IsSuccessStatusCode && (int)response.StatusCode == 409)
+                    throw new InvalidOrganizationNumberException(await response.Content.ReadAsStringAsync());
+                else if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException("Unable to save organization", (int)response.StatusCode);
+
+                var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+                return organization == null ? null : _mapper.Map<Organization>(organization);
+            }
+            catch (InvalidOrganizationNumberException exception)
+            {
+                _logger.LogError(exception, "CreateOrganizationAsync failed with InvalidOrganizationNumberException.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "CreateOrganizationAsync unknown error.");
                 throw;
             }
         }

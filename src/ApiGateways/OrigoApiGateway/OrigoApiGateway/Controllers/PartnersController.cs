@@ -36,26 +36,28 @@ namespace OrigoApiGateway.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(Partner), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         //[Authorize(Roles = "SystemAdmin")]
         //[PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult<Organization>> CreatePartner([FromBody] NewOrganization newCustomer)
+        public async Task<ActionResult<Partner>> CreatePartner([FromBody] NewOrganization newCustomer)
         {
             try
             {
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
 
-                var createdCustomer = await CustomerServices.CreateCustomerAsync(newCustomer, callerId);
+                var createdCustomer = await CustomerServices.CreateOrganizationAsync(newCustomer, callerId);
                 if (createdCustomer == null)
-                {
                     return BadRequest();
-                }
+
 
                 // create partner with new org as coupeld org
 
                 var partner = await PartnerServices.CreatePartnerAsync(createdCustomer.OrganizationId, callerId);
+                if (partner == null)
+                    return BadRequest();
+
                 return CreatedAtAction(nameof(CreatePartner), new { Id = partner.ExternalId }, partner);
             }
             catch (Exception)
@@ -66,11 +68,11 @@ namespace OrigoApiGateway.Controllers
 
         [HttpPost]
         [Route("{organizationId:guid}")]
-        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(Partner), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [Authorize(Roles = "SystemAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult<Organization>> CreatePartner(Guid organizationId)
+        public async Task<ActionResult<Partner>> CreatePartner(Guid organizationId)
         {
             try
             {
@@ -98,12 +100,12 @@ namespace OrigoApiGateway.Controllers
 
         [HttpGet]
         [Route("{partnerId:guid}")]
-        [ProducesResponseType(typeof(IList<Organization>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<Partner>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
-        public async Task<ActionResult<IList<Organization>>> GetPartner(Guid partnerId)
+        public async Task<ActionResult<IList<Partner>>> GetPartner(Guid partnerId)
         {
             try
             {
@@ -118,12 +120,12 @@ namespace OrigoApiGateway.Controllers
 
         [HttpGet]
         [Route("getall")]
-        [ProducesResponseType(typeof(IList<Organization>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<Partner>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
         [Authorize(Roles = "SystemAdmin")]
-        public async Task<ActionResult<IList<Organization>>> GetPartners()
+        public async Task<ActionResult<IList<Partner>>> GetPartners()
         {
             try
             {
