@@ -17,7 +17,7 @@ namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    //[Authorize]
+    [Authorize]
     [Route("origoapi/v{version:apiVersion}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
@@ -27,7 +27,7 @@ namespace OrigoApiGateway.Controllers
         private ICustomerServices CustomerServices { get; }
         private IPartnerServices PartnerServices { get; }
         private readonly IMapper Mapper;
-        public PartnersController(ILogger<PartnersController> logger, ICustomerServices customerServices, IPartnerServices partnerServices,  IMapper mapper)
+        public PartnersController(ILogger<PartnersController> logger, ICustomerServices customerServices, IPartnerServices partnerServices, IMapper mapper)
         {
             Logger = logger;
             CustomerServices = customerServices;
@@ -38,8 +38,8 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(Partner), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        //[Authorize(Roles = "SystemAdmin")]
-        //[PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
+        [Authorize(Roles = "SystemAdmin")]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Partner>> CreatePartner([FromBody] NewOrganization newCustomer)
         {
             try
@@ -119,7 +119,6 @@ namespace OrigoApiGateway.Controllers
         }
 
         [HttpGet]
-        [Route("getall")]
         [ProducesResponseType(typeof(IList<Partner>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
