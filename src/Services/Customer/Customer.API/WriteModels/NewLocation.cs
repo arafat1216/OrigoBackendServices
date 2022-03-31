@@ -29,7 +29,7 @@ namespace Customer.API.WriteModels
         public string Country
         {
             get { return _country; }
-            set { _country = value.ToUpper(); }
+            set { _country = value?.ToUpper(); }
         }
     }
 }
