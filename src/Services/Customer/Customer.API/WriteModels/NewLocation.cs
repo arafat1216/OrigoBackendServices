@@ -6,11 +6,11 @@ namespace Customer.API.WriteModels
     {
         public string Name { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public string Address1 { get; set; }
 
-        public string Address2 { get; set; }
+        public string? Address2 { get; set; }
 
         public string PostalCode { get; set; }
 
@@ -26,6 +26,7 @@ namespace Customer.API.WriteModels
         /// </summary>
         /// <example> US </example>
         [RegularExpression("^[a-zA-Z]{2}")] // Exactly 2 characters
+        [Required]
         public string Country
         {
             get { return _country; }

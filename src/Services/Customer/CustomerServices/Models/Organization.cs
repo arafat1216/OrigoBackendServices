@@ -41,6 +41,7 @@ namespace CustomerServices.Models
         ///     This value will be <see langword="null"/> for special/custom organization entries (e.g. service-providers) that don't have any active
         ///     customer-relationship, and therefore should not be managed by a partner. </para>
         /// </summary>
+        [JsonIgnore]
         public Partner? Partner { get; protected set; }
 
         public Guid? PrimaryLocation { get; protected set; }

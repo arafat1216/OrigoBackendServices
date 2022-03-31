@@ -31,6 +31,7 @@ namespace CustomerServices.ServiceModels
         /// </summary>
         /// <example> US </example>
         [RegularExpression("^[a-zA-Z]{2}")] // Exactly 2 characters
+        [Required]
         public string Country
         {
             get { return _country; }

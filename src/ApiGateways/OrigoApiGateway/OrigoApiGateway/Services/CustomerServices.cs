@@ -131,11 +131,12 @@ namespace OrigoApiGateway.Services
                 // TODO: This is a temp. workaround for adding in the required data that's missing from frontend.
                 if (newCustomer.ContactEmail is null || newCustomer.ContactEmail == string.Empty)
                 {
-                    newCustomer.ContactEmail = newCustomer.ContactPerson.Email;
+                    newCustomerDTO.ContactEmail = newCustomer.ContactPerson.Email;
                 }
+
                 if (newCustomer.Location is null)
                 {
-                    newCustomer.Location = new NewLocation
+                    newCustomerDTO.Location = new NewLocation
                     {
                         Name = "Default",
                         Description = null,
