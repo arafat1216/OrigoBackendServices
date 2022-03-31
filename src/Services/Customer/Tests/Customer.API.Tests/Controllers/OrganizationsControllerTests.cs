@@ -19,38 +19,7 @@ namespace Customer.API.Controllers.Tests
     {
         private readonly ITestOutputHelper _testOutputHelper;
         private readonly HttpClient _httpClient;
-        private readonly Guid _callerId = Guid.Parse("1d64e718-97cb-11ec-ad86-00155d64bd3d");
 
-        #region Boilerplate model properties
-        private readonly AddressDTO _addressDTO = new AddressDTO
-        {
-            City = "Oslo",
-            Country = "NO",
-            PostCode = "0250",
-            Street = "MyStreet 14"
-        };
-
-        private readonly NewLocation _newLocation = new NewLocation
-        {
-            Name = "Main Office",
-            Description = "Optional",
-            Address1 = "My Company A/S",
-            Address2 = "MyStreet 14",
-            PostalCode = "0250",
-            City = "Oslo",
-            Country = "NO"
-        };
-
-        private readonly ContactPersonDTO _contactPersonDTO = new ContactPersonDTO
-        {
-            FirstName = "John",
-            LastName = "Doe",
-            Email = "john.doe@human.com",
-            PhoneNumber = "+4790909090"
-        };
-
-
-        #endregion
 
         public OrganizationsControllerTests(CustomerWebApplicationFactory<OrganizationsController> factory, ITestOutputHelper testOutputHelper)
         {
