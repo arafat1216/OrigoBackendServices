@@ -409,7 +409,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
             customerOperatorAccount = customerSettings.CustomerOperatorSettings.FirstOrDefault(oa => oa.Operator.Id == newSubscriptionOrder.OperatorId)?.CustomerOperatorAccounts
                 .FirstOrDefault(oa => oa.Id == newSubscriptionOrder.OperatorAccountId);
-            if (customerOperatorAccount == null && newSubscriptionOrder.NewOperatorAccount == null) throw new CustomerSettingsException($"Customer don't have a customer operator account", Guid.Parse("8ddc95d1-ed32-4daa-9fce-32ad556add6e"));
+            if (customerOperatorAccount == null && newSubscriptionOrder.NewOperatorAccount == null && newSubscriptionOrder.OperatorAccountPhoneNumber == null) throw new CustomerSettingsException($"Customer don't have a sufficient billing information", Guid.Parse("8ddc95d1-ed32-4daa-9fce-32ad556add6e"));
 
             customerSubscriptionProduct = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.Id == newSubscriptionOrder.OperatorId)?
                 .AvailableSubscriptionProducts.FirstOrDefault(sp => sp.Id == newSubscriptionOrder.SubscriptionProductId);

@@ -74,7 +74,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     OperatorAccountId = 1,
                     MobileNumber = "+4793606565",
                     OperatorId = 10,
-                    
+
                 }
                 ));
 
@@ -153,7 +153,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         FirstName = "Peter",
                         LastName = "Pan",
                         Address = "Ocean Road",
-                        Country ="Wonderland",
+                        Country = "Wonderland",
                         PostalCode = "1111",
                         PostalPlace = "Beach"
                     },
@@ -334,7 +334,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.Equal("SIM card action is Order and Sim card address is empty", exception.Message);
     }
 
-        [Fact]
+    [Fact]
     [Trait("Category", "UnitTest")]
     public async Task TransferSubscription_Same_Operator_Valid()
     {
@@ -498,7 +498,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    
+
                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
                     OperatorAccountId = 1,
                     PrivateSubscription = new PrivateSubscriptionDTO
@@ -530,7 +530,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         Name = "Org",
                         Address = "[Address]",
                         Country = "Country",
-                        PostalPlace= "[Postal Place]",
+                        PostalPlace = "[Postal Place]",
                         PostalCode = "[Postal code]",
                         OrganizationNumber = "21212121212"
                     },
@@ -580,16 +580,70 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.NotEmpty(order.OrderExecutionDate.ToString());
         Assert.NotNull(order.DataPackage);
         Assert.NotNull(order.OperatorName);
-        Assert.Equal(2,order.AddOnProducts.Count);
+        Assert.Equal(2, order.AddOnProducts.Count);
         Assert.Equal("P1", order.AddOnProducts[0]);
         Assert.Equal("P2", order.AddOnProducts[1]);
-        Assert.Equal(1,order.CustomerReferenceFields.Count);
+        Assert.Equal(1, order.CustomerReferenceFields.Count);
         Assert.Equal("UserRef1", order.CustomerReferenceFields[0].Name);
         Assert.Equal("VAL", order.CustomerReferenceFields[0].Value);
         Assert.Equal("User", order.CustomerReferenceFields[0].Type);
-        
+
     }
     [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task NewSubscriptionOrder_()
+    {
+
+        var exception = await Assert.ThrowsAsync<CustomerSettingsException>(() => _subscriptionManagementService.NewSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
+                new NewSubscriptionOrderRequestDTO 
+                    { 
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                    PrivateSubscription = new PrivateSubscriptionDTO
+                    {
+                        OperatorName = "Op1",
+                        FirstName = "[FName]",
+                        LastName = "[LName]",
+                        Address = "[Address]",
+                        Country = "Country",
+                        BirthDate = DateTime.UtcNow.AddMonths(-100),
+                        Email = "email@mail.com",
+                        PostalCode = "[Postal code]",
+                        PostalPlace = "[Postal Place]",
+                        RealOwner = new PrivateSubscriptionDTO
+                        {
+                            OperatorName = "Op1",
+                            FirstName = "[FName]",
+                            LastName = "[LName]",
+                            Address = "[Address]",
+                            Country = "Country",
+                            BirthDate = DateTime.UtcNow.AddMonths(-100),
+                            Email = "email@mail.com",
+                            PostalCode = "[Postal code]",
+                            PostalPlace = "[Postal Place]"
+                        }
+                    },
+                    BusinessSubscription = new BusinessSubscriptionDTO
+                    {
+                        Name = "Org",
+                        Address = "[Address]",
+                        Country = "Country",
+                        PostalPlace = "[Postal Place]",
+                        PostalCode = "[Postal code]",
+                        OrganizationNumber = "21212121212"
+                    },
+                    OperatorId = 10,
+                    SimCardNumber = "89722020101228153578",
+                    SimCardAction = "New",
+                    SubscriptionProductId = 1,
+                    DataPackage = "Data Package",
+                    AddOnProducts = new List<string> { "P1", "P2" },
+                    CustomerReferenceFields = new List<NewCustomerReferenceValue> { new NewCustomerReferenceValue() { Name = "UserRef1", Type = "User", Value = "VAL" } }
+                }));
+
+        Assert.NotNull(exception);
+        Assert.Equal("Customer don't have a sufficient billing information", exception.Message);
+    }
+        [Fact]
     [Trait("Category", "UnitTest")]
     public async Task NewSubscriptionOrder_CheckingViewModelMapping()
     {
