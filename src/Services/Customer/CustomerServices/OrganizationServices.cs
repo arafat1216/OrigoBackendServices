@@ -29,7 +29,13 @@ namespace CustomerServices
             Partner? partner = null;
 
             if (partnerId is not null)
+            {
                 partner = await _organizationRepository.GetPartnerAsync((Guid)partnerId);
+
+                // If partner is null (not found), then we should just return an empty list as we won't get any results from the query anyway...
+                if (partner is null)
+                    return new List<Organization>();
+            }
 
             // TODO: We need to refactor this when we have time, as this may result in a lot of queries and higher loading times.
             if (!hierarchical)
