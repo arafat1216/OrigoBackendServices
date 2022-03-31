@@ -167,6 +167,7 @@ public class
                 new() { Name = "URef2", Type = "User", CallerId = _callerId, Value = "VAL2"},
                 new() { Name = "AccURef1", Type = "Account", CallerId = _callerId, Value = "VAL3"}
             },
+            OperatorId = 1,
             OperatorAccountId = _operatorAccountId,
             OrderExecutionDate = DateTime.UtcNow.AddDays(7),
             SIMCardAction = "NEW",
@@ -220,6 +221,7 @@ public class
                 new() { Name = "URef2", Type = "User", CallerId = _callerId, Value = "VAL2"},
                 new() { Name = "AccURef1", Type = "Account", CallerId = _callerId, Value = "VAL3"}
             },
+            OperatorId = 1,
             OrderExecutionDate = DateTime.UtcNow.AddDays(7),
             SIMCardAction = "NEW",
             SIMCardNumber = "89722020101228153578",
@@ -659,6 +661,7 @@ public class
                 OperatorName = "Telia - NO"
             },
             MobileNumber = "+4747474744",
+            OperatorId = 1,
             OperatorAccountId = 100,
             SubscriptionProductId = 200,
             DataPackage = null,
@@ -710,6 +713,7 @@ public class
             },
             MobileNumber = "+4747474744",
             OperatorAccountId = 100,
+            OperatorId = 1,
             SubscriptionProductId = 200,
             DataPackage = null,
             SIMCardNumber = null,

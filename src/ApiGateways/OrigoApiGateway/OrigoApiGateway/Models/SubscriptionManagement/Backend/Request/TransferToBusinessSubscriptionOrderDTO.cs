@@ -17,6 +17,10 @@ public record TransferToBusinessSubscriptionOrderDTO
     ///     The mobile number to be transferred
     /// </summary>
     public string MobileNumber { get; set; }
+    /// <summary>
+    /// The operator id they get from the business subscription
+    /// </summary>
+    public int OperatorId { get; set; }
 
     /// <summary>
     ///     New operator account identifier

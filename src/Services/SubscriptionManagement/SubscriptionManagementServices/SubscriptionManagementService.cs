@@ -42,11 +42,21 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
         if (customerSettings == null) throw new ArgumentException($"Customer {organizationId} not configured.");
 
-        if (order.OperatorAccountId == null && order.NewOperatorAccount == null)
-            throw new ArgumentException("Operator account id or new operator information must be provided.");
+        //Needs to have a value for one of these
+        if (order.OperatorAccountId == null && order.NewOperatorAccount == null && order.OperatorAccountPhoneNumber == null)
+            throw new ArgumentException("Operator account id, new operator information or operator phone number must be provided.");
 
-        var newOperatorName = await GetNewOperatorName(order, customerSettings);
-       
+        //New operator for business subscription
+        var newOperator = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.Id == order.OperatorId);
+        if (newOperator == null) throw new CustomerSettingsException($"Customer don't have settings for operator with id {order.OperatorId}", Guid.Parse("3ca14132-1f7e-45de-8e80-804335e82375"));
+
+        var newOperatorName = newOperator?.Operator.OperatorName;
+
+        //Phone number validation
+        if (!PhoneNumberUtility.ValidatePhoneNumber(order.MobileNumber, newOperator.Operator.Country))
+            throw new InvalidPhoneNumberException(order.MobileNumber, newOperator.Operator.Country, Guid.Parse("5a9245c4-9ae3-4bda-9a02-fbc741ca3c9d"));
+
+
         var simCardAction = SIMCardValidation.GetSimCardAction(order.SIMCardAction);
         //Same private operator as business operator 
         if (newOperatorName == order.PrivateSubscription?.OperatorName)
@@ -187,40 +197,6 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             if (mapping.OperatorAccountId == null && customerOperatorAccount != null) mapping.OperatorAccountId = customerOperatorAccount.Id;
         }
         return mapping;
-    }
-
-    private async Task<string> GetNewOperatorName(TransferToBusinessSubscriptionOrderDTO order, CustomerSettings customerSettings)
-    {
-        string newOperatorName;
-        if (order.OperatorAccountId != null)
-        {
-            var customerOperatorAccount = customerSettings.CustomerOperatorSettings.SelectMany(os => os.CustomerOperatorAccounts)
-                .FirstOrDefault(oa => oa.Id == order.OperatorAccountId);
-            if (customerOperatorAccount == null)
-                throw new ArgumentException($"Customer operator account id {order.OperatorAccountId} not found.");
-            newOperatorName = customerOperatorAccount.Operator.OperatorName;
-
-            //Phone number validation
-            if (!PhoneNumberUtility.ValidatePhoneNumber(order.MobileNumber, customerOperatorAccount.Operator.Country))
-                throw new InvalidPhoneNumberException(order.MobileNumber, customerOperatorAccount.Operator.Country, Guid.Parse("5a9245c4-9ae3-4bda-9a02-fbc741ca3c9d"));
-
-        }
-        else
-        {
-            if (order.NewOperatorAccount == null)
-                throw new ArgumentException("Operator id must be given for new operator account.");
-
-            var operatorForNewOperatorAccount =
-                await _operatorRepository.GetOperatorAsync(order.NewOperatorAccount.OperatorId);
-            if (operatorForNewOperatorAccount == null)
-                throw new ArgumentException("Operator id for new operator account not found.");
-            newOperatorName = operatorForNewOperatorAccount.OperatorName;
-            //Phone number validation
-            if (!PhoneNumberUtility.ValidatePhoneNumber(order.MobileNumber, operatorForNewOperatorAccount.Country)) 
-                throw new InvalidPhoneNumberException(order.MobileNumber, operatorForNewOperatorAccount.Country, Guid.Parse("5a9245c4-9ae3-4bda-9a02-fbc741ca3c9d"));
-        }
-
-        return newOperatorName;
     }
 
     public async Task<TransferToPrivateSubscriptionOrderDTOResponse> TransferToPrivateSubscriptionOrderAsync(

@@ -72,7 +72,9 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         OperatorName = "Op1"
                     },
                     OperatorAccountId = 1,
-                    MobileNumber = "+4793606565"
+                    MobileNumber = "+4793606565",
+                    OperatorId = 10,
+                    
                 }
                 ));
 
@@ -96,7 +98,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     },
                     SIMCardNumber = "[SIMCardNumber]",
                     OperatorAccountId = 1,
-                    MobileNumber = "+4793606565"
+                    MobileNumber = "+4793606565",
+                    OperatorId = 10
                 }
                 ));
 
@@ -115,7 +118,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         OperatorName = "Op1"
                     },
                     SIMCardNumber = "[SIMCardNumber]",
-                    MobileNumber = "+4793606565"
+                    MobileNumber = "+4793606565",
+                    OperatorId = 10
                 }
                 ));
 
@@ -153,7 +157,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         PostalCode = "1111",
                         PostalPlace = "Beach"
                     },
-                    MobileNumber = "+4745454847"
+                    MobileNumber = "+4745454847",
+                    OperatorId = 11
                 }
                 ));
 
@@ -186,7 +191,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         PostalCode = "1111",
                         PostalPlace = "Beach"
                     },
-                    MobileNumber = "+4745454847"
+                    MobileNumber = "+4745454847",
+                    OperatorId = 11
                 }
                 ));
 
@@ -214,7 +220,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     BusinessSubscription = new BusinessSubscriptionDTO
                     {
                         OperatorName = "Op1"
-                    }
+                    },
+                    OperatorId = 10
                 }
                 ));
 
@@ -252,7 +259,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         PostalCode = "1111",
                         PostalPlace = "Beach"
                     },
-                    MobileNumber = "+4790262589"
+                    MobileNumber = "+4790262589",
+                    OperatorId = 11
                 }
                 ));
 
@@ -286,7 +294,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         PostalCode = "1111",
                         PostalPlace = "Beach"
                     },
-                    MobileNumber = "+4792603232"
+                    MobileNumber = "+4792603232",
+                    OperatorId = 11,
                 }
                 ));
 
@@ -315,7 +324,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     },
                     SIMCardNumber = "",
                     SIMCardAction = "Order",
-                    MobileNumber = "+4790262589"
+                    MobileNumber = "+4790262589",
+                    OperatorId = 11
                 }
                 ));
 
@@ -346,6 +356,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                         PostalPlace = "[Postal Place]"
                     },
                     SIMCardNumber = "89722020101228153578",
+                    OperatorId = 10,
                     SIMCardAction = "[SIMCardAction]",
                     MobileNumber = "+4790988787",
                     SubscriptionProductId = 1,
@@ -394,6 +405,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     MobileNumber = "+4745654842",
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
+                    OperatorId = 10,
                     AddOnProducts = new List<string> { "P1", "P2" },
                     CustomerReferenceFields = new List<NewCustomerReferenceValue>()
                 }
@@ -435,6 +447,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     MobileNumber = "+4741414141",
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
+                    OperatorId = 10,
                     AddOnProducts = new List<string> { "P1", "P2" },
                     CustomerReferenceFields = new List<NewCustomerReferenceValue> { new() { Name = missingCustomerReferenceField, Type = CustomerReferenceTypes.User.ToString(), Value = "VAL" } }
                 }
@@ -472,7 +485,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     SIMCardAction = "New",
                     MobileNumber = "+4795603669",
                     SubscriptionProductId = 1,
-                    DataPackage = "Data Package"
+                    DataPackage = "Data Package",
+                    OperatorId = 10
                 });
 
         Assert.NotNull(order);
@@ -525,6 +539,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     MobileNumber = "+4741454848",
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
+                    OperatorId = 10,
                     AddOnProducts = new List<string> { "P1", "P2" },
                     CustomerReferenceFields = new List<NewCustomerReferenceValue> { new NewCustomerReferenceValue() { Name = "UserRef1", Type = "User", Value = "VAL" } }
                 }
@@ -698,6 +713,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     },
                     SIMCardAction = "Keep",
                     MobileNumber = "+4741414141",
+                    OperatorId = 10,
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
                     AddOnProducts = new List<string> { "P1", "P2" },
@@ -738,6 +754,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     MobileNumber = "+4741414141",
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
+                    OperatorId = 10,
                     AddOnProducts = new List<string> { "P1", "P2" },
                     CustomerReferenceFields = new List<NewCustomerReferenceValue>()
                 }));
@@ -776,12 +793,85 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     MobileNumber = "+474141",
                     SubscriptionProductId = 1,
                     DataPackage = "Data Package",
+                    OperatorId = 10,
                     AddOnProducts = new List<string> { "P1", "P2" },
                     CustomerReferenceFields = new List<NewCustomerReferenceValue>()
                 }));
 
         Assert.NotNull(exception);
         Assert.Equal("Phone number +474141 not valid for countrycode No.", exception.Message);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task Transfer2B_NoOperatorAccountOROperatorTelephoneNumberORNewOperatorAccount()
+    {
+        var exception = await Record.ExceptionAsync(() =>
+             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
+                new TransferToBusinessSubscriptionOrderDTO
+                {
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(1),
+                    PrivateSubscription = new PrivateSubscriptionDTO
+                    {
+                        OperatorName = "Op1"
+                    },
+                    SIMCardNumber = "",
+                    SIMCardAction = "Order",
+                    SimCardAddress = new SimCardAddressRequestDTO
+                    {
+                        FirstName = "Peter",
+                        LastName = "Pan",
+                        Address = "Ocean Road",
+                        Country = "Wonderland",
+                        PostalCode = "1111",
+                        PostalPlace = "Beach"
+                    },
+                    MobileNumber = "+4790262589",
+                    OperatorId = 11
+                }
+                ));
+
+        Assert.NotNull(exception);
+        Assert.IsType<ArgumentException>(exception);
+        Assert.Equal("Operator account id, new operator information or operator phone number must be provided.", exception.Message);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task Transfer2B_NoOperatorId_ForNewSubscription()
+    {
+        var exception = await Record.ExceptionAsync(() =>
+             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
+                 new TransferToBusinessSubscriptionOrderDTO
+                 {
+                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
+                     {
+                         OperatorId = 10, // Op1
+                         NewOperatorAccountPayer = "[OperatorAccountPayer]",
+                         NewOperatorAccountOwner = "[OperatorAccountOwner]"
+                     },
+                     PrivateSubscription = new PrivateSubscriptionDTO
+                     {
+                         OperatorName = "Op2",
+                         FirstName = "[FName]",
+                         LastName = "[LName]",
+                         Address = "[Address]",
+                         Country = "Country",
+                         BirthDate = DateTime.UtcNow.AddMonths(-100),
+                         Email = "email@mail.com",
+                         PostalCode = "[Postal code]",
+                         PostalPlace = "[Postal Place]"
+                     },
+                     SIMCardAction = "Keep",
+                     MobileNumber = "+4741414545",
+                     SubscriptionProductId = 1,
+                     DataPackage = "Data Package",
+                     AddOnProducts = new List<string> { "P1", "P2" },
+                     CustomerReferenceFields = new List<NewCustomerReferenceValue>()
+                 }));
+
+        Assert.NotNull(exception);
+        Assert.IsType<CustomerSettingsException>(exception);
+        Assert.Equal("Customer don't have settings for operator with id 0", exception.Message);
     }
 
     [Theory]

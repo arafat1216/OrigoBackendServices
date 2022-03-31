@@ -17,6 +17,11 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         public string MobileNumber { get; set; }
 
         /// <summary>
+        /// The operator id they get from the business subscription
+        /// </summary>
+        public int OperatorId { get; set; }
+
+        /// <summary>
         ///     New operator account identifier
         /// </summary>
         public int? OperatorAccountId { get; set; }
