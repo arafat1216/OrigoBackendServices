@@ -84,11 +84,11 @@ namespace Customer.API.Controllers
         [HttpGet]
         [Route("{customersOnly:Bool}")]
         [ProducesResponseType(typeof(IEnumerable<OrganizationDTO>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<OrganizationDTO>>> Get(bool hierarchical = false, bool customersOnly = false)
+        public async Task<ActionResult<IEnumerable<OrganizationDTO>>> Get(bool hierarchical = false, bool customersOnly = false, [FromQuery] Guid? partnerId = null)
         {
             try
             {
-                var organizations = await _organizationServices.GetOrganizationsAsync(hierarchical, customersOnly);
+                var organizations = await _organizationServices.GetOrganizationsAsync(hierarchical, customersOnly, partnerId);
                 IList<OrganizationDTO> list = new List<OrganizationDTO>();
 
                 foreach (CustomerServices.Models.Organization org in organizations)
@@ -105,6 +105,7 @@ namespace Customer.API.Controllers
                         ChildOrganizations = new List<OrganizationDTO>(),
                         PartnerId = org.Partner?.ExternalId
                     };
+
                     if (org.ChildOrganizations != null)
                     {
                         foreach (CustomerServices.Models.Organization childOrg in org.ChildOrganizations)

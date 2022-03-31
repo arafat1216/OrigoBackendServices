@@ -23,14 +23,21 @@ namespace CustomerServices
             _organizationRepository = customerRepository;
         }
 
-        public async Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false)
+        public async Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false, Guid? partnerId = null)
         {
             IList<Organization> organizations;
+            Partner? partner = null;
+
+            if (partnerId is not null)
+                partner = await _organizationRepository.GetPartnerAsync((Guid)partnerId);
 
             // TODO: We need to refactor this when we have time, as this may result in a lot of queries and higher loading times.
             if (!hierarchical)
             {
-                organizations = await _organizationRepository.GetOrganizationsAsync(customersOnly: customersOnly);
+                if (partner is null)
+                    organizations = await _organizationRepository.GetOrganizationsAsync(customersOnly: customersOnly);
+                else
+                    organizations = await _organizationRepository.GetOrganizationsAsync(whereFilter: entity => entity.Partner == partner, customersOnly: customersOnly);
 
                 foreach (Organization o in organizations)
                 {
@@ -42,9 +49,10 @@ namespace CustomerServices
             }
             else
             {
-                organizations = await _organizationRepository.GetOrganizationsAsync(whereFilter: entity => entity.ParentId == null,
-                                                                                    customersOnly: customersOnly
-                                                                                    );
+                if (partner is null)
+                    organizations = await _organizationRepository.GetOrganizationsAsync(whereFilter: entity => entity.ParentId == null, customersOnly: customersOnly);
+                else
+                    organizations = await _organizationRepository.GetOrganizationsAsync(whereFilter: (entity => entity.ParentId == null && entity.Partner == partner), customersOnly: customersOnly);
 
                 foreach (Organization o in organizations)
                 {
