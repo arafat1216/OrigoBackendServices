@@ -20,6 +20,7 @@ namespace CustomerServices.ServiceModels
             ContactPerson = new ContactPersonDTO(organization.ContactPerson);
             Location = new LocationDTO(organization.Location);
             Preferences = new OrganizationPreferencesDTO(organization.Preferences);
+            PartnerId = organization.Partner?.ExternalId;
 
             if (organization.ChildOrganizations is not null && organization.ChildOrganizations.Count != 0)
             {
@@ -55,5 +56,9 @@ namespace CustomerServices.ServiceModels
         /// <inheritdoc cref="Organization.ChildOrganizations"/>
         public ICollection<OrganizationDTO> ChildOrganizations { get; set; } = new List<OrganizationDTO>();
 
+        /// <summary>
+        ///     The partner that "owns" and handles the customer-relations with this organization.
+        /// </summary>
+        public Guid? PartnerId { get; set; }
     }
 }
