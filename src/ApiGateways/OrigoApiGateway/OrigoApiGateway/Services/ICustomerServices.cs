@@ -20,6 +20,6 @@ namespace OrigoApiGateway.Services
 
         Task<string> GetOktaUserProfileByEmail(string email);
         Task<bool> CheckAndProvisionWebShopUser(string email, string orgnumber);
-        Task<Organization> CreateOrganizationAsync(NewOrganization newCustomer, Guid callerId);
+        Task<Organization> CreatePartnerOrganization(NewOrganization newCustomer, Guid callerId);
     }
 }

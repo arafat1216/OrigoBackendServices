@@ -174,7 +174,7 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-        public async Task<Organization> CreateOrganizationAsync(NewOrganization newCustomer, Guid callerId)
+        public async Task<Organization> CreatePartnerOrganization(NewOrganization newCustomer, Guid callerId)
         {
             try
             {

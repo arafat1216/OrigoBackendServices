@@ -47,7 +47,7 @@ namespace OrigoApiGateway.Controllers
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
 
-                var createdCustomer = await CustomerServices.CreateOrganizationAsync(newCustomer, callerId);
+                var createdCustomer = await CustomerServices.CreatePartnerOrganization(newCustomer, callerId);
                 if (createdCustomer == null)
                     return BadRequest();
 
