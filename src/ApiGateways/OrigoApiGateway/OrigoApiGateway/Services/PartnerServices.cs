@@ -93,7 +93,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var partnersFound = await HttpClient.GetFromJsonAsync<IList<PartnerDto>>($"{ _options.ApiPath}/getall");
+                var partnersFound = await HttpClient.GetFromJsonAsync<IList<PartnerDto>>($"{ _options.ApiPath}");
                 if (partnersFound == null)
                     return null;
 

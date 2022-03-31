@@ -126,7 +126,8 @@ namespace OrigoApiGateway.Services
             {
                 var newCustomerDTO = _mapper.Map<NewOrganizationDTO>(newCustomer);
                 newCustomerDTO.CallerId = callerId;
-                newCustomerDTO.IsCustomer = true;
+                newCustomerDTO.IsCustomer = false;
+                newCustomerDTO.ParentId = Guid.Empty;
 
                 // TODO: This is a temp. workaround for adding in the required data that's missing from frontend.
                 if (newCustomer.ContactEmail is null || newCustomer.ContactEmail == string.Empty)
