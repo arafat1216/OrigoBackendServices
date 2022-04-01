@@ -26,7 +26,7 @@ spec:
           ports:
             - containerPort: {{ .Values.deployment.containerPort }}
               protocol: TCP
-          {{- if .Values.probes.enabled }}
+          {{- if .Values.deployment.probes.enabled }}
           startupProbe:
             httpGet:
               path: /healthz
