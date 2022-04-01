@@ -108,6 +108,8 @@ if (app.Environment.IsDevelopment())
 }
 app.UseHealthChecks("/healthz");
 
+app.UseRouting();
+
 //app.UseHttpsRedirection();
 app.UseAuthorization();
 
