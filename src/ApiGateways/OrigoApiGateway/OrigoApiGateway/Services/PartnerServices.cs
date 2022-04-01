@@ -37,6 +37,10 @@ namespace OrigoApiGateway.Services
                 partnerDto.OrganizationId = organizationId;
 
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", partnerDto);
+#if DEBUG
+                var responseMessage = await response.Content.ReadAsStringAsync();
+#endif
+
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save partner", (int)response.StatusCode);
 
@@ -106,6 +110,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 var partnersFound = await HttpClient.GetFromJsonAsync<IList<PartnerDTO>>($"{ _options.ApiPath}");
+
                 if (partnersFound == null)
                     return null;
 

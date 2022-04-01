@@ -69,7 +69,7 @@ namespace OrigoApiGateway.Controllers
                 if (partner == null)
                     return BadRequest();
 
-                return CreatedAtAction(nameof(CreatePartnerAsync), new { Id = partner.Id }, partner);
+                return StatusCode(StatusCodes.Status201Created, partner);
             }
             catch (Exception)
             {

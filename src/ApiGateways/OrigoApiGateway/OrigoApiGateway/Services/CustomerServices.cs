@@ -169,14 +169,29 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-        public async Task<Organization> CreatePartnerOrganization(NewOrganization newCustomer, Guid callerId)
+        public async Task<Organization> CreatePartnerOrganization(NewOrganization newOrganization, Guid callerId)
         {
             try
             {
-                var newCustomerDTO = _mapper.Map<NewOrganizationDTO>(newCustomer);
+                var newCustomerDTO = _mapper.Map<NewOrganizationDTO>(newOrganization);
                 newCustomerDTO.CallerId = callerId;
                 newCustomerDTO.IsCustomer = false;
                 newCustomerDTO.ParentId = null;
+
+                // Temp fix until we end up with one address input (instead of two)
+                if (newOrganization.Location is null)
+                {
+                    newCustomerDTO.Location = new NewLocation
+                    {
+                        Name = "Default",
+                        Description = null,
+                        Address1 = newOrganization.Address.Street,
+                        Address2 = null,
+                        City = newOrganization.Address.City,
+                        PostalCode = newOrganization.Address.Postcode,
+                        Country = newOrganization.Address.Country
+                    };
+                }
 
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", newCustomerDTO);
 
