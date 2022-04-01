@@ -18,12 +18,16 @@ COPY ["src/Core/Common.csproj", "Core/Common.csproj"]
 COPY ["src/Services/SubscriptionManagement/SubscriptionManagementServices/SubscriptionManagementServices.csproj", "Services/SubscriptionManagement/SubscriptionManagementServices/SubscriptionManagementServices.csproj"]
 COPY ["src/Services/SubscriptionManagement/SubscriptionManagement.API/SubscriptionManagement.API.csproj", "Services/SubscriptionManagement/SubscriptionManagement.API/SubscriptionManagement.API.csproj"]
 COPY ["src/Services/SubscriptionManagement/Tests/SubscriptionManagement.UnitTests/SubscriptionManagement.UnitTests.csproj", "Services/SubscriptionManagement/Tests/SubscriptionManagement.UnitTests/SubscriptionManagement.UnitTests.csproj"]
+COPY ["src/Services/SubscriptionManagement/Tests/SubscriptionManagement.IntegrationTests/SubscriptionManagement.IntegrationTests.csproj", "Services/SubscriptionManagement/Tests/SubscriptionManagement.IntegrationTests/SubscriptionManagement.IntegrationTests.csproj"]
 RUN dotnet restore "Services/SubscriptionManagement/SubscriptionManagement.API/SubscriptionManagement.API.csproj"
 RUN dotnet restore "Services/SubscriptionManagement/Tests/SubscriptionManagement.UnitTests/SubscriptionManagement.UnitTests.csproj"
+RUN dotnet restore "Services/SubscriptionManagement/Tests/SubscriptionManagement.IntegrationTests/SubscriptionManagement.IntegrationTests.csproj"
+
 
 COPY /src/Core/. Core/.
 COPY /src/Services/SubscriptionManagement/. Services/SubscriptionManagement/.
 COPY /src/Services/SubscriptionManagement/Tests/SubscriptionManagement.UnitTests/. Services/SubscriptionManagement/Tests/SubscriptionManagement.UnitTests/.
+COPY /src/Services/SubscriptionManagement/Tests/SubscriptionManagement.IntegrationTests/. Services/SubscriptionManagement/Tests/SubscriptionManagement.IntegrationTests/.
 
 WORKDIR "/src/Services/SubscriptionManagement/SubscriptionManagement.API"
 
@@ -40,6 +44,7 @@ ARG BUILD_ID
 LABEL test=${BUILD_ID}
 
 RUN dotnet test --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore ../Tests/SubscriptionManagement.UnitTests/SubscriptionManagement.UnitTests.csproj
+RUN dotnet test --logger "trx;LogFileName=test_results2.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore ../Tests/SubscriptionManagement.IntegrationTests/SubscriptionManagement.IntegrationTests.csproj
 
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
