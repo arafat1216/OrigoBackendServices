@@ -6,7 +6,7 @@ namespace CustomerServices.Models
     /// <summary>
     /// Request object
     /// </summary>
-    public class CustomerUserCount
+    public class OrganizationUserCount
     {
         [Required]
         public Guid OrganizationId { get; set; }

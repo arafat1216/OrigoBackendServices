@@ -136,22 +136,23 @@ namespace Customer.API.Controllers
 
         [Route("userCount")]
         [HttpGet]
-        [ProducesResponseType(typeof(IList<CustomerServices.Models.CustomerUserCount>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<CustomerServices.Models.OrganizationUserCount>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.Gone)]
-        public async Task<ActionResult<IList<CustomerServices.Models.CustomerUserCount>>> GetOrganizationUsers()
+        public async Task<ActionResult<IList<CustomerServices.Models.OrganizationUserCount>>> GetOrganizationUserCountAsync()
         {
             try
             {
-                var customerUserCounts = await _organizationServices.GetCustomerUsersAsync();
-                if (customerUserCounts == null)
+                var organizationUserCount = await _organizationServices.GetOrganizationUserCountAsync();
+                if (organizationUserCount == null)
                     return NotFound();
 
-                return Ok(customerUserCounts);
+                return Ok(organizationUserCount);
             }
             catch (Exception ex)
             {
-                return BadRequest("Unknown error - Get Customer User counts (multiple): " + ex.Message + ex.StackTrace);
+                _logger.LogError($"OrganizationController - GetOrganizationUserCountAsync: An unexpected error occurred: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 

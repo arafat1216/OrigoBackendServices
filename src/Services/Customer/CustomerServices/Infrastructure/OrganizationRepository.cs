@@ -52,17 +52,17 @@ namespace CustomerServices.Infrastructure
         }
 
 
-        public async Task<IList<CustomerUserCount>> GetOrganizationUserCountsAsync()
+        public async Task<IList<OrganizationUserCount>> GetOrganizationUserCountAsync()
         {
             return await _customerContext.Users
-            .Where(u => u.IsActive)
-            .GroupBy(u => u.Customer.OrganizationId)
-            .Select(group => new CustomerUserCount()
-            {
-                OrganizationId = group.Key,
-                Count = group.Count()
-            })
-            .ToListAsync();
+                                         .Where(u => u.IsActive)
+                                         .GroupBy(u => u.Customer.OrganizationId)
+                                         .Select(group => new OrganizationUserCount()
+                                         {
+                                             OrganizationId = group.Key,
+                                             Count = group.Count()
+                                         })
+                                         .ToListAsync();
         }
 
         public async Task<IList<Organization>> GetOrganizationsAsync(Expression<Func<Organization, bool>>? whereFilter = null,
