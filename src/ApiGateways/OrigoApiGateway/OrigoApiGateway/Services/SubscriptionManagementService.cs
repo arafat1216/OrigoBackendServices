@@ -1,25 +1,22 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OrigoApiGateway.Exceptions;
+using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.SubscriptionManagement;
+using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
+using OrigoApiGateway.Models.SubscriptionManagement.Backend.Response;
+using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
+using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
-using OrigoApiGateway.Models.SubscriptionManagement.Backend.Response;
-using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
-using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using System.Text.Json;
-using OrigoApiGateway.Models;
-using Common.Exceptions;
-using OrigoApiGateway.Exceptions;
-using System.Text;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {

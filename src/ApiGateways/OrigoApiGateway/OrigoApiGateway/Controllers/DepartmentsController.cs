@@ -28,7 +28,7 @@ namespace OrigoApiGateway.Controllers
         private readonly IDepartmentsServices _departmentServices;
         private readonly IMapper _mapper;
 
-        public DepartmentsController(ILogger<DepartmentsController> logger, IDepartmentsServices departmentServices,IMapper mapper)
+        public DepartmentsController(ILogger<DepartmentsController> logger, IDepartmentsServices departmentServices, IMapper mapper)
         {
             _logger = logger;
             _departmentServices = departmentServices;
@@ -257,7 +257,7 @@ namespace OrigoApiGateway.Controllers
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
 
-                var updatedDepartment = await _departmentServices.DeleteDepartmentPatchAsync(organizationId, departmentId,callerId);
+                var updatedDepartment = await _departmentServices.DeleteDepartmentPatchAsync(organizationId, departmentId, callerId);
 
                 return Ok(updatedDepartment);
             }

@@ -1,10 +1,10 @@
 ﻿using OrigoApiGateway.Models.SubscriptionManagement;
+using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
+using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
+using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
-using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
-using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
 
 namespace OrigoApiGateway.Services
 {
@@ -35,13 +35,13 @@ namespace OrigoApiGateway.Services
         Task<IList<OrigoSubscriptionOrderListItem>> GetSubscriptionOrders(Guid organizationId);
         Task<OrigoCancelSubscriptionOrder> CancelSubscriptionOrderForCustomerAsync(Guid organizationId, CancelSubscriptionOrderDTO order);
         Task<OrigoOrderSim> OrderSimCardForCustomerAsync(Guid organizationId, OrderSim order, Guid callerId);
-        
+
         Task<OrigoActivateSimOrder> ActivateSimCardForCustomerAsync(Guid organizationId, ActivateSimOrderPostRequest activateSimOrder);
         Task<OrigoNewSubscriptionOrder> NewSubscriptionOrder(Guid organizationId, NewSubscriptionOrderPostRequest requestModel);
         Task<IList<OrigoCustomerStandardPrivateSubscriptionProduct>> GetCustomerStandardPrivateSubscriptionProductAsync(Guid organizationId);
         Task<OrigoCustomerStandardPrivateSubscriptionProduct> PostCustomerStandardPrivateSubscriptionProductAsync(Guid organizationId, NewStandardPrivateProductDTO standardPrivateProduct);
 
-        Task<OrigoCustomerStandardPrivateSubscriptionProduct> DeleteCustomerStandardPrivateSubscriptionProductAsync(Guid organizationId,int operatorId, Guid callerId);
+        Task<OrigoCustomerStandardPrivateSubscriptionProduct> DeleteCustomerStandardPrivateSubscriptionProductAsync(Guid organizationId, int operatorId, Guid callerId);
         Task<OrigoSubscriptionOrderDetailView> GetSubscriptionOrderDetailViewAsync(Guid organizationId, Guid orderId, int orderType);
 
 

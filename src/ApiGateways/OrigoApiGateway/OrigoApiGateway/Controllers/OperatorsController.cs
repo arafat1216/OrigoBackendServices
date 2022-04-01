@@ -44,7 +44,7 @@ namespace OrigoApiGateway.Controllers
             var operatorObject = await _subscriptionService.GetOperatorAsync(id);
             return Ok(operatorObject);
         }
-        
+
         /// <summary>
         /// Get all operators subscription products
         /// </summary>

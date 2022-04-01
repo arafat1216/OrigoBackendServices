@@ -8,6 +8,6 @@ namespace OrigoApiGateway.Models.BackendDTO
         public string Role { get; set; }
         public IList<Guid> AccessList { get; set; }
         public Guid CallerId { get; set; }
-        
+
     }
 }

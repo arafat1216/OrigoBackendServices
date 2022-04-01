@@ -131,7 +131,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoDepartment> DeleteDepartmentPatchAsync(Guid customerId, Guid departmentId,Guid callerId)
+        public async Task<OrigoDepartment> DeleteDepartmentPatchAsync(Guid customerId, Guid departmentId, Guid callerId)
         {
             try
             {

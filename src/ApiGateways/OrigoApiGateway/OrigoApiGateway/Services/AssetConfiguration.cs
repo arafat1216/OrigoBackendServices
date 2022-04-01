@@ -2,6 +2,6 @@
 {
     public class AssetConfiguration : IBaseGatewayOptions
     {
-        public string ApiPath { get; set; } 
+        public string ApiPath { get; set; }
     }
 }

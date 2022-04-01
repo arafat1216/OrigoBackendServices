@@ -10,7 +10,7 @@
         /// Send to either private or business address
         /// </summary>
         public Address Address { get; set; }
-        
+
         public int OperatorId { get; set; }
         public int Quantity { get; set; }
     }

@@ -58,7 +58,7 @@ namespace OrigoApiGateway.Controllers
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                   return Forbid();
+                    return Forbid();
                 }
 
                 IList<CustomerAssetCount> assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync();
@@ -169,7 +169,7 @@ namespace OrigoApiGateway.Controllers
                 {
                     return NotFound();
                 }
-                
+
                 var options = new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -598,7 +598,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-                
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
 

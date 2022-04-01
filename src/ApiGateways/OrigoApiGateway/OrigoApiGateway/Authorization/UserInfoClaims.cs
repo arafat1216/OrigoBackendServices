@@ -1,6 +1,6 @@
-﻿using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
 
 namespace OrigoApiGateway.Authorization
 {

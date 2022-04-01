@@ -8,7 +8,7 @@ namespace OrigoApiGateway.Mappings
     {
         public NewUserPermissionsProfile()
         {
-            CreateMap<NewUserPermissions,NewUserPermissionsDTO>();
+            CreateMap<NewUserPermissions, NewUserPermissionsDTO>();
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Common.Interfaces;
 using OrigoApiGateway.Models;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 

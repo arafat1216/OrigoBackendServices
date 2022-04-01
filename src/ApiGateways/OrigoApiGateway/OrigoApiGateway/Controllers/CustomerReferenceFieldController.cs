@@ -1,17 +1,17 @@
-﻿using System;
+﻿using Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Models.SubscriptionManagement;
+using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
+using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using OrigoApiGateway.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Common.Enums;
-using Microsoft.Extensions.Logging;
-using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
-using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 
 namespace OrigoApiGateway.Controllers
 {

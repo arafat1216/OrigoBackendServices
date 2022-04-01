@@ -8,7 +8,7 @@ namespace OrigoApiGateway.Mappings.SubscriptionManagement
     {
         public NewActivateSimOrderProfile()
         {
-            CreateMap<NewActivateSimOrder,ActivateSimOrderPostRequest>();
+            CreateMap<NewActivateSimOrder, ActivateSimOrderPostRequest>();
         }
     }
 }

@@ -1,18 +1,18 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using System.Linq;
-using OrigoApiGateway.Models.BackendDTO;
-using AutoMapper;
 
 namespace OrigoApiGateway.Controllers
 {
@@ -28,7 +28,7 @@ namespace OrigoApiGateway.Controllers
         private readonly IUserPermissionService _userPermissionServices;
         private readonly IMapper _mapper;
 
-        public UserPermissionsController(ILogger<UserPermissionsController> logger, IUserPermissionService customerServices,IMapper mapper)
+        public UserPermissionsController(ILogger<UserPermissionsController> logger, IUserPermissionService customerServices, IMapper mapper)
         {
             _logger = logger;
             _userPermissionServices = customerServices;

@@ -8,7 +8,7 @@ namespace OrigoApiGateway.Mappings
     {
         public OrigoUpdateAssetProfile()
         {
-            CreateMap<OrigoUpdateAsset,OrigoUpdateAssetDTO>();
+            CreateMap<OrigoUpdateAsset, OrigoUpdateAssetDTO>();
         }
     }
 }

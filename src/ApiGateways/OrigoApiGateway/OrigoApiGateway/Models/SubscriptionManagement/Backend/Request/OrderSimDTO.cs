@@ -1,5 +1,4 @@
 ﻿using System;
-using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 
 namespace OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
 

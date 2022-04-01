@@ -8,7 +8,7 @@ namespace OrigoApiGateway.Mappings
     {
         public NewDepartmentProfile()
         {
-            CreateMap<NewDepartment,NewDepartmentDTO>();
+            CreateMap<NewDepartment, NewDepartmentDTO>();
         }
     }
 }

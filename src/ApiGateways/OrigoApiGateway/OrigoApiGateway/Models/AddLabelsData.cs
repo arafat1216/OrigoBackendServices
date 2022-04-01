@@ -8,7 +8,7 @@ namespace OrigoApiGateway.Models
     /// </summary>
     public class AddLabelsData
     {
-        public IList<NewLabel> NewLabels { get;  set; }
+        public IList<NewLabel> NewLabels { get; set; }
         public Guid CallerId { get; set; }
     }
 }

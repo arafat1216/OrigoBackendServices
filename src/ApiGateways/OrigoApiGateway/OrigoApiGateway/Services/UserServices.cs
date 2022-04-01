@@ -157,7 +157,7 @@ namespace OrigoApiGateway.Services
                     else
                         throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
                 }
-                    
+
 
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
                 return user == null ? null : _mapper.Map<OrigoUser>(user);

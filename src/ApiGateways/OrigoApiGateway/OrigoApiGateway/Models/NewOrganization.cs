@@ -41,13 +41,13 @@ namespace OrigoApiGateway.Models
         ///     The new location object that is created and used with the organization. </para>
         /// </summary>
         public NewLocation? Location { get; set; }
-    
+
         [EmailAddress]
         [Obsolete("This is not in use, and will soon be removed.")]
         public string? ContactEmail { get; set; }
 
         public string? InternalNotes { get; init; }
-                
+
         public NewOrganizationPreferences Preferences { get; init; }
 
         /// <summary>

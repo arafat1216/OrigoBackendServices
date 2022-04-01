@@ -4,7 +4,7 @@ using OrigoApiGateway.Models.BackendDTO;
 
 namespace OrigoApiGateway.Mappings
 {
-    public class OrigoUserPermissionProfile :Profile
+    public class OrigoUserPermissionProfile : Profile
     {
         public OrigoUserPermissionProfile()
         {

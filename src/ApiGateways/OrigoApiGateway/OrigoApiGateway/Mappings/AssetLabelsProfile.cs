@@ -6,9 +6,9 @@ namespace OrigoApiGateway.Mappings
 {
     public class AssetLabelsProfile : Profile
     {
-        public AssetLabelsProfile() 
-        { 
-            CreateMap<AssetLabels,AssetLabelsDTO>();
+        public AssetLabelsProfile()
+        {
+            CreateMap<AssetLabels, AssetLabelsDTO>();
         }
     }
 }

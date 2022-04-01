@@ -10,7 +10,7 @@ namespace OrigoApiGateway.Mappings
         {
             CreateMap<UserDTO, OrigoUser>()
                 .ForMember(destination => destination.DisplayName, opt => opt.MapFrom(src => src.FirstName + " " + src.LastName))
-                .ForMember(destination => destination.UserPreference, opt => opt.NullSubstitute(new UserPreferenceDTO{Language = string.Empty}));
+                .ForMember(destination => destination.UserPreference, opt => opt.NullSubstitute(new UserPreferenceDTO { Language = string.Empty }));
         }
     }
 }

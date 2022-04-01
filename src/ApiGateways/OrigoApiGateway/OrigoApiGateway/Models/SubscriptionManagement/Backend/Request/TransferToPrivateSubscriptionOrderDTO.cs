@@ -1,5 +1,5 @@
-﻿using System;
-using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
+﻿using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
+using System;
 
 namespace OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
 

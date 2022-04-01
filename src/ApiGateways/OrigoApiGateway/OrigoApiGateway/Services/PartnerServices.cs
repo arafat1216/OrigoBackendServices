@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
@@ -6,9 +7,8 @@ using OrigoApiGateway.Models.BackendDTO;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {

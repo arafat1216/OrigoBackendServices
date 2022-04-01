@@ -41,7 +41,7 @@ namespace OrigoApiGateway.Services
                 var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
                 //containerClient.
                 var blobClient = containerClient.GetBlobClient(fileName);
-               
+
 
                 using var stream = formFile.OpenReadStream();
                 var response = await blobClient.UploadAsync(stream, true);
@@ -60,7 +60,7 @@ namespace OrigoApiGateway.Services
                 _logger.LogError(ex, "UploadAssetsFile failed with Azure.RequestFailedException.");
                 throw;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "UploadAssetsFile failed with unknown exception.");
                 throw;
@@ -89,7 +89,7 @@ namespace OrigoApiGateway.Services
 
                 Azure.Response<Azure.Storage.Blobs.Models.BlobDownloadInfo> response = await blobClient.DownloadAsync();
 
-                   
+
                 if (response.GetRawResponse().Status != 200)
                 {
                     throw new Azure.RequestFailedException(response.GetRawResponse().ReasonPhrase);
@@ -129,9 +129,9 @@ namespace OrigoApiGateway.Services
                 var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
                 //var blobClient = containerClient.Get(orgId + "/");
                 var blobNames = new List<string>();
-                
-               
-                
+
+
+
                 // Find all files for organizationId
                 await foreach (var blobItem in containerClient.GetBlobsAsync(BlobTraits.None, BlobStates.None, orgId + "/"))
                 {

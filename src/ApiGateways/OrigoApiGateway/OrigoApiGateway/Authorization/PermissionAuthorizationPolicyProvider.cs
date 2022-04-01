@@ -1,8 +1,8 @@
 ﻿#nullable enable
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
+using System;
+using System.Threading.Tasks;
 using static OrigoApiGateway.Authorization.PermissionAuthorizeAttribute;
 
 namespace OrigoApiGateway.Authorization
