@@ -18,12 +18,15 @@ COPY ["src/Core/Common.csproj", "Core/Common.csproj"]
 COPY ["src/Services/Asset/AssetServices/AssetServices.csproj", "Services/Asset/AssetServices/AssetServices.csproj"]
 COPY ["src/Services/Asset/Asset.API/Asset.API.csproj", "Services/Asset/Asset.API/Asset.API.csproj"]
 COPY ["src/Services/Asset/Tests/AssetServices.UnitTests/AssetServices.UnitTests.csproj", "Services/Asset/Tests/AssetServices.UnitTests/AssetServices.UnitTests.csproj"]
+COPY ["src/Services/Asset/Tests/Asset.IntegrationTests/Asset.IntegrationTests.csproj", "Services/Asset/Tests/Asset.IntegrationTests/Asset.IntegrationTests.csproj"]
 RUN dotnet restore "Services/Asset/Asset.API/Asset.API.csproj"
 RUN dotnet restore "Services/Asset/Tests/AssetServices.UnitTests/AssetServices.UnitTests.csproj"
+RUN dotnet restore "Services/Asset/Tests/Asset.IntegrationTests/Asset.IntegrationTests.csproj"
 
 COPY /src/Core/. Core/.
 COPY /src/Services/Asset/. Services/Asset/.
 COPY /src/Services/Asset/Tests/AssetServices.UnitTests/. Services/Asset/Tests/AssetServices.UnitTests/.
+COPY /src/Services/Asset/Tests/Asset.IntegrationTests/. Services/Asset/Tests/Asset.IntegrationTests/.
 
 WORKDIR "/src/Services/Asset/Asset.API"
 
@@ -40,6 +43,7 @@ ARG BUILD_ID
 LABEL test=${BUILD_ID}
 
 RUN dotnet test --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore ../Tests/AssetServices.UnitTests/AssetServices.UnitTests.csproj
+RUN dotnet test --logger "trx;LogFileName=test_results2.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore ../Tests/Asset.IntegrationTests/Asset.IntegrationTests.csproj
 
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 

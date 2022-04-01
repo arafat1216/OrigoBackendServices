@@ -18,12 +18,17 @@ COPY ["src/Core/Common.csproj", "Core/Common.csproj"]
 COPY ["src/Services/Customer/CustomerServices/CustomerServices.csproj", "Services/Customer/CustomerServices/CustomerServices.csproj"]
 COPY ["src/Services/Customer/Customer.API/Customer.API.csproj", "Services/Customer/Customer.API/Customer.API.csproj"]
 COPY ["src/Services/Customer/Tests/CustomerServices.UnitTests/CustomerServices.UnitTests.csproj", "Services/Customer/Tests/CustomerServices.UnitTests/CustomerServices.UnitTests.csproj"]
+COPY ["src/Services/Customer/Tests/Customer.API.Tests/Customer.API.IntegrationTests.csproj", "Services/Customer/Tests/Customer.API.Tests/Customer.API.IntegrationTests.csproj"]
+
 RUN dotnet restore "Services/Customer/Customer.API/Customer.API.csproj"
 RUN dotnet restore "Services/Customer/Tests/CustomerServices.UnitTests/CustomerServices.UnitTests.csproj"
+RUN dotnet restore "Services/Customer/Tests/Customer.API.Tests/Customer.API.IntegrationTests.csproj"
+
 
 COPY /src/Core/. Core/.
 COPY /src/Services/Customer/. Services/Customer/.
 COPY /src/Services/Customer/Tests/CustomerServices.UnitTests/. Services/Customer/Tests/CustomerServices.UnitTests/.
+COPY /src/Services/Customer/Tests/Customer.API.Tests/. Services/Customer/Tests/Customer.API.Tests/.
 
 WORKDIR "/src/Services/Customer/Customer.API"
 
@@ -40,6 +45,8 @@ ARG BUILD_ID
 LABEL test=${BUILD_ID}
 
 RUN dotnet test --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore ../Tests/CustomerServices.UnitTests/CustomerServices.UnitTests.csproj
+RUN dotnet test --logger "trx;LogFileName=test_results2.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore ../Tests/Customer.API.Tests/Customer.API.IntegrationTests.csproj
+
 
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
