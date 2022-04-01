@@ -75,6 +75,7 @@ namespace Asset.API
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
+            app.UseHealthChecks("/healthz");
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint($"/swagger/v{_apiVersion.MajorVersion}/swagger.json",
                 $"Customer Asset Services v{_apiVersion.MajorVersion}"));
@@ -84,8 +85,8 @@ namespace Asset.API
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHealthChecks("/healthcheck");
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/healthz");
             });
         }
     }

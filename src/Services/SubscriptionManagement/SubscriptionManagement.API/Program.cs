@@ -98,6 +98,7 @@ if (app.Environment.IsDevelopment())
                 $"Subscription Management Services v{apiVersion.MajorVersion}"));
 
 }
+app.UseHealthChecks("/healthz");
 
 app.UseRouting();
 
@@ -105,7 +106,7 @@ app.UseAuthorization();
 
 app.UseEndpoints(endpoints =>
 {
-    endpoints.MapHealthChecks("/healthcheck");
+    endpoints.MapHealthChecks("/healthz");
     endpoints.MapControllers();
 });
 
