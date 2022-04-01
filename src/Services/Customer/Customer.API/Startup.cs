@@ -36,6 +36,7 @@ namespace Customer.API
         {
             services.AddRouting(options => options.LowercaseUrls = true);
 
+            services.AddHealthChecks();
             services.AddControllers().AddDapr();
 
             services.AddApiVersioning(config =>
@@ -114,11 +115,17 @@ namespace Customer.API
             app.UseSwaggerUI(c => c.SwaggerEndpoint($"/swagger/v{_apiVersion.MajorVersion}/swagger.json",
                 $"CustomerServices v{_apiVersion.MajorVersion}"));
 
+            app.UseHealthChecks("/healthz");
+
             app.UseRouting();
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHealthChecks("/healthz");
+                endpoints.MapControllers();
+            });
         }
     }
 }

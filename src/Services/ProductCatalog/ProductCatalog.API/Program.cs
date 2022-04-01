@@ -24,6 +24,7 @@ builder.Configuration.AddJsonFile("secrets/appsettings.secrets.json", optional: 
 
 builder.Configuration.AddUserSecrets<Program>(optional: true);
 
+builder.Services.AddHealthChecks();
 // Configuration for the NuGet package: 'Microsoft.AspNetCore.Mvc.Versioning'
 builder.Services.AddApiVersioning(options =>
 {
@@ -105,10 +106,17 @@ if (app.Environment.IsDevelopment())
         }
     });
 }
+app.UseHealthChecks("/healthz");
 
 //app.UseHttpsRedirection();
 app.UseAuthorization();
-app.MapControllers();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHealthChecks("/healthz");
+    endpoints.MapControllers();
+});
+
 app.Run();
 
 #endregion
