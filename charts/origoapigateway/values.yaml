@@ -44,8 +44,8 @@ deployment:
         mountPath: "/app/secrets"
         readOnly: true
 
-probes:
-  enabled: false
+  probes:
+    enabled: false
 
 ingress:
   enabled: true

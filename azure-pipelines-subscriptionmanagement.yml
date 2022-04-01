@@ -189,7 +189,7 @@ stages:
               chartType: FilePath
               releaseName: subscriptionmanagementservices
               namespace: $(namespace)
-              overrideValues: deployment.image.tag=$(tag),namespace=$(namespace)
+              overrideValues: "deployment.image.tag=$(tag),namespace=$(namespace),deployment.probes.enabled=true"
               arguments: --version $(tag)
               chartPath: $(Pipeline.Workspace)/helmcharts
               install: true
