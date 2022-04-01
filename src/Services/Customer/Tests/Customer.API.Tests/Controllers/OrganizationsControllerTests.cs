@@ -97,7 +97,6 @@ namespace Customer.API.Controllers.Tests
                 PrimaryLocation = null,
                 ParentId = null,
                 CallerId = Guid.Parse("fd93b1f9-3df8-4823-9215-306135992d25"),
-                ContactEmail = "asd@asd.aa",
                 InternalNotes = null,
                 IsCustomer = true,
                 Preferences = null

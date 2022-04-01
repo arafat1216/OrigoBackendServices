@@ -16,7 +16,8 @@ namespace OrigoApiGateway.Models.BackendDTO
         public Guid? ParentId { get; set; }
         public Guid CallerId { get; set; }
        
-        public string ContactEmail { get; set; }
+        [Obsolete("This is not in use, and will soon be removed")]
+        public string? ContactEmail { get; set; }
         public string InternalNotes { get; set; }
 
         public Guid? PartnerId { get; set; }

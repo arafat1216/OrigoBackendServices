@@ -37,7 +37,8 @@ namespace OrigoApiGateway.Models
         public NewLocation? Location { get; set; }
     
         [EmailAddress]
-        public string ContactEmail { get; set; }
+        [Obsolete("This is not in use, and will soon be removed.")]
+        public string? ContactEmail { get; set; }
 
         public string InternalNotes { get; init; }
                 

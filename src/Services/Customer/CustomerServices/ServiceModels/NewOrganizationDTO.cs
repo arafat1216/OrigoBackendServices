@@ -9,7 +9,7 @@ namespace CustomerServices.ServiceModels
         public NewOrganizationDTO() { }
 
         public NewOrganizationDTO(string name, string organizationNumber, AddressDTO address, ContactPersonDTO contactPerson, LocationDTO location,
-                                  Guid? parentId, string contactEmail, string? internalNotes, Guid? partnerId, bool isCustomer,
+                                  Guid? parentId, string? internalNotes, Guid? partnerId, bool isCustomer,
                                   NewOrganizationPreferencesDTO preferences, Guid callerId)
         {
             Name = name;
@@ -19,7 +19,6 @@ namespace CustomerServices.ServiceModels
             Location = location;
             PrimaryLocation = null;
             ParentId = parentId;
-            ContactEmail = contactEmail;
             InternalNotes = internalNotes;
             PartnerId = partnerId;
             IsCustomer = isCustomer;
@@ -28,7 +27,7 @@ namespace CustomerServices.ServiceModels
         }
 
         public NewOrganizationDTO(string name, string organizationNumber, AddressDTO address, ContactPersonDTO contactPerson, Guid primaryLocation,
-                                  Guid? parentId, string contactEmail, string? internalNotes, Guid? partnerId, bool isCustomer,
+                                  Guid? parentId, string? internalNotes, Guid? partnerId, bool isCustomer,
                                   NewOrganizationPreferencesDTO preferences, Guid callerId)
         {
             Name = name;
@@ -38,7 +37,6 @@ namespace CustomerServices.ServiceModels
             Location = null;
             PrimaryLocation = primaryLocation;
             ParentId = parentId;
-            ContactEmail = contactEmail;
             InternalNotes = internalNotes;
             PartnerId = partnerId;
             IsCustomer = isCustomer;
@@ -73,8 +71,6 @@ namespace CustomerServices.ServiceModels
         ///     For root-organization this value can be <see langword="null"/> or omitted.
         /// </summary>
         public Guid? ParentId { get; set; }
-
-        public string ContactEmail { get; set; }
 
         public string? InternalNotes { get; set; }
 

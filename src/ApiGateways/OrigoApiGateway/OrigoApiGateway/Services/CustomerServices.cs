@@ -128,12 +128,6 @@ namespace OrigoApiGateway.Services
                 newCustomerDTO.CallerId = callerId;
                 newCustomerDTO.IsCustomer = true;
 
-                // TODO: This is a temp. workaround for adding in the required data that's missing from frontend.
-                if (newCustomer.ContactEmail is null || newCustomer.ContactEmail == string.Empty)
-                {
-                    newCustomerDTO.ContactEmail = newCustomer.ContactPerson.Email;
-                }
-
                 if (newCustomer.Location is null)
                 {
                     newCustomerDTO.Location = new NewLocation
