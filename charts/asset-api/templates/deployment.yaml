@@ -27,16 +27,22 @@ spec:
             - containerPort: {{ .Values.deployment.containerPort }}
               protocol: TCP
           {{- if .Values.deployment.probes.enabled }}
+          startupProbe:
+            httpGet:
+            path: /healthz
+            port: {{ .Values.deployment.containerPort }}
+            failureThreshold: 30
+            periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /healthz
-              port: {{ .Values.service.port }}
+              port: {{ .Values.deployment.containerPort }}
             initialDelaySeconds: 3
             periodSeconds: 3
           readinessProbe:
             httpGet:
               path: /healthz
-              port: {{ .Values.service.port }}
+              port: {{ .Values.deployment.containerPort }}
             initialDelaySeconds: 3
             periodSeconds: 3
           {{- end }}
