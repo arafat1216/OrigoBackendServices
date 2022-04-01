@@ -40,15 +40,18 @@ namespace OrigoApiGateway.Services
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save partner", (int)response.StatusCode);
 
-                var partnerResponse = await response.Content.ReadFromJsonAsync<PartnerDto>();
+                var partnerResponse = await response.Content.ReadFromJsonAsync<PartnerDTO>();
                 if (partnerResponse != null)
                 {
-
                     var partner = new Partner
                     {
-                        ExternalId = partnerResponse.ExternalId,
-                        Organization = _mapper.Map<Organization>(partnerResponse.Organization)
+                        Id = partnerResponse.ExternalId,
+                        Address = _mapper.Map<Address>(partnerResponse.Organization.Address),
+                        ContactPerson = _mapper.Map<OrigoContactPerson>(partnerResponse.Organization.ContactPerson),
+                        Name = partnerResponse.Organization.Name,
+                        OrganizationNumber = partnerResponse.Organization.OrganizationNumber
                     };
+
                     return partner;
                 }
 
@@ -65,12 +68,21 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var partner = await HttpClient.GetFromJsonAsync<PartnerDto>($"{ _options.ApiPath}/{partnerId}");
-                if (partner == null)
+                var partnerResponse = await HttpClient.GetFromJsonAsync<PartnerDTO>($"{ _options.ApiPath}/{partnerId}");
+
+                if (partnerResponse == null)
                     return null;
 
+                var partner = new Partner
+                {
+                    Id = partnerResponse.ExternalId,
+                    Address = _mapper.Map<Address>(partnerResponse.Organization.Address),
+                    ContactPerson = _mapper.Map<OrigoContactPerson>(partnerResponse.Organization.ContactPerson),
+                    Name = partnerResponse.Organization.Name,
+                    OrganizationNumber = partnerResponse.Organization.OrganizationNumber
+                };
 
-                return new Partner { ExternalId = partner.ExternalId, Organization = _mapper.Map<Organization>(partner.Organization) };
+                return partner;
             }
             catch (HttpRequestException exception)
             {
@@ -93,14 +105,22 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var partnersFound = await HttpClient.GetFromJsonAsync<IList<PartnerDto>>($"{ _options.ApiPath}");
+                var partnersFound = await HttpClient.GetFromJsonAsync<IList<PartnerDTO>>($"{ _options.ApiPath}");
                 if (partnersFound == null)
                     return null;
 
-                List<Partner> partners = new List<Partner>();
-                foreach (PartnerDto partnerDto in partnersFound)
+                var partners = new List<Partner>();
+                foreach (PartnerDTO partnerDto in partnersFound)
                 {
-                    partners.Add(new Partner { ExternalId = partnerDto.ExternalId, Organization = _mapper.Map<Organization>(partnerDto.Organization) });
+                    var partner = new Partner
+                    {
+                        Id = partnerDto.ExternalId,
+                        Address = _mapper.Map<Address>(partnerDto.Organization.Address),
+                        ContactPerson = _mapper.Map<OrigoContactPerson>(partnerDto.Organization.ContactPerson),
+                        Name = partnerDto.Organization.Name,
+                        OrganizationNumber = partnerDto.Organization.OrganizationNumber
+                    };
+                    partners.Add(partner);
                 }
                 return partners;
             }

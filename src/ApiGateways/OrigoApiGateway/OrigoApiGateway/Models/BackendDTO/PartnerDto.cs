@@ -2,10 +2,13 @@
 
 namespace OrigoApiGateway.Models.BackendDTO
 {
-    public class PartnerDto
+    public class PartnerDTO
     {
+        /// <summary>
+        ///     The partner's external (customer-facing) ID
+        /// </summary>
         public Guid ExternalId { get; set; }
-        //public Guid OrganizationId { get; set; }
+
         public OrganizationDTO Organization { get; set; }
     }
 }

@@ -8,8 +8,14 @@ namespace OrigoApiGateway.Models
     /// </summary>
     public record NewOrganization
     {
+        /// <summary>
+        ///     The name of the organization.
+        /// </summary>
         public string Name { get; init; }
 
+        /// <summary>
+        ///     The organization-number as used in the national registry.
+        /// </summary>
         public string OrganizationNumber { get; init; }
 
         public Address Address { get; init; }
@@ -40,10 +46,16 @@ namespace OrigoApiGateway.Models
         [Obsolete("This is not in use, and will soon be removed.")]
         public string? ContactEmail { get; set; }
 
-        public string InternalNotes { get; init; }
+        public string? InternalNotes { get; init; }
                 
         public NewOrganizationPreferences Preferences { get; init; }
 
+        /// <summary>
+        ///     The ID for the partner that "owns" and handles the customer-relations with this organization. <para>   
+        /// 
+        ///     This value is required for all customers. This should be <c><see langword="null"/></c> or omitted for other organizations, such as 
+        ///     specialized/custom organizations (e.g. partners and service-providers) that don't have a normal customer relationship under a partner. </para>
+        /// </summary>
         public Guid? PartnerId { get; set; }
     }
 }
