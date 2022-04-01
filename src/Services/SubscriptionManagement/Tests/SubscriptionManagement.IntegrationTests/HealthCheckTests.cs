@@ -19,7 +19,7 @@ namespace SubscriptionManagement.IntegrationTests
         [Fact]
         public async Task HealthCheck_ReturnsOk()
         {
-            var response = await _httpClient.GetAsync("/healthcheck");
+            var response = await _httpClient.GetAsync("/healthz");
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
