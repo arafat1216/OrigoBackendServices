@@ -29,8 +29,8 @@ spec:
           {{- if .Values.deployment.probes.enabled }}
           startupProbe:
             httpGet:
-            path: /healthz
-            port: {{ .Values.deployment.containerPort }}
+              path: /healthz
+              port: {{ .Values.deployment.containerPort }}
             failureThreshold: 30
             periodSeconds: 10
           livenessProbe:
