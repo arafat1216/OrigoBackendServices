@@ -49,6 +49,9 @@ namespace OrigoApiGateway
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers().AddDapr();
+
+            services.AddRouting(options => options.LowercaseUrls = true);
+
             services.AddApiVersioning(config =>
             {
                 config.DefaultApiVersion = _apiVersion;
