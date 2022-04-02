@@ -73,6 +73,18 @@ resources: {}
   #  memory: 128Mi
 nodeSelector: {}
 
-tolerations: []
+tolerations:
+  - key: "kubernetes.azure.com/scalesetpriority"
+    operator: "Equal"
+    value: "spot"
+    effect: "NoSchedule"
 
-affinity: {}
+affinity:
+  nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: "kubernetes.azure.com/scalesetpriority"
+            operator: In
+            values:
+            - "spot"
