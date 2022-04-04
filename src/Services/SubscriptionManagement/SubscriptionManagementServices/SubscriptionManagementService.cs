@@ -230,6 +230,11 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             throw new CustomerSettingsException($"Customer has no settings", Guid.Parse("30bd977e-a30b-11ec-b545-00155d8454bd"));
         }
 
+        if (!DateValidator.ValidDateForAction(subscriptionOrder.OrderExecutionDate, DateTime.UtcNow, _transferSubscriptionDateConfiguration.MinDaysForCurrentOperator))
+            throw new ArgumentException(
+                $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workdays ahead or more is allowed.");
+
+
         var order = _mapper.Map<TransferToPrivateSubscriptionOrder>(subscriptionOrder);
         order.OrganizationId = organizationId;
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(order);
