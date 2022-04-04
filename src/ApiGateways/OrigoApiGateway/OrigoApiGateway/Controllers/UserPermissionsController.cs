@@ -73,6 +73,23 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
+        [HttpGet]
+        [Route("/origoapi/v{version:apiVersion}/admins")]
+        [ProducesResponseType(typeof(IList<UserAdminDTO>), (int)HttpStatusCode.OK)]
+        [Authorize(Roles = "SystemAdmin")]
+        public async Task<ActionResult<IList<UserAdminDTO>>> GetAllUserAdmins()
+        {
+            try
+            {
+                return Ok(await _userPermissionServices.GetAllUserAdminsAsync());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
 
         [HttpPut]
         [ProducesResponseType(typeof(OrigoUserPermissions), (int)HttpStatusCode.Created)]

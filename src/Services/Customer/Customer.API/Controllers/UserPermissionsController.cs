@@ -1,4 +1,5 @@
-﻿using Customer.API.ViewModels;
+﻿using Common.Enums;
+using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
@@ -48,6 +49,25 @@ namespace Customer.API.Controllers
                 returnedUserPermissions.Add(new UserPermissions(permissionNames, userPermission.AccessList.ToList(), userPermission.Role.Name, userPermission.User.UserId));
             }
             return Ok(returnedUserPermissions);
+        }
+        [HttpGet]
+        [Route("/api/v{version:apiVersion}/organizations/admins")]
+        [ProducesResponseType(typeof(List<UserAdmin>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<List<UserAdmin>>> GetUserAdmins()
+        {
+            var userPermissions = await _userPermissionServices.GetUserAdminsAsync();
+            if (userPermissions == null) return NotFound();
+            var returnedUser = new List<UserAdmin>();
+            foreach (var userPermission in userPermissions)
+            {
+                returnedUser.Add(new UserAdmin(userPermission.User.UserId,
+                    userPermission.User.FirstName, userPermission.User.LastName, userPermission.User.Email,
+                    userPermission.User.MobileNumber, userPermission.Role.Name,
+                    userPermission.Role.Name == PredefinedRole.PartnerAdmin.ToString() ?
+                    userPermission.AccessList.ToList() : null));
+            }
+            return Ok(returnedUser);
         }
 
         [HttpGet]

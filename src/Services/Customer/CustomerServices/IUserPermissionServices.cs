@@ -11,5 +11,6 @@ namespace CustomerServices
         Task<UserPermissions> AssignUserPermissionsAsync(string userName, string roleName, IList<Guid> accessList, Guid callerId);
         Task<UserPermissions> RemoveUserPermissionsAsync(string userName, string predefinedRole, IList<Guid> accessList, Guid callerId);
         Task<IList<string>> GetAllRolesAsync();
+        Task<IList<UserPermissions>> GetUserAdminsAsync();
     }
 }
