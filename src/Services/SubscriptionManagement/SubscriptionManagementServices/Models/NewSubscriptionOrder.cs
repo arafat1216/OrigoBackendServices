@@ -64,15 +64,7 @@ namespace SubscriptionManagementServices.Models
                 SimCardReceiverPostalCode = simCardAddress.PostalCode;
                 SimCardReceiverPostalPlace = simCardAddress.PostalPlace;
             }
-            else
-            {
-                SimCardReceiverAddress = businessSubscription.Address;
-                SimCardReceiverCountry= businessSubscription.Country;
-                SimCardReceiverPostalCode= businessSubscription.PostalCode;
-                SimCardReceiverPostalPlace= businessSubscription.PostalPlace;
-                SimCardReceiverFirstName = businessSubscription.Name;
-                SimCardReceiverLastName = businessSubscription.OrganizationNumber;
-            }
+
             CustomerReferenceFields = customerReferenceFields;
             _subscriptionAddOnProducts = subscriptionAddOnProducts;
             PrivateSubscription = privateSubscription;

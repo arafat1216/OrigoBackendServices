@@ -401,6 +401,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         //Using the customer operator account if there is one
         CustomerOperatorAccount? customerOperatorAccount = null;
         CustomerSubscriptionProduct? customerSubscriptionProduct;
+        SimCardAddress? simCardAddress = null;
+
         var @operator = await _operatorRepository.GetOperatorAsync(newSubscriptionOrder.OperatorId);
 
         if (customerSettings != null)
@@ -447,6 +449,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                     DateTime.UtcNow.AddDays(_transferSubscriptionDateConfiguration.MaxDaysForAll))
                 throw new ArgumentException(
                     $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM} workdays ahead or more is allowed.");
+
+            simCardAddress = _mapper.Map<SimCardAddress>(newSubscriptionOrder.SimCardAddress);
         }
 
 
@@ -488,7 +492,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                                                        newSubscriptionOrder.OrderExecutionDate,
                                                        newSubscriptionOrder.SimCardNumber,
                                                        newSubscriptionOrder.SimCardAction,
-                                                       _mapper.Map<SimCardAddress>(newSubscriptionOrder.SimCardAddress),
+                                                       simCardAddress,
                                                        JsonSerializer.Serialize(newSubscriptionOrder.CustomerReferenceFields),
                                                        subscriptionAddOnProducts.ToList(),
                                                        _mapper.Map<PrivateSubscription>(newSubscriptionOrder.PrivateSubscription),
