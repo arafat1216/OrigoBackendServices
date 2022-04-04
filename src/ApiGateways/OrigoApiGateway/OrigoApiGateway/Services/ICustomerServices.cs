@@ -8,7 +8,7 @@ namespace OrigoApiGateway.Services
 {
     public interface ICustomerServices
     {
-        Task<IList<Organization>> GetCustomersAsync();
+        Task<IList<Organization>> GetCustomersAsync(Guid? partnerId = null);
         Task<Organization> GetCustomerAsync(Guid customerId);
         Task<IList<CustomerUserCount>> GetCustomerUsersAsync();
         Task<Organization> CreateCustomerAsync(NewOrganization newCustomer, Guid callerId);

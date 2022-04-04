@@ -58,11 +58,12 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
         [Authorize(Roles = "SystemAdmin")]
-        public async Task<ActionResult<IList<Organization>>> Get()
+        public async Task<ActionResult<IList<Organization>>> Get([FromQuery] Guid? partnerId = null)
         {
             try
             {
-                var customers = await CustomerServices.GetCustomersAsync();
+                var customers = await CustomerServices.GetCustomersAsync(partnerId);
+
                 return customers != null ? Ok(customers) : NotFound();
             }
             catch (Exception)

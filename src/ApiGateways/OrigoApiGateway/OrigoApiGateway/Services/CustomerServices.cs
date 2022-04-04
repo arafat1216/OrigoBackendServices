@@ -31,12 +31,13 @@ namespace OrigoApiGateway.Services
         private readonly IAssetServices _assetServices;
         private readonly IMapper _mapper;
 
-        public async Task<IList<Organization>> GetCustomersAsync()
+        public async Task<IList<Organization>> GetCustomersAsync(Guid? partnerId = null)
         {
             try
             {
                 bool customersOnly = true;
-                var organizations = await HttpClient.GetFromJsonAsync<IList<OrganizationDTO>>($"{_options.ApiPath}/{customersOnly}");
+                var organizations = await HttpClient.GetFromJsonAsync<IList<OrganizationDTO>>($"{_options.ApiPath}/{customersOnly}/?partnerId={partnerId}");
+
                 if (organizations == null)
                     return null;
 
