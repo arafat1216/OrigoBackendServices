@@ -1027,7 +1027,7 @@ public class
         var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-cancel", cancel);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Contains(
-         $"Invalid transfer date. 1 workday ahead or more is allowed.",
+         $"Invalid transfer date. 2 workday ahead or more is allowed.",
         response.Content.ReadAsStringAsync().Result);
     }
     [Fact]

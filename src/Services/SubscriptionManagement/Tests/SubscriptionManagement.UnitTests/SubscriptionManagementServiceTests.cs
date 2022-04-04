@@ -56,7 +56,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         _customerSettingsService = new CustomerSettingsService(customerSettingsRepository, operatorRepository, _mapper);
     }
-
+   
 
     [Fact]
     [Trait("Category", "UnitTest")]
@@ -1039,5 +1039,56 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var subscriptionProduct = _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, 1, "GP1", new List<string> { "5 GB" }, CALLER_ONE_ID);
         Assert.NotNull(subscriptionProduct);
+    }
+
+    [Theory]
+    [InlineData("2022-04-01T12:46:05.944Z", 2, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-02T12:46:05.944Z", 2, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-03T12:46:05.944Z", 2, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-04T12:46:05.944Z", 2, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-05T12:46:05.944Z", 2, true, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-05-05T12:46:05.944Z", 2, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-03T12:46:05.944Z", 2, false, "2022-04-04T12:46:05.944Z")]
+    public void ValidDate_Keep(string transfer, int limit, bool excpected, string today)
+    {
+        var todayDate = DateTime.Parse(today);
+        var transferDate = DateTime.Parse(transfer);
+
+        var result = DateValidator.ValidDateForAction(transferDate, todayDate, limit);
+
+        Assert.Equal(result, excpected);
+    }
+    [Theory]
+    [InlineData("2022-04-05T12:46:05.944Z", 4, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-07T12:46:05.944Z", 4, true, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-05-05T12:46:05.944Z", 4, false, "2022-04-01T12:46:05.944Z")]
+    public void ValidDate_New(string transfer, int limit, bool excpected, string today)
+    {
+        var todayDate = DateTime.Parse(today);
+        var transferDate = DateTime.Parse(transfer);
+
+        var result = DateValidator.ValidDateForAction(transferDate, todayDate, limit);
+
+        Assert.Equal(result, excpected);
+    }
+    [Theory]
+    [InlineData("2022-04-15T12:46:05.944Z", 10, true, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-14T12:46:05.944Z", 10, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-05-03T12:46:05.944Z", 10, false, "2022-04-01T12:46:05.944Z")]
+    public void ValidDate_Order(string transfer, int limit, bool excpected, string today)
+    {
+        var todayDate = DateTime.Parse(today);
+        var transferDate = DateTime.Parse(transfer);
+
+        var result = DateValidator.ValidDateForAction(transferDate, todayDate, limit);
+
+        Assert.Equal(result, excpected);
+    }
+    [Fact]
+    public void CountBusinessDays_TwoWeeks_ShouldBe4BuisnessDays()
+    {
+        var result = DateValidator.CountBusinessDays(DateTime.UtcNow,DateTime.UtcNow.AddDays(14));
+
+        Assert.Equal(4,result);
     }
 }
