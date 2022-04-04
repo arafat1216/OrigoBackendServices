@@ -51,7 +51,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 MinDaysForNewOperatorWithSIM = 10,
                 MinDaysForNewOperator = 4,
                 MaxDaysForAll = 30,
-                MinDaysForCurrentOperator = 1
+                MinDaysForCurrentOperator = 2
             }), _mapper, new Mock<IEmailService>().Object);
 
         _customerSettingsService = new CustomerSettingsService(customerSettingsRepository, operatorRepository, _mapper);
@@ -80,7 +80,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         Assert.NotNull(exceptionOneDay);
         Assert.IsType<ArgumentException>(exceptionOneDay);
-        Assert.Equal("Invalid transfer date. 1 workday ahead or more is allowed.", exceptionOneDay.Message);
+        Assert.Equal("Invalid transfer date. 2 workday ahead or more is allowed.", exceptionOneDay.Message);
     }
 
     [Fact]
@@ -105,7 +105,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         Assert.NotNull(exception);
         Assert.IsType<ArgumentException>(exception);
-        Assert.Equal("Invalid transfer date. 1 workday ahead or more is allowed.", exception.Message);
+        Assert.Equal("Invalid transfer date. 2 workday ahead or more is allowed.", exception.Message);
 
         var exceptionThirtyDay = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
@@ -125,7 +125,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         Assert.NotNull(exceptionThirtyDay);
         Assert.IsType<ArgumentException>(exceptionThirtyDay);
-        Assert.Equal("Invalid transfer date. 1 workday ahead or more is allowed.", exceptionThirtyDay.Message);
+        Assert.Equal("Invalid transfer date. 2 workday ahead or more is allowed.", exceptionThirtyDay.Message);
     }
 
     [Fact]
@@ -1042,13 +1042,13 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     }
 
     [Theory]
-    [InlineData("2022-04-01T12:46:05.944Z", 2, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-02T12:46:05.944Z", 2, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-03T12:46:05.944Z", 2, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-04T12:46:05.944Z", 2, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-05T12:46:05.944Z", 2, true, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-05-05T12:46:05.944Z", 2, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-03T12:46:05.944Z", 2, false, "2022-04-04T12:46:05.944Z")]
+    [InlineData("2022-04-01T00:00:00.000Z", 2, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-02T00:00:00.000Z", 2, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-03T00:00:00.000Z", 2, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-04T00:00:00.000Z", 2, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-05T00:00:00.000Z", 2, true, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-05-05T00:00:00.000Z", 2, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-03T00:00:00.000Z", 2, false, "2022-04-04T12:46:05.944Z")]
     public void ValidDate_Keep(string transfer, int limit, bool excpected, string today)
     {
         var todayDate = DateTime.Parse(today);
@@ -1059,9 +1059,9 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.Equal(result, excpected);
     }
     [Theory]
-    [InlineData("2022-04-05T12:46:05.944Z", 4, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-07T12:46:05.944Z", 4, true, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-05-05T12:46:05.944Z", 4, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-05T00:00:00.000Z", 4, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-07T00:00:00.000Z", 4, true, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-05-05T00:00:00.000Z", 4, false, "2022-04-01T12:46:05.944Z")]
     public void ValidDate_New(string transfer, int limit, bool excpected, string today)
     {
         var todayDate = DateTime.Parse(today);
@@ -1072,9 +1072,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.Equal(result, excpected);
     }
     [Theory]
-    [InlineData("2022-04-15T12:46:05.944Z", 10, true, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-14T12:46:05.944Z", 10, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-05-03T12:46:05.944Z", 10, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-15T00:00:00.000Z", 10, true, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-14T00:00:00.000Z", 10, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-05-03T00:00:00.000Z", 10, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-18T00:00:00.000Z", 10, true, "2022-04-04T12:46:05.944Z")]
     public void ValidDate_Order(string transfer, int limit, bool excpected, string today)
     {
         var todayDate = DateTime.Parse(today);

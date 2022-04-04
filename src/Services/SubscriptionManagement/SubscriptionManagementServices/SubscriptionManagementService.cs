@@ -455,7 +455,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             
             if (!DateValidator.ValidDateForAction(newSubscriptionOrder.OrderExecutionDate, DateTime.UtcNow, _transferSubscriptionDateConfiguration.MinDaysForCurrentOperator))
                 throw new ArgumentException(
-                       $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM} workdays ahead or more is allowed.");
+                       $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workdays ahead or more is allowed.");
         }
 
 

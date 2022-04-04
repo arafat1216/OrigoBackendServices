@@ -17,7 +17,7 @@ namespace SubscriptionManagementServices.Utilities
             var firstValidDate = today.AddDays(limitDays + buisinessDays);
 
 
-            if (firstValidDate <= transferDate && maxDays > transferDate) return true;
+            if (firstValidDate.Date <= transferDate.Date && maxDays.Date > transferDate.Date) return true;
 
             return false;
 
