@@ -1,20 +1,30 @@
-Notes: This is a manual section that must be run in the UI and database as a part of the partner-implementation.
+Notes: 
+
+This is a manual section that must be run in the UI and database as a part of the partner-implementation.
 The purpose is to create the Techstep partner, and to remap the previously (existing) unmapped customers and
 products so they correctly use the new partner.
 
+----------------
 
 Step 0 (one time step):
+
 There are a frontend code component that goes along with this migration. As a result, the following PR must be
 changed from draft to release, and added into the codebase when the migration is first run in an environment
 (most likely the dev environment). This only needs to be done once, and can then be skipped for all future 
 environments.
 
+PR: https://dev.azure.com/mytos/OrigoV2/_git/Frontend/pullrequest/4190
+
+----------------
 
 Step 1:
+
 Create the new partner (Techstep) in the UI/Frontend.
 
+----------------
 
 Step 2:
+
 In the DB table [Customers].[Partners], locate the newly created partner.
 Use the following query for easy data retrieval.
 	
@@ -25,8 +35,10 @@ Use the following query for easy data retrieval.
 
 Copy the [Id] and [ExternalId] values, as these needs to be inserted in later steps
 
+----------------
 
 Step 3:
+
 Assign all existing customers to the new partner, using the following query. Update the new partnerId value
 in the query so it matches the [p.Id] value from step 2.
 
@@ -36,8 +48,10 @@ in the query so it matches the [p.Id] value from step 2.
 
 Commit once complete.
 
+----------------
 
 Step 4:
+
 In the DB table [ProductCatalog].[Products], we need to assign all existing products to the new partner.
 Update the new partnerId value in the query so it matches the [p.ExternalId] value from step 2. 
 	
