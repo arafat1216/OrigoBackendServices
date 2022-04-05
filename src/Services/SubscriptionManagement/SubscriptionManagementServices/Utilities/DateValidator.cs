@@ -12,12 +12,13 @@ namespace SubscriptionManagementServices.Utilities
 
             var maxDays = today.AddDays(_maxDaysForAll);
 
-            var buisinessDays = CountBusinessDays(today, transferDate);
+            if (maxDays.Date <= transferDate.Date) return false;
+
+            var buisinessDays = CountBusinessDays(today.Date, transferDate.Date);
 
             var firstValidDate = today.AddDays(limitDays + buisinessDays);
 
-
-            if (firstValidDate.Date <= transferDate.Date && maxDays.Date > transferDate.Date) return true;
+            if (firstValidDate.Date <= transferDate.Date) return true;
 
             return false;
 
@@ -36,13 +37,27 @@ namespace SubscriptionManagementServices.Utilities
             for (var i = 0; i <= days; i++)
             {
                 var testDate = startDate.AddDays(i);
-                if (testDate.DayOfWeek == DayOfWeek.Saturday)
+                
+                if (testDate.DayOfWeek == DayOfWeek.Saturday && i != days)
                 {
                     weekendDaysCount += 1;
                 }
-                if (testDate.DayOfWeek == DayOfWeek.Sunday)
+                
+                if (testDate.DayOfWeek == DayOfWeek.Sunday && i != days)
                 {
                     weekendDaysCount += 1;
+                }
+
+                if (i == days)
+                {
+                    if (testDate.DayOfWeek == DayOfWeek.Saturday)
+                    {
+                        weekendDaysCount += 2;
+                    }
+                    if (testDate.DayOfWeek == DayOfWeek.Sunday)
+                    {
+                        weekendDaysCount += 1;
+                    }
                 }
             }
             return weekendDaysCount;

@@ -212,7 +212,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     {
                         OperatorName = "Op2"
                     },
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(5),
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(6),
                     OperatorAccountId = 1,
                     SIMCardNumber = "",
                     SIMCardAction = "New",
@@ -341,7 +341,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(1.5),
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(4),
                     OperatorAccountId = 1,
                     PrivateSubscription = new PrivateSubscriptionDTO
                     {
@@ -381,7 +381,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(6),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 10, // Op1
@@ -423,7 +423,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
              _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(6),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 10, // Op1
@@ -462,7 +462,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                    OrderExecutionDate = DateTime.UtcNow.AddDays(6),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 10, // Op1
@@ -1062,6 +1062,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     [InlineData("2022-04-05T00:00:00.000Z", 4, false, "2022-04-01T12:46:05.944Z")]
     [InlineData("2022-04-07T00:00:00.000Z", 4, true, "2022-04-01T12:46:05.944Z")]
     [InlineData("2022-05-05T00:00:00.000Z", 4, false, "2022-04-01T12:46:05.944Z")]
+    [InlineData("2022-04-11T10:46:05.944Z", 4, true, "2022-04-05T12:46:05.944Z")]
+    [InlineData("2022-04-10T10:46:05.944Z", 4, false, "2022-04-05T12:46:05.944Z")]
     public void ValidDate_New(string transfer, int limit, bool excpected, string today)
     {
         var todayDate = DateTime.Parse(today);
