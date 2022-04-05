@@ -1,0 +1,42 @@
+Notes: This is a manual section that must be run in the UI and database as a part of the partner-implementation.
+The purpose is to create the Techstep partner, and to remap the previously (existing) unmapped customers and
+products so they correctly use the new partner.
+
+
+Step 1:
+Create the new partner (Techstep) in the UI/Frontend.
+
+
+Step 2:
+In the DB table [Customers].[Partners], locate the newly created partner.
+Use the following query for easy data retrieval.
+	
+        SELECT  p.Id, p.ExternalId, p.OrganizationId, o.Name, o.OrganizationNumber
+        FROM [Partner] p
+        JOIN [Organization] o
+        ON p.OrganizationId = o.Id
+
+Copy the [Id] and [ExternalId] values, as these needs to be inserted in later steps
+
+
+Step 3:
+Assign all existing customers to the new partner, using the following query. Update the new partnerId value
+in the query so it matches the [p.Id] value from step 2.
+
+	BEGIN TRAN
+        UPDATE Organization
+        SET PartnerId = <The partner's Id>
+
+Commit once complete.
+
+
+Step 4:
+In the DB table [ProductCatalog].[Products], we need to assign all existing products to the new partner.
+Update the new partnerId value in the query so it matches the [p.ExternalId] value from step 2. 
+	
+        BEGIN TRAN
+        UPDATE [Products]
+        SET [PartnerId] = '<The partner's ExternalId>'
+        WHERE PartnerId = '00000000-0000-0000-0000-000000000000'
+
+Commit once complete.
