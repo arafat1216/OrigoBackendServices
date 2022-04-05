@@ -9,31 +9,39 @@ namespace SubscriptionManagementServices.Utilities
 
         public static bool ValidDateForAction(DateTime transferDate, DateTime today, int limitDays)
         {
+            var transferDateOnly = MakeDateOnly(transferDate);
+            var todayDateOnly = MakeDateOnly(today);
 
             var maxDays = today.AddDays(_maxDaysForAll);
+            var maxDaysDateOnly = MakeDateOnly(maxDays);
 
-            if (maxDays.Date <= transferDate.Date) return false;
+            if (maxDaysDateOnly <= transferDateOnly) return false;
 
-            var buisinessDays = CountBusinessDays(today.Date, transferDate.Date);
+            var buisinessDays = CountBusinessDays(todayDateOnly, transferDateOnly);
 
-            var firstValidDate = today.AddDays(limitDays + buisinessDays);
+            var firstValidDate = todayDateOnly.AddDays(limitDays + buisinessDays);
 
-            if (firstValidDate.Date <= transferDate.Date) return true;
+            if (firstValidDate <= transferDateOnly) return true;
 
             return false;
 
         }
-        public static int CountBusinessDays(DateTime startDate, DateTime endDate)
+        public static DateOnly MakeDateOnly(DateTime dateTimeObject)
+        {
+            return DateOnly.FromDateTime(dateTimeObject);
+
+        }
+        public static int CountBusinessDays(DateOnly startDate, DateOnly endDate)
         {
             int weekendDaysCount = 0;
             if (startDate > endDate)
             {
-                DateTime temp = startDate;
+                DateOnly temp = startDate;
                 startDate = endDate;
                 endDate = temp;
             }
-            TimeSpan diff = endDate - startDate;
-            int days = diff.Days;
+            
+            var days = endDate.Day - startDate.Day;
             for (var i = 0; i <= days; i++)
             {
                 var testDate = startDate.AddDays(i);

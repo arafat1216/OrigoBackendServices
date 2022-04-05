@@ -1090,8 +1090,19 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     [Fact]
     public void CountBusinessDays_TwoWeeks_ShouldBe4BuisnessDays()
     {
-        var result = DateValidator.CountBusinessDays(DateTime.UtcNow,DateTime.UtcNow.AddDays(14));
+        var result = DateValidator.CountBusinessDays(DateOnly.FromDateTime(DateTime.UtcNow), DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14)));
 
         Assert.Equal(4,result);
+    }
+    [Theory]
+    [InlineData("2022-04-18T00:00:00.000Z", "18.04.2022")]
+    [InlineData("2023-01-01T00:00:00.000Z", "01.01.2023")]
+    public void MakeDateOnlyObject(string dateTimeString, string excpected)
+    {
+        var dateTime = DateTime.Parse(dateTimeString);
+        var result = DateValidator.MakeDateOnly(dateTime);
+
+
+        Assert.Equal(excpected, result.ToString());
     }
 }
