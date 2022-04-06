@@ -667,7 +667,7 @@ public class
             DataPackage = null,
             SIMCardNumber = "89202051293671023971",
             SIMCardAction = "New",
-            OrderExecutionDate = DateTime.UtcNow.AddDays(3),
+            OrderExecutionDate = DateTime.UtcNow.AddDays(7),
             CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
             AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
             BusinessSubscription = new BusinessSubscriptionDTO
@@ -718,7 +718,7 @@ public class
             DataPackage = null,
             SIMCardNumber = null,
             SIMCardAction = "Order",
-            OrderExecutionDate = DateTime.UtcNow.AddDays(3),
+            OrderExecutionDate = DateTime.UtcNow.AddDays(7),
             CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
             AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
             BusinessSubscription = new BusinessSubscriptionDTO
@@ -817,7 +817,7 @@ public class
             SubscriptionProductId = 200,
             SimCardNumber = "89202051293671023971",
             SimCardAction = "NEW",
-            OrderExecutionDate = DateTime.UtcNow.AddDays(3),
+            OrderExecutionDate = DateTime.UtcNow.AddDays(7),
             CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
             AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
             BusinessSubscription = new BusinessSubscriptionDTO
@@ -1039,7 +1039,7 @@ public class
         var cancel = new NewCancelSubscriptionOrder
         {
             OperatorId = 1,
-            DateOfTermination = DateTime.UtcNow.AddDays(3),
+            DateOfTermination = DateTime.UtcNow.AddDays(7),
             MobileNumber = "+4741454546",
             CallerId = new Guid()
         };
@@ -1064,7 +1064,7 @@ public class
         var cancel = new NewCancelSubscriptionOrder
         {
             OperatorId = 1,
-            DateOfTermination = DateTime.UtcNow.AddDays(3),
+            DateOfTermination = DateTime.UtcNow.AddDays(7),
             MobileNumber = "+4741454546",
             CallerId = new Guid()
         };

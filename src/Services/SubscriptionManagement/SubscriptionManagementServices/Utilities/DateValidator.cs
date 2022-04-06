@@ -7,21 +7,17 @@ namespace SubscriptionManagementServices.Utilities
         public static readonly int _maxDaysForAll = 30;
         
 
-        public static bool ValidDateForAction(DateTime transferDate, DateTime today, int limitDays)
+        public static bool ValidDateForAction(DateOnly transferDate, DateOnly today, int limitDays)
         {
-            var transferDateOnly = MakeDateOnly(transferDate);
-            var todayDateOnly = MakeDateOnly(today);
-
             var maxDays = today.AddDays(_maxDaysForAll);
-            var maxDaysDateOnly = MakeDateOnly(maxDays);
 
-            if (maxDaysDateOnly <= transferDateOnly) return false;
+            if (maxDays <= transferDate) return false;
 
-            var buisinessDays = CountBusinessDays(todayDateOnly, transferDateOnly);
+            var buisinessDays = CountBusinessDays(today, transferDate);
 
-            var firstValidDate = todayDateOnly.AddDays(limitDays + buisinessDays);
+            var firstValidDate = today.AddDays(limitDays + buisinessDays);
 
-            if (firstValidDate <= transferDateOnly) return true;
+            if (firstValidDate <= transferDate) return true;
 
             return false;
 

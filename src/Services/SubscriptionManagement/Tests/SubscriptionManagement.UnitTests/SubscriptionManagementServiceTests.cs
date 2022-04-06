@@ -1053,8 +1053,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var todayDate = DateTime.Parse(today);
         var transferDate = DateTime.Parse(transfer);
+        var todayDateOnly = DateOnly.FromDateTime(todayDate);
+        var transferDateOnly = DateOnly.FromDateTime(transferDate);
 
-        var result = DateValidator.ValidDateForAction(transferDate, todayDate, limit);
+        var result = DateValidator.ValidDateForAction(transferDateOnly, todayDateOnly, limit);
 
         Assert.Equal(result, excpected);
     }
@@ -1068,8 +1070,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var todayDate = DateTime.Parse(today);
         var transferDate = DateTime.Parse(transfer);
+        var todayDateOnly = DateOnly.FromDateTime(todayDate);
+        var transferDateOnly = DateOnly.FromDateTime(transferDate);
 
-        var result = DateValidator.ValidDateForAction(transferDate, todayDate, limit);
+        var result = DateValidator.ValidDateForAction(transferDateOnly, todayDateOnly, limit);
 
         Assert.Equal(result, excpected);
     }
@@ -1082,8 +1086,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     {
         var todayDate = DateTime.Parse(today);
         var transferDate = DateTime.Parse(transfer);
+        var todayDateOnly = DateOnly.FromDateTime(todayDate);
+        var transferDateOnly = DateOnly.FromDateTime(transferDate);
 
-        var result = DateValidator.ValidDateForAction(transferDate, todayDate, limit);
+        var result = DateValidator.ValidDateForAction(transferDateOnly, todayDateOnly, limit);
 
         Assert.Equal(result, excpected);
     }
