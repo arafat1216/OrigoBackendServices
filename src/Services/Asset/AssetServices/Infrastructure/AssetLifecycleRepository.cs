@@ -179,6 +179,7 @@ namespace AssetServices.Infrastructure
                 .Include(al => al.ContractHolderUser)
                 .Where(a => a.CustomerId == customerId && a.ExternalId == assetLifecycleId)
                 .FirstOrDefaultAsync();
+
             return assetLifecycle;
         }
 
@@ -200,7 +201,11 @@ namespace AssetServices.Infrastructure
 
                 editedEntities.ForEach(entity =>
                 {
-                    entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
+                    if (entity.Entity.GetType() != typeof(AssetImei))
+                    {
+                        entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
+                    }
+                    
                 });
                 // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
                 await _assetContext.SaveChangesAsync(cancellationToken);

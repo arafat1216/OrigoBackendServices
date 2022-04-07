@@ -385,7 +385,7 @@ namespace AssetServices
             return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecycles);
         }
 
-        public async Task<AssetDTO> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei)
+        public async Task<AssetLifecycleDTO> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
             var asset = assetLifecycle.Asset;
@@ -420,7 +420,7 @@ namespace AssetServices
             UpdateDerivedAssetType(asset, serialNumber, imei, callerId);
 
             await _assetLifecycleRepository.SaveEntitiesAsync();
-            return _mapper.Map<AssetDTO>(asset);
+            return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
 
         private void UpdateDerivedAssetType(Asset asset, string serialNumber, IList<long> imei, Guid callerId)
