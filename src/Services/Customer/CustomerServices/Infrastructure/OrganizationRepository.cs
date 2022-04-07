@@ -1,6 +1,7 @@
 ﻿using Common.Extensions;
 using Common.Interfaces;
 using Common.Logging;
+using Common.Seedwork;
 using Common.Utilities;
 using CustomerServices.Infrastructure.Context;
 using CustomerServices.Models;
@@ -308,7 +309,10 @@ namespace CustomerServices.Infrastructure
 
                 editedEntities.ForEach(entity =>
                 {
-                    entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
+                    if (!entity.Entity.GetType().IsSubclassOf(typeof(ValueObject)))
+                    {
+                        entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
+                    }
                 });
 
                 // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction

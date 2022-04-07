@@ -3,6 +3,7 @@ using Common.Enums;
 using Common.Extensions;
 using Common.Interfaces;
 using Common.Logging;
+using Common.Seedwork;
 using Common.Utilities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -201,7 +202,7 @@ namespace AssetServices.Infrastructure
 
                 editedEntities.ForEach(entity =>
                 {
-                    if (entity.Entity.GetType() != typeof(AssetImei))
+                    if (!entity.Entity.GetType().IsSubclassOf(typeof(ValueObject)))
                     {
                         entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
                     }

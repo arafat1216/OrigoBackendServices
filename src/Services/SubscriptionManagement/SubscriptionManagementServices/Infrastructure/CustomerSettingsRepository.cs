@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using Common.Extensions;
 using Common.Logging;
+using Common.Seedwork;
 using Common.Utilities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -160,7 +161,10 @@ namespace SubscriptionManagementServices.Infrastructure
 
                 editedEntities.ForEach(entity =>
                 {
-                    entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
+                    if (!entity.Entity.GetType().IsSubclassOf(typeof(ValueObject)))
+                    {
+                        entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
+                    }
                 });
                 if (!_subscriptionManagementContext.IsSQLite)
                 {
