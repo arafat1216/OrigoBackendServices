@@ -78,6 +78,7 @@ builder.Services.AddScoped<ICustomerSettingsRepository, CustomerSettingsReposito
 builder.Services.AddScoped<ErrorExceptionFilter>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IFlatDictionaryProvider, FlatDictionary>();
+builder.Services.AddScoped<IDateTimeProvider, DateTimeProvider>();
 builder.Services.AddMediatR(typeof(SubscriptionManagementContext));
 
 

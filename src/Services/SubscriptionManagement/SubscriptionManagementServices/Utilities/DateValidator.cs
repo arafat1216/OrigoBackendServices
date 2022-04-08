@@ -11,7 +11,9 @@ namespace SubscriptionManagementServices.Utilities
         {
             var maxDays = today.AddDays(_maxDaysForAll);
 
-            if (maxDays <= transferDate) return false;
+            if (maxDays < transferDate) return false;
+
+            if (transferDate.DayOfWeek == DayOfWeek.Saturday || transferDate.DayOfWeek == DayOfWeek.Sunday) return false;
 
             var buisinessDays = CountBusinessDays(today, transferDate);
 
@@ -20,11 +22,6 @@ namespace SubscriptionManagementServices.Utilities
             if (firstValidDate <= transferDate) return true;
 
             return false;
-
-        }
-        public static DateOnly MakeDateOnly(DateTime dateTimeObject)
-        {
-            return DateOnly.FromDateTime(dateTimeObject);
 
         }
         public static int CountBusinessDays(DateOnly startDate, DateOnly endDate)
@@ -68,4 +65,13 @@ namespace SubscriptionManagementServices.Utilities
         }
 
     }
+    public interface IDateTimeProvider
+    {
+        DateTime GetNow();
+    }
+    public class DateTimeProvider : IDateTimeProvider
+    {
+        public DateTime GetNow() => DateTime.Now;
+    }
+
 }

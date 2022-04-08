@@ -25,6 +25,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     private readonly ISubscriptionManagementService _subscriptionManagementService;
     private readonly ICustomerSettingsService _customerSettingsService;
     private readonly IMapper? _mapper;
+    private readonly DateTime _todayDateMock;
 
     public SubscriptionManagementServiceTests() : base(new DbContextOptionsBuilder<SubscriptionManagementContext>()
         // ReSharper disable once StringLiteralTypo
@@ -43,6 +44,12 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         ISubscriptionManagementRepository<ISubscriptionOrder> subscriptionManagementRepository = new SubscriptionManagementRepository<ISubscriptionOrder>(subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var customerSettingsRepository = new CustomerSettingsRepository(subscriptionManagementContext, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var operatorRepository = new OperatorRepository(subscriptionManagementContext);
+        
+        _todayDateMock = new DateTime(2022,03,01);
+
+        var mockDateTimeNow = new Mock<IDateTimeProvider>();
+        mockDateTimeNow.Setup(x => x.GetNow()).Returns(_todayDateMock);
+
         _subscriptionManagementService = new SubscriptionManagementService(subscriptionManagementRepository,
             customerSettingsRepository,
             operatorRepository,
@@ -52,7 +59,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 MinDaysForNewOperator = 4,
                 MaxDaysForAll = 30,
                 MinDaysForCurrentOperator = 2
-            }), _mapper, new Mock<IEmailService>().Object);
+            }), _mapper, new Mock<IEmailService>().Object, mockDateTimeNow.Object);
 
         _customerSettingsService = new CustomerSettingsService(customerSettingsRepository, operatorRepository, _mapper);
     }
@@ -66,7 +73,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(1),
+                    OrderExecutionDate = _todayDateMock.AddDays(1),
                     PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
@@ -91,7 +98,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow,
+                    OrderExecutionDate = _todayDateMock,
                     PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
@@ -111,7 +118,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
+                    OrderExecutionDate = _todayDateMock.AddDays(31),
                     OperatorAccountId = 1,
                     PrivateSubscription = new PrivateSubscriptionDTO
                     {
@@ -136,7 +143,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(1),
+                    OrderExecutionDate = _todayDateMock.AddDays(1),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 11, // Op2
@@ -170,7 +177,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
+                    OrderExecutionDate = _todayDateMock.AddDays(31),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 11, // Op2
@@ -212,7 +219,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                     {
                         OperatorName = "Op2"
                     },
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(6),
+                    OrderExecutionDate = _todayDateMock.AddDays(6),
                     OperatorAccountId = 1,
                     SIMCardNumber = "",
                     SIMCardAction = "New",
@@ -237,7 +244,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
              _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(1),
+                    OrderExecutionDate = _todayDateMock.AddDays(1),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 11, // Op2
@@ -272,7 +279,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(30.5),
+                    OrderExecutionDate = _todayDateMock.AddDays(31),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 11, // Op2
@@ -311,7 +318,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
              _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(1),
+                    OrderExecutionDate = _todayDateMock.AddDays(1),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 11, // Op2
@@ -341,7 +348,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(4),
+                    OrderExecutionDate = _todayDateMock.AddDays(7),
                     OperatorAccountId = 1,
                     PrivateSubscription = new PrivateSubscriptionDTO
                     {
@@ -381,7 +388,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(6),
+                    OrderExecutionDate = _todayDateMock.AddDays(6),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 10, // Op1
@@ -423,7 +430,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
              _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(6),
+                    OrderExecutionDate = _todayDateMock.AddDays(6),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 10, // Op1
@@ -462,7 +469,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(6),
+                    OrderExecutionDate = _todayDateMock.AddDays(6),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 10, // Op1
@@ -499,7 +506,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new TransferToBusinessSubscriptionOrderDTO
                 {
 
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                    OrderExecutionDate = _todayDateMock.AddDays(7),
                     OperatorAccountId = 1,
                     PrivateSubscription = new PrivateSubscriptionDTO
                     {
@@ -597,7 +604,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var exception = await Assert.ThrowsAsync<CustomerSettingsException>(() => _subscriptionManagementService.NewSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new NewSubscriptionOrderRequestDTO 
                     { 
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                    OrderExecutionDate = _todayDateMock.AddDays(4.5),
                     PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1",
@@ -651,7 +658,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 new NewSubscriptionOrderRequestDTO
                 {
 
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                    OrderExecutionDate = _todayDateMock.AddDays(7),
                     OperatorAccountId = 1,
                     PrivateSubscription = new PrivateSubscriptionDTO
                     {
@@ -746,7 +753,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var result = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                    OrderExecutionDate = _todayDateMock.AddDays(7),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 10, // Op1
@@ -785,7 +792,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                    OrderExecutionDate = _todayDateMock.AddDays(7),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 10, // Op1
@@ -824,7 +831,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                    OrderExecutionDate = _todayDateMock.AddDays(4.5),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 10, // Op1
@@ -863,7 +870,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
              _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = DateTime.UtcNow.AddDays(1),
+                    OrderExecutionDate = _todayDateMock.AddDays(1),
                     PrivateSubscription = new PrivateSubscriptionDTO
                     {
                         OperatorName = "Op1"
@@ -896,7 +903,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
              _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                  new TransferToBusinessSubscriptionOrderDTO
                  {
-                     OrderExecutionDate = DateTime.UtcNow.AddDays(4.5),
+                     OrderExecutionDate = _todayDateMock.AddDays(4.5),
                      NewOperatorAccount = new NewOperatorAccountRequestedDTO
                      {
                          OperatorId = 10, // Op1
@@ -1042,18 +1049,18 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     }
 
     [Theory]
-    [InlineData("2022-04-01T00:00:00.000Z", 2, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-02T00:00:00.000Z", 2, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-03T00:00:00.000Z", 2, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-04T00:00:00.000Z", 2, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-05T00:00:00.000Z", 2, true, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-05-05T00:00:00.000Z", 2, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-03T00:00:00.000Z", 2, false, "2022-04-04T12:46:05.944Z")]
-    public void ValidDate_Keep(string transfer, int limit, bool excpected, string today)
+    [InlineData("2022-03-01T00:00:00.000Z", 2, false)]
+    [InlineData("2022-03-02T00:00:00.000Z", 2, false)]
+    [InlineData("2022-03-03T00:00:00.000Z", 2, true)]
+    [InlineData("2022-04-04T00:00:00.000Z", 2, false)]
+    [InlineData("2022-03-04T00:00:00.000Z", 2, true)]
+    [InlineData("2022-05-05T00:00:00.000Z", 2, false)]
+    [InlineData("2022-04-01T00:00:00.000Z", 2, false)]
+    public void ValidDate_Keep(string transfer, int limit, bool excpected)
     {
-        var todayDate = DateTime.Parse(today);
         var transferDate = DateTime.Parse(transfer);
-        var todayDateOnly = DateOnly.FromDateTime(todayDate);
+        //_todayDateMock = 01.03.22
+        var todayDateOnly = DateOnly.FromDateTime(_todayDateMock);
         var transferDateOnly = DateOnly.FromDateTime(transferDate);
 
         var result = DateValidator.ValidDateForAction(transferDateOnly, todayDateOnly, limit);
@@ -1061,16 +1068,17 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.Equal(result, excpected);
     }
     [Theory]
-    [InlineData("2022-04-05T00:00:00.000Z", 4, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-07T00:00:00.000Z", 4, true, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-05-05T00:00:00.000Z", 4, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-11T10:46:05.944Z", 4, true, "2022-04-05T12:46:05.944Z")]
-    [InlineData("2022-04-10T10:46:05.944Z", 4, false, "2022-04-05T12:46:05.944Z")]
-    public void ValidDate_New(string transfer, int limit, bool excpected, string today)
+    [InlineData("2022-04-03T00:00:00.000Z", 4, false)]
+    [InlineData("2022-03-31T00:00:00.000Z", 4, true)]
+    [InlineData("2022-03-17T00:00:00.000Z", 4, true)]
+    [InlineData("2022-03-11T10:46:05.944Z", 4, true)]
+    [InlineData("2022-04-10T10:46:05.944Z", 4, false)]
+    [InlineData("2022-03-05T10:46:05.944Z", 4, false)]
+    public void ValidDate_New(string transfer, int limit, bool excpected)
     {
-        var todayDate = DateTime.Parse(today);
         var transferDate = DateTime.Parse(transfer);
-        var todayDateOnly = DateOnly.FromDateTime(todayDate);
+        //_todayDateMock = 01.03.22
+        var todayDateOnly = DateOnly.FromDateTime(_todayDateMock);
         var transferDateOnly = DateOnly.FromDateTime(transferDate);
 
         var result = DateValidator.ValidDateForAction(transferDateOnly, todayDateOnly, limit);
@@ -1078,15 +1086,15 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.Equal(result, excpected);
     }
     [Theory]
-    [InlineData("2022-04-15T00:00:00.000Z", 10, true, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-14T00:00:00.000Z", 10, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-05-03T00:00:00.000Z", 10, false, "2022-04-01T12:46:05.944Z")]
-    [InlineData("2022-04-18T00:00:00.000Z", 10, true, "2022-04-04T12:46:05.944Z")]
-    public void ValidDate_Order(string transfer, int limit, bool excpected, string today)
+    [InlineData("2022-03-15T00:00:00.000Z", 10, true)]
+    [InlineData("2022-03-11T00:00:00.000Z", 10, false)]
+    [InlineData("2022-05-03T00:00:00.000Z", 10, false)]
+    [InlineData("2022-03-31T00:00:00.000Z", 10, true)]
+    public void ValidDate_Order(string transfer, int limit, bool excpected)
     {
-        var todayDate = DateTime.Parse(today);
         var transferDate = DateTime.Parse(transfer);
-        var todayDateOnly = DateOnly.FromDateTime(todayDate);
+        //_todayDateMock = 01.03.22
+        var todayDateOnly = DateOnly.FromDateTime(_todayDateMock);
         var transferDateOnly = DateOnly.FromDateTime(transferDate);
 
         var result = DateValidator.ValidDateForAction(transferDateOnly, todayDateOnly, limit);
@@ -1099,16 +1107,5 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var result = DateValidator.CountBusinessDays(DateOnly.FromDateTime(DateTime.UtcNow), DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14)));
 
         Assert.Equal(4,result);
-    }
-    [Theory]
-    [InlineData("2022-04-18T00:00:00.000Z", "18.04.2022")]
-    [InlineData("2023-01-01T00:00:00.000Z", "01.01.2023")]
-    public void MakeDateOnlyObject(string dateTimeString, string excpected)
-    {
-        var dateTime = DateTime.Parse(dateTimeString);
-        var result = DateValidator.MakeDateOnly(dateTime);
-
-
-        Assert.Equal(excpected, result.ToString());
     }
 }

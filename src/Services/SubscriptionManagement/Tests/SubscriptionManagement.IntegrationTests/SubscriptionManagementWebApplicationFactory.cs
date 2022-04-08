@@ -9,9 +9,11 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SubscriptionManagement.IntegrationTests.Controllers;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.Types;
+using SubscriptionManagementServices.Utilities;
 
 // ReSharper disable StringLiteralTypo
 // ReSharper disable once ClassNeverInstantiated.Global
@@ -36,6 +38,8 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
         {
             ReplaceSubscriptionManagementDbContext<SubscriptionManagementContext>(services);
             ReplaceSubscriptionManagementDbContext<LoggingDbContext>(services);
+            services.AddSingleton<IDateTimeProvider, MockDateTimeProvider>();
+
 
             var serviceProvider = services.BuildServiceProvider();
             using var scope = serviceProvider.CreateScope();
@@ -106,4 +110,5 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
         base.Dispose(disposing);
         _dbConnection.Dispose();
     }
+   
 }

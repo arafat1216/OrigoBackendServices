@@ -9,11 +9,15 @@ using System.Threading.Tasks;
 using SubscriptionManagement.API.Controllers;
 using SubscriptionManagement.API.ViewModels;
 using SubscriptionManagementServices.ServiceModels;
+using SubscriptionManagementServices.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace SubscriptionManagement.IntegrationTests.Controllers;
-
+public class MockDateTimeProvider : IDateTimeProvider
+{
+    public DateTime GetNow() => new DateTime(2022, 05, 02);
+}
 public class
     SubscriptionManagementControllerTests : IClassFixture<
         SubscriptionManagementWebApplicationFactory<SubscriptionManagementController>>
@@ -25,6 +29,7 @@ public class
     private readonly int _operatorId;
     private readonly int _operatorAccountId;
     private readonly int _subscriptionProductId;
+    private readonly MockDateTimeProvider _mockDateTime = new MockDateTimeProvider();
 
 
     public SubscriptionManagementControllerTests(
@@ -169,7 +174,7 @@ public class
             },
             OperatorId = 1,
             OperatorAccountId = _operatorAccountId,
-            OrderExecutionDate = DateTime.UtcNow.AddDays(7),
+            OrderExecutionDate = _mockDateTime.GetNow().AddDays(7),
             SIMCardAction = "NEW",
             SIMCardNumber = "89722020101228153578",
             CallerId = _callerId
@@ -222,7 +227,7 @@ public class
                 new() { Name = "AccURef1", Type = "Account", CallerId = _callerId, Value = "VAL3"}
             },
             OperatorId = 1,
-            OrderExecutionDate = DateTime.UtcNow.AddDays(7),
+            OrderExecutionDate = _mockDateTime.GetNow().AddDays(7),
             SIMCardAction = "NEW",
             SIMCardNumber = "89722020101228153578",
             CallerId = _callerId
@@ -256,7 +261,7 @@ public class
             MobileNumber = "+4745454545",
             NewSubscription= "PrivateSubscription",
             OperatorName = "Telia - NO",
-            OrderExecutionDate= DateTime.UtcNow.AddDays(20),
+            OrderExecutionDate= _mockDateTime.GetNow().AddDays(21),
             CallerId= Guid.NewGuid()
         };
         var response = await _httpClient.PostAsJsonAsync(
@@ -284,7 +289,7 @@ public class
             MobileNumber = "+4791111111",
             NewSubscription = "Not A Product",
             OperatorName = "Telia - NO",
-            OrderExecutionDate = DateTime.UtcNow.AddDays(20),
+            OrderExecutionDate = _mockDateTime.GetNow().AddDays(21),
             CallerId = Guid.NewGuid()
         };
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(newTransferFromPrivate));
@@ -313,7 +318,7 @@ public class
             MobileNumber = "+47450045",
             NewSubscription = "TOTAL BEDRIFT",
             OperatorName = "Telia - NO",
-            OrderExecutionDate = DateTime.UtcNow.AddDays(20),
+            OrderExecutionDate = _mockDateTime.GetNow().AddDays(21),
             CallerId = Guid.NewGuid()
         };
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(newTransferFromPrivate));
@@ -366,7 +371,7 @@ public class
         var cancelSubscriptionOrder = new NewCancelSubscriptionOrder()
         {
             MobileNumber = "+4791111111",
-            DateOfTermination = DateTime.UtcNow.AddDays(5),
+            DateOfTermination = _mockDateTime.GetNow().AddDays(3),
             OperatorId = _operatorId,
             CallerId = Guid.NewGuid()
         };
@@ -667,7 +672,7 @@ public class
             DataPackage = null,
             SIMCardNumber = "89202051293671023971",
             SIMCardAction = "New",
-            OrderExecutionDate = DateTime.UtcNow.AddDays(7),
+            OrderExecutionDate = _mockDateTime.GetNow().AddDays(7),
             CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
             AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
             BusinessSubscription = new BusinessSubscriptionDTO
@@ -718,7 +723,7 @@ public class
             DataPackage = null,
             SIMCardNumber = null,
             SIMCardAction = "Order",
-            OrderExecutionDate = DateTime.UtcNow.AddDays(7),
+            OrderExecutionDate = _mockDateTime.GetNow().AddDays(7),
             CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
             AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
             BusinessSubscription = new BusinessSubscriptionDTO
@@ -817,7 +822,7 @@ public class
             SubscriptionProductId = 200,
             SimCardNumber = "89202051293671023971",
             SimCardAction = "NEW",
-            OrderExecutionDate = DateTime.UtcNow.AddDays(7),
+            OrderExecutionDate = _mockDateTime.GetNow().AddDays(7),
             CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
             AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
             BusinessSubscription = new BusinessSubscriptionDTO
@@ -864,7 +869,7 @@ public class
             OperatorAccountId = 100,
             SubscriptionProductId = 200,
             SimCardAction = "NEW",
-            OrderExecutionDate = DateTime.UtcNow.AddDays(3),
+            OrderExecutionDate = _mockDateTime.GetNow().AddDays(3),
             CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
             AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" },
             BusinessSubscription = new BusinessSubscriptionDTO
@@ -911,7 +916,7 @@ public class
             OperatorAccountId = 100,
             SubscriptionProductId = 200,
             SimCardAction = "Order",
-            OrderExecutionDate = DateTime.UtcNow.AddDays(3),
+            OrderExecutionDate = _mockDateTime.GetNow().AddDays(3),
             CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
             AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" }
         };
@@ -948,7 +953,7 @@ public class
             OperatorAccountId = 0,
             SubscriptionProductId = 200,
             SimCardAction = "Order",
-            OrderExecutionDate = DateTime.UtcNow.AddDays(3),
+            OrderExecutionDate = _mockDateTime.GetNow().AddDays(3),
             CustomerReferenceFields = new List<NewCustomerReferenceValue> { referenceFields },
             AddOnProducts = new List<string> { "InvoiceControl", "CorporateNetwork" }
         };
@@ -1039,7 +1044,7 @@ public class
         var cancel = new NewCancelSubscriptionOrder
         {
             OperatorId = 1,
-            DateOfTermination = DateTime.UtcNow.AddDays(7),
+            DateOfTermination = _mockDateTime.GetNow().AddDays(7),
             MobileNumber = "+4741454546",
             CallerId = new Guid()
         };
@@ -1064,7 +1069,7 @@ public class
         var cancel = new NewCancelSubscriptionOrder
         {
             OperatorId = 1,
-            DateOfTermination = DateTime.UtcNow.AddDays(7),
+            DateOfTermination = _mockDateTime.GetNow().AddDays(4),
             MobileNumber = "+4741454546",
             CallerId = new Guid()
         };
