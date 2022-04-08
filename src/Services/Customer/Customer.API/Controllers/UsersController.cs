@@ -51,7 +51,7 @@ namespace Customer.API.Controllers
         public async Task<ActionResult<PagedModel<User>>> GetAllUsers(Guid customerId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
             var users = await _userServices.GetAllUsersAsync(customerId, cancellationToken, search, page, limit);
-            if (users.Items == null || users.Items.Count == 0) return NotFound();
+
             var response = new PagedModel<User>()
             {
                 Items = _mapper.Map<IList<User>>(users.Items),

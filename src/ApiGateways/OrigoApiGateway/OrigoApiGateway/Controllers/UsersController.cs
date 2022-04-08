@@ -88,7 +88,6 @@ namespace OrigoApiGateway.Controllers
             }
 
             var users = await _userServices.GetAllUsersAsync(organizationId, cancellationToken, search, page, limit);
-            if (users.Items == null || users.Items.Count == 0) return NotFound();
             return Ok(users);
         }
 
