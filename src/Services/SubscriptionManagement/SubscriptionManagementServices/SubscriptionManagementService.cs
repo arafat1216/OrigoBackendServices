@@ -20,7 +20,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
     private readonly IMapper _mapper;
     private readonly TransferSubscriptionDateConfiguration _transferSubscriptionDateConfiguration;
     private readonly IEmailService _emailService;
-    private readonly DateTime _today;
+    private readonly IDateTimeProvider _today;
 
 
     public SubscriptionManagementService(ISubscriptionManagementRepository<ISubscriptionOrder> subscriptionManagementRepository,
@@ -37,7 +37,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         _mapper = mapper;
         _transferSubscriptionDateConfiguration = transferSubscriptionOrderConfigurationOptions.Value;
         _emailService = emailService;
-        _today = dateTimeProvider.GetNow();
+        _today = dateTimeProvider;
     }
 
     public async Task<TransferToBusinessSubscriptionOrderDTOResponse> TransferPrivateToBusinessSubscriptionOrderAsync(
@@ -69,7 +69,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             if (string.IsNullOrEmpty(order.SIMCardNumber) && simCardAction == SIMAction.New)
                 throw new InvalidSimException($"SIM card number is required.",Guid.Parse("6a522a0f-9af4-4a6f-8bfa-9d70a954f3b0"));
 
-            if(!DateValidator.ValidDateForAction(DateOnly.FromDateTime(order.OrderExecutionDate), DateOnly.FromDateTime(_today), _transferSubscriptionDateConfiguration.MinDaysForCurrentOperator)) 
+            if(!DateValidator.ValidDateForAction(DateOnly.FromDateTime(order.OrderExecutionDate), DateOnly.FromDateTime(_today.GetNow()), _transferSubscriptionDateConfiguration.MinDaysForCurrentOperator)) 
                 throw new ArgumentException(
                    $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workday ahead or more is allowed."); 
 
@@ -92,13 +92,13 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
                 if (simCardAction == SIMAction.Keep)
                 {
-                    if(!DateValidator.ValidDateForAction(DateOnly.FromDateTime(order.OrderExecutionDate), DateOnly.FromDateTime(_today), _transferSubscriptionDateConfiguration.MinDaysForCurrentOperator))
+                    if(!DateValidator.ValidDateForAction(DateOnly.FromDateTime(order.OrderExecutionDate), DateOnly.FromDateTime(_today.GetNow()), _transferSubscriptionDateConfiguration.MinDaysForCurrentOperator))
                         throw new ArgumentException(
                             $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workdays ahead or more allowed.");
                 }
                 if (simCardAction == SIMAction.New)
                 {
-                    if (!DateValidator.ValidDateForAction(DateOnly.FromDateTime(order.OrderExecutionDate), DateOnly.FromDateTime(_today), _transferSubscriptionDateConfiguration.MinDaysForNewOperator))
+                    if (!DateValidator.ValidDateForAction(DateOnly.FromDateTime(order.OrderExecutionDate), DateOnly.FromDateTime(_today.GetNow()), _transferSubscriptionDateConfiguration.MinDaysForNewOperator))
                         throw new ArgumentException(
                             $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForNewOperator} workdays ahead or more allowed.");
                 }
@@ -129,7 +129,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 if (order.SimCardAddress == null) throw new InvalidSimException(
                                $"SIM card action is {simCardAction} and Sim card address is empty", Guid.Parse("16dc9894-ddb7-448f-ab88-7e64caecf991"));
                 //Ordering a new sim card - no need for sim card number
-                if (!DateValidator.ValidDateForAction(DateOnly.FromDateTime(order.OrderExecutionDate), DateOnly.FromDateTime(_today), _transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM))
+                if (!DateValidator.ValidDateForAction(DateOnly.FromDateTime(order.OrderExecutionDate), DateOnly.FromDateTime(_today.GetNow()), _transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM))
                     throw new ArgumentException(
                         $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM} workdays ahead or more is allowed.");
             }
@@ -234,7 +234,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             throw new CustomerSettingsException($"Customer has no settings", Guid.Parse("30bd977e-a30b-11ec-b545-00155d8454bd"));
         }
 
-        if (!DateValidator.ValidDateForAction(DateOnly.FromDateTime(subscriptionOrder.OrderExecutionDate), DateOnly.FromDateTime(_today), _transferSubscriptionDateConfiguration.MinDaysForCurrentOperator))
+        if (!DateValidator.ValidDateForAction(DateOnly.FromDateTime(subscriptionOrder.OrderExecutionDate), DateOnly.FromDateTime(_today.GetNow()), _transferSubscriptionDateConfiguration.MinDaysForCurrentOperator))
             throw new ArgumentException(
                 $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workdays ahead or more is allowed.");
 
@@ -332,7 +332,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             throw new InvalidPhoneNumberException(subscriptionOrder.MobileNumber, @operator.Country, Guid.Parse("6bffdff0-a30a-11ec-940a-00155d8454bd"));
 
         //Date validation
-        if (!DateValidator.ValidDateForAction(DateOnly.FromDateTime(subscriptionOrder.DateOfTermination), DateOnly.FromDateTime(_today), _transferSubscriptionDateConfiguration.MinDaysForCurrentOperator))
+        if (!DateValidator.ValidDateForAction(DateOnly.FromDateTime(subscriptionOrder.DateOfTermination), DateOnly.FromDateTime(_today.GetNow()), _transferSubscriptionDateConfiguration.MinDaysForCurrentOperator))
             throw new ArgumentException(
                 $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workday ahead or more is allowed.");
 
@@ -444,7 +444,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         {
             if (newSubscriptionOrder.SimCardAddress == null) throw new InvalidSimException($"Sim card address needs to be filled in when action is {newSubscriptionOrder.SimCardAction}", Guid.Parse("5ba2e574-51f2-48dc-b9a8-0dea7af598f3"));
 
-            if (!DateValidator.ValidDateForAction(DateOnly.FromDateTime(newSubscriptionOrder.OrderExecutionDate), DateOnly.FromDateTime(_today), _transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM)) 
+            if (!DateValidator.ValidDateForAction(DateOnly.FromDateTime(newSubscriptionOrder.OrderExecutionDate), DateOnly.FromDateTime(_today.GetNow()), _transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM)) 
                 throw new ArgumentException(
                         $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForNewOperatorWithSIM} workdays ahead or more is allowed.");
 
@@ -457,7 +457,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         {
             if (!SIMCardValidation.ValidateSim(newSubscriptionOrder.SimCardNumber)) throw new InvalidSimException($"Sim card number {newSubscriptionOrder.SimCardNumber} is not valid", Guid.Parse("8779d13a-a355-41d8-9f83-dab6cb3cfd53"));
             
-            if (!DateValidator.ValidDateForAction(DateOnly.FromDateTime(newSubscriptionOrder.OrderExecutionDate), DateOnly.FromDateTime(_today), _transferSubscriptionDateConfiguration.MinDaysForCurrentOperator))
+            if (!DateValidator.ValidDateForAction(DateOnly.FromDateTime(newSubscriptionOrder.OrderExecutionDate), DateOnly.FromDateTime(_today.GetNow()), _transferSubscriptionDateConfiguration.MinDaysForCurrentOperator))
                 throw new ArgumentException(
                        $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workdays ahead or more is allowed.");
         }
