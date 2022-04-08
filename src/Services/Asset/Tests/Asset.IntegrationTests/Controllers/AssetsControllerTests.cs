@@ -20,6 +20,9 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     private readonly HttpClient _httpClient;
     private readonly Guid _callerId = Guid.Parse("1d64e718-97cb-11ec-ad86-00155d64bd3d");
     private readonly Guid _organizationId;
+    private readonly Guid _assetLifeCycleId;
+    private readonly Guid _company;
+
 
     public AssetsControllerTests(AssetWebApplicationFactory<AssetsController> factory,
         ITestOutputHelper testOutputHelper)
@@ -27,6 +30,8 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         _testOutputHelper = testOutputHelper;
         _httpClient = factory.CreateDefaultClient();
         _organizationId = factory.ORGANIZATION_ID;
+        _assetLifeCycleId = factory.ASSETLIFECYCLE_ONE_ID;
+        _company = factory.COMPANY_ID;
     }
 
     [Fact]
@@ -196,5 +201,26 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         Assert.Equal(3, pagedAssetList!.TotalItems);
         Assert.All(pagedAssetList.Assets, m => Assert.Equal(data.DepartmentId, m.ManagedByDepartmentId));
         Assert.All(pagedAssetList.Assets, m => Assert.Null(m.AssetHolderId));
+    }
+    [Fact]
+    public async Task UpdateAsset()
+    {
+        var updateAsset = new UpdateAsset()
+        {
+            Brand = "IPHONE",
+            Note = "NOTE",
+            Imei = new List<long> { 542889950004060 },
+            SerialNumber = "123456789",
+            Description = "DESCRIPTION",
+            ProductName = "PRO",
+            PurchaseDate = DateTime.UtcNow,
+            CallerId = Guid.NewGuid()
+
+        };
+        
+        var requestUri = $"/api/v1/Assets/{_assetLifeCycleId}/customers/{_company}/Update";
+
+        var response = await _httpClient.PostAsJsonAsync(requestUri, updateAsset);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 }
