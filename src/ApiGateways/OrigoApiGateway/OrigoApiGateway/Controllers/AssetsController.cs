@@ -102,17 +102,6 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-        [Route("customers/{organizationId:guid}/totalBookValue")]
-        [HttpGet]
-        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult<IList<OrigoAsset>>> GetCustomerTotalBookValue(Guid organizationId)
-        {
-            return Ok(45435);
-        }
-
         [Route("customers/{organizationId:guid}/search")]
         [HttpGet]
         [ProducesResponseType(typeof(OrigoPagedAssets), (int)HttpStatusCode.OK)]

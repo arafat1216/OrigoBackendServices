@@ -758,5 +758,16 @@ namespace OrigoApiGateway.Controllers
         }
 
 
+        [Route("{organizationId:Guid}/assetsTotalBookValue")]
+        [ProducesResponseType(typeof(CustomerAssetsTotalBookValue), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer)]
+        [HttpGet]
+        public async Task<ActionResult> GetAssetsTotalBookValue(Guid organizationId)
+        {
+            var mockObject = new CustomerAssetsTotalBookValue { OrganizationId = organizationId, AssetsTotalBookValue = 12345 };
+            return Ok(mockObject);
+        }
     }
 }
