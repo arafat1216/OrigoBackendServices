@@ -26,8 +26,9 @@ namespace Customer.API.ViewModels
         public UserPreference UserPreference { get; init; }
 
         public string OrganizationName { get; init; }
+        public string UserStatusName { get; init; }
+        public int UserStatus { get; init; }
 
-        public bool IsActive { get; init; }
 
         public string Role { get; init; }
     }

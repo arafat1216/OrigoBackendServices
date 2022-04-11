@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.Enums;
 using Common.Interfaces;
 using CustomerServices.Exceptions;
 using CustomerServices.Models;
@@ -144,7 +145,7 @@ namespace CustomerServices
             var user = await GetUserAsync(customerId, userId);
             if (user == null)
                 throw new UserNotFoundException($"Unable to find {userId}");
-            user.ActivateUser(oktaUserId, callerId);
+            user.ChangeUserStatus(oktaUserId,callerId,UserStatus.Activate);
             await _organizationRepository.SaveEntitiesAsync();
             return user;
         }
@@ -160,7 +161,7 @@ namespace CustomerServices
             UserDTO userDTO;
 
             // Do not call if there is no change
-            if (isActive == user.IsActive)
+            if ((user.UserStatus == UserStatus.Activate && isActive) || (user.UserStatus == UserStatus.Deactivate && !isActive))
             {
                 userDTO = _mapper.Map<UserDTO>(user);
                 userDTO.Role = role;
@@ -174,12 +175,12 @@ namespace CustomerServices
                 {
                     // set active, but reuse the userId set on creation of user : (This may change in future)
                     await _oktaServices.AddUserToGroup(user.OktaUserId);
-                    user.ActivateUser(user.OktaUserId, callerId);
+                    user.ChangeUserStatus(user.OktaUserId, callerId, UserStatus.Activate);
                 }
                 else
                 {
                     await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
-                    user.DeactivateUser(callerId);
+                    user.ChangeUserStatus(null,callerId,UserStatus.Deactivate);
                 }
             }
             else
@@ -192,7 +193,7 @@ namespace CustomerServices
                 }
                 else
                 {
-                    user.DeactivateUser(callerId);
+                    user.ChangeUserStatus(null, callerId,UserStatus.Deactivate);
                 }
             }
 

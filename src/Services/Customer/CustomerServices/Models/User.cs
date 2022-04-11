@@ -1,4 +1,5 @@
-﻿using Common.Seedwork;
+﻿using Common.Enums;
+using Common.Seedwork;
 using CustomerServices.DomainEvents;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace CustomerServices.Models
             EmployeeId = employeeId;
             CreatedBy = callerId;
             UserPreference = (userPreference == null) ? new UserPreference("EN", callerId) : userPreference;
-            IsActive = false;
+            _userStatus = UserStatus.Deactivate;
             OktaUserId = "";
             AddDomainEvent(new UserCreatedDomainEvent(this));
         }
@@ -57,28 +58,29 @@ namespace CustomerServices.Models
 
         public UserPreference UserPreference { get; protected set; }
 
-        public bool IsActive { get; protected set; }
+        /// <summary>
+        /// The current status of this asset lifecycle
+        /// </summary>
+        public UserStatus UserStatus
+        {
+            get => _userStatus;
+            init => _userStatus = value;
+        }
+        private UserStatus _userStatus;
+
         public string OktaUserId { get; protected set; }
 
         [JsonIgnore]
         public Organization Customer { get; set; }
-
-        public void ActivateUser(string oktaUserId, Guid callerId)
+        public void ChangeUserStatus(string? oktaUserId, Guid callerId, UserStatus newStatus)
         {
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
-            OktaUserId = oktaUserId;
-            AddDomainEvent(new UserActivateDeactivateDomainEvent(this, IsActive));
-            IsActive = true;
+            if(oktaUserId != null) OktaUserId = oktaUserId;
+            var oldStatus = _userStatus;
+            _userStatus = newStatus;
+            AddDomainEvent(new UserStatusChangedDomainEvent(this, callerId, oldStatus));
 
-        }
-
-        public void DeactivateUser(Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate = DateTime.UtcNow;
-            AddDomainEvent(new UserActivateDeactivateDomainEvent(this, IsActive));
-            IsActive = false;
         }
 
         public Department? Department { get; set; }

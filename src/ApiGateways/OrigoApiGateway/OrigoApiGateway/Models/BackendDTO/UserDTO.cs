@@ -13,7 +13,8 @@ namespace OrigoApiGateway.Models.BackendDTO
         public string EmployeeId { get; init; }
         public string OrganizationName { get; init; }
         public string Role { get; init; }
-        public bool IsActive { get; init; }
+        public string UserStatusName { get; init; }
+        public int UserStatus { get; init; }
         public List<Guid> AssignedToDepartments { get; init; }
         public UserPreferenceDTO UserPreference { get; init; }
     }

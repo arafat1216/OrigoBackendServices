@@ -25,8 +25,8 @@ namespace CustomerServices.ServiceModels
         public UserPreferenceDTO UserPreference { get; init; }
 
         public string OrganizationName { get; init; }
-
-        public bool IsActive { get; init; }
+        public string UserStatusName { get; init; }
+        public int UserStatus { get; init; }
 
         public string Role { get; set; }
     }

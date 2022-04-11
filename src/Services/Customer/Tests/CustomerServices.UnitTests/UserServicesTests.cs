@@ -135,7 +135,7 @@ namespace CustomerServices.UnitTests
 
             // Assert
             Assert.Equal("1234", user.OktaUserId);
-            Assert.True(user.IsActive);
+            Assert.Equal(Common.Enums.UserStatus.Activate, user.UserStatus);
         }
 
         [Fact]
@@ -159,7 +159,7 @@ namespace CustomerServices.UnitTests
 
             // Assert
             oktaMock.Verify(mock => mock.RemoveUserFromGroupAsync(It.IsAny<string>()), Times.Once());
-            Assert.False(user.IsActive);
+            Assert.Equal("Deactivate", user.UserStatusName);
         }
 
         [Fact]
@@ -180,7 +180,7 @@ namespace CustomerServices.UnitTests
 
             // Assert
             oktaMock.Verify(mock => mock.AddUserToGroup(It.IsAny<string>()), Times.Once());
-            Assert.True(user.IsActive);
+            Assert.Equal("Activate", user.UserStatusName);
         }
 
         [Fact]
