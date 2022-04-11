@@ -19,10 +19,10 @@ namespace Customer.API.Tests
         [Fact]
         public async Task HealthCheck_ReturnsOk()
         {
-            var response = await _httpClient.GetAsync("/healthcheck");
+            var response = await _httpClient.GetAsync("/healthz");
 
-            // TODO: Implement the API
-            //Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
     }
 }

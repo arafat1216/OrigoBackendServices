@@ -12,8 +12,8 @@ using CustomerServices.ServiceModels;
 using System.Threading.Tasks;
 using System.Net;
 using CustomerServices.Models;
-
-namespace Customer.API.Controllers.Tests
+//Customer.API.IntegrationTests.Controllers
+namespace Customer.API.IntegrationTests.Controllers
 {
     public class OrganizationsControllerTests : IClassFixture<CustomerWebApplicationFactory<OrganizationsController>>
     {

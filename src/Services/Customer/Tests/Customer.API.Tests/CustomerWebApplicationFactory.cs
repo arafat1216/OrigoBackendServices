@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Data.Common;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Customer.API.Tests
 {
@@ -18,18 +20,19 @@ namespace Customer.API.Tests
         private readonly DbConnection _dbConnection = new SqliteConnection("Data Source=:memory:");
         private ServiceProvider? _serviceProvider;
 
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
+        protected override IHost CreateHost(IHostBuilder builder)
         {
-            builder.ConfigureTestServices(services =>
+            builder.ConfigureServices(services =>
             {
+
                 ReplaceDbContext<CustomerContext>(services);
                 ReplaceDbContext<LoggingDbContext>(services);
 
                 _serviceProvider = services.BuildServiceProvider();
-
                 using var scope = _serviceProvider?.CreateScope();
                 using var customerContext = scope?.ServiceProvider.GetRequiredService<CustomerContext>();
-                customerContext?.Database.EnsureCreated();
+                customerContext?.Database.EnsureDeletedAsync();
+                customerContext?.Database.EnsureCreatedAsync();
 
                 try
                 {
@@ -40,9 +43,10 @@ namespace Customer.API.Tests
                     Console.WriteLine(e);
                     throw;
                 }
-
             });
-            base.ConfigureWebHost(builder);
+            var host = builder.Build();
+            Task.Run(() => host.StartAsync()).GetAwaiter().GetResult();
+            return host;
         }
 
         private void ReplaceDbContext<T>(IServiceCollection services) where T : DbContext
@@ -66,7 +70,6 @@ namespace Customer.API.Tests
             base.Dispose(disposing);
             _dbConnection.Dispose();
         }
-
 
     }
 
@@ -148,5 +151,6 @@ namespace Customer.API.Tests
             }
         }
 
+        
     }
 }
