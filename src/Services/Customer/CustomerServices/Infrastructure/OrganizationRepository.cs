@@ -56,7 +56,7 @@ namespace CustomerServices.Infrastructure
         public async Task<IList<OrganizationUserCount>> GetOrganizationUserCountAsync()
         {
             return await _customerContext.Users
-                                         .Where(u => u.UserStatus == Common.Enums.UserStatus.Activate)
+                                         .Where(u => u.UserStatus == Common.Enums.UserStatus.Activated)
                                          .GroupBy(u => u.Customer.OrganizationId)
                                          .Select(group => new OrganizationUserCount()
                                          {
@@ -235,7 +235,7 @@ namespace CustomerServices.Infrastructure
         public async Task<int> GetUsersCount(Guid customerId)
         {
             return await _customerContext.Users
-                .Where(u => u.Customer.OrganizationId == customerId && u.UserStatus == Common.Enums.UserStatus.Activate)
+                .Where(u => u.Customer.OrganizationId == customerId && u.UserStatus == Common.Enums.UserStatus.Activated)
                 .CountAsync();
         }
 

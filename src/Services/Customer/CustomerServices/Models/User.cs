@@ -24,7 +24,7 @@ namespace CustomerServices.Models
             EmployeeId = employeeId;
             CreatedBy = callerId;
             UserPreference = (userPreference == null) ? new UserPreference("EN", callerId) : userPreference;
-            _userStatus = UserStatus.Deactivate;
+            _userStatus = UserStatus.Deactivated;
             OktaUserId = "";
             AddDomainEvent(new UserCreatedDomainEvent(this));
         }

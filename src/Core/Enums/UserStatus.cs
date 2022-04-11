@@ -2,8 +2,8 @@
 {
     public enum UserStatus
     {
-        Deactivate = 0,
-        Activate = 1,
+        Activated = 0,
+        Deactivated = 1,
         Invited = 2
     }
 }

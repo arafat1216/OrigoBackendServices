@@ -145,7 +145,7 @@ namespace CustomerServices
             var user = await GetUserAsync(customerId, userId);
             if (user == null)
                 throw new UserNotFoundException($"Unable to find {userId}");
-            user.ChangeUserStatus(oktaUserId,callerId,UserStatus.Activate);
+            user.ChangeUserStatus(oktaUserId,callerId,UserStatus.Activated);
             await _organizationRepository.SaveEntitiesAsync();
             return user;
         }
@@ -161,7 +161,7 @@ namespace CustomerServices
             UserDTO userDTO;
 
             // Do not call if there is no change
-            if ((user.UserStatus == UserStatus.Activate && isActive) || (user.UserStatus == UserStatus.Deactivate && !isActive))
+            if ((user.UserStatus == UserStatus.Activated && isActive) || (user.UserStatus == UserStatus.Deactivated && !isActive))
             {
                 userDTO = _mapper.Map<UserDTO>(user);
                 userDTO.Role = role;
@@ -175,12 +175,12 @@ namespace CustomerServices
                 {
                     // set active, but reuse the userId set on creation of user : (This may change in future)
                     await _oktaServices.AddUserToGroup(user.OktaUserId);
-                    user.ChangeUserStatus(user.OktaUserId, callerId, UserStatus.Activate);
+                    user.ChangeUserStatus(user.OktaUserId, callerId, UserStatus.Activated);
                 }
                 else
                 {
                     await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
-                    user.ChangeUserStatus(null,callerId,UserStatus.Deactivate);
+                    user.ChangeUserStatus(null,callerId,UserStatus.Deactivated);
                 }
             }
             else
@@ -193,7 +193,7 @@ namespace CustomerServices
                 }
                 else
                 {
-                    user.ChangeUserStatus(null, callerId,UserStatus.Deactivate);
+                    user.ChangeUserStatus(null, callerId,UserStatus.Deactivated);
                 }
             }
 
