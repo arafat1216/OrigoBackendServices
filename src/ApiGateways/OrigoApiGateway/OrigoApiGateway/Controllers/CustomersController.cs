@@ -705,7 +705,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/standard-private-subscription-products")]
         [ProducesResponseType(typeof(IList<OrigoCustomerStandardPrivateSubscriptionProduct>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
         [HttpGet]
         public async Task<ActionResult> GetCustomerStandardPrivateSubscriptionProduct(Guid organizationId)
@@ -722,7 +722,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/standard-private-subscription-products")]
         [ProducesResponseType(typeof(OrigoCustomerStandardPrivateSubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult> PostCustomerStandardPrivateSubscriptionProduct(Guid organizationId, [FromBody] NewStandardPrivateProduct standardPrivateProduct)
         {
@@ -744,7 +744,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoCustomerStandardPrivateSubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult> DeleteCustomerStandardPrivateSubscriptionProduct(Guid organizationId, int operatorId)
         {
