@@ -75,6 +75,13 @@ namespace Asset.API.ViewModels
         public decimal PaidByCompany { get; init; }
 
         /// <summary>
+        /// Calculated Book Value for the asset's overall cost.
+        /// </summary>
+        public decimal BookValue { get; init; }
+
+
+
+        /// <summary>
         /// The date the asset was purchased.
         /// </summary>
         public DateTime PurchaseDate { get; init; }

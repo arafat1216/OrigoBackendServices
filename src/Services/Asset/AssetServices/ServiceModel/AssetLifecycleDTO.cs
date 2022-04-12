@@ -19,6 +19,7 @@ namespace AssetServices.ServiceModel
         public CurrencyCode CurrencyCode { get; init; }
         public AssetDTO? Asset { get; init; }
         public int AssetCategoryId { get; init; }
+        public decimal BookValue { get; init; }
         public string AssetCategoryName { get; init; } = string.Empty;
         public Guid? ContractHolderUserId { get; init; }
         public Guid? ManagedByDepartmentId { get; init; }

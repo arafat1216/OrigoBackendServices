@@ -540,5 +540,45 @@ namespace AssetServices.UnitTests
             // Assert
             Assert.Equal(0, assetLifeCycles.Count);
         }
+
+        [Theory]
+        [InlineData(0, "2020-10-10")]
+        [InlineData(-500, "2020-10-10")]
+        [InlineData(699.99, "2020-10-10")]
+        [InlineData(699.99, "2090-10-10")]
+        [Trait("Category", "UnitTest")]
+        public async Task BookValueCalculation_ValidMethod(decimal paidByCompany, DateTime purchaseDate)
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+
+            // Act
+            var newAsset = await assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
+                "iPhone", "iPhone X", LifecycleType.Transactional, purchaseDate, ASSETHOLDER_ONE_ID, new List<long>() { 458718920164666 }, "5e:c4:33:df:61:70",
+                Guid.NewGuid(), "Test note", "description", paidByCompany);
+
+            // Assert
+            Assert.True(newAsset.BookValue >= 0);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task BookValueCalculation_ValidCalculation()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+
+            // Act
+            var newAsset = await assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
+                "iPhone", "iPhone X", LifecycleType.Transactional, DateTime.UtcNow.AddMonths(-24) , ASSETHOLDER_ONE_ID, new List<long>() { 458718920164666 }, "5e:c4:33:df:61:70",
+                Guid.NewGuid(), "Test note", "description", 7000);
+            
+            // Assert
+            Assert.True(newAsset.BookValue == 2333.33M);
+        }
     }
 }

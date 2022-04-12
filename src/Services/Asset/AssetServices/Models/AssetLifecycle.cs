@@ -78,6 +78,21 @@ public class AssetLifecycle : Entity, IAggregateRoot
         }
     }
 
+    /// <summary>
+    /// Return the calculated book value of the asset.
+    /// </summary>
+    public decimal BookValue
+    {
+        get
+        {
+            if (AssetLifecycleType != LifecycleType.Transactional)
+                return 0;
+            decimal companyPaid = PaidByCompany;
+            int differenceInMonth = ((DateTime.UtcNow.Year - PurchaseDate.Year) * 12) + DateTime.UtcNow.Month - PurchaseDate.Month;
+            decimal val = companyPaid - ( companyPaid / 36 * differenceInMonth);
+            return val < 0 ? 0 : decimal.Round(val, 2, MidpointRounding.AwayFromZero);
+        }
+    }
 
 
     /// <summary>

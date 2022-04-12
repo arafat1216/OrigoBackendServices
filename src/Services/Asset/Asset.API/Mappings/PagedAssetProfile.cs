@@ -28,6 +28,6 @@ public class PagedAssetProfile : Profile
             .ForMember(dest => dest.AssetHolderId, opts => opts.MapFrom(src => src.ContractHolderUserId))
             .ForMember(dest => dest.AssetStatus, opts => opts.MapFrom(src => src.AssetLifecycleStatus))
             .ForMember(dest => dest.Labels, opts => opts.MapFrom(src => src.Labels))
-            .ForMember(dest => dest.AssetCategoryId, opts => opts.MapFrom(src => src.AssetCategoryId));
-    }
+            .ForMember(dest => dest.AssetCategoryId, opts => opts.MapFrom(src => src.AssetCategoryId))
+            .ForMember(dest => dest.BookValue, opts => opts.MapFrom(src => src.BookValue));    }
 }
