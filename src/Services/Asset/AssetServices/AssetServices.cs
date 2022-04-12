@@ -275,7 +275,7 @@ namespace AssetServices
 
         public async Task<AssetLifecycleDTO> AddAssetLifecycleForCustomerAsync(Guid customerId, Guid callerId, string? alias, string? serialNumber, int assetCategoryId, string brand,
             string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<long> imei, string? macAddress,
-            Guid? managedByDepartmentId, string? note, string? description)
+            Guid? managedByDepartmentId, string? note, string? description, decimal? PaidByCompany)
         {
             AssetLifecycleStatus lifecycleStatus = AssetLifecycleStatus.Active;
 
@@ -305,7 +305,8 @@ namespace AssetServices
                 AssetLifecycleType = lifecycleType,
                 PurchaseDate = purchaseDate,
                 Note = note ?? string.Empty,
-                Description = description ?? string.Empty
+                Description = description ?? string.Empty,
+                PaidByCompany = PaidByCompany ?? 0
             };
 
             Asset asset = assetCategoryId == 1

@@ -247,7 +247,7 @@ namespace Asset.API.Controllers
             {
                 var updatedAsset = await _assetServices.AddAssetLifecycleForCustomerAsync(customerId, asset.CallerId, asset.Alias, asset.SerialNumber,
                     asset.AssetCategoryId, asset.Brand, asset.ProductName, asset.LifecycleType, asset.PurchaseDate,
-                    asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, asset.Note, asset.Description);
+                    asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, asset.Note, asset.Description, asset.PaidByCompany);
                 return CreatedAtAction(nameof(CreateAsset), new { id = updatedAsset.ExternalId }, _mapper.Map<ViewModels.Asset>(updatedAsset));
             }
             catch (AssetCategoryNotFoundException)

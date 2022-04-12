@@ -70,6 +70,11 @@ namespace Asset.API.ViewModels
         public string LifecycleName => Enum.GetName(LifecycleType);
 
         /// <summary>
+        /// the amount that company covered/paid for the asset's overall cost.
+        /// </summary>
+        public decimal PaidByCompany { get; init; }
+
+        /// <summary>
         /// The date the asset was purchased.
         /// </summary>
         public DateTime PurchaseDate { get; init; }

@@ -51,6 +51,13 @@ public class AssetLifecycle : Entity, IAggregateRoot
     public CurrencyCode CurrencyCode { get; init; }
 
     /// <summary>
+    /// the amount that company covered/paid for the asset's overall cost.
+    /// </summary>
+    public decimal PaidByCompany { get; init; }
+
+
+
+    /// <summary>
     /// The asset currently associated with this asset lifecycle.
     /// </summary>
     public Asset? Asset { get; private set; }
@@ -70,6 +77,8 @@ public class AssetLifecycle : Entity, IAggregateRoot
             };
         }
     }
+
+
 
     /// <summary>
     /// Return the name of the category based on the type of the asset.

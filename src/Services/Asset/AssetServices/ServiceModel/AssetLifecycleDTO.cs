@@ -15,6 +15,7 @@ namespace AssetServices.ServiceModel
         public DateTime PurchaseDate { get; init; }
         public string Note { get; init; } = string.Empty;
         public string Description { get; init; } = string.Empty;
+        public decimal PaidByCompany { get; init; } = 0;
         public CurrencyCode CurrencyCode { get; init; }
         public AssetDTO? Asset { get; init; }
         public int AssetCategoryId { get; init; }

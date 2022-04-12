@@ -24,7 +24,7 @@ namespace AssetServices
         Task<IList<CustomerLabel>> UpdateLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> updateLabels);
         Task<AssetLifecycleDTO> AddAssetLifecycleForCustomerAsync(Guid customerId, Guid callerId, string? alias, string? serialNumber, int assetCategoryId,
             string brand, string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId,
-            IList<long> imei, string? macAddress, Guid? managedByDepartmentId, string? note, string? description);
+            IList<long> imei, string? macAddress, Guid? managedByDepartmentId, string? note, string? description, decimal? PaidByCompany);
         Task<AssetLifecycleDTO?> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, Guid callerId, LifecycleType newLifecycleType);
         Task<IList<AssetLifecycleDTO>> UpdateStatusForMultipleAssetLifecycles(Guid customerId, Guid callerId, IList<Guid> assetLifecycleIdList, AssetLifecycleStatus lifecycleStatus);
         Task<AssetLifecycleDTO> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei);
