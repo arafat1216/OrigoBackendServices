@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.Interfaces;
 using Common.Models;
 using Dapr.Client;
 using Microsoft.AspNetCore.Http;
@@ -115,15 +116,15 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<object>> GetAssetsForCustomerAsync(Guid customerId)
+        public async Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 1000)
         {
             try
             {
-                var assets = await HttpClient.GetFromJsonAsync<PagedAssetsDTO>($"{_options.ApiPath}/customers/{customerId}");
+                var assets = await HttpClient.GetFromJsonAsync<PagedModel<HardwareSuperType>>($"{_options.ApiPath}/customers/{customerId}?q={search}&page={page}&limit={limit}");
 
                 if (assets == null)
                     return null;
-                return assets.Assets;
+                return assets;
             }
             catch (HttpRequestException exception)
             {

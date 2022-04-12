@@ -1,4 +1,5 @@
-﻿using Common.Models;
+﻿using Common.Interfaces;
+using Common.Models;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Models.BackendDTO;
@@ -13,7 +14,7 @@ namespace OrigoApiGateway.Services
         Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync();
         Task<int> GetAssetsCountAsync(Guid customerId);
         Task<IList<object>> GetAssetsForUserAsync(Guid customerId, Guid userId);
-        Task<IList<object>> GetAssetsForCustomerAsync(Guid customerId);
+        Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 1000);
         Task<OrigoPagedAssets> SearchForAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 50);
         Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId);
         Task<OrigoAsset> AddAssetForCustomerAsync(Guid customerId, NewAssetDTO newAsset);

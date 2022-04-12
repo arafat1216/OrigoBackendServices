@@ -83,6 +83,18 @@ namespace AssetServices.UnitTests
 
             // Assert
             Assert.Equal(4, assetsFromUser.Items.Count);
+
+            // search with serial key
+            assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, "123456789012399", 1, 10, new System.Threading.CancellationToken());
+
+            // Assert 
+            Assert.Equal(2, assetsFromUser.Items.Count);
+
+            // search with IMEI
+            assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, "512217111821626", 1, 10, new System.Threading.CancellationToken());
+
+            // Assert 
+            Assert.Equal(2, assetsFromUser.Items.Count);
         }
 
         [Fact]

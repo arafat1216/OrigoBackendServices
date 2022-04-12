@@ -20,9 +20,6 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     private readonly HttpClient _httpClient;
     private readonly Guid _callerId = Guid.Parse("1d64e718-97cb-11ec-ad86-00155d64bd3d");
     private readonly Guid _organizationId;
-    private readonly Guid _assetLifeCycleId;
-    private readonly Guid _company;
-
 
     public AssetsControllerTests(AssetWebApplicationFactory<AssetsController> factory,
         ITestOutputHelper testOutputHelper)
@@ -30,8 +27,6 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         _testOutputHelper = testOutputHelper;
         _httpClient = factory.CreateDefaultClient();
         _organizationId = factory.ORGANIZATION_ID;
-        _assetLifeCycleId = factory.ASSETLIFECYCLE_ONE_ID;
-        _company = factory.COMPANY_ID;
     }
 
     [Fact]
@@ -69,20 +64,20 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
 
         PagedAssetList? pagedAssetList = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
-        Assert.Equal(1, pagedAssetList!.Assets.Count);
-        Assert.Equal(@alias, pagedAssetList.Assets[0].Alias);
-        Assert.Equal(assetCategoryId, pagedAssetList.Assets[0].AssetCategoryId);
-        Assert.Equal(note, pagedAssetList.Assets[0].Note);
-        Assert.Equal(brand, pagedAssetList.Assets[0].Brand);
-        Assert.Equal(productName, pagedAssetList.Assets[0].ProductName);
-        Assert.Equal(LifecycleType.Transactional.ToString(), pagedAssetList.Assets[0].LifecycleName);
-        Assert.Equal(purchaseDate.ToShortDateString(), pagedAssetList.Assets[0].PurchaseDate.ToShortDateString());
-        Assert.Equal(assetHolderId, pagedAssetList.Assets[0].AssetHolderId);
-        Assert.Equal(managedByDepartmentId, pagedAssetList.Assets[0].ManagedByDepartmentId);
-        Assert.Equal(firstImei, pagedAssetList.Assets[0].Imei.FirstOrDefault());
-        Assert.Equal(description, pagedAssetList.Assets[0].Description);
+        Assert.Equal(1, pagedAssetList!.Items.Count);
+        Assert.Equal(@alias, pagedAssetList.Items[0].Alias);
+        Assert.Equal(assetCategoryId, pagedAssetList.Items[0].AssetCategoryId);
+        Assert.Equal(note, pagedAssetList.Items[0].Note);
+        Assert.Equal(brand, pagedAssetList.Items[0].Brand);
+        Assert.Equal(productName, pagedAssetList.Items[0].ProductName);
+        Assert.Equal(LifecycleType.Transactional.ToString(), pagedAssetList.Items[0].LifecycleName);
+        Assert.Equal(purchaseDate.ToShortDateString(), pagedAssetList.Items[0].PurchaseDate.ToShortDateString());
+        Assert.Equal(assetHolderId, pagedAssetList.Items[0].AssetHolderId);
+        Assert.Equal(managedByDepartmentId, pagedAssetList.Items[0].ManagedByDepartmentId);
+        Assert.Equal(firstImei, pagedAssetList.Items[0].Imei.FirstOrDefault());
+        Assert.Equal(description, pagedAssetList.Items[0].Description);
 
-        requestUri = $"/api/v1/Assets/{pagedAssetList.Assets[0].Id}/customers/{_organizationId}";
+        requestUri = $"/api/v1/Assets/{pagedAssetList.Items[0].Id}/customers/{_organizationId}";
         var assetLifecycle = await _httpClient.GetFromJsonAsync<API.ViewModels.Asset>(requestUri);
         Assert.Equal(@alias, assetLifecycle!.Alias);
         Assert.Equal(assetCategoryId, assetLifecycle!.AssetCategoryId);
@@ -199,28 +194,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
 
         Assert.NotNull(pagedAssetList);
         Assert.Equal(3, pagedAssetList!.TotalItems);
-        Assert.All(pagedAssetList.Assets, m => Assert.Equal(data.DepartmentId, m.ManagedByDepartmentId));
-        Assert.All(pagedAssetList.Assets, m => Assert.Null(m.AssetHolderId));
-    }
-    [Fact]
-    public async Task UpdateAsset()
-    {
-        var updateAsset = new UpdateAsset()
-        {
-            Brand = "IPHONE",
-            Note = "NOTE",
-            Imei = new List<long> { 542889950004060 },
-            SerialNumber = "123456789",
-            Description = "DESCRIPTION",
-            ProductName = "PRO",
-            PurchaseDate = DateTime.UtcNow,
-            CallerId = Guid.NewGuid()
-
-        };
-        
-        var requestUri = $"/api/v1/Assets/{_assetLifeCycleId}/customers/{_company}/Update";
-
-        var response = await _httpClient.PostAsJsonAsync(requestUri, updateAsset);
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.All(pagedAssetList.Items, m => Assert.Equal(data.DepartmentId, m.ManagedByDepartmentId));
+        Assert.All(pagedAssetList.Items, m => Assert.Null(m.AssetHolderId));
     }
 }

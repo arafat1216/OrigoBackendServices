@@ -9,7 +9,7 @@ public class PagedAssetProfile : Profile
 {
     public PagedAssetProfile()
     {
-        CreateMap<PagedModel<AssetLifecycleDTO>, PagedAssetList>().ForMember(dest => dest.Assets, opts => opts.MapFrom(src => src.Items));
+        CreateMap<PagedModel<AssetLifecycleDTO>, PagedAssetList>().ForMember(dest => dest.Items, opts => opts.MapFrom(src => src.Items));
         CreateMap<CustomerLabelDTO, Label>()
             .ForMember(dest => dest.Text, opts => opts.MapFrom(src => src.Label.Text))
             .ForMember(dest => dest.Color, opts => opts.MapFrom(src => src.Label.Color))
@@ -29,6 +29,5 @@ public class PagedAssetProfile : Profile
             .ForMember(dest => dest.AssetStatus, opts => opts.MapFrom(src => src.AssetLifecycleStatus))
             .ForMember(dest => dest.Labels, opts => opts.MapFrom(src => src.Labels))
             .ForMember(dest => dest.AssetCategoryId, opts => opts.MapFrom(src => src.AssetCategoryId));
-        CreateMap<AssetDTO, ViewModels.Asset>();
     }
 }

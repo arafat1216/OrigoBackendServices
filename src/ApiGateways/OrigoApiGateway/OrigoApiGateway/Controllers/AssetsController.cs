@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Common.Enums;
+using Common.Interfaces;
 using Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -17,6 +18,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 // ReSharper disable RouteTemplates.ControllerRouteParameterIsNotPassedToMethods
@@ -186,11 +188,11 @@ namespace OrigoApiGateway.Controllers
 
         [Route("customers/{organizationId:guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(PagedModel<HardwareSuperType>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult<IList<OrigoAsset>>> Get(Guid organizationId)
+        public async Task<ActionResult> Get(Guid organizationId, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
             try
             {
@@ -209,7 +211,7 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId);
+                var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId, search, page, limit);
                 if (assets == null)
                 {
                     return NotFound();
@@ -220,7 +222,7 @@ namespace OrigoApiGateway.Controllers
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     WriteIndented = true
                 };
-                return Ok(JsonSerializer.Serialize<object>(assets, options));
+                return Ok(JsonSerializer.Serialize(assets, options));
             }
             catch (Exception ex)
             {

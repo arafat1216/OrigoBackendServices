@@ -3,7 +3,6 @@ using Common.Enums;
 using Common.Extensions;
 using Common.Interfaces;
 using Common.Logging;
-using Common.Seedwork;
 using Common.Utilities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -69,20 +68,30 @@ namespace AssetServices.Infrastructure
 
         public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
         {
-            return string.IsNullOrEmpty(search)
-                ? await _assetContext.AssetLifeCycles.Include(al => al.Asset)
+            var assets = await _assetContext.AssetLifeCycles.Include(al => al.Asset)
                     .ThenInclude(hw => (hw as MobilePhone).Imeis)
                     //.ThenInclude(hw => (hw as Tablet).Imeis)
                     .Include(al => al.ContractHolderUser)
-                    .Where(al => al.CustomerId == customerId)
-                    .PaginateAsync(page, limit, cancellationToken)
-                : await _assetContext.AssetLifeCycles.Include(al => al.Asset)
-                    .ThenInclude(hw => (hw as MobilePhone).Imeis)
-                    //.ThenInclude(hw => (hw as Tablet).Imeis)
-                    .Include(al => al.ContractHolderUser)
-                    .Where(al =>
-                        al.CustomerId == customerId && al.Asset != null && al.Asset.Brand.Contains(search))
-                    .PaginateAsync(page, limit, cancellationToken);
+                    .Where(al => al.CustomerId == customerId).ToListAsync();
+
+            if (long.TryParse(search, out long imei))
+            {
+                assets = assets.Where(a => a.Asset!.Brand.ToLower().Contains(search.ToLower())
+                || a.Asset.ProductName.ToLower().Contains(search.ToLower())
+                || a.ContractHolderUser!.Name.ToLower().Contains(search.ToLower())
+                || (a.Asset as HardwareAsset)!.SerialNumber.ToLower().Contains(search.ToLower())
+                || (a.Asset as MobilePhone is not null && (a.Asset as MobilePhone).Imeis.Any(im => im.Imei == imei))).ToList();
+
+                return assets.AsEnumerable().PaginateAsync(page, limit);
+            }
+
+            if (!string.IsNullOrEmpty(search))
+                assets = assets.Where(a => a.Asset!.Brand.ToLower().Contains(search.ToLower())
+                || a.Asset.ProductName.ToLower().Contains(search.ToLower())
+                || a.ContractHolderUser!.Name.ToLower().Contains(search.ToLower())
+                || (a.Asset as HardwareAsset)!.SerialNumber.ToLower().Contains(search.ToLower())).ToList();
+
+            return assets.AsEnumerable().PaginateAsync(page, limit);
         }
 
         public async Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList)
@@ -180,7 +189,6 @@ namespace AssetServices.Infrastructure
                 .Include(al => al.ContractHolderUser)
                 .Where(a => a.CustomerId == customerId && a.ExternalId == assetLifecycleId)
                 .FirstOrDefaultAsync();
-
             return assetLifecycle;
         }
 
@@ -202,11 +210,7 @@ namespace AssetServices.Infrastructure
 
                 editedEntities.ForEach(entity =>
                 {
-                    if (!entity.Entity.GetType().IsSubclassOf(typeof(ValueObject)))
-                    {
-                        entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
-                    }
-                    
+                    entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
                 });
                 // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
                 await _assetContext.SaveChangesAsync(cancellationToken);

@@ -5,7 +5,7 @@ namespace OrigoApiGateway.Models
     /// <summary>
     /// Response object
     /// </summary>
-    public abstract class HardwareSuperType : OrigoAsset
+    public class HardwareSuperType : OrigoAsset
     {
         /// <summary>
         /// The imei of the device. Applicable to devices with category Mobile device.
