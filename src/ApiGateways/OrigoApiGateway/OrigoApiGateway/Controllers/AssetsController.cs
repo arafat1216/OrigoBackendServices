@@ -76,11 +76,11 @@ namespace OrigoApiGateway.Controllers
 
         [Route("customers/{organizationId:guid}/count")]
         [HttpGet]
-        [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CustomerAssetCount), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult<IList<OrigoAsset>>> GetCustomerItemCount(Guid organizationId)
+        public async Task<ActionResult<CustomerAssetCount>> GetCustomerItemCount(Guid organizationId)
         {
             try
             {
@@ -95,7 +95,7 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
                 var count = await _assetServices.GetAssetsCountAsync(organizationId);
-                return Ok(new { organizationId, count });
+                return Ok(new CustomerAssetCount (){ OrganizationId = organizationId, Count = count });
             }
             catch (Exception ex)
             {
