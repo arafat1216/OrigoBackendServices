@@ -87,10 +87,9 @@ public class AssetLifecycle : Entity, IAggregateRoot
         {
             if (AssetLifecycleType != LifecycleType.Transactional)
                 return 0;
-            decimal companyPaid = PaidByCompany;
             int differenceInMonth = ((DateTime.UtcNow.Year - PurchaseDate.Year) * 12) + DateTime.UtcNow.Month - PurchaseDate.Month;
-            decimal val = companyPaid - ( companyPaid / 36 * differenceInMonth);
-            return val < 0 ? 0 : decimal.Round(val, 2, MidpointRounding.AwayFromZero);
+            decimal bookValue = PaidByCompany - (PaidByCompany / 36 * differenceInMonth);
+            return bookValue < 0 ? 0 : decimal.Round(bookValue, 2, MidpointRounding.AwayFromZero);
         }
     }
 
