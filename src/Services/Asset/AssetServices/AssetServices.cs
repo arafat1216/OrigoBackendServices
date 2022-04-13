@@ -508,6 +508,7 @@ namespace AssetServices
                     {
                         continue;
                     }
+
                     dynamic @event = JsonSerializer.Deserialize(logEventEntry.Content, eventType) as IEvent;
                     if (@event == null)
                     {
@@ -518,17 +519,18 @@ namespace AssetServices
                     {
                         continue;
                     }
+                    
 
                     var previousStatus = PropertyExist(@event, "PreviousStatus")
                         ? @event.PreviousStatus.ToString()
-                        : @event.Asset.Status.ToString();
+                        : @event.AssetLifecycle.AssetLifecycleStatus.ToString();
 
                     // All events should have callerId, but if an event forgot it, we handle it here
                     var callerId = PropertyExist(@event, "CallerId")
                         ? @event.CallerId.ToString()
                         : "N/A";
-                    var auditLog = new AssetAuditLog(transactionGuid, @event.Asset.ExternalId, @event.Asset.CustomerId, logEventEntry.CreationTime, callerId,
-                        ((IEvent)@event).EventMessage(), logEventEntry.EventTypeShortName, previousStatus, @event.Asset.Status.ToString());
+                    var auditLog = new AssetAuditLog(transactionGuid, @event.AssetLifecycle.ExternalId, @event.AssetLifecycle.CustomerId, logEventEntry.CreationTime, callerId,
+                        ((IEvent)@event).EventMessage(), logEventEntry.EventTypeShortName, previousStatus, @event.AssetLifecycle.AssetLifecycleStatus.ToString());
                     assetLogList.Add(auditLog);
                 }
                 catch (Exception ex)

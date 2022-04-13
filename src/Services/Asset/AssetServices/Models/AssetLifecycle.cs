@@ -53,7 +53,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <summary>
     /// the amount that company covered/paid for the asset's overall cost.
     /// </summary>
-    public decimal PaidByCompany { get; init; }
+    public decimal PaidByCompany { get; init; } = decimal.Zero;
 
 
 

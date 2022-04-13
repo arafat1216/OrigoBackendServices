@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using AssetServices.Models;
 using Common.Logging;
 
@@ -9,12 +10,12 @@ namespace AssetServices.DomainEvents.AssetLifecycleEvents;
 
 public class AssignContractHolderToAssetLifeCycleDomainEvent : BaseEvent
 {
-    public AssignContractHolderToAssetLifeCycleDomainEvent(AssetLifecycle assetLifecycle, Guid callerId, User? previousContractHolderUser) : base(
+    public AssignContractHolderToAssetLifeCycleDomainEvent(AssetLifecycle assetLifecycle, Guid callerId, User? previousContractHolder) : base(
         assetLifecycle.ExternalId)
     {
         AssetLifecycle = assetLifecycle;
         CallerId = callerId;
-        PreviousContractHolder = previousContractHolderUser;
+        PreviousContractHolder = previousContractHolder;
     }
 
     public AssetLifecycle AssetLifecycle { get; protected set; }

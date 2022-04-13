@@ -65,12 +65,13 @@ namespace Asset.API.Controllers
 
         [Route("customers/{customerId:guid}/users/{userId:Guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> GetAssetsForUser(Guid customerId, Guid userId)
         {
             var assetLifecycles = await _assetServices.GetAssetLifecyclesForUserAsync(customerId, userId);
-            return Ok(_mapper.Map<ViewModels.Asset>(assetLifecycles));
+
+            return Ok(_mapper.Map<IList<ViewModels.Asset>>(assetLifecycles));
         }
 
         [Route("customers/{customerId:guid}/users/{userId:Guid}")]
