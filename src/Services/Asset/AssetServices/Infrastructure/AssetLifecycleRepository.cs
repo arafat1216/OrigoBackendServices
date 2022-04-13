@@ -66,6 +66,13 @@ namespace AssetServices.Infrastructure
                 .Where(a => a.CustomerId == customerId && a.AssetLifecycleStatus == AssetLifecycleStatus.Active).CountAsync();
         }
 
+        public async Task<decimal> GetCustomerTotalBookValue(Guid customerId)
+        {
+            var assets = await _assetContext.AssetLifeCycles
+                .Where(a => a.CustomerId == customerId && a.AssetLifecycleStatus == AssetLifecycleStatus.Active).ToListAsync();
+            return assets.Sum(x=>x.BookValue);
+        }
+
         public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
         {
             var assets = await _assetContext.AssetLifeCycles.Include(al => al.Asset)

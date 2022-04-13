@@ -38,5 +38,8 @@ namespace AssetServices
 
         Task<IList<AssetLifecycleDTO>> UnAssignLabelsToAssetsAsync(Guid customerId, Guid callerId,
             IList<Guid> assetGuids, IList<Guid> labelGuids);
+
+        Task<decimal> GetCustomerTotalBookValue(Guid customerId);
+
     }
 }

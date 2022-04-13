@@ -77,6 +77,28 @@ namespace OrigoApiGateway.Services
             }
         }
 
+        public async Task<decimal> GetCustomerTotalBookValue(Guid customerId)
+        {
+            try
+            {
+                var totalBookValue = await HttpClient.GetFromJsonAsync<decimal>($"{_options.ApiPath}/customers/{customerId}/total-book-value");
+
+                return totalBookValue;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetCustomerTotalBookValue failed with HttpRequestException.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetCustomerTotalBookValue failed with unknown error.");
+                throw;
+            }
+        }
+
+
+
         public async Task<IList<object>> GetAssetsForUserAsync(Guid customerId, Guid userId)
         {
             try

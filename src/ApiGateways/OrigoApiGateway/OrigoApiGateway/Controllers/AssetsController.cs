@@ -104,6 +104,38 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("customers/{organizationId:guid}/total-book-value")]
+        [HttpGet]
+        [ProducesResponseType(typeof(CustomerAssetValue), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult<CustomerAssetValue>> GetCustomerTotalBookValue(Guid organizationId)
+        {
+            try
+            {
+                // All roles have access, as long as customer is in their accessList
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+                var totalBookValue = await _assetServices.GetCustomerTotalBookValue(organizationId);
+                return Ok(new CustomerAssetValue(){ OrganizationId = organizationId, Amount = totalBookValue });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
+
+
         [Route("customers/{organizationId:guid}/search")]
         [HttpGet]
         [ProducesResponseType(typeof(OrigoPagedAssets), (int)HttpStatusCode.OK)]

@@ -580,5 +580,31 @@ namespace AssetServices.UnitTests
             // Assert
             Assert.True(newAsset.BookValue == 2333.33M);
         }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task GetCustomerTotalBookValue()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+
+            // Act
+            var newAsset1 = await assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535344", ASSET_CATEGORY_ID,
+                "iPhone", "iPhone X", LifecycleType.Transactional, DateTime.UtcNow.AddMonths(-24) , ASSETHOLDER_ONE_ID, new List<long>() { 458718920164666 }, "5e:c4:33:df:61:70",
+                Guid.NewGuid(), "Test note", "description", 7000);
+
+            var newAsset2 = await assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, Guid.Empty, "alias", "4543534535348", ASSET_CATEGORY_ID,
+                "iPhone", "iPhone X", LifecycleType.Transactional, DateTime.UtcNow.AddMonths(-24) , ASSETHOLDER_ONE_ID, new List<long>() { 458718920164666 }, "5e:c4:33:df:61:70",
+                Guid.NewGuid(), "Test note", "description", 5889.88M);
+            var updateToActive = await assetService.UpdateStatusForMultipleAssetLifecycles(COMPANY_ID, Guid.Empty, new List<Guid>() { newAsset1.ExternalId,newAsset2.ExternalId },AssetLifecycleStatus.Active);
+            var totalBookValue = await assetService.GetCustomerTotalBookValue(COMPANY_ID);
+            
+            // Assert
+            Assert.True( 2333.33M+1963.29M == totalBookValue);
+        }
+
+
     }
 }

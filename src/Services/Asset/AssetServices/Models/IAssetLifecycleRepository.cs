@@ -26,5 +26,7 @@ namespace AssetServices.Models
         Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default);
         Task<IList<FunctionalEventLogEntry>> GetAuditLog(Guid assetId);
         Task<User?> GetUser(Guid userId);
+        Task<decimal> GetCustomerTotalBookValue(Guid customerId);
+
     }
 }

@@ -63,6 +63,19 @@ namespace Asset.API.Controllers
             return Ok(count);
         }
 
+        [Route("customers/{customerId:guid}/total-book-value")]
+        [HttpGet]
+        [ProducesResponseType(typeof(decimal), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<decimal>> GetCustomerTotalBookValue(Guid customerId)
+        {
+            var totalBookValue = await _assetServices.GetCustomerTotalBookValue(customerId);
+
+            return Ok(totalBookValue);
+        }
+
+
+
         [Route("customers/{customerId:guid}/users/{userId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]

@@ -42,6 +42,11 @@ namespace AssetServices
             return await _assetLifecycleRepository.GetAssetLifecyclesCountAsync(customerId);
         }
 
+        public async Task<decimal> GetCustomerTotalBookValue(Guid customerId)
+        {
+            return await _assetLifecycleRepository.GetCustomerTotalBookValue(customerId);
+        }
+
         public async Task<IList<AssetLifecycleDTO>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId)
         {
             var assetLifecyclesForUser = await _assetLifecycleRepository.GetAssetLifecyclesForUserAsync(customerId, userId);

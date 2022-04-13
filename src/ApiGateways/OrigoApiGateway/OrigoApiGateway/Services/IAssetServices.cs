@@ -33,5 +33,6 @@ namespace OrigoApiGateway.Services
         IList<AssetCategoryAttribute> GetAssetCategoryAttributesForCategory(int categoryId);
         Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId);
         Task<string> CreateAssetSeedData();
+        Task<decimal> GetCustomerTotalBookValue(Guid customerId);
     }
 }
