@@ -60,12 +60,6 @@ namespace OrigoApiGateway.Models
         public string Description { get; set; }
 
         /// <summary>
-        /// The payment amount by company for the asset. For mobile phones and other devices
-        /// This is the amount that company covered/paid for the asset's overall cost
-        /// </summary>
-        public decimal PaidByCompany { get; set; }
-
-        /// <summary>
         /// Tags associated with this asset.
         /// </summary>
         public string AssetTag { get; set; }
