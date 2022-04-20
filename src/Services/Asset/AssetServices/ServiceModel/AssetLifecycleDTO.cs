@@ -27,5 +27,6 @@ namespace AssetServices.ServiceModel
         public AssetLifecycleStatus AssetLifecycleStatus { get; init; }
         public LifecycleType AssetLifecycleType { get; init; }
         public IReadOnlyCollection<CustomerLabelDTO> Labels { get; init; } = null!;
+        public DateTime CreatedDate { get; set; }
     }
 }

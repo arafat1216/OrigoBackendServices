@@ -20,6 +20,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     private readonly HttpClient _httpClient;
     private readonly Guid _callerId = Guid.Parse("1d64e718-97cb-11ec-ad86-00155d64bd3d");
     private readonly Guid _organizationId;
+    private readonly Guid _customerId;
 
     public AssetsControllerTests(AssetWebApplicationFactory<AssetsController> factory,
         ITestOutputHelper testOutputHelper)
@@ -27,6 +28,19 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         _testOutputHelper = testOutputHelper;
         _httpClient = factory.CreateDefaultClient();
         _organizationId = factory.ORGANIZATION_ID;
+        _customerId = factory.COMPANY_ID;
+    }
+
+    [Fact]
+    public async Task GetAssetsForCustomer()
+    {
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}";
+        _testOutputHelper.WriteLine(requestUri);
+        PagedAssetList? pagedAssetList = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+        Assert.Equal(3, pagedAssetList!.Items.Count);
+        Assert.Equal(DateTime.Today.Date, pagedAssetList!.Items[0]!.CreatedDate.Date);
+        Assert.Equal(DateTime.Today.Date, pagedAssetList!.Items[1]!.CreatedDate.Date);
+        Assert.Equal(DateTime.Today.Date, pagedAssetList!.Items[2]!.CreatedDate.Date);
     }
 
     [Fact]
