@@ -30,7 +30,7 @@ namespace AssetServices
         Task<AssetLifecycleDTO> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei);
         Task<AssetLifecycleDTO?> AssignAsset(Guid customerId, Guid assetId, Guid userId, Guid callerId);
         IList<AssetCategory> GetAssetCategories(string language = "EN");
-        Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId);
+        Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId, Guid callerId,string role);
         IList<(string Name, int EnumValue)> GetLifecycles();
 
         Task<IList<AssetLifecycleDTO>> AssignLabelsToAssetsAsync(Guid customerId, Guid callerId, IList<Guid> assetGuids,

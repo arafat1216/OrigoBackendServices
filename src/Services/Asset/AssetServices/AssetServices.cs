@@ -494,8 +494,15 @@ namespace AssetServices
             }
         }
 
-        public async Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId)
+        public async Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId, Guid userId, string role)
         {
+            if (role == PredefinedRole.EndUser.ToString())
+            {
+                var usersAssets = await _assetLifecycleRepository.GetAssetForUser(userId);
+                var hasAsset = usersAssets.FirstOrDefault(a => a.ExternalId == assetId);
+                if (hasAsset == null) throw new ResourceNotFoundException(_logger);
+            }
+
 
             var logEventEntries = await _assetLifecycleRepository.GetAuditLog(assetId);
             var assetLogList = new List<AssetAuditLog>();

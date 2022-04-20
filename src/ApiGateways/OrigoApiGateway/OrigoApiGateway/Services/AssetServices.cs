@@ -707,12 +707,13 @@ namespace OrigoApiGateway.Services
             return defaultAttributes;
         }
 
-        public async Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId)
+        public async Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId,Guid callerId, string role)
         {
             try
             {
-                var assetLog = await HttpClient.GetFromJsonAsync<IList<AssetAuditLog>>($"{_options.ApiPath}/auditlog/{assetId}");
+                var assetLog = await HttpClient.GetFromJsonAsync<IList<AssetAuditLog>>($"{_options.ApiPath}/auditlog/{assetId}/{callerId}/{role}");
                 if (assetLog == null || !assetLog.Any()) return assetLog;
+
                 IList<OrigoUser> users = new List<OrigoUser>();
                 var organizationId = assetLog.First().CustomerId;
                 foreach (var createdBy in assetLog.Select(s => s.CreatedBy).Distinct())

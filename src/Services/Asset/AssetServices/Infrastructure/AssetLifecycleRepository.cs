@@ -203,6 +203,10 @@ namespace AssetServices.Infrastructure
         {
             return await _assetContext.Users.FirstOrDefaultAsync(u => u.ExternalId == userId);
         }
+        public async Task<IList<AssetLifecycle>> GetAssetForUser(Guid userId)
+        {
+            return await _assetContext.AssetLifeCycles.Include(a => a.Asset).Where(u => u.ContractHolderUser.ExternalId == userId).ToListAsync();
+        }
 
         public async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
         {

@@ -28,5 +28,6 @@ namespace AssetServices.Models
         Task<User?> GetUser(Guid userId);
         Task<decimal> GetCustomerTotalBookValue(Guid customerId);
 
+        Task<IList<AssetLifecycle>> GetAssetForUser(Guid userId);
     }
 }

@@ -1104,7 +1104,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     [Fact]
     public void CountBusinessDays_TwoWeeks_ShouldBe4BuisnessDays()
     {
-        var result = DateValidator.CountBusinessDays(DateOnly.FromDateTime(DateTime.UtcNow), DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14)));
+        var result = DateValidator.CountBusinessDays(DateOnly.FromDateTime(_todayDateMock), DateOnly.FromDateTime(_todayDateMock.AddDays(14)));
 
         Assert.Equal(4,result);
     }

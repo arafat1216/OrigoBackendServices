@@ -930,7 +930,12 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var assetAuditLog = await _assetServices.GetAssetAuditLog(assetId);
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                
+                var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid.TryParse(userId, out Guid callerId);
+
+                var assetAuditLog = await _assetServices.GetAssetAuditLog(assetId, callerId, role);
                 return Ok(assetAuditLog);
             }
             catch (Exception ex)

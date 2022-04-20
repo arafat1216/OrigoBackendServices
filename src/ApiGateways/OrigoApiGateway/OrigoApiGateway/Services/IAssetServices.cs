@@ -31,7 +31,7 @@ namespace OrigoApiGateway.Services
         Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, AssignAssetToUser data);
         Task<IList<OrigoAssetCategory>> GetAssetCategoriesAsync();
         IList<AssetCategoryAttribute> GetAssetCategoryAttributesForCategory(int categoryId);
-        Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId);
+        Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId, Guid callerId, string role);
         Task<string> CreateAssetSeedData();
         Task<decimal> GetCustomerTotalBookValue(Guid customerId);
     }

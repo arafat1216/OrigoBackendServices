@@ -33,8 +33,12 @@ namespace SubscriptionManagementServices.Utilities
                 startDate = endDate;
                 endDate = temp;
             }
-            
-            var days = endDate.Day - startDate.Day;
+            var end = endDate.ToDateTime(TimeOnly.Parse("08:00 PM"));
+            var start = startDate.ToDateTime(TimeOnly.Parse("08:00 PM"));
+
+            TimeSpan interval = end - start;
+            var days = interval.Days;
+
             for (var i = 0; i <= days; i++)
             {
                 var testDate = startDate.AddDays(i);

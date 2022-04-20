@@ -393,11 +393,11 @@ namespace Asset.API.Controllers
             }
         }
 
-        [Route("auditlog/{assetId:Guid}")]
+        [Route("auditlog/{assetId:Guid}/{callerId:Guid}/{role}")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<AssetAuditLog>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<IEnumerable<AssetAuditLog>>> GetAssetAuditLog(Guid assetId)
+        public async Task<ActionResult<IEnumerable<AssetAuditLog>>> GetAssetAuditLog(Guid assetId, Guid callerId, string role)
         {
             try
             {
@@ -407,9 +407,13 @@ namespace Asset.API.Controllers
                     return NotFound();
                 }
 
-                var assetLogList = await _assetServices.GetAssetAuditLog(assetId);
+                var assetLogList = await _assetServices.GetAssetAuditLog(assetId, callerId, role);
 
                 return Ok(assetLogList);
+            }
+            catch (ResourceNotFoundException)
+            {
+                return NotFound();
             }
             catch (Exception)
             {
