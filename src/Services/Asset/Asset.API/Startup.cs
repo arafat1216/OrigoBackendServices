@@ -67,6 +67,9 @@ namespace Asset.API
             services.AddScoped<IAssetServices, AssetServices.AssetServices>();
             services.AddScoped<IAssetTestDataService, AssetTestDataService>();
             services.AddScoped<IAssetLifecycleRepository, AssetLifecycleRepository>();
+
+            VATConfiguration.Initialize(Configuration);
+
             services.AddMediatR(typeof(Startup));
         }
 

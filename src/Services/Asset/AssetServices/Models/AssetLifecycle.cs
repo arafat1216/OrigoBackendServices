@@ -93,6 +93,20 @@ public class AssetLifecycle : Entity, IAggregateRoot
         }
     }
 
+    /// <summary>
+    /// Return the calculated BuyOut Price of the asset.
+    /// </summary>
+    public decimal BuyoutPrice
+    {
+        get
+        {
+            var vat = VATConfiguration.Amount;
+            var buyOutPrice = BookValue * vat;
+            return buyOutPrice < 0 ? 0 : decimal.Round(buyOutPrice, 2, MidpointRounding.AwayFromZero);
+        }
+    }
+
+
 
     /// <summary>
     /// Return the name of the category based on the type of the asset.

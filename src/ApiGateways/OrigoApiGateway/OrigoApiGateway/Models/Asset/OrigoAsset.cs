@@ -49,6 +49,11 @@ namespace OrigoApiGateway.Models
         public decimal BookValue { get; init; }
 
         /// <summary>
+        /// Calculated BuyOut price for the asset.
+        /// </summary>
+        public decimal BuyoutPrice { get; init; }
+
+        /// <summary>
         /// Tags associated with this asset.
         /// </summary>
         public string AssetTag { get; init; }

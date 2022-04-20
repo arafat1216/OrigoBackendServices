@@ -79,6 +79,11 @@ namespace Asset.API.ViewModels
         /// </summary>
         public decimal BookValue { get; init; }
 
+        /// <summary>
+        /// Calculated BuyOut price for the asset.
+        /// </summary>
+        public decimal BuyoutPrice { get; init; }
+
 
 
         /// <summary>
