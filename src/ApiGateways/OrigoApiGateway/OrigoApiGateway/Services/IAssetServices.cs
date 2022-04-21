@@ -35,5 +35,6 @@ namespace OrigoApiGateway.Services
         Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId, Guid callerId, string role);
         Task<string> CreateAssetSeedData();
         Task<decimal> GetCustomerTotalBookValue(Guid customerId);
+        Task<OrigoAsset> MakeAssetAvailableAsync(Guid customerId, MakeAssetAvailable data, Guid callerId);
     }
 }

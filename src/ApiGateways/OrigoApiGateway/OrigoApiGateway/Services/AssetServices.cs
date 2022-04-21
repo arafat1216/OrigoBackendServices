@@ -304,6 +304,44 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+        public async Task<OrigoAsset> MakeAssetAvailableAsync(Guid customerId, MakeAssetAvailable data, Guid callerId)
+        {
+            try
+            {
+                var makeAssetAvailableDTO = _mapper.Map<MakeAssetAvailableDTO>(data);
+                makeAssetAvailableDTO.CallerId = callerId; // Guid.Empty if tryparse fails.
+
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/make-available";
+                
+                var response = await HttpClient.PostAsJsonAsync(requestUri, makeAssetAvailableDTO);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                OrigoAsset result = null;
+                if (asset != null)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        result = _mapper.Map<OrigoMobilePhone>(asset);
+                    else
+                        result = _mapper.Map<OrigoTablet>(asset);
+                }
+                return result;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to set status for assets.");
+                throw;
+            }
+        }
 
         public async Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAssetDTO updateAsset)
         {

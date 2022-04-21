@@ -291,6 +291,18 @@ namespace Asset.API.Controllers
             return Ok(_mapper.Map<IList<ViewModels.Asset>>(updatedAssets));
         }
 
+        [Route("customers/{customerId:guid}/make-available")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> MakeAssetAvailable(Guid customerId, [FromBody] MakeAssetAvailable data)
+        {
+            var updatedAssets = await _assetServices.MakeAssetAvailableAsync(customerId, data.CallerId, data.AssetLifeCycleId);
+            return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
+        }
+
+
+
         [Route("lifecycles")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<AssetLifecycleType>), (int)HttpStatusCode.OK)]

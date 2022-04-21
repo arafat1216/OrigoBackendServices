@@ -605,6 +605,27 @@ namespace AssetServices.UnitTests
             Assert.True( 2333.33M+1963.29M == totalBookValue);
         }
 
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void MakeAssetAvailableAsync()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+            var assetLifecyclesFromUser = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_ONE_ID);
+
+            var assetGuid = assetLifecyclesFromUser.FirstOrDefault().ExternalId;
+
+            // Act
+            var updatedAssetsLifecycles = await assetService.MakeAssetAvailableAsync(COMPANY_ID, Guid.Empty, assetGuid);
+            var updatedAsset = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, assetGuid);
+
+            // Assert
+            Assert.True(null == updatedAsset.ContractHolderUserId);
+            Assert.Equal(AssetLifecycleStatus.Available, updatedAsset.AssetLifecycleStatus);
+        }
+
 
     }
 }

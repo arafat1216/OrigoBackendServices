@@ -365,7 +365,6 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-
         [Route("customers/{organizationId:guid}/assetStatus")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
@@ -425,6 +424,67 @@ namespace OrigoApiGateway.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, "Unable to change status on assets");
             }
         }
+
+        [Route("customers/{organizationId:guid}/make-available")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
+        public async Task<ActionResult> MakeAssetAvailable(Guid organizationId, [FromBody] MakeAssetAvailable data)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to manage assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid.TryParse(actor, out Guid callerId);
+                if (data.AssetLifeCycleId == Guid.Empty)
+                    return BadRequest("No asset selected.");
+
+                var updatedAssets = await _assetServices.MakeAssetAvailableAsync(organizationId, data, callerId);
+                if (updatedAssets == null)
+                {
+                    return NotFound();
+                }
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
+            }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, "Unable to make the asset available");
+            }
+        }
+
 
         [Route("{assetId:Guid}/customers/{organizationId:guid}/Update")]
         [HttpPatch]

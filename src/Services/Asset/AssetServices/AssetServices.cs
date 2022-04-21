@@ -391,6 +391,30 @@ namespace AssetServices
             return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecycles);
         }
 
+        public async Task<AssetLifecycleDTO> MakeAssetAvailableAsync(Guid customerId, Guid callerId, Guid assetLifeCycleId)
+        {
+            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetLifeCycleId);
+            
+            if(assetLifecycle == null)
+                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct customer Id?", _logger);
+
+            assetLifecycle.UnAssignContractHolder(callerId);
+
+            var labels = await _assetLifecycleRepository.GetCustomerLabelsForCustomerAsync(customerId);
+            if(labels != null && labels.Any())
+            {
+                foreach(var label in labels)
+                {
+                    assetLifecycle.RemoveCustomerLabel(label,callerId);
+                }
+            }
+
+            assetLifecycle.UpdateAssetStatus(AssetLifecycleStatus.Available, callerId);
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
+        }
+
+
         public async Task<AssetLifecycleDTO> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
