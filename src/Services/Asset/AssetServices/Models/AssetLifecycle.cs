@@ -213,6 +213,24 @@ public class AssetLifecycle : Entity, IAggregateRoot
     }
 
     /// <summary>
+    /// Making this asset available for other user/department to grab. 
+    /// </summary>
+    /// <param name="callerId">The userid making this assignment</param>
+    public void MakeAssetAvailable(Guid callerId)
+    {
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        var previousLifecycleStatus = _assetLifecycleStatus;
+        var previousContractHolderUser = ContractHolderUser;
+        AddDomainEvent(new MakeAssetAvailableDomainEvent(this, callerId, previousLifecycleStatus, previousContractHolderUser));
+        ContractHolderUser = null;
+        if(_labels != null && _labels.Any())
+            _labels.Clear();
+        _assetLifecycleStatus = AssetLifecycleStatus.Available;
+    }
+
+
+    /// <summary>
     /// Assign a contract holder which is in control of the asset. 
     /// </summary>
     /// <param name="contractHolderUser">A user</param>

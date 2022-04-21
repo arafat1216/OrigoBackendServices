@@ -619,11 +619,11 @@ namespace AssetServices.UnitTests
 
             // Act
             var updatedAssetsLifecycles = await assetService.MakeAssetAvailableAsync(COMPANY_ID, Guid.Empty, assetGuid);
-            var updatedAsset = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, assetGuid);
 
             // Assert
-            Assert.True(null == updatedAsset.ContractHolderUserId);
-            Assert.Equal(AssetLifecycleStatus.Available, updatedAsset.AssetLifecycleStatus);
+            Assert.True(updatedAssetsLifecycles.ContractHolderUserId == null);
+            Assert.True(updatedAssetsLifecycles.Labels == null || !updatedAssetsLifecycles.Labels.Any());
+            Assert.Equal(AssetLifecycleStatus.Available, updatedAssetsLifecycles.AssetLifecycleStatus);
         }
 
 

@@ -190,6 +190,23 @@ namespace AssetServices.Infrastructure
             await SaveEntitiesAsync();
         }
 
+        public async Task<AssetLifecycle?> MakeAssetAvailableAsync(Guid customerId, Guid callerId, Guid assetLifeCycleId)
+        {
+            var assetLifecycles = await _assetContext.AssetLifeCycles
+                .Include(a => a.ContractHolderUser)
+                .Include(al => al.Labels)
+                .Where(a => a.CustomerId == customerId && a.ExternalId == assetLifeCycleId)
+                .FirstOrDefaultAsync();
+
+            if (assetLifecycles != null)
+            {
+                assetLifecycles.MakeAssetAvailable(callerId);
+                await SaveEntitiesAsync();
+            }
+            return assetLifecycles;
+        }
+
+
         public async Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetLifecycleId)
         {
             var assetLifecycle = await _assetContext.AssetLifeCycles

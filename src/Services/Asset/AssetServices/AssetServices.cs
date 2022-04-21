@@ -393,25 +393,11 @@ namespace AssetServices
 
         public async Task<AssetLifecycleDTO> MakeAssetAvailableAsync(Guid customerId, Guid callerId, Guid assetLifeCycleId)
         {
-            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetLifeCycleId);
-            
-            if(assetLifecycle == null)
+            var updatedAssetLifeCycle = await _assetLifecycleRepository.MakeAssetAvailableAsync(customerId, callerId, assetLifeCycleId);          
+            if(updatedAssetLifeCycle == null)
                 throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct customer Id?", _logger);
 
-            assetLifecycle.UnAssignContractHolder(callerId);
-
-            var labels = await _assetLifecycleRepository.GetCustomerLabelsForCustomerAsync(customerId);
-            if(labels != null && labels.Any())
-            {
-                foreach(var label in labels)
-                {
-                    assetLifecycle.RemoveCustomerLabel(label,callerId);
-                }
-            }
-
-            assetLifecycle.UpdateAssetStatus(AssetLifecycleStatus.Available, callerId);
-            await _assetLifecycleRepository.SaveEntitiesAsync();
-            return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
+            return _mapper.Map<AssetLifecycleDTO>(updatedAssetLifeCycle);
         }
 
 

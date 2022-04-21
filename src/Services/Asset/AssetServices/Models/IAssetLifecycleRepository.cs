@@ -28,7 +28,7 @@ namespace AssetServices.Models
         Task<IList<FunctionalEventLogEntry>> GetAuditLog(Guid assetId);
         Task<User?> GetUser(Guid userId);
         Task<decimal> GetCustomerTotalBookValue(Guid customerId);
-
+        Task<AssetLifecycle?> MakeAssetAvailableAsync(Guid customerId, Guid callerId, Guid assetLifeCycleId);
         Task<IList<AssetLifecycle>> GetAssetForUser(Guid userId);
     }
 }
