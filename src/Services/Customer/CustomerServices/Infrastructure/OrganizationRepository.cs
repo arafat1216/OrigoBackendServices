@@ -244,6 +244,7 @@ namespace CustomerServices.Infrastructure
             var users = _customerContext.Users
                     .Include(u => u.Customer)
                     .Include(u => u.UserPreference)
+                    .Include(u => u.Department)
                     .Where(u => u.Customer.OrganizationId == customerId);
 
             if (!string.IsNullOrEmpty(search))

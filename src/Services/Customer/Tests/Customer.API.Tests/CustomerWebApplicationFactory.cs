@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,6 +28,7 @@ namespace Customer.API.Tests
 
                 ReplaceDbContext<CustomerContext>(services);
                 ReplaceDbContext<LoggingDbContext>(services);
+
 
                 _serviceProvider = services.BuildServiceProvider();
                 using var scope = _serviceProvider?.CreateScope();
@@ -81,6 +83,8 @@ namespace Customer.API.Tests
         public static readonly Guid CALLER_ID = Guid.Parse("a05f97fc-2e3d-4be3-a64c-e2f30ed90b93");
         public static readonly Guid PARENT_ID = Guid.Parse("fa82e042-f4bc-4de1-b68d-dfcb95a64c65");
         public static readonly Guid LOCATION_ID = Guid.Parse("089f6c40-1ae4-4fd0-b2d1-c5181d9fbfde");
+        public static readonly Guid USER_ID = Guid.Parse("a12c5f56-aee9-47e0-9f5f-a726818323a9");
+
 
         private static object _customerContextLock = new object();
         public static CustomerContext? PopulateData(this CustomerContext customerContext)
@@ -145,6 +149,24 @@ namespace Customer.API.Tests
                                                     headDepartment);
 
                     customerContext?.Departments.Add(subDepartment);
+                    
+                    var user = new User(organization,
+                                        USER_ID,
+                                        "Kari",
+                                        "Normann",
+                                        "kari@normann.no",
+                                        "+4790603360",
+                                        "EID:909090",
+                                        new UserPreference("no",CALLER_ID),
+                                        CALLER_ID);
+
+                    customerContext?.Users.Add(user);
+
+                    var permission = new UserPermissions(
+                                         user,new Role("EndUser"), new List<Guid> { ORGANIZATION_ID},CALLER_ID);
+                    
+                    customerContext?.UserPermissions.Add(permission);
+
                     customerContext?.SaveChanges();
                 }
                 return customerContext;

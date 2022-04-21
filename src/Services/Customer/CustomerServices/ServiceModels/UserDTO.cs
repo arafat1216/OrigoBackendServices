@@ -27,6 +27,8 @@ namespace CustomerServices.ServiceModels
         public string OrganizationName { get; init; }
         public string UserStatusName { get; init; }
         public int UserStatus { get; init; }
+        public Guid AssignedToDepartment { get; init; }
+        public string DepartmentName { get; set; }
 
         public string Role { get; set; }
     }

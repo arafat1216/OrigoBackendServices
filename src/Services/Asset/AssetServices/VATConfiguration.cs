@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
+using System.Globalization;
 
 namespace AssetServices
 {
@@ -8,7 +9,10 @@ namespace AssetServices
         public static decimal Amount;
         public static void Initialize(IConfiguration Configuration)
         {
-            Amount = Convert.ToDecimal(Configuration.GetSection("VAT:Amount").Value);
+            var value = Configuration.GetSection("VAT:Amount").Value;
+            var culture = new CultureInfo("en-US");
+            Amount = decimal.Parse(value, culture);
+             
         }
     }
 }

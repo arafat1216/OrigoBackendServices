@@ -12,7 +12,8 @@ namespace CustomerServices.Mappings
                 .ForMember(u => u.Id, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(u => u.OrganizationName, opt => opt.MapFrom(src => src.Customer.Name))
                 .ForMember(u => u.UserStatusName, opt => opt.MapFrom(src => src.UserStatus.ToString()))
-                .ForMember(u => u.UserStatus, opt => opt.MapFrom(src => src.UserStatus));
+                .ForMember(u => u.UserStatus, opt => opt.MapFrom(src => src.UserStatus))
+                .ForMember(u => u.AssignedToDepartment, opt => opt.MapFrom(src => src.Department.ExternalDepartmentId));
             ;
         }
     }

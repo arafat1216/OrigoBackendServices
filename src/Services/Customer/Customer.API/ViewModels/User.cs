@@ -29,6 +29,8 @@ namespace Customer.API.ViewModels
         public string UserStatusName { get; init; }
         public int UserStatus { get; init; }
 
+        public Guid AssignedToDepartment { get; init; }
+        public string DepartmentName { get; init; }
 
         public string Role { get; init; }
     }

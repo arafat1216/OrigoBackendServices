@@ -43,8 +43,16 @@ namespace CustomerServices
             var list = new List<UserDTO>();
             foreach (var user in allUsers.Items)
             {
+                
                 var userDTO = _mapper.Map<UserDTO>(user);
                 userDTO.Role = await GetRoleNameForUser(user.Email);
+
+                if (user.Department != null)
+                {
+                    var department = await _organizationRepository.GetDepartmentAsync(user.Customer.OrganizationId, user.Department.ExternalDepartmentId);
+                    userDTO.DepartmentName = department.Name;
+                }
+
                 list.Add(userDTO);
             }
 
@@ -73,19 +81,35 @@ namespace CustomerServices
 
         public async Task<UserDTO> GetUserWithRoleAsync(Guid customerId, Guid userId)
         {
-            var userDTO = _mapper.Map<UserDTO>(await _organizationRepository.GetUserAsync(customerId, userId));
+            var user = await _organizationRepository.GetUserAsync(userId);
+            var userDTO = _mapper.Map<UserDTO>(user);
             if (userDTO == null)
                 return null;
             userDTO.Role = await GetRoleNameForUser(userDTO.Email);
+
+            if (user.Department != null)
+            {
+                var department = await _organizationRepository.GetDepartmentAsync(user.Customer.OrganizationId, user.Department.ExternalDepartmentId);
+                userDTO.DepartmentName = department.Name;
+            }
+
             return userDTO;
         }
 
         public async Task<UserDTO> GetUserWithRoleAsync(Guid userId)
         {
-            var userDTO = _mapper.Map<UserDTO>(await _organizationRepository.GetUserAsync(userId));
+            var user = await _organizationRepository.GetUserAsync(userId);
+            var userDTO = _mapper.Map<UserDTO>(user);
             if (userDTO == null)
                 return null;
             userDTO.Role = await GetRoleNameForUser(userDTO.Email);
+
+            if (user.Department != null)
+            {
+                var department = await _organizationRepository.GetDepartmentAsync(user.Customer.OrganizationId, user.Department.ExternalDepartmentId);
+                userDTO.DepartmentName = department.Name;
+            }
+
             return userDTO;
         }
 
@@ -199,6 +223,11 @@ namespace CustomerServices
 
             userDTO = _mapper.Map<UserDTO>(user);
             userDTO.Role = role;
+            if (user.Department != null)
+            {
+                var department = await _organizationRepository.GetDepartmentAsync(user.Customer.OrganizationId, user.Department.ExternalDepartmentId);
+                userDTO.DepartmentName = department.Name;
+            }
 
             await _organizationRepository.SaveEntitiesAsync();
             return userDTO;
@@ -241,6 +270,11 @@ namespace CustomerServices
             }
 
             userDTO.Role = role;
+            if (user.Department != null) 
+            {
+                var department = await _organizationRepository.GetDepartmentAsync(user.Customer.OrganizationId, user.Department.ExternalDepartmentId);
+                userDTO.DepartmentName = department.Name;
+            } 
 
             await _organizationRepository.SaveEntitiesAsync();
             return userDTO;
@@ -285,6 +319,11 @@ namespace CustomerServices
             }
 
             userDTO.Role = role;
+            if (user.Department != null)
+            {
+                var department = await _organizationRepository.GetDepartmentAsync(user.Customer.OrganizationId, user.Department.ExternalDepartmentId);
+                userDTO.DepartmentName = department.Name;
+            }
 
             await _organizationRepository.SaveEntitiesAsync();
             return userDTO;
@@ -324,9 +363,10 @@ namespace CustomerServices
                 return null;
             user.AssignDepartment(department, callerId);
 
-            //Get the users role and assign it to the users DTO
+            //Get the users role and deparrtment name and assign it to the users DTO
             UserDTO userDTO = _mapper.Map<UserDTO>(user);
             userDTO.Role = await GetRoleNameForUser(user.Email);
+            userDTO.DepartmentName = department.Name;
 
             await _organizationRepository.SaveEntitiesAsync();
             return userDTO;
