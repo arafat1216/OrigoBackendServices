@@ -66,6 +66,18 @@ namespace AssetServices.Infrastructure
                 .Where(a => a.CustomerId == customerId && a.AssetLifecycleStatus == AssetLifecycleStatus.Active).CountAsync();
         }
 
+        public async Task<int> GetCustomerAvailableAssetCountAsync(Guid customerId)
+        {
+            return await _assetContext.AssetLifeCycles
+                .Where(a => a.CustomerId == customerId && a.AssetLifecycleStatus == AssetLifecycleStatus.Available).CountAsync();
+        }
+
+        public async Task<int> GetDepartmentAvailableAssetCountAsync(Guid customerId, Guid departmentId)
+        {
+            return await _assetContext.AssetLifeCycles
+                .Where(a => a.CustomerId == customerId && a.ManagedByDepartmentId == departmentId && a.AssetLifecycleStatus == AssetLifecycleStatus.Available).CountAsync();
+        }
+
         public async Task<decimal> GetCustomerTotalBookValue(Guid customerId)
         {
             var assets = await _assetContext.AssetLifeCycles

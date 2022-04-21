@@ -104,6 +104,67 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("customers/{organizationId:guid}/available/count")]
+        [HttpGet]
+        [ProducesResponseType(typeof(CustomerAssetCount), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult<CustomerAssetCount>> GetCustomerAvailableAssetCount(Guid organizationId)
+        {
+            try
+            {
+                // All roles have access, as long as customer is in their accessList
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+                var count = await _assetServices.GetCustomerAvailableAssetCount(organizationId);
+                return Ok(new CustomerAssetCount() { OrganizationId = organizationId, Count = count });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/available/{departmentId:guid}/count")]
+        [HttpGet]
+        [ProducesResponseType(typeof(CustomerAssetCount), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult<CustomerAssetCount>> GetDepartmentAvailableAssetCount(Guid organizationId, Guid departmentId)
+        {
+            try
+            {
+                // All roles have access, as long as customer is in their accessList
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+                var count = await _assetServices.GetDepartmentAvailableAssetCount(organizationId, departmentId);
+                return Ok(new CustomerAssetCount() { OrganizationId = organizationId, Count = count });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
+
         [Route("customers/{organizationId:guid}/total-book-value")]
         [HttpGet]
         [ProducesResponseType(typeof(CustomerAssetValue), (int)HttpStatusCode.OK)]

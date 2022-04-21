@@ -78,6 +78,46 @@ namespace OrigoApiGateway.Services
             }
         }
 
+        public async Task<int> GetCustomerAvailableAssetCount(Guid customerId)
+        {
+            try
+            {
+                var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/customers/{customerId}/available/count");
+
+                return count;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetCustomerAvailableAssetCount failed with HttpRequestException.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetCustomerAvailableAssetCount failed with unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<int> GetDepartmentAvailableAssetCount(Guid customerId, Guid departmentId)
+        {
+            try
+            {
+                var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/customers/{customerId}/available/{departmentId}/count");
+
+                return count;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetDepartmentAvailableAssetCount failed with HttpRequestException.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetDepartmentAvailableAssetCount failed with unknown error.");
+                throw;
+            }
+        }
+
         public async Task<decimal> GetCustomerTotalBookValue(Guid customerId)
         {
             try

@@ -14,6 +14,8 @@ namespace AssetServices
     {
         Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync();
         Task<int> GetAssetsCountAsync(Guid customerId);
+        Task<int> GetCustomerAvailableAssetCountAsync(Guid customerId);
+        Task<int> GetDepartmentAvailableAssetCountAsync(Guid customerId, Guid departmentId);
         Task<IList<AssetLifecycleDTO>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId);
         Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
         Task<PagedModel<AssetLifecycleDTO>> GetAssetLifecyclesForCustomerAsync(Guid customerId, string search, int page, int limit, AssetLifecycleStatus? status, CancellationToken cancellationToken);

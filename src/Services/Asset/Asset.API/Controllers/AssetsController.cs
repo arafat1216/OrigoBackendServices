@@ -63,6 +63,28 @@ namespace Asset.API.Controllers
             return Ok(count);
         }
 
+        [Route("customers/{customerId:guid}/available/count")]
+        [HttpGet]
+        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<int>> GetCustomerAvailableAssetCount(Guid customerId)
+        {
+            var count = await _assetServices.GetCustomerAvailableAssetCountAsync(customerId);
+
+            return Ok(count);
+        }
+
+        [Route("customers/{customerId:guid}/available/{departmentId:guid}/count")]
+        [HttpGet]
+        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<int>> GetDepartmentAvailableAssetCount(Guid customerId, Guid departmentId)
+        {
+            var count = await _assetServices.GetDepartmentAvailableAssetCountAsync(customerId, departmentId);
+
+            return Ok(count);
+        }
+
         [Route("customers/{customerId:guid}/total-book-value")]
         [HttpGet]
         [ProducesResponseType(typeof(decimal), (int)HttpStatusCode.OK)]
