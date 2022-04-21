@@ -79,19 +79,19 @@ namespace AssetServices.UnitTests
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
 
             // Act
-            var assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, string.Empty, 1, 10, new System.Threading.CancellationToken());
+            var assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, string.Empty, 1, 10, null, new System.Threading.CancellationToken());
 
             // Assert
             Assert.Equal(4, assetsFromUser.Items.Count);
 
             // search with serial key
-            assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, "123456789012399", 1, 10, new System.Threading.CancellationToken());
+            assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, "123456789012399", 1, 10, null,  new System.Threading.CancellationToken());
 
             // Assert 
             Assert.Equal(2, assetsFromUser.Items.Count);
 
             // search with IMEI
-            assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, "512217111821626", 1, 10, new System.Threading.CancellationToken());
+            assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, "512217111821626", 1, 10, null, new System.Threading.CancellationToken());
 
             // Assert 
             Assert.Equal(2, assetsFromUser.Items.Count);

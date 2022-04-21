@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
+using Common.Enums;
 
 namespace AssetServices.Models
 {
@@ -13,7 +14,7 @@ namespace AssetServices.Models
         Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
         Task<IList<CustomerAssetCount>> GetAssetLifecyclesCountsAsync();
         Task<int> GetAssetLifecyclesCountAsync(Guid customerId);
-        Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken);
+        Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string search, int page, int limit, AssetLifecycleStatus? status, CancellationToken cancellationToken);
         Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList);
         Task<IList<AssetLifecycle>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId);
         Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetId);

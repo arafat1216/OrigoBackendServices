@@ -234,9 +234,9 @@ namespace Asset.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(PagedAssetList), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<PagedAssetList>> Get(Guid customerId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
+        public async Task<ActionResult<PagedAssetList>> Get(Guid customerId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000, AssetLifecycleStatus? status = null)
         {
-            var pagedAssetResult = await _assetServices.GetAssetLifecyclesForCustomerAsync(customerId, search, page, limit, cancellationToken);
+            var pagedAssetResult = await _assetServices.GetAssetLifecyclesForCustomerAsync(customerId, search, page, limit, status, cancellationToken);
             var pagedAssetList = _mapper.Map<PagedAssetList>(pagedAssetResult);
             return Ok(pagedAssetList);
         }

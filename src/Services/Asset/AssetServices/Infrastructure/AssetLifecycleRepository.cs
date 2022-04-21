@@ -73,7 +73,7 @@ namespace AssetServices.Infrastructure
             return assets.Sum(x=>x.BookValue);
         }
 
-        public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string search, int page, int limit, CancellationToken cancellationToken)
+        public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string search, int page, int limit, AssetLifecycleStatus? status, CancellationToken cancellationToken)
         {
             var assets = await _assetContext.AssetLifeCycles.Include(al => al.Asset)
                     .ThenInclude(hw => (hw as MobilePhone).Imeis)
@@ -97,6 +97,9 @@ namespace AssetServices.Infrastructure
                 || a.Asset.ProductName.ToLower().Contains(search.ToLower())
                 || a.ContractHolderUser!.Name.ToLower().Contains(search.ToLower())
                 || (a.Asset as HardwareAsset)!.SerialNumber.ToLower().Contains(search.ToLower())).ToList();
+
+            if (status != null)
+                assets = assets.Where(a => a.AssetLifecycleStatus == status).ToList();
 
             return assets.AsEnumerable().PaginateAsync(page, limit);
         }
