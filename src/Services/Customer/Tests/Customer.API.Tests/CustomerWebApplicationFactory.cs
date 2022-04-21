@@ -83,7 +83,8 @@ namespace Customer.API.Tests
         public static readonly Guid CALLER_ID = Guid.Parse("a05f97fc-2e3d-4be3-a64c-e2f30ed90b93");
         public static readonly Guid PARENT_ID = Guid.Parse("fa82e042-f4bc-4de1-b68d-dfcb95a64c65");
         public static readonly Guid LOCATION_ID = Guid.Parse("089f6c40-1ae4-4fd0-b2d1-c5181d9fbfde");
-        public static readonly Guid USER_ID = Guid.Parse("a12c5f56-aee9-47e0-9f5f-a726818323a9");
+        public static readonly Guid USER_ONE_ID = Guid.Parse("a12c5f56-aee9-47e0-9f5f-a726818323a9");
+        public static readonly Guid USER_TWO_ID = Guid.Parse("8246626C-3BDD-46E7-BCDF-10FC038C0463");
 
 
         private static object _customerContextLock = new object();
@@ -149,23 +150,35 @@ namespace Customer.API.Tests
                                                     headDepartment);
 
                     customerContext?.Departments.Add(subDepartment);
-                    
-                    var user = new User(organization,
-                                        USER_ID,
+
+                    var userOne = new User(organization,
+                                        USER_ONE_ID,
                                         "Kari",
                                         "Normann",
                                         "kari@normann.no",
                                         "+4790603360",
                                         "EID:909090",
-                                        new UserPreference("no",CALLER_ID),
+                                        new UserPreference("no", CALLER_ID),
                                         CALLER_ID);
 
-                    customerContext?.Users.Add(user);
+                    var userTwo = new User(organization,
+                                        USER_TWO_ID,
+                                        "Atish",
+                                        "Kumar",
+                                        "atish@normann.no",
+                                        "+4790603360",
+                                        "EID:909090",
+                                        new UserPreference("no", CALLER_ID),
+                                        CALLER_ID);
 
-                    var permission = new UserPermissions(
-                                         user,new Role("EndUser"), new List<Guid> { ORGANIZATION_ID},CALLER_ID);
-                    
-                    customerContext?.UserPermissions.Add(permission);
+                    customerContext?.Users.Add(userOne);
+                    customerContext?.Users.Add(userTwo);
+
+                    var userOnePermission = new UserPermissions(userOne, new Role("EndUser"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
+                    var userTwoPermission = new UserPermissions(userTwo, new Role("EndUser"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
+
+                    customerContext?.UserPermissions.Add(userOnePermission);
+                    customerContext?.UserPermissions.Add(userTwoPermission);
 
                     customerContext?.SaveChanges();
                 }
@@ -173,6 +186,6 @@ namespace Customer.API.Tests
             }
         }
 
-        
+
     }
 }

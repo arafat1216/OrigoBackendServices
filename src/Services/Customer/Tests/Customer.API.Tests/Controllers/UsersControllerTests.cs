@@ -20,7 +20,8 @@ namespace Customer.API.IntegrationTests.Controllers
         private readonly HttpClient _httpClient;
         private readonly Guid _customerId;
         private readonly Guid _departmentId;
-        private readonly Guid _userId;
+        private readonly Guid _userOneId;
+        private readonly Guid _userTwoId;
         private readonly Guid _callerId;
 
 
@@ -32,7 +33,8 @@ namespace Customer.API.IntegrationTests.Controllers
             _httpClient = factory.CreateDefaultClient();
             _customerId = Extention.ORGANIZATION_ID;
             _departmentId = Extention.HEAD_DEPARTMENT_ID;
-            _userId = Extention.USER_ID;
+            _userOneId = Extention.USER_ONE_ID;
+            _userTwoId = Extention.USER_TWO_ID;
             _callerId = Guid.NewGuid();
         }
 
@@ -47,15 +49,17 @@ namespace Customer.API.IntegrationTests.Controllers
             var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}";
 
             var response = await _httpClient.GetAsync(requestUri);
-            var read = response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
+            var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(1, read?.TotalItems);
 
         }
+
         [Fact]
         public async Task GetAllUsers_DepartmentName()
         {
-            var requestAssignDepartment = $"/api/v1/organizations/{_customerId}/users/{_userId}/department/{_departmentId}";
+            var requestAssignDepartment = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_departmentId}";
             var responseAssignDepartment = await _httpClient.PostAsync(requestAssignDepartment, JsonContent.Create(_callerId));
             var content = responseAssignDepartment.Content.ReadFromJsonAsync<User>();
 
@@ -71,18 +75,17 @@ namespace Customer.API.IntegrationTests.Controllers
             var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}";
 
             var response = await _httpClient.GetAsync(requestUri);
-            var read = response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
+            var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(1, read?.Result?.Items.Count);
-            Assert.Equal("Head department", read?.Result?.Items[0].DepartmentName);
-
+            Assert.Equal(1, read?.TotalItems);
+            Assert.Equal("Head department", read?.Items[0].DepartmentName);
         }
 
         [Fact]
         public async Task UpdateUserPatch_ReturnsOK()
         {
-            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userId}";
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
 
             var updateUser = new UpdateUser
             {
@@ -105,10 +108,11 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal("Test", user?.Result?.FirstName);
         }
+
         [Fact]
         public async Task UpdateUserPutAsync_ReturnsOK()
         {
-            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userId}";
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
 
             var updateUser = new UpdateUser
             {
@@ -131,24 +135,24 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal("Test", user?.Result?.FirstName);
         }
+
         [Fact]
-        public async Task GetUser_WithRoles() 
+        public async Task GetUser_WithRoles()
         {
-            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userId}";
-            var response = await _httpClient.GetAsync(requestUri); 
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
+            var response = await _httpClient.GetAsync(requestUri);
 
             var user = await response.Content.ReadFromJsonAsync<User>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.NotNull(user);
-            Assert.Equal("EndUser",user?.Role);
+            Assert.Equal("EndUser", user?.Role);
         }
-       
 
         [Fact]
         public async Task GetUser_users()
         {
-            var requestUri = $"/api/v1/organizations/users/{_userId}";
+            var requestUri = $"/api/v1/organizations/users/{_userOneId}";
             var response = await _httpClient.GetAsync(requestUri);
 
             var user = await response.Content.ReadFromJsonAsync<User>();
@@ -161,15 +165,36 @@ namespace Customer.API.IntegrationTests.Controllers
         [Fact]
         public async Task AssignDepartment_CheckAsssignToDepartentList()
         {
-            
-            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userId}/department/{_departmentId}";
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_departmentId}";
             var response = await _httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
             var read = response.Content.ReadFromJsonAsync<User>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.NotNull(read);
-            Assert.Equal(_departmentId,read.Result?.AssignedToDepartment);
-            Assert.Equal("Head department",read.Result?.DepartmentName);
+            Assert.Equal(_departmentId, read.Result?.AssignedToDepartment);
+            Assert.Equal("Head department", read.Result?.DepartmentName);
+        }
+
+        [Fact]
+        public async Task DeleteUser()
+        {
+            //Delete User
+            var url = $"/api/v1/organizations/{_customerId}/users/{_userTwoId}";
+            var request = new HttpRequestMessage(HttpMethod.Delete, url);
+            request.Content = JsonContent.Create(_callerId);
+            var deleteResponse = await _httpClient.SendAsync(request);
+
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+            // Get Users
+            var requestUri = $"/api/v1/organizations/{_customerId}/users";
+
+            var getResponse = await _httpClient.GetAsync(requestUri);
+            var read = await getResponse.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
+
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+            Assert.Equal(1, read?.TotalItems);
         }
     }
 }
