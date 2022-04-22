@@ -180,5 +180,11 @@ namespace CustomerServices
         {
             return await _customerContext.Roles.Select(r => r.Name).ToListAsync();
         }
+
+        public async Task UpdatePermission(UserPermissions userPermission)
+        {
+            _customerContext.Entry(userPermission).State = EntityState.Modified;
+            await SaveEntitiesAsync();
+        }
     }
 }

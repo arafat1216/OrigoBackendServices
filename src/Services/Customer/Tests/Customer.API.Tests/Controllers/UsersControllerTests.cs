@@ -243,7 +243,10 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permission = await responsePermissions.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissions.StatusCode);
-            Assert.Equal(permission.Count, 2);
+            Assert.Equal(2,permission.Count);
+            Assert.Equal("EndUser", permission[0].Role);
+            Assert.Equal("DepartmentManager", permission[1].Role);
+            Assert.Equal(3, permission[1].AccessList.Count);
 
             HttpRequestMessage requestUnassignManager = new HttpRequestMessage
             {
@@ -260,7 +263,10 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permissionAfter = await responsePermissionsAfter.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissionsAfter.StatusCode);
-            Assert.Equal(permissionAfter.Count, 1);
+            Assert.Equal(1,permissionAfter.Count);
+            Assert.Equal(1, permissionAfter[0].AccessList.Count);
+            Assert.Equal("EndUser", permissionAfter[0].Role);
+
         }
     }
 }

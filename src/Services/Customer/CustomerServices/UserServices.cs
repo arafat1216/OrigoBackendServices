@@ -393,14 +393,37 @@ namespace CustomerServices
             //add user as manager for the department
             user.AssignManagerToDepartment(department, callerId);
             await _organizationRepository.SaveEntitiesAsync();
-
+            
             //Find subdepartments of the department the user user is to be manager for  
             var subDepartmentsList = department.Subdepartments(departments);
-            List<Guid> accsessList = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
-            accsessList.Add(customerId);
+            List<Guid> accessList = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
 
-            //Add permissions for the department
-            var userPermission = await _userPermissionServices.AssignUserPermissionsAsync(user.Email, PredefinedRole.DepartmentManager.ToString(), accsessList, callerId); 
+            //Check if user have department role for other departments
+            var usersPermission = await _userPermissionServices.GetUserPermissionsAsync(user.Email);
+            UserPermissions managerPermission = null;
+            if (usersPermission != null) managerPermission = usersPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString());
+            
+            if (managerPermission != null) //update the permissions list
+            {
+                foreach (var access in accessList)
+                {
+                    if (!managerPermission.AccessList.Contains(access))
+                    {
+                        managerPermission.AddAccess(access, callerId);
+                    }
+                }
+
+               await _userPermissionServices.UpdatePermission(managerPermission);
+
+            }
+            else //add new permissions
+            {
+                accessList.Add(customerId);
+
+                //Add department manager permissions
+                var userPermission = await _userPermissionServices.AssignUserPermissionsAsync(user.Email, PredefinedRole.DepartmentManager.ToString(), accessList, callerId);
+            }
+            
         }
 
         public async Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
@@ -417,16 +440,38 @@ namespace CustomerServices
 
             if (department == null) throw new DepartmentNotFoundException($"Unable to find {departmentId}");
 
-            //Find subdepartments of the department 
-            var subDepartmentsList = department.Subdepartments(departments);
-            List<Guid> accsessList = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
-            accsessList.Add(customerId);
-
-            //Add permissions for the department
-            var userPermission = await _userPermissionServices.RemoveUserPermissionsAsync(user.Email, PredefinedRole.DepartmentManager.ToString(), accsessList, callerId);
-
             user.UnassignManagerFromDepartment(department, callerId);
             await _organizationRepository.SaveEntitiesAsync();
+
+            //Find subdepartments of the department 
+            var subDepartmentsList = department.Subdepartments(departments);
+            List<Guid> accessList = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
+            accessList.Add(customerId);
+
+            //Check if user have permissions for department
+            var usersPermission = await _userPermissionServices.GetUserPermissionsAsync(user.Email);
+            if (usersPermission == null) return;
+
+            var managerPermission = usersPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString());
+
+            if (managerPermission.AccessList.All(accessList.Contains) && managerPermission.AccessList.Count == accessList.Count) //remove the permission for department manager
+            {
+                //Remove department manager permissions
+                var userPermission = await _userPermissionServices.RemoveUserPermissionsAsync(user.Email, PredefinedRole.DepartmentManager.ToString(), accessList, callerId);
+
+            }
+            else //updated and remove only permissions connected to the department
+            {
+
+                //just want to remove the departments and subdepartment
+                accessList.Remove(customerId);
+                foreach (var access in accessList)
+                {
+                    managerPermission.RemoveAccess(access, callerId);
+                }
+
+                await _userPermissionServices.UpdatePermission(managerPermission);
+            }
         }
 
         public async Task<UserDTO> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
