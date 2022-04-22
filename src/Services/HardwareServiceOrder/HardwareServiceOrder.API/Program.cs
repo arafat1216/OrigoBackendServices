@@ -1,5 +1,9 @@
 
+using HardwareServiceOrderServices;
+using HardwareServiceOrderServices.Infrastructure;
+using HardwareServiceOrderServices.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 var apiVersion = new ApiVersion(1, 0);
@@ -12,7 +16,14 @@ builder.Configuration.AddUserSecrets<Program>(optional: true);
 builder.Services.AddHealthChecks();
 builder.Services.AddControllers().AddDapr();
 
+builder.Services.AddDbContext<HardwareServiceOrderContext>(options => options.UseSqlServer(
+    builder.Configuration.GetConnectionString("HardwareServiceOrderConnectionString"), sqlOption =>
+    {
+        sqlOption.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
+        sqlOption.MigrationsAssembly(typeof(HardwareServiceOrderContext).GetTypeInfo().Assembly.GetName().Name);
+    }));
 
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(HardwareServiceOrderServices.Mappings.CustomerSettingsProfile)));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -41,6 +52,8 @@ builder.Services.AddSwaggerGen(config =>
 
 builder.Services.AddApplicationInsightsTelemetry();
 
+builder.Services.AddScoped<IHardwareServiceOrderService, HardwareServiceOrderService>();
+builder.Services.AddScoped<IHardwareServiceOrderRepository, HardwareServiceOrderRepository>();
 
 var app = builder.Build();
 

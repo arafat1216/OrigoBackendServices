@@ -15,9 +15,9 @@ namespace HardwareServiceOrderServices.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LoanPhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LoanPhoneEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ServiceId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LoanDevicePhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LoanDeviceEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),

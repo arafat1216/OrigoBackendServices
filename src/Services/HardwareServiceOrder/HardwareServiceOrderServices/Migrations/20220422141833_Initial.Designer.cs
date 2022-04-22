@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HardwareServiceOrderServices.Migrations
 {
     [DbContext(typeof(HardwareServiceOrderContext))]
-    [Migration("20220422104601_Initial")]
+    [Migration("20220422141833_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,16 +54,13 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
-                    b.Property<string>("LoanPhoneEmail")
-                        .IsRequired()
+                    b.Property<string>("LoanDeviceEmail")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LoanPhoneNumber")
-                        .IsRequired()
+                    b.Property<string>("LoanDevicePhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ServiceId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UpdatedBy")
