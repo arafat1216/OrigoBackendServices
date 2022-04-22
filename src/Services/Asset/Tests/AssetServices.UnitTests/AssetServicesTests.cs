@@ -50,7 +50,7 @@ namespace AssetServices.UnitTests
             var assetsFromUser = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_ONE_ID);
 
             // Assert
-            Assert.Equal(3, assetsFromUser.Count);
+            Assert.Equal(5, assetsFromUser.Count);
         }
 
         [Fact]
@@ -71,6 +71,54 @@ namespace AssetServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
+        public async void GetAssetsCount_ForCompanyWithDepartment_CheckCount()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+
+            // Act
+            var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, DEPARTMENT_ID);
+
+            // Assert
+            Assert.Equal(1, assetsFromCompany);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void GetAssetsCount_ForCompanyWithStatus_CheckCount()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+
+            // Act
+            var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, null, AssetLifecycleStatus.Available);
+
+            // Assert
+            Assert.Equal(3, assetsFromCompany);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void GetAssetsCount_ForCompanyWithDepartmentAndStatus_CheckCount()
+        {
+            // Arrange
+            await using var context = new AssetsContext(ContextOptions);
+            var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+
+            // Act
+            var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, DEPARTMENT_ID, AssetLifecycleStatus.Available);
+
+            // Assert
+            Assert.Equal(1, assetsFromCompany);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
         public async void GetAssetsForCustomer_ForOneCustomer_CheckCount()
         {
             // Arrange
@@ -82,19 +130,19 @@ namespace AssetServices.UnitTests
             var assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, string.Empty, 1, 10, null, new System.Threading.CancellationToken());
 
             // Assert
-            Assert.Equal(4, assetsFromUser.Items.Count);
+            Assert.Equal(6, assetsFromUser.Items.Count);
 
             // search with serial key
             assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, "123456789012399", 1, 10, null,  new System.Threading.CancellationToken());
 
             // Assert 
-            Assert.Equal(2, assetsFromUser.Items.Count);
+            Assert.Equal(4, assetsFromUser.Items.Count);
 
             // search with IMEI
             assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, "512217111821626", 1, 10, null, new System.Threading.CancellationToken());
 
             // Assert 
-            Assert.Equal(2, assetsFromUser.Items.Count);
+            Assert.Equal(4, assetsFromUser.Items.Count);
         }
 
         [Fact]
@@ -113,7 +161,7 @@ namespace AssetServices.UnitTests
             var updatedAssetsLifecycles = await assetService.UpdateStatusForMultipleAssetLifecycles(COMPANY_ID, Guid.Empty, assetGuidList, AssetLifecycleStatus.Active);
 
             // Assert
-            Assert.Equal(3, updatedAssetsLifecycles.Count);
+            Assert.Equal(5, updatedAssetsLifecycles.Count);
             Assert.Equal("alias_0", updatedAssetsLifecycles[0].Alias);
             Assert.Equal("alias_2", updatedAssetsLifecycles[1].Alias);
             Assert.Equal("alias_3", updatedAssetsLifecycles[2].Alias);

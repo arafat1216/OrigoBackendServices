@@ -58,18 +58,15 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus)
+        public async Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus assetLifecycleStatus)
         {
             try
             {
                 string departmentFilter = "";
-                string assetStatusFilter = "";
                 if(departmentId != null && departmentId != Guid.Empty)
                     departmentFilter = $"{departmentId}";
-                if (assetLifecycleStatus != null)
-                    assetStatusFilter = $"{(int)assetLifecycleStatus}";
 
-                var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/customers/{customerId}/count?departmentId={departmentFilter}&assetLifecycleStatus={assetStatusFilter}");
+                var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/customers/{customerId}/count?departmentId={departmentFilter}&assetLifecycleStatus={(int)assetLifecycleStatus}");
 
                 return count;
             }

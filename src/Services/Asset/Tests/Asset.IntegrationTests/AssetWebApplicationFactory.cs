@@ -29,6 +29,9 @@ public class AssetWebApplicationFactory<TProgram> : WebApplicationFactory<TProgr
     public readonly Guid ASSETLIFECYCLE_ONE_ID = new("4e7413da-54c9-4f79-b882-f66ce48e5074");
     private readonly Guid ASSETLIFECYCLE_TWO_ID = new("6c38b551-a5c2-4f53-8df8-221bf8485c61");
     private readonly Guid ASSETLIFECYCLE_THREE_ID = new("80665d26-90b4-4a3a-a20d-686b64466f32");
+    private readonly Guid ASSETLIFECYCLE_FOUR_ID = new("bdb4c26c-33fd-40d7-a237-e74728609c1c");
+    private readonly Guid ASSETLIFECYCLE_FIVE_ID = new("4315bba8-698f-4ddd-aee2-82554c91721f");
+    public readonly Guid DEPARTMENT_ID = new("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72");
     public readonly Guid COMPANY_ID = new("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
     protected readonly Guid ASSETHOLDER_ONE_ID = new("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -49,6 +52,8 @@ public class AssetWebApplicationFactory<TProgram> : WebApplicationFactory<TProgr
                 var assetTwo = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012364", "Apple", "Apple iPhone 8", new List<AssetImei>() { new AssetImei(546366434558702) }, "487027C99FA1");
 
                 var assetThree = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012399", "Samsung", "Samsung Galaxy S21", new List<AssetImei>() { new AssetImei(512217111821626) }, "840F1D0C06AD");
+                
+                var assetFour = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012397", "Apple", "iPhone 11 Pro", new List<AssetImei>() { new AssetImei(512217111821624) }, "840F1D0C06AB");
 
                 var userOne = new User { ExternalId = ASSETHOLDER_ONE_ID };
                 var assetLifecycleOne = new AssetLifecycle(ASSETLIFECYCLE_ONE_ID) { CustomerId = COMPANY_ID, Alias = "alias_0", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired };
@@ -61,13 +66,24 @@ public class AssetWebApplicationFactory<TProgram> : WebApplicationFactory<TProgr
 
                 var assetLifecycleThree = new AssetLifecycle(ASSETLIFECYCLE_THREE_ID) { CustomerId = COMPANY_ID, Alias = "alias_2", AssetLifecycleStatus = AssetLifecycleStatus.Active };
                 assetLifecycleThree.AssignAsset(assetThree, CALLER_ID);
+                assetLifecycleThree.AssignDepartment(DEPARTMENT_ID, CALLER_ID);
                 assetLifecycleThree.AssignContractHolder(userOne, CALLER_ID);
+
+                var assetLifecycleFour = new AssetLifecycle(ASSETLIFECYCLE_FOUR_ID) { CustomerId = COMPANY_ID, Alias = "alias_3", AssetLifecycleStatus = AssetLifecycleStatus.Available };
+                assetLifecycleFour.AssignAsset(assetFour, CALLER_ID);
+                assetLifecycleFour.AssignContractHolder(userOne, CALLER_ID);
+
+                var assetLifecycleFive = new AssetLifecycle(ASSETLIFECYCLE_FIVE_ID) { CustomerId = COMPANY_ID, Alias = "alias_4", AssetLifecycleStatus = AssetLifecycleStatus.Available };
+                assetLifecycleFive.AssignAsset(assetFour, CALLER_ID);
+                assetLifecycleFive.AssignDepartment(DEPARTMENT_ID, CALLER_ID);
+                assetLifecycleFive.AssignContractHolder(userOne, CALLER_ID);
+
 
                 assetsContext.SaveChanges();
 
                 assetsContext.Users.AddRange(userOne);
                 assetsContext.Assets.AddRange(assetOne, assetTwo, assetThree);
-                assetsContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree);
+                assetsContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree, assetLifecycleFour, assetLifecycleFive);
                 assetsContext.SaveChanges();
             }
             catch (Exception e)

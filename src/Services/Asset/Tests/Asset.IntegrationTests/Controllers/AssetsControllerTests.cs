@@ -21,6 +21,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     private readonly Guid _callerId = Guid.Parse("1d64e718-97cb-11ec-ad86-00155d64bd3d");
     private readonly Guid _organizationId;
     private readonly Guid _customerId;
+    private readonly Guid _departmentId;
 
     public AssetsControllerTests(AssetWebApplicationFactory<AssetsController> factory,
         ITestOutputHelper testOutputHelper)
@@ -29,6 +30,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         _httpClient = factory.CreateDefaultClient();
         _organizationId = factory.ORGANIZATION_ID;
         _customerId = factory.COMPANY_ID;
+        _departmentId = factory.DEPARTMENT_ID;
     }
 
     [Fact]
@@ -37,10 +39,46 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         var requestUri = $"/api/v1/Assets/customers/{_customerId}";
         _testOutputHelper.WriteLine(requestUri);
         PagedAssetList? pagedAssetList = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
-        Assert.Equal(3, pagedAssetList!.Items.Count);
-        Assert.Equal(DateTime.Today.Date, pagedAssetList!.Items[0]!.CreatedDate.Date);
-        Assert.Equal(DateTime.Today.Date, pagedAssetList!.Items[1]!.CreatedDate.Date);
-        Assert.Equal(DateTime.Today.Date, pagedAssetList!.Items[2]!.CreatedDate.Date);
+        Assert.Equal(5, pagedAssetList!.Items.Count);
+        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[0]!.CreatedDate.Date);
+        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[1]!.CreatedDate.Date);
+        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[2]!.CreatedDate.Date);
+    }
+
+    [Fact]
+    public async Task GetCustomerItemCount_ForCustomer()
+    {
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/count";
+        _testOutputHelper.WriteLine(requestUri);
+        var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
+        Assert.Equal(1, count);
+    }
+
+    [Fact]
+    public async Task GetCustomerItemCount_ForCustomerWithDepartment()
+    {
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/count?departmentId={_departmentId}";
+        _testOutputHelper.WriteLine(requestUri);
+        var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
+        Assert.Equal(1, count);
+    }
+
+    [Fact]
+    public async Task GetCustomerItemCount_ForCustomerWithStatus()
+    {
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/count?departmentId=&assetLifecycleStatus={(int)AssetLifecycleStatus.Available}";
+        _testOutputHelper.WriteLine(requestUri);
+        var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
+        Assert.Equal(3, count);
+    }
+
+    [Fact]
+    public async Task GetCustomerItemCount_ForCustomerWithDepartmentAndStatus()
+    {
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/count?departmentId={_departmentId}&assetLifecycleStatus={(int)AssetLifecycleStatus.Available}";
+        _testOutputHelper.WriteLine(requestUri);
+        var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
+        Assert.Equal(1, count);
     }
 
     [Fact]
@@ -193,7 +231,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         var data = new UnAssignAssetToUser
         {
             CallerId = _callerId,
-            DepartmentId = Guid.NewGuid()
+            DepartmentId = _departmentId
         };
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(data));
         var userId = Guid.Parse("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
@@ -207,7 +245,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         var pagedAssetList = await _httpClient.GetFromJsonAsync<PagedAssetList>($"/api/v1/Assets/customers/{customerId}");
 
         Assert.NotNull(pagedAssetList);
-        Assert.Equal(3, pagedAssetList!.TotalItems);
+        Assert.Equal(5, pagedAssetList!.TotalItems);
         Assert.All(pagedAssetList.Items, m => Assert.Equal(data.DepartmentId, m.ManagedByDepartmentId));
         Assert.All(pagedAssetList.Items, m => Assert.Null(m.AssetHolderId));
     }

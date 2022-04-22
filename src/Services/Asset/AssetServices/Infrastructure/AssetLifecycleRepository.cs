@@ -60,18 +60,19 @@ namespace AssetServices.Infrastructure
             return assetCountList;
         }
 
-        public async Task<int> GetAssetLifecyclesCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus)
+        public async Task<int> GetAssetLifecyclesCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus assetLifecycleStatus)
         {
-            var asset = _assetContext.AssetLifeCycles
-                .Where(a => a.CustomerId == customerId);
-
-            if(departmentId!=null && departmentId != Guid.Empty)
-                asset = asset.Where(a => a.ManagedByDepartmentId == departmentId);
-
-            if (assetLifecycleStatus == null)
-                return await asset.Where(a => a.AssetLifecycleStatus == AssetLifecycleStatus.Active).CountAsync();
+            if (departmentId!=null && departmentId != Guid.Empty)
+            {
+                return await _assetContext.AssetLifeCycles
+                .Where(a => a.CustomerId == customerId && a.ManagedByDepartmentId == departmentId && a.AssetLifecycleStatus == assetLifecycleStatus).CountAsync();
+            }
             else
-                return await asset.Where(a => a.AssetLifecycleStatus == assetLifecycleStatus).CountAsync();
+            {
+                return await _assetContext.AssetLifeCycles
+                .Where(a => a.CustomerId == customerId && a.AssetLifecycleStatus == assetLifecycleStatus).CountAsync();
+            }
+
         }
 
         public async Task<decimal> GetCustomerTotalBookValue(Guid customerId)

@@ -37,7 +37,7 @@ namespace AssetServices
             return await _assetLifecycleRepository.GetAssetLifecyclesCountsAsync();
         }
 
-        public async Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId , AssetLifecycleStatus? assetLifecycleStatus)
+        public async Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId = null , AssetLifecycleStatus assetLifecycleStatus = AssetLifecycleStatus.Active)
         {
             return await _assetLifecycleRepository.GetAssetLifecyclesCountAsync(customerId, departmentId, assetLifecycleStatus);
         }
