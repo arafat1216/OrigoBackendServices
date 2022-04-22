@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace HardwareRepair.API.Controllers
+namespace HardwareServiceOrder.API.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]

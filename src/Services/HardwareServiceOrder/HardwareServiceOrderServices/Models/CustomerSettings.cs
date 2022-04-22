@@ -1,6 +1,6 @@
 ﻿using Common.Seedwork;
 
-namespace HardwareRepairServices.Models
+namespace HardwareServiceOrderServices.Models
 {
     public class CustomerSettings: Entity, IAggregateRoot
     {

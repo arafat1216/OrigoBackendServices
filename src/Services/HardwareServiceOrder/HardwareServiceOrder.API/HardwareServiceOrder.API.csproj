@@ -17,11 +17,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\HardwareRepairServices\HardwareRepairServices.csproj" />
+	  <Folder Include="ViewModels\" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="ViewModels\" />
+	  <ProjectReference Include="..\HardwareServiceOrderServices\HardwareServiceOrderServices.csproj" />
 	</ItemGroup>
 
 </Project>
