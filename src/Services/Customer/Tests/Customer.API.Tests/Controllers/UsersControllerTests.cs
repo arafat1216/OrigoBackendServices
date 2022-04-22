@@ -201,12 +201,12 @@ namespace Customer.API.IntegrationTests.Controllers
         public async Task AssignManagerToDepartment()
         {
 
-            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userId}/department/{_departmentId}/manager";
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_departmentId}/manager";
             var response = await _httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var requestUriGet = $"/api/v1/organizations/users/{_userId}";
+            var requestUriGet = $"/api/v1/organizations/users/{_userOneId}";
             var responseGet = await _httpClient.GetAsync(requestUriGet);
 
             var user = await responseGet.Content.ReadFromJsonAsync<User>();
@@ -225,12 +225,12 @@ namespace Customer.API.IntegrationTests.Controllers
         public async Task UnassignManagerFromDepartment()
         {
 
-            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userId}/department/{_departmentId}/manager";
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_departmentId}/manager";
             var response = await _httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var requestUriGet = $"/api/v1/organizations/users/{_userId}";
+            var requestUriGet = $"/api/v1/organizations/users/{_userOneId}";
             var responseGet = await _httpClient.GetAsync(requestUriGet);
 
             var user = await responseGet.Content.ReadFromJsonAsync<User>();
