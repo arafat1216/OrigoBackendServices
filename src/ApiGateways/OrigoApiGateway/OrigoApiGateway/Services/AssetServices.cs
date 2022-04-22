@@ -58,11 +58,18 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<int> GetAssetsCountAsync(Guid customerId)
+        public async Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus)
         {
             try
             {
-                var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/customers/{customerId}/count");
+                string departmentFilter = "";
+                string assetStatusFilter = "";
+                if(departmentId != null && departmentId != Guid.Empty)
+                    departmentFilter = $"{departmentId}";
+                if (assetLifecycleStatus != null)
+                    assetStatusFilter = $"{(int)assetLifecycleStatus}";
+
+                var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/customers/{customerId}/count?departmentId={departmentFilter}&assetLifecycleStatus={assetStatusFilter}");
 
                 return count;
             }
@@ -74,46 +81,6 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "GetAssetsCountAsync failed with unknown error.");
-                throw;
-            }
-        }
-
-        public async Task<int> GetCustomerAvailableAssetCount(Guid customerId)
-        {
-            try
-            {
-                var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/customers/{customerId}/available/count");
-
-                return count;
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "GetCustomerAvailableAssetCount failed with HttpRequestException.");
-                throw;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "GetCustomerAvailableAssetCount failed with unknown error.");
-                throw;
-            }
-        }
-
-        public async Task<int> GetDepartmentAvailableAssetCount(Guid customerId, Guid departmentId)
-        {
-            try
-            {
-                var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/customers/{customerId}/available/{departmentId}/count");
-
-                return count;
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "GetDepartmentAvailableAssetCount failed with HttpRequestException.");
-                throw;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "GetDepartmentAvailableAssetCount failed with unknown error.");
                 throw;
             }
         }

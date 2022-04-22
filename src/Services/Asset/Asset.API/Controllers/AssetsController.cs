@@ -56,31 +56,9 @@ namespace Asset.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<int>> GetCount(Guid customerId)
+        public async Task<ActionResult<int>> GetCount(Guid customerId, Guid? departmentId = null, AssetLifecycleStatus? assetLifecycleStatus = null)
         {
-            var count = await _assetServices.GetAssetsCountAsync(customerId);
-
-            return Ok(count);
-        }
-
-        [Route("customers/{customerId:guid}/available/count")]
-        [HttpGet]
-        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<int>> GetCustomerAvailableAssetCount(Guid customerId)
-        {
-            var count = await _assetServices.GetCustomerAvailableAssetCountAsync(customerId);
-
-            return Ok(count);
-        }
-
-        [Route("customers/{customerId:guid}/available/{departmentId:guid}/count")]
-        [HttpGet]
-        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<int>> GetDepartmentAvailableAssetCount(Guid customerId, Guid departmentId)
-        {
-            var count = await _assetServices.GetDepartmentAvailableAssetCountAsync(customerId, departmentId);
+            var count = await _assetServices.GetAssetsCountAsync(customerId, departmentId, assetLifecycleStatus);
 
             return Ok(count);
         }
