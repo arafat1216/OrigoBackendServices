@@ -336,7 +336,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<IList<Department>> GetDepartmentsAsync(Guid customerId)
         {
-            return await _customerContext.Departments.Where(p => p.Customer.OrganizationId == customerId).ToListAsync();
+            return await _customerContext.Departments.Include(m => m.Managers).Where(p => p.Customer.OrganizationId == customerId).ToListAsync();
         }
 
         public async Task<Department?> GetDepartmentAsync(Guid customerId, Guid departmentId)

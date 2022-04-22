@@ -39,7 +39,10 @@ namespace CustomerServices
                 // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
                 foreach (var @event in _customerContext.GetDomainEventsAsync())
                 {
-                    await _functionalEventLogService.SaveEventAsync(@event, _customerContext.Database.CurrentTransaction);
+                    if (!_customerContext.IsSQLite) 
+                    {
+                        await _functionalEventLogService.SaveEventAsync(@event, _customerContext.Database.CurrentTransaction);
+                    }
                 }
                 await _customerContext.SaveChangesAsync(cancellationToken);
                 numberOfRecordsSaved = await _customerContext.SaveChangesAsync(cancellationToken);

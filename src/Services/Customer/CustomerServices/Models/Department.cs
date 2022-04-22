@@ -2,12 +2,14 @@
 using CustomerServices.DomainEvents;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
 
 namespace CustomerServices.Models
 {
     public class Department : Entity
     {
+        private IList<User> _managers = new List<User>();
         protected Department() { }
 
         public Department(string name, string costCenterId, string description, Organization customer, Guid externalDepartmentId,Guid callerId, Department parentDepartment = null)
@@ -59,7 +61,11 @@ namespace CustomerServices.Models
         /// The users allowed to manage this department.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyCollection<User> Managers { get; set; }
+        public IReadOnlyCollection<User> Managers 
+        {
+            get => new ReadOnlyCollection<User>(_managers);
+            protected set => _managers = value != null ? new List<User>(value) : new List<User>();
+        }
 
         /// <summary>
         /// Checks if the input department is a subdepartment of this department or if the input department is this department.

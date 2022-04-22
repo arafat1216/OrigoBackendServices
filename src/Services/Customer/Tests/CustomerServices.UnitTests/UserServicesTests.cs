@@ -226,7 +226,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void AssignManager_UserNotFound_ThrowsUserNotFoundException()
+        public async void AssignManager_CustomerNotFound_ThrowsCustomerNotFoundException()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -238,7 +238,41 @@ namespace CustomerServices.UnitTests
             const string NOT_VALID_CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
 
             //Assert
-            await Assert.ThrowsAsync<UserNotFoundException>(() => userServices.AssignManagerToDepartment(new Guid(NOT_VALID_CUSTOMER_ID), USER_ONE_ID, DEPARTMENT_ONE_ID, EMPTY_CALLER_ID));
+            await Assert.ThrowsAsync<CustomerNotFoundException>(() => userServices.AssignManagerToDepartment(new Guid(NOT_VALID_CUSTOMER_ID), USER_ONE_ID, DEPARTMENT_ONE_ID, EMPTY_CALLER_ID));
+            
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void AssignManager_UserNotFound_ThrowsUserNotFoundException()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userPermissionServices = Mock.Of<IUserPermissionServices>();
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+
+            //Act
+            const string NOT_VALID_USER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
+
+            //Assert
+            await Assert.ThrowsAsync<UserNotFoundException>(() => userServices.AssignManagerToDepartment(CUSTOMER_ONE_ID, new Guid(NOT_VALID_USER_ID), DEPARTMENT_ONE_ID, EMPTY_CALLER_ID));
+
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void AssignManager_DepartmentNotFound_ThrowsDepartmentNotFoundException()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userPermissionServices = Mock.Of<IUserPermissionServices>();
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+
+            //Act
+            const string NOT_VALID_DEPARTMENT_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
+
+            //Assert
+            await Assert.ThrowsAsync<DepartmentNotFoundException>(() => userServices.AssignManagerToDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, new Guid(NOT_VALID_DEPARTMENT_ID), EMPTY_CALLER_ID));
 
         }
         [Fact]

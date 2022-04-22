@@ -374,27 +374,56 @@ namespace CustomerServices
 
         public async Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
-            var user = await GetUserAsync(customerId, userId);
-            var department = await _organizationRepository.GetDepartmentAsync(customerId, departmentId);
-            if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
-            if (department == null)
-            {
-                throw new DepartmentNotFoundException($"Unable to find {departmentId}");
-            }
+            var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
+            if (customer == null) throw new CustomerNotFoundException($"Unable to find {customerId}");
 
+            var user = await GetUserAsync(customerId, userId);
+            if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
+
+            //Check if the customer has the department
+            var departments = await _organizationRepository.GetDepartmentsAsync(customerId);
+            var department = departments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
+
+            if (department == null) throw new DepartmentNotFoundException($"Unable to find {departmentId}");
+
+            //check if the user already is a manager for this department
+            var manager = department.Managers.FirstOrDefault(a => a.UserId == userId);
+            if (manager != null) return;
+
+            //add user as manager for the department
             user.AssignManagerToDepartment(department, callerId);
             await _organizationRepository.SaveEntitiesAsync();
+
+            //Find subdepartments of the department the user user is to be manager for  
+            var subDepartmentsList = department.Subdepartments(departments);
+            List<Guid> accsessList = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
+            accsessList.Add(customerId);
+
+            //Add permissions for the department
+            var userPermission = await _userPermissionServices.AssignUserPermissionsAsync(user.Email, PredefinedRole.DepartmentManager.ToString(), accsessList, callerId); 
         }
 
         public async Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
+            var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
+            if (customer == null) throw new CustomerNotFoundException($"Unable to find {customerId}");
+
             var user = await GetUserAsync(customerId, userId);
-            var department = await _organizationRepository.GetDepartmentAsync(customerId, departmentId);
             if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
-            if (department == null)
-            {
-                throw new DepartmentNotFoundException($"Unable to find {departmentId}");
-            }
+
+            //Check if the customer has the department
+            var departments = await _organizationRepository.GetDepartmentsAsync(customerId);
+            var department = departments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
+
+            if (department == null) throw new DepartmentNotFoundException($"Unable to find {departmentId}");
+
+            //Find subdepartments of the department 
+            var subDepartmentsList = department.Subdepartments(departments);
+            List<Guid> accsessList = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
+            accsessList.Add(customerId);
+
+            //Add permissions for the department
+            var userPermission = await _userPermissionServices.RemoveUserPermissionsAsync(user.Email, PredefinedRole.DepartmentManager.ToString(), accsessList, callerId);
 
             user.UnassignManagerFromDepartment(department, callerId);
             await _organizationRepository.SaveEntitiesAsync();
