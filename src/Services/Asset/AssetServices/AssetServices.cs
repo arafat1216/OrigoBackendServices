@@ -299,7 +299,11 @@ namespace AssetServices
                 PurchaseDate = newAssetDTO.PurchaseDate,
                 Note = newAssetDTO.Note,
                 Description = newAssetDTO.Description,
-                PaidByCompany = newAssetDTO.PaidByCompany
+                PaidByCompany = newAssetDTO.PaidByCompany,
+                OrderNumber = newAssetDTO.OrderNumber ?? string.Empty,
+                ProductId = newAssetDTO.ProductId ?? string.Empty,
+                InvoiceNumber = newAssetDTO.InvoiceNumber ?? string.Empty,
+                TransactionId = newAssetDTO.TransactionId ?? string.Empty
             };
 
             Asset asset = newAssetDTO.AssetCategoryId == 1

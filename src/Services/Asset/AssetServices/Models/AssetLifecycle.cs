@@ -9,6 +9,16 @@ namespace AssetServices.Models;
 
 public class AssetLifecycle : Entity, IAggregateRoot
 {
+    public AssetLifecycle(Guid externalId)
+    {
+        ExternalId = externalId;
+    }
+
+    public AssetLifecycle()
+    {
+
+    }
+
     /// <summary>
     /// The external uniquely identifying id across systems.
     /// </summary>
@@ -87,8 +97,8 @@ public class AssetLifecycle : Entity, IAggregateRoot
         {
             if (AssetLifecycleType != LifecycleType.Transactional)
                 return 0;
-            int differenceInMonth = ((DateTime.UtcNow.Year - PurchaseDate.Year) * 12) + DateTime.UtcNow.Month - PurchaseDate.Month;
-            decimal bookValue = PaidByCompany - (PaidByCompany / 36 * differenceInMonth);
+            var differenceInMonth = ((DateTime.UtcNow.Year - PurchaseDate.Year) * 12) + DateTime.UtcNow.Month - PurchaseDate.Month;
+            var bookValue = PaidByCompany - (PaidByCompany / 36 * differenceInMonth);
             return bookValue < 0 ? 0 : decimal.Round(bookValue, 2, MidpointRounding.AwayFromZero);
         }
     }
@@ -153,20 +163,30 @@ public class AssetLifecycle : Entity, IAggregateRoot
 
     private readonly List<CustomerLabel> _labels = new();
 
-    public AssetLifecycle(Guid externalId)
-    {
-        ExternalId = externalId;
-    }
-
-    public AssetLifecycle()
-    {
-        
-    }
-
     /// <summary>
     /// All labels associated with this asset lifecycle.
     /// </summary>
     public IReadOnlyCollection<CustomerLabel> Labels => _labels.AsReadOnly();
+
+    /// <summary>
+    ///     Order# this asset was part of.
+    /// </summary>
+    public string OrderNumber { get; init; } = string.Empty;
+
+    /// <summary>
+    ///     The product id for the asset.
+    /// </summary>
+    public string ProductId { get; init; } = string.Empty;
+
+    /// <summary>
+    ///     The invoice# this asset will be invoiced on.
+    /// </summary>
+    public string InvoiceNumber { get; init; } = string.Empty;
+
+    /// <summary>
+    ///     A unique id for the transaction where this asset was requested for.
+    /// </summary>
+    public string TransactionId { get; init; } = string.Empty;
 
     /// <summary>
     /// Assign an asset to this asset lifecycle.

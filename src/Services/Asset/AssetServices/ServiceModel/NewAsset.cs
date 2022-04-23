@@ -91,7 +91,7 @@ namespace AssetServices.ServiceModel
         /// <summary>
         ///     Order# this asset was part of.
         /// </summary>
-        public string? OrderNr { get; set; }
+        public string? OrderNumber { get; set; }
 
         /// <summary>
         ///     The product id for the asset.
