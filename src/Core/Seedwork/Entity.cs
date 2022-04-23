@@ -100,28 +100,25 @@ namespace Common.Seedwork
             _domainEvents?.Clear();
         }
 
-        public bool IsTransient()
+        private bool IsTransient()
         {
             return Id == default;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            if (obj == null || !(obj is Entity))
+            if (obj is not Entity item)
                 return false;
 
-            if (ReferenceEquals(this, obj))
+            if (ReferenceEquals(this, item))
                 return true;
 
-            if (GetType() != obj.GetType())
+            if (GetType() != item.GetType())
                 return false;
-
-            Entity item = (Entity)obj;
 
             if (item.IsTransient() || IsTransient())
                 return false;
-            else
-                return item.Id == Id;
+            return item.Id == Id;
         }
 
         public override int GetHashCode()
@@ -137,12 +134,12 @@ namespace Common.Seedwork
                 return base.GetHashCode();
         }
 
-        public static bool operator ==(Entity left, Entity right)
+        public static bool operator ==(Entity? left, Entity? right)
         {
             return left?.Equals(right) ?? Equals(right, null);
         }
 
-        public static bool operator !=(Entity left, Entity right)
+        public static bool operator !=(Entity? left, Entity? right)
         {
             return !(left == right);
         }

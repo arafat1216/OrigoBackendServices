@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text.Json;
+using AssetServices.ServiceModel;
 using AutoMapper;
 using Common.Enums;
 using Common.Exceptions;
@@ -247,7 +248,7 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<ViewModels.Asset>> Get(Guid customerId, Guid assetId)
         {
-            var assetLifecycle = await _assetServices.GetAssetLifecyclesForCustomerAsync(customerId, assetId);
+            var assetLifecycle = await _assetServices.GetAssetLifecycleForCustomerAsync(customerId, assetId);
             return Ok(_mapper.Map<ViewModels.Asset>(assetLifecycle));
         }
 
@@ -259,9 +260,8 @@ namespace Asset.API.Controllers
         {
             try
             {
-                var updatedAsset = await _assetServices.AddAssetLifecycleForCustomerAsync(customerId, asset.CallerId, asset.Alias, asset.SerialNumber,
-                    asset.AssetCategoryId, asset.Brand, asset.ProductName, asset.LifecycleType, asset.PurchaseDate,
-                    asset.AssetHolderId, asset.Imei, asset.MacAddress, asset.ManagedByDepartmentId, asset.Note, asset.Description, asset.PaidByCompany);
+                var newAssetDTO = _mapper.Map<NewAssetDTO>(asset);
+                var updatedAsset = await _assetServices.AddAssetLifecycleForCustomerAsync(customerId, newAssetDTO);
                 return CreatedAtAction(nameof(CreateAsset), new { id = updatedAsset.ExternalId }, _mapper.Map<ViewModels.Asset>(updatedAsset));
             }
             catch (AssetCategoryNotFoundException)

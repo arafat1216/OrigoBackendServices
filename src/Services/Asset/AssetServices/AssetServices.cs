@@ -72,27 +72,17 @@ namespace AssetServices
             }
         }
 
-        public async Task<AssetLifecycleDTO?> GetAssetLifecyclesForCustomerAsync(Guid customerId, Guid assetId)
+        public async Task<AssetLifecycleDTO?> GetAssetLifecycleForCustomerAsync(Guid customerId, Guid assetId)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
-            if (assetLifecycle == null)
-            {
-                return null;
-            }
-
-            return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
+            return assetLifecycle == null ? null : _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
 
         public async Task<IList<CustomerLabel>> AddLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Label> labels)
         {
             try
             {
-                List<CustomerLabel> customerLabels = new List<CustomerLabel>();
-                foreach (Label label in labels)
-                {
-                    customerLabels.Add(new CustomerLabel(customerId, callerId, label));
-                }
-
+                var customerLabels = labels.Select(label => new CustomerLabel(customerId, callerId, label)).ToList();
                 return await _assetLifecycleRepository.AddCustomerLabelsForCustomerAsync(customerId, customerLabels);
             }
             catch (Exception ex)
@@ -278,22 +268,20 @@ namespace AssetServices
             }
         }
 
-        public async Task<AssetLifecycleDTO> AddAssetLifecycleForCustomerAsync(Guid customerId, Guid callerId, string? alias, string? serialNumber, int assetCategoryId, string brand,
-            string productName, LifecycleType lifecycleType, DateTime purchaseDate, Guid? assetHolderId, IList<long> imei, string? macAddress,
-            Guid? managedByDepartmentId, string? note, string? description, decimal? PaidByCompany)
+        public async Task<AssetLifecycleDTO> AddAssetLifecycleForCustomerAsync(Guid customerId, NewAssetDTO newAssetDTO)
         {
             AssetLifecycleStatus lifecycleStatus = AssetLifecycleStatus.Active;
 
-            if (lifecycleType != LifecycleType.NoLifecycle)
+            if (newAssetDTO.LifecycleType != LifecycleType.NoLifecycle)
             {
                 lifecycleStatus = AssetLifecycleStatus.InputRequired;
             }
 
             var uniqueImeiList = new List<long>();
             //Validate list of IMEI and making sure that they are not duplicated for both MOBILE AND TABLET 
-            if (imei.Any())
+            if (newAssetDTO.Imei.Any())
             {
-                uniqueImeiList = AssetValidatorUtility.MakeUniqueIMEIList(imei);
+                uniqueImeiList = AssetValidatorUtility.MakeUniqueIMEIList(newAssetDTO.Imei);
                 foreach (var i in uniqueImeiList)
                 {
                     if (!AssetValidatorUtility.ValidateImei(i.ToString()))
@@ -305,49 +293,33 @@ namespace AssetServices
             var assetLifecycle = new AssetLifecycle
             {
                 CustomerId = customerId,
-                Alias = alias ?? string.Empty,
+                Alias = newAssetDTO.Alias,
                 AssetLifecycleStatus = lifecycleStatus,
-                AssetLifecycleType = lifecycleType,
-                PurchaseDate = purchaseDate,
-                Note = note ?? string.Empty,
-                Description = description ?? string.Empty,
-                PaidByCompany = PaidByCompany ?? 0
+                AssetLifecycleType = newAssetDTO.LifecycleType,
+                PurchaseDate = newAssetDTO.PurchaseDate,
+                Note = newAssetDTO.Note,
+                Description = newAssetDTO.Description,
+                PaidByCompany = newAssetDTO.PaidByCompany
             };
 
-            Asset asset = assetCategoryId == 1
-                ? new MobilePhone(Guid.NewGuid(), callerId, serialNumber ?? string.Empty, brand, productName,
-                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), macAddress ?? string.Empty)
-                : new Tablet(Guid.NewGuid(), callerId, serialNumber ?? string.Empty, brand, productName,
-                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), macAddress ?? string.Empty);
-            assetLifecycle.AssignAsset(asset, callerId);
-            if (assetHolderId != null)
+            Asset asset = newAssetDTO.AssetCategoryId == 1
+                ? new MobilePhone(Guid.NewGuid(), newAssetDTO.CallerId, newAssetDTO.SerialNumber, newAssetDTO.Brand, newAssetDTO.ProductName,
+                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), newAssetDTO.MacAddress)
+                : new Tablet(Guid.NewGuid(), newAssetDTO.CallerId, newAssetDTO.SerialNumber, newAssetDTO.Brand, newAssetDTO.ProductName,
+                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), newAssetDTO.MacAddress);
+            assetLifecycle.AssignAsset(asset, newAssetDTO.CallerId);
+            if (newAssetDTO.AssetHolderId != null)
             {
-                var user = await _assetLifecycleRepository.GetUser(assetHolderId.Value);
-                assetLifecycle.AssignContractHolder(user != null ? user : new User { ExternalId = assetHolderId.Value },
-                    callerId);
+                var user = await _assetLifecycleRepository.GetUser(newAssetDTO.AssetHolderId.Value);
+                assetLifecycle.AssignContractHolder(user != null ? user : new User { ExternalId = newAssetDTO.AssetHolderId.Value },
+                    newAssetDTO.CallerId);
             }
 
-            if (managedByDepartmentId != null)
+            if (newAssetDTO.ManagedByDepartmentId != null)
             {
-                assetLifecycle.AssignDepartment(managedByDepartmentId.Value, callerId);
+                assetLifecycle.AssignDepartment(newAssetDTO.ManagedByDepartmentId.Value, newAssetDTO.CallerId);
             }
 
-            //if (!newAsset.AssetPropertiesAreValid)
-            //{
-            //    StringBuilder exceptionMsg = new StringBuilder();
-            //    foreach (string errorMsg in newAsset.ErrorMsgList)
-            //    {
-            //        if (errorMsg.Contains("Imei"))
-            //        {
-            //            exceptionMsg.Append($"Asset {errorMsg}" + " is invalid.\n");
-            //        }
-            //        else
-            //        {
-            //            exceptionMsg.Append($"Minimum asset data requirements not set: {errorMsg}" + ".\n");
-            //        }
-            //    }
-            //    throw new InvalidAssetDataException(exceptionMsg.ToString());
-            //}
             var assetLifeCycle = await _assetLifecycleRepository.AddAsync(assetLifecycle);
             return _mapper.Map<AssetLifecycleDTO>(assetLifeCycle);
         }

@@ -3,6 +3,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>099c2e7d-3673-475e-abf1-d0634c0e625e</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="11.0.1" />

@@ -1,18 +1,16 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
-using System.Globalization;
+﻿using System.Globalization;
+using Microsoft.Extensions.Configuration;
 
-namespace AssetServices
+namespace AssetServices;
+
+public static class VATConfiguration
 {
-    public static class VATConfiguration
+    public static decimal Amount { get; private set; }
+
+    public static void Initialize(IConfiguration configuration)
     {
-        public static decimal Amount;
-        public static void Initialize(IConfiguration Configuration)
-        {
-            var value = Configuration.GetSection("VAT:Amount").Value;
-            var culture = new CultureInfo("en-US");
-            Amount = decimal.Parse(value, culture);
-             
-        }
+        var value = configuration.GetSection("VAT:Amount").Value;
+        var culture = new CultureInfo("en-US");
+        Amount = decimal.Parse(value, culture);
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Asset.API.Filters;
 using AssetServices;
 using AssetServices.Infrastructure;
 using AssetServices.Mappings;
@@ -67,6 +68,7 @@ namespace Asset.API
             services.AddScoped<IAssetServices, AssetServices.AssetServices>();
             services.AddScoped<IAssetTestDataService, AssetTestDataService>();
             services.AddScoped<IAssetLifecycleRepository, AssetLifecycleRepository>();
+            services.AddScoped<ErrorExceptionFilter>();
 
             VATConfiguration.Initialize(Configuration);
 

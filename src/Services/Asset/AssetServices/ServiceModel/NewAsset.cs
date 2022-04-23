@@ -1,10 +1,10 @@
-﻿using Common.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Common.Enums;
 
-namespace Asset.API.ViewModels
+namespace AssetServices.ServiceModel
 {
-    public record NewAsset
+    public record NewAssetDTO
     {
         /// <summary>
         /// The category this asset belongs to.
@@ -70,7 +70,7 @@ namespace Asset.API.ViewModels
         /// <summary>
         /// Tags associated with this asset.
         /// </summary>
-        public string? AssetTag { get; set; }
+        public string AssetTag { get; set; }
 
         /// <summary>
         /// The imei of the asset. Applicable to assets with category Mobile Phone and Tablet.
@@ -80,13 +80,13 @@ namespace Asset.API.ViewModels
         /// <summary>
         /// The mac address of the asset. Applicable to assets with category Mobile Phone and Tablet.
         /// </summary>
-        public string? MacAddress { get; set; }
+        public string MacAddress { get; set; }
 
         /// <summary>
         /// The unique serial number for the asset. For mobile phones and other devices
         /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
-        public string? SerialNumber { get; set; }
+        public string SerialNumber { get; set; }
 
         /// <summary>
         ///     Order# this asset was part of.
