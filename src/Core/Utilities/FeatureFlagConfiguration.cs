@@ -1,4 +1,4 @@
-﻿namespace OrigoApiGateway.Services
+﻿namespace Common.Utilities
 {
     public class FeatureFlagConfiguration
     {

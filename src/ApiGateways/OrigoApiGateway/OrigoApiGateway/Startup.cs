@@ -26,6 +26,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading;
+using Common.Utilities;
 
 namespace OrigoApiGateway
 {
