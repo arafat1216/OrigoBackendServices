@@ -1,0 +1,71 @@
+﻿using HardwareServiceOrder.API.Controllers;
+using HardwareServiceOrder.API.ViewModels;
+using System;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text;
+using System.Threading.Tasks;
+using Xunit;
+using Xunit.Abstractions;
+
+namespace HardwareServiceOrder.IntegrationTests.Controllers
+{
+    public class HardwareRepairControllerTests : IClassFixture<
+        HardwareServiceOrderWebApplicationFactory<HardwareRepairController>>
+    {
+        private readonly ITestOutputHelper _testOutputHelper;
+        private readonly HttpClient _httpClient;
+        private readonly Guid _callerId = Guid.Parse("1d64e718-97cb-11ec-ad86-00155d64bd3d");
+        private readonly Guid _customerId;
+        public HardwareRepairControllerTests(
+            HardwareServiceOrderWebApplicationFactory<HardwareRepairController> factory,
+            ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+            _httpClient = factory.CreateDefaultClient();
+            _customerId = factory.CUSTOMER_ONE_ID;
+        }
+
+        [Fact]
+        public async Task ConfigureLoanDevice()
+        {
+            var url = $"/api/v1/hardware-repair/{_customerId}/config/loan-device";
+            _testOutputHelper.WriteLine(url);
+            var loanDevice = new LoanDevice("+8801724592272", "test@test.com");
+            loanDevice.CallerId = _callerId;
+            var request = await _httpClient.PatchAsync(url, JsonContent.Create(loanDevice));
+            var settings = await request.Content.ReadFromJsonAsync<CustomerSettings>();
+            Assert.NotNull(settings);
+            Assert.Null(settings!.ServiceId);
+            Assert.NotNull(settings!.LoanDevice.Email);
+            Assert.NotNull(settings!.LoanDevice.PhoneNumber);
+        }
+
+        [Fact]
+        public async Task ConfigureSur()
+        {
+            var url = $"/api/v1/hardware-repair/{_customerId}/config/sur?callerId={_callerId}";
+            _testOutputHelper.WriteLine(url);
+            var serviceId = "[serviceId]";
+            var request = await _httpClient.PatchAsync(url, JsonContent.Create(serviceId));
+            var settings = await request.Content.ReadFromJsonAsync<CustomerSettings>();
+            Assert.NotNull(settings);
+            Assert.NotNull(settings!.ServiceId);
+            Assert.NotNull(settings!.LoanDevice.Email);
+            Assert.NotNull(settings!.LoanDevice.PhoneNumber);
+        }
+
+        [Fact]
+        public async Task GetSettings()
+        {
+            var url = $"/api/v1/hardware-repair/{_customerId}/config";
+            _testOutputHelper.WriteLine(url);
+            var request = await _httpClient.GetAsync(url);
+            var settings = await request.Content.ReadFromJsonAsync<CustomerSettings>();
+            Assert.NotNull(settings);
+            Assert.NotNull(settings!.ServiceId);
+            Assert.NotNull(settings!.LoanDevice.Email);
+            Assert.NotNull(settings!.LoanDevice.PhoneNumber);
+        }
+    }
+}
