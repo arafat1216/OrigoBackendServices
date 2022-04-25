@@ -32,3 +32,7 @@ services:
     project: src/Services/SubscriptionManagement/SubscriptionManagement.API/SubscriptionManagement.API.csproj
     bindings:
     - port: 58892
+  - name: hardwareserviceorderservices
+    project: src/Services/HardwareServiceOrder/HardwareServiceOrder.API/HardwareServiceOrder.API.csproj
+    bindings:
+    - port: 58893

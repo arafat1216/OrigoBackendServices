@@ -78,6 +78,7 @@ namespace OrigoApiGateway
             services.Configure<DepartmentConfiguration>(Configuration.GetSection("Department"));
             services.Configure<ProductCatalogConfiguration>(Configuration.GetSection("ProductCatalog"));
             services.Configure<SubscriptionManagementConfiguration>(Configuration.GetSection("SubscriptionManagement"));
+            services.Configure<HardwareServiceOrderConfiguration>(Configuration.GetSection("HardwareServiceOrder"));
             services.Configure<WebshopConfiguration>(Configuration.GetSection("Webshop"));
             services.Configure<FeatureFlagConfiguration>(Configuration.GetSection("FeatureFlag"));
 
@@ -125,6 +126,11 @@ namespace OrigoApiGateway
                 ),
                 x.GetRequiredService<IMapper>()
             ));
+
+            services.AddSingleton<IHardwareRepairService>(x => new HardwareRepairService(
+               x.GetRequiredService<ILogger<HardwareRepairService>>(),
+               DaprClient.CreateInvokeHttpClient("hardwareserviceorderservices"),
+               x.GetRequiredService<IOptions<HardwareServiceOrderConfiguration>>()));
 
             services.AddSingleton<ICustomerServices>(x => new CustomerServices(
                 x.GetRequiredService<ILogger<CustomerServices>>(),
