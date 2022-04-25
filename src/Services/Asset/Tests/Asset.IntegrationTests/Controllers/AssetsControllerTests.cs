@@ -22,6 +22,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     private readonly Guid _organizationId;
     private readonly Guid _customerId;
     private readonly Guid _departmentId;
+    private readonly AssetWebApplicationFactory<AssetsController> _factory;
 
     public AssetsControllerTests(AssetWebApplicationFactory<AssetsController> factory,
         ITestOutputHelper testOutputHelper)
@@ -31,6 +32,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         _organizationId = factory.ORGANIZATION_ID;
         _customerId = factory.COMPANY_ID;
         _departmentId = factory.DEPARTMENT_ID;
+        _factory = factory;
     }
 
     [Fact]
@@ -84,6 +86,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     [Fact]
     public async Task CreateAssetAndRetrieveAssetsForCustomer()
     {
+        const bool IS_PERSONAL = false;
         var managedByDepartmentId = Guid.NewGuid();
         const string ALIAS = "Just another name";
         const int ASSET_CATEGORY_ID = 1;
@@ -129,7 +132,8 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
             UserFirstName = USER_FIRST_NAME,
             UserLastName = USER_LAST_NAME,
             InvoiceNumber = INVOICE_NUMBER,
-            TransactionId = TRANSACTION_ID
+            TransactionId = TRANSACTION_ID,
+            IsPersonal = IS_PERSONAL
         };
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(newAsset));
         var requestUri = $"/api/v1/Assets/customers/{_organizationId}";
@@ -168,6 +172,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         Assert.Equal(managedByDepartmentId, assetLifecycle.ManagedByDepartmentId);
         Assert.Equal(FIRST_IMEI, assetLifecycle.Imei.FirstOrDefault());
         Assert.Equal(DESCRIPTION, assetLifecycle.Description);
+        Assert.Equal(IS_PERSONAL, assetLifecycle.IsPersonal);
     }
 
     [Fact]

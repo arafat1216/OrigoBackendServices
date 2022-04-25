@@ -65,8 +65,11 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// </summary>
     public decimal PaidByCompany { get; init; } = decimal.Zero;
 
-
-
+    /// <summary>
+    /// Is a personal or non-personal asset.
+    /// </summary>
+    public bool IsPersonal { get; set; }
+    
     /// <summary>
     /// The asset currently associated with this asset lifecycle.
     /// </summary>

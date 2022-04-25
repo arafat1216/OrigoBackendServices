@@ -137,4 +137,9 @@ public record NewAsset
     ///     A unique id for the transaction where this asset was requested for.
     /// </summary>
     public string? TransactionId { get; set; }
+
+    /// <summary>
+    /// Is a personal or non-personal asset.
+    /// </summary>
+    public bool IsPersonal { get; set; } = true;
 }

@@ -303,7 +303,8 @@ namespace AssetServices
                 OrderNumber = newAssetDTO.OrderNumber ?? string.Empty,
                 ProductId = newAssetDTO.ProductId ?? string.Empty,
                 InvoiceNumber = newAssetDTO.InvoiceNumber ?? string.Empty,
-                TransactionId = newAssetDTO.TransactionId ?? string.Empty
+                TransactionId = newAssetDTO.TransactionId ?? string.Empty,
+                IsPersonal = newAssetDTO.IsPersonal
             };
 
             Asset asset = newAssetDTO.AssetCategoryId == 1

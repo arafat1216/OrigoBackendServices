@@ -32,4 +32,5 @@ public record AssetLifecycleDTO
     public string? ProductId { get; set; }
     public string? TransactionId { get; set; }
     public string? InvoiceNumber { get; set; }
+    public bool IsPersonal { get; set; }
 }
