@@ -14,22 +14,22 @@ public record NewAsset
     /// <summary>
     ///     Alias for the asset.
     /// </summary>
-    public string Alias { get; set; }
+    public string? Alias { get; set; }
 
     /// <summary>
     ///     A note containing additional information or comments for the asset.
     /// </summary>
-    public string Note { get; init; } = string.Empty;
+    public string? Note { get; init; }
 
     /// <summary>
     ///     The asset brand (e.g. Samsung)
     /// </summary>
-    public string Brand { get; set; }
+    public string? Brand { get; set; }
 
     /// <summary>
     ///     The model or product name of this asset (e.g. Samsung Galaxy)
     /// </summary>
-    public string ProductName { get; set; }
+    public string? ProductName { get; set; }
 
     /// <summary>
     ///     The type of lifecycle for this asset.
@@ -59,13 +59,13 @@ public record NewAsset
     /// <summary>
     ///     A description of the asset.
     /// </summary>
-    public string Description { get; init; } = string.Empty;
+    public string? Description { get; init; }
 
     /// <summary>
     ///     The payment amount by company for the asset. For mobile phones and other devices
     ///     This is the amount that company covered/paid for the asset's overall cost
     /// </summary>
-    public decimal PaidByCompany { get; set; }
+    public decimal? PaidByCompany { get; set; }
 
     /// <summary>
     ///     Tags associated with this asset.
@@ -75,7 +75,7 @@ public record NewAsset
     /// <summary>
     ///     The imei of the asset. Applicable to assets with category Mobile Phone and Tablet.
     /// </summary>
-    public IList<long> Imei { get; set; }
+    public IList<long>? Imei { get; set; }
 
     /// <summary>
     ///     The mac address of the asset. Applicable to assets with category Mobile Phone and Tablet.
