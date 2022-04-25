@@ -45,6 +45,7 @@ in the query so it matches the [p.Id] value from step 2.
 	BEGIN TRAN
         UPDATE Organization
         SET PartnerId = <The partner's Id>
+	WHERE Partnerid IS NULL
 
 Commit once complete.
 
