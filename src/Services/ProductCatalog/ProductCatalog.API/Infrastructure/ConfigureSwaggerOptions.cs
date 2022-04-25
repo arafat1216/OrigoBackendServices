@@ -12,8 +12,10 @@ namespace ProductCatalog.API.Infrastructure
     /// <summary>
     ///     Configures the Swagger generation options.
     /// </summary>
-    /// <remarks> This allows API versioning to define a Swagger document per API version after the <see cref="IApiVersionDescriptionProvider"/>
-    ///     service has been resolved from the service container. </remarks>
+    /// <remarks>
+    ///     This allows API versioning to define a Swagger document per API version after the <see cref="IApiVersionDescriptionProvider"/>
+    ///     service has been resolved from the service container.
+    /// </remarks>
     public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
     {
         private readonly IApiVersionDescriptionProvider _provider;
@@ -43,13 +45,11 @@ namespace ProductCatalog.API.Infrastructure
             {
                 Title = $"Product Catalog API",
                 Version = description.ApiVersion.ToString(),
-                Description = @"Provides services for adding products and modules to organizations.     asd asdasd
-                                asd asd
-                                        asd asd",
+                Description = @"Provides services for adding products and modules to organizations."
             };
 
             if (description.IsDeprecated)
-                info.Description = @$"This API version has been deprecated.\n\n{info.Description}";
+                info.Description = @$"This API version has been deprecated!\n\n{info.Description}";
 
             return info;
         }
