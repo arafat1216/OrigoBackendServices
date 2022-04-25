@@ -31,6 +31,8 @@ builder.Services.AddHealthChecks();
 builder.Services.AddControllers()
                 .AddDapr();
 
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
+
 #region Services configuration: API Versioning w/Swagger
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
