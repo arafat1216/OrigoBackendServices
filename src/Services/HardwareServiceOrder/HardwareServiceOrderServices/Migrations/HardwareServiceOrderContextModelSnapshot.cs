@@ -52,16 +52,13 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
-                    b.Property<string>("LoanPhoneEmail")
-                        .IsRequired()
+                    b.Property<string>("LoanDeviceEmail")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LoanPhoneNumber")
-                        .IsRequired()
+                    b.Property<string>("LoanDevicePhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ServiceId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UpdatedBy")

@@ -2,8 +2,8 @@
 {
     public interface IHardwareServiceOrderRepository
     {
-        CustomerSettings ConfigureServiceIdAsync(Guid customerId, string serviceId);
-        CustomerSettings ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmain);
-        CustomerSettings GetSettingsAsync(Guid customerId);
+        Task<CustomerSettings> ConfigureServiceIdAsync(Guid customerId, string serviceId, Guid callerId);
+        Task<CustomerSettings> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmain, Guid callerId);
+        Task<CustomerSettings> GetSettingsAsync(Guid customerId);
     }
 }

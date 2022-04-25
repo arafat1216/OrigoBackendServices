@@ -1,8 +1,10 @@
-using Google.Api;
-using HardwareServiceOrder.API;
+
+using HardwareServiceOrderServices;
+using HardwareServiceOrderServices.Infrastructure;
+using HardwareServiceOrderServices.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
@@ -31,7 +33,17 @@ builder.Services.AddHealthChecks();
 builder.Services.AddControllers()
                 .AddDapr();
 
+builder.Services.AddDbContext<HardwareServiceOrderContext>(options => options.UseSqlServer(
+    builder.Configuration.GetConnectionString("HardwareServiceOrderConnectionString"), sqlOption =>
+    {
+        sqlOption.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
+        sqlOption.MigrationsAssembly(typeof(HardwareServiceOrderContext).GetTypeInfo().Assembly.GetName().Name);
+    }));
+
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(HardwareServiceOrderServices.Mappings.CustomerSettingsProfile)));
+
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
+
 
 #region Services configuration: API Versioning w/Swagger
 
@@ -99,6 +111,9 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddMvc();
 
 builder.Services.AddApplicationInsightsTelemetry();
+
+builder.Services.AddScoped<IHardwareServiceOrderService, HardwareServiceOrderService>();
+builder.Services.AddScoped<IHardwareServiceOrderRepository, HardwareServiceOrderRepository>();
 
 #endregion Builder
 

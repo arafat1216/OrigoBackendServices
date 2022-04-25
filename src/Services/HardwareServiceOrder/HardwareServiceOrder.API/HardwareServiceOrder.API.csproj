@@ -16,10 +16,7 @@
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.3.1" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.3.1" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="ViewModels\" />
+		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
