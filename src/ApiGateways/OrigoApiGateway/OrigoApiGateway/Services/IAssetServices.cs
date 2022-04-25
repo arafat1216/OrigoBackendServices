@@ -30,7 +30,7 @@ namespace OrigoApiGateway.Services
         Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, UpdateAssetLifecycleType data);
         Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAssetDTO updateAsset);
         Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, AssignAssetToUser data);
-        Task<IList<OrigoAssetCategory>> GetAssetCategoriesAsync();
+        Task<IList<OrigoAssetCategory>> GetAssetCategoriesAsync(string? language = "EN");
         IList<AssetCategoryAttribute> GetAssetCategoryAttributesForCategory(int categoryId);
         Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId, Guid callerId, string role);
         Task<string> CreateAssetSeedData();

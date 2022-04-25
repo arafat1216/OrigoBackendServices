@@ -678,11 +678,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<OrigoAssetCategory>> GetAssetCategoriesAsync()
+        public async Task<IList<OrigoAssetCategory>> GetAssetCategoriesAsync(string? language = "EN")
         {
             try
             {
-                var assetCategories = await HttpClient.GetFromJsonAsync<IList<AssetCategoryDTO>>($"{_options.ApiPath}/categories");
+                var assetCategories = await HttpClient.GetFromJsonAsync<IList<AssetCategoryDTO>>($"{_options.ApiPath}/categories?language={language}");
                 if (assetCategories == null)
                     return null;
 
