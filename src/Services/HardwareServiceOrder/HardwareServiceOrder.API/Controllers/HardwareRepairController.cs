@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using HardwareServiceOrder.API.ViewModels;
 using HardwareServiceOrderServices;
+using HardwareServiceOrderServices.ServiceModels;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
@@ -29,7 +30,7 @@ namespace HardwareServiceOrder.API.Controllers
         [Route("{customerId:Guid}/config/sur")]
         [HttpPatch]
         [SwaggerOperation(Tags = new[] { "Configuration" })]
-        public async Task<IActionResult> ConfigureSur(Guid customerId, [FromBody] string serviceId,  Guid callerId)
+        public async Task<IActionResult> ConfigureSur(Guid customerId, [FromBody] string serviceId, Guid callerId)
         {
             var settings = await _hardwareServiceOrderService.ConfigureServiceIdAsync(customerId, serviceId, callerId);
             return Ok(_mapper.Map<CustomerSettings>(settings));
@@ -52,6 +53,48 @@ namespace HardwareServiceOrder.API.Controllers
         {
             var settings = await _hardwareServiceOrderService.GetSettingsAsync(customerId);
             return Ok(_mapper.Map<CustomerSettings>(settings));
+        }
+
+        [Route("{customerId:Guid}/orders")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.HardwareServiceOrder), (int)HttpStatusCode.OK)]
+        [SwaggerOperation(Tags = new[] { "Orders" })]
+        public async Task<IActionResult> CreateHardwareServiceOrder(Guid customerId, [FromBody] ViewModels.HardwareServiceOrder model)
+        {
+            var dto = _mapper.Map<HardwareServiceOrderDTO>(model);
+            var vm = _mapper.Map<ViewModels.HardwareServiceOrder>(await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, dto));
+            return Ok(vm);
+        }
+
+        [Route("{customerId:Guid}/orders/{orderId:Guid}")]
+        [HttpGet]
+        [ProducesResponseType(typeof(ViewModels.HardwareServiceOrder), (int)HttpStatusCode.OK)]
+        [SwaggerOperation(Tags = new[] { "Orders" })]
+        public async Task<IActionResult> GetHardwareServiceOrder(Guid customerId, Guid orderId)
+        {
+            var dto = await _hardwareServiceOrderService.GetHardwareServiceOrderAsync(customerId, orderId);
+            return Ok(_mapper.Map<ViewModels.HardwareServiceOrder>(dto));
+        }
+
+        [Route("{customerId:Guid}/orders/{orderId:Guid}")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(ViewModels.HardwareServiceOrder), (int)HttpStatusCode.OK)]
+        [SwaggerOperation(Tags = new[] { "Orders" })]
+        public async Task<IActionResult> UpdateHardwareServiceOrder(Guid customerId, Guid orderId, ViewModels.HardwareServiceOrder model)
+        {
+            var dto = _mapper.Map<HardwareServiceOrderDTO>(model);
+            var vm = _mapper.Map<ViewModels.HardwareServiceOrder>(await _hardwareServiceOrderService.UpdateHardwareServiceOrderAsync(customerId, orderId, dto));
+            return Ok(vm);
+        }
+
+        [Route("{customerId:Guid}/orders")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ViewModels.HardwareServiceOrder>), (int)HttpStatusCode.OK)]
+        [SwaggerOperation(Tags = new[] { "Orders" })]
+        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId)
+        {
+            var dto = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(customerId);
+            return Ok(_mapper.Map<List<ViewModels.HardwareServiceOrder>>(dto));
         }
     }
 }

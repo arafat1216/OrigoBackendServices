@@ -26,10 +26,30 @@ namespace HardwareServiceOrderServices
             return _mapper.Map<CustomerSettingsDTO>(entity);
         }
 
+        public Task<HardwareServiceOrderDTO> CreateHardwareServiceOrderAsync(Guid customerId, HardwareServiceOrderDTO model)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<HardwareServiceOrderDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<CustomerSettingsDTO> GetSettingsAsync(Guid customerId)
         {
             var entity = await _hardwareServiceOrderRepository.GetSettingsAsync(customerId);
             return _mapper.Map<CustomerSettingsDTO>(entity);
+        }
+
+        public Task<HardwareServiceOrderDTO> UpdateHardwareServiceOrderAsync(Guid customerId, Guid orderId, HardwareServiceOrderDTO model)
+        {
+            throw new NotImplementedException();
         }
     }
 }
