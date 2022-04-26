@@ -6,8 +6,8 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
     public class CustomerSettingsConfiguration : IEntityTypeConfiguration<CustomerSettings>
     {
-
         private readonly bool _isSqlLite;
+
         public CustomerSettingsConfiguration(bool isSqlLite)
         {
             _isSqlLite = isSqlLite;
