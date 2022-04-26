@@ -328,10 +328,8 @@ namespace OrigoApiGateway.Controllers
                 _ = Guid.TryParse(actor, out Guid callerId);
 
                 var deletedUser = await _userServices.DeleteUserAsync(organizationId, userId, softDelete, callerId);
-                if (!deletedUser)
-                    return NotFound();
 
-                return NoContent();
+                return Ok(deletedUser);
             }
             catch (Exception ex)
             {

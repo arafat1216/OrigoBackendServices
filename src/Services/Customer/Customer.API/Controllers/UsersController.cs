@@ -208,7 +208,7 @@ namespace Customer.API.Controllers
         /// <returns cref="HttpStatusCode.NotFound"></returns>
         [Route("{userId:Guid}")]
         [HttpDelete]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> DeleteUser(Guid customerId, Guid userId, [FromBody] Guid callerId, bool softDelete = true)
         {
@@ -219,7 +219,7 @@ namespace Customer.API.Controllers
                     return NotFound("The requested resource don't exist.");
                 // TODO: Ask about this status code 302. Does this make sense??
                 // The resource was deleted successfully.
-                return NoContent();
+                return Ok(_mapper.Map<User>(deletedUser));
             }
             catch (CustomerNotFoundException)
             {

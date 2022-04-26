@@ -185,8 +185,10 @@ namespace Customer.API.IntegrationTests.Controllers
             var request = new HttpRequestMessage(HttpMethod.Delete, url);
             request.Content = JsonContent.Create(_callerId);
             var deleteResponse = await _httpClient.SendAsync(request);
-
-            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            var deletedUser = await deleteResponse.Content.ReadFromJsonAsync<User>();
+            Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
+            Assert.NotNull(deletedUser);
+            Assert.Equal(_userTwoId, deletedUser!.Id);
 
             // Get Users
             var requestUri = $"/api/v1/organizations/{_customerId}/users";
@@ -243,7 +245,7 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permission = await responsePermissions.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissions.StatusCode);
-            Assert.Equal(2,permission.Count);
+            Assert.Equal(2, permission.Count);
             Assert.Equal("EndUser", permission[0].Role);
             Assert.Equal("DepartmentManager", permission[1].Role);
             Assert.Equal(3, permission[1].AccessList.Count);
@@ -263,7 +265,7 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permissionAfter = await responsePermissionsAfter.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissionsAfter.StatusCode);
-            Assert.Equal(1,permissionAfter.Count);
+            Assert.Equal(1, permissionAfter.Count);
             Assert.Equal(1, permissionAfter[0].AccessList.Count);
             Assert.Equal("EndUser", permissionAfter[0].Role);
 

@@ -351,7 +351,7 @@ namespace CustomerServices
 
             //Get the users role and assign it to the users DTO
             UserDTO userDTO = _mapper.Map<UserDTO>(user);
-
+            userDTO.Role = await GetRoleNameForUser(user.Email);
             return userDTO;
         }
 

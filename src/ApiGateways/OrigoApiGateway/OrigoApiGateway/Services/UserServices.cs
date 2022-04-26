@@ -234,7 +234,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<bool> DeleteUserAsync(Guid customerId, Guid userId, bool softDelete, Guid callerId)
+        public async Task<OrigoUser> DeleteUserAsync(Guid customerId, Guid userId, bool softDelete, Guid callerId)
         {
             try
             {
@@ -251,11 +251,11 @@ namespace OrigoApiGateway.Services
 
 
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-                    return false;
+                    throw new BadHttpRequestException("User not found", (int)response.StatusCode);
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to delete user", (int)response.StatusCode);
 
-                return true;
+                return await response.Content.ReadFromJsonAsync<OrigoUser>();
             }
             catch (Exception exception)
             {
