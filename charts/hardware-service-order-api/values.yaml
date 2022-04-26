@@ -3,7 +3,7 @@ namespace: develop
 
 service:
   type: ClusterIP
-  port: 3840
+  port: 3850
 
 deployment:
   containerPort: 80
