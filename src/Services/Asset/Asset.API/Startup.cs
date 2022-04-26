@@ -6,6 +6,8 @@ using AssetServices.Infrastructure;
 using AssetServices.Mappings;
 using AssetServices.Models;
 using Common.Logging;
+using Common.Utilities;
+using Dapr.Client;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +16,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
 using Microsoft.OpenApi.Models;
 
 namespace Asset.API
@@ -69,6 +73,13 @@ namespace Asset.API
             services.AddScoped<IAssetTestDataService, AssetTestDataService>();
             services.AddScoped<IAssetLifecycleRepository, AssetLifecycleRepository>();
             services.AddScoped<ErrorExceptionFilter>();
+            // Feature flag initialization.
+            services.Configure<FeatureFlagConfiguration>(Configuration.GetSection("FeatureFlag"));
+            services.AddSingleton<IFeatureDefinitionProvider, ApiFeatureFilter>(
+                f => new ApiFeatureFilter(
+                    DaprClient.CreateInvokeHttpClient("customerservices"),
+                    f.GetRequiredService<IOptions<FeatureFlagConfiguration>>())
+            ).AddFeatureManagement();
 
             VATConfiguration.Initialize(Configuration);
 
