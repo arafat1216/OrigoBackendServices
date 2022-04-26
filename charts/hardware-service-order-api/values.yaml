@@ -1,0 +1,90 @@
+fullnameOverride: hardwareserviceorderservices
+namespace: develop
+
+service:
+  type: ClusterIP
+  port: 3840
+
+deployment:
+  containerPort: 80
+  replicaCount: 2
+  annotations:
+    dapr.io/enabled: "true"
+    dapr.io/app-id: "hardwareserviceorderservices"
+    dapr.io/app-port: "80"
+    dapr.io/log-level: "debug"
+    dapr.io/config: "appconfig-hardwareserviceorderservices"
+
+  env:
+    "ASPNETCORE_ENVIRONMENT": "Staging"
+    "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true"
+
+  image:
+    repository: origov2acr.azurecr.io/hardwareserviceorder
+    tag: 3642
+    pullPolicy: IfNotPresent
+
+  secretVolumes:
+    - secretVolume:
+       name: "secrets"
+       secretName: "secret-hardwareserviceorder-appsettings"
+
+  volumeMounts:
+    - volumeMount:
+        name: "secrets"
+        mountPath: "/app/secrets"
+        readOnly: true
+
+  probes:
+    enabled: false
+
+ingress:
+  enabled: false
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    ingress.kubernetes.io/protocol: https
+    traefik.ingress.kubernetes.io/frontend-entry-points: https
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/router.middlewares: traefik-https-only@kubernetescrd
+    traefik.frontend.passHostHeader: "true"
+
+secrets: {}
+  # Optionally specify a set of secret objects whose values
+  # will be injected as environment variables by default.
+  # You should add this section to a file like secrets.yaml
+  # that is explicitly NOT committed to source code control
+  # and then include it as part of your helm install step.
+  # ref: https://kubernetes.io/docs/concepts/configuration/secret/
+  #
+  # This creates a secret "mysecret" and injects "mypassword"
+  # as the environment variable mysecret_mypassword=password.
+  # mysecret:
+  #   mypassword: password
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+nodeSelector: {}
+
+tolerations:
+  - key: "kubernetes.azure.com/scalesetpriority"
+    operator: "Equal"
+    value: "spot"
+    effect: "NoSchedule"
+
+affinity:
+  nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: "kubernetes.azure.com/scalesetpriority"
+            operator: In
+            values:
+            - "spot"
