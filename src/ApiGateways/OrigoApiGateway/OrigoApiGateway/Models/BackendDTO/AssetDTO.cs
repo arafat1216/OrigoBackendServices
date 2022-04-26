@@ -130,5 +130,10 @@ namespace OrigoApiGateway.Models.BackendDTO
         public string AssetStatusName { get; init; }
 
         public IList<Label> Labels { get; init; }
+
+        /// <summary>
+        /// Is a personal or non-personal asset.
+        /// </summary>
+        public bool IsPersonal { get; set; }
     }
 }

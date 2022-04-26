@@ -324,7 +324,75 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void AddAssetForCustomerAsync_NewAssetNoLifeCycle_AssetStatusShouldActive()
+    public async void AddAssetForCustomerAsync_NewAssetNoDepartment_AssetStatusShouldBeInputRequired()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var newAssetDTO = new NewAssetDTO
+        {
+            CallerId = Guid.Empty,
+            Alias = "alias",
+            SerialNumber = "4543534535344",
+            AssetCategoryId = ASSET_CATEGORY_ID,
+            Brand = "iPhone",
+            ProductName = "iPhone X",
+            LifecycleType = LifecycleType.Transactional,
+            PurchaseDate = new DateTime(2020, 1, 1),
+            AssetHolderId = ASSETHOLDER_ONE_ID,
+            Imei = new List<long> { 993100473611389 },
+            MacAddress = "a3:21:99:5d:a7:a0",
+            ManagedByDepartmentId = null,
+            Note = "Unassigned asset",
+            Description = "description"
+        };
+
+        // Act
+        var newAsset = await assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, newAssetDTO);
+
+        // Assert
+        Assert.Equal(AssetLifecycleStatus.InputRequired, newAsset.AssetLifecycleStatus);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async void AddAssetForCustomerAsync_NewAssetTransactional_AssetStatusShouldActive()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var newAssetDTO = new NewAssetDTO
+        {
+            CallerId = Guid.Empty,
+            Alias = "alias",
+            SerialNumber = "4543534535344",
+            AssetCategoryId = ASSET_CATEGORY_ID,
+            Brand = "iPhone",
+            ProductName = "iPhone X",
+            PurchaseDate = new DateTime(2020, 1, 1),
+            AssetHolderId = ASSETHOLDER_ONE_ID,
+            Imei = new List<long> { 993100473611389 },
+            MacAddress = "a3:21:99:5d:a7:a0",
+            ManagedByDepartmentId = DEPARTMENT_ID,
+            Note = "Unassigned asset",
+            Description = "description",
+            AssetTag = "A4020",
+            LifecycleType = LifecycleType.Transactional
+
+        };
+
+        // Act
+        var newAsset = await assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, newAssetDTO);
+
+        // Assert
+        Assert.Equal(AssetLifecycleStatus.Active, newAsset.AssetLifecycleStatus);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async void AddAssetForCustomerAsync_NewAssetNoLifcycle_AssetStatusShouldBeInputRequired()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -353,7 +421,7 @@ public class AssetServicesTests : AssetBaseTest
         var newAsset = await assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, newAssetDTO);
 
         // Assert
-        Assert.Equal(AssetLifecycleStatus.Active, newAsset.AssetLifecycleStatus);
+        Assert.Equal(AssetLifecycleStatus.InputRequired, newAsset.AssetLifecycleStatus);
     }
 
     [Fact]

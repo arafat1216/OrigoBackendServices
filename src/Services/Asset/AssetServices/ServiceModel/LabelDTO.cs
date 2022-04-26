@@ -1,5 +1,4 @@
 ﻿using Common.Enums;
-
 namespace AssetServices.ServiceModel;
 
 public record LabelDTO

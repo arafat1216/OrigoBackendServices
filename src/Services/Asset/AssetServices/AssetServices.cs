@@ -272,7 +272,23 @@ namespace AssetServices
         {
             AssetLifecycleStatus lifecycleStatus = AssetLifecycleStatus.Active;
 
-            if (newAssetDTO.LifecycleType != LifecycleType.NoLifecycle)
+            if ((newAssetDTO.AssetTag != null && newAssetDTO.AssetTag.Contains("A4010")) ||  //Non personal with leasing/as a service
+                (newAssetDTO.AssetTag != null && newAssetDTO.AssetTag.Contains("A4020")))   //Non personal purchased transactional
+            {
+                newAssetDTO.IsPersonal = false;
+            }
+
+            //Hør med Halvor om dette blir riktig
+            if (newAssetDTO.LifecycleType == LifecycleType.NoLifecycle)
+            {
+                lifecycleStatus = AssetLifecycleStatus.InputRequired;
+            }
+
+            if (!newAssetDTO.IsPersonal && (newAssetDTO.ManagedByDepartmentId == null || newAssetDTO.ManagedByDepartmentId == Guid.Empty))
+            {
+                lifecycleStatus = AssetLifecycleStatus.InputRequired;
+            }
+            if (newAssetDTO.IsPersonal && (newAssetDTO.ManagedByDepartmentId == null || newAssetDTO.ManagedByDepartmentId == Guid.Empty || newAssetDTO.AssetHolderId == null))
             {
                 lifecycleStatus = AssetLifecycleStatus.InputRequired;
             }
@@ -313,6 +329,8 @@ namespace AssetServices
                 : new Tablet(Guid.NewGuid(), newAssetDTO.CallerId, newAssetDTO.SerialNumber, newAssetDTO.Brand, newAssetDTO.ProductName,
                     uniqueImeiList.Select(i => new AssetImei(i)).ToList(), newAssetDTO.MacAddress);
             assetLifecycle.AssignAsset(asset, newAssetDTO.CallerId);
+
+
             if (newAssetDTO.AssetHolderId != null)
             {
                 var user = await _assetLifecycleRepository.GetUser(newAssetDTO.AssetHolderId.Value);
@@ -325,7 +343,12 @@ namespace AssetServices
                 assetLifecycle.AssignDepartment(newAssetDTO.ManagedByDepartmentId.Value, newAssetDTO.CallerId);
             }
 
+            //Assign system label for if it is personal/non personal
+            var customerLabel = new CustomerLabel(customerId, newAssetDTO.CallerId, new Label(newAssetDTO.IsPersonal ? "Personal" : "Non Personal", LabelColor.Gray));
+            assetLifecycle.AssignSystemLabel(customerLabel, newAssetDTO.CallerId);
+
             var assetLifeCycle = await _assetLifecycleRepository.AddAsync(assetLifecycle);
+
             return _mapper.Map<AssetLifecycleDTO>(assetLifeCycle);
         }
 
