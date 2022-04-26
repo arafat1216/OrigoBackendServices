@@ -1,0 +1,107 @@
+# Template for building a backend microservice
+
+parameters:
+- name: vmImage
+  default: 'ubuntu-latest'
+- name: 'dbContext'
+  default: ''
+- name: 'dbProject'
+  default: ''
+- name: migrationScriptOutputDir
+  default: ''
+- name: buildRepositoryLocalPath
+  default: ''
+- name: buildSourcesDirectory
+  default: ''
+- name: imageRepository
+  default: ''
+- name: dockerfilePath
+  default: ''
+- name: dockerRegistryServiceConnection
+  default: ''
+- name: buildId
+  default: ''
+- name: SonarToken
+  default: ''
+- name: artifactsFeedSource
+  default: ''
+- name: vssNugetAccessToken
+  default: ''
+
+jobs:
+- job: MigrationScripts
+  displayName: Migration scripts
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  steps:
+  - task: NuGetAuthenticate@0
+    displayName: Authenticating with internal NuGet package-feeds
+
+  - script: 'dotnet tool install --global dotnet-ef'
+    displayName: Install EF Core
+
+  - script: 'dotnet ef migrations script --context ${{ parameters.dbContext }} --idempotent --output ${{ parameters.migrationScriptOutputDir }}/migrations.sql --project ${{ parameters.dbProject }}'
+    displayName: Create migration scripts
+
+  - script: 'dotnet ef migrations script --context LoggingDbContext --idempotent --output ${{ parameters.migrationScriptOutputDir }}/logging_migrations.sql --project ${{ parameters.dbProject }}'
+    displayName: Create logging migration scripts
+
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish migrations'
+    inputs:
+      targetPath: ${{ parameters.migrationScriptOutputDir }}
+      artifact: 'migrations'
+
+- job: Build
+  displayName: Build
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  steps:
+  - task: NuGetAuthenticate@0
+    displayName: Authenticating with internal NuGet package-feeds
+
+  - task: Docker@2 # Can't use buildAndPush since arguments are needed
+    displayName: Building Docker image
+    inputs:
+      command: build
+      buildContext: ${{ parameters.buildRepositoryLocalPath }}
+      repository: ${{ parameters.imageRepository }}
+      dockerfile: ${{ parameters.dockerfilePath }}
+      containerRegistry: ${{ parameters.dockerRegistryServiceConnection }}
+      arguments: --build-arg SONAR_TOKEN=${{ parameters.SonarToken }} --build-arg BUILD_ID=${{ parameters.buildId }} --build-arg FEED_SOURCE=${{ parameters.artifactsFeedSource }} --build-arg FEED_ACCESSTOKEN=${{ parameters.vssNugetAccessToken }}
+      tags: |
+          ${{ parameters.buildId }}
+
+  - task: Docker@2
+    displayName: Pushing Docker image to container registry
+    inputs:
+      command: push
+      buildContext: ${{ parameters.buildRepositoryLocalPath }}
+      repository: ${{ parameters.imageRepository }}
+      dockerfile: ${{ parameters.dockerfilePath }}
+      containerRegistry: ${{ parameters.dockerRegistryServiceConnection }}
+      tags: |
+          ${{ parameters.buildId }}
+
+  - pwsh: |
+      $id=docker images --filter "label=test=${{ parameters.buildId }}" -q | Select-Object -First 1
+      docker create --name testcontainer $id
+      docker cp testcontainer:/TestResults ${{ parameters.buildSourcesDirectory }}/TestResults
+      docker cp testcontainer:/CodeCoverage ${{ parameters.buildSourcesDirectory }}/CodeCoverage
+      docker rm testcontainer
+    displayName: 'Copy test results' 
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '${{ parameters.buildSourcesDirectory }}/CodeCoverage/coverage.cobertura.xml'
+      displayName: 'Publish code coverage'
+
+  - task: PublishTestResults@2
+    inputs:
+      testRunner: VSTest
+      testResultsFiles: '**/*.trx'
+      displayName: 'Publish test results'
+
+  - publish: charts/asset-api
+    artifact: helmcharts

@@ -12,18 +12,19 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.FeatureManagement;
 
 // ReSharper disable StringLiteralTypo
 // ReSharper disable once ClassNeverInstantiated.Global
 
 namespace Asset.IntegrationTests;
 
-public class AssetWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram>
-    where TProgram : class
+public class AssetWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
 
 {
     private readonly DbConnection _dbConnection = new SqliteConnection("Data Source=:memory:");
 
+    public FeatureManagerStub FeatureManager { get; private set; }
     public readonly Guid ORGANIZATION_ID = Guid.Parse("7adbd9fa-97d1-11ec-8500-00155d64bd3d");
     private readonly Guid CALLER_ID = new("da031680-abb0-11ec-849b-00155d3196a5");
     public readonly Guid ASSETLIFECYCLE_ONE_ID = new("4e7413da-54c9-4f79-b882-f66ce48e5074");
@@ -34,6 +35,7 @@ public class AssetWebApplicationFactory<TProgram> : WebApplicationFactory<TProgr
     public readonly Guid DEPARTMENT_ID = new("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72");
     public readonly Guid COMPANY_ID = new("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
     public readonly Guid ASSETHOLDER_ONE_ID = new("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureTestServices(services =>
@@ -44,47 +46,82 @@ public class AssetWebApplicationFactory<TProgram> : WebApplicationFactory<TProgr
             var serviceProvider = services.BuildServiceProvider();
             using var scope = serviceProvider.CreateScope();
             using var assetsContext = scope.ServiceProvider.GetRequiredService<AssetsContext>();
+            FeatureManager = new FeatureManagerStub();
+            services.AddScoped<IFeatureManager, FeatureManagerStub>(f => FeatureManager);
             assetsContext.Database.EnsureCreated();
             try
             {
-                var assetOne = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012345", "Samsung", "Samsung Galaxy S20", new List<AssetImei>() { new AssetImei(500119468586675) }, "B26EDC46046B");
+                var assetOne = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012345", "Samsung",
+                    "Samsung Galaxy S20", new List<AssetImei> { new(500119468586675) }, "B26EDC46046B");
 
-                var assetTwo = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012364", "Apple", "Apple iPhone 8", new List<AssetImei>() { new AssetImei(546366434558702) }, "487027C99FA1");
+                var assetTwo = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012364", "Apple", "Apple iPhone 8",
+                    new List<AssetImei> { new(546366434558702) }, "487027C99FA1");
 
-                var assetThree = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012399", "Samsung", "Samsung Galaxy S21", new List<AssetImei>() { new AssetImei(512217111821626) }, "840F1D0C06AD");
-                
-                var assetFour = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012397", "Apple", "iPhone 11 Pro", new List<AssetImei>() { new AssetImei(512217111821624) }, "840F1D0C06AB");
+                var assetThree = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012399", "Samsung",
+                    "Samsung Galaxy S21", new List<AssetImei> { new(512217111821626) }, "840F1D0C06AD");
+
+                var assetFour = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012397", "Apple", "iPhone 11 Pro",
+                    new List<AssetImei> { new(512217111821624) }, "840F1D0C06AB");
 
                 var userOne = new User { ExternalId = ASSETHOLDER_ONE_ID };
-                var assetLifecycleOne = new AssetLifecycle(ASSETLIFECYCLE_ONE_ID) { CustomerId = COMPANY_ID, Alias = "alias_0", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired };
+                var assetLifecycleOne = new AssetLifecycle(ASSETLIFECYCLE_ONE_ID)
+                {
+                    CustomerId = COMPANY_ID,
+                    Alias = "alias_0",
+                    AssetLifecycleStatus = AssetLifecycleStatus.InputRequired,
+                    IsPersonal = true
+                };
                 assetLifecycleOne.AssignAsset(assetOne, CALLER_ID);
                 assetLifecycleOne.AssignContractHolder(userOne, CALLER_ID);
 
-                var assetLifecycleTwo = new AssetLifecycle(ASSETLIFECYCLE_TWO_ID) { CustomerId = COMPANY_ID, Alias = "alias_1", AssetLifecycleStatus = AssetLifecycleStatus.Available };
+                var assetLifecycleTwo = new AssetLifecycle(ASSETLIFECYCLE_TWO_ID)
+                {
+                    CustomerId = COMPANY_ID,
+                    Alias = "alias_1",
+                    AssetLifecycleStatus = AssetLifecycleStatus.Available,
+                    IsPersonal = false
+                };
                 assetLifecycleTwo.AssignAsset(assetTwo, CALLER_ID);
                 assetLifecycleTwo.AssignContractHolder(userOne, CALLER_ID);
 
-                var assetLifecycleThree = new AssetLifecycle(ASSETLIFECYCLE_THREE_ID) { CustomerId = COMPANY_ID, Alias = "alias_2", AssetLifecycleStatus = AssetLifecycleStatus.Active };
+                var assetLifecycleThree = new AssetLifecycle(ASSETLIFECYCLE_THREE_ID)
+                {
+                    CustomerId = COMPANY_ID, Alias = "alias_2",
+                    AssetLifecycleStatus = AssetLifecycleStatus.Active,
+                    IsPersonal = true
+                };
                 assetLifecycleThree.AssignAsset(assetThree, CALLER_ID);
                 assetLifecycleThree.AssignDepartment(DEPARTMENT_ID, CALLER_ID);
                 assetLifecycleThree.AssignContractHolder(userOne, CALLER_ID);
 
-                var assetLifecycleFour = new AssetLifecycle(ASSETLIFECYCLE_FOUR_ID) { CustomerId = COMPANY_ID, Alias = "alias_3", AssetLifecycleStatus = AssetLifecycleStatus.Available };
+                var assetLifecycleFour = new AssetLifecycle(ASSETLIFECYCLE_FOUR_ID)
+                {
+                    CustomerId = COMPANY_ID,
+                    Alias = "alias_3",
+                    AssetLifecycleStatus = AssetLifecycleStatus.Available,
+                    IsPersonal = true
+                };
                 assetLifecycleFour.AssignAsset(assetFour, CALLER_ID);
                 assetLifecycleFour.AssignContractHolder(userOne, CALLER_ID);
 
-                var assetLifecycleFive = new AssetLifecycle(ASSETLIFECYCLE_FIVE_ID) { CustomerId = COMPANY_ID, Alias = "alias_4", AssetLifecycleStatus = AssetLifecycleStatus.Available };
+                var assetLifecycleFive = new AssetLifecycle(ASSETLIFECYCLE_FIVE_ID)
+                {
+                    CustomerId = COMPANY_ID,
+                    Alias = "alias_4",
+                    AssetLifecycleStatus = AssetLifecycleStatus.Available,
+                    IsPersonal = false
+                };
                 assetLifecycleFive.AssignAsset(assetFour, CALLER_ID);
                 assetLifecycleFive.AssignDepartment(DEPARTMENT_ID, CALLER_ID);
                 assetLifecycleFive.AssignContractHolder(userOne, CALLER_ID);
 
-                var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID, true, Guid.Empty);
-                lifeCycleSetting.SetMinBuyoutPrice(700M, 1, Guid.Empty);
+
+                assetsContext.SaveChanges();
 
                 assetsContext.Users.AddRange(userOne);
                 assetsContext.Assets.AddRange(assetOne, assetTwo, assetThree);
-                assetsContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree, assetLifecycleFour, assetLifecycleFive);
-                assetsContext.LifeCycleSettings.AddRange(lifeCycleSetting);
+                assetsContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree,
+                    assetLifecycleFour, assetLifecycleFive);
                 assetsContext.SaveChanges();
             }
             catch (Exception e)

@@ -18,6 +18,8 @@ using AutoMapper;
 using Common.Enums;
 using Common.Exceptions;
 using Dapr;
+using Microsoft.FeatureManagement;
+using Microsoft.FeatureManagement.Mvc;
 
 namespace Asset.API.Controllers
 {
@@ -31,15 +33,17 @@ namespace Asset.API.Controllers
     {
         private readonly IAssetServices _assetServices;
         private readonly IMapper _mapper;
+        private readonly IFeatureManager _featureManager;
 
         // ReSharper disable once NotAccessedField.Local
         private readonly ILogger<AssetsController> _logger;
 
-        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices, IMapper mapper)
+        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices, IMapper mapper, IFeatureManager featureManager)
         {
             _logger = logger;
             _assetServices = assetServices;
             _mapper = mapper;
+            _featureManager = featureManager;
         }
 
         [Route("customers/count")]
@@ -49,7 +53,6 @@ namespace Asset.API.Controllers
         public async Task<ActionResult<IList<AssetServices.Models.CustomerAssetCount>>> GetAllCount()
         {
             var assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync();
-
             return Ok(assetCountList);
         }
 
