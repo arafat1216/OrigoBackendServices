@@ -281,4 +281,71 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         Assert.All(pagedAssetList.Items, m => Assert.Equal(data.DepartmentId, m.ManagedByDepartmentId));
         Assert.All(pagedAssetList.Items, m => Assert.Null(m.AssetHolderId));
     }
+
+    [Fact]
+    public async Task GetLifeCycleSetting()
+    {
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/lifecycle-setting";
+        _testOutputHelper.WriteLine(requestUri);
+        var setting = await _httpClient.GetFromJsonAsync<LifeCycleSetting>(requestUri);
+        Assert.Equal(setting!.CustomerId, _customerId);
+        Assert.True(setting!.BuyoutAllowed);
+    }
+
+    [Fact]
+    public async Task CreateLifeCycleSetting()
+    {
+        var newSettings = new NewLifeCycleSetting()
+        {
+            BuyoutAllowed = true,
+            CallerId = _callerId,
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
+        var requestUri = $"/api/v1/Assets/customers/{Guid.NewGuid()}/lifecycle-setting";
+        _testOutputHelper.WriteLine(requestUri);
+        var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newSettings);
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdateLifeCycleSetting()
+    {
+        var newSettings = new NewLifeCycleSetting()
+        {
+            BuyoutAllowed = false,
+            CallerId = _callerId,
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/lifecycle-setting";
+        _testOutputHelper.WriteLine(requestUri);
+        var createResponse = await _httpClient.PutAsJsonAsync(requestUri, newSettings);
+        var setting = await _httpClient.GetFromJsonAsync<LifeCycleSetting>($"/api/v1/Assets/customers/{_customerId}/lifecycle-setting");
+        Assert.Equal(setting!.CustomerId, _customerId);
+        Assert.True(setting!.BuyoutAllowed == newSettings.BuyoutAllowed);
+    }
+
+    [Fact]
+    public async Task SetCategoryLifeCycleSetting()
+    {
+        var newSettings = new NewCategoryLifeCycleSetting()
+        {
+            AssetCategoryId = 1,
+            MinBuyoutPrice = 200m,
+            CallerId = _callerId,
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/category-lifecycle-setting";
+        _testOutputHelper.WriteLine(requestUri);
+        var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newSettings);
+        var setting = await _httpClient.GetFromJsonAsync<LifeCycleSetting>($"/api/v1/Assets/customers/{_customerId}/lifecycle-setting");
+        Assert.Equal(setting!.CustomerId, _customerId);
+        Assert.True(setting!.BuyoutAllowed);
+        Assert.True(setting!.CategoryLifeCycleSettings.FirstOrDefault(x=>x.AssetCategoryId == newSettings.AssetCategoryId)!.MinBuyoutPrice == newSettings.MinBuyoutPrice);
+    }
+
+
+
+
+
+
 }

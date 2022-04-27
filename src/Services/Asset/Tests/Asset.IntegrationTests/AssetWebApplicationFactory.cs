@@ -78,12 +78,13 @@ public class AssetWebApplicationFactory<TProgram> : WebApplicationFactory<TProgr
                 assetLifecycleFive.AssignDepartment(DEPARTMENT_ID, CALLER_ID);
                 assetLifecycleFive.AssignContractHolder(userOne, CALLER_ID);
 
-
-                assetsContext.SaveChanges();
+                var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID, true, Guid.Empty);
+                lifeCycleSetting.SetMinBuyoutPrice(700M, 1, Guid.Empty);
 
                 assetsContext.Users.AddRange(userOne);
                 assetsContext.Assets.AddRange(assetOne, assetTwo, assetThree);
                 assetsContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree, assetLifecycleFour, assetLifecycleFive);
+                assetsContext.LifeCycleSettings.AddRange(lifeCycleSetting);
                 assetsContext.SaveChanges();
             }
             catch (Exception e)

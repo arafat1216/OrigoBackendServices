@@ -38,6 +38,7 @@ namespace AssetServices.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AssetCategoryId = table.Column<int>(type: "int", nullable: false),
                     MinBuyoutPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LifeCycleSettingId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>

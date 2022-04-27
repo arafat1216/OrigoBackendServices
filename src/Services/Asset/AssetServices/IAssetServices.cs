@@ -43,5 +43,6 @@ namespace AssetServices
         Task<LifeCycleSettingDTO> AddLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId);
         Task<LifeCycleSettingDTO> UpdateLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId);
         Task<LifeCycleSettingDTO> SetCategorySettingForCustomerAsync(Guid customerId, CategoryLifeCycleSettingDTO categorySettingDTO, Guid CallerId);
+        Task<LifeCycleSettingDTO> GetLifeCycleSettingByCustomer(Guid customerId);
     }
 }

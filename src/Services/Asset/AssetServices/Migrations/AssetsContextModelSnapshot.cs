@@ -223,6 +223,9 @@ namespace AssetServices.Migrations
                     b.Property<int>("AssetCategoryId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int?>("LifeCycleSettingId")
                         .HasColumnType("int");
 

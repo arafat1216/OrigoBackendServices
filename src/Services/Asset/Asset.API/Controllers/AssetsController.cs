@@ -253,8 +253,26 @@ namespace Asset.API.Controllers
         }
 
         [Route("customers/{customerId:guid}/lifecycle-setting")]
+        [HttpGet]
+        [ProducesResponseType(typeof(LifeCycleSetting), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> GetLifeCycleSetting(Guid customerId)
+        {
+            try
+            {
+                var setting = await _assetServices.GetLifeCycleSettingByCustomer(customerId);
+                return CreatedAtAction(nameof(GetLifeCycleSetting), new { id = setting.ExternalId }, _mapper.Map<LifeCycleSetting>(setting));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("customers/{customerId:guid}/lifecycle-setting")]
         [HttpPost]
-        [ProducesResponseType(typeof(LifeCycleSettingDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(LifeCycleSetting), (int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> CreateLifeCycleSetting(Guid customerId, [FromBody] NewLifeCycleSetting setting)
         {
@@ -262,7 +280,7 @@ namespace Asset.API.Controllers
             {
                 var newSettingDTO = _mapper.Map<LifeCycleSettingDTO>(setting);
                 var createdSetting = await _assetServices.AddLifeCycleSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
-                return CreatedAtAction(nameof(CreateLifeCycleSetting), new { id = createdSetting.ExternalId }, createdSetting);
+                return CreatedAtAction(nameof(CreateLifeCycleSetting), new { id = createdSetting.ExternalId }, _mapper.Map<LifeCycleSetting>(createdSetting));
             }
             catch (Exception ex)
             {
@@ -273,7 +291,7 @@ namespace Asset.API.Controllers
 
         [Route("customers/{customerId:guid}/lifecycle-setting")]
         [HttpPut]
-        [ProducesResponseType(typeof(LifeCycleSettingDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(LifeCycleSetting), (int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> UpdateLifeCycleSetting(Guid customerId, [FromBody] NewLifeCycleSetting setting)
         {
@@ -281,7 +299,7 @@ namespace Asset.API.Controllers
             {
                 var newSettingDTO = _mapper.Map<LifeCycleSettingDTO>(setting);
                 var updatedSetting = await _assetServices.UpdateLifeCycleSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
-                return CreatedAtAction(nameof(UpdateLifeCycleSetting), new { id = updatedSetting.ExternalId }, updatedSetting);
+                return Ok(_mapper.Map<LifeCycleSetting>(updatedSetting));
             }
             catch (Exception ex)
             {
@@ -292,15 +310,15 @@ namespace Asset.API.Controllers
 
         [Route("customers/{customerId:guid}/category-lifecycle-setting")]
         [HttpPost]
-        [ProducesResponseType(typeof(LifeCycleSettingDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(LifeCycleSetting), (int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> CreateCategoryLifeCycleSetting(Guid customerId, [FromBody] NewCategoryLifeCycleSetting CategorySetting)
+        public async Task<ActionResult> SetCategoryLifeCycleSetting(Guid customerId, [FromBody] NewCategoryLifeCycleSetting CategorySetting)
         {
             try
             {
                 var newSettingDTO = _mapper.Map<CategoryLifeCycleSettingDTO>(CategorySetting);
                 var updatedSetting = await _assetServices.SetCategorySettingForCustomerAsync(customerId, newSettingDTO, CategorySetting.CallerId);
-                return CreatedAtAction(nameof(CreateLifeCycleSetting), new { id = updatedSetting.ExternalId }, updatedSetting);
+                return Ok(_mapper.Map<LifeCycleSetting>(updatedSetting));
             }
             catch (ResourceNotFoundException ex)
             {

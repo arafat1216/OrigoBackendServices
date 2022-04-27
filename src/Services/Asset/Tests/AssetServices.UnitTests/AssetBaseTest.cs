@@ -97,10 +97,14 @@ namespace AssetServices.UnitTests
             assetLifecycleOther.AssignAsset(assetOther, CALLER_ID);
             assetLifecycleOther.AssignContractHolder(new User{ExternalId = Guid.NewGuid()}, CALLER_ID);
 
+            var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID, true, Guid.Empty);
+            lifeCycleSetting.SetMinBuyoutPrice(700M, 1, Guid.Empty);
+
             context.Users.AddRange(userOne, userTwo);
             context.Assets.AddRange(assetOne, assetTwo, assetThree, assetFour, assetFive, assetSix, assetOther);
             context.CustomerLabels.AddRange(labelOne, labelTwo);
             context.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree, assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleOther);
+            context.LifeCycleSettings.AddRange(lifeCycleSetting);
             context.SaveChanges();
         }
     }

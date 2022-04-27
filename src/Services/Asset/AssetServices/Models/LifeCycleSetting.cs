@@ -78,6 +78,24 @@ namespace AssetServices.Models
             AddDomainEvent(new SetBuyoutPriceDomainEvent(categorySetting, CustomerId, callerId));
         }
 
+        /// <summary>
+        /// Update Min Buyout Price for this setting and Category.
+        /// </summary>
+        /// <param name="buyoutPrice">The amount that will be set min buyout price</param>
+        /// <param name="categoryId">The specific Asset Category Id for this setting</param>
+        /// <param name="callerId">The userid making this assignment</param>
+        public void UpdateMinBuyoutPrice(decimal buyoutPrice, int categoryId, Guid callerId)
+        {
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
+            var categorySetting = _categoryLifeCycleSettings.FirstOrDefault(x => x.AssetCategoryId == categoryId);
+            var previousAmount = categorySetting!.MinBuyoutPrice;
+            categorySetting!.MinBuyoutPrice = buyoutPrice;
+            AddDomainEvent(new UpdateMinBuyoutPriceDomainEvent(categorySetting, previousAmount, CustomerId, callerId));
+        }
+
+
+
     }
 
 }

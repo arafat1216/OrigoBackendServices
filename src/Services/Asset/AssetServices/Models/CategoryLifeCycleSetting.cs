@@ -35,7 +35,8 @@ namespace AssetServices.Models
         /// <summary>
         /// the min buyout price for this category and for this customer.
         /// </summary>
-        public decimal MinBuyoutPrice { get; init; } = decimal.Zero;
+        public decimal MinBuyoutPrice { get; set; } = decimal.Zero;
+        public DateTime LastUpdatedDate { get; set; }
 
         protected override IEnumerable<object> GetEqualityComponents()
         {

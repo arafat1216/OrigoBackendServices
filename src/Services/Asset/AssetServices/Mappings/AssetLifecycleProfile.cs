@@ -20,6 +20,7 @@ public class AssetLifecycleProfile : Profile
             .ForMember(dest => dest.Imeis, opts => opts.MapFrom(src => src.Imeis.Select(i => i.Imei).ToList()));
         CreateMap<CustomerLabel, CustomerLabelDTO>();
         CreateMap<LifeCycleSetting, LifeCycleSettingDTO>();
+        CreateMap<CategoryLifeCycleSetting, CategoryLifeCycleSettingDTO>();
         CreateMap<Label, LabelDTO>();
         CreateMap<AssetLifecycle, AssetLifecycleDTO>().ForMember(dest => dest.ContractHolderUserId,
             opts => opts.MapFrom(src => src.ContractHolderUser!.ExternalId));

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AssetServices.Migrations
 {
     [DbContext(typeof(AssetsContext))]
-    [Migration("20220426232920_lifeCycleSettings")]
+    [Migration("20220427184416_lifeCycleSettings")]
     partial class lifeCycleSettings
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -224,6 +224,9 @@ namespace AssetServices.Migrations
 
                     b.Property<int>("AssetCategoryId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("LifeCycleSettingId")
                         .HasColumnType("int");

@@ -250,7 +250,7 @@ namespace AssetServices.Infrastructure
 
                 editedEntities.ForEach(entity =>
                 {
-                    entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
+                    entity.Property("LastUpdatedDate")!.CurrentValue = DateTime.UtcNow;
                 });
                 // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
                 await _assetContext.SaveChangesAsync(cancellationToken);
@@ -290,7 +290,7 @@ namespace AssetServices.Infrastructure
         public async Task<LifeCycleSetting> GetLifeCycleSettingByCustomerAsync(Guid customerId)
         {
             return await _assetContext.LifeCycleSettings.Include(x=>x.CategoryLifeCycleSettings)
-                .FirstAsync(u => u.CustomerId == customerId);
+                .FirstOrDefaultAsync(u => u.CustomerId == customerId);
         }
 
         #endregion
