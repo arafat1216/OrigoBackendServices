@@ -262,7 +262,7 @@ namespace OrigoApiGateway.Tests
             var userDeleted = await userService.DeleteUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), true, EMPTY_CALLER_ID);
 
             // Assert
-            Assert.True(userDeleted);
+            Assert.NotNull(userDeleted);
         }
     }
 }
