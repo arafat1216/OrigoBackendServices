@@ -2,6 +2,7 @@
 using Common.Seedwork;
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace AssetServices.Models
 {
@@ -21,15 +22,18 @@ namespace AssetServices.Models
         /// The Label data
         /// <see cref="Label"/>
         /// </summary>
+        [JsonInclude]
         public Label Label { get; protected set; }
 
-        // Set to protected as DDD best practice
-        protected CustomerLabel()
+        
+        [JsonConstructor]
+        public CustomerLabel()
         { }
 
         /// <summary>
         /// Assign the given label to the given customer
         /// </summary>
+        
         public CustomerLabel(Guid customerId, Guid callerId, Label label)
         {
             ExternalId = Guid.NewGuid();
@@ -58,6 +62,7 @@ namespace AssetServices.Models
             LastUpdatedDate = DateTime.UtcNow;
             UpdatedBy = callerId;
         }
+
 
         /// <summary>
         /// Update the label attribute

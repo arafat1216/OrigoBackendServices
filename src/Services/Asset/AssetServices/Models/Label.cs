@@ -2,16 +2,17 @@
 using Common.Seedwork;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace AssetServices.Models
 {
     [Owned]
     public class Label : ValueObject
     {
-        // Set to protected as DDD best practice
-        protected Label()
+        [JsonConstructor]
+        public Label()
         { }
-
+        
         public Label(string labelText, LabelColor labelColor)
         {
             Text = labelText;

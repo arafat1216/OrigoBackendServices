@@ -10,6 +10,11 @@
         Lost,
         Stolen,
         BoughtByUser,
-        Refurbished
+        Refurbished,
+        InUse,
+        RepairOrdered,
+        Recycled,
+        Returned,
+        Discarded
     }
 }
