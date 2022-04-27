@@ -2,6 +2,9 @@
 
 namespace HardwareServiceOrderServices.Models
 {
+    /// <summary>
+    ///     Represents a single shipping address.
+    /// </summary>
     public class DeliveryAddress : Entity
     {
         /// <summary>

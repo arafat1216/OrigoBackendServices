@@ -2,6 +2,9 @@
 
 namespace HardwareServiceOrderServices.Models
 {
+    /// <summary>
+    ///     Represents the global service-settings for a single customer (organization).
+    /// </summary>
     public class CustomerSettings : Entity, IAggregateRoot
     {
         public CustomerSettings(Guid customerId, string serviceId, Guid callerId)

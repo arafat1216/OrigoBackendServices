@@ -3,7 +3,7 @@
 namespace HardwareServiceOrderServices.Models
 {
     /// <summary>
-    ///     Entity Framework model that represents a single hardware service order.
+    ///    Represents a single hardware service-order.
     /// </summary>
     public class HardwareServiceOrder : Entity, IAggregateRoot
     {
@@ -13,7 +13,7 @@ namespace HardwareServiceOrderServices.Models
         private HardwareServiceOrder() { }
 
         // TODO: Add service provider parameter
-        public HardwareServiceOrder(Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, string? externalProviderLink, ServiceType serviceType, Status status)
+        public HardwareServiceOrder(Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, string? externalProviderLink, ServiceType serviceType, ServiceStatus status, ServiceProvider serviceProvider)
         {
             AssetLifecycleId = assetLifecycleId;
             DeliveryAddress = deliveryAddress;
@@ -69,7 +69,7 @@ namespace HardwareServiceOrderServices.Models
         /// <summary>
         ///     The foreign key value recorded for the <see cref="ServiceProvider"/> navigation property.
         /// </summary>
-        //public int ServiceProviderId { get; init; }
+        public int ServiceProviderId { get; init; }
 
 
         /*
@@ -84,8 +84,11 @@ namespace HardwareServiceOrderServices.Models
         /// <summary>
         ///     The current status for the service-order.
         /// </summary>
-        public virtual Status Status { get; set; }
+        public virtual ServiceStatus Status { get; set; }
 
-        //public virtual ServiceProvider {get; set;}
+        /// <summary>
+        ///     The service-provider that is handling the service.
+        /// </summary>
+        public virtual ServiceProvider ServiceProvider { get; set; }
     }
 }
