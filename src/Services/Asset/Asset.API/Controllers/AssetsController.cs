@@ -261,7 +261,7 @@ namespace Asset.API.Controllers
             try
             {
                 var setting = await _assetServices.GetLifeCycleSettingByCustomer(customerId);
-                return CreatedAtAction(nameof(GetLifeCycleSetting), new { id = setting.ExternalId }, _mapper.Map<LifeCycleSetting>(setting));
+                return Ok(_mapper.Map<LifeCycleSetting>(setting));
             }
             catch (Exception ex)
             {

@@ -587,11 +587,6 @@ namespace AssetServices
         public async Task<LifeCycleSettingDTO> GetLifeCycleSettingByCustomer(Guid customerId)
         {
             var existingSetting = await _assetLifecycleRepository.GetLifeCycleSettingByCustomerAsync(customerId);
-
-            if (existingSetting == null)
-            {
-                throw new ResourceNotFoundException("No LifeCycletSetting were found using the given Customer. Did you enter the correct customer Id?", _logger);
-            }
             return _mapper.Map<LifeCycleSettingDTO>(existingSetting);
         }
 
