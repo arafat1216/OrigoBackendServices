@@ -30,5 +30,7 @@ namespace AssetServices.Models
         Task<decimal> GetCustomerTotalBookValue(Guid customerId);
         Task<AssetLifecycle?> MakeAssetAvailableAsync(Guid customerId, Guid callerId, Guid assetLifeCycleId);
         Task<IList<AssetLifecycle>> GetAssetForUser(Guid userId);
+        Task<LifeCycleSetting> AddLifeCycleSettingAsync(LifeCycleSetting lifeCycleSetting);
+        Task<LifeCycleSetting> GetLifeCycleSettingByCustomerAsync(Guid customerId);
     }
 }

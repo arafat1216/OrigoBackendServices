@@ -273,5 +273,27 @@ namespace AssetServices.Infrastructure
         {
             return await _functionalEventLogService.RetrieveEventLogsAsync(assetId);
         }
+
+        #region LifeCycleSetting
+        public async Task<LifeCycleSetting> AddLifeCycleSettingAsync(LifeCycleSetting lifeCycleSetting)
+        {
+            _assetContext.LifeCycleSettings.Add(lifeCycleSetting);
+            await SaveEntitiesAsync();
+            var savedLifeCycleSettings = await _assetContext.LifeCycleSettings
+                .FirstOrDefaultAsync(a => a.ExternalId == lifeCycleSetting.ExternalId);
+            if (savedLifeCycleSettings == null)
+            {
+                throw new Exception();
+            }
+            return savedLifeCycleSettings;
+        }
+        public async Task<LifeCycleSetting> GetLifeCycleSettingByCustomerAsync(Guid customerId)
+        {
+            return await _assetContext.LifeCycleSettings.Include(x=>x.CategoryLifeCycleSettings)
+                .FirstAsync(u => u.CustomerId == customerId);
+        }
+
+        #endregion
+
     }
 }

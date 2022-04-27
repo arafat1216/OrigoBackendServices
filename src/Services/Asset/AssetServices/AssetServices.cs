@@ -559,6 +559,55 @@ namespace AssetServices
             }
             return assetLogList;
         }
+        #region LifeCycleSetting
+        public async Task<LifeCycleSettingDTO> AddLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId)
+        {
+            var lifeCycleSetting = new LifeCycleSetting(customerId, lifeCycleSettingDTO.BuyoutAllowed, CallerId);
+
+            var addedSetting = await _assetLifecycleRepository.AddLifeCycleSettingAsync(lifeCycleSetting);
+            return _mapper.Map<LifeCycleSettingDTO>(addedSetting);
+        }
+
+        public async Task<LifeCycleSettingDTO> UpdateLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId)
+        {
+            var lifeCycleSetting = new LifeCycleSetting(customerId, lifeCycleSettingDTO.BuyoutAllowed, CallerId);
+
+            var existingSetting = await _assetLifecycleRepository.GetLifeCycleSettingByCustomerAsync(customerId);
+
+            if(existingSetting.BuyoutAllowed != lifeCycleSetting.BuyoutAllowed)
+            {
+                existingSetting.UpdateBuyoutAllowed(lifeCycleSetting.BuyoutAllowed, CallerId);
+                await _assetLifecycleRepository.SaveEntitiesAsync();
+            }
+            return _mapper.Map<LifeCycleSettingDTO>(existingSetting);
+        }
+        public async Task<LifeCycleSettingDTO> SetCategorySettingForCustomerAsync(Guid customerId, CategoryLifeCycleSettingDTO categorySettingDTO, Guid CallerId)
+        {
+            var existingSetting = await _assetLifecycleRepository.GetLifeCycleSettingByCustomerAsync(customerId);
+
+            if(existingSetting == null)
+            {
+                throw new ResourceNotFoundException("No LifeCycletSetting were found using the given Customer. Did you enter the correct customer Id?", _logger);
+            }
+            var existingCategorySetting = existingSetting.CategoryLifeCycleSettings.First(x => x.AssetCategoryId == categorySettingDTO.AssetCategoryId);
+            if (existingCategorySetting == null)
+            {
+                existingSetting.SetMinBuyoutPrice(categorySettingDTO.MinBuyoutPrice, categorySettingDTO.AssetCategoryId, CallerId);
+            }
+            else
+            {
+                if(existingCategorySetting.MinBuyoutPrice != categorySettingDTO.MinBuyoutPrice)
+                {
+                    // Update MinBuyout here
+                }
+            }
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<LifeCycleSettingDTO>(existingSetting);
+        }
+
+
+        #endregion
 
         // From https://stackoverflow.com/a/9956981
         private static bool PropertyExist(dynamic dynamicObject, string name)

@@ -40,5 +40,8 @@ namespace AssetServices
         Task<decimal> GetCustomerTotalBookValue(Guid customerId);
 
         Task<AssetLifecycleDTO> AddAssetLifecycleForCustomerAsync(Guid customerId, NewAssetDTO newAssetDTO);
+        Task<LifeCycleSettingDTO> AddLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId);
+        Task<LifeCycleSettingDTO> UpdateLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId);
+        Task<LifeCycleSettingDTO> SetCategorySettingForCustomerAsync(Guid customerId, CategoryLifeCycleSettingDTO categorySettingDTO, Guid CallerId);
     }
 }

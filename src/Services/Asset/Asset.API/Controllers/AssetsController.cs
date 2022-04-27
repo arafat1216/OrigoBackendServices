@@ -252,6 +252,67 @@ namespace Asset.API.Controllers
             return Ok(_mapper.Map<ViewModels.Asset>(assetLifecycle));
         }
 
+        [Route("customers/{customerId:guid}/lifecycle-setting")]
+        [HttpPost]
+        [ProducesResponseType(typeof(LifeCycleSettingDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> CreateLifeCycleSetting(Guid customerId, [FromBody] NewLifeCycleSetting setting)
+        {
+            try
+            {
+                var newSettingDTO = _mapper.Map<LifeCycleSettingDTO>(setting);
+                var createdSetting = await _assetServices.AddLifeCycleSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
+                return CreatedAtAction(nameof(CreateLifeCycleSetting), new { id = createdSetting.ExternalId }, createdSetting);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("customers/{customerId:guid}/lifecycle-setting")]
+        [HttpPut]
+        [ProducesResponseType(typeof(LifeCycleSettingDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> UpdateLifeCycleSetting(Guid customerId, [FromBody] NewLifeCycleSetting setting)
+        {
+            try
+            {
+                var newSettingDTO = _mapper.Map<LifeCycleSettingDTO>(setting);
+                var updatedSetting = await _assetServices.UpdateLifeCycleSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
+                return CreatedAtAction(nameof(UpdateLifeCycleSetting), new { id = updatedSetting.ExternalId }, updatedSetting);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("customers/{customerId:guid}/category-lifecycle-setting")]
+        [HttpPost]
+        [ProducesResponseType(typeof(LifeCycleSettingDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> CreateCategoryLifeCycleSetting(Guid customerId, [FromBody] NewCategoryLifeCycleSetting CategorySetting)
+        {
+            try
+            {
+                var newSettingDTO = _mapper.Map<CategoryLifeCycleSettingDTO>(CategorySetting);
+                var updatedSetting = await _assetServices.SetCategorySettingForCustomerAsync(customerId, newSettingDTO, CategorySetting.CallerId);
+                return CreatedAtAction(nameof(CreateLifeCycleSetting), new { id = updatedSetting.ExternalId }, updatedSetting);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
         [Route("customers/{customerId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.Created)]

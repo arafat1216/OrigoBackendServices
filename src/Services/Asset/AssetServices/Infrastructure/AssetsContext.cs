@@ -28,6 +28,8 @@ public class AssetsContext : DbContext
     public DbSet<AssetLifecycle> AssetLifeCycles => Set<AssetLifecycle>();
     public DbSet<CustomerLabel> CustomerLabels => Set<CustomerLabel>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<LifeCycleSetting> LifeCycleSettings => Set<LifeCycleSetting>();
+    public DbSet<CategoryLifeCycleSetting> CategoryLifeCycleSettings => Set<CategoryLifeCycleSetting>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
