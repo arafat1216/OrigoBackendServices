@@ -254,8 +254,8 @@ namespace OrigoApiGateway.Services
                     throw new BadHttpRequestException("User not found", (int)response.StatusCode);
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to delete user", (int)response.StatusCode);
-
-                return await response.Content.ReadFromJsonAsync<OrigoUser>();
+                var dto = await response.Content.ReadFromJsonAsync<UserDTO>();
+                return _mapper.Map<OrigoUser>(dto);
             }
             catch (Exception exception)
             {
