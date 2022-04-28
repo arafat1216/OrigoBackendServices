@@ -389,13 +389,15 @@ namespace CustomerServices
             //check if the user already is a manager for this department
             var manager = department.Managers.FirstOrDefault(a => a.UserId == userId);
             if (manager != null) return;
+            //only subdepartments that dont have manager should be added
+            var departmentsWithNoManager = departments.Where(d => d.Managers.Count == 0).ToList();
 
             //add user as manager for the department
             user.AssignManagerToDepartment(department, callerId);
             await _organizationRepository.SaveEntitiesAsync();
-            
-            //Find subdepartments of the department the user user is to be manager for  
-            var subDepartmentsList = department.Subdepartments(departments);
+
+            //Find subdepartments of the department the user user is to be manager for
+            var subDepartmentsList = department.Subdepartments(departmentsWithNoManager);
             List<Guid> accessList = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
 
             //Check if user have department role for other departments
@@ -454,7 +456,7 @@ namespace CustomerServices
 
             var managerPermission = usersPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString());
 
-            if (managerPermission.AccessList.All(accessList.Contains) && managerPermission.AccessList.Count == accessList.Count) //remove the permission for department manager
+            if (managerPermission.AccessList.All(accessList.Contains) && managerPermission.AccessList.Count <= accessList.Count) //remove the permission for department manager
             {
                 //Remove department manager permissions
                 var userPermission = await _userPermissionServices.RemoveUserPermissionsAsync(user.Email, PredefinedRole.DepartmentManager.ToString(), accessList, callerId);
