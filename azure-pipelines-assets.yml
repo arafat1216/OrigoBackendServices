@@ -64,7 +64,7 @@ stages:
       tag: '$(Build.BuildId)'
       pipelineWorkspace: $(Pipeline.Workspace)
 
-- stage: DeployDev
+- stage: DeployTest
   displayName: Deploy to Dev
   dependsOn: DeployDev
   variables:
