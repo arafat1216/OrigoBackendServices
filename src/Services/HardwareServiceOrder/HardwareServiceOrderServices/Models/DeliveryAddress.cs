@@ -21,6 +21,9 @@ namespace HardwareServiceOrderServices.Models
 
         public string City { get; set; }
 
+        /// <summary>
+        ///     The 2-character country-code using the uppercase <c>ISO 3166 alpha-2</c> standard.
+        /// </summary>
         [Required]
         [RegularExpression("^[A-Z]{2}")]
         [MinLength(2)]

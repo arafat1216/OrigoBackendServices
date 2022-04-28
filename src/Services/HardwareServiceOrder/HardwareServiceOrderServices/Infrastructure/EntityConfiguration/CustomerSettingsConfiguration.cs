@@ -1,5 +1,6 @@
 ﻿using HardwareServiceOrderServices.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
@@ -16,12 +17,20 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
         public void Configure(EntityTypeBuilder<CustomerSettings> builder)
         {
             builder.ToTable("CustomerSettings");
-            builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
-            builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
 
-            builder.Property(m => m.ServiceId).IsRequired(false);
-            builder.Property(m => m.LoanDeviceEmail).IsRequired(false);
-            builder.Property(m => m.LoanDevicePhoneNumber).IsRequired(false);
+            /*
+             * Properties
+             */
+
+            builder.Property(e => e.CreatedDate)
+                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
+                   .ValueGeneratedOnAdd()
+                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+
+            builder.Property(e => e.LastUpdatedDate)
+                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
+                   .ValueGeneratedOnAddOrUpdate()
+                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
         }
     }
 }

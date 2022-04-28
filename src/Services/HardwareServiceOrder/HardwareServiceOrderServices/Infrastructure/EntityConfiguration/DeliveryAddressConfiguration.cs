@@ -41,6 +41,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
             builder.Property(e => e.Country)
+                   .HasComment("The 2-character country-code using the uppercase <c>ISO 3166 alpha-2</c> standard.")
                    .HasMaxLength(2)
                    .IsFixedLength()
                    .IsUnicode(false)
