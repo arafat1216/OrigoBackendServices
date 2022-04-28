@@ -13,6 +13,10 @@
          * State: Unknown
          */
 
+        /// <summary>
+        ///     We have received a status we don't support, or that we don't have proper mapping for. Someone should investigate 
+        ///     as it may involve some manual data or code fixes!
+        /// </summary>
         Unknown = 1,
 
 
@@ -73,38 +77,38 @@
 
 
         /*
-         * State: Closed / Completed
+         * State: Completed
          */
 
         /// <summary>
         ///     The service-request is closed, and the asset has been returned to the user unrepaired.
         /// </summary>
-        ClosedNotRepaired = 10,
+        CompletedNotRepaired = 10,
 
         /// <summary>
         ///     The service-request is closed, and the asset has been returned to the user repaired.
         /// </summary>
-        ClosedRepaired = 11,
+        CompletedRepaired = 11,
 
         /// <summary>
         ///     The service-request is closed, and the asset has been returned to the user repaired - free of charge - as a part of the device's warranty.
         /// </summary>
-        ClosedRepairedOnWarranty = 12,
+        CompletedRepairedOnWarranty = 12,
 
         /// <summary>
         ///     The service-request is closed, and a replacement/swapped device has been returned to the user.
         /// </summary>
-        ClosedReplaced = 13,
+        CompletedReplaced = 13,
 
         /// <summary>
         ///     The service-request is closed, and a replacement/swapped device has been returned to the user - free of charge - as a part of the device's warranty.
         /// </summary>
-        ClosedReplacedOnWarranty = 14,
+        CompletedReplacedOnWarranty = 14,
 
         /// <summary>
         ///     The service-request is closed because the service-provider credited/refunded the asset.
         /// </summary>
-        ClosedCredited = 15,
+        CompletedCredited = 15,
 
 
     }

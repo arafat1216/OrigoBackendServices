@@ -1,28 +1,31 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HardwareServiceOrderServices.Models;
-using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
-    internal class ServiceTypeConfiguration : IEntityTypeConfiguration<ServiceType>
+    internal class DeliveryAddressConfiguration : IEntityTypeConfiguration<DeliveryAddress>
     {
         private readonly bool _isSqlLite;
 
-        public ServiceTypeConfiguration(bool isSqlLite)
+        public DeliveryAddressConfiguration(bool isSqlLite)
         {
             _isSqlLite = isSqlLite;
         }
 
-        public void Configure(EntityTypeBuilder<ServiceType> builder)
+        public void Configure(EntityTypeBuilder<DeliveryAddress> builder)
         {
+            // A value comparer for keys. Used to force EF Core into case-insensitive string comparisons like in the database.
+            // Source: Use case-insensitive string keys (https://docs.microsoft.com/en-us/ef/core/modeling/value-conversions?tabs=fluent-api#use-case-insensitive-string-keys)
+            var comparer = new ValueComparer<string>(
+                (l, r) => string.Equals(l, r, StringComparison.OrdinalIgnoreCase),
+                v => v.ToUpper().GetHashCode(),
+                v => v
+            );
+
+
             /*
              * Properties
              */
@@ -37,6 +40,11 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                    .ValueGeneratedOnAddOrUpdate()
                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
+            builder.Property(e => e.Country)
+                   .HasMaxLength(2)
+                   .IsFixedLength()
+                   .IsUnicode(false)
+                   .Metadata.SetValueComparer(comparer);
         }
     }
 }

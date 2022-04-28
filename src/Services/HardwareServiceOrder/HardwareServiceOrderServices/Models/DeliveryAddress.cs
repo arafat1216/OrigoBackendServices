@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using System.ComponentModel.DataAnnotations;
 
 namespace HardwareServiceOrderServices.Models
 {
@@ -20,6 +21,10 @@ namespace HardwareServiceOrderServices.Models
 
         public string City { get; set; }
 
+        [Required]
+        [RegularExpression("^[A-Z]{2}")]
+        [MinLength(2)]
+        [MaxLength(2)]
         public string Country { get; set; }
 
         /// <summary>

@@ -22,12 +22,12 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
              * Properties
              */
 
-            builder.Property(s => s.CreatedDate)
+            builder.Property(e => e.CreatedDate)
                    .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
                    .ValueGeneratedOnAdd()
                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
-            builder.Property(s => s.LastUpdatedDate)
+            builder.Property(e => e.LastUpdatedDate)
                    .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
                    .ValueGeneratedOnAddOrUpdate()
                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);

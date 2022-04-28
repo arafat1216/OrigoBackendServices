@@ -9,7 +9,7 @@
         Null = 0,
 
         /// <summary>
-        ///     We have received a state we don't support, or that we don't have propper mapping for. Someone should investigate 
+        ///     We have received a state we don't support, or that we don't have proper mapping for. Someone should investigate 
         ///     as it may involve some manual data or code fixes!
         /// </summary>
         Unknown = 1,

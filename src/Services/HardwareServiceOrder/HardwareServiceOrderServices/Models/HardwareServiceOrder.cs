@@ -59,17 +59,17 @@ namespace HardwareServiceOrderServices.Models
         /// <summary>
         ///     The foreign key value recorded for the <see cref="ServiceType"/> navigation property.
         /// </summary>
-        public int ServiceTypeId { get; set; }
+        //public int ServiceTypeId { get; set; }
 
         /// <summary>
         ///     The foreign key value recorded for the <see cref="Status"/> navigation property.
         /// </summary>
-        public int StatusId { get; set; }
+        //public int StatusId { get; set; }
 
         /// <summary>
         ///     The foreign key value recorded for the <see cref="ServiceProvider"/> navigation property.
         /// </summary>
-        public int ServiceProviderId { get; init; }
+        //public int ServiceProviderId { get; init; }
 
 
         /*

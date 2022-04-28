@@ -1,27 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using HardwareServiceOrderServices.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HardwareServiceOrderServices.Models;
-using System.Collections;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
-    internal class ServiceTypeConfiguration : IEntityTypeConfiguration<ServiceType>
+    internal class ServiceStatusConfiguration : IEntityTypeConfiguration<ServiceStatus>
     {
         private readonly bool _isSqlLite;
 
-        public ServiceTypeConfiguration(bool isSqlLite)
+        public ServiceStatusConfiguration(bool isSqlLite)
         {
             _isSqlLite = isSqlLite;
         }
 
-        public void Configure(EntityTypeBuilder<ServiceType> builder)
+        public void Configure(EntityTypeBuilder<ServiceStatus> builder)
         {
             /*
              * Properties
