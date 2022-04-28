@@ -75,13 +75,13 @@ jobs:
             installKubectl: true
 
         - task: HelmDeploy@0
-        displayName: Helm upgrade
-        inputs:
-          command: upgrade
-          chartType: FilePath
-          releaseName: ${{ parameters.releaseName }}
-          namespace: ${{ parameters.namespace }}
-          overrideValues: "deployment.image.tag=$(tag),namespace=${{ parameters.namespace }},deployment.probes.enabled=true"
-          arguments: --version ${{ parameters.tag }}
-          chartPath: ${{ parameters.pipelineWorkspace }}/helmcharts
-          install: true
+          displayName: Helm upgrade
+          inputs:
+            command: upgrade
+            chartType: FilePath
+            releaseName: ${{ parameters.releaseName }}
+            namespace: ${{ parameters.namespace }}
+            overrideValues: "deployment.image.tag=$(tag),namespace=${{ parameters.namespace }},deployment.probes.enabled=true"
+            arguments: --version ${{ parameters.tag }}
+            chartPath: ${{ parameters.pipelineWorkspace }}/helmcharts
+            install: true
