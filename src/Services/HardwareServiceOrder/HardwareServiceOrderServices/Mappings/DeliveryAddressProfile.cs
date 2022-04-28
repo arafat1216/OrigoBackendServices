@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
-
 namespace HardwareServiceOrderServices.Mappings
 {
-    public class CustomerSettingsProfile : Profile
+    internal class DeliveryAddressProfile : Profile
     {
-        public CustomerSettingsProfile()
+        public DeliveryAddressProfile()
         {
-            CreateMap<CustomerSettings, CustomerSettingsDto>();
+            CreateMap<DeliveryAddress, DeliveryAddressDto>();
         }
     }
 }

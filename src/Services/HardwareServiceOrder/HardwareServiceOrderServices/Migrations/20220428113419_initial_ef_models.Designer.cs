@@ -4,6 +4,7 @@ using HardwareServiceOrderServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HardwareServiceOrderServices.Migrations
 {
     [DbContext(typeof(HardwareServiceOrderContext))]
-    partial class HardwareServiceOrderContextModelSnapshot : ModelSnapshot
+    [Migration("20220428113419_initial_ef_models")]
+    partial class initial_ef_models
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

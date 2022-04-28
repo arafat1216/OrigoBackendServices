@@ -5,11 +5,12 @@ namespace HardwareServiceOrderServices.Models
     /// <summary>
     ///     Represents the type of service. E.g. 'SUR', 'recycle', etc.
     /// </summary>
-    public class ServiceType : Entity
+    public class ServiceType : EntityV2
     {
-        /// <summary>
-        ///     The entities internal database ID.
-        /// </summary>
-        public new ServiceTypeEnum Id { get; set; }
+        /// <inheritdoc cref="Entity.Id"/>
+        /// <remarks>
+        ///     The value-mappings can be retrieved from <see cref="ServiceTypeEnum"/>.
+        /// </remarks>
+        public new int Id { get; set; }
     }
 }

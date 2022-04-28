@@ -6,19 +6,34 @@ namespace HardwareServiceOrderServices.Models
     /// <summary>
     ///     Represents a single shipping address.
     /// </summary>
-    public class DeliveryAddress : Entity
+    public class DeliveryAddress : EntityV2
     {
         /// <summary>
         ///     The name of the recipient. Typically this will be the name of a person or company.
         /// </summary>
         public string Recipient { get; set; }
 
+        /// <summary>
+        ///     Mandatory 1st address line.
+        /// </summary>
         public string Address1 { get; set; }
 
+        /// <summary>
+        ///     Optional 2nd address line.
+        /// </summary>
         public string? Address2 { get; set; }
 
+        /// <summary>
+        ///     The addresses zip/postal code.
+        /// </summary>
+        [Required]
+        [StringLength(maximumLength: 12)] // The longest worldwide postal-code.
         public string PostalCode { get; set; }
 
+        /// <summary>
+        ///     The name of the city/town/village.
+        /// </summary>
+        [StringLength(maximumLength: 85)] // The longest worldwide place/city name
         public string City { get; set; }
 
         /// <summary>
@@ -26,8 +41,7 @@ namespace HardwareServiceOrderServices.Models
         /// </summary>
         [Required]
         [RegularExpression("^[A-Z]{2}")]
-        [MinLength(2)]
-        [MaxLength(2)]
+        [StringLength(maximumLength: 2, MinimumLength = 2)]
         public string Country { get; set; }
 
         /// <summary>

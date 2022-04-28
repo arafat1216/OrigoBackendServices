@@ -1,11 +1,12 @@
 ﻿using Common.Seedwork;
+using System.ComponentModel.DataAnnotations;
 
 namespace HardwareServiceOrderServices.Models
 {
     /// <summary>
     ///    Represents a single hardware service-order.
     /// </summary>
-    public class HardwareServiceOrder : Entity, IAggregateRoot
+    public class HardwareServiceOrder : EntityV2, IAggregateRoot
     {
         /// <summary>
         ///     Constructor reserved for Entity Framework

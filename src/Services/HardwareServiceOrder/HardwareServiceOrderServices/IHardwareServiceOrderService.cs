@@ -4,12 +4,12 @@ namespace HardwareServiceOrderServices
 {
     public interface IHardwareServiceOrderService
     {
-        //Configuration
+        // Configuration
         Task<CustomerSettingsDTO> ConfigureServiceIdAsync(Guid customerId, string serviceId, Guid callerId);
         Task<CustomerSettingsDTO> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmain, Guid callerId);
         Task<CustomerSettingsDTO> GetSettingsAsync(Guid customerId);
 
-        //Order
+        // Order
         Task<HardwareServiceOrderDTO> CreateHardwareServiceOrderAsync(Guid customerId, HardwareServiceOrderDTO model);
         Task<HardwareServiceOrderDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId);
         Task<List<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId);

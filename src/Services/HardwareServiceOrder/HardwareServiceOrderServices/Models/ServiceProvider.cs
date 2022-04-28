@@ -5,7 +5,7 @@ namespace HardwareServiceOrderServices.Models
     /// <summary>
     ///     Represents a single service-provider.
     /// </summary>
-    public class ServiceProvider : Entity, IAggregateRoot
+    public class ServiceProvider : EntityV2, IAggregateRoot
     {
         /// <summary>
         ///     The public ID for the partner's Organization entry.

@@ -8,7 +8,7 @@ namespace HardwareServiceOrder.API.Mappings
     {
         public HardwareServiceOrderProfile()
         {
-            CreateMap<CustomerSettingsDTO, CustomerSettings>()
+            CreateMap<CustomerSettingsDto, CustomerSettings>()
                 .ForMember(d => d.LoanDevice, opts => opts.MapFrom(s => new LoanDevice(s.LoanDevicePhoneNumber, s.LoanDeviceEmail)));
 
             CreateMap<HardwareServiceOrderDTO, ViewModels.HardwareServiceOrder>();

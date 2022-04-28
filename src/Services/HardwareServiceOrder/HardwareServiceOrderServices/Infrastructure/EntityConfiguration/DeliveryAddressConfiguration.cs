@@ -21,7 +21,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             // Source: Use case-insensitive string keys (https://docs.microsoft.com/en-us/ef/core/modeling/value-conversions?tabs=fluent-api#use-case-insensitive-string-keys)
             var comparer = new ValueComparer<string>(
                 (l, r) => string.Equals(l, r, StringComparison.OrdinalIgnoreCase),
-                v => v.ToUpper().GetHashCode(),
+                v => v.ToUpperInvariant().GetHashCode(),
                 v => v
             );
 
