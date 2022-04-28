@@ -81,7 +81,7 @@ jobs:
             chartType: FilePath
             releaseName: ${{ parameters.releaseName }}
             namespace: ${{ parameters.namespace }}
-            overrideValues: "deployment.image.tag=$(tag),namespace=${{ parameters.namespace }},deployment.probes.enabled=true"
+            overrideValues: "deployment.image.tag=${{ parameters.tag }},namespace=${{ parameters.namespace }},deployment.probes.enabled=true"
             arguments: --version ${{ parameters.tag }}
             chartPath: ${{ parameters.pipelineWorkspace }}/helmcharts
             install: true

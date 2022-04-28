@@ -65,7 +65,7 @@ stages:
       pipelineWorkspace: $(Pipeline.Workspace)
 
 - stage: DeployTest
-  displayName: Deploy to Dev
+  displayName: Deploy to Test
   dependsOn: DeployDev
   variables:
   - group: AssetsLibrary
