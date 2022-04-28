@@ -309,11 +309,4 @@ public class AssetLifecycle : Entity, IAggregateRoot
         _assetLifecycleStatus = lifecycleStatus;
         AddDomainEvent(new AssignLifecycleStatusToAssetLifecycleDomainEvent(this, callerId, previousLifecycleStatus));
     }
-    public void AssignSystemLabel(CustomerLabel customerLabel,Guid callerId)
-    {
-        UpdatedBy = callerId;
-        LastUpdatedDate = DateTime.UtcNow;
-        _labels.Add(customerLabel);
-        AddDomainEvent(new AssignSystemLabelDomainEvent(this, callerId, customerLabel));
-    }
 }

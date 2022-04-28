@@ -343,10 +343,6 @@ namespace AssetServices
                 assetLifecycle.AssignDepartment(newAssetDTO.ManagedByDepartmentId.Value, newAssetDTO.CallerId);
             }
 
-            //Assign system label for if it is personal/non personal
-            var customerLabel = new CustomerLabel(customerId, newAssetDTO.CallerId, new Label(newAssetDTO.IsPersonal ? "Personal" : "Non Personal", LabelColor.Gray));
-            assetLifecycle.AssignSystemLabel(customerLabel, newAssetDTO.CallerId);
-
             var assetLifeCycle = await _assetLifecycleRepository.AddAsync(assetLifecycle);
 
             return _mapper.Map<AssetLifecycleDTO>(assetLifeCycle);
