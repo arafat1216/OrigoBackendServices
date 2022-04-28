@@ -323,6 +323,19 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     }
 
     [Fact]
+    public async Task GetAvailableAssetsForCustomer()
+    {
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}?page=1&limit=1000&status=3";
+        _testOutputHelper.WriteLine(requestUri);
+        var pagedAsset = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+
+        Assert.True(pagedAsset!.TotalItems == 3);
+        Assert.True(pagedAsset!.Items.Count == 3);
+        Assert.True(pagedAsset!.Items.Where(x => x.AssetStatus == AssetLifecycleStatus.Available).Count() == 3);
+    }
+
+
+    [Fact]
     public async Task UpdateLifeCycleSetting()
     {
         var newSettings = new NewLifeCycleSetting()

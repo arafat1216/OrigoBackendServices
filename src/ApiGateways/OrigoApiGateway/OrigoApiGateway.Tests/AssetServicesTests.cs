@@ -115,6 +115,45 @@ namespace OrigoApiGateway.Tests
 
         [Fact]
         [Trait("Category", "UnitTest")]
+        public async void GetAvailableAssetForCustomer()
+        {
+            // Arrange
+            const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"{""items"":[{""id"":""6c38b551-a5c2-4f53-8df8-221bf8485c61"",""organizationId"":""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",""alias"":""alias_1"",""note"":"""",""description"":"""",""assetTag"":"""",""assetCategoryId"":1,""assetCategoryName"":""Mobile phone"",""brand"":""Apple"",""productName"":""Apple iPhone 8"",""lifecycleType"":0,""lifecycleName"":""NoLifecycle"",""paidByCompany"":0,""bookValue"":0,""buyoutPrice"":0.00,""purchaseDate"":""0001-01-01T00:00:00"",""createdDate"":""2022-04-28T14:18:11.9616155"",""managedByDepartmentId"":null,""assetHolderId"":""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",""assetStatus"":3,""assetStatusName"":""Available"",""labels"":[],""serialNumber"":""123456789012364"",""imei"":[546366434558702],""macAddress"":""487027C99FA1"",""orderNumber"":"""",""productId"":"""",""invoiceNumber"":"""",""transactionId"":"""",""isPersonal"":false},{""id"":""bdb4c26c-33fd-40d7-a237-e74728609c1c"",""organizationId"":""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",""alias"":""alias_3"",""note"":"""",""description"":"""",""assetTag"":"""",""assetCategoryId"":1,""assetCategoryName"":""Mobile phone"",""brand"":""Apple"",""productName"":""iPhone 11 Pro"",""lifecycleType"":0,""lifecycleName"":""NoLifecycle"",""paidByCompany"":0,""bookValue"":0,""buyoutPrice"":0.00,""purchaseDate"":""0001-01-01T00:00:00"",""createdDate"":""2022-04-28T14:18:11.9628902"",""managedByDepartmentId"":null,""assetHolderId"":""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",""assetStatus"":3,""assetStatusName"":""Available"",""labels"":[],""serialNumber"":""123456789012397"",""imei"":[512217111821624],""macAddress"":""840F1D0C06AB"",""orderNumber"":"""",""productId"":"""",""invoiceNumber"":"""",""transactionId"":"""",""isPersonal"":false},{""id"":""4315bba8-698f-4ddd-aee2-82554c91721f"",""organizationId"":""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",""alias"":""alias_4"",""note"":"""",""description"":"""",""assetTag"":"""",""assetCategoryId"":1,""assetCategoryName"":""Mobile phone"",""brand"":""Apple"",""productName"":""iPhone 11 Pro"",""lifecycleType"":0,""lifecycleName"":""NoLifecycle"",""paidByCompany"":0,""bookValue"":0,""buyoutPrice"":0.00,""purchaseDate"":""0001-01-01T00:00:00"",""createdDate"":""2022-04-28T14:18:11.9628964"",""managedByDepartmentId"":""6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72"",""assetHolderId"":""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",""assetStatus"":3,""assetStatusName"":""Available"",""labels"":[],""serialNumber"":""123456789012397"",""imei"":[512217111821624],""macAddress"":""840F1D0C06AB"",""orderNumber"":"""",""productId"":"""",""invoiceNumber"":"""",""transactionId"":"""",""isPersonal"":false}],""currentPage"":1,""totalItems"":3,""totalPages"":1,""pageSize"":1000}
+                    ")
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new AssetConfiguration() { ApiPath = @"/assets" };
+            var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+
+            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper);
+
+            // Act
+            var pagedAsset = await assetService.SearchForAssetsForCustomerAsync(new Guid(CUSTOMER_ID), status: Common.Enums.AssetLifecycleStatus.Available);
+
+            // Assert
+            Assert.True(pagedAsset.TotalItems == 3);
+            Assert.True(pagedAsset.Assets.Count == 3);
+        }
+
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
         public async void UpdateStatusOnAssets()
         {
             // Arrange
