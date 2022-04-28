@@ -22,6 +22,11 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     private readonly Guid _organizationId;
     private readonly Guid _customerId;
     private readonly Guid _departmentId;
+    private readonly Guid _user;
+    private readonly Guid _assetOne;
+    private readonly Guid _assetTwo;
+
+
     private readonly AssetWebApplicationFactory<AssetsController> _factory;
 
     public AssetsControllerTests(AssetWebApplicationFactory<AssetsController> factory,
@@ -32,6 +37,10 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         _organizationId = factory.ORGANIZATION_ID;
         _customerId = factory.COMPANY_ID;
         _departmentId = factory.DEPARTMENT_ID;
+        _user = factory.ASSETHOLDER_ONE_ID;
+        _assetOne = factory.ASSETLIFECYCLE_ONE_ID;
+        _assetTwo = factory.ASSETLIFECYCLE_TWO_ID;
+
         _factory = factory;
     }
 
@@ -347,6 +356,70 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         Assert.Equal(setting!.CustomerId, _customerId);
         Assert.True(setting!.BuyoutAllowed);
         Assert.True(setting!.CategoryLifeCycleSettings.FirstOrDefault(x=>x.AssetCategoryId == newSettings.AssetCategoryId)!.MinBuyoutPrice == newSettings.MinBuyoutPrice);
+    }
+    [Fact]
+    public async Task AssignLabel_AddedLabelToAsset()
+    {
+        var labels = new List<NewLabel>();
+        labels.Add(new NewLabel
+        {
+            Color = LabelColor.Blue,
+            Text = "Label1"
+        });
+        labels.Add(new NewLabel
+        {
+            Color = LabelColor.Green,
+            Text = "Label2"
+        });
+
+        var data = new AddLabelsData
+        {
+            CallerId = _callerId,
+            NewLabels = labels
+        };
+
+        //Post label
+        var requestUriPost = $"/api/v1/Assets/customers/{_customerId}/labels";
+        var responsePost = await _httpClient.PostAsync(requestUriPost, JsonContent.Create(data));
+        Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+
+        var labelsList = await responsePost.Content.ReadFromJsonAsync<IList<API.ViewModels.Label>>();
+        Assert.Equal(2, labelsList?.Count);
+        Assert.NotNull(labelsList?[0].Id);
+        Assert.NotNull(labelsList?[1].Id);
+        Assert.Equal("Label1", labelsList?[0].Text);
+
+        var labelGuid = new List<Guid>();
+        labelGuid.Add(labelsList[0].Id);
+        labelGuid.Add(labelsList[1].Id);
+        var assetGuid = new List<Guid>();
+        assetGuid.Add(_assetOne);
+
+        //Assign label
+        var requestUriAssign = $"/api/v1/Assets/customers/{_customerId}/labels/assign";
+        var assetLabel = new AssetLabels
+        {
+            AssetGuids = assetGuid,
+            LabelGuids = labelGuid,
+            CallerId = _callerId
+        };
+
+        var responseAssign = await _httpClient.PostAsync(requestUriAssign, JsonContent.Create(assetLabel));
+        Assert.Equal(HttpStatusCode.OK, responseAssign.StatusCode);
+
+        //Get asset with label
+        var requestUri = $"/api/v1/Assets/{_assetOne}/customers/{_customerId}";
+
+        var asset = await _httpClient.GetFromJsonAsync<API.ViewModels.Asset>(requestUri);
+        Assert.NotNull(asset);
+        Assert.Equal(2, asset?.Labels.Count);
+
+        //Fetch all assets for customer
+        var requestAllAssets = $"/api/v1/Assets/customers/{_customerId}";
+        PagedAssetList? pagedAssetList = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestAllAssets);
+        Assert.Equal(5, pagedAssetList?.Items?.Count);
+        Assert.Equal(_assetOne, pagedAssetList?.Items[0].Id);
+        Assert.Equal(2, pagedAssetList?.Items?[0].Labels.Count);
     }
 
 

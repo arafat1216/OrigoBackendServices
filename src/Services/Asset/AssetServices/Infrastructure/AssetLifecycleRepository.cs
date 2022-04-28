@@ -87,6 +87,7 @@ namespace AssetServices.Infrastructure
             var assets = await _assetContext.AssetLifeCycles.Include(al => al.Asset)
                     .ThenInclude(hw => (hw as MobilePhone).Imeis)
                     //.ThenInclude(hw => (hw as Tablet).Imeis)
+                    .Include(a => a.Labels)
                     .Include(al => al.ContractHolderUser)
                     .Where(al => al.CustomerId == customerId).ToListAsync();
 
@@ -223,6 +224,7 @@ namespace AssetServices.Infrastructure
                 .ThenInclude(hw => (hw as MobilePhone).Imeis)
                 //.ThenInclude(hw => (hw as Tablet).Imeis)
                 .Include(al => al.ContractHolderUser)
+                .Include(a => a.Labels)
                 .Where(a => a.CustomerId == customerId && a.ExternalId == assetLifecycleId)
                 .FirstOrDefaultAsync();
             return assetLifecycle;
