@@ -36,6 +36,11 @@ namespace HardwareServiceOrderServices
             throw new NotImplementedException();
         }
 
+        public Task<List<HardwareServiceOrderLogDTO>> GetHardwareServiceOrderLogsAsync(Guid customerId, Guid orderId)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<List<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId)
         {
             throw new NotImplementedException();
