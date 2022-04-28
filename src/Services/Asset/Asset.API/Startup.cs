@@ -82,6 +82,7 @@ namespace Asset.API
             ).AddFeatureManagement();
 
             VATConfiguration.Initialize(Configuration);
+            MinBuyoutConfiguration.Initialize(Configuration);
 
             services.AddMediatR(typeof(Startup));
         }

@@ -843,6 +843,32 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("min-buyout-price")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<MinBuyoutPrice>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadAsset)]
+        public async Task<ActionResult> GetBaseMinBuyoutPrice(string? country, int? assetCategoryId)
+        {
+            try
+            {
+                var allMinBuyoutPrices = await _assetServices.GetBaseMinBuyoutPrice(country,assetCategoryId);
+                if (allMinBuyoutPrices == null)
+                {
+                    return NotFound();
+                }
+                return Ok(allMinBuyoutPrices);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
+
+
         [Route("{assetId:Guid}/customers/{organizationId:guid}/ChangeLifecycleType/{newLifecycleType:int}")]
         [HttpPost]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]

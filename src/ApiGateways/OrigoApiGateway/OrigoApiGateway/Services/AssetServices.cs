@@ -561,7 +561,33 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<OrigoAssetLifecycle>> GetLifecycles()
+        public async Task<IList<MinBuyoutPrice>> GetBaseMinBuyoutPrice(string? country = null, int? assetCategoryId = null)
+        {
+            try
+            {
+                var allMinBuyoutPrices = await HttpClient.GetFromJsonAsync<IList<MinBuyoutPrice>>($"{_options.ApiPath}/min-buyout-price?{(string.IsNullOrWhiteSpace(country) ? "" : $"country={country}")}&{(assetCategoryId == null ? "" : $"assetCategoryId={assetCategoryId}")}");
+                if (allMinBuyoutPrices == null)
+                    return null;
+
+                return allMinBuyoutPrices;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetBaseMinBuyoutPrice failed with HttpRequestException.");
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetBaseMinBuyoutPrice failed with content type is not valid.");
+            }
+
+            catch (JsonException exception)
+            {
+                _logger.LogError(exception, "GetBaseMinBuyoutPrice failed with invalid JSON.");
+            }
+
+            return null;
+        }
+         public async Task<IList<OrigoAssetLifecycle>> GetLifecycles()
         {
             try
             {

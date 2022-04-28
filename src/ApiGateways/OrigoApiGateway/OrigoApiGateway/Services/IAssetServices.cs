@@ -27,6 +27,7 @@ namespace OrigoApiGateway.Services
         Task<IList<object>> AssignLabelsToAssets(Guid customerId, AssetLabelsDTO assetLabels);
         Task<IList<object>> UnAssignLabelsFromAssets(Guid customerId, AssetLabelsDTO assetLabels);
         Task<IList<OrigoAssetLifecycle>> GetLifecycles();
+        Task<IList<MinBuyoutPrice>> GetBaseMinBuyoutPrice(string? country = null, int? assetCategoryId = null);
         Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, UpdateAssetLifecycleType data);
         Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAssetDTO updateAsset);
         Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, AssignAssetToUser data);

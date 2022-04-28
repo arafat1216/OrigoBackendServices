@@ -370,6 +370,34 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         Assert.True(setting!.BuyoutAllowed);
         Assert.True(setting!.CategoryLifeCycleSettings.FirstOrDefault(x=>x.AssetCategoryId == newSettings.AssetCategoryId)!.MinBuyoutPrice == newSettings.MinBuyoutPrice);
     }
+
+    [Theory]
+    [InlineData("", null)]
+    [InlineData("norway", null)]
+    [InlineData("norway", 1)]
+    [InlineData(null, 1)]
+    public async Task GetBaseMinBuyoutPrice(string? country, int? assetCategoryId)
+    {
+        var requestUri = $"/api/v1/Assets/min-buyout-price?{(string.IsNullOrWhiteSpace(country) ? "" : $"country={country}")}&{(assetCategoryId == null ? "" : $"assetCategoryId={assetCategoryId}")}";
+        _testOutputHelper.WriteLine(requestUri);
+        var buyoutPrices = await _httpClient.GetFromJsonAsync<IList<AssetServices.Models.MinBuyoutPriceBaseline>>(requestUri);
+
+        if (!string.IsNullOrEmpty(country))
+        {
+            Assert.True(!buyoutPrices!.Any(x => x.Country.ToLower() != country.ToLower()));
+        }
+        if (assetCategoryId != null)
+        {
+            Assert.True(!buyoutPrices!.Any(x => x.AssetCategoryId != assetCategoryId));
+        }
+        if (string.IsNullOrEmpty(country) && assetCategoryId == null)
+        {
+            Assert.True(buyoutPrices!.Count() == 2);
+        }
+    }
+
+
+
     [Fact]
     public async Task AssignLabel_AddedLabelToAsset()
     {

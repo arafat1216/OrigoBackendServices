@@ -398,6 +398,17 @@ namespace Asset.API.Controllers
             return Ok(lifecycleList);
         }
 
+        [Route("min-buyout-price")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<AssetServices.Models.MinBuyoutPriceBaseline>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public ActionResult GetBaseMinBuyoutPrice(string? country, int? assetCategoryId)
+        {
+            var baseBuyoutPrice = _assetServices.GetBaseMinBuyoutPrice(country, assetCategoryId);
+            return Ok(baseBuyoutPrice);
+        }
+
         [Route("{assetId:Guid}/customers/{customerId:guid}/ChangeLifecycleType")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]

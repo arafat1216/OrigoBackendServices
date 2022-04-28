@@ -361,6 +361,19 @@ namespace AssetServices
             return lifecycleList;
         }
 
+        public IList<MinBuyoutPriceBaseline> GetBaseMinBuyoutPrice(string? country, int? assetCategoryId)
+        {
+            var minBuyoutPrices = MinBuyoutConfiguration.BaselineAmounts;
+
+            if (!string.IsNullOrEmpty(country))
+                minBuyoutPrices = minBuyoutPrices.Where(x => x.Country.ToLower() == country.ToLower()).ToList();
+
+            if (assetCategoryId != null)
+                minBuyoutPrices = minBuyoutPrices.Where(x => x.AssetCategoryId == assetCategoryId).ToList();
+            return minBuyoutPrices;
+        }
+
+
         public async Task<AssetLifecycleDTO?> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, Guid callerId, LifecycleType newLifecycleType)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);

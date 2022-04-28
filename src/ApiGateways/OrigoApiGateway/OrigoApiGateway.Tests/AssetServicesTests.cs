@@ -36,6 +36,54 @@ namespace OrigoApiGateway.Tests
 
         [Fact]
         [Trait("Category", "UnitTest")]
+        public async void GetBaseMinBuyoutPrice()
+        {
+            // Arrange
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        [
+                        {
+                          ""Country"": ""Norway"",
+                          ""AssetCategoryId"": ""1"",
+                          ""Amount"": ""500""
+                        },
+                        {
+                          ""Country"": ""Norway"",
+                          ""AssetCategoryId"": ""2"",
+                          ""Amount"": ""500""
+                        }
+                      ]
+                    ")
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new AssetConfiguration() { ApiPath = @"/assets" };
+            var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+
+            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper);
+
+            // Act
+            var minBuyoutPrices = await assetService.GetBaseMinBuyoutPrice();
+
+            // Assert
+            Assert.Equal(2, minBuyoutPrices.Count);
+        }
+        
+        [Fact]
+        [Trait("Category", "UnitTest")]
         public async void GetAssetsForUser_ForUserOne_CheckCount()
         {
             // Arrange
