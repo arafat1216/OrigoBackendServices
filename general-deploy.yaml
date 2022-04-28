@@ -60,7 +60,7 @@ jobs:
 - deployment: Deploy
   displayName: Deploy
   pool:
-    vmImage: ${{ parameters.vmImageName }}
+    vmImage: ${{ parameters.vmImage }}
   environment: ${{ parameters.environment }}
   strategy:
     runOnce:
