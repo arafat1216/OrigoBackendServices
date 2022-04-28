@@ -300,11 +300,17 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
             BuyoutAllowed = true,
             CallerId = _callerId,
         };
+        var customerId = Guid.NewGuid();
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
-        var requestUri = $"/api/v1/Assets/customers/{Guid.NewGuid()}/lifecycle-setting";
+        var requestUri = $"/api/v1/Assets/customers/{customerId}/lifecycle-setting";
         _testOutputHelper.WriteLine(requestUri);
         var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newSettings);
+        
+        var setting = await _httpClient.GetFromJsonAsync<LifeCycleSetting>($"/api/v1/Assets/customers/{customerId}/lifecycle-setting");
+        
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        Assert.Equal(setting!.CustomerId, customerId);
+        Assert.True(setting!.BuyoutAllowed == newSettings.BuyoutAllowed);
     }
 
     [Fact]
