@@ -1,4 +1,4 @@
-# Deploy to Azure Kubernetes Service
+# Build and Deploy to Azure Kubernetes Service
 
 trigger:
   branches:
@@ -20,10 +20,6 @@ variables:
   artifactsFeedSource: 'https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json'
   imageRepository: 'assetsbackend'
   containerRegistry: 'origov2acr.azurecr.io'
-
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
-
 
 stages:
 - stage: Build
@@ -78,5 +74,22 @@ stages:
       dbConnection: '$(AssetsDbConnectionTest)'
       releaseName: assetservices
       namespace: test
+      tag: '$(Build.BuildId)'
+      pipelineWorkspace: $(Pipeline.Workspace)
+
+- stage: DeployProd
+  displayName: Deploy to Prod
+  dependsOn: DeployTest
+  variables:
+  - group: AssetsLibrary
+  jobs:
+  - template: general-deploy.yaml
+    parameters:
+      vmImage: 'ubuntu-latest'
+      environment: 'OrigoV2AKS.prod'
+      artifactDirectory: $(System.ArtifactsDirectory)
+      dbConnection: '$(AssetsDbConnectionProd)'
+      releaseName: assetservices
+      namespace: prod
       tag: '$(Build.BuildId)'
       pipelineWorkspace: $(Pipeline.Workspace)
