@@ -1,0 +1,87 @@
+# Template for deploying a backend microservice
+
+parameters:
+- name: vmImage
+  default: 'ubuntu-latest'
+- name: environment
+  default: 'OrigoV2AKS_Dev.develop'
+- name: artifactDirectory
+  default: ''
+- name: dbConnection
+  default: ''
+- name: runMigration
+  type: boolean
+  default: true
+- name: releaseName
+  default: ''
+- name: namespace
+  default: 'develop'
+- name: tag
+  default: ''
+- name: pipelineWorkspace
+  default: ''
+
+
+jobs:
+- ${{ if eq(parameters.runMigration, true) }}:
+  - deployment: MigrateDatabase
+    environment: ${{ parameters.environment }}
+    displayName: Migrate database
+    pool:
+      vmImage: windows-latest
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: Download migration scripts
+            inputs:
+              artifactName: 'migrations'
+              downloadPath: '${{ parameters.artifactDirectory }}/migrations'
+          - task: SqlAzureDacpacDeployment@1
+            displayName: Run asset sql migrations
+            inputs:
+              azureConnectionType: ConnectedServiceNameARM
+              azureSubscription: OrigoV2ServiceConnection
+              authenticationType: connectionString
+              connectionString: ${{ parameters.dbConnection }}
+              deployType: SqlTask
+              sqlFile: '${{ parameters.artifactDirectory }}/migrations/migrations.sql'
+          - task: SqlAzureDacpacDeployment@1
+            displayName: Run asset logging sql migrations
+            inputs:
+              azureConnectionType: ConnectedServiceNameARM
+              azureSubscription: OrigoV2ServiceConnection
+              authenticationType: connectionString
+              connectionString: ${{ parameters.dbConnection }}
+              deployType: SqlTask
+              sqlFile: '${{ parameters.artifactDirectory }}/migrations/logging_migrations.sql'
+
+- deployment: Deploy
+  displayName: Deploy
+  pool:
+    vmImage: ${{ parameters.vmImageName }}
+  environment: ${{ parameters.environment }}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - checkout: self
+
+        - task: HelmInstaller@0
+          displayName: Install Helm
+          inputs:
+            helmVersion: 'latest'
+            installKubectl: true
+
+        - task: HelmDeploy@0
+        displayName: Helm upgrade
+        inputs:
+          command: upgrade
+          chartType: FilePath
+          releaseName: ${{ parameters.releaseName }}
+          namespace: ${{ parameters.namespace }}
+          overrideValues: "deployment.image.tag=$(tag),namespace=${{ parameters.namespace }},deployment.probes.enabled=true"
+          arguments: --version ${{ parameters.tag }}
+          chartPath: ${{ parameters.pipelineWorkspace }}/helmcharts
+          install: true

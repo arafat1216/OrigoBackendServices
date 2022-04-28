@@ -21,22 +21,6 @@ variables:
   imageRepository: 'assetsbackend'
   containerRegistry: 'origov2acr.azurecr.io'
 
-  ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
-    namespace: prod
-    tag: '$(Build.BuildId)_prod'
-    currentDbConnection: '$(AssetsDbConnectionProd)'
-    environment: 'BackendServices.prod'
-  ${{ elseif eq(variables['Build.SourceBranchName'], 'release') }}:
-    namespace: test
-    tag: '$(Build.BuildId)_test'
-    currentDbConnection: '$(AssetsDbConnectionTest)'
-    environment: 'BackendServices.develop'
-  ${{ elseif eq(variables['Build.SourceBranchName'], 'develop') }}:
-    namespace: develop
-    tag: '$(Build.BuildId)_develop'
-    currentDbConnection: '$(AssetsDbConnection)'
-    environment: 'BackendServices.develop'
-
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
@@ -62,71 +46,37 @@ stages:
       buildSourcesDirectory: $(Build.SourcesDirectory)
 
 
-#- stage: DeployDev
-#  displayName: Deploy to Dev
-#  dependsOn: Build
-#  variables:
-#    - group: AssetsLibrary
-#  jobs:
-#  - deployment: MigrateDatabase
-#    environment: 'BackendServices.develop'
-#    displayName: Migrate database
-#    pool:
-#      vmImage: windows-latest
-#    strategy:
-#      runOnce:
-#        deploy:
-#          steps:
-#          - task: DownloadPipelineArtifact@2
-#            displayName: Download migration scripts
-#            inputs:
-#              artifactName: 'migrations'
-#              downloadPath: '$(System.ArtifactsDirectory)/migrations'
-#          - task: SqlAzureDacpacDeployment@1
-#            displayName: Run asset sql migrations
-#            inputs:
-#              azureConnectionType: ConnectedServiceNameARM
-#              azureSubscription: OrigoV2ServiceConnection
-#              authenticationType: connectionString
-#              connectionString: $(currentDbConnection)
-#              deployType: SqlTask
-#              sqlFile: $(System.ArtifactsDirectory)/migrations/migrations.sql
-#          - task: SqlAzureDacpacDeployment@1
-#            displayName: Run asset logging sql migrations
-#            inputs:
-#              azureConnectionType: ConnectedServiceNameARM
-#              azureSubscription: OrigoV2ServiceConnection
-#              authenticationType: connectionString
-#              connectionString: $(currentDbConnection)
-#              deployType: SqlTask
-#              sqlFile: $(System.ArtifactsDirectory)/migrations/logging_migrations.sql
+- stage: DeployDev
+  displayName: Deploy to Dev
+  condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
+  dependsOn: Build
+  variables:
+  - group: AssetsLibrary
+  jobs:
+  - template: general-deploy.yaml
+    parameters:
+      vmImage: 'ubuntu-latest'
+      environment: 'OrigoV2AKS_Dev.develop'
+      artifactDirectory: $(System.ArtifactsDirectory)
+      dbConnection: '$(AssetsDbConnection)'
+      releaseName: assetservices
+      namespace: develop
+      tag: '$(Build.BuildId)'
+      pipelineWorkspace: $(Pipeline.Workspace)
 
-#  - deployment: Deploy
-#    condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
-#    displayName: Deploy
-#    pool:
-#      vmImage: $(vmImageName)
-#    environment: $(environment)
-#    strategy:
-#      runOnce:
-#        deploy:
-#          steps:
-#          - checkout: self
-
-#          - task: HelmInstaller@0
-#            displayName: Install Helm
-#            inputs:
-#              helmVersion: 'latest'
-#              installKubectl: true
-
-#          - task: HelmDeploy@0
-#            displayName: Helm upgrade
-#            inputs:
-#              command: upgrade
-#              chartType: FilePath
-#              releaseName: assetservices
-#              namespace: $(namespace)
-#              overrideValues: "deployment.image.tag=$(tag),namespace=$(namespace),deployment.probes.enabled=true"
-#              arguments: --version $(tag)
-#              chartPath: $(Pipeline.Workspace)/helmcharts
-#              install: true
+- stage: DeployDev
+  displayName: Deploy to Dev
+  dependsOn: DeployDev
+  variables:
+  - group: AssetsLibrary
+  jobs:
+  - template: general-deploy.yaml
+    parameters:
+      vmImage: 'ubuntu-latest'
+      environment: 'OrigoV2AKS.test'
+      artifactDirectory: $(System.ArtifactsDirectory)
+      dbConnection: '$(AssetsDbConnectionTest)'
+      releaseName: assetservices
+      namespace: test
+      tag: '$(Build.BuildId)'
+      pipelineWorkspace: $(Pipeline.Workspace)
