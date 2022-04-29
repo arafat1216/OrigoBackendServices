@@ -209,6 +209,24 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HardwareServiceOrder.Integr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HardwareServiceOrder.UnitTests", "src\Services\HardwareServiceOrder\Tests\HardwareServiceOrder.UnitTests\HardwareServiceOrder.UnitTests.csproj", "{88998E26-0E1E-464A-B93A-3231493B44E3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hardware-service-order-api", "hardware-service-order-api", "{EAAABE14-0D81-4BB0-B70C-7CBBA77954C9}"
+	ProjectSection(SolutionItems) = preProject
+		charts\hardware-service-order-api\.helmignore = charts\hardware-service-order-api\.helmignore
+		charts\hardware-service-order-api\Chart.yaml = charts\hardware-service-order-api\Chart.yaml
+		charts\hardware-service-order-api\values.yaml = charts\hardware-service-order-api\values.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{F1F3D2C9-0067-44AB-9665-B0ADBBEC98F5}"
+	ProjectSection(SolutionItems) = preProject
+		charts\hardware-service-order-api\templates\_helpers.tpl = charts\hardware-service-order-api\templates\_helpers.tpl
+		charts\hardware-service-order-api\templates\collector-config.yaml = charts\hardware-service-order-api\templates\collector-config.yaml
+		charts\hardware-service-order-api\templates\deployment.yaml = charts\hardware-service-order-api\templates\deployment.yaml
+		charts\hardware-service-order-api\templates\ingress.yaml = charts\hardware-service-order-api\templates\ingress.yaml
+		charts\hardware-service-order-api\templates\NOTES.txt = charts\hardware-service-order-api\templates\NOTES.txt
+		charts\hardware-service-order-api\templates\secrets.yaml = charts\hardware-service-order-api\templates\secrets.yaml
+		charts\hardware-service-order-api\templates\service.yaml = charts\hardware-service-order-api\templates\service.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -378,6 +396,8 @@ Global
 		{209FAFA6-5360-4C71-A9D4-87110AC21E96} = {7B7298F1-B756-4B90-88C2-10D9118C5644}
 		{4E1B9931-175A-4F87-8955-A8D9998685B0} = {209FAFA6-5360-4C71-A9D4-87110AC21E96}
 		{88998E26-0E1E-464A-B93A-3231493B44E3} = {209FAFA6-5360-4C71-A9D4-87110AC21E96}
+		{EAAABE14-0D81-4BB0-B70C-7CBBA77954C9} = {8D5A9903-F29E-457C-A27C-199EF34B1933}
+		{F1F3D2C9-0067-44AB-9665-B0ADBBEC98F5} = {EAAABE14-0D81-4BB0-B70C-7CBBA77954C9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DAEDEBBF-933A-4FFE-B734-B9E748AF86E1}

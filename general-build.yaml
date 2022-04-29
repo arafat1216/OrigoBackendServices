@@ -33,6 +33,8 @@ parameters:
 - name: useDbMigrations
   type: boolean
   default: true
+- name: chartName
+  default: ''
 
 jobs:
 - ${{ if eq(parameters.useDbMigrations, true) }}:
@@ -111,5 +113,5 @@ jobs:
       testResultsFiles: '**/*.trx'
       displayName: 'Publish test results'
 
-  - publish: charts/asset-api
+  - publish: charts/${{ parameters.chartName }}
     artifact: helmcharts
