@@ -8,7 +8,7 @@ namespace HardwareServiceOrderServices.Mappings
     {
         public CustomerSettingsProfile()
         {
-            CreateMap<CustomerSettings, CustomerSettingsDto>();
+            CreateMap<CustomerSettings, CustomerSettingsDTO>();
         }
     }
 }

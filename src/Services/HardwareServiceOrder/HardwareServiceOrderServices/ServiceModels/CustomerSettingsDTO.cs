@@ -3,7 +3,7 @@
 namespace HardwareServiceOrderServices.ServiceModels
 {
     /// <inheritdoc cref="Models.CustomerSettings"/>
-    public class CustomerSettingsDto
+    public class CustomerSettingsDTO
     {
         /// <inheritdoc cref="Models.CustomerSettings.ServiceId"/>
         [Required]

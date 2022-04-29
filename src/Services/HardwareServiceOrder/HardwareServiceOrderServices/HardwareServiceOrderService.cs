@@ -14,16 +14,16 @@ namespace HardwareServiceOrderServices
             _mapper = mapper;
         }
 
-        public async Task<CustomerSettingsDto> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmain, Guid callerId)
+        public async Task<CustomerSettingsDTO> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmain, Guid callerId)
         {
             var entity = await _hardwareServiceOrderRepository.ConfigureLoanPhoneAsync(customerId, loanPhoneNumber, loanPhoneEmain, callerId);
-            return _mapper.Map<CustomerSettingsDto>(entity);
+            return _mapper.Map<CustomerSettingsDTO>(entity);
         }
 
-        public async Task<CustomerSettingsDto> ConfigureServiceIdAsync(Guid customerId, string serviceId, Guid callerId)
+        public async Task<CustomerSettingsDTO> ConfigureServiceIdAsync(Guid customerId, string serviceId, Guid callerId)
         {
             var entity = await _hardwareServiceOrderRepository.ConfigureServiceIdAsync(customerId, serviceId, callerId);
-            return _mapper.Map<CustomerSettingsDto>(entity);
+            return _mapper.Map<CustomerSettingsDTO>(entity);
         }
 
         public Task<HardwareServiceOrderDTO> CreateHardwareServiceOrderAsync(Guid customerId, HardwareServiceOrderDTO model)
@@ -49,7 +49,7 @@ namespace HardwareServiceOrderServices
         public async Task<CustomerSettingsDTO> GetSettingsAsync(Guid customerId)
         {
             var entity = await _hardwareServiceOrderRepository.GetSettingsAsync(customerId);
-            return _mapper.Map<CustomerSettingsDto>(entity);
+            return _mapper.Map<CustomerSettingsDTO>(entity);
         }
 
         public Task<HardwareServiceOrderDTO> UpdateHardwareServiceOrderAsync(Guid customerId, Guid orderId, HardwareServiceOrderDTO model)

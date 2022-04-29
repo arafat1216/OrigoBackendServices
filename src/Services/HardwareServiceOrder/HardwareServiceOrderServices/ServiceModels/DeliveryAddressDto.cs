@@ -3,7 +3,7 @@
 namespace HardwareServiceOrderServices.ServiceModels
 {
     /// <inheritdoc cref="Models.DeliveryAddress"/>
-    public class DeliveryAddressDto
+    public class DeliveryAddressDTO
     {
         /// <inheritdoc cref="Models.DeliveryAddress.Recipient"/>
         [Required]

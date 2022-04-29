@@ -21,7 +21,7 @@ namespace HardwareServiceOrder.UnitTests
             {
                 var mappingConfig = new MapperConfiguration(mc =>
                 {
-                    mc.AddMaps(Assembly.GetAssembly(typeof(CustomerSettingsDto)));
+                    mc.AddMaps(Assembly.GetAssembly(typeof(CustomerSettingsDTO)));
                 });
                 _mapper = mappingConfig.CreateMapper();
             }

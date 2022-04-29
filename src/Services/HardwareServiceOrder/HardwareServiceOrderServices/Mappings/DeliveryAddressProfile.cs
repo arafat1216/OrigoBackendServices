@@ -7,7 +7,7 @@ namespace HardwareServiceOrderServices.Mappings
     {
         public DeliveryAddressProfile()
         {
-            CreateMap<DeliveryAddress, DeliveryAddressDto>();
+            CreateMap<DeliveryAddress, DeliveryAddressDTO>();
         }
     }
 }
