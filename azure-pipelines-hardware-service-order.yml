@@ -40,6 +40,7 @@ stages:
       artifactsFeedSource: 'https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json'
       vssNugetAccessToken: $(VSS_NUGET_ACCESSTOKEN)
       buildSourcesDirectory: $(Build.SourcesDirectory)
+      useLoggingDbContext: false
 
 
 - stage: DeployDev
