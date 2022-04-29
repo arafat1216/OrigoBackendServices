@@ -169,6 +169,97 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
+        public async Task<LifeCycleSetting> GetLifeCycleSettingByCustomer(Guid customerId)
+        {
+            try
+            {
+                var settings = await HttpClient.GetFromJsonAsync<LifeCycleSetting>($"{_options.ApiPath}/customers/{customerId}/lifecycle-setting");
+
+                if (settings == null)
+                    return null;
+                return settings;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetLifeCycleSettingByCustomer failed with HttpRequestException.");
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetLifeCycleSettingByCustomer failed with content type is not valid.");
+            }
+            catch (JsonException exception)
+            {
+                _logger.LogError(exception, "GetLifeCycleSettingByCustomer failed with invalid JSON.");
+            }
+
+            return null;
+        }
+
+        public async Task<LifeCycleSetting> SetLifeCycleSettingForCustomerAsync(Guid customerId, NewLifeCycleSetting setting, Guid callerId)
+        {
+            try
+            {
+                var existingSetting = await GetLifeCycleSettingByCustomer(customerId);
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/lifecycle-setting";
+                var response = new HttpResponseMessage();
+                var newSettingtDTO = _mapper.Map<NewLifeCycleSettingDTO>(setting);
+                newSettingtDTO.CallerId = callerId;
+                if (existingSetting == null || existingSetting!.Id == Guid.Empty)
+                    response = await HttpClient.PostAsJsonAsync(requestUri, newSettingtDTO);
+                else
+                    response = await HttpClient.PutAsJsonAsync(requestUri, newSettingtDTO);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDescription = await response.Content.ReadAsStringAsync();
+                    var exception = new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                    throw exception;
+                }
+                var newSetting = await response.Content.ReadFromJsonAsync<LifeCycleSetting>();
+                if(setting.CategoryLifeCycleSetting != null && setting.CategoryLifeCycleSetting.Any())
+                {
+                    var allCategorySetting = new List<CategoryLifeCycleSetting>();
+                    foreach(var item in setting.CategoryLifeCycleSetting)
+                    {
+                        var categorySetting = _mapper.Map<NewCategoryLifeCycleSettingDTO>(item);
+                        categorySetting.CallerId = callerId;
+                        var addedCatgorySetting = await SetCategoryLifeCycleSettingForCustomerAsync(customerId, categorySetting);
+                        allCategorySetting.Add(addedCatgorySetting);
+                    }
+                    newSetting.CategoryLifeCycleSettings = allCategorySetting;
+                }
+                return newSetting;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to set LifeCycleSetting.");
+                throw;
+            }
+        }
+
+        public async Task<CategoryLifeCycleSetting> SetCategoryLifeCycleSettingForCustomerAsync(Guid customerId, NewCategoryLifeCycleSettingDTO newSetting)
+        {
+            try
+            {
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/category-lifecycle-setting";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, newSetting);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDescription = await response.Content.ReadAsStringAsync();
+                    var exception = new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                    throw exception;
+                }
+                var setting = await response.Content.ReadFromJsonAsync<CategoryLifeCycleSetting>();
+                return setting;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to set CategoryLifeCycleSetting.");
+                throw;
+            }
+        }
+
+
         public async Task<OrigoPagedAssets> SearchForAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 50, AssetLifecycleStatus? status = null)
         {
             try
