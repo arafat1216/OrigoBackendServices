@@ -13,6 +13,7 @@ public class PagedAssetProfile : Profile
     {
         CreateMap<PagedModel<AssetLifecycleDTO>, PagedAssetList>().ForMember(dest => dest.Items, opts => opts.MapFrom(src => src.Items));
         CreateMap<LabelDTO, Label>()
+            .ForMember(dest => dest.Id, opts => opts.MapFrom(src => src.ExternalId))
             .ForMember(dest => dest.Text, opts => opts.MapFrom(src => src.Text))
             .ForMember(dest => dest.Color, opts => opts.MapFrom(src => src.Color))
             .ForMember(dest => dest.ColorName, opts => opts.MapFrom(src => src.Color.ToString()));
@@ -32,7 +33,7 @@ public class PagedAssetProfile : Profile
             .ForMember(dest => dest.AssetCategoryId, opts => opts.MapFrom(src => src.AssetCategoryId))
             .ForMember(dest => dest.BookValue, opts => opts.MapFrom(src => src.BookValue))
             .ForMember(dest => dest.BuyoutPrice, opts => opts.MapFrom(src => src.BuyoutPrice))
-            .ForMember(dest => dest.Labels, opts => opts.MapFrom(src => src.Labels.Select(x =>x.Label)));
+            .ForMember(dest => dest.Labels, opts => opts.MapFrom(src => src.Labels));
                     
         CreateMap<LifeCycleSettingDTO, LifeCycleSetting>()
             .ForMember(dest => dest.Id, opts => opts.MapFrom(src => src.ExternalId))

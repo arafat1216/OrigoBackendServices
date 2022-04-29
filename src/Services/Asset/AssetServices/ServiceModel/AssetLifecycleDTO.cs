@@ -26,7 +26,7 @@ public record AssetLifecycleDTO
     public Guid? ManagedByDepartmentId { get; init; }
     public AssetLifecycleStatus AssetLifecycleStatus { get; init; }
     public LifecycleType AssetLifecycleType { get; init; }
-    public IReadOnlyCollection<CustomerLabelDTO> Labels { get; init; } = null!;
+    public IReadOnlyCollection<LabelDTO> Labels { get; init; } = null!;
     public DateTime CreatedDate { get; set; }
     public string? OrderNumber { get; set; }
     public string? ProductId { get; set; }

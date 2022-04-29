@@ -123,6 +123,10 @@ public class AssetWebApplicationFactory<TProgram> : WebApplicationFactory<TProgr
                 assetsContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree,
                     assetLifecycleFour, assetLifecycleFive);
                 assetsContext.LifeCycleSettings.AddRange(lifeCycleSetting);
+
+                var label = new CustomerLabel(COMPANY_ID,CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
+                assetsContext.CustomerLabels.Add(label);
+
                 assetsContext.SaveChanges();
             }
             catch (Exception e)

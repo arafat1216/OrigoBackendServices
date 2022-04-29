@@ -425,14 +425,14 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
 
         var labelsList = await responsePost.Content.ReadFromJsonAsync<IList<API.ViewModels.Label>>();
-        Assert.Equal(2, labelsList?.Count);
-        Assert.NotNull(labelsList?[0].Id);
+        Assert.Equal(3, labelsList?.Count);
         Assert.NotNull(labelsList?[1].Id);
-        Assert.Equal("Label1", labelsList?[0].Text);
+        Assert.NotNull(labelsList?[2].Id);
+        Assert.Equal("Label1", labelsList?[1].Text);
 
         var labelGuid = new List<Guid>();
-        labelGuid.Add(labelsList[0].Id);
         labelGuid.Add(labelsList[1].Id);
+        labelGuid.Add(labelsList[2].Id);
         var assetGuid = new List<Guid>();
         assetGuid.Add(_assetOne);
 
@@ -462,7 +462,19 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         Assert.Equal(_assetOne, pagedAssetList?.Items[0].Id);
         Assert.Equal(2, pagedAssetList?.Items?[0].Labels.Count);
     }
+    [Fact]
+    public async Task GetLabels_CheckViewModel()
+    {
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/labels";
 
+        var labels = await _httpClient.GetFromJsonAsync<List<API.ViewModels.Label>>(requestUri);
+        Assert.NotNull(labels);
+        Assert.Equal(1, labels?.Count);
+        Assert.Equal("CompanyOne", labels[0]?.Text);
+        Assert.Equal("Lightblue", labels[0]?.ColorName);
+        Assert.NotNull(labels[0]?.Id);
+        Assert.NotEqual(Guid.Empty,labels[0]?.Id);
+    }
 
 
 

@@ -18,12 +18,18 @@ public class AssetLifecycleProfile : Profile
             .ForMember(dest => dest.Imeis, opts => opts.MapFrom(src => src.Imeis.Select(i => i.Imei).ToList()));
         CreateMap<Tablet, AssetDTO>().IncludeBase<HardwareAsset, AssetDTO>().IncludeBase<Asset, AssetDTO>()
             .ForMember(dest => dest.Imeis, opts => opts.MapFrom(src => src.Imeis.Select(i => i.Imei).ToList()));
-        CreateMap<CustomerLabel, CustomerLabelDTO>();
+        CreateMap<CustomerLabel, LabelDTO>()
+            .ForMember(dest => dest.ExternalId, opts => opts.MapFrom(src => src.ExternalId))
+            .ForMember(dest => dest.Text, opts => opts.MapFrom(src => src.Label.Text))
+            .ForMember(dest => dest.Color, opts => opts.MapFrom(src => src.Label.Color));
         CreateMap<LifeCycleSetting, LifeCycleSettingDTO>();
         CreateMap<CategoryLifeCycleSetting, CategoryLifeCycleSettingDTO>();
-        CreateMap<Label, LabelDTO>();
-        CreateMap<AssetLifecycle, AssetLifecycleDTO>().ForMember(dest => dest.ContractHolderUserId,
-            opts => opts.MapFrom(src => src.ContractHolderUser!.ExternalId));
+        CreateMap<AssetLifecycle, AssetLifecycleDTO>()
+            .ForMember(dest => dest.ContractHolderUserId,
+            opts => opts.MapFrom(src => src.ContractHolderUser!.ExternalId))
+            .ForMember(dest=> dest.Labels, opts => opts.MapFrom(src => src.Labels));
         CreateMap<PagedModel<AssetLifecycle>, PagedModel<AssetLifecycleDTO>>();
+       
+
     }
 }
