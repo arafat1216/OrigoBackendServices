@@ -25,4 +25,9 @@
 		<ProjectReference Include="..\..\..\Core\Common.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Conmodo\Mappings\" />
+	  <Folder Include="Conmodo\Requests\" />
+	</ItemGroup>
+
 </Project>
