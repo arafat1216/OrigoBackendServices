@@ -30,32 +30,36 @@ parameters:
 - name: useLoggingDbContext
   type: boolean
   default: true
+- name: useDbMigrations
+  type: boolean
+  default: true
 
 jobs:
-- job: MigrationScripts
-  displayName: Migration scripts
-  pool:
-    vmImage: ${{ parameters.vmImage }}
-  steps:
-  - task: NuGetAuthenticate@0
-    displayName: Authenticating with internal NuGet package-feeds
-
-  - script: 'dotnet tool install --global dotnet-ef'
-    displayName: Install EF Core
-
-  - script: 'dotnet ef migrations script --context ${{ parameters.dbContext }} --idempotent --output ${{ parameters.migrationScriptOutputDir }}/migrations.sql --project ${{ parameters.dbProject }}'
-    displayName: Create migration scripts
-
-  - ${{ if eq(parameters.useLoggingDbContext, true) }}:
-    - script: 'dotnet ef migrations script --context LoggingDbContext --idempotent --output ${{ parameters.migrationScriptOutputDir }}/logging_migrations.sql --project ${{ parameters.dbProject }}'
-      displayName: Create logging migration scripts
+- ${{ if eq(parameters.useDbMigrations, true) }}:
+  - job: MigrationScripts
+    displayName: Migration scripts
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    steps:
+    - task: NuGetAuthenticate@0
+      displayName: Authenticating with internal NuGet package-feeds
   
-    - task: PublishPipelineArtifact@1
-      displayName: 'Publish migrations'
-      inputs:
-        targetPath: ${{ parameters.migrationScriptOutputDir }}
-        artifact: 'migrations'
+    - script: 'dotnet tool install --global dotnet-ef'
+      displayName: Install EF Core
   
+    - script: 'dotnet ef migrations script --context ${{ parameters.dbContext }} --idempotent --output ${{ parameters.migrationScriptOutputDir }}/migrations.sql --project ${{ parameters.dbProject }}'
+      displayName: Create migration scripts
+  
+    - ${{ if eq(parameters.useLoggingDbContext, true) }}:
+      - script: 'dotnet ef migrations script --context LoggingDbContext --idempotent --output ${{ parameters.migrationScriptOutputDir }}/logging_migrations.sql --project ${{ parameters.dbProject }}'
+        displayName: Create logging migration scripts
+    
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish migrations'
+        inputs:
+          targetPath: ${{ parameters.migrationScriptOutputDir }}
+          artifact: 'migrations'
+    
 - job: Build
   displayName: Build
   pool:

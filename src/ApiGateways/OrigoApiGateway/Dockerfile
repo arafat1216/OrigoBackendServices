@@ -2,7 +2,7 @@
 FROM origov2acr.azurecr.io/baseimage-dotnetcore6-sonarcloud:latest AS build
 
 # Parameters needed by Sonarcloud
-ARG SONAR_PROJECT_KEY=Mytos_OrigoApiGateway
+ARG SONAR_PROJECT_KEY=Mytos_BackendServices
 ARG SONAR_ORGANIZATION_KEY=mytos
 ARG SONAR_HOST_URL=https://sonarcloud.io
 ARG SONAR_TOKEN

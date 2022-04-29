@@ -20,6 +20,8 @@ parameters:
   default: ''
 - name: pipelineWorkspace
   default: ''
+- name: helmOverrideDeployValues
+  default: ''
 
 
 jobs:
@@ -81,7 +83,7 @@ jobs:
             chartType: FilePath
             releaseName: ${{ parameters.releaseName }}
             namespace: ${{ parameters.namespace }}
-            overrideValues: "deployment.image.tag=${{ parameters.tag }},namespace=${{ parameters.namespace }},deployment.probes.enabled=true"
+            overrideValues: "deployment.image.tag=${{ parameters.tag }},namespace=${{ parameters.namespace }},deployment.probes.enabled=true{{ parameters.helmOverrideDeployValues }}"
             arguments: --version ${{ parameters.tag }}
             chartPath: ${{ parameters.pipelineWorkspace }}/helmcharts
             install: true
