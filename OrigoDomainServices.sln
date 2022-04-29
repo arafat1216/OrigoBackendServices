@@ -195,8 +195,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Asset.IntegrationTests", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Customer.API.IntegrationTests", "src\Services\Customer\Tests\Customer.API.Tests\Customer.API.IntegrationTests.csproj", "{78F6DD26-CD86-4FB4-BAEB-E4377546A7E6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrigoGateway.IntegrationTests", "OrigoGateway.IntegrationTests\OrigoGateway.IntegrationTests.csproj", "{CBA36F34-534C-469E-99B1-3FA57D633D78}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HardwareServiceOrder", "HardwareServiceOrder", "{7B7298F1-B756-4B90-88C2-10D9118C5644}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HardwareServiceOrder.API", "src\Services\HardwareServiceOrder\HardwareServiceOrder.API\HardwareServiceOrder.API.csproj", "{C7A4E1BE-D07C-43F2-B277-EB56D82EBB98}"
@@ -226,6 +224,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 		charts\hardware-service-order-api\templates\secrets.yaml = charts\hardware-service-order-api\templates\secrets.yaml
 		charts\hardware-service-order-api\templates\service.yaml = charts\hardware-service-order-api\templates\service.yaml
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrigoGateway.IntegrationTests", "src\ApiGateways\OrigoApiGateway\OrigoGateway.IntegrationTests\OrigoGateway.IntegrationTests.csproj", "{BB7C1D89-BE4D-43D9-BBB3-428D6E052A2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -317,10 +317,6 @@ Global
 		{78F6DD26-CD86-4FB4-BAEB-E4377546A7E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78F6DD26-CD86-4FB4-BAEB-E4377546A7E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78F6DD26-CD86-4FB4-BAEB-E4377546A7E6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CBA36F34-534C-469E-99B1-3FA57D633D78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CBA36F34-534C-469E-99B1-3FA57D633D78}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CBA36F34-534C-469E-99B1-3FA57D633D78}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CBA36F34-534C-469E-99B1-3FA57D633D78}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C7A4E1BE-D07C-43F2-B277-EB56D82EBB98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C7A4E1BE-D07C-43F2-B277-EB56D82EBB98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7A4E1BE-D07C-43F2-B277-EB56D82EBB98}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -337,6 +333,10 @@ Global
 		{88998E26-0E1E-464A-B93A-3231493B44E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88998E26-0E1E-464A-B93A-3231493B44E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88998E26-0E1E-464A-B93A-3231493B44E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB7C1D89-BE4D-43D9-BBB3-428D6E052A2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB7C1D89-BE4D-43D9-BBB3-428D6E052A2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB7C1D89-BE4D-43D9-BBB3-428D6E052A2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB7C1D89-BE4D-43D9-BBB3-428D6E052A2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -389,7 +389,6 @@ Global
 		{8564F046-6C7D-4D6A-A3EA-F06F9D604434} = {976D98B1-7669-47C7-8E95-65E79E67F47C}
 		{F4E43C07-DBC2-4802-8C91-4046700BD444} = {20512BEA-2958-4218-BAB3-95FCE7363A93}
 		{78F6DD26-CD86-4FB4-BAEB-E4377546A7E6} = {5F61689A-C83C-40C1-88C4-567CB50363F9}
-		{CBA36F34-534C-469E-99B1-3FA57D633D78} = {1D6FE7EF-D120-4993-BD84-39701AB88B5B}
 		{7B7298F1-B756-4B90-88C2-10D9118C5644} = {7618C1FC-2AFA-468A-92C5-74DC94CCCA8E}
 		{C7A4E1BE-D07C-43F2-B277-EB56D82EBB98} = {7B7298F1-B756-4B90-88C2-10D9118C5644}
 		{5A2A4806-3AA9-4356-9AE1-C3DAFA591557} = {7B7298F1-B756-4B90-88C2-10D9118C5644}
@@ -398,6 +397,7 @@ Global
 		{88998E26-0E1E-464A-B93A-3231493B44E3} = {209FAFA6-5360-4C71-A9D4-87110AC21E96}
 		{EAAABE14-0D81-4BB0-B70C-7CBBA77954C9} = {8D5A9903-F29E-457C-A27C-199EF34B1933}
 		{F1F3D2C9-0067-44AB-9665-B0ADBBEC98F5} = {EAAABE14-0D81-4BB0-B70C-7CBBA77954C9}
+		{BB7C1D89-BE4D-43D9-BBB3-428D6E052A2A} = {1D6FE7EF-D120-4993-BD84-39701AB88B5B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DAEDEBBF-933A-4FFE-B734-B9E748AF86E1}

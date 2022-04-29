@@ -20,8 +20,11 @@ WORKDIR /src
 COPY ["src/Core/Common.csproj", "Core/Common.csproj"]
 COPY ["src/ApiGateways/OrigoApiGateway/OrigoApiGateway/OrigoApiGateway.csproj", "ApiGateways/OrigoApiGateway/OrigoApiGateway/OrigoApiGateway.csproj"]
 COPY ["src/ApiGateways/OrigoApiGateway/OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj", "ApiGateways/OrigoApiGateway/OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj"]
+COPY ["src/ApiGateways/OrigoApiGateway/OrigoGateway.IntegrationTests/OrigoGateway.IntegrationTests.csproj", "ApiGateways/OrigoApiGateway/OrigoGateway.IntegrationTests/OrigoGateway.IntegrationTests.csproj"]
+
 RUN dotnet restore "ApiGateways/OrigoApiGateway/OrigoApiGateway/OrigoApiGateway.csproj"
 RUN dotnet restore "ApiGateways/OrigoApiGateway/OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj"
+RUN dotnet restore "ApiGateways/OrigoApiGateway/OrigoGateway.IntegrationTests/OrigoGateway.IntegrationTests.csproj"
 
 COPY /src/Core/. Core/.
 COPY /src/ApiGateways/OrigoApiGateway/. ApiGateways/OrigoApiGateway/.
@@ -34,13 +37,14 @@ RUN dotnet sonarscanner begin \
   /d:sonar.host.url="${SONAR_HOST_URL}" \
   /d:sonar.login="${SONAR_TOKEN}" \
   /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.cobertura.xml
-
+  
 RUN dotnet build -c Release -o /app/build --no-restore "OrigoApiGateway/OrigoApiGateway.csproj"
 
 ARG BUILD_ID
 LABEL test=${BUILD_ID}
 
 RUN dotnet test --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj
+RUN dotnet test --logger "trx;LogFileName=test_results2.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore OrigoGateway.IntegrationTests/OrigoGateway.IntegrationTests.csproj
 
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
