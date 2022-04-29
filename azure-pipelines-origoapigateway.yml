@@ -56,6 +56,7 @@ stages:
       tag: '$(Build.BuildId)'
       pipelineWorkspace: $(Pipeline.Workspace)
       helmOverrideDeployValues: ',ingress.hosts[0].host=origov2dev.mytos.no,ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=origov2dev.mytos.no,ingress.tls[0].secretName=letsencrypt-origov2dev'
+      runMigration: false
 
 - stage: DeployTest
   displayName: Deploy to Test
@@ -73,6 +74,7 @@ stages:
       tag: '$(Build.BuildId)'
       pipelineWorkspace: $(Pipeline.Workspace)
       helmOverrideDeployValues: ',ingress.hosts[0].host=origov2test.mytos.no,ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=origov2test.mytos.no,ingress.tls[0].secretName=letsencrypt-origov2dev'
+      runMigration: false
 
 - stage: DeployProd
   displayName: Deploy to Prod
@@ -90,3 +92,4 @@ stages:
       tag: '$(Build.BuildId)'
       pipelineWorkspace: $(Pipeline.Workspace)
       helmOverrideDeployValues: ',ingress.hosts[0].host=smart.techstep.no,ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=smart.techstep.no,ingress.tls[0].secretName=letsencrypt-smart-techstepno'
+      runMigration: false
