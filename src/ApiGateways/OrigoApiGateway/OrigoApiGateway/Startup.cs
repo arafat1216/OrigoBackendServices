@@ -59,8 +59,8 @@ namespace OrigoApiGateway
                 config.AssumeDefaultVersionWhenUnspecified = true;
             });
 
-            services.AddHealthChecks()
-                    .AddCheck("self", () => HealthCheckResult.Healthy("Gateway is ok"), tags: new[] { "Origo API Gateway" });
+            services.AddHealthChecks();
+                   
 
             services.AddHealthChecksUI().AddInMemoryStorage();
             var blobConnectionString = Configuration.GetSection("Storage:ConnectionString").Value;
