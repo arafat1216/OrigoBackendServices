@@ -41,7 +41,7 @@ jobs:
               artifactName: 'migrations'
               downloadPath: '${{ parameters.artifactDirectory }}/migrations'
           - task: SqlAzureDacpacDeployment@1
-            displayName: Run asset sql migrations
+            displayName: Run sql migrations
             inputs:
               azureConnectionType: ConnectedServiceNameARM
               azureSubscription: OrigoV2ServiceConnection
@@ -50,7 +50,7 @@ jobs:
               deployType: SqlTask
               sqlFile: '${{ parameters.artifactDirectory }}/migrations/migrations.sql'
           - task: SqlAzureDacpacDeployment@1
-            displayName: Run asset logging sql migrations
+            displayName: Run logging sql migrations
             inputs:
               azureConnectionType: ConnectedServiceNameARM
               azureSubscription: OrigoV2ServiceConnection
