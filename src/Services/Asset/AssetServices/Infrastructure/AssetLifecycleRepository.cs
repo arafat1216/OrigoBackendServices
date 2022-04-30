@@ -282,13 +282,10 @@ namespace AssetServices.Infrastructure
             _assetContext.LifeCycleSettings.Add(lifeCycleSetting);
             await SaveEntitiesAsync();
             var savedLifeCycleSettings = await _assetContext.LifeCycleSettings
-                .FirstOrDefaultAsync(a => a.ExternalId == lifeCycleSetting.ExternalId);
-            if (savedLifeCycleSettings == null)
-            {
-                throw new Exception();
-            }
-            return savedLifeCycleSettings;
+                .Where(a => a.ExternalId == lifeCycleSetting.ExternalId).ToListAsync();
+            return savedLifeCycleSettings.FirstOrDefault() ?? throw new InvalidOperationException();
         }
+
         public async Task<LifeCycleSetting> GetLifeCycleSettingByCustomerAsync(Guid customerId)
         {
             return await _assetContext.LifeCycleSettings.Include(x=>x.CategoryLifeCycleSettings)

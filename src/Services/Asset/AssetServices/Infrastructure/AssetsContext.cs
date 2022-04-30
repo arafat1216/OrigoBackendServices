@@ -14,7 +14,7 @@ public class AssetsContext : DbContext
     {
         foreach (var extension in options.Extensions)
         {
-            if (extension.GetType().ToString().Contains("Sqlite"))
+            if (extension.GetType().ToString().Contains("Sqlite") || extension.GetType().ToString().Contains("InMemory"))
             {
                 IsSQLite = true;
             }

@@ -6,15 +6,24 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Asset.API.Controllers;
+using Asset.API;
 using Asset.API.ViewModels;
+using Asset.IntegrationTests.Helpers;
+using AssetServices.Infrastructure;
+using AssetServices.Models;
 using Common.Enums;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
+using AssetLifecycleType = Asset.API.ViewModels.AssetLifecycleType;
+using Label = Asset.API.ViewModels.Label;
+using LifeCycleSetting = Asset.API.ViewModels.LifeCycleSetting;
 
 namespace Asset.IntegrationTests.Controllers;
 
-public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<AssetsController>>
+public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<Startup>>
 {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly HttpClient _httpClient;
@@ -26,11 +35,9 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     private readonly Guid _assetOne;
     private readonly Guid _assetTwo;
 
+    private readonly AssetWebApplicationFactory<Startup> _factory;
 
-    private readonly AssetWebApplicationFactory<AssetsController> _factory;
-
-    public AssetsControllerTests(AssetWebApplicationFactory<AssetsController> factory,
-        ITestOutputHelper testOutputHelper)
+    public AssetsControllerTests(AssetWebApplicationFactory<Startup> factory, ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
         _httpClient = factory.CreateDefaultClient();
@@ -40,16 +47,20 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         _user = factory.ASSETHOLDER_ONE_ID;
         _assetOne = factory.ASSETLIFECYCLE_ONE_ID;
         _assetTwo = factory.ASSETLIFECYCLE_TWO_ID;
-
         _factory = factory;
     }
 
     [Fact]
     public async Task GetAssetsForCustomer()
     {
+        // Arrange
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
         var requestUri = $"/api/v1/Assets/customers/{_customerId}";
-        _testOutputHelper.WriteLine(requestUri);
-        PagedAssetList? pagedAssetList = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+
+        // Act
+        var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+
+        // Assert
         Assert.Equal(5, pagedAssetList!.Items.Count);
         Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[0]!.CreatedDate.Date);
         Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[1]!.CreatedDate.Date);
@@ -77,7 +88,8 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     [Fact]
     public async Task GetCustomerItemCount_ForCustomerWithStatus()
     {
-        var requestUri = $"/api/v1/Assets/customers/{_customerId}/count?departmentId=&assetLifecycleStatus={(int)AssetLifecycleStatus.Available}";
+        var requestUri =
+            $"/api/v1/Assets/customers/{_customerId}/count?departmentId=&assetLifecycleStatus={(int)AssetLifecycleStatus.Available}";
         _testOutputHelper.WriteLine(requestUri);
         var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
         Assert.Equal(3, count);
@@ -86,7 +98,8 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     [Fact]
     public async Task GetCustomerItemCount_ForCustomerWithDepartmentAndStatus()
     {
-        var requestUri = $"/api/v1/Assets/customers/{_customerId}/count?departmentId={_departmentId}&assetLifecycleStatus={(int)AssetLifecycleStatus.Available}";
+        var requestUri =
+            $"/api/v1/Assets/customers/{_customerId}/count?departmentId={_departmentId}&assetLifecycleStatus={(int)AssetLifecycleStatus.Available}";
         _testOutputHelper.WriteLine(requestUri);
         var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
         Assert.Equal(1, count);
@@ -95,6 +108,9 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     [Fact]
     public async Task CreateAssetAndRetrieveAssetsForCustomer()
     {
+        // Arrange
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
         const bool IS_PERSONAL = false;
         var managedByDepartmentId = Guid.NewGuid();
         const string ALIAS = "Just another name";
@@ -144,13 +160,15 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
             TransactionId = TRANSACTION_ID,
             IsPersonal = IS_PERSONAL
         };
-        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newAsset));
         var requestUri = $"/api/v1/Assets/customers/{_organizationId}";
-        _testOutputHelper.WriteLine(requestUri);
-        var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newAsset);
+
+        // Act
+        var createResponse = await httpClient.PostAsJsonAsync(requestUri, newAsset);
+
+        // Assert
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
 
-        PagedAssetList? pagedAssetList = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+        var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
         Assert.Equal(1, pagedAssetList!.Items.Count);
         Assert.Equal(ALIAS, pagedAssetList.Items[0].Alias);
         Assert.Equal(ASSET_CATEGORY_ID, pagedAssetList.Items[0].AssetCategoryId);
@@ -168,7 +186,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         Assert.Equal(TRANSACTION_ID, pagedAssetList.Items[0].TransactionId);
 
         requestUri = $"/api/v1/Assets/{pagedAssetList.Items[0].Id}/customers/{_organizationId}";
-        var assetLifecycle = await _httpClient.GetFromJsonAsync<API.ViewModels.Asset>(requestUri);
+        var assetLifecycle = await httpClient.GetFromJsonAsync<API.ViewModels.Asset>(requestUri);
         Assert.Equal(ALIAS, assetLifecycle!.Alias);
         Assert.Equal(ASSET_CATEGORY_ID, assetLifecycle!.AssetCategoryId);
         Assert.Equal("Mobile phone", assetLifecycle!.AssetCategoryName);
@@ -187,12 +205,11 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     [Fact]
     public async Task CheckLifecyclesReturned()
     {
-        var requestUri = $"/api/v1/Assets/lifecycles";
+        var requestUri = "/api/v1/Assets/lifecycles";
         var lifecycles = await _httpClient.GetFromJsonAsync<IList<AssetLifecycleType>>(requestUri);
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(lifecycles));
         Assert.Equal(2, lifecycles!.Count);
         Assert.Equal("Transactional", lifecycles.FirstOrDefault(l => l.EnumValue == 2)!.Name);
-
     }
 
     [Fact]
@@ -269,11 +286,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     [Fact]
     public async Task UnAssignAssetsFromUser()
     {
-        var data = new UnAssignAssetToUser
-        {
-            CallerId = _callerId,
-            DepartmentId = _departmentId
-        };
+        var data = new UnAssignAssetToUser { CallerId = _callerId, DepartmentId = _departmentId };
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(data));
         var userId = Guid.Parse("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
         var customerId = Guid.Parse("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
@@ -283,7 +296,8 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
         var deleteResponse = await _httpClient.PatchAsync(requestUri, JsonContent.Create(data));
         Assert.Equal(HttpStatusCode.Accepted, deleteResponse.StatusCode);
 
-        var pagedAssetList = await _httpClient.GetFromJsonAsync<PagedAssetList>($"/api/v1/Assets/customers/{customerId}");
+        var pagedAssetList =
+            await _httpClient.GetFromJsonAsync<PagedAssetList>($"/api/v1/Assets/customers/{customerId}");
 
         Assert.NotNull(pagedAssetList);
         Assert.Equal(5, pagedAssetList!.TotalItems);
@@ -304,19 +318,17 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     [Fact]
     public async Task CreateLifeCycleSetting()
     {
-        var newSettings = new NewLifeCycleSetting()
-        {
-            BuyoutAllowed = true,
-            CallerId = _callerId,
-        };
+        var newSettings = new NewLifeCycleSetting { BuyoutAllowed = true, CallerId = _callerId };
         var customerId = Guid.NewGuid();
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
         var requestUri = $"/api/v1/Assets/customers/{customerId}/lifecycle-setting";
         _testOutputHelper.WriteLine(requestUri);
         var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newSettings);
-        
-        var setting = await _httpClient.GetFromJsonAsync<LifeCycleSetting>($"/api/v1/Assets/customers/{customerId}/lifecycle-setting");
-        
+
+        var setting =
+            await _httpClient.GetFromJsonAsync<LifeCycleSetting>(
+                $"/api/v1/Assets/customers/{customerId}/lifecycle-setting");
+
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
         Assert.Equal(setting!.CustomerId, customerId);
         Assert.True(setting!.BuyoutAllowed == newSettings.BuyoutAllowed);
@@ -338,16 +350,14 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     [Fact]
     public async Task UpdateLifeCycleSetting()
     {
-        var newSettings = new NewLifeCycleSetting()
-        {
-            BuyoutAllowed = false,
-            CallerId = _callerId,
-        };
+        var newSettings = new NewLifeCycleSetting { BuyoutAllowed = false, CallerId = _callerId };
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/lifecycle-setting";
         _testOutputHelper.WriteLine(requestUri);
         var createResponse = await _httpClient.PutAsJsonAsync(requestUri, newSettings);
-        var setting = await _httpClient.GetFromJsonAsync<LifeCycleSetting>($"/api/v1/Assets/customers/{_customerId}/lifecycle-setting");
+        var setting =
+            await _httpClient.GetFromJsonAsync<LifeCycleSetting>(
+                $"/api/v1/Assets/customers/{_customerId}/lifecycle-setting");
         Assert.Equal(setting!.CustomerId, _customerId);
         Assert.True(setting!.BuyoutAllowed == newSettings.BuyoutAllowed);
     }
@@ -355,20 +365,22 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     [Fact]
     public async Task SetCategoryLifeCycleSetting()
     {
-        var newSettings = new NewCategoryLifeCycleSetting()
+        var newSettings = new NewCategoryLifeCycleSetting
         {
-            AssetCategoryId = 1,
-            MinBuyoutPrice = 200m,
-            CallerId = _callerId,
+            AssetCategoryId = 1, MinBuyoutPrice = 200m, CallerId = _callerId
         };
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/category-lifecycle-setting";
         _testOutputHelper.WriteLine(requestUri);
         var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newSettings);
-        var setting = await _httpClient.GetFromJsonAsync<LifeCycleSetting>($"/api/v1/Assets/customers/{_customerId}/lifecycle-setting");
+        var setting =
+            await _httpClient.GetFromJsonAsync<LifeCycleSetting>(
+                $"/api/v1/Assets/customers/{_customerId}/lifecycle-setting");
         Assert.Equal(setting!.CustomerId, _customerId);
         Assert.True(setting!.BuyoutAllowed);
-        Assert.True(setting!.CategoryLifeCycleSettings.FirstOrDefault(x=>x.AssetCategoryId == newSettings.AssetCategoryId)!.MinBuyoutPrice == newSettings.MinBuyoutPrice);
+        Assert.True(
+            setting!.CategoryLifeCycleSettings.FirstOrDefault(x => x.AssetCategoryId == newSettings.AssetCategoryId)!
+                .MinBuyoutPrice == newSettings.MinBuyoutPrice);
     }
 
     [Theory]
@@ -378,89 +390,102 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<As
     [InlineData(null, 1)]
     public async Task GetBaseMinBuyoutPrice(string? country, int? assetCategoryId)
     {
-        var requestUri = $"/api/v1/Assets/min-buyout-price?{(string.IsNullOrWhiteSpace(country) ? "" : $"country={country}")}&{(assetCategoryId == null ? "" : $"assetCategoryId={assetCategoryId}")}";
+        // Arrange
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                var serviceProvider = services.BuildServiceProvider();
+                using var scope = serviceProvider.CreateScope();
+                using var assetsContext = scope.ServiceProvider.GetRequiredService<AssetsContext>();
+                var logger = scope.ServiceProvider
+                    .GetRequiredService<ILogger<AssetWebApplicationFactory<AssetsControllerTests>>>();
+
+                try
+                {
+                    AssetTestDataSeedingForDatabase.ResetDbForTests(assetsContext);
+                }
+                catch (Exception exception)
+                {
+                    logger.LogError(exception,
+                        "An error occurred seeding the " + "database with test data. Error: {Message}",
+                        exception.Message);
+                }
+            });
+        }).CreateClient();
+
+        // Act
+        var requestUri =
+            $"/api/v1/Assets/min-buyout-price?{(string.IsNullOrWhiteSpace(country) ? "" : $"country={country}")}&{(assetCategoryId == null ? "" : $"assetCategoryId={assetCategoryId}")}";
         _testOutputHelper.WriteLine(requestUri);
-        var buyoutPrices = await _httpClient.GetFromJsonAsync<IList<AssetServices.Models.MinBuyoutPriceBaseline>>(requestUri);
+        var buyoutPrices = await _httpClient.GetFromJsonAsync<IList<MinBuyoutPriceBaseline>>(requestUri);
 
         if (!string.IsNullOrEmpty(country))
         {
-            Assert.True(!buyoutPrices!.Any(x => x.Country.ToLower() != country.ToLower()));
+            Assert.True(buyoutPrices!.All(x =>
+                string.Equals(x.Country, country, StringComparison.CurrentCultureIgnoreCase)));
         }
+
         if (assetCategoryId != null)
         {
-            Assert.True(!buyoutPrices!.Any(x => x.AssetCategoryId != assetCategoryId));
+            Assert.True(buyoutPrices!.All(x => x.AssetCategoryId == assetCategoryId));
         }
+
         if (string.IsNullOrEmpty(country) && assetCategoryId == null)
         {
-            Assert.True(buyoutPrices!.Count() == 2);
+            Assert.Equal(2, buyoutPrices!.Count);
         }
     }
-
-
 
     [Fact]
     public async Task AssignLabel_AddedLabelToAsset()
     {
-        var labels = new List<NewLabel>();
-        labels.Add(new NewLabel
-        {
-            Color = LabelColor.Blue,
-            Text = "Label1"
-        });
-        labels.Add(new NewLabel
-        {
-            Color = LabelColor.Green,
-            Text = "Label2"
-        });
+        // Arrange
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
 
-        var data = new AddLabelsData
+        var labels = new List<NewLabel>
         {
-            CallerId = _callerId,
-            NewLabels = labels
+            new() { Color = LabelColor.Blue, Text = "Label1" }, new() { Color = LabelColor.Green, Text = "Label2" }
         };
+
+        var data = new AddLabelsData { CallerId = _callerId, NewLabels = labels };
 
         //Post label
         var requestUriPost = $"/api/v1/Assets/customers/{_customerId}/labels";
-        var responsePost = await _httpClient.PostAsync(requestUriPost, JsonContent.Create(data));
+        var responsePost = await httpClient.PostAsync(requestUriPost, JsonContent.Create(data));
         Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
 
-        var labelsList = await responsePost.Content.ReadFromJsonAsync<IList<API.ViewModels.Label>>();
+        var labelsList = await responsePost.Content.ReadFromJsonAsync<IList<Label>>();
         Assert.Equal(3, labelsList?.Count);
+        Assert.NotNull(labelsList?[0].Id);
         Assert.NotNull(labelsList?[1].Id);
         Assert.NotNull(labelsList?[2].Id);
         Assert.Equal("Label1", labelsList?[1].Text);
 
-        var labelGuid = new List<Guid>();
-        labelGuid.Add(labelsList[1].Id);
-        labelGuid.Add(labelsList[2].Id);
-        var assetGuid = new List<Guid>();
-        assetGuid.Add(_assetOne);
+        var labelGuid = new List<Guid> { labelsList![0].Id, labelsList[1].Id };
+        var assetGuid = new List<Guid> { _assetOne };
 
         //Assign label
         var requestUriAssign = $"/api/v1/Assets/customers/{_customerId}/labels/assign";
-        var assetLabel = new AssetLabels
-        {
-            AssetGuids = assetGuid,
-            LabelGuids = labelGuid,
-            CallerId = _callerId
-        };
+        var assetLabel = new AssetLabels { AssetGuids = assetGuid, LabelGuids = labelGuid, CallerId = _callerId };
 
-        var responseAssign = await _httpClient.PostAsync(requestUriAssign, JsonContent.Create(assetLabel));
+        var responseAssign = await httpClient.PostAsync(requestUriAssign, JsonContent.Create(assetLabel));
         Assert.Equal(HttpStatusCode.OK, responseAssign.StatusCode);
 
         //Get asset with label
         var requestUri = $"/api/v1/Assets/{_assetOne}/customers/{_customerId}";
 
-        var asset = await _httpClient.GetFromJsonAsync<API.ViewModels.Asset>(requestUri);
+        var asset = await httpClient.GetFromJsonAsync<API.ViewModels.Asset>(requestUri);
         Assert.NotNull(asset);
         Assert.Equal(2, asset?.Labels.Count);
 
         //Fetch all assets for customer
         var requestAllAssets = $"/api/v1/Assets/customers/{_customerId}";
-        PagedAssetList? pagedAssetList = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestAllAssets);
-        Assert.Equal(5, pagedAssetList?.Items?.Count);
-        Assert.Equal(_assetOne, pagedAssetList?.Items[0].Id);
-        Assert.Equal(2, pagedAssetList?.Items?[0].Labels.Count);
+        var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestAllAssets);
+        Assert.Equal(5, pagedAssetList!.Items.Count);
+        var assetOneFromResponse = pagedAssetList.Items.FirstOrDefault(i => i.Id == _assetOne);
+        Assert.Equal(_assetOne, assetOneFromResponse!.Id);
+        Assert.Equal(2, assetOneFromResponse.Labels.Count);
     }
     [Fact]
     public async Task GetLabels_CheckViewModel()

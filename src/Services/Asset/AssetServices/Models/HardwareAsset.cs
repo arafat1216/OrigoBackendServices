@@ -14,7 +14,7 @@ namespace AssetServices.Models
         /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
         [JsonInclude]
-        public string SerialNumber { get; protected set; }
+        public string? SerialNumber { get; protected set; }
 
         /// <summary>
         /// A list of all the IMEI numbers this asset has
@@ -26,7 +26,7 @@ namespace AssetServices.Models
         /// The mac-address of the asset
         /// </summary>
         [JsonInclude]
-        public string MacAddress { get; protected set; }
+        public string? MacAddress { get; protected set; }
 
         public virtual void ChangeSerialNumber(string serialNumber, Guid callerId)
         {
