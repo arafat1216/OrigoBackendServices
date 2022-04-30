@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
+using static System.StringComparison;
 using AssetLifecycleType = Asset.API.ViewModels.AssetLifecycleType;
 using Label = Asset.API.ViewModels.Label;
 using LifeCycleSetting = Asset.API.ViewModels.LifeCycleSetting;
@@ -423,7 +424,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         if (!string.IsNullOrEmpty(country))
         {
             Assert.True(buyoutPrices!.All(x =>
-                string.Equals(x.Country, country, StringComparison.CurrentCultureIgnoreCase)));
+                string.Equals(x.Country, country, CurrentCultureIgnoreCase)));
         }
 
         if (assetCategoryId != null)
@@ -456,11 +457,8 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
 
         var labelsList = await responsePost.Content.ReadFromJsonAsync<IList<Label>>();
-        Assert.Equal(3, labelsList?.Count);
-        Assert.NotNull(labelsList?[0].Id);
-        Assert.NotNull(labelsList?[1].Id);
-        Assert.NotNull(labelsList?[2].Id);
-        Assert.Equal("Label1", labelsList?[1].Text);
+        Assert.Equal(3, labelsList!.Count);
+        Assert.Contains(labelsList!, l => string.Equals(l.Text, "Label1", InvariantCulture));
 
         var labelGuid = new List<Guid> { labelsList![0].Id, labelsList[1].Id };
         var assetGuid = new List<Guid> { _assetOne };

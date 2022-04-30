@@ -101,6 +101,10 @@ internal static class AssetTestDataSeedingForDatabase
         dbContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree,
             assetLifecycleFour, assetLifecycleFive);
         dbContext.LifeCycleSettings.AddRange(lifeCycleSetting);
+
+        var label = new CustomerLabel(COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
+        dbContext.CustomerLabels.Add(label);
+
         dbContext.SaveChanges();
     }
 
@@ -111,12 +115,14 @@ internal static class AssetTestDataSeedingForDatabase
         var mobilePhones = dbContext.MobilePhones.ToArray();
         var assetLifeCycles = dbContext.AssetLifeCycles.ToArray();
         var users = dbContext.Users.ToArray();
+        var labels = dbContext.CustomerLabels.ToArray();
 
         dbContext.LifeCycleSettings.RemoveRange(lifeCycleSettings);
         dbContext.AssetLifeCycles.RemoveRange(assetLifeCycles);
         dbContext.MobilePhones.RemoveRange(mobilePhones);
         dbContext.Assets.RemoveRange(assets);
         dbContext.Users.RemoveRange(users);
+        dbContext.CustomerLabels.RemoveRange(labels);
 
         dbContext.SaveChanges();
 
