@@ -45,7 +45,7 @@ LABEL test=${BUILD_ID}
 
 RUN dotnet test --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore ../Tests/ProductCatalog.UnitTests/ProductCatalog.UnitTests.csproj
 RUN dotnet test --logger "trx;LogFileName=test_results2.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore ../Tests/ProductCatalog.IntegrationTests/ProductCatalog.IntegrationTests.csproj
-RUN dotnet test --logger "trx;LogFileName=test_results2.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore ../../../Boilerplate/Boilerplate.EntityFramework.UnitTest/Boilerplate.EntityFramework.UnitTest.csproj
+RUN dotnet test --logger "trx;LogFileName=test_results3.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore ../../../Boilerplate/Boilerplate.EntityFramework.UnitTest/Boilerplate.EntityFramework.UnitTest.csproj
 
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 

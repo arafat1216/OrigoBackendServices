@@ -62,6 +62,7 @@ stages:
       namespace: develop
       tag: '$(Build.BuildId)'
       pipelineWorkspace: $(Pipeline.Workspace)
+      useLoggingDb: false
 
 - stage: DeployTest
   displayName: Deploy to Test
@@ -79,6 +80,7 @@ stages:
       namespace: test
       tag: '$(Build.BuildId)'
       pipelineWorkspace: $(Pipeline.Workspace)
+      useLoggingDb: false
 
 - stage: DeployProd
   displayName: Deploy to Prod
@@ -96,3 +98,4 @@ stages:
       namespace: prod
       tag: '$(Build.BuildId)'
       pipelineWorkspace: $(Pipeline.Workspace)
+      useLoggingDb: false
