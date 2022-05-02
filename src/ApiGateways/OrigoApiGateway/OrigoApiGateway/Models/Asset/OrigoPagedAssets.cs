@@ -9,10 +9,10 @@ namespace OrigoApiGateway.Models
     {
         public OrigoPagedAssets()
         {
-            Assets = new List<object>();
+            Items = new List<object>();
         }
 
-        public IList<object> Assets { get; set; }
+        public IList<object> Items { get; set; }
         public int CurrentPage { get; set; }
         public int TotalItems { get; set; }
         public int TotalPages { get; set; }

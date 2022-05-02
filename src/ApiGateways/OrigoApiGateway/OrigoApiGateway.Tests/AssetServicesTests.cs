@@ -197,7 +197,7 @@ namespace OrigoApiGateway.Tests
 
             // Assert
             Assert.True(pagedAsset.TotalItems == 3);
-            Assert.True(pagedAsset.Assets.Count == 3);
+            Assert.True(pagedAsset.Items.Count == 3);
         }
 
 

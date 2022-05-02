@@ -9,7 +9,7 @@ namespace OrigoApiGateway.Mappings
         public OrigoPagedAssetProfile()
         {
             CreateMap<PagedAssetsDTO, OrigoPagedAssets>()
-                     .ForMember(dest => dest.Assets, opts => opts.MapFrom(src => src.Items));
+                     .ForMember(dest => dest.Items, opts => opts.MapFrom(src => src.Items));
         }
     }
 }
