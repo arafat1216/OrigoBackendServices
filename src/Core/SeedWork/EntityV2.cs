@@ -76,10 +76,10 @@ namespace Common.Seedwork
         [JsonInclude]
         public Guid? DeletedBy { get; protected set; }
 
-        private List<INotification> _domainEvents;
+        private List<INotification> _domainEvents = new();
 
         [JsonIgnore]
-        public IReadOnlyCollection<INotification> DomainEvents => _domainEvents?.AsReadOnly();
+        public IReadOnlyCollection<INotification> DomainEvents => _domainEvents.AsReadOnly();
 
         public void AddDomainEvent(INotification eventItem)
         {
