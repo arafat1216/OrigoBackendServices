@@ -12,6 +12,9 @@ parameters:
 - name: runMigration
   type: boolean
   default: true
+- name: useLoggingDb
+  type: boolean
+  default: true
 - name: releaseName
   default: ''
 - name: namespace
@@ -49,16 +52,17 @@ jobs:
               connectionString: ${{ parameters.dbConnection }}
               deployType: SqlTask
               sqlFile: '${{ parameters.artifactDirectory }}/migrations/migrations.sql'
-          - task: SqlAzureDacpacDeployment@1
-            displayName: Run logging sql migrations
-            inputs:
-              azureConnectionType: ConnectedServiceNameARM
-              azureSubscription: OrigoV2ServiceConnection
-              authenticationType: connectionString
-              connectionString: ${{ parameters.dbConnection }}
-              deployType: SqlTask
-              sqlFile: '${{ parameters.artifactDirectory }}/migrations/logging_migrations.sql'
-
+          - ${{ if eq(parameters.useLoggingDb, true) }}:
+            - task: SqlAzureDacpacDeployment@1
+              displayName: Run logging sql migrations
+              inputs:
+                azureConnectionType: ConnectedServiceNameARM
+                azureSubscription: OrigoV2ServiceConnection
+                authenticationType: connectionString
+                connectionString: ${{ parameters.dbConnection }}
+                deployType: SqlTask
+                sqlFile: '${{ parameters.artifactDirectory }}/migrations/logging_migrations.sql'
+  
 - deployment: Deploy
   displayName: Deploy
   pool:
