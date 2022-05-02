@@ -14,18 +14,17 @@ RUN dotnet nuget add source "$FEED_SOURCE" --name "source-name" --username "usel
 
 WORKDIR /src
 
-COPY ["src/Boilerplate/Boilerplate.EntityFramework/Boilerplate.EntityFramework.csproj", "Boilerplate/Boilerplate.EntityFramework/Boilerplate.EntityFramework.csproj"]
 COPY ["src/Boilerplate/Boilerplate.EntityFramework.UnitTest/Boilerplate.EntityFramework.UnitTest.csproj", "Boilerplate/Boilerplate.EntityFramework.UnitTest/Boilerplate.EntityFramework.UnitTest.csproj"]
 COPY ["src/Services/ProductCatalog/ProductCatalog.API/ProductCatalog.API.csproj", "Services/ProductCatalog/ProductCatalog.API/ProductCatalog.API.csproj"]
 COPY ["src/Services/ProductCatalog/ProductCatalog.Common/ProductCatalog.Common.csproj", "Services/ProductCatalog/ProductCatalog.Common/ProductCatalog.Common.csproj"]
 COPY ["src/Services/ProductCatalog/ProductCatalog.Infrastructure/ProductCatalog.Infrastructure.csproj", "Services/ProductCatalog/ProductCatalog.Infrastructure/ProductCatalog.Infrastructure.csproj"]
-COPY ["src/Services/ProductCatalog/Tests/ProductCatalog.IntegrationTests/ProductCatalog.IntegrationTests.csproj", "Services/Tests/ProductCatalog.IntegrationTests/ProductCatalog.IntegrationTests.csproj"]
-COPY ["src/Services/ProductCatalog/Tests/ProductCatalog.UnitTests/ProductCatalog.UnitTests.csproj", "Services/Tests/ProductCatalog.UnitTests/ProductCatalog.UnitTests.csproj"]
+COPY ["src/Services/ProductCatalog/Tests/ProductCatalog.IntegrationTests/ProductCatalog.IntegrationTests.csproj", "Services/ProductCatalog/Tests/ProductCatalog.IntegrationTests/ProductCatalog.IntegrationTests.csproj"]
+COPY ["src/Services/ProductCatalog/Tests/ProductCatalog.UnitTests/ProductCatalog.UnitTests.csproj", "Services/ProductCatalog/Tests/ProductCatalog.UnitTests/ProductCatalog.UnitTests.csproj"]
 
+RUN dotnet restore "Services/ProductCatalog/ProductCatalog.API/ProductCatalog.API.csproj"
 RUN dotnet restore "Boilerplate/Boilerplate.EntityFramework.UnitTest/Boilerplate.EntityFramework.UnitTest.csproj"
 RUN dotnet restore "Services/ProductCatalog/Tests/ProductCatalog.UnitTests/ProductCatalog.UnitTests.csproj"
 RUN dotnet restore "Services/ProductCatalog/Tests/ProductCatalog.IntegrationTests/ProductCatalog.IntegrationTests.csproj"
-RUN dotnet restore "Services/ProductCatalog/Tests/ProductCatalog.UnitTests/ProductCatalog.UnitTests.csproj"
 
 COPY /src/Boilerplate/Boilerplate.EntityFramework/. Boilerplate/Boilerplate.EntityFramework/.
 COPY /src/Services/ProductCatalog/. Services/ProductCatalog/.
