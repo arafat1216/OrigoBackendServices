@@ -56,12 +56,12 @@ jobs:
       - script: 'dotnet ef migrations script --context LoggingDbContext --idempotent --output ${{ parameters.migrationScriptOutputDir }}/logging_migrations.sql --project ${{ parameters.dbProject }}'
         displayName: Create logging migration scripts
     
-      - task: PublishPipelineArtifact@1
-        displayName: 'Publish migrations'
-        inputs:
-          targetPath: ${{ parameters.migrationScriptOutputDir }}
-          artifact: 'migrations'
-    
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish migrations'
+      inputs:
+        targetPath: ${{ parameters.migrationScriptOutputDir }}
+        artifact: 'migrations'
+  
 - job: Build
   displayName: Build
   pool:
