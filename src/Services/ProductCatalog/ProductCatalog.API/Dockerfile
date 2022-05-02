@@ -18,7 +18,6 @@ COPY ["src/Boilerplate/Boilerplate.EntityFramework/Boilerplate.EntityFramework.c
 COPY ["src/Boilerplate/Boilerplate.EntityFramework.UnitTest/Boilerplate.EntityFramework.UnitTest.csproj", "Boilerplate/Boilerplate.EntityFramework.UnitTest/Boilerplate.EntityFramework.UnitTest.csproj"]
 COPY ["src/Services/ProductCatalog/ProductCatalog.API/ProductCatalog.API.csproj", "Services/ProductCatalog/ProductCatalog.API/ProductCatalog.API.csproj"]
 COPY ["src/Services/ProductCatalog/ProductCatalog.Common/ProductCatalog.Common.csproj", "Services/ProductCatalog/ProductCatalog.Common/ProductCatalog.Common.csproj"]
-COPY ["src/Services/ProductCatalog/ProductCatalog.Domain/ProductCatalog.Domain.csproj", "Services/ProductCatalog/ProductCatalog.Domain/ProductCatalog.Domain.csproj"]
 COPY ["src/Services/ProductCatalog/ProductCatalog.Infrastructure/ProductCatalog.Infrastructure.csproj", "Services/ProductCatalog/ProductCatalog.Infrastructure/ProductCatalog.Infrastructure.csproj"]
 COPY ["src/Services/ProductCatalog/Tests/ProductCatalog.IntegrationTests/ProductCatalog.IntegrationTests.csproj", "Services/Tests/ProductCatalog.IntegrationTests/ProductCatalog.IntegrationTests.csproj"]
 COPY ["src/Services/ProductCatalog/Tests/ProductCatalog.UnitTests/ProductCatalog.UnitTests.csproj", "Services/Tests/ProductCatalog.UnitTests/ProductCatalog.UnitTests.csproj"]
