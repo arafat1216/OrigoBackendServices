@@ -386,8 +386,8 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
 
     [Theory]
     [InlineData("", null)]
-    [InlineData("norway", null)]
-    [InlineData("norway", 1)]
+    [InlineData("NO", null)]
+    [InlineData("NO", 1)]
     [InlineData(null, 1)]
     public async Task GetBaseMinBuyoutPrice(string? country, int? assetCategoryId)
     {

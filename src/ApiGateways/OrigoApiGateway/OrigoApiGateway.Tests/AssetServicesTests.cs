@@ -52,12 +52,12 @@ namespace OrigoApiGateway.Tests
                         @"
                         [
                         {
-                          ""Country"": ""Norway"",
+                          ""Country"": ""NO"",
                           ""AssetCategoryId"": ""1"",
                           ""Amount"": ""500""
                         },
                         {
-                          ""Country"": ""Norway"",
+                          ""Country"": ""NO"",
                           ""AssetCategoryId"": ""2"",
                           ""Amount"": ""500""
                         }
