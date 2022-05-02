@@ -14,6 +14,7 @@ RUN dotnet nuget add source "$FEED_SOURCE" --name "source-name" --username "usel
 
 WORKDIR /src
 
+COPY ["src/Boilerplate/Boilerplate.EntityFramework/Boilerplate.EntityFramework.csproj", "Boilerplate/Boilerplate.EntityFramework/Boilerplate.EntityFramework.csproj"]
 COPY ["src/Boilerplate/Boilerplate.EntityFramework.UnitTest/Boilerplate.EntityFramework.UnitTest.csproj", "Boilerplate/Boilerplate.EntityFramework.UnitTest/Boilerplate.EntityFramework.UnitTest.csproj"]
 COPY ["src/Services/ProductCatalog/ProductCatalog.API/ProductCatalog.API.csproj", "Services/ProductCatalog/ProductCatalog.API/ProductCatalog.API.csproj"]
 COPY ["src/Services/ProductCatalog/ProductCatalog.Common/ProductCatalog.Common.csproj", "Services/ProductCatalog/ProductCatalog.Common/ProductCatalog.Common.csproj"]
@@ -22,6 +23,7 @@ COPY ["src/Services/ProductCatalog/Tests/ProductCatalog.IntegrationTests/Product
 COPY ["src/Services/ProductCatalog/Tests/ProductCatalog.UnitTests/ProductCatalog.UnitTests.csproj", "Services/ProductCatalog/Tests/ProductCatalog.UnitTests/ProductCatalog.UnitTests.csproj"]
 
 RUN dotnet restore "Services/ProductCatalog/ProductCatalog.API/ProductCatalog.API.csproj"
+RUN dotnet restore "Boilerplate/Boilerplate.EntityFramework/Boilerplate.EntityFramework.csproj"
 RUN dotnet restore "Boilerplate/Boilerplate.EntityFramework.UnitTest/Boilerplate.EntityFramework.UnitTest.csproj"
 RUN dotnet restore "Services/ProductCatalog/Tests/ProductCatalog.UnitTests/ProductCatalog.UnitTests.csproj"
 RUN dotnet restore "Services/ProductCatalog/Tests/ProductCatalog.IntegrationTests/ProductCatalog.IntegrationTests.csproj"
@@ -38,7 +40,7 @@ RUN dotnet sonarscanner begin \
   /d:sonar.login="${SONAR_TOKEN}" \
   /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.cobertura.xml
 
-RUN dotnet build "ProductCatalog.API.csproj" -c Release -o /app/build
+RUN dotnet build "ProductCatalog.API.csproj" -c Release --no-restore -o /app/build
 
 ARG BUILD_ID
 LABEL test=${BUILD_ID}
