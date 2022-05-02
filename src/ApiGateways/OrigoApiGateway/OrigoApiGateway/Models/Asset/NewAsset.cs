@@ -79,5 +79,9 @@ namespace OrigoApiGateway.Models
         /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
         public string SerialNumber { get; set; }
+        /// <summary>
+        /// Is a personal or non-personal asset.
+        /// </summary>
+        public bool? IsPersonal { get; set; } = true;
     }
 }

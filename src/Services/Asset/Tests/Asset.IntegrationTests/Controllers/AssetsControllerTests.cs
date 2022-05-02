@@ -498,6 +498,61 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.NotNull(labels[0]?.Id);
         Assert.NotEqual(Guid.Empty,labels[0]?.Id);
     }
+    [Fact]
+    public async Task CreateAsset_NoAssignmentToUserOrDepartment()
+    {
+        var newAsset = new NewAsset
+        {
+            Alias = "Just another name",
+            AssetCategoryId = 1,
+            Description = "A long description",
+            Brand = "iPhone",
+            ProductName = "12 Pro Max",
+            LifecycleType = LifecycleType.Transactional,
+            PurchaseDate = new DateTime(2022, 2, 2),
+            ManagedByDepartmentId = Guid.Empty,
+            Imei = new List<long> { 356728115537645 },
+            CallerId = _callerId
+        };
+       
+
+        var requestUri = $"/api/v1/Assets/customers/{_organizationId}";
+        var response = await _httpClient.PostAsJsonAsync(requestUri, newAsset);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var asset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+        Assert.Equal(AssetLifecycleStatus.InputRequired, asset?.AssetStatus);
+    }
+    [Fact]
+    public async Task CreateAsset_AssignToDepartment()
+    {
+        var newAsset = new NewAsset
+        {
+            Alias = "Just another name",
+            AssetTag = "A4010",
+            AssetCategoryId = 1,
+            Description = "A long description",
+            Brand = "iPhone",
+            ProductName = "12 Pro Max",
+            LifecycleType = LifecycleType.Transactional,
+            PurchaseDate = new DateTime(2022, 2, 2),
+            ManagedByDepartmentId = _departmentId,
+            Imei = new List<long> { 356728115537645 },
+            CallerId = _callerId
+        };
+
+
+        var requestUri = $"/api/v1/Assets/customers/{_organizationId}";
+        var response = await _httpClient.PostAsJsonAsync(requestUri, newAsset);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var asset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+        Assert.Equal(AssetLifecycleStatus.Active, asset?.AssetStatus);
+
+        
+        var requestUriAsset = $"/api/v1/Assets/{asset?.Id}/customers/{_organizationId}";
+        var departmentAsset = await _httpClient.GetFromJsonAsync<API.ViewModels.Asset>(requestUriAsset);
+        Assert.Equal(_departmentId, departmentAsset?.ManagedByDepartmentId);
+    }
 
 
 

@@ -277,8 +277,7 @@ namespace AssetServices
             {
                 newAssetDTO.IsPersonal = false;
             }
-
-            //Hør med Halvor om dette blir riktig
+            
             if (newAssetDTO.LifecycleType == LifecycleType.NoLifecycle)
             {
                 lifecycleStatus = AssetLifecycleStatus.InputRequired;
