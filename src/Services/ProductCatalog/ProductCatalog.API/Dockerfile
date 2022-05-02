@@ -28,7 +28,7 @@ RUN dotnet restore "Boilerplate/Boilerplate.EntityFramework.UnitTest/Boilerplate
 RUN dotnet restore "Services/ProductCatalog/Tests/ProductCatalog.UnitTests/ProductCatalog.UnitTests.csproj"
 RUN dotnet restore "Services/ProductCatalog/Tests/ProductCatalog.IntegrationTests/ProductCatalog.IntegrationTests.csproj"
 
-COPY /src/Boilerplate/Boilerplate.EntityFramework/. Boilerplate/Boilerplate.EntityFramework/.
+COPY /src/Boilerplate/. Boilerplate/.
 COPY /src/Services/ProductCatalog/. Services/ProductCatalog/.
 
 WORKDIR "/src/Services/ProductCatalog/ProductCatalog.API"
