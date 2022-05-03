@@ -49,6 +49,6 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         ///     A list of accessories accompanying the repair object. Values can be found in /basedata
         /// </summary>
         [JsonPropertyName("accessories")]
-        public List<string>? Accessories { get; set; }
+        public IEnumerable<string>? Accessories { get; set; }
     }
 }

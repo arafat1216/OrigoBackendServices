@@ -19,9 +19,9 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         [JsonPropertyName("lastName")]
         public string? LastName { get; set; }
 
-        // TODO: Should this be altered to a DateTime or Date?
+        // TODO: Should this be DateOnly, DateTime or DateTimeOffset?
         [JsonPropertyName("birthday")]
-        public DateTimeOffset? Birthday { get; set; }
+        public DateOnly? Birthday { get; set; }
 
         [JsonPropertyName("companyName")]
         public string? CompanyName { get; set; }
