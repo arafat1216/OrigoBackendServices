@@ -1,12 +1,10 @@
 ﻿using System;
 
-namespace Asset.API.ViewModels
+namespace OrigoApiGateway.Models.Asset
 {
-    public class AssignAssetToUser
+    public class AssignAsset
     {
         public Guid UserId { get; set; } = Guid.Empty;
         public Guid DepartmentId { get; set; } = Guid.Empty;
-
-        public Guid CallerId { get; set; }
     }
 }

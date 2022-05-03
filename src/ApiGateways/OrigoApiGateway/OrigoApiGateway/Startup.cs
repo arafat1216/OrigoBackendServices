@@ -125,7 +125,13 @@ namespace OrigoApiGateway
                     x.GetRequiredService<IOptions<UserConfiguration>>(),
                     x.GetRequiredService<IMapper>()
                 ),
-                x.GetRequiredService<IMapper>()
+                x.GetRequiredService<IMapper>(), 
+                new DepartmentsServices(
+                    x.GetRequiredService<ILogger<DepartmentsServices>>(),
+                    DaprClient.CreateInvokeHttpClient("customerservices"),
+                    x.GetRequiredService<IOptions<DepartmentConfiguration>>(),
+                    x.GetRequiredService<IMapper>()
+               )
             ));
 
             services.AddSingleton<IHardwareRepairService>(x => new HardwareRepairService(
@@ -147,7 +153,13 @@ namespace OrigoApiGateway
                             x.GetRequiredService<IOptions<UserConfiguration>>(),
                             x.GetRequiredService<IMapper>()
                     ),
-                    x.GetRequiredService<IMapper>()
+                    x.GetRequiredService<IMapper>(),
+                    new DepartmentsServices(
+                        x.GetRequiredService<ILogger<DepartmentsServices>>(),
+                        DaprClient.CreateInvokeHttpClient("customerservices"),
+                        x.GetRequiredService<IOptions<DepartmentConfiguration>>(),
+                        x.GetRequiredService<IMapper>()
+                    )
                 ),
                 x.GetRequiredService<IMapper>()
             ));
@@ -221,7 +233,13 @@ namespace OrigoApiGateway
                             x.GetRequiredService<IOptions<UserConfiguration>>(),
                             x.GetRequiredService<IMapper>()
                         ),
-                        x.GetRequiredService<IMapper>()
+                        x.GetRequiredService<IMapper>(),
+                        new DepartmentsServices(
+                            x.GetRequiredService<ILogger<DepartmentsServices>>(),
+                             DaprClient.CreateInvokeHttpClient("customerservices"),
+                            x.GetRequiredService<IOptions<DepartmentConfiguration>>(),
+                            x.GetRequiredService<IMapper>()
+                        )
                     ),
                     new CustomerServices(
                             x.GetRequiredService<ILogger<CustomerServices>>(),
@@ -237,7 +255,13 @@ namespace OrigoApiGateway
                                     x.GetRequiredService<IOptions<UserConfiguration>>(),
                                     x.GetRequiredService<IMapper>()
                                 ),
-                                x.GetRequiredService<IMapper>()
+                                x.GetRequiredService<IMapper>(), 
+                                new DepartmentsServices(
+                                    x.GetRequiredService<ILogger<DepartmentsServices>>(),
+                                    DaprClient.CreateInvokeHttpClient("customerservices"),
+                                    x.GetRequiredService<IOptions<DepartmentConfiguration>>(),
+                                    x.GetRequiredService<IMapper>()
+                                )
                             ),
                             x.GetRequiredService<IMapper>()
                         )

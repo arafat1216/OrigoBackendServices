@@ -1028,7 +1028,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> AssignAsset(Guid organizationId, Guid assetId, Guid? userId)
+        public async Task<ActionResult> AssignAsset(Guid organizationId, Guid assetId, [FromBody] AssignAsset asset)
         {
             try
             {
@@ -1051,13 +1051,12 @@ namespace OrigoApiGateway.Controllers
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
 
-                // Input model for assigning asset to a user
-                // Talk to frontend about using this model.
                 AssignAssetToUser data = new AssignAssetToUser
                 {
                     AssetId = assetId,
                     CallerId = callerId,
-                    UserId = userId
+                    UserId = asset.UserId,
+                    DepartmentId = asset.DepartmentId
                 };
 
                 var assignedAsset = await _assetServices.AssignAsset(organizationId, assetId, data);

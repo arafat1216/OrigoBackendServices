@@ -485,12 +485,25 @@ namespace AssetServices
             }
         }
 
-        public async Task<AssetLifecycleDTO?> AssignAsset(Guid customerId, Guid assetId, Guid userId, Guid callerId)
+        public async Task<AssetLifecycleDTO?> AssignAsset(Guid customerId, Guid assetId, Guid userId, Guid departmentId, Guid callerId)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
             if (assetLifecycle == null) return null;
-            var user = await _assetLifecycleRepository.GetUser(userId);
-            assetLifecycle.AssignContractHolder(user != null ? user : new User { ExternalId = userId }, callerId);
+
+            User? user = null;
+            if (userId != Guid.Empty)
+            {
+                user = await _assetLifecycleRepository.GetUser(userId);
+                assetLifecycle.UnAssignDepartment(callerId);
+                assetLifecycle.AssignContractHolder(user != null ? user : new User { ExternalId = userId }, callerId);
+                assetLifecycle.IsPersonal = true;
+            }
+            if (departmentId != Guid.Empty && userId == Guid.Empty)
+            {
+                assetLifecycle.UnAssignContractHolder(callerId);
+                assetLifecycle.AssignDepartment(departmentId, callerId);
+                assetLifecycle.IsPersonal = false;
+            }
             await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }

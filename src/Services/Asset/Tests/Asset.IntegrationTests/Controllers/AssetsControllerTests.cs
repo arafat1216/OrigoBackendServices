@@ -553,9 +553,39 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var departmentAsset = await _httpClient.GetFromJsonAsync<API.ViewModels.Asset>(requestUriAsset);
         Assert.Equal(_departmentId, departmentAsset?.ManagedByDepartmentId);
     }
+    [Fact]
+    public async Task PatchAsset_AssignToDepartment()
+    {
+        var assignement = new AssignAssetToUser
+        {
+            DepartmentId = _departmentId,
+            CallerId = _callerId,
+        };
+        var requestUri = $"/api/v1/Assets/{_assetOne}/customer/{_customerId}/assign";
+        var response = await _httpClient.PostAsJsonAsync(requestUri, assignement);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var asset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
 
+        Assert.Equal(_departmentId, asset?.ManagedByDepartmentId);
+        Assert.Null(asset?.AssetHolderId);
+        Assert.False(asset?.IsPersonal); 
+    }
+    [Fact]
+    public async Task PatchAsset_AssignToUser()
+    {
+        var assignement = new AssignAssetToUser
+        {
+            UserId = _user,
+            CallerId = _callerId,
+        };
+        var requestUri = $"/api/v1/Assets/{_assetOne}/customer/{_customerId}/assign";
+        var response = await _httpClient.PostAsJsonAsync(requestUri, assignement);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var asset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
 
-
-
+        Assert.Equal(_user, asset?.AssetHolderId);
+        Assert.Null(asset?.ManagedByDepartmentId);
+        Assert.True(asset?.IsPersonal);
+    }
 
 }

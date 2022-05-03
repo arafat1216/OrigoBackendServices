@@ -254,9 +254,9 @@ public class AssetLifecycle : Entity, IAggregateRoot
 
 
     /// <summary>
-    /// Assign a contract holder which is in control of the asset. 
+    /// Assign a department which is in control of the asset. 
     /// </summary>
-    /// <param name="contractHolderUser">A user</param>
+    /// <param name="departmentId">A user</param>
     /// <param name="callerId">The userid making this assignment</param>
     public void AssignDepartment(Guid departmentId, Guid callerId)
     {
@@ -265,6 +265,17 @@ public class AssetLifecycle : Entity, IAggregateRoot
         var previousDepartmentId = ManagedByDepartmentId;
         ManagedByDepartmentId = departmentId;
         AddDomainEvent(new AssignDepartmentAssetLifecycleDomainEvent(this, callerId, previousDepartmentId));
+    }
+    /// <summary>
+    /// Unassign a department which is in control of the asset. 
+    /// </summary>
+    /// <param name="callerId">The userid making this assignment</param>
+    public void UnAssignDepartment(Guid callerId)
+    {
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this, callerId));
+        ManagedByDepartmentId = null;
     }
 
     /// <summary>

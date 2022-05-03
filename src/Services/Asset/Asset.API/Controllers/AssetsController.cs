@@ -468,10 +468,11 @@ namespace Asset.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, [FromBody] AssignAssetToUser data)
+        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, [FromBody] AssignAssetToUser asset)
         {
-            var updatedAsset = await _assetServices.AssignAsset(customerId, assetId, data.UserId, data.CallerId);
-            return Ok(updatedAsset);
+            var updatedAsset = await _assetServices.AssignAsset(customerId, assetId, asset.UserId, asset.DepartmentId, asset.CallerId);
+            var mapped = _mapper.Map<ViewModels.Asset>(updatedAsset);
+            return Ok(mapped);
         }
 
         [Route("categories")]

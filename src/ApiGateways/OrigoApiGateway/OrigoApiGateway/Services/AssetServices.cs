@@ -22,16 +22,18 @@ namespace OrigoApiGateway.Services
 {
     public class AssetServices : IAssetServices
     {
-        public AssetServices(ILogger<AssetServices> logger, HttpClient httpClient, IOptions<AssetConfiguration> options, IUserServices userServices, IMapper mapper)
+        public AssetServices(ILogger<AssetServices> logger, HttpClient httpClient, IOptions<AssetConfiguration> options, IUserServices userServices, IMapper mapper, IDepartmentsServices departmentsServices)
         {
             _logger = logger;
             _daprClient = new DaprClientBuilder().Build();
             HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _options = options.Value;
             _userServices = userServices;
+            _departmentsServices = departmentsServices;
             _mapper = mapper;
         }
         private readonly IUserServices _userServices;
+        private readonly IDepartmentsServices _departmentsServices;
         private readonly ILogger<AssetServices> _logger;
         private readonly IMapper _mapper;
         private readonly DaprClient _daprClient;
@@ -747,15 +749,15 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, AssignAssetToUser data)
+        public async Task<OrigoAsset> AssignAsset(Guid customerId, Guid assetId, AssignAssetToUser assignedAsset)
         {
             try
             {
-                if (data.UserId != null)
+                if (assignedAsset.UserId != Guid.Empty)
                 {
                     try
                     {
-                        var user = _userServices.GetUserAsync(customerId, data.UserId.Value).Result;
+                        var user = _userServices.GetUserAsync(customerId, assignedAsset.UserId).Result;
                         if (user == null)
                             throw new BadHttpRequestException("Unable to assign asset. User not found");
                     }
@@ -766,9 +768,24 @@ namespace OrigoApiGateway.Services
                         throw exception;
                     }
                 }
+                if (assignedAsset.DepartmentId != Guid.Empty)
+                {
+                    try
+                    {
+                        var department = _departmentsServices.GetDepartment(customerId, assignedAsset.UserId).Result;
+                        if (department == null)
+                            throw new BadHttpRequestException("Unable to assign asset. Department not found");
+                    }
+                    catch
+                    {
+                        var exception = new BadHttpRequestException("Unable to assign asset. Department not found");
+                        _logger.LogError(exception, "Unable to assign asset. Department not found");
+                        throw exception;
+                    }
+                }
 
-                var requestUri = $"{_options.ApiPath}/{data.AssetId}/customer/{customerId}/assign";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, data);
+                var requestUri = $"{_options.ApiPath}/{assignedAsset.AssetId}/customer/{customerId}/assign";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, assignedAsset);
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to assign asset", (int)response.StatusCode);
