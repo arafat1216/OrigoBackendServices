@@ -45,8 +45,7 @@ internal static class AssetTestDataSeedingForDatabase
         {
             CustomerId = COMPANY_ID,
             Alias = "alias_0",
-            AssetLifecycleStatus = AssetLifecycleStatus.InputRequired,
-            IsPersonal = true
+            AssetLifecycleStatus = AssetLifecycleStatus.InputRequired
         };
         assetLifecycleOne.AssignAsset(assetOne, CALLER_ID);
         assetLifecycleOne.AssignContractHolder(userOne, CALLER_ID);
@@ -55,8 +54,7 @@ internal static class AssetTestDataSeedingForDatabase
         {
             CustomerId = COMPANY_ID,
             Alias = "alias_1",
-            AssetLifecycleStatus = AssetLifecycleStatus.Available,
-            IsPersonal = false
+            AssetLifecycleStatus = AssetLifecycleStatus.Available
         };
         assetLifecycleTwo.AssignAsset(assetTwo, CALLER_ID);
         assetLifecycleTwo.AssignContractHolder(userOne, CALLER_ID);
@@ -65,8 +63,7 @@ internal static class AssetTestDataSeedingForDatabase
         {
             CustomerId = COMPANY_ID,
             Alias = "alias_2",
-            AssetLifecycleStatus = AssetLifecycleStatus.Active,
-            IsPersonal = true
+            AssetLifecycleStatus = AssetLifecycleStatus.Active
         };
         assetLifecycleThree.AssignAsset(assetThree, CALLER_ID);
         assetLifecycleThree.AssignDepartment(DEPARTMENT_ID, CALLER_ID);
@@ -76,8 +73,7 @@ internal static class AssetTestDataSeedingForDatabase
         {
             CustomerId = COMPANY_ID,
             Alias = "alias_3",
-            AssetLifecycleStatus = AssetLifecycleStatus.Available,
-            IsPersonal = true
+            AssetLifecycleStatus = AssetLifecycleStatus.Available
         };
         assetLifecycleFour.AssignAsset(assetFour, CALLER_ID);
         assetLifecycleFour.AssignContractHolder(userOne, CALLER_ID);
@@ -86,8 +82,7 @@ internal static class AssetTestDataSeedingForDatabase
         {
             CustomerId = COMPANY_ID,
             Alias = "alias_4",
-            AssetLifecycleStatus = AssetLifecycleStatus.Available,
-            IsPersonal = false
+            AssetLifecycleStatus = AssetLifecycleStatus.Available
         };
         assetLifecycleFive.AssignAsset(assetFour, CALLER_ID);
         assetLifecycleFive.AssignDepartment(DEPARTMENT_ID, CALLER_ID);

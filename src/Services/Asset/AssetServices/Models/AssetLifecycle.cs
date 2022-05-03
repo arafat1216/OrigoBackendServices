@@ -68,7 +68,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <summary>
     /// Is a personal or non-personal asset.
     /// </summary>
-    public bool IsPersonal { get; set; }
+    public bool IsPersonal { get; private set; }
     
     /// <summary>
     /// The asset currently associated with this asset lifecycle.
@@ -220,6 +220,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         LastUpdatedDate = DateTime.UtcNow;
         var previousContractHolderUser = ContractHolderUser;
         ContractHolderUser = contractHolderUser;
+        IsPersonal = true;
         AddDomainEvent(new AssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, previousContractHolderUser));
     }
 
@@ -233,6 +234,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         LastUpdatedDate = DateTime.UtcNow;
         AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, ContractHolderUser));
         ContractHolderUser = null;
+        IsPersonal = false;
     }
 
     /// <summary>
@@ -264,6 +266,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         LastUpdatedDate = DateTime.UtcNow;
         var previousDepartmentId = ManagedByDepartmentId;
         ManagedByDepartmentId = departmentId;
+        IsPersonal = false;
         AddDomainEvent(new AssignDepartmentAssetLifecycleDomainEvent(this, callerId, previousDepartmentId));
     }
     /// <summary>
@@ -276,6 +279,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         LastUpdatedDate = DateTime.UtcNow;
         AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this, callerId));
         ManagedByDepartmentId = null;
+        IsPersonal = true;
     }
 
     /// <summary>

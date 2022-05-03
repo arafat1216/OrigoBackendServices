@@ -318,8 +318,7 @@ namespace AssetServices
                 OrderNumber = newAssetDTO.OrderNumber ?? string.Empty,
                 ProductId = newAssetDTO.ProductId ?? string.Empty,
                 InvoiceNumber = newAssetDTO.InvoiceNumber ?? string.Empty,
-                TransactionId = newAssetDTO.TransactionId ?? string.Empty,
-                IsPersonal = newAssetDTO.IsPersonal
+                TransactionId = newAssetDTO.TransactionId ?? string.Empty
             };
 
             Asset asset = newAssetDTO.AssetCategoryId == 1
@@ -496,13 +495,12 @@ namespace AssetServices
                 user = await _assetLifecycleRepository.GetUser(userId);
                 assetLifecycle.UnAssignDepartment(callerId);
                 assetLifecycle.AssignContractHolder(user != null ? user : new User { ExternalId = userId }, callerId);
-                assetLifecycle.IsPersonal = true;
+                
             }
             if (departmentId != Guid.Empty && userId == Guid.Empty)
             {
                 assetLifecycle.UnAssignContractHolder(callerId);
                 assetLifecycle.AssignDepartment(departmentId, callerId);
-                assetLifecycle.IsPersonal = false;
             }
             await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
