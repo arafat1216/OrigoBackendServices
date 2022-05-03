@@ -1,3 +1,4 @@
+using Common.Converters;
 using HardwareServiceOrder.API;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Infrastructure;
@@ -32,7 +33,12 @@ builder.Configuration.AddUserSecrets<Program>(optional: true);
 
 builder.Services.AddHealthChecks();
 builder.Services.AddControllers()
-                .AddDapr();
+                .AddDapr()
+                .AddJsonOptions(j =>
+                {
+                    j.JsonSerializerOptions.Converters.Add(new DateOnlyConverter());
+                    j.JsonSerializerOptions.Converters.Add(new TimeOnlyConverter());
+                });
 
 builder.Services.AddDbContext<HardwareServiceOrderContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("HardwareServiceOrderConnectionString"), sqlOption =>
