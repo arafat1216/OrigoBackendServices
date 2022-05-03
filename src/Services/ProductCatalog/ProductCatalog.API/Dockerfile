@@ -49,12 +49,12 @@ RUN dotnet test --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Cod
 RUN dotnet test --logger "trx;LogFileName=test_results2.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore ../Tests/ProductCatalog.IntegrationTests/ProductCatalog.IntegrationTests.csproj
 RUN dotnet test --logger "trx;LogFileName=test_results3.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore ../../../Boilerplate/Boilerplate.EntityFramework.UnitTest/Boilerplate.EntityFramework.UnitTest.csproj
 
-RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
-
 RUN reportgenerator -reports:/TestResults/**/coverage.cobertura.xml -targetdir:/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
 RUN find /TestResults -mindepth 2 -maxdepth 2 -name "coverage.cobertura.xml" -print -exec cp {} /CodeCoverage/ \;
 # convert absolute docker paths to relative paths
 RUN find /CodeCoverage -name "coverage.cobertura.xml" -print | xargs sed -i 's/\/src/\./g'
+
+RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
 FROM build AS publish
 RUN dotnet publish "ProductCatalog.API.csproj" -c Release -o /app/publish
