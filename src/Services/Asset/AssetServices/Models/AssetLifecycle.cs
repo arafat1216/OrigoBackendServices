@@ -234,7 +234,9 @@ public class AssetLifecycle : Entity, IAggregateRoot
         LastUpdatedDate = DateTime.UtcNow;
         AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, ContractHolderUser));
         ContractHolderUser = null;
-        IsPersonal = false;
+
+        if (ManagedByDepartmentId != null) IsPersonal = false;
+        else UpdateAssetStatus(AssetLifecycleStatus.InputRequired, callerId);
     }
 
     /// <summary>
@@ -279,7 +281,9 @@ public class AssetLifecycle : Entity, IAggregateRoot
         LastUpdatedDate = DateTime.UtcNow;
         AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this, callerId));
         ManagedByDepartmentId = null;
-        IsPersonal = true;
+
+        if (ContractHolderUser != null) IsPersonal = true;
+        else UpdateAssetStatus(AssetLifecycleStatus.InputRequired,callerId);
     }
 
     /// <summary>
