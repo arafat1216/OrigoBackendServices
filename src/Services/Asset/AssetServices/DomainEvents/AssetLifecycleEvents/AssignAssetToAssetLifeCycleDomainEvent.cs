@@ -18,13 +18,15 @@ public class AssignAssetToAssetLifeCycleDomainEvent : BaseEvent
     }
 
     public AssetLifecycle AssetLifecycle { get; protected set; }
+
     public Guid CallerId { get; protected set; }
     public Guid? PreviousAssetId { get; protected set; }
 
     public override string EventMessage()
     {
+
         return PreviousAssetId == null
-            ? $"Asset lifecycle assigned to asset {AssetLifecycle?.Asset?.ExternalId} - {AssetLifecycle?.Asset?.ProductName}."
-            : $"Asset lifecycle assigned to asset {AssetLifecycle?.Asset?.ExternalId} - {AssetLifecycle?.Asset?.ProductName} from asset {PreviousAssetId}.";
+            ? $"Asset lifecycle with id assigned to asset."
+            : $"Asset lifecycle with id {AssetLifecycle?.ExternalId} assigned to asset from asset {PreviousAssetId}.";
     }
 }

@@ -24,8 +24,8 @@ public class AssignContractHolderToAssetLifeCycleDomainEvent : BaseEvent
 
     public override string EventMessage()
     {
-        return PreviousContractHolder == null
-            ? $"Asset lifecycle assigned to user {AssetLifecycle?.ContractHolderUser?.Name}."
+        return AssetLifecycle?.ContractHolderUser == null
+            ? $"Asset lifecycle assigned to user."
             : $"Asset lifecycle assigned to asset {AssetLifecycle?.ContractHolderUser?.Name} - {AssetLifecycle?.ContractHolderUser?.Name} ({AssetLifecycle?.ContractHolderUser?.ExternalId}) from user {PreviousContractHolder.Name} ({PreviousContractHolder.ExternalId}).";
     }
 }

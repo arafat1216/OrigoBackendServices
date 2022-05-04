@@ -152,7 +152,6 @@ namespace AssetServices
         {
             try
             {
-                //var assetLifeCyclesForCustomer = _assetLifecycleRepository
                 var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelIds);
 
                 if (customerLabels == null || customerLabels.Count == 0)
@@ -375,7 +374,7 @@ namespace AssetServices
         public async Task<AssetLifecycleDTO?> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, Guid callerId, LifecycleType newLifecycleType)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
-
+            if (assetLifecycle == null) return null;
             assetLifecycle.AssignLifecycleType(newLifecycleType, callerId);
             await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
@@ -560,8 +559,7 @@ namespace AssetServices
                     {
                         continue;
                     }
-                    
-
+                   
                     var previousStatus = PropertyExist(@event, "PreviousStatus")
                         ? @event.PreviousStatus.ToString()
                         : @event.AssetLifecycle.AssetLifecycleStatus.ToString();
@@ -570,7 +568,7 @@ namespace AssetServices
                     var callerId = PropertyExist(@event, "CallerId")
                         ? @event.CallerId.ToString()
                         : "N/A";
-                    var auditLog = new AssetAuditLog(transactionGuid, @event.AssetLifecycle.ExternalId, @event.AssetLifecycle.CustomerId, logEventEntry.CreationTime, callerId,
+                    var auditLog = new AssetAuditLog(transactionGuid, logEventEntry.EventId, @event.AssetLifecycle.CustomerId, logEventEntry.CreationTime, callerId,
                         ((IEvent)@event).EventMessage(), logEventEntry.EventTypeShortName, previousStatus, @event.AssetLifecycle.AssetLifecycleStatus.ToString());
                     assetLogList.Add(auditLog);
                 }

@@ -13,13 +13,14 @@ namespace AssetServices.Models
         public Label()
         { }
         
-        public Label(string labelText, LabelColor labelColor)
+        public Label(string text, LabelColor color)
         {
-            Text = labelText;
-            Color = labelColor;
+            Text = text;
+            Color = color;
         }
-
+        [JsonInclude]
         public string Text { get; protected set; }
+        [JsonInclude]
         public LabelColor Color { get; protected set; }
 
         protected override IEnumerable<object> GetEqualityComponents()

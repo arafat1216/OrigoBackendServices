@@ -206,7 +206,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         {
             _assetLifecycleStatus = AssetLifecycleStatus.InputRequired;
         }
-        AddDomainEvent(new AssignAssetToAssetLifeCycleDomainEvent(this, callerId, previousAssetId));
+        AddDomainEvent(new AssignAssetToAssetLifeCycleDomainEvent(this,callerId, previousAssetId));
     }
 
     /// <summary>
@@ -236,7 +236,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         ContractHolderUser = null;
 
         if (ManagedByDepartmentId != null) IsPersonal = false;
-        else UpdateAssetStatus(AssetLifecycleStatus.InputRequired, callerId);
+        if (_assetLifecycleStatus != AssetLifecycleStatus.InputRequired) UpdateAssetStatus(AssetLifecycleStatus.InputRequired, callerId);
     }
 
     /// <summary>
@@ -283,7 +283,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         ManagedByDepartmentId = null;
 
         if (ContractHolderUser != null) IsPersonal = true;
-        else UpdateAssetStatus(AssetLifecycleStatus.InputRequired,callerId);
+        if(_assetLifecycleStatus != AssetLifecycleStatus.InputRequired) UpdateAssetStatus(AssetLifecycleStatus.InputRequired, callerId);
     }
 
     /// <summary>
