@@ -218,10 +218,10 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var newSetting = await response.Content.ReadFromJsonAsync<LifeCycleSetting>();
-                if(setting.CategoryLifeCycleSetting != null && setting.CategoryLifeCycleSetting.Any())
+                if(setting.CategoryLifeCycleSettings != null && setting.CategoryLifeCycleSettings.Any())
                 {
                     var allCategorySetting = new List<CategoryLifeCycleSetting>();
-                    foreach(var item in setting.CategoryLifeCycleSetting)
+                    foreach(var item in setting.CategoryLifeCycleSettings)
                     {
                         var categorySetting = _mapper.Map<NewCategoryLifeCycleSettingDTO>(item);
                         categorySetting.CallerId = callerId;

@@ -756,7 +756,7 @@ namespace OrigoApiGateway.Tests
             var newSettings = new NewLifeCycleSetting()
             {
                 BuyoutAllowed = false,
-                CategoryLifeCycleSetting = new List<NewCategoryLifeCycleSetting>()
+                CategoryLifeCycleSettings = new List<NewCategoryLifeCycleSetting>()
                 {
                     new NewCategoryLifeCycleSetting()
                     {
