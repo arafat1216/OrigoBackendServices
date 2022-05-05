@@ -35,7 +35,7 @@ RUN dotnet sonarscanner begin \
   /o:"${SONAR_ORGANIZATION_KEY}" \
   /d:sonar.host.url="${SONAR_HOST_URL}" \
   /d:sonar.login="${SONAR_TOKEN}" \
-  /d:sonar.cs.opencover.reportsPaths=/TestResults/Coverage/coverage.opencover.xml \
+  /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/Cobertura.xml \
   /d:sonar.cs.vstest.reportsPaths=TestResults/*.trx \
   /d:sonar.sourceEncoding=UTF-8
 
@@ -52,7 +52,7 @@ RUN dotnet build \
 RUN dotnet test \
 	--logger "trx;LogFileName=test_results.trx" \
 	--collect:"XPlat Code Coverage" \
-	--results-directory /TestResults \
+	--results-directory /TestResults/UnitTests \
 	/p:CollectCoverage=true \
 	/p:CoverletOutputFormat="cobertura%2copencover" \
 	/p:CoverletOutput=/TestResults/Coverage \
@@ -69,7 +69,7 @@ RUN dotnet build \
 RUN dotnet test \
 	--logger "trx;LogFileName=test_results2.trx" \
 	--collect:"XPlat Code Coverage" \
-	--results-directory /TestResults \
+	--results-directory /TestResults/IntegrationTests \
 	/p:CollectCoverage=true \
 	/p:CoverletOutputFormat="cobertura%2copencover" \
 	/p:CoverletOutput=/TestResults/Coverage \
@@ -79,13 +79,13 @@ RUN dotnet test \
 	../Tests/Asset.IntegrationTests/Asset.IntegrationTests.csproj
 
 RUN reportgenerator \
-	-reports:/TestResults/**/coverage.cobertura.xml \
+	-reports:/TestResults/**/Coverage.cobertura.xml \
 	-targetdir:/CodeCoverage \
 	-reporttypes:"Cobertura;HTMLInline;HTMLChart;HTMLSummary"
 
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
-RUN find /TestResults -mindepth 2 -maxdepth 2 -name "coverage.cobertura.xml" -print -exec cp {} /CodeCoverage/ \;
+RUN find /TestResults -mindepth 2 -maxdepth 2 -name "Coverage.cobertura.xml" -print -exec cp {} /CodeCoverage/ \;
 # convert absolute docker paths to relative paths
 RUN find /CodeCoverage -name "coverage.cobertura.xml" -print | xargs sed -i 's/\/src/\./g'
 
