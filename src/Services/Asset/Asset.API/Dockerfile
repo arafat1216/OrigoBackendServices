@@ -4,7 +4,6 @@ ARG SONAR_PROJECT_KEY=mytos_OrigoV2_AssetServices
 ARG SONAR_ORGANIZATION_KEY=mytos
 ARG SONAR_HOST_URL=https://sonarcloud.io
 ARG SONAR_TOKEN
-ARG SONAR_BRANCH_NAME
 
 # Define build arguments required by NuGet
 ARG FEED_SOURCE
@@ -36,7 +35,6 @@ RUN dotnet sonarscanner begin \
   /o:"${SONAR_ORGANIZATION_KEY}" \
   /d:sonar.host.url="${SONAR_HOST_URL}" \
   /d:sonar.login="${SONAR_TOKEN}" \
-  /d:sonar.branch.name="${SONAR_BRANCH_NAME}" \
   /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.opencover.xml \
   /d:sonar.cs.vstest.reportsPaths=TestResults\*.trx \
   /d:sonar.sourceEncoding=UTF-8
