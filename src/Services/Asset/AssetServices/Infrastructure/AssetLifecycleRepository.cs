@@ -95,7 +95,7 @@ namespace AssetServices.Infrastructure
             {
                 assets = assets.Where(a => a.Asset!.Brand.ToLower().Contains(search.ToLower())
                 || a.Asset.ProductName.ToLower().Contains(search.ToLower())
-                || a.ContractHolderUser!.Name.ToLower().Contains(search.ToLower())
+                || (a.ContractHolderUser != null ? a.ContractHolderUser!.Name.ToLower().Contains(search.ToLower()) : false )
                 || (a.Asset as HardwareAsset)!.SerialNumber.ToLower().Contains(search.ToLower())
                 || (a.Asset as MobilePhone is not null && (a.Asset as MobilePhone).Imeis.Any(im => im.Imei == imei))).ToList();
 
@@ -105,7 +105,7 @@ namespace AssetServices.Infrastructure
             if (!string.IsNullOrEmpty(search))
                 assets = assets.Where(a => a.Asset!.Brand.ToLower().Contains(search.ToLower())
                 || a.Asset.ProductName.ToLower().Contains(search.ToLower())
-                || a.ContractHolderUser!.Name.ToLower().Contains(search.ToLower())
+                || (a.ContractHolderUser != null ? a.ContractHolderUser!.Name.ToLower().Contains(search.ToLower()) : false)
                 || (a.Asset as HardwareAsset)!.SerialNumber.ToLower().Contains(search.ToLower())).ToList();
 
             if (status != null)
@@ -189,10 +189,10 @@ namespace AssetServices.Infrastructure
 
             foreach (var assetLifecycle in assetLifecyclesForUser)
             {
-                assetLifecycle.UnAssignContractHolder(callerId);
+                //assetLifecycle.UnAssignContractHolder(callerId);
 
                 if (assetLifecycle.ManagedByDepartmentId == null)
-                    assetLifecycle.AssignDepartment(departmentId, callerId);
+                    assetLifecycle.AssignAssetLifecycleHolder(null, departmentId, callerId);
 
                 _assetContext.Entry(assetLifecycle).State = EntityState.Modified;
             }

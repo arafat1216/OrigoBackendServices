@@ -772,7 +772,7 @@ namespace OrigoApiGateway.Services
                 {
                     try
                     {
-                        var department = _departmentsServices.GetDepartment(customerId, assignedAsset.UserId).Result;
+                        var department = _departmentsServices.GetDepartment(customerId, assignedAsset.DepartmentId).Result;
                         if (department == null)
                             throw new BadHttpRequestException("Unable to assign asset. Department not found");
                     }

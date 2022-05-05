@@ -1023,6 +1023,10 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        /// <summary>
+        /// Assign a department or a user to an Asset Life cyle
+        /// </summary>
+        /// <param name="asset">Needs to have either a departmentId or userId. Can not have id for both and can not be null at the same time.</param>
         [Route("{assetId:Guid}/customers/{organizationId:guid}/assign")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]

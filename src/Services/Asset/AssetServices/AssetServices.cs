@@ -328,16 +328,16 @@ namespace AssetServices
             assetLifecycle.AssignAsset(asset, newAssetDTO.CallerId);
 
 
-            if (newAssetDTO.AssetHolderId != null)
+            if (newAssetDTO.AssetHolderId != null && newAssetDTO.AssetHolderId != Guid.Empty)
             {
                 var user = await _assetLifecycleRepository.GetUser(newAssetDTO.AssetHolderId.Value);
-                assetLifecycle.AssignContractHolder(user != null ? user : new User { ExternalId = newAssetDTO.AssetHolderId.Value },
+                assetLifecycle.AssignAssetLifecycleHolder(user != null ? user : new User { ExternalId = newAssetDTO.AssetHolderId.Value }, null,
                     newAssetDTO.CallerId);
             }
 
-            if (newAssetDTO.ManagedByDepartmentId != null)
+            if (newAssetDTO.ManagedByDepartmentId != null && newAssetDTO.ManagedByDepartmentId != Guid.Empty)
             {
-                assetLifecycle.AssignDepartment(newAssetDTO.ManagedByDepartmentId.Value, newAssetDTO.CallerId);
+                assetLifecycle.AssignAssetLifecycleHolder(null, newAssetDTO.ManagedByDepartmentId.Value, newAssetDTO.CallerId);
             }
 
             var assetLifeCycle = await _assetLifecycleRepository.AddAsync(assetLifecycle);
@@ -483,24 +483,23 @@ namespace AssetServices
             }
         }
 
-        public async Task<AssetLifecycleDTO?> AssignAsset(Guid customerId, Guid assetId, Guid userId, Guid departmentId, Guid callerId)
+        public async Task<AssetLifecycleDTO?> AssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, Guid userId, Guid departmentId, Guid callerId)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
             if (assetLifecycle == null) return null;
 
-            User? user = null;
-            if (userId != Guid.Empty)
+
+            if (departmentId == Guid.Empty)
             {
-                user = await _assetLifecycleRepository.GetUser(userId);
-                assetLifecycle.UnAssignDepartment(callerId);
-                assetLifecycle.AssignContractHolder(user != null ? user : new User { ExternalId = userId }, callerId);
-                
+                User? user = await _assetLifecycleRepository.GetUser(userId);
+                assetLifecycle.AssignAssetLifecycleHolder(user != null ? user : new User { ExternalId = userId }, departmentId, callerId);
             }
-            if (departmentId != Guid.Empty && userId == Guid.Empty)
+            else
             {
-                assetLifecycle.UnAssignContractHolder(callerId);
-                assetLifecycle.AssignDepartment(departmentId, callerId);
+                assetLifecycle.AssignAssetLifecycleHolder(null, departmentId, callerId);
             }
+            
+         
             await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }

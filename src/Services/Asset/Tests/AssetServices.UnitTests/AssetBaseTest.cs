@@ -14,7 +14,7 @@ namespace AssetServices.UnitTests
 {
     public class AssetBaseTest
     {
-        private readonly Guid ASSETLIFECYCLE_ONE_ID = new("4e7413da-54c9-4f79-b882-f66ce48e5074");
+        public readonly Guid ASSETLIFECYCLE_ONE_ID = new("4e7413da-54c9-4f79-b882-f66ce48e5074");
         private readonly Guid ASSETLIFECYCLE_TWO_ID = new("6c38b551-a5c2-4f53-8df8-221bf8485c61");
         protected readonly Guid ASSETLIFECYCLE_THREE_ID = new("80665d26-90b4-4a3a-a20d-686b64466f32");
         protected readonly Guid ASSETLIFECYCLE_FOUR_ID = new("bdb4c26c-33fd-40d7-a237-e74728609c1c");
@@ -66,36 +66,34 @@ namespace AssetServices.UnitTests
             var labelOne = new CustomerLabel(LABEL_ONE_ID, COMPANY_ID, Guid.Empty, new Label("Label_1", LabelColor.Blue));
             var labelTwo = new CustomerLabel(LABEL_TWO_ID, COMPANY_ID, Guid.Empty, new Label("Label_2", LabelColor.Green));
 
-            var assetLifecycleOne = new AssetLifecycle(ASSETLIFECYCLE_ONE_ID) { CustomerId = COMPANY_ID, Alias = "alias_0", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired};
+            var assetLifecycleOne = new AssetLifecycle(ASSETLIFECYCLE_ONE_ID) { CustomerId = COMPANY_ID, Alias = "alias_0", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired, AssetLifecycleType = LifecycleType.BYOD };
             assetLifecycleOne.AssignAsset(assetOne, CALLER_ID);
-            assetLifecycleOne.AssignContractHolder(userOne, CALLER_ID);
+            assetLifecycleOne.AssignAssetLifecycleHolder(userOne,null, CALLER_ID);
 
-            var assetLifecycleTwo = new AssetLifecycle(ASSETLIFECYCLE_TWO_ID) { CustomerId = COMPANY_ID, Alias = "alias_1", AssetLifecycleStatus = AssetLifecycleStatus.Available };
+            var assetLifecycleTwo = new AssetLifecycle(ASSETLIFECYCLE_TWO_ID) { CustomerId = COMPANY_ID, Alias = "alias_1", AssetLifecycleStatus = AssetLifecycleStatus.Available, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleTwo.AssignAsset(assetTwo, CALLER_ID);
-            assetLifecycleTwo.AssignContractHolder(userTwo, CALLER_ID);
+            assetLifecycleTwo.AssignAssetLifecycleHolder(userTwo, null, CALLER_ID);
 
-            var assetLifecycleThree = new AssetLifecycle(ASSETLIFECYCLE_THREE_ID) { CustomerId = COMPANY_ID, Alias = "alias_2", AssetLifecycleStatus = AssetLifecycleStatus.Active };
+            var assetLifecycleThree = new AssetLifecycle(ASSETLIFECYCLE_THREE_ID) { CustomerId = COMPANY_ID, Alias = "alias_2", AssetLifecycleStatus = AssetLifecycleStatus.Active, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleThree.AssignAsset(assetThree, CALLER_ID);
-            assetLifecycleThree.AssignContractHolder(userOne, CALLER_ID);
-            assetLifecycleThree.AssignDepartment(DEPARTMENT_ID, CALLER_ID);
+            assetLifecycleThree.AssignAssetLifecycleHolder(null,DEPARTMENT_ID, CALLER_ID);
 
-            var assetLifecycleFour = new AssetLifecycle { CustomerId = COMPANY_ID, Alias = "alias_3", AssetLifecycleStatus = AssetLifecycleStatus.Stolen };
+            var assetLifecycleFour = new AssetLifecycle { CustomerId = COMPANY_ID, Alias = "alias_3", AssetLifecycleStatus = AssetLifecycleStatus.Stolen, AssetLifecycleType = LifecycleType.BYOD };
             assetLifecycleFour.AssignAsset(assetFour, CALLER_ID);
-            assetLifecycleFour.AssignContractHolder(userOne, CALLER_ID);
+            assetLifecycleFour.AssignAssetLifecycleHolder(userOne, null, CALLER_ID);
 
-            var assetLifecycleFive = new AssetLifecycle(ASSETLIFECYCLE_FOUR_ID) { CustomerId = COMPANY_ID, Alias = "alias_4", AssetLifecycleStatus = AssetLifecycleStatus.Available };
+            var assetLifecycleFive = new AssetLifecycle(ASSETLIFECYCLE_FOUR_ID) { CustomerId = COMPANY_ID, Alias = "alias_4", AssetLifecycleStatus = AssetLifecycleStatus.Available, AssetLifecycleType = LifecycleType.Leasing };
             assetLifecycleFive.AssignAsset(assetFive, CALLER_ID);
-            assetLifecycleFive.AssignContractHolder(userOne, CALLER_ID);
+            assetLifecycleFive.AssignAssetLifecycleHolder(userOne,null, CALLER_ID);
 
-            var assetLifecycleSix = new AssetLifecycle(ASSETLIFECYCLE_FIVE_ID) { CustomerId = COMPANY_ID, Alias = "alias_5", AssetLifecycleStatus = AssetLifecycleStatus.Available };
+            var assetLifecycleSix = new AssetLifecycle(ASSETLIFECYCLE_FIVE_ID) { CustomerId = COMPANY_ID, Alias = "alias_5", AssetLifecycleStatus = AssetLifecycleStatus.Available, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleSix.AssignAsset(assetSix, CALLER_ID);
-            assetLifecycleSix.AssignContractHolder(userOne, CALLER_ID);
-            assetLifecycleSix.AssignDepartment(DEPARTMENT_ID, CALLER_ID);
+            assetLifecycleSix.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
 
 
-            var assetLifecycleOther = new AssetLifecycle { CustomerId = Guid.NewGuid(), Alias = "alias_4", AssetLifecycleStatus = AssetLifecycleStatus.Active};
+            var assetLifecycleOther = new AssetLifecycle { CustomerId = Guid.NewGuid(), Alias = "alias_4", AssetLifecycleStatus = AssetLifecycleStatus.Active, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleOther.AssignAsset(assetOther, CALLER_ID);
-            assetLifecycleOther.AssignContractHolder(new User{ExternalId = Guid.NewGuid()}, CALLER_ID);
+            assetLifecycleOther.AssignAssetLifecycleHolder(new User{ExternalId = Guid.NewGuid()},null, CALLER_ID);
 
             var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID, true, Guid.Empty);
             lifeCycleSetting.SetMinBuyoutPrice(700M, 1, Guid.Empty);

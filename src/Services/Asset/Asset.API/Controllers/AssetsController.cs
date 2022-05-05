@@ -468,9 +468,11 @@ namespace Asset.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> AssignAsset(Guid customerId, Guid assetId, [FromBody] AssignAssetToUser asset)
+        public async Task<ActionResult> AssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, [FromBody] AssignAssetToUser asset)
         {
-            var updatedAsset = await _assetServices.AssignAsset(customerId, assetId, asset.UserId, asset.DepartmentId, asset.CallerId);
+            if ((asset.UserId == Guid.Empty && asset.DepartmentId == Guid.Empty) || (asset.UserId != Guid.Empty && asset.DepartmentId != Guid.Empty)) return BadRequest();
+
+            var updatedAsset = await _assetServices.AssignAssetLifeCycleToHolder(customerId, assetId, asset.UserId, asset.DepartmentId, asset.CallerId);
             var mapped = _mapper.Map<ViewModels.Asset>(updatedAsset);
             return Ok(mapped);
         }

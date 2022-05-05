@@ -45,48 +45,51 @@ internal static class AssetTestDataSeedingForDatabase
         {
             CustomerId = COMPANY_ID,
             Alias = "alias_0",
-            AssetLifecycleStatus = AssetLifecycleStatus.InputRequired
+            AssetLifecycleStatus = AssetLifecycleStatus.InputRequired,
+            AssetLifecycleType = LifecycleType.Transactional
         };
         assetLifecycleOne.AssignAsset(assetOne, CALLER_ID);
-        assetLifecycleOne.AssignContractHolder(userOne, CALLER_ID);
+        assetLifecycleOne.AssignAssetLifecycleHolder(userOne, null, CALLER_ID);
 
         var assetLifecycleTwo = new AssetLifecycle(ASSETLIFECYCLE_TWO_ID)
         {
             CustomerId = COMPANY_ID,
             Alias = "alias_1",
-            AssetLifecycleStatus = AssetLifecycleStatus.Available
+            AssetLifecycleStatus = AssetLifecycleStatus.Available,
+            AssetLifecycleType = LifecycleType.Transactional
         };
         assetLifecycleTwo.AssignAsset(assetTwo, CALLER_ID);
-        assetLifecycleTwo.AssignContractHolder(userOne, CALLER_ID);
+        assetLifecycleTwo.AssignAssetLifecycleHolder(userOne,null, CALLER_ID);
 
         var assetLifecycleThree = new AssetLifecycle(ASSETLIFECYCLE_THREE_ID)
         {
             CustomerId = COMPANY_ID,
             Alias = "alias_2",
-            AssetLifecycleStatus = AssetLifecycleStatus.Active
+            AssetLifecycleStatus = AssetLifecycleStatus.Active,
+            AssetLifecycleType = LifecycleType.Transactional
         };
         assetLifecycleThree.AssignAsset(assetThree, CALLER_ID);
-        assetLifecycleThree.AssignDepartment(DEPARTMENT_ID, CALLER_ID);
-        assetLifecycleThree.AssignContractHolder(userOne, CALLER_ID);
+        assetLifecycleThree.AssignAssetLifecycleHolder(null,DEPARTMENT_ID, CALLER_ID);
 
         var assetLifecycleFour = new AssetLifecycle(ASSETLIFECYCLE_FOUR_ID)
         {
             CustomerId = COMPANY_ID,
             Alias = "alias_3",
-            AssetLifecycleStatus = AssetLifecycleStatus.Available
+            AssetLifecycleStatus = AssetLifecycleStatus.Available,
+            AssetLifecycleType = LifecycleType.Transactional
         };
         assetLifecycleFour.AssignAsset(assetFour, CALLER_ID);
-        assetLifecycleFour.AssignContractHolder(userOne, CALLER_ID);
+        assetLifecycleFour.AssignAssetLifecycleHolder(userOne,null, CALLER_ID);
 
         var assetLifecycleFive = new AssetLifecycle(ASSETLIFECYCLE_FIVE_ID)
         {
             CustomerId = COMPANY_ID,
             Alias = "alias_4",
-            AssetLifecycleStatus = AssetLifecycleStatus.Available
+            AssetLifecycleStatus = AssetLifecycleStatus.Available,
+            AssetLifecycleType = LifecycleType.Transactional
         };
         assetLifecycleFive.AssignAsset(assetFour, CALLER_ID);
-        assetLifecycleFive.AssignDepartment(DEPARTMENT_ID, CALLER_ID);
-        assetLifecycleFive.AssignContractHolder(userOne, CALLER_ID);
+        assetLifecycleFive.AssignAssetLifecycleHolder(null,DEPARTMENT_ID, CALLER_ID);
 
         var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID, true, Guid.Empty);
         lifeCycleSetting.SetMinBuyoutPrice(700M, 1, Guid.Empty);

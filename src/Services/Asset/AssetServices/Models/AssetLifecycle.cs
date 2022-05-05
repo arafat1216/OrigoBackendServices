@@ -212,31 +212,53 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <summary>
     /// Assign a contract holder which is in control of the asset. 
     /// </summary>
-    /// <param name="contractHolderUser">A user</param>
+    /// <param name="contractHolderUser">Contract holder is a user</param>
+    /// <param name="departmentId">Contract holder is a department</param>
     /// <param name="callerId">The userid making this assignment</param>
-    public void AssignContractHolder(User contractHolderUser, Guid callerId)
+    public void AssignAssetLifecycleHolder(User? contractHolderUser, Guid? departmentId, Guid callerId)
     {
-        UpdatedBy = callerId;
-        LastUpdatedDate = DateTime.UtcNow;
-        var previousContractHolderUser = ContractHolderUser;
-        ContractHolderUser = contractHolderUser;
-        IsPersonal = true;
-        AddDomainEvent(new AssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, previousContractHolderUser));
-    }
 
-    /// <summary>
-    /// Un-Assign a contract holder which is in control of the asset. 
-    /// </summary>
-    /// <param name="callerId">The userid making this assignment</param>
-    public void UnAssignContractHolder(Guid callerId)
-    {
-        UpdatedBy = callerId;
-        LastUpdatedDate = DateTime.UtcNow;
-        AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, ContractHolderUser));
-        ContractHolderUser = null;
+        //Assigne to user
+        if (contractHolderUser != null && departmentId == null)
+        {
+            //unassigne previous owner and add domain events for it - cant have to owners
+            if (ContractHolderUser != null) AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, ContractHolderUser));
+            if (departmentId != null) AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this, callerId));
+            ManagedByDepartmentId = null;
 
-        if (ManagedByDepartmentId != null) IsPersonal = false;
-        if (_assetLifecycleStatus != AssetLifecycleStatus.InputRequired) UpdateAssetStatus(AssetLifecycleStatus.InputRequired, callerId);
+            
+            IsPersonal = true;
+            ContractHolderUser = contractHolderUser;
+            var previousContractHolderUser = ContractHolderUser;
+            IsPersonal = true;
+
+            if (_assetLifecycleStatus != AssetLifecycleStatus.InUse && _assetLifecycleType != LifecycleType.NoLifecycle) UpdateAssetStatus(AssetLifecycleStatus.InUse, callerId);
+
+            AddDomainEvent(new AssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, previousContractHolderUser));
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
+        }
+        else if (departmentId != null && contractHolderUser == null)
+        {
+            //unassigne previous owner and add domain events for it
+            if (ContractHolderUser != null) AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this,callerId, ContractHolderUser));
+            if (departmentId != null) AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this,callerId));
+            ContractHolderUser = null;
+            
+            
+            var previousDepartmentId = ManagedByDepartmentId;
+            ManagedByDepartmentId = departmentId;
+            IsPersonal = false;
+
+            //Change state to in use if not no lifecycle
+            if(_assetLifecycleStatus != AssetLifecycleStatus.InUse && _assetLifecycleType != LifecycleType.NoLifecycle) UpdateAssetStatus(AssetLifecycleStatus.InUse, callerId);
+
+            AddDomainEvent(new AssignDepartmentAssetLifecycleDomainEvent(this, callerId, previousDepartmentId));
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
+        }
+
+
     }
 
     /// <summary>
@@ -254,36 +276,6 @@ public class AssetLifecycle : Entity, IAggregateRoot
         if(_labels != null && _labels.Any())
             _labels.Clear();
         _assetLifecycleStatus = AssetLifecycleStatus.Available;
-    }
-
-
-    /// <summary>
-    /// Assign a department which is in control of the asset. 
-    /// </summary>
-    /// <param name="departmentId">A user</param>
-    /// <param name="callerId">The userid making this assignment</param>
-    public void AssignDepartment(Guid departmentId, Guid callerId)
-    {
-        UpdatedBy = callerId;
-        LastUpdatedDate = DateTime.UtcNow;
-        var previousDepartmentId = ManagedByDepartmentId;
-        ManagedByDepartmentId = departmentId;
-        IsPersonal = false;
-        AddDomainEvent(new AssignDepartmentAssetLifecycleDomainEvent(this, callerId, previousDepartmentId));
-    }
-    /// <summary>
-    /// Unassign a department which is in control of the asset. 
-    /// </summary>
-    /// <param name="callerId">The userid making this assignment</param>
-    public void UnAssignDepartment(Guid callerId)
-    {
-        UpdatedBy = callerId;
-        LastUpdatedDate = DateTime.UtcNow;
-        AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this, callerId));
-        ManagedByDepartmentId = null;
-
-        if (ContractHolderUser != null) IsPersonal = true;
-        if(_assetLifecycleStatus != AssetLifecycleStatus.InputRequired) UpdateAssetStatus(AssetLifecycleStatus.InputRequired, callerId);
     }
 
     /// <summary>
