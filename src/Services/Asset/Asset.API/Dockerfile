@@ -51,8 +51,7 @@ RUN dotnet test \
 	--logger "trx;LogFileName=test_results.trx" \
 	--collect:"XPlat Code Coverage" \
 	--results-directory /TestResults \
-	/p:CollectCoverage=true
-	/p:CoverletOutputFormat=cobertura \
+	/p:CoverletOutputFormat=opencover \
 	/p:CoverletOutput=/TestResults/Coverage \
 	--configuration Release \
 	--no-restore \
@@ -68,8 +67,7 @@ RUN dotnet test \
 	--logger "trx;LogFileName=test_results2.trx" \
 	--collect:"XPlat Code Coverage" \
 	--results-directory /TestResults \
-	/p:CollectCoverage=true
-	/p:CoverletOutputFormat=cobertura \
+	/p:CoverletOutputFormat=opencover \
 	/p:CoverletOutput=/TestResults/Coverage \
 	--configuration Release \
 	--no-restore \
