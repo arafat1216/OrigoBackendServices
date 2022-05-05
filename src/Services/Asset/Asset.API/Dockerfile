@@ -35,8 +35,8 @@ RUN dotnet sonarscanner begin \
   /o:"${SONAR_ORGANIZATION_KEY}" \
   /d:sonar.host.url="${SONAR_HOST_URL}" \
   /d:sonar.login="${SONAR_TOKEN}" \
-  /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.opencover.xml \
-  /d:sonar.cs.vstest.reportsPaths=TestResults\*.trx \
+  /d:sonar.cs.opencover.reportsPaths=/TestResults/Coverage/coverage.opencover.xml \
+  /d:sonar.cs.vstest.reportsPaths=TestResults/*.trx \
   /d:sonar.sourceEncoding=UTF-8
 
 RUN dotnet build "Asset.API.csproj" -c Release --no-restore -o /app/build
@@ -81,13 +81,14 @@ RUN dotnet test \
 RUN reportgenerator \
 	-reports:/TestResults/**/coverage.cobertura.xml \
 	-targetdir:/CodeCoverage \
-	-reporttypes:Cobertura
+	-reporttypes:Cobertura;HTMLInline;HTMLChart;HTMLSummary
+
+RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
 RUN find /TestResults -mindepth 2 -maxdepth 2 -name "coverage.cobertura.xml" -print -exec cp {} /CodeCoverage/ \;
 # convert absolute docker paths to relative paths
 RUN find /CodeCoverage -name "coverage.cobertura.xml" -print | xargs sed -i 's/\/src/\./g'
 
-RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
 FROM build AS publish
 RUN dotnet publish "Asset.API.csproj" -c Release -o /app/publish
