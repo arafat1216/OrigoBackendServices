@@ -81,7 +81,7 @@ RUN dotnet test \
 RUN reportgenerator \
 	-reports:/TestResults/**/coverage.cobertura.xml \
 	-targetdir:/CodeCoverage \
-	-reporttypes:Cobertura;HTMLInline;HTMLChart;HTMLSummary
+	-reporttypes:"Cobertura;HTMLInline;HTMLChart;HTMLSummary"
 
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
