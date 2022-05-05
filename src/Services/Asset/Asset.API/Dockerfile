@@ -54,7 +54,7 @@ RUN dotnet test \
 	--collect:"XPlat Code Coverage" \
 	--results-directory /TestResults \
 	/p:CollectCoverage=true \
-	/p:CoverletOutputFormat=opencover \
+	/p:CoverletOutputFormat="cobertura%2copencover" \
 	/p:CoverletOutput=/TestResults/Coverage \
 	--configuration Release \
 	--no-restore \
@@ -71,14 +71,18 @@ RUN dotnet test \
 	--collect:"XPlat Code Coverage" \
 	--results-directory /TestResults \
 	/p:CollectCoverage=true \
-	/p:CoverletOutputFormat=opencover \
+	/p:CoverletOutputFormat="cobertura%2copencover" \
 	/p:CoverletOutput=/TestResults/Coverage \
 	--configuration Release \
 	--no-restore \
 	--no-build \
 	../Tests/Asset.IntegrationTests/Asset.IntegrationTests.csproj
 
-RUN reportgenerator -reports:/TestResults/**/coverage.cobertura.xml -targetdir:/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
+RUN reportgenerator \
+	-reports:/TestResults/**/coverage.cobertura.xml \
+	-targetdir:/CodeCoverage \
+	-reporttypes:HtmlInline_AzurePipelines;Cobertura
+
 RUN find /TestResults -mindepth 2 -maxdepth 2 -name "coverage.cobertura.xml" -print -exec cp {} /CodeCoverage/ \;
 # convert absolute docker paths to relative paths
 RUN find /CodeCoverage -name "coverage.cobertura.xml" -print | xargs sed -i 's/\/src/\./g'
