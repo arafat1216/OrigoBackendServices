@@ -13,6 +13,8 @@ parameters:
   default: ''
 - name: buildSourcesDirectory
   default: ''
+- name: buildSourceBranchName
+  default: ''
 - name: imageRepository
   default: ''
 - name: dockerfilePath
@@ -73,7 +75,7 @@ jobs:
       repository: ${{ parameters.imageRepository }}
       dockerfile: ${{ parameters.dockerfilePath }}
       containerRegistry: ${{ parameters.dockerRegistryServiceConnection }}
-      arguments: --build-arg SONAR_TOKEN=${{ parameters.SonarToken }} --build-arg BUILD_ID=${{ parameters.buildId }} --build-arg FEED_SOURCE=${{ parameters.artifactsFeedSource }} --build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)
+      arguments: --build-arg SONAR_TOKEN=${{ parameters.SonarToken }} --build-arg BUILD_ID=${{ parameters.buildId }} --build-arg FEED_SOURCE=${{ parameters.artifactsFeedSource }} --build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN) --build-arg SONAR_BRANCH_NAME=${{ parameters.buildSourceBranchName }}
       tags: |
           ${{ parameters.buildId }}
 
