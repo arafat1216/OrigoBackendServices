@@ -55,7 +55,7 @@ RUN dotnet test \
 	--results-directory /TestResults/UnitTests \
 	/p:CollectCoverage=true \
 	/p:CoverletOutputFormat="cobertura%2copencover" \
-	/p:CoverletOutput=/TestResults/Coverage \
+	/p:CoverletOutput=/TestResults/Coverage1/coverage.cobertura.xml \
 	--configuration Release \
 	--no-restore \
 	--no-build \
@@ -72,7 +72,7 @@ RUN dotnet test \
 	--results-directory /TestResults/IntegrationTests \
 	/p:CollectCoverage=true \
 	/p:CoverletOutputFormat="cobertura%2copencover" \
-	/p:CoverletOutput=/TestResults/Coverage \
+	/p:CoverletOutput=/TestResults/Coverage2/coverage.cobertura.xml \
 	--configuration Release \
 	--no-restore \
 	--no-build \
@@ -85,7 +85,8 @@ RUN reportgenerator \
 
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
-RUN find /TestResults -mindepth 2 -maxdepth 2 -name "Coverage.cobertura.xml" -print -exec cp {} /CodeCoverage/ \;
+RUN find /TestResults -mindepth 2 -maxdepth 2 -name "coverage.cobertura.xml" -print -exec cp {} /CodeCoverage/ \;
+
 # convert absolute docker paths to relative paths
 RUN find /CodeCoverage -name "coverage.cobertura.xml" -print | xargs sed -i 's/\/src/\./g'
 
