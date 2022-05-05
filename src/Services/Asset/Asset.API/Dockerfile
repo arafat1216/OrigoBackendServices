@@ -36,6 +36,7 @@ RUN dotnet sonarscanner begin \
   /d:sonar.host.url="${SONAR_HOST_URL}" \
   /d:sonar.login="${SONAR_TOKEN}" \
   /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.cobertura.xml
+  /d:sonar.cs.vscoveragexml.reportsPaths=/CodeCoverage/coverage.cobertura.xml
 
 RUN dotnet build "Asset.API.csproj" -c Release --no-restore -o /app/build
 
