@@ -81,7 +81,7 @@ RUN dotnet test \
 RUN reportgenerator \
 	-reports:/TestResults/**/coverage.cobertura.xml \
 	-targetdir:/CodeCoverage \
-	-reporttypes:HtmlInline_AzurePipelines;Cobertura
+	-reporttypes:Cobertura
 
 RUN find /TestResults -mindepth 2 -maxdepth 2 -name "coverage.cobertura.xml" -print -exec cp {} /CodeCoverage/ \;
 # convert absolute docker paths to relative paths
