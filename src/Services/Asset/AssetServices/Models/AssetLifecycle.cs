@@ -223,7 +223,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         {
             //unassigne previous owner and add domain events for it - cant have to owners
             if (ContractHolderUser != null) AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, ContractHolderUser));
-            if (departmentId != null) AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this, callerId));
+            if (ManagedByDepartmentId != null) AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this, callerId));
             ManagedByDepartmentId = null;
 
             
@@ -242,7 +242,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         {
             //unassigne previous owner and add domain events for it
             if (ContractHolderUser != null) AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this,callerId, ContractHolderUser));
-            if (departmentId != null) AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this,callerId));
+            if (ManagedByDepartmentId != null) AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this,callerId));
             ContractHolderUser = null;
             
             
