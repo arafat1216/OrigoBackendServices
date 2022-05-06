@@ -55,7 +55,7 @@ RUN dotnet test \
 	--results-directory /TestResults/UnitTests \
 	/p:CollectCoverage=true \
 	/p:CoverletOutputFormat="cobertura%2copencover" \
-	/p:CoverletOutput=/TestResults/Coverage1/coverage.cobertura.xml \
+	/p:CoverletOutput=/TestResults/Coverage1/ \
 	--configuration Release \
 	--no-restore \
 	--no-build \
@@ -72,14 +72,14 @@ RUN dotnet test \
 	--results-directory /TestResults/IntegrationTests \
 	/p:CollectCoverage=true \
 	/p:CoverletOutputFormat="cobertura%2copencover" \
-	/p:CoverletOutput=/TestResults/Coverage2/coverage.cobertura.xml \
+	/p:CoverletOutput=/TestResults/Coverage2/ \
 	--configuration Release \
 	--no-restore \
 	--no-build \
 	../Tests/Asset.IntegrationTests/Asset.IntegrationTests.csproj
 
 RUN reportgenerator \
-	-reports:/TestResults/**/Coverage.cobertura.xml \
+	-reports:/TestResults/**/coverage.cobertura.xml \
 	-targetdir:/CodeCoverage \
 	-reporttypes:"Cobertura;HTMLInline;HTMLChart;HTMLSummary"
 
