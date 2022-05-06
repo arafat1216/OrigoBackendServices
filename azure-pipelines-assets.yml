@@ -20,7 +20,7 @@ variables:
   artifactsFeedSource: 'https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json'
   imageRepository: 'assetsbackend'
   containerRegistry: 'origov2acr.azurecr.io'
-  ${{ if and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/pull/')) }}:
+  ${{ if startsWith(variables['Build.SourceBranch'], 'refs/pull/') }}:
     pullRequestKey: '$(System.PullRequest.PullRequestId)'
     pullRequestSourceBranch: '$(System.PullRequest.SourceBranch)'
   ${{ else }}:
