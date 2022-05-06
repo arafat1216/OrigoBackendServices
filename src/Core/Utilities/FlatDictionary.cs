@@ -1,9 +1,10 @@
-﻿using System.Collections;
+﻿using Common.Extensions;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace SubscriptionManagementServices.Utilities
+namespace Common.Utilities
 {
     //https://github.com/joseftw/jos.flatdictionary
     public class FlatDictionary : IFlatDictionaryProvider

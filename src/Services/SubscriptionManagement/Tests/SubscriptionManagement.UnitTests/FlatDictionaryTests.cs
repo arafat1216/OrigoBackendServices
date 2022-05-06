@@ -1,9 +1,9 @@
-﻿using SubscriptionManagementServices.Utilities;
-using SubscriptionManagementServices.Models;
+﻿using SubscriptionManagementServices.Models;
 using Xunit;
 using SubscriptionManagementServices.ServiceModels;
 using System.Collections.Generic;
 using System;
+using Common.Utilities;
 
 namespace SubscriptionManagement.UnitTests
 {

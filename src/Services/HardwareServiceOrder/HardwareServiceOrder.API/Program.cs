@@ -1,3 +1,5 @@
+using Common.Configuration;
+using Common.Utilities;
 using HardwareServiceOrder.API;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Infrastructure;
@@ -115,7 +117,9 @@ builder.Services.AddApplicationInsightsTelemetry();
 
 builder.Services.AddScoped<IHardwareServiceOrderService, HardwareServiceOrderService>();
 builder.Services.AddScoped<IHardwareServiceOrderRepository, HardwareServiceOrderRepository>();
-
+builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("Email"));
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IFlatDictionaryProvider, FlatDictionary>();
 #endregion Builder
 
 

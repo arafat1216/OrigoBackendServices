@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 
-namespace SubscriptionManagementServices.Utilities
+namespace Common.Extensions
 {
-    internal static class Extensions
+    internal static class FlatDictionaryExtension
     {
         internal static bool IsValueTypeOrString(this Type type)
         {

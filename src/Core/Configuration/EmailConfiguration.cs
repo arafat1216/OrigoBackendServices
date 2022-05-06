@@ -1,4 +1,4 @@
-﻿namespace SubscriptionManagementServices
+﻿namespace Common.Configuration
 {
     public record EmailConfiguration
     {
