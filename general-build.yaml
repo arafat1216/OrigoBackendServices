@@ -104,7 +104,7 @@ jobs:
   - task: PublishCodeCoverageResults@1
     inputs:
       codeCoverageTool: Cobertura
-      summaryFileLocation: '${{ parameters.buildSourcesDirectory }}/CodeCoverage/coverage.cobertura.xml'
+      summaryFileLocation: '${{ parameters.buildSourcesDirectory }}/CodeCoverage/Cobertura.xml'
       pathToSources: '${{ parameters.buildSourcesDirectory }}/src'
       additionalCodeCoverageFiles: '${{ parameters.buildSourcesDirectory }}/CodeCoverage'
       displayName: 'Publish code coverage'
