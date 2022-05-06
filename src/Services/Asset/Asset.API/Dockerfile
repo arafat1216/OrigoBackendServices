@@ -24,7 +24,6 @@ RUN dotnet restore "Services/Asset/Tests/AssetServices.UnitTests/AssetServices.U
 RUN dotnet restore "Services/Asset/Tests/Asset.IntegrationTests/Asset.IntegrationTests.csproj"
 
 COPY /src/Core/. Core/.
-COPY .git/. .git/.
 COPY /src/Services/Asset/. Services/Asset/.
 COPY /src/Services/Asset/Tests/AssetServices.UnitTests/. Services/Asset/Tests/AssetServices.UnitTests/.
 COPY /src/Services/Asset/Tests/Asset.IntegrationTests/. Services/Asset/Tests/Asset.IntegrationTests/.
