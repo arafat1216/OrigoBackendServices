@@ -37,10 +37,9 @@ RUN if [ -z "$PULL_REQUEST_KEY" ] ; then \
   dotnet sonarscanner begin \
     /k:"${SONAR_PROJECT_KEY}" \
     /o:"${SONAR_ORGANIZATION_KEY}" \
-    /d:sonar.scm.enabled=false \
     /d:sonar.host.url="${SONAR_HOST_URL}" \
     /d:sonar.login="${SONAR_TOKEN}" \
-    /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.cobertura.xml \
+    /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/Cobertura.xml \
     /d:sonar.cs.vstest.reportsPaths=/TestResults/*.trx \
     /d:sonar.sourceEncoding=UTF-8; \
 else \
@@ -48,7 +47,6 @@ else \
     /k:"${SONAR_PROJECT_KEY}" \
     /o:"${SONAR_ORGANIZATION_KEY}" \
     /d:sonar.pullrequest.base=trunk \
-    /d:sonar.scm.enabled=false \
     /d:sonar.pullrequest.key="${PULL_REQUEST_KEY}" \
     /d:sonar.pullrequest.branch="${PULL_REQUEST_SOURCEBRANCH}" \
     /d:sonar.host.url="${SONAR_HOST_URL}" \
@@ -101,11 +99,6 @@ RUN reportgenerator \
 	-reports:/TestResults/**/coverage.cobertura.xml \
 	-targetdir:/CodeCoverage \
 	-reporttypes:"Cobertura;HTMLInline;HTMLChart;HTMLSummary"
-
-RUN find /TestResults -mindepth 2 -maxdepth 2 -name "coverage.cobertura.xml" -print -exec cp {} /CodeCoverage/ \;
-
-# convert absolute docker paths to relative paths
-RUN find /CodeCoverage -name "coverage.cobertura.xml" -print | xargs sed -i 's/\/src/\./g'
 
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
