@@ -33,7 +33,7 @@ COPY /src/Services/Asset/Tests/Asset.IntegrationTests/. Services/Asset/Tests/Ass
 
 WORKDIR "/src/Services/Asset/Asset.API"
 
-RUN if [[ -z "$PULL_REQUEST_KEY" ]] ; then \
+RUN if [ -z "$PULL_REQUEST_KEY" ] ; then \
   dotnet sonarscanner begin \
     /k:"${SONAR_PROJECT_KEY}" \
     /o:"${SONAR_ORGANIZATION_KEY}" \
