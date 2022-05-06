@@ -33,7 +33,7 @@ COPY /src/Services/Asset/Tests/Asset.IntegrationTests/. Services/Asset/Tests/Ass
 
 WORKDIR "/src/Services/Asset/Asset.API"
 
-RUN if [[ -z "$PULL_REQUEST_KEY" ]] ;
+RUN if [[ -z "$PULL_REQUEST_KEY" ]] ; then \
   dotnet sonarscanner begin \
     /k:"${SONAR_PROJECT_KEY}" \
     /o:"${SONAR_ORGANIZATION_KEY}" \
@@ -42,7 +42,7 @@ RUN if [[ -z "$PULL_REQUEST_KEY" ]] ;
     /d:sonar.login="${SONAR_TOKEN}" \
     /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.cobertura.xml \
     /d:sonar.cs.vstest.reportsPaths=/TestResults/*.trx \
-    /d:sonar.sourceEncoding=UTF-8;
+    /d:sonar.sourceEncoding=UTF-8; \
 else \
   dotnet sonarscanner begin \
     /k:"${SONAR_PROJECT_KEY}" \
@@ -55,7 +55,7 @@ else \
     /d:sonar.login="${SONAR_TOKEN}" \
     /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.cobertura.xml \
     /d:sonar.cs.vstest.reportsPaths=/TestResults/*.trx \
-    /d:sonar.sourceEncoding=UTF-8;
+    /d:sonar.sourceEncoding=UTF-8; \
 fi
 
 RUN dotnet build "Asset.API.csproj" -c Release --no-restore -o /app/build
