@@ -53,7 +53,7 @@ else \
     /d:sonar.host.url="${SONAR_HOST_URL}" \
     /d:sonar.login="${SONAR_TOKEN}" \
 	/d:sonar.verbose=true \
-    /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.cobertura.xml \
+    /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/Cobertura.xml \
     /d:sonar.cs.vstest.reportsPaths=/TestResults/*.trx \
     /d:sonar.sourceEncoding=UTF-8; \
 fi
