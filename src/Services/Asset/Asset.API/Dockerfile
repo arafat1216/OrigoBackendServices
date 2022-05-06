@@ -39,6 +39,7 @@ RUN if [ -z "$PULL_REQUEST_KEY" ] ; then \
     /o:"${SONAR_ORGANIZATION_KEY}" \
     /d:sonar.host.url="${SONAR_HOST_URL}" \
     /d:sonar.login="${SONAR_TOKEN}" \
+	/d:sonar.verbose=true
     /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/Cobertura.xml \
     /d:sonar.cs.vstest.reportsPaths=/TestResults/*.trx \
     /d:sonar.sourceEncoding=UTF-8; \
@@ -51,6 +52,7 @@ else \
     /d:sonar.pullrequest.branch="${PULL_REQUEST_SOURCEBRANCH}" \
     /d:sonar.host.url="${SONAR_HOST_URL}" \
     /d:sonar.login="${SONAR_TOKEN}" \
+	/d:sonar.verbose=true
     /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.cobertura.xml \
     /d:sonar.cs.vstest.reportsPaths=/TestResults/*.trx \
     /d:sonar.sourceEncoding=UTF-8; \
