@@ -93,6 +93,7 @@ jobs:
       docker create --name testcontainer $id
       docker cp testcontainer:/TestResults ${{ parameters.buildSourcesDirectory }}/TestResults
       docker cp testcontainer:/CodeCoverage ${{ parameters.buildSourcesDirectory }}/CodeCoverage
+      docker cp testcontainer:/src ${{ parameters.buildSourcesDirectory }}/src
       docker rm testcontainer
     displayName: 'Copy test results' 
 
@@ -100,6 +101,9 @@ jobs:
     inputs:
       codeCoverageTool: Cobertura
       summaryFileLocation: '${{ parameters.buildSourcesDirectory }}/CodeCoverage/coverage.cobertura.xml'
+      pathToSources: '${{ parameters.buildSourcesDirectory }}/src'
+      reportDirectory: '${{ parameters.buildSourcesDirectory }}/CodeCoverage'
+      additionalCodeCoverageFiles: '${{ parameters.buildSourcesDirectory }}/CodeCoverage'
       displayName: 'Publish code coverage'
 
   - task: PublishTestResults@2
