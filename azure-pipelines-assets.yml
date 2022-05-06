@@ -20,11 +20,16 @@ variables:
   artifactsFeedSource: 'https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json'
   imageRepository: 'assetsbackend'
   containerRegistry: 'origov2acr.azurecr.io'
+  ${{ if and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/pull/')) }}:
+    pullRequestKey: '$(System.PullRequest.PullRequestId)'
+    pullRequestSourceBranch: '$(System.PullRequest.SourceBranch)'
+  ${{ else }}:
+    pullRequestKey: ''
+    pullRequestSourceBranch: ''
 
 stages:
 - stage: Build
   displayName: Build stage
-  condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
   jobs:
   - template: general-build.yaml
     parameters:
@@ -41,29 +46,8 @@ stages:
       artifactsFeedSource: 'https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json'
       buildSourcesDirectory: $(Build.SourcesDirectory)
       chartName: 'asset-api'
-
-- stage: BuildPR
-  displayName: Build PR stage
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/pull/'))
-  jobs:
-  - template: general-build.yaml
-    parameters:
-      vmImage: 'ubuntu-latest'
-      dbContext: 'AssetsContext'
-      dbProject: 'src/Services/Asset/AssetServices/AssetServices.csproj'
-      migrationScriptOutputDir: '$(build.artifactstagingdirectory)/migrations'
-      buildRepositoryLocalPath: '$(Build.Repository.LocalPath)'
-      imageRepository: '$(imageRepository)'
-      dockerfilePath: 'src/Services/Asset/Asset.API/Dockerfile'
-      dockerRegistryServiceConnection: '09ee8083-2a55-4731-876c-d6df7059bd8f'
-      buildId: '$(Build.BuildId)'
-      sonarToken: '$(SonarToken)'
-      artifactsFeedSource: 'https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json'
-      buildSourcesDirectory: $(Build.SourcesDirectory)
-      chartName: 'asset-api'
-      pullRequestKey: '$(System.PullRequest.PullRequestId)'
-      pullRequestSourceBranch: '$(System.PullRequest.SourceBranch)'
-
+      pullRequestKey: '$(pullRequestKey)'
+      pullRequestSourceBranch: '$(pullRequestSourceBranch)'
 
 - stage: DeployDev
   displayName: Deploy to Dev
