@@ -88,10 +88,10 @@ RUN find /TestResults -mindepth 2 -maxdepth 2 -name "coverage.cobertura.xml" -pr
 # convert absolute docker paths to relative paths
 RUN find /CodeCoverage -name "coverage.cobertura.xml" -print | xargs sed -i 's/\/src/\./g'
 
+RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
 FROM build AS publish
 RUN dotnet publish "Asset.API.csproj" -c Release -o /app/publish
-RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim AS final
 WORKDIR /app
