@@ -102,7 +102,6 @@ jobs:
       codeCoverageTool: Cobertura
       summaryFileLocation: '${{ parameters.buildSourcesDirectory }}/CodeCoverage/coverage.cobertura.xml'
       pathToSources: '${{ parameters.buildSourcesDirectory }}/src'
-      reportDirectory: '${{ parameters.buildSourcesDirectory }}/CodeCoverage'
       additionalCodeCoverageFiles: '${{ parameters.buildSourcesDirectory }}/CodeCoverage'
       displayName: 'Publish code coverage'
 
