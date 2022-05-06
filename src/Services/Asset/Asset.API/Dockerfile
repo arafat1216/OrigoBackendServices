@@ -100,7 +100,7 @@ RUN dotnet test \
 RUN reportgenerator \
 	-reports:/TestResults/**/coverage.cobertura.xml \
 	-targetdir:/CodeCoverage \
-	-reporttypes:"HtmlInline_AzurePipelines;HtmlInline_AzurePipelines_Dark;Cobertura" \
+	-reporttypes:"SonarQube;HtmlInline_AzurePipelines;HtmlInline_AzurePipelines_Dark;Cobertura" \
 	-verbosity:Verbose
 
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
