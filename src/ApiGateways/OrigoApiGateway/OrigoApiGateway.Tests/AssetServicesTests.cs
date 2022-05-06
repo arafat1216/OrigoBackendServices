@@ -201,7 +201,7 @@ namespace OrigoApiGateway.Tests
             var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
 
             // Act
-            var pagedAsset = await assetService.SearchForAssetsForCustomerAsync(new Guid(CUSTOMER_ID), status: Common.Enums.AssetLifecycleStatus.Available);
+            var pagedAsset = await assetService.GetAssetsForCustomerAsync(new Guid(CUSTOMER_ID));
 
             // Assert
             Assert.True(pagedAsset.TotalItems == 3);

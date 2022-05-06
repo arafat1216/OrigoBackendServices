@@ -261,34 +261,6 @@ namespace OrigoApiGateway.Services
             }
         }
 
-
-        public async Task<OrigoPagedAssets> SearchForAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 50, AssetLifecycleStatus? status = null)
-        {
-            try
-            {
-                var statuFilter = status == null ? "" : $"&status={(int)status}";
-                var pagedAssetsDto = await HttpClient.GetFromJsonAsync<PagedAssetsDTO>($"{_options.ApiPath}/customers/{customerId}?q={search}&page={page}&limit={limit}{statuFilter}");
-                if (pagedAssetsDto == null)
-                    return null;
-
-                return _mapper.Map<OrigoPagedAssets>(pagedAssetsDto);
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "GetAssetsForCustomerAsync failed with HttpRequestException.");
-            }
-            catch (NotSupportedException exception)
-            {
-                _logger.LogError(exception, "GetAssetsForCustomerAsync failed with content type is not valid.");
-            }
-            catch (JsonException exception)
-            {
-                _logger.LogError(exception, "GetAssetsForCustomerAsync failed with invalid JSON.");
-            }
-
-            return null;
-        }
-
         public async Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId)
         {
             try

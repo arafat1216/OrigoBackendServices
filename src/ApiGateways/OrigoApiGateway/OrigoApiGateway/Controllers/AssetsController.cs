@@ -134,49 +134,6 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-
-
-        [Route("customers/{organizationId:guid}/search")]
-        [HttpGet]
-        [ProducesResponseType(typeof(OrigoPagedAssets), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult<OrigoPagedAssets>> SearchForAsset(Guid organizationId, string search, int page = 1, int limit = 50, AssetLifecycleStatus? status = null)
-        {
-            try
-            {
-                // Only admin or manager roles are allowed to see all assets
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == PredefinedRole.EndUser.ToString())
-                {
-                    return Forbid();
-                }
-
-                if (role != PredefinedRole.SystemAdmin.ToString())
-                {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
-                    {
-                        return Forbid();
-                    }
-                }
-
-                var origoPagedAssets = await _assetServices.SearchForAssetsForCustomerAsync(organizationId, search, page, limit, status);
-                if (origoPagedAssets == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(origoPagedAssets);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest();
-            }
-        }
-
         [Route("customers/{organizationId:guid}/{userId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]

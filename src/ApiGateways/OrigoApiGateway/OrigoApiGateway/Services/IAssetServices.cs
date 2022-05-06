@@ -16,7 +16,6 @@ namespace OrigoApiGateway.Services
         Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus assetLifecycleStatus);
         Task<IList<object>> GetAssetsForUserAsync(Guid customerId, Guid userId);
         Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 1000);
-        Task<OrigoPagedAssets> SearchForAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 50, AssetLifecycleStatus? status = null);
         Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId);
         Task<OrigoAsset> AddAssetForCustomerAsync(Guid customerId, NewAssetDTO newAsset);
         Task<IList<object>> UpdateStatusOnAssets(Guid customerId, UpdateAssetsStatus updatedAssetStatus, Guid callerId);
