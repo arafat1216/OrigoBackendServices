@@ -9,6 +9,9 @@ ARG SONAR_TOKEN
 ARG FEED_SOURCE
 ARG FEED_ACCESSTOKEN
 
+ARG PULL_REQUEST_KEY
+ARG PULL_REQUEST_SOURCEBRANCH
+
 # Register the NuGet package-feed
 RUN dotnet nuget add source "$FEED_SOURCE" --name "source-name" --username "useless" --password "$FEED_ACCESSTOKEN" --store-password-in-clear-text
 
@@ -33,8 +36,10 @@ WORKDIR "/src/Services/Asset/Asset.API"
 RUN dotnet sonarscanner begin \
   /k:"${SONAR_PROJECT_KEY}" \
   /o:"${SONAR_ORGANIZATION_KEY}" \
-  /d:sonar.pullrequest.base="trunk" \
+  /d:sonar.pullrequest.base=trunk \
   /d:sonar.scm.enabled=false \
+  /d:sonar.pullrequest.key="${PULL_REQUEST_KEY}" \
+  /d:sonar.pullrequest.branch="${PULL_REQUEST_SOURCEBRANCH}" \
   /d:sonar.host.url="${SONAR_HOST_URL}" \
   /d:sonar.login="${SONAR_TOKEN}" \
   /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.cobertura.xml \

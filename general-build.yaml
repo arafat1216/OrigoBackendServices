@@ -33,6 +33,10 @@ parameters:
   default: true
 - name: chartName
   default: ''
+- name: pullRequestKey
+  default: ''
+- name: pullRequestSourceBranch
+  default: ''
 
 jobs:
 - ${{ if eq(parameters.useDbMigrations, true) }}:
@@ -73,7 +77,7 @@ jobs:
       repository: ${{ parameters.imageRepository }}
       dockerfile: ${{ parameters.dockerfilePath }}
       containerRegistry: ${{ parameters.dockerRegistryServiceConnection }}
-      arguments: --build-arg SONAR_TOKEN=${{ parameters.SonarToken }} --build-arg BUILD_ID=${{ parameters.buildId }} --build-arg FEED_SOURCE=${{ parameters.artifactsFeedSource }} --build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)
+      arguments: --build-arg SONAR_TOKEN=${{ parameters.SonarToken }} --build-arg BUILD_ID=${{ parameters.buildId }} --build-arg FEED_SOURCE=${{ parameters.artifactsFeedSource }} --build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN) --build-arg PULL_REQUEST_KEY=${{ parameters.pullRequestKey }} --build-arg PULL_REQUEST_SOURCEBRANCH=${{ parameters.pullRequestSourceBranch }}
       tags: |
           ${{ parameters.buildId }}
 
