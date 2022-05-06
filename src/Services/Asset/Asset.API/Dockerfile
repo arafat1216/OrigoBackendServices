@@ -83,8 +83,6 @@ RUN reportgenerator \
 	-targetdir:/CodeCoverage \
 	-reporttypes:"Cobertura;HTMLInline;HTMLChart;HTMLSummary"
 
-RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
-
 RUN find /TestResults -mindepth 2 -maxdepth 2 -name "coverage.cobertura.xml" -print -exec cp {} /CodeCoverage/ \;
 
 # convert absolute docker paths to relative paths
@@ -93,6 +91,7 @@ RUN find /CodeCoverage -name "coverage.cobertura.xml" -print | xargs sed -i 's/\
 
 FROM build AS publish
 RUN dotnet publish "Asset.API.csproj" -c Release -o /app/publish
+RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim AS final
 WORKDIR /app
