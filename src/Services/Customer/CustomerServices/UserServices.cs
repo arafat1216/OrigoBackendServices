@@ -389,43 +389,35 @@ namespace CustomerServices
             //check if the user already is a manager for this department
             var manager = department.Managers.FirstOrDefault(a => a.UserId == userId);
             if (manager != null) return;
-            //only subdepartments that dont have manager should be added
-            var departmentsWithNoManager = departments.Where(d => d.Managers.Count == 0).ToList();
-
-            //add user as manager for the department
-            user.AssignManagerToDepartment(department, callerId);
-            await _organizationRepository.SaveEntitiesAsync();
 
             //Find subdepartments of the department the user user is to be manager for
-            var subDepartmentsList = department.Subdepartments(departmentsWithNoManager);
+            var subDepartmentsList = department.Subdepartments(departments);
             List<Guid> accessList = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
 
             //Check if user have department role for other departments
             var usersPermission = await _userPermissionServices.GetUserPermissionsAsync(user.Email);
             UserPermissions managerPermission = null;
             if (usersPermission != null) managerPermission = usersPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString());
-            
-            if (managerPermission != null) //update the permissions list
+
+            //User needs to have the role as department manager before getting assigned as a manager for a department
+            if (managerPermission == null) throw new MissingRolePermissionsException();
+
+            //Check if user has department manager role for given customer
+            if(!managerPermission.AccessList.Contains(customerId)) throw new MissingRolePermissionsException();
+
+            //add user as manager for the department
+            user.AssignManagerToDepartment(department, callerId);
+            await _organizationRepository.SaveEntitiesAsync();
+
+            foreach (var access in accessList)
             {
-                foreach (var access in accessList)
-                {
                     if (!managerPermission.AccessList.Contains(access))
                     {
                         managerPermission.AddAccess(access, callerId);
                     }
-                }
-
-               await _userPermissionServices.UpdatePermission(managerPermission);
-
             }
-            else //add new permissions
-            {
-                accessList.Add(customerId);
 
-                //Add department manager permissions
-                var userPermission = await _userPermissionServices.AssignUserPermissionsAsync(user.Email, PredefinedRole.DepartmentManager.ToString(), accessList, callerId);
-            }
-            
+            await _userPermissionServices.UpdatePermission(managerPermission);
         }
 
         public async Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
@@ -448,7 +440,6 @@ namespace CustomerServices
             //Find subdepartments of the department 
             var subDepartmentsList = department.Subdepartments(departments);
             List<Guid> accessList = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
-            accessList.Add(customerId);
 
             //Check if user have permissions for department
             var usersPermission = await _userPermissionServices.GetUserPermissionsAsync(user.Email);
@@ -456,24 +447,18 @@ namespace CustomerServices
 
             var managerPermission = usersPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString());
 
-            if (managerPermission.AccessList.All(accessList.Contains) && managerPermission.AccessList.Count <= accessList.Count) //remove the permission for department manager
+            //User needs to have the role as department manager before getting assigned as a manager for a department
+            if (managerPermission == null) throw new MissingRolePermissionsException();
+
+            //Check if user has department manager role for given customer
+            if (!managerPermission.AccessList.Contains(customerId)) throw new MissingRolePermissionsException();
+
+            foreach (var access in accessList)
             {
-                //Remove department manager permissions
-                var userPermission = await _userPermissionServices.RemoveUserPermissionsAsync(user.Email, PredefinedRole.DepartmentManager.ToString(), accessList, callerId);
-
+                managerPermission.RemoveAccess(access, callerId);
             }
-            else //updated and remove only permissions connected to the department
-            {
 
-                //just want to remove the departments and subdepartment
-                accessList.Remove(customerId);
-                foreach (var access in accessList)
-                {
-                    managerPermission.RemoveAccess(access, callerId);
-                }
-
-                await _userPermissionServices.UpdatePermission(managerPermission);
-            }
+            await _userPermissionServices.UpdatePermission(managerPermission);
         }
 
         public async Task<UserDTO> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)

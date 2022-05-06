@@ -1,56 +1,55 @@
 using Common.Logging;
+using Customer.API.IntegrationTests.Helpers;
 using CustomerServices.Infrastructure.Context;
-using CustomerServices.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using System.Threading.Tasks;
 
-namespace Customer.API.Tests
-{
+namespace Customer.API.Tests;
+
     public class CustomerWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
     {
-        private readonly DbConnection _dbConnection = new SqliteConnection("Data Source=:memory:");
-        private ServiceProvider? _serviceProvider;
+        //private readonly DbConnection _dbConnection = new SqliteConnection("Data Source=:memory:");
+       
+        private readonly InMemoryDatabaseRoot _dbRoot = new InMemoryDatabaseRoot();
+        public Guid ORGANIZATION_ID => CustomerTestDataSeedingForDatabase.ORGANIZATION_ID;
+        public Guid HEAD_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.HEAD_DEPARTMENT_ID;
+        public Guid SUB_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.SUB_DEPARTMENT_ID;
+        public Guid USER_ONE_ID => CustomerTestDataSeedingForDatabase.USER_ONE_ID;
+        public Guid USER_TWO_ID => CustomerTestDataSeedingForDatabase.USER_TWO_ID;
 
-        protected override IHost CreateHost(IHostBuilder builder)
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.ConfigureServices(services =>
+            builder.ConfigureTestServices(services =>
             {
 
                 ReplaceDbContext<CustomerContext>(services);
                 ReplaceDbContext<LoggingDbContext>(services);
 
-
-                _serviceProvider = services.BuildServiceProvider();
-                using var scope = _serviceProvider?.CreateScope();
-                using var customerContext = scope?.ServiceProvider.GetRequiredService<CustomerContext>();
-                customerContext?.Database.EnsureDeletedAsync();
-                customerContext?.Database.EnsureCreatedAsync();
+                var serviceProvider = services.BuildServiceProvider();
+                using var scope = serviceProvider.CreateScope();
+                using var customerContext = scope.ServiceProvider.GetRequiredService<CustomerContext>();
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<CustomerWebApplicationFactory<TProgram>>>();
 
                 try
                 {
-                    customerContext?.PopulateData();
+                    CustomerTestDataSeedingForDatabase.PopulateData(customerContext);
                 }
-                catch (Exception e)
+                catch (Exception exception)
                 {
-                    Console.WriteLine(e);
-                    throw;
+                    logger.LogError(exception,
+                        "An error occurred seeding the " + "database with test data. Error: {Message}", exception.Message);
                 }
             });
-            var host = builder.Build();
-            Task.Run(() => host.StartAsync()).GetAwaiter().GetResult();
-            return host;
+            base.ConfigureWebHost(builder);
         }
-
         private void ReplaceDbContext<T>(IServiceCollection services) where T : DbContext
         {
             var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<T>));
@@ -59,133 +58,12 @@ namespace Customer.API.Tests
                 services.Remove(descriptor);
             }
 
-            _dbConnection.Open();
             services.AddDbContext<T>(options =>
             {
-                options.UseSqlite(_dbConnection);
+                options.UseInMemoryDatabase("InMemoryDbForTesting", _dbRoot);
+                options.ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
                 options.EnableSensitiveDataLogging();
             });
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            _dbConnection.Dispose();
-        }
-
     }
 
-    public static class Extention
-    {
-        public static readonly Guid ORGANIZATION_ID = Guid.Parse("f5635deb-9b38-411c-9577-5423c9290106");
-        public static readonly Guid HEAD_DEPARTMENT_ID = Guid.Parse("37d6d1b1-54a5-465d-a313-b6c250d66db4");
-        public static readonly Guid SUB_DEPARTMENT_ID = Guid.Parse("5355134f-4852-4c36-99d1-fa9d4a1d7a61");
-        public static readonly Guid CALLER_ID = Guid.Parse("a05f97fc-2e3d-4be3-a64c-e2f30ed90b93");
-        public static readonly Guid PARENT_ID = Guid.Parse("fa82e042-f4bc-4de1-b68d-dfcb95a64c65");
-        public static readonly Guid LOCATION_ID = Guid.Parse("089f6c40-1ae4-4fd0-b2d1-c5181d9fbfde");
-        public static readonly Guid USER_ONE_ID = Guid.Parse("a12c5f56-aee9-47e0-9f5f-a726818323a9");
-        public static readonly Guid USER_TWO_ID = Guid.Parse("8246626C-3BDD-46E7-BCDF-10FC038C0463");
-
-
-        private static object _customerContextLock = new object();
-        public static CustomerContext? PopulateData(this CustomerContext customerContext)
-        {
-
-            lock (_customerContextLock)
-            {
-                if (!customerContext.Organizations.Any())
-                {
-                    var address = new Address("Billingstadsletta 19B", "1396", "Oslo", "NO");
-                    var contactPerson = new ContactPerson("Ola", "Normann", "ola@normann.no", "+4745454649");
-                    var organizationPreferences = new OrganizationPreferences(ORGANIZATION_ID,
-                                                                              CALLER_ID,
-                                                                                null,
-                                                                                null,
-                                                                                null,
-                                                                                true,
-                                                                                "NO",
-                                                                                1);
-                    customerContext?.OrganizationPreferences.Add(organizationPreferences);
-
-                    var location = new Location(LOCATION_ID,
-                                                CALLER_ID,
-                                                "Location1",
-                                                "Description",
-                                                "Billingstadsletta",
-                                                "19 B",
-                                                "1396",
-                                                "Oslo",
-                                                "NO");
-
-                    customerContext?.Locations.Add(location);
-
-                    var organization = new Organization(ORGANIZATION_ID,
-                                                        CALLER_ID,
-                                                        PARENT_ID,
-                                                        "ORGANIZATION ONE",
-                                                        "ORGNUM12345",
-                                                        address,
-                                                        contactPerson,
-                                                        organizationPreferences,
-                                                        location,
-                                                        null,
-                                                        true
-                                                        );
-                    customerContext?.Organizations.Add(organization);
-
-                    var headDepartment = new Department("Head department",
-                                                    "costCenterId",
-                                                    "Description",
-                                                    organization,
-                                                    HEAD_DEPARTMENT_ID,
-                                                    CALLER_ID);
-
-                    customerContext?.Departments.Add(headDepartment);
-                    var subDepartment = new Department("Sub department",
-                                                    "costCenterId",
-                                                    "Description",
-                                                    organization,
-                                                    SUB_DEPARTMENT_ID,
-                                                    CALLER_ID,
-                                                    headDepartment);
-
-                    customerContext?.Departments.Add(subDepartment);
-
-                    var userOne = new User(organization,
-                                        USER_ONE_ID,
-                                        "Kari",
-                                        "Normann",
-                                        "kari@normann.no",
-                                        "+4790603360",
-                                        "EID:909090",
-                                        new UserPreference("no", CALLER_ID),
-                                        CALLER_ID);
-
-                    var userTwo = new User(organization,
-                                        USER_TWO_ID,
-                                        "Atish",
-                                        "Kumar",
-                                        "atish@normann.no",
-                                        "+4790603360",
-                                        "EID:909090",
-                                        new UserPreference("no", CALLER_ID),
-                                        CALLER_ID);
-
-                    customerContext?.Users.Add(userOne);
-                    customerContext?.Users.Add(userTwo);
-
-                    var userOnePermission = new UserPermissions(userOne, new Role("EndUser"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
-                    var userTwoPermission = new UserPermissions(userTwo, new Role("EndUser"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
-
-                    customerContext?.UserPermissions.Add(userOnePermission);
-                    customerContext?.UserPermissions.Add(userTwoPermission);
-
-                    customerContext?.SaveChanges();
-                }
-                return customerContext;
-            }
-        }
-
-
-    }
-}

@@ -26,11 +26,10 @@ namespace CustomerServices.Infrastructure.Context
         {
             foreach (var extension in options.Extensions)
             {
-                if (!extension.GetType().ToString().Contains("Sqlite"))
-                    continue;
-
-                IsSQLite = true;
-                break;
+                if (extension.GetType().ToString().Contains("Sqlite") || extension.GetType().ToString().Contains("InMemory"))
+                {
+                    IsSQLite = true;
+                }
             }
         }
 

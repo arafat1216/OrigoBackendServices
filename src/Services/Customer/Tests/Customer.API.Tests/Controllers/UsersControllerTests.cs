@@ -1,5 +1,6 @@
 ﻿using Common.Interfaces;
 using Customer.API.Controllers;
+using Customer.API.IntegrationTests.Helpers;
 using Customer.API.Tests;
 using Customer.API.ViewModels;
 using Customer.API.WriteModels;
@@ -15,7 +16,7 @@ using Xunit.Abstractions;
 
 namespace Customer.API.IntegrationTests.Controllers
 {
-    public class UsersControllerTests : IClassFixture<CustomerWebApplicationFactory<UsersController>>
+    public class UsersControllerTests : IClassFixture<CustomerWebApplicationFactory<Startup>>
     {
         private readonly ITestOutputHelper _testOutputHelper;
         private readonly HttpClient _httpClient;
@@ -26,24 +27,27 @@ namespace Customer.API.IntegrationTests.Controllers
         private readonly Guid _userTwoId;
         private readonly Guid _callerId;
 
+        private readonly CustomerWebApplicationFactory<Startup> _factory;
 
 
 
-        public UsersControllerTests(CustomerWebApplicationFactory<UsersController> factory, ITestOutputHelper testOutputHelper)
+        public UsersControllerTests(CustomerWebApplicationFactory<Startup> factory, ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
             _httpClient = factory.CreateDefaultClient();
-            _customerId = Extention.ORGANIZATION_ID;
-            _headDepartmentId = Extention.HEAD_DEPARTMENT_ID;
-            _subDepartmentId = Extention.SUB_DEPARTMENT_ID;
-            _userOneId = Extention.USER_ONE_ID;
-            _userTwoId = Extention.USER_TWO_ID;
+            _customerId = factory.ORGANIZATION_ID;
+            _headDepartmentId = factory.HEAD_DEPARTMENT_ID;
+            _subDepartmentId = factory.SUB_DEPARTMENT_ID;
+            _userOneId = factory.USER_ONE_ID;
+            _userTwoId = factory.USER_TWO_ID;
             _callerId = Guid.NewGuid();
+            _factory = factory;
         }
 
         [Fact]
         public async Task GetAllUsers()
         {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
             // Setup
             var search = "";
@@ -51,19 +55,21 @@ namespace Customer.API.IntegrationTests.Controllers
             var limit = 1000;
             var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}";
 
-            var response = await _httpClient.GetAsync(requestUri);
+            var response = await httpClient.GetAsync(requestUri);
             var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(1, read?.TotalItems);
+            Assert.Equal(2, read?.TotalItems);
 
         }
 
         [Fact]
         public async Task GetAllUsers_DepartmentName()
         {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
             var requestAssignDepartment = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_headDepartmentId}";
-            var responseAssignDepartment = await _httpClient.PostAsync(requestAssignDepartment, JsonContent.Create(_callerId));
+            var responseAssignDepartment = await httpClient.PostAsync(requestAssignDepartment, JsonContent.Create(_callerId));
             var content = responseAssignDepartment.Content.ReadFromJsonAsync<User>();
 
             Assert.Equal(HttpStatusCode.OK, responseAssignDepartment.StatusCode);
@@ -77,12 +83,12 @@ namespace Customer.API.IntegrationTests.Controllers
             var limit = 1000;
             var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}";
 
-            var response = await _httpClient.GetAsync(requestUri);
+            var response = await httpClient.GetAsync(requestUri);
             var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(1, read?.TotalItems);
-            Assert.Equal("Head department", read?.Items[0].DepartmentName);
+            Assert.Equal(2, read?.TotalItems);
+            Assert.Equal("Head department", read?.Items[1].DepartmentName);
         }
 
         [Fact]
@@ -202,39 +208,49 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(1, read?.TotalItems);
         }
         [Fact]
-        public async Task ØAssignManagerToDepartment()
+        public async Task AssignManagerToDepartment_ShouldReturnOk()
         {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
-            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_headDepartmentId}/manager";
-            var response = await _httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
-
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
+            //Get user
             var requestUriGet = $"/api/v1/organizations/users/{_userOneId}";
-            var responseGet = await _httpClient.GetAsync(requestUriGet);
+            var responseGet = await httpClient.GetAsync(requestUriGet);
 
             var user = await responseGet.Content.ReadFromJsonAsync<User>();
 
             Assert.Equal(HttpStatusCode.OK, responseGet.StatusCode);
             Assert.NotNull(user);
 
+            //Assign role to user
+            var role = new NewUserPermission
+            {
+                AccessList = new List<Guid> { _customerId },
+                Role = "DepartmentManager",
+                CallerId = _callerId
+            };
             var requestPermissions = $"/api/v1/organizations/users/{user?.Email}/permissions";
-            var responsePermissions = await _httpClient.GetAsync(requestPermissions);
+            var putPermission = httpClient.PutAsJsonAsync(requestPermissions, role);
+            Assert.Equal(HttpStatusCode.OK, putPermission?.Result.StatusCode);
 
-            var permission = await responsePermissions.Content.ReadFromJsonAsync<List<UserPermissions>>();
-            Assert.Equal(HttpStatusCode.OK, responsePermissions.StatusCode);
+            //Assign user as department manager
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_headDepartmentId}/manager";
+            var response = await httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            //Check permission
+            var requestPermissionsCheck = $"/api/v1/organizations/users/{user?.Email}/permissions";
+            var responsePermissionsCheck = await _httpClient.GetAsync(requestPermissionsCheck);
+
+            var permission = await responsePermissionsCheck.Content.ReadFromJsonAsync<List<UserPermissions>>();
+            Assert.Equal(HttpStatusCode.OK, responsePermissionsCheck.StatusCode);
             Assert.Equal(2,permission?.Count);
-            Assert.Equal(3,permission?[1].AccessList?.Count);
+            Assert.Equal(3,permission?[0].AccessList?.Count);
         }
         [Fact]
-        public async Task UnassignManagerFromDepartment()
+        public async Task UnassignManagerFromDepartment_ReturnsOk()
         {
-
-            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_headDepartmentId}/manager";
-            var response = await _httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
-
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
+            //Get user
             var requestUriGet = $"/api/v1/organizations/users/{_userOneId}";
             var responseGet = await _httpClient.GetAsync(requestUriGet);
 
@@ -243,7 +259,25 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, responseGet.StatusCode);
             Assert.NotNull(user);
 
+            //Assign role to user
+            var role = new NewUserPermission 
+            { 
+                AccessList = new List<Guid> { _customerId }, 
+                Role = "DepartmentManager", 
+                CallerId = _callerId 
+            };
             var requestPermissions = $"/api/v1/organizations/users/{user?.Email}/permissions";
+            var putPermission = _httpClient.PutAsJsonAsync(requestPermissions, role);
+            Assert.Equal(HttpStatusCode.OK, putPermission?.Result.StatusCode);
+
+            //Assign department manager to department
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_headDepartmentId}/manager";
+            var response = await _httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            //Get accsesslist
             var responsePermissions = await _httpClient.GetAsync(requestPermissions);
 
             var permission = await responsePermissions.Content.ReadFromJsonAsync<List<UserPermissions>>();
@@ -253,6 +287,8 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal("DepartmentManager", permission?[1].Role);
             Assert.Equal(3, permission?[1].AccessList.Count);
 
+
+            //Remove department manager
             HttpRequestMessage requestUnassignManager = new HttpRequestMessage
             {
                 Content = JsonContent.Create(_callerId),
@@ -268,30 +304,24 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permissionAfter = await responsePermissionsAfter.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissionsAfter.StatusCode);
-            Assert.Equal(1, permissionAfter?.Count);
+            Assert.Equal(2, permissionAfter?.Count);
             Assert.Equal(1, permissionAfter?[0].AccessList?.Count);
+            Assert.Equal(1, permissionAfter?[1].AccessList?.Count);
             Assert.Equal("EndUser", permissionAfter?[0].Role);
+            Assert.Equal("DepartmentManager", permissionAfter?[1].Role);
+
 
         }
         [Fact]
-        public async Task AssignManagerToDepartment_SubDepartmentsHaveDepartmentManager_ShouldNotHaveSubDepartmentsInAccsessList()
+        public async Task AssignManagerToDepartment_SubDepartmentsHaveDepartmentManager_ShouldHaveSubDepartmentsInAccsessList()
         {
-            //Assign manager to sub department
-            var requestUri_subDepartment = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_subDepartmentId}/manager";
-            var response_subDepartment = await _httpClient.PostAsync(requestUri_subDepartment, JsonContent.Create(_callerId));
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
-            Assert.Equal(HttpStatusCode.OK, response_subDepartment.StatusCode);
-
-            //Assign manager to head department
-            var requestUri_headDepartment = $"/api/v1/organizations/{_customerId}/users/{_userTwoId}/department/{_headDepartmentId}/manager";
-            var response_headDepartment = await _httpClient.PostAsync(requestUri_headDepartment, JsonContent.Create(_callerId));
-
-            Assert.Equal(HttpStatusCode.OK, response_headDepartment.StatusCode);
-
+            //Get users
             var requestUri_UserOne = $"/api/v1/organizations/users/{_userOneId}";
-            var response_UserOne = await _httpClient.GetAsync(requestUri_UserOne);
+            var response_UserOne = await httpClient.GetAsync(requestUri_UserOne);
             var requestUriGet_UserTwo = $"/api/v1/organizations/users/{_userTwoId}";
-            var responseGet_UserTwo = await _httpClient.GetAsync(requestUriGet_UserTwo);
+            var responseGet_UserTwo = await httpClient.GetAsync(requestUriGet_UserTwo);
 
             var userOne = await response_UserOne.Content.ReadFromJsonAsync<User>();
             var userTwo = await responseGet_UserTwo.Content.ReadFromJsonAsync<User>();
@@ -302,42 +332,66 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, responseGet_UserTwo.StatusCode);
             Assert.NotNull(userTwo);
 
+            //Assign role to user
+            var role = new NewUserPermission
+            {
+                AccessList = new List<Guid> { _customerId },
+                Role = "DepartmentManager",
+                CallerId = _callerId
+            };
+            var requestPermissions = $"/api/v1/organizations/users/{userOne?.Email}/permissions";
+            var putPermission = httpClient.PutAsJsonAsync(requestPermissions, role);
+            Assert.Equal(HttpStatusCode.OK, putPermission?.Result.StatusCode);
+
+            //Assign roles to users
+            var roleTwo = new NewUserPermission
+            {
+                AccessList = new List<Guid> { _customerId },
+                Role = "DepartmentManager",
+                CallerId = _callerId
+            };
+            var requestPermissionsTwo = $"/api/v1/organizations/users/{userTwo?.Email}/permissions";
+            var putPermissionTwo = httpClient.PutAsJsonAsync(requestPermissionsTwo, roleTwo);
+            Assert.Equal(HttpStatusCode.OK, putPermissionTwo?.Result.StatusCode);
+
+            //Assign manager to sub department
+            var requestUri_subDepartment = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_subDepartmentId}/manager";
+            var response_subDepartment = await httpClient.PostAsync(requestUri_subDepartment, JsonContent.Create(_callerId));
+
+            Assert.Equal(HttpStatusCode.OK, response_subDepartment.StatusCode);
+
+            //Assign manager to head department
+            var requestUri_headDepartment = $"/api/v1/organizations/{_customerId}/users/{_userTwoId}/department/{_headDepartmentId}/manager";
+            var response_headDepartment = await httpClient.PostAsync(requestUri_headDepartment, JsonContent.Create(_callerId));
+
+            Assert.Equal(HttpStatusCode.OK, response_headDepartment.StatusCode);
+
             var requestPermissions_userOne = $"/api/v1/organizations/users/{userOne?.Email}/permissions";
-            var responsePermissions_userOne = await _httpClient.GetAsync(requestPermissions_userOne);
+            var responsePermissions_userOne = await httpClient.GetAsync(requestPermissions_userOne);
 
             var permissions_userOne = await responsePermissions_userOne.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissions_userOne.StatusCode);
-            Assert.Equal("EndUser", permissions_userOne?[0].Role);
-            Assert.Equal(1, permissions_userOne?[0].AccessList.Count);
-            Assert.Equal("DepartmentManager", permissions_userOne?[1].Role);
-            Assert.Equal(2, permissions_userOne?[1].AccessList.Count);
+            Assert.Equal("EndUser", permissions_userOne?[1].Role);
+            Assert.Equal(1, permissions_userOne?[1].AccessList.Count);
+            Assert.Equal("DepartmentManager", permissions_userOne?[0].Role);
+            Assert.Equal(2, permissions_userOne?[0].AccessList.Count);
 
 
             var requestPermissions_userTwo = $"/api/v1/organizations/users/{userTwo?.Email}/permissions";
-            var responsePermissions_userTwo = await _httpClient.GetAsync(requestPermissions_userTwo);
+            var responsePermissions_userTwo = await httpClient.GetAsync(requestPermissions_userTwo);
 
             var permissions_userTwo = await responsePermissions_userTwo.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissions_userTwo.StatusCode);
             Assert.Equal(2, permissions_userTwo?.Count);
-            Assert.Equal(2, permissions_userTwo?.Count);
-            Assert.Equal("DepartmentManager", permissions_userTwo?[1].Role);
-            Assert.Equal(2, permissions_userTwo?[1].AccessList?.Count);
+            Assert.Equal("EndUser", permissions_userTwo?[1].Role);
+            Assert.Equal(1, permissions_userTwo?[1].AccessList?.Count);
+            Assert.Equal("DepartmentManager", permissions_userTwo?[0].Role);
+            Assert.Equal(3, permissions_userTwo?[0].AccessList?.Count);
         }
         [Fact]
-        public async Task UnAssignManagerToDepartment_SubDepartmentsHaveDepartmentManager_ShouldRemoveDepartmentManagerPermission()
+        public async Task AssignManagerToDepartment_SubDepartmentsHaveDepartmentManager_ShouldRemoveDepartmentManagerPermission()
         {
-            //Assign manager to sub department
-            var requestUri_subDepartment = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_subDepartmentId}/manager";
-            var response_subDepartment = await _httpClient.PostAsync(requestUri_subDepartment, JsonContent.Create(_callerId));
-
-            Assert.Equal(HttpStatusCode.OK, response_subDepartment.StatusCode);
-
-            //Assign manager to head department
-            var requestUri_headDepartment = $"/api/v1/organizations/{_customerId}/users/{_userTwoId}/department/{_headDepartmentId}/manager";
-            var response_headDepartment = await _httpClient.PostAsync(requestUri_headDepartment, JsonContent.Create(_callerId));
-
-            Assert.Equal(HttpStatusCode.OK, response_headDepartment.StatusCode);
-
+            //Get users
             var requestUri_UserOne = $"/api/v1/organizations/users/{_userOneId}";
             var response_UserOne = await _httpClient.GetAsync(requestUri_UserOne);
             var requestUriGet_UserTwo = $"/api/v1/organizations/users/{_userTwoId}";
@@ -351,6 +405,40 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.NotNull(userOne);
             Assert.Equal(HttpStatusCode.OK, responseGet_UserTwo.StatusCode);
             Assert.NotNull(userTwo);
+
+            //Assign role to user
+            var role = new NewUserPermission
+            {
+                AccessList = new List<Guid> { _customerId },
+                Role = "DepartmentManager",
+                CallerId = _callerId
+            };
+            var requestPermissions = $"/api/v1/organizations/users/{userOne?.Email}/permissions";
+            var putPermission = _httpClient.PutAsJsonAsync(requestPermissions, role);
+            Assert.Equal(HttpStatusCode.OK, putPermission?.Result.StatusCode);
+
+            //Assign roles to users
+            var roleTwo = new NewUserPermission
+            {
+                AccessList = new List<Guid> { _customerId },
+                Role = "DepartmentManager",
+                CallerId = _callerId
+            };
+            var requestPermissionsTwo = $"/api/v1/organizations/users/{userTwo?.Email}/permissions";
+            var putPermissionTwo = _httpClient.PutAsJsonAsync(requestPermissionsTwo, roleTwo);
+            Assert.Equal(HttpStatusCode.OK, putPermissionTwo?.Result.StatusCode);
+
+            //Assign manager to sub department
+            var requestUri_subDepartment = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_subDepartmentId}/manager";
+            var response_subDepartment = await _httpClient.PostAsync(requestUri_subDepartment, JsonContent.Create(_callerId));
+
+            Assert.Equal(HttpStatusCode.OK, response_subDepartment.StatusCode);
+
+            //Assign manager to head department
+            var requestUri_headDepartment = $"/api/v1/organizations/{_customerId}/users/{_userTwoId}/department/{_headDepartmentId}/manager";
+            var response_headDepartment = await _httpClient.PostAsync(requestUri_headDepartment, JsonContent.Create(_callerId));
+
+            Assert.Equal(HttpStatusCode.OK, response_headDepartment.StatusCode);
 
             //Unassign user one as department manager
             HttpRequestMessage requestUnassignManager_userOne = new HttpRequestMessage
@@ -380,19 +468,128 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permissions_userOne = await responsePermissions_userOne.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissions_userOne.StatusCode);
-            Assert.Equal(1, permissions_userOne?.Count);
+            Assert.Equal(2, permissions_userOne?.Count);
             Assert.Equal("EndUser", permissions_userOne?[0].Role);
+            Assert.Equal("DepartmentManager", permissions_userOne?[1].Role);
             Assert.Equal(1, permissions_userOne?[0].AccessList.Count);
+            Assert.Equal(1, permissions_userOne?[1].AccessList.Count);
 
-            //Find permissions set for user one
+            //Find permissions set for user two
             var requestPermissions_userTwo = $"/api/v1/organizations/users/{userTwo?.Email}/permissions";
             var responsePermissions_userTwo = await _httpClient.GetAsync(requestPermissions_userTwo);
 
             var permissions_userTwo = await responsePermissions_userTwo.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissions_userTwo.StatusCode);
-            Assert.Equal(1, permissions_userTwo?.Count);
+            Assert.Equal(2, permissions_userTwo?.Count);
             Assert.Equal("EndUser", permissions_userTwo?[0].Role);
-            Assert.Equal(1, permissions_userTwo?[0].AccessList?.Count);
+            Assert.Equal("DepartmentManager", permissions_userOne?[1].Role);
+            Assert.Equal(1, permissions_userOne?[0].AccessList.Count);
+            Assert.Equal(1, permissions_userTwo?[1].AccessList?.Count);
+        }
+        [Fact]
+        public async Task UnAssignManagerToDepartment_UnConnectedDepartment_RemoveOnlyOneDepartment()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            //Get user
+            var requestUriGet = $"/api/v1/organizations/users/{_userOneId}";
+            var responseGet = await httpClient.GetAsync(requestUriGet);
+
+            var user = await responseGet.Content.ReadFromJsonAsync<User>();
+
+            Assert.Equal(HttpStatusCode.OK, responseGet.StatusCode);
+            Assert.NotNull(user);
+
+            //Assign role to user
+            var role = new NewUserPermission
+            {
+                AccessList = new List<Guid> { _customerId },
+                Role = "DepartmentManager",
+                CallerId = _callerId
+            };
+            var requestPermissions = $"/api/v1/organizations/users/{user?.Email}/permissions";
+            var putPermission = httpClient.PutAsJsonAsync(requestPermissions, role);
+            Assert.Equal(HttpStatusCode.OK, putPermission?.Result.StatusCode);
+
+            //Make new subdepartment for sub department
+            var newDepartment = new NewDepartment
+            {
+                Name = "Department",
+                CostCenterId = "CostCenter123",
+                Description = "Description",
+                CallerId = Guid.NewGuid(),
+                ParentDepartmentId = null
+            };
+            var response = await httpClient.PostAsJsonAsync(
+                $"/api/v1/organizations/{_customerId}/departments", newDepartment);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            var createdDepartment = await response.Content.ReadFromJsonAsync<Department>();
+            Assert.Null(createdDepartment?.ParentDepartmentId);
+            Assert.NotNull(createdDepartment?.DepartmentId);
+
+
+            //Assign manager to head department
+            var requestUri_headDepartment = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_headDepartmentId}/manager";
+            var response_headDepartment = await httpClient.PostAsync(requestUri_headDepartment, JsonContent.Create(_callerId));
+            Assert.Equal(HttpStatusCode.OK, response_headDepartment.StatusCode);
+
+            //Assign manager to single department
+            var requestUri_singleDepartment = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{createdDepartment?.DepartmentId}/manager";
+            var response_singleDepartment = await httpClient.PostAsync(requestUri_singleDepartment, JsonContent.Create(_callerId));
+
+            Assert.Equal(HttpStatusCode.OK, response_singleDepartment.StatusCode);
+
+            //Unassign user as department manager for single department
+            HttpRequestMessage requestUnassignManager_user = new HttpRequestMessage
+            {
+                Content = JsonContent.Create(_callerId),
+                Method = HttpMethod.Delete,
+                RequestUri = new Uri(requestUri_singleDepartment, UriKind.Relative)
+            };
+
+            var responseUnassignManager_user = await httpClient.SendAsync(requestUnassignManager_user);
+            Assert.Equal(HttpStatusCode.OK, responseUnassignManager_user.StatusCode);
+
+            //Find permissions set for user
+            var requestPermissions_user = $"/api/v1/organizations/users/{user?.Email}/permissions";
+            var responsePermissions_user = await httpClient.GetAsync(requestPermissions_user);
+
+            var permissions_user = await responsePermissions_user.Content.ReadFromJsonAsync<List<UserPermissions>>();
+            Assert.Equal(HttpStatusCode.OK, responsePermissions_user.StatusCode);
+            Assert.Equal(2, permissions_user?.Count);
+            Assert.Equal("EndUser", permissions_user?[1].Role);
+            Assert.Equal("DepartmentManager", permissions_user?[0].Role);
+            Assert.Equal(1, permissions_user?[1].AccessList?.Count);
+            Assert.Equal(3, permissions_user?[0].AccessList?.Count);
+
+        }
+        [Fact]
+        public async Task AssignManagerToDepartment_AssigningDepartmentManagerWithNoDepartmentManagerRole_NotAllowed()
+        {
+
+            //Get user
+            var requestUriGet_User = $"/api/v1/organizations/users/{_userOneId}";
+            var responseGet_User = await _httpClient.GetAsync(requestUriGet_User);
+
+            var user = await responseGet_User.Content.ReadFromJsonAsync<User>();
+
+            Assert.Equal(HttpStatusCode.OK, responseGet_User.StatusCode);
+            Assert.NotNull(user);
+
+            //Find permissions set for user 
+            var requestPermissions_user = $"/api/v1/organizations/users/{user?.Email}/permissions";
+            var responsePermissions_user = await _httpClient.GetAsync(requestPermissions_user);
+            var permissions_user = await responsePermissions_user.Content.ReadFromJsonAsync<List<UserPermissions>>();
+
+            Assert.Equal(HttpStatusCode.OK, responsePermissions_user.StatusCode);
+            Assert.Equal(1, permissions_user?.Count);
+            Assert.Equal("EndUser", permissions_user?[0].Role);
+
+            //Assign manager to head department
+            var requestUri_headDepartment = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/department/{_headDepartmentId}/manager";
+            var response_headDepartment = await _httpClient.PostAsync(requestUri_headDepartment, JsonContent.Create(_callerId));
+            Assert.Equal(HttpStatusCode.BadRequest, response_headDepartment.StatusCode);
+
         }
 
     }

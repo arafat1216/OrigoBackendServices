@@ -13,21 +13,24 @@ using Xunit.Abstractions;
 
 namespace Customer.API.IntegrationTests.Controllers;
 
-public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFactory<DepartmentsController>>
+public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFactory<Startup>>
 {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly HttpClient _httpClient;
     private readonly Guid _organizationId;
     private readonly Guid _departmentId;
 
+    private readonly CustomerWebApplicationFactory<Startup> _factory;
 
-    public DepartmentsControllerTests(CustomerWebApplicationFactory<DepartmentsController> factory,
+
+    public DepartmentsControllerTests(CustomerWebApplicationFactory<Startup> factory,
         ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
         _httpClient = factory.CreateClient();
-        _organizationId = Extention.ORGANIZATION_ID;
-        _departmentId = Extention.HEAD_DEPARTMENT_ID;
+        _organizationId = factory.ORGANIZATION_ID;
+        _departmentId = factory.HEAD_DEPARTMENT_ID;
+        _factory = factory;
     }
 
     [Fact]

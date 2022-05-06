@@ -15,16 +15,18 @@ using CustomerServices.Models;
 //Customer.API.IntegrationTests.Controllers
 namespace Customer.API.IntegrationTests.Controllers
 {
-    public class OrganizationsControllerTests : IClassFixture<CustomerWebApplicationFactory<OrganizationsController>>
+    public class OrganizationsControllerTests : IClassFixture<CustomerWebApplicationFactory<Startup>>
     {
         private readonly ITestOutputHelper _testOutputHelper;
         private readonly HttpClient _httpClient;
 
+        private readonly CustomerWebApplicationFactory<Startup> _factory;
 
-        public OrganizationsControllerTests(CustomerWebApplicationFactory<OrganizationsController> factory, ITestOutputHelper testOutputHelper)
+        public OrganizationsControllerTests(CustomerWebApplicationFactory<Startup> factory, ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
             _httpClient = factory.CreateDefaultClient();
+            _factory = factory;
         }
 
 

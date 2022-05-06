@@ -93,16 +93,8 @@ namespace CustomerServices
 
             var userPermissions = await GetUserPermissionsAsync(userName);
             var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)roleType);
-            var departments = await _customerContext.Departments.Where(d => d.Customer == user.Customer).ToListAsync();
-            
-            if (roleType == PredefinedRole.DepartmentManager && !accessList.Any()) // Can't be department manager without access to a department.
-            {
-                return null;
-            }
 
-            if (roleType == PredefinedRole.DepartmentManager &&
-                     (!departments.Any(d => accessList.Contains(d.ExternalDepartmentId)) || 
-                      (userPermission != null && departments.Any(d => userPermission.AccessList.Contains(d.ExternalDepartmentId))))) // Check if the lists contains at least one department id.
+            if (roleType == PredefinedRole.DepartmentManager && accessList.Count == 0)// Check if the lists contains at least one id.
             {
                 return null;
             }
