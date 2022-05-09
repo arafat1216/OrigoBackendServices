@@ -40,7 +40,7 @@ RUN if [ -z "$PULL_REQUEST_KEY" ] ; then \
     /d:sonar.host.url="${SONAR_HOST_URL}" \
     /d:sonar.login="${SONAR_TOKEN}" \
 	/d:sonar.verbose=true \
-	/d:sonar.flex.cobertura.reportPaths=/CodeCoverage/Cobertura.xml \
+	/d:sonar.coverageReportPaths=/CodeCoverage/SonarQube.xml \
     /d:sonar.cs.vstest.reportsPaths=/TestResults/*.trx \
     /d:sonar.sourceEncoding=UTF-8; \
 else \
@@ -53,7 +53,7 @@ else \
     /d:sonar.host.url="${SONAR_HOST_URL}" \
     /d:sonar.login="${SONAR_TOKEN}" \
 	/d:sonar.verbose=true \
-	/d:sonar.flex.cobertura.reportPaths=/CodeCoverage/Cobertura.xml \
+	/d:sonar.coverageReportPaths=/CodeCoverage/SonarQube.xml \
     /d:sonar.cs.vstest.reportsPaths=/TestResults/*.trx \
     /d:sonar.sourceEncoding=UTF-8; \
 fi
@@ -72,8 +72,6 @@ RUN dotnet test \
 	--logger "trx;LogFileName=test_results.trx" \
 	--collect:"XPlat Code Coverage" \
 	--results-directory /TestResults/UnitTests \
-	/p:CollectCoverage=true \
-	/p:CoverletOutputFormat="cobertura%2copencover" \
 	/p:CoverletOutput=/TestResults/Coverage1/ \
 	--configuration Release \
 	--no-restore \
@@ -89,8 +87,6 @@ RUN dotnet test \
 	--logger "trx;LogFileName=test_results2.trx" \
 	--collect:"XPlat Code Coverage" \
 	--results-directory /TestResults/IntegrationTests \
-	/p:CollectCoverage=true \
-	/p:CoverletOutputFormat="cobertura%2copencover" \
 	/p:CoverletOutput=/TestResults/Coverage2/ \
 	--configuration Release \
 	--no-restore \
