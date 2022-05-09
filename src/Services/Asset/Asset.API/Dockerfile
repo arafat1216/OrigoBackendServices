@@ -40,7 +40,7 @@ RUN if [ -z "$PULL_REQUEST_KEY" ] ; then \
     /d:sonar.host.url="${SONAR_HOST_URL}" \
     /d:sonar.login="${SONAR_TOKEN}" \
 	/d:sonar.verbose=true \
-	/d:sonar.coverageReportPaths=CodeCoverage/SonarQube.xml \
+	/d:sonar.coverageReportPaths=/CodeCoverage/SonarQube.xml \
     /d:sonar.cs.xunit.reportsPaths=/**/TestResults/**/*.trx \
     /d:sonar.sourceEncoding=UTF-8; \
 else \
@@ -53,7 +53,7 @@ else \
     /d:sonar.host.url="${SONAR_HOST_URL}" \
     /d:sonar.login="${SONAR_TOKEN}" \
 	/d:sonar.verbose=true \
-	/d:sonar.coverageReportPaths=CodeCoverage/SonarQube.xml \
+	/d:sonar.coverageReportPaths=/CodeCoverage/SonarQube.xml \
     /d:sonar.cs.xunit.reportsPaths=/**/TestResults/**/*.trx \
     /d:sonar.sourceEncoding=UTF-8; \
 fi
