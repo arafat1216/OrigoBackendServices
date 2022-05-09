@@ -74,6 +74,12 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
 
                 entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 3, Language = "en", Name = "Basic Subscription Management", Description = "Allows organizations to perform the basic subscription management tasks.", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 3, Language = "nb", Name = "Grunnleggende abonnement-håndtering", Description = "Lar en organisasjon utføre grunnleggende behandling av abonnomenter.", UpdatedBy = systemUserId });
+
+                // Basic Non-personal Asset Management
+                entity.HasData(new Feature { Id = 4, AccessControlPermissionNode = "BasicNonPersonalAssetManagement", FeatureTypeId = 1, UpdatedBy = systemUserId });
+
+                entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 4, Language = "en", Name = "Basic Non-personal Asset Management", Description = "Allows organizations to perform non-personal asset management tasks.", UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 4, Language = "nb", Name = "Grunnleggende administrering av ikke-personlige assets", Description = "Gir kunder tilgang til grunnleggende administrering av ikke-personlige assets.", UpdatedBy = systemUserId });
             });
 
             modelBuilder.Entity<Product>(entity => 
@@ -88,12 +94,20 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 2, Language = "en", Name = "Entry", Description = "Simple Asset Management for units purchased transactionally in Techstep's own WebShop.", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 2, Language = "nb", Name = "Entry", Description = "Enkel Asset Management for enheter kjøpt transaksjonelt i Techstep egen nettbutikk.", UpdatedBy = systemUserId });
 
+                entity.HasData(new Product { Id = 3, PartnerId = Guid.Empty, ProductTypeId = 2 });
+
+                entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 3, Language = "en", Name = "Transactional Device Lifecycle Management", Description = "Lifecycle management for transasctional devices.", UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 3, Language = "nb", Name = "Transactional Device Lifecycle Management", Description = "Livssyklusadministrasjon for transaksjonelle enheter", UpdatedBy = systemUserId });
+
             });
             modelBuilder.Entity<ProductFeature>(entity =>{
 
                 entity.HasData(new ProductFeature { ProductId = 1, FeatureId = 3});
                 entity.HasData(new ProductFeature { ProductId = 2, FeatureId = 1});
                 entity.HasData(new ProductFeature { ProductId = 2, FeatureId = 2});
+                entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 1});
+                entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 2});
+                entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 4});
             });
 
             modelBuilder.Entity<ProductRequiresOne>(entity =>{

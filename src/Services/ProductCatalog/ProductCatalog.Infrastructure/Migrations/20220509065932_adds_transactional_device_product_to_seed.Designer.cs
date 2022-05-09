@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProductCatalog.Infrastructure.Infrastructure.Context;
 
@@ -11,9 +12,10 @@ using ProductCatalog.Infrastructure.Infrastructure.Context;
 namespace ProductCatalog.Infrastructure.Migrations
 {
     [DbContext(typeof(ProductCatalogContext))]
-    partial class ProductCatalogContextModelSnapshot : ModelSnapshot
+    [Migration("20220509065932_adds_transactional_device_product_to_seed")]
+    partial class adds_transactional_device_product_to_seed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
