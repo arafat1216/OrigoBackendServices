@@ -1,16 +1,19 @@
 ﻿using Azure.Storage.Blobs;
 using Common.Configuration;
 using Common.Utilities;
+using HardwareServiceOrderServices.Email.Models;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 
-namespace HardwareServiceOrderServices
+namespace HardwareServiceOrderServices.Email
 {
     public class EmailService : IEmailService
     {
         private readonly EmailConfiguration _emailConfiguration;
         private readonly HttpClient _httpClient;
         private readonly IFlatDictionaryProvider _flatDictionaryProvider;
+        private readonly IStringLocalizer<EmailService> _stringLocalizer;
 
         public EmailService(IOptions<EmailConfiguration> emailConfiguration, IFlatDictionaryProvider flatDictionaryProvider)
         {
@@ -75,6 +78,11 @@ namespace HardwareServiceOrderServices
             {
 
             }
+        }
+
+        public async Task SendOrderConfirmationEmailAsync(OrderConfirmation data, string languageCode)
+        {
+            throw new NotImplementedException();
         }
     }
 }

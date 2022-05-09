@@ -19,6 +19,7 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="6.0.4" />
 
 	</ItemGroup>
 
@@ -29,6 +30,21 @@
 	<ItemGroup>
 	  <Folder Include="Conmodo\Mappings\" />
 	  <Folder Include="Conmodo\Requests\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Resources\OrderConfirmation.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>OrderConfirmation.resx</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Update="Resources\OrderConfirmation.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>OrderConfirmation.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
 	</ItemGroup>
 
 </Project>
