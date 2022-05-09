@@ -9,6 +9,9 @@ ARG SONAR_TOKEN
 ARG FEED_SOURCE
 ARG FEED_ACCESSTOKEN
 
+ARG PULL_REQUEST_KEY
+ARG PULL_REQUEST_SOURCEBRANCH
+
 # Register the NuGet package-feed
 RUN dotnet nuget add source "$FEED_SOURCE" --name "source-name" --username "useless" --password "$FEED_ACCESSTOKEN" --store-password-in-clear-text
 
