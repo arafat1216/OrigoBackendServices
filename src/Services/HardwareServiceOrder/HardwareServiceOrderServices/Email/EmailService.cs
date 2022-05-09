@@ -16,7 +16,10 @@ namespace HardwareServiceOrderServices.Email
         private readonly IFlatDictionaryProvider _flatDictionaryProvider;
         private readonly ResourceManager _resourceManager;
 
-        public EmailService(IOptions<EmailConfiguration> emailConfiguration, IFlatDictionaryProvider flatDictionaryProvider, ResourceManager resourceManager)
+        public EmailService(
+            IOptions<EmailConfiguration> emailConfiguration, 
+            IFlatDictionaryProvider flatDictionaryProvider, 
+            ResourceManager resourceManager)
         {
             _emailConfiguration = emailConfiguration.Value;
 

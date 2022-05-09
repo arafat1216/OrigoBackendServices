@@ -116,7 +116,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddMvc();
 
 builder.Services.AddApplicationInsightsTelemetry();
-builder.Services.AddSingleton<ResourceManager>(s=> new ResourceManager("HardwareServiceOrder", Assembly.GetAssembly(typeof(EmailService))));
+builder.Services.AddSingleton<ResourceManager>(s=> new ResourceManager("HardwareServiceOrderServices.Resources.HardwareServiceOrder", Assembly.GetAssembly(typeof(EmailService))));
 builder.Services.AddScoped<IHardwareServiceOrderService, HardwareServiceOrderService>();
 builder.Services.AddScoped<IHardwareServiceOrderRepository, HardwareServiceOrderRepository>();
 builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("Email"));
