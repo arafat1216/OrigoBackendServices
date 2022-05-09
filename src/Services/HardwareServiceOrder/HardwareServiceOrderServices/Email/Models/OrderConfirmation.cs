@@ -52,6 +52,6 @@ namespace HardwareServiceOrderServices.Email.Models
         /// Subject of the email
         /// </summary>
         public string Subject { get; set; } = "Order Confirmation";
-        public const string TemplateName = "OrderConfirmation";
+        public const string TemplateName = "OrderConfirmationEmail";
     }
 }

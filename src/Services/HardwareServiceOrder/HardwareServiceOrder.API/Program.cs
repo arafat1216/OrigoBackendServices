@@ -2,6 +2,7 @@ using Common.Configuration;
 using Common.Utilities;
 using HardwareServiceOrder.API;
 using HardwareServiceOrderServices;
+using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Infrastructure;
 using HardwareServiceOrderServices.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
+using System.Resources;
 
 #region Sources & References
 
@@ -114,7 +116,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddMvc();
 
 builder.Services.AddApplicationInsightsTelemetry();
-
+builder.Services.AddSingleton<ResourceManager>(s=> new ResourceManager("HardwareServiceOrder", Assembly.GetAssembly(typeof(EmailService))));
 builder.Services.AddScoped<IHardwareServiceOrderService, HardwareServiceOrderService>();
 builder.Services.AddScoped<IHardwareServiceOrderRepository, HardwareServiceOrderRepository>();
 builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("Email"));

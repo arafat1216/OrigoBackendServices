@@ -4,8 +4,9 @@ using Common.Utilities;
 using HardwareServiceOrderServices.Email.Models;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
+using System.Globalization;
 using System.Net.Http.Json;
-
+using System.Resources;
 namespace HardwareServiceOrderServices.Email
 {
     public class EmailService : IEmailService
@@ -13,9 +14,9 @@ namespace HardwareServiceOrderServices.Email
         private readonly EmailConfiguration _emailConfiguration;
         private readonly HttpClient _httpClient;
         private readonly IFlatDictionaryProvider _flatDictionaryProvider;
-        private readonly IStringLocalizer<EmailService> _stringLocalizer;
+        private readonly ResourceManager _resourceManager;
 
-        public EmailService(IOptions<EmailConfiguration> emailConfiguration, IFlatDictionaryProvider flatDictionaryProvider)
+        public EmailService(IOptions<EmailConfiguration> emailConfiguration, IFlatDictionaryProvider flatDictionaryProvider, ResourceManager resourceManager)
         {
             _emailConfiguration = emailConfiguration.Value;
 
@@ -23,6 +24,8 @@ namespace HardwareServiceOrderServices.Email
                 _httpClient = new HttpClient() { BaseAddress = new Uri(_emailConfiguration.BaseUrl) };
 
             _flatDictionaryProvider = flatDictionaryProvider;
+
+            _resourceManager = resourceManager;
         }
 
         private async Task SendAsync(string subject, string body, string to, Dictionary<string, string> variable)
@@ -55,34 +58,11 @@ namespace HardwareServiceOrderServices.Email
             }
         }
 
-        public async Task SendAsync(string subject, string to, string type, object data)
-        {
-            if (string.IsNullOrEmpty(_emailConfiguration.BaseUrl)) return;
-
-            var variables = _flatDictionaryProvider.Execute(data);
-            var templateName = _emailConfiguration.Templates[type];
-            if (string.IsNullOrEmpty(templateName)) return;
-
-            try
-            {
-                var blobContainerClient = new BlobContainerClient(_emailConfiguration.AzureStorageConnectionString, _emailConfiguration.TemplateContainer);
-                var blobClient = blobContainerClient.GetBlobClient(templateName);
-                var templateContent = (await blobClient.DownloadAsync()).Value.Content;
-
-                using var reader = new StreamReader(templateContent);
-                var body = await reader.ReadToEndAsync();
-
-                await SendAsync(subject, body, to, variables);
-            }
-            catch (Exception)
-            {
-
-            }
-        }
-
         public async Task SendOrderConfirmationEmailAsync(OrderConfirmation data, string languageCode)
         {
-            throw new NotImplementedException();
+            var template = _resourceManager.GetString(OrderConfirmation.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var variables = _flatDictionaryProvider.Execute(data);
+            await SendAsync(data.Subject, template, data.Recipient, variables);
         }
     }
 }
