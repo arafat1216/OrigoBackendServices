@@ -25,7 +25,7 @@ namespace HardwareServiceOrder.UnitTests
             
             var orderConfirmationEngTemplate = resourceManger.GetString("OrderConfirmationEmail", CultureInfo.CreateSpecificCulture("EN"));
             Assert.NotNull(orderConfirmationEngTemplate);
-            var orderConfirmationNoTemplate = resourceManger.GetString("OrderConfirmationEmail", new CultureInfo("en-150"));
+            var orderConfirmationNoTemplate = resourceManger.GetString("OrderConfirmationEmail", new CultureInfo("no"));
             Assert.NotNull(orderConfirmationNoTemplate);
         }
     }
