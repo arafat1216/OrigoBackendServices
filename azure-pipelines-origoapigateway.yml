@@ -20,6 +20,12 @@ variables:
   artifactsFeedSource: 'https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json'
   imageRepository: 'origoapigateway'
   containerRegistry: 'origov2acr.azurecr.io'
+  ${{ if startsWith(variables['Build.SourceBranch'], 'refs/pull/') }}:
+    pullRequestKey: '$(System.PullRequest.PullRequestId)'
+    pullRequestSourceBranch: '$(System.PullRequest.SourceBranch)'
+  ${{ else }}:
+    pullRequestKey: ''
+    pullRequestSourceBranch: ''
 
 stages:
 - stage: Build
@@ -38,6 +44,8 @@ stages:
       artifactsFeedSource: 'https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json'
       buildSourcesDirectory: $(Build.SourcesDirectory)
       chartName: 'origoapigateway'
+      pullRequestKey: '$(pullRequestKey)'
+      pullRequestSourceBranch: '$(pullRequestSourceBranch)'
 
 - stage: DeployDev
   displayName: Deploy to Dev

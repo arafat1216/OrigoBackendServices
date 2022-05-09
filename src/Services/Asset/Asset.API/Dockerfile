@@ -33,6 +33,7 @@ COPY /src/Services/Asset/Tests/Asset.IntegrationTests/. Services/Asset/Tests/Ass
 
 WORKDIR "/src/Services/Asset/Asset.API"
 
+# Provide extra parameters if this is a PR
 RUN if [ -z "$PULL_REQUEST_KEY" ] ; then \
   dotnet sonarscanner begin \
     /k:"${SONAR_PROJECT_KEY}" \
@@ -58,11 +59,16 @@ else \
     /d:sonar.sourceEncoding=UTF-8; \
 fi
 
-RUN dotnet build "Asset.API.csproj" -c Release --no-restore -o /app/build
+RUN dotnet build \
+    -c Release \
+    -o /app/build \
+    --no-restore \
+	"Asset.API.csproj"
 
 ARG BUILD_ID
 LABEL test=${BUILD_ID}
 
+# Build and Test Unit tests
 RUN dotnet build \
 	--configuration Release \
 	--no-restore \
@@ -78,6 +84,7 @@ RUN dotnet test \
 	--no-build \
 	../Tests/AssetServices.UnitTests/AssetServices.UnitTests.csproj
 
+# Build and Test Integration tests
 RUN dotnet build \
 	--configuration Release \
 	--no-restore \

@@ -21,6 +21,12 @@ variables:
   artifactsFeedSource: 'https://pkgs.dev.azure.com/mytos/OrigoV2/_packaging/Origo2/nuget/v3/index.json'
   imageRepository: 'productcatalog'
   containerRegistry: 'origov2acr.azurecr.io'
+  ${{ if startsWith(variables['Build.SourceBranch'], 'refs/pull/') }}:
+    pullRequestKey: '$(System.PullRequest.PullRequestId)'
+    pullRequestSourceBranch: '$(System.PullRequest.SourceBranch)'
+  ${{ else }}:
+    pullRequestKey: ''
+    pullRequestSourceBranch: ''
   
 stages:
 - stage: Build
@@ -42,7 +48,8 @@ stages:
       buildSourcesDirectory: $(Build.SourcesDirectory)
       useLoggingDbContext: false
       chartName: 'product-catalog-api'
-
+      pullRequestKey: '$(pullRequestKey)'
+      pullRequestSourceBranch: '$(pullRequestSourceBranch)'
 
 - stage: DeployDev
   displayName: Deploy to Dev

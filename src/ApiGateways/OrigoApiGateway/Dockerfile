@@ -31,25 +31,79 @@ COPY /src/ApiGateways/OrigoApiGateway/. ApiGateways/OrigoApiGateway/.
 
 WORKDIR "/src/ApiGateways/OrigoApiGateway"
 
-RUN dotnet sonarscanner begin \
-  /k:"${SONAR_PROJECT_KEY}" \
-  /o:"${SONAR_ORGANIZATION_KEY}" \
-  /d:sonar.host.url="${SONAR_HOST_URL}" \
-  /d:sonar.login="${SONAR_TOKEN}" \
-  /d:sonar.cs.opencover.reportsPaths=/CodeCoverage/coverage.cobertura.xml
+# Provide extra parameters if this is a PR
+RUN if [ -z "$PULL_REQUEST_KEY" ] ; then \
+  dotnet sonarscanner begin \
+    /k:"${SONAR_PROJECT_KEY}" \
+    /o:"${SONAR_ORGANIZATION_KEY}" \
+    /d:sonar.host.url="${SONAR_HOST_URL}" \
+    /d:sonar.login="${SONAR_TOKEN}" \
+	/d:sonar.verbose=true \
+	/d:sonar.coverageReportPaths=/CodeCoverage/SonarQube.xml \
+    /d:sonar.cs.xunit.reportsPaths=/**/TestResults/**/*.trx \
+    /d:sonar.sourceEncoding=UTF-8; \
+else \
+  dotnet sonarscanner begin \
+    /k:"${SONAR_PROJECT_KEY}" \
+    /o:"${SONAR_ORGANIZATION_KEY}" \
+    /d:sonar.pullrequest.base=trunk \
+    /d:sonar.pullrequest.key="${PULL_REQUEST_KEY}" \
+    /d:sonar.pullrequest.branch="${PULL_REQUEST_SOURCEBRANCH}" \
+    /d:sonar.host.url="${SONAR_HOST_URL}" \
+    /d:sonar.login="${SONAR_TOKEN}" \
+	/d:sonar.verbose=true \
+	/d:sonar.coverageReportPaths=/CodeCoverage/SonarQube.xml \
+    /d:sonar.cs.xunit.reportsPaths=/**/TestResults/**/*.trx \
+    /d:sonar.sourceEncoding=UTF-8; \
+fi
   
-RUN dotnet build -c Release -o /app/build --no-restore "OrigoApiGateway/OrigoApiGateway.csproj"
+RUN dotnet build \
+    -c Release \
+    -o /app/build \
+    --no-restore \
+    "OrigoApiGateway/OrigoApiGateway.csproj"
 
 ARG BUILD_ID
 LABEL test=${BUILD_ID}
 
-RUN dotnet test --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj
-RUN dotnet test --logger "trx;LogFileName=test_results2.trx" --collect:"XPlat Code Coverage" --results-directory /TestResults /p:CoverletOutputFormat=json%2cCobertura /p:CoverletOutput=/TestResults/Coverage --configuration Release --no-restore OrigoGateway.IntegrationTests/OrigoGateway.IntegrationTests.csproj
+# Build and Test Unit tests
+RUN dotnet build \
+	--configuration Release \
+	--no-restore \
+	OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj
 
-RUN reportgenerator -reports:/TestResults/**/coverage.cobertura.xml -targetdir:/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
-RUN find /TestResults -mindepth 2 -maxdepth 2 -name "coverage.cobertura.xml" -print -exec cp {} /CodeCoverage/ \;
-# convert absolute docker paths to relative paths
-RUN find /CodeCoverage -name "coverage.cobertura.xml" -print | xargs sed -i 's/\/src/\./g'
+RUN dotnet test \
+	--logger "trx;LogFileName=test_results.trx" \
+	--collect:"XPlat Code Coverage" \
+	--results-directory /TestResults/UnitTests \
+	/p:CoverletOutput=/TestResults/Coverage1/ \
+	--configuration Release \
+	--no-restore \
+	--no-build \
+	OrigoApiGateway.Tests/OrigoApiGateway.Tests.csproj
+
+# Build and Test Integration tests
+RUN dotnet build \
+	--configuration Release \
+	--no-restore \
+	OrigoGateway.IntegrationTests/OrigoGateway.IntegrationTests.csproj
+
+RUN dotnet test \
+	--logger "trx;LogFileName=test_results2.trx" \
+	--collect:"XPlat Code Coverage" \
+	--results-directory /TestResults/UnitTests \
+	/p:CoverletOutput=/TestResults/Coverage1/ \
+	--configuration Release \
+	--no-restore \
+	--no-build \
+	OrigoGateway.IntegrationTests/OrigoGateway.IntegrationTests.csproj
+
+
+RUN reportgenerator \
+	-reports:/TestResults/**/coverage.cobertura.xml \
+	-targetdir:/CodeCoverage \
+	-reporttypes:"SonarQube;HtmlInline_AzurePipelines;HtmlInline_AzurePipelines_Dark;Cobertura" \
+	-verbosity:Verbose
 
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
