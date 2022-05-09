@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.ComponentModel;
 using System.Reflection;
+using System.Text.Json;
 
 #region Sources & References
 
@@ -33,12 +35,8 @@ builder.Configuration.AddUserSecrets<Program>(optional: true);
 
 builder.Services.AddHealthChecks();
 builder.Services.AddControllers()
-                .AddDapr()
-                .AddJsonOptions(j =>
-                {
-                    j.JsonSerializerOptions.Converters.Add(new DateOnlyConverter());
-                    j.JsonSerializerOptions.Converters.Add(new TimeOnlyConverter());
-                });
+                .AddDapr();
+
 
 builder.Services.AddDbContext<HardwareServiceOrderContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("HardwareServiceOrderConnectionString"), sqlOption =>
