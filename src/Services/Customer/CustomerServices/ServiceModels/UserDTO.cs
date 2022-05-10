@@ -31,5 +31,7 @@ namespace CustomerServices.ServiceModels
         public string DepartmentName { get; set; }
 
         public string Role { get; set; }
+        public ManagerOfDTO ManagerOf { get; set; }
+
     }
 }

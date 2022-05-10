@@ -1,4 +1,5 @@
 ﻿using CustomerServices.Models;
+using CustomerServices.ServiceModels;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,11 +8,11 @@ namespace CustomerServices
 {
     public interface IDepartmentsServices
     {
-        Task<Department> GetDepartmentAsync(Guid customerId, Guid departmentId);
-        Task<IList<Department>> GetDepartmentsAsync(Guid customerId);
-        Task<Department> AddDepartmentAsync(Guid customerId,Guid newDepartmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, Guid callerId);
-        Task<Department> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, Guid callerId);
-        Task<Department> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, Guid callerId);
-        Task<Department> DeleteDepartmentAsync(Guid customerId, Guid departmentId,Guid callerId);
+        Task<DepartmentDTO> GetDepartmentAsync(Guid customerId, Guid departmentId);
+        Task<IList<DepartmentDTO>> GetDepartmentsAsync(Guid customerId);
+        Task<DepartmentDTO> AddDepartmentAsync(Guid customerId,Guid newDepartmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, IList<Guid> departmentManagers, Guid callerId);
+        Task<DepartmentDTO> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, IList<Guid> departmentManagers, Guid callerId);
+        Task<DepartmentDTO> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, IList<Guid> departmentManagers, Guid callerId);
+        Task<DepartmentDTO> DeleteDepartmentAsync(Guid customerId, Guid departmentId,Guid callerId);
     }
 }

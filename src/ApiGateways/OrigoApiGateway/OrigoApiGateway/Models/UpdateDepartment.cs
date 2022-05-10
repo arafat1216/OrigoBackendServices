@@ -1,13 +1,9 @@
-﻿using OrigoApiGateway.Models.BackendDTO;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models
 {
-    /// <summary>
-    /// Request and response object
-    /// </summary>
-    public class OrigoDepartment
+    public class UpdateDepartment
     {
         public Guid DepartmentId { get; init; }
 
@@ -18,7 +14,6 @@ namespace OrigoApiGateway.Models
         public string Description { get; init; }
 
         public Guid? ParentDepartmentId { get; init; }
-        public IList<ManagedBy> ManagedBy { get; init; }
-
+        public IList<Guid> ManagedBy { get; set; } = new List<Guid>();
     }
 }

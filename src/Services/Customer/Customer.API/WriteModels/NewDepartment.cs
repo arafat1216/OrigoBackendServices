@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Customer.API.WriteModels
 {
@@ -13,5 +14,7 @@ namespace Customer.API.WriteModels
         public Guid? ParentDepartmentId { get; set; }
 
         public Guid CallerId { get; set; }
+
+        public IList<Guid> ManagedBy { get; set; } = new List<Guid>();
     }
 }

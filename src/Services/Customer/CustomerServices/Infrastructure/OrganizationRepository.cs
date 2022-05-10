@@ -341,7 +341,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<Department?> GetDepartmentAsync(Guid customerId, Guid departmentId)
         {
-            return await _customerContext.Departments.Include(d => d.ParentDepartment).FirstOrDefaultAsync(p => p.Customer.OrganizationId == customerId && p.ExternalDepartmentId == departmentId);
+            return await _customerContext.Departments.Include(d => d.ParentDepartment).Include(m => m.Managers).FirstOrDefaultAsync(p => p.Customer.OrganizationId == customerId && p.ExternalDepartmentId == departmentId);
         }
 
         public async Task<IList<Department>> DeleteDepartmentsAsync(IList<Department> department)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models
 {
@@ -14,5 +15,7 @@ namespace OrigoApiGateway.Models
         public string Description { get; set; }
 
         public Guid ParentDepartmentId { get; set; }
+        public IList<Guid> ManagedBy { get; set; } = new List<Guid>();
+
     }
 }

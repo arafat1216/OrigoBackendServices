@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace OrigoApiGateway.Models.BackendDTO
+namespace Customer.API.WriteModels
 {
-    public class DepartmentDTO
+    public class UpdateDepartment
     {
         public Guid DepartmentId { get; set; }
 
@@ -14,7 +14,8 @@ namespace OrigoApiGateway.Models.BackendDTO
         public string Description { get; set; }
 
         public Guid? ParentDepartmentId { get; set; }
-        public IList<ManagedBy> ManagedBy { get; set; }
 
+        public Guid CallerId { get; set; }
+        public IList<Guid> ManagedBy { get; set; } = new List<Guid>();
     }
 }

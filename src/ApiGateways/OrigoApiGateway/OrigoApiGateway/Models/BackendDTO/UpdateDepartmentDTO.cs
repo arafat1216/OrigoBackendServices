@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models.BackendDTO
 {
@@ -14,5 +15,7 @@ namespace OrigoApiGateway.Models.BackendDTO
 
         public Guid? ParentDepartmentId { get; set; }
         public Guid CallerId { get; set; }
+        public IList<Guid> ManagedBy { get; set; } 
+
     }
 }

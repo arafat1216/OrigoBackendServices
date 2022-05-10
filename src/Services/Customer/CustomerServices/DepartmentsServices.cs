@@ -1,5 +1,8 @@
-﻿using CustomerServices.Exceptions;
+﻿using AutoMapper;
+using Common.Enums;
+using CustomerServices.Exceptions;
 using CustomerServices.Models;
+using CustomerServices.ServiceModels;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -12,23 +15,31 @@ namespace CustomerServices
     {
         private readonly ILogger<DepartmentsServices> _logger;
         private readonly IOrganizationRepository _customerRepository;
-        public DepartmentsServices(ILogger<DepartmentsServices> logger, IOrganizationRepository customerRepository)
+        private readonly IUserPermissionServices _userPermissionRepository;
+        private readonly IMapper _mapper;
+
+        public DepartmentsServices(ILogger<DepartmentsServices> logger, IOrganizationRepository customerRepository, IMapper mapper, IUserPermissionServices userPermissionRepository)
         {
             _logger = logger;
             _customerRepository = customerRepository;
+            _mapper = mapper;
+            _userPermissionRepository = userPermissionRepository;
         }
 
-        public async Task<Department> GetDepartmentAsync(Guid customerId, Guid departmentId)
+        public async Task<DepartmentDTO> GetDepartmentAsync(Guid customerId, Guid departmentId)
         {
-            return await _customerRepository.GetDepartmentAsync(customerId, departmentId);
+            var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
+            return _mapper.Map<DepartmentDTO>(department);
+
         }
 
-        public async Task<IList<Department>> GetDepartmentsAsync(Guid customerId)
+        public async Task<IList<DepartmentDTO>> GetDepartmentsAsync(Guid customerId)
         {
-            return await _customerRepository.GetDepartmentsAsync(customerId);
+            var departmentList = await _customerRepository.GetDepartmentsAsync(customerId);
+            return _mapper.Map<IList<DepartmentDTO>>(departmentList);
         }
 
-        public async Task<Department> AddDepartmentAsync(Guid customerId, Guid newDepartmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, Guid callerId)
+        public async Task<DepartmentDTO> AddDepartmentAsync(Guid customerId, Guid newDepartmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, IList<Guid> departmentManagers, Guid callerId)
         {
             var customer = await _customerRepository.GetOrganizationAsync(customerId, includeDepartments: true);
             if (customer == null)
@@ -40,11 +51,32 @@ namespace CustomerServices
             var department = new Department(name, costCenterId, description, customer, newDepartmentId, callerId, parentDepartment: parentDepartment);
             customer.AddDepartment(department, callerId);
 
+            if (departmentManagers.Any())
+            {
+                foreach (var managers in departmentManagers) 
+                {
+                    
+                    var user = await _customerRepository.GetUserAsync(customerId, managers);
+                    if (user != null)
+                    {
+                        var userPermission = await _userPermissionRepository.GetUserPermissionsAsync(user.Email);
+                        if (userPermission != null)
+                        {
+                            var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString());
+                            if (role != null) customer.AddDepartmentManager(department, user, callerId);
+                        }
+                    }
+                    
+                }
+            }
+
+
             await _customerRepository.SaveEntitiesAsync();
-            return department;
+
+            return _mapper.Map<DepartmentDTO>(department);
         }
 
-        public async Task<Department> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, Guid callerId)
+        public async Task<DepartmentDTO> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, IList<Guid> departmentManagers,Guid callerId)
         {
             var customer = await _customerRepository.GetOrganizationAsync(customerId, includeDepartments: true);
             if (customer == null)
@@ -68,11 +100,33 @@ namespace CustomerServices
                 customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment, callerId);
             }
 
+            
+            if (departmentManagers.Any())
+            {
+                List<User> users = new List<User>();
+                foreach (var manager in departmentManagers)
+                {
+                    var user = _customerRepository.GetUserAsync(customerId, manager).Result;
+                    if (user != null) 
+                    {
+                        var userPermission = await _userPermissionRepository.GetUserPermissionsAsync(user.Email);
+                        if (userPermission != null)
+                        {
+                            var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString());
+                            if (role != null) users.Add(user);
+                        }
+                    }
+                }
+               
+                if(users.Any()) customer.UpdateDepartmentManagers(departmentToUpdate,users,callerId);
+            }
+
             await _customerRepository.SaveEntitiesAsync();
-            return departmentToUpdate;
+            return _mapper.Map<DepartmentDTO>(departmentToUpdate);
+            
         }
 
-        public async Task<Department> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, Guid callerId)
+        public async Task<DepartmentDTO> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, IList<Guid> departmentManagers, Guid callerId)
         {
             var customer = await _customerRepository.GetOrganizationAsync(customerId, includeDepartments: true);
             if (customer == null)
@@ -103,11 +157,27 @@ namespace CustomerServices
             {
                 customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment, callerId);
             }
+            if (departmentManagers.Any())
+            {
+                foreach (var manager in departmentManagers)
+                {
+                    var user = await _customerRepository.GetUserAsync(customerId, manager);
+                    if (user != null)
+                    {
+                        var userPermission = await _userPermissionRepository.GetUserPermissionsAsync(user.Email);
+                        if (userPermission != null)
+                        {
+                            var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString());
+                            if (role != null) customer.AddDepartmentManager(departmentToUpdate, user, callerId);
+                        }
+                    }
+                }
+            }
             await _customerRepository.SaveEntitiesAsync();
-            return departmentToUpdate;
+            return _mapper.Map<DepartmentDTO>(departmentToUpdate);
         }
 
-        public async Task<Department> DeleteDepartmentAsync(Guid customerId, Guid departmentId, Guid callerId)
+        public async Task<DepartmentDTO> DeleteDepartmentAsync(Guid customerId, Guid departmentId, Guid callerId)
         {
             var customer = await _customerRepository.GetOrganizationAsync(customerId, includeDepartments: true);
             if (customer == null)
@@ -124,7 +194,9 @@ namespace CustomerServices
                 customer.RemoveDepartment(deleteDepartment, callerId);
             }
             await _customerRepository.DeleteDepartmentsAsync(departmentsToDelete);
-            return department;
+         
+            return _mapper.Map<DepartmentDTO>(department);
+
         }
     }
 }

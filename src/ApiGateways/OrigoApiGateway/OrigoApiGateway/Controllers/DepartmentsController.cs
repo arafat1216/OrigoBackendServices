@@ -145,7 +145,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult<OrigoDepartment>> PutDepartmentForCustomer(Guid organizationId, Guid departmentId, [FromBody] OrigoDepartment updateDepartment)
+        public async Task<ActionResult<OrigoDepartment>> PutDepartmentForCustomer(Guid organizationId, Guid departmentId, [FromBody] UpdateDepartment updateDepartment)
         {
             try
             {
@@ -189,7 +189,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult<OrigoDepartment>> PatchDepartmentForCustomer(Guid organizationId, Guid departmentId, [FromBody] OrigoDepartment updateDepartment)
+        public async Task<ActionResult<OrigoDepartment>> PatchDepartmentForCustomer(Guid organizationId, Guid departmentId, [FromBody] UpdateDepartment updateDepartment)
         {
             try
             {

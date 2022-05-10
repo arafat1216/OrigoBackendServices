@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CustomerServices.ServiceModels;
+using System;
+using System.Collections.Generic;
 
 namespace Customer.API.ViewModels
 {
@@ -29,5 +31,6 @@ namespace Customer.API.ViewModels
         public Guid? ParentDepartmentId { get; set; }
 
         public Guid CallerId { get; set; }
+        public IList<ManagedByDTO> ManagedBy { get; set; }
     }
 }

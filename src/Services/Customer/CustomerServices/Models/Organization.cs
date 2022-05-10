@@ -352,5 +352,19 @@ namespace CustomerServices.Models
             department.ParentDepartment = parentDepartment;
             AddDomainEvent(new DepartmentParentDepartmentChangedDomainEvent(department, oldParentDepartmentId));
         }
+        public void AddDepartmentManager(Department department, User manager, Guid callerId)
+        {
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
+            department.AddDepartmentManager(manager, callerId);
+            AddDomainEvent(new DepartmentAddDepartmentManagerDomainEvent(department, manager, callerId));
+        }
+        public void UpdateDepartmentManagers(Department department, IList<User> managers, Guid callerId)
+        {
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
+            department.UpdateDepartmentManagers(managers, callerId);
+            AddDomainEvent(new DepartmentUpdateDepartmentManagersDomainEvent(department, callerId));
+        }
     }
 }

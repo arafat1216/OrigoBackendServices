@@ -112,5 +112,25 @@ namespace CustomerServices.Models
             DeletedBy = callerId;
             LastUpdatedDate= DateTime.UtcNow;
         }
+        public void AddDepartmentManager(User manager, Guid CallerId)
+        {
+            if (_managers == null) 
+            { 
+                _managers = new List<User>();
+            }
+            _managers.Add(manager);
+            UpdatedBy = CallerId;
+            LastUpdatedDate = DateTime.UtcNow;
+        }
+        public void UpdateDepartmentManagers(IList<User> managers, Guid CallerId)
+        {
+            if (_managers == null)
+            {
+                _managers = new List<User>();
+            }
+            _managers = managers;
+            UpdatedBy = CallerId;
+            LastUpdatedDate = DateTime.UtcNow;
+        }
     }
 }
