@@ -245,6 +245,7 @@ namespace CustomerServices.Infrastructure
                     .Include(u => u.Customer)
                     .Include(u => u.UserPreference)
                     .Include(u => u.Department)
+                    .Include(u => u.ManagesDepartments)
                     .Where(u => u.Customer.OrganizationId == customerId && !u.IsDeleted);
 
             if (!string.IsNullOrEmpty(search))

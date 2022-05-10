@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CustomerServices.ServiceModels;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Customer.API.ViewModels
@@ -33,5 +35,7 @@ namespace Customer.API.ViewModels
         public string DepartmentName { get; init; }
 
         public string Role { get; init; }
+        public IList<ManagerOfDTO> ManagerOf { get; init; }
+
     }
 }

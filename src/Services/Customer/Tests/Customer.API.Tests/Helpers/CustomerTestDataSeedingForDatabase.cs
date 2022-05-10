@@ -17,6 +17,8 @@ namespace Customer.API.IntegrationTests.Helpers
         public static readonly Guid LOCATION_ID = Guid.Parse("089f6c40-1ae4-4fd0-b2d1-c5181d9fbfde");
         public static readonly Guid USER_ONE_ID = Guid.Parse("a12c5f56-aee9-47e0-9f5f-a726818323a9");
         public static readonly Guid USER_TWO_ID = Guid.Parse("8246626C-3BDD-46E7-BCDF-10FC038C0463");
+        public static readonly Guid USER_THREE_ID = Guid.Parse("9f19a9e5-a4f0-431e-9137-e8bfba285c7f");
+
 
 
         public static void PopulateData(CustomerContext customerContext)
@@ -84,7 +86,7 @@ namespace Customer.API.IntegrationTests.Helpers
                                 "Normann",
                                 "kari@normann.no",
                                 "+4790603360",
-                                "EID:909090",
+                                "EID:909091",
                                 new UserPreference("no", CALLER_ID),
                                 CALLER_ID);
 
@@ -94,18 +96,34 @@ namespace Customer.API.IntegrationTests.Helpers
                                 "Kumar",
                                 "atish@normann.no",
                                 "+4790603360",
-                                "EID:909090",
+                                "EID:909092",
                                 new UserPreference("no", CALLER_ID),
                                 CALLER_ID);
 
+            var userThree = new User(organization,
+                              USER_THREE_ID,
+                              "Ola",
+                              "Normann",
+                              "ola@normann.no",
+                              "+4790608989",
+                              "EID:909093",
+                              new UserPreference("no", CALLER_ID),
+                              CALLER_ID);
+
             customerContext.Users.Add(userOne);
             customerContext.Users.Add(userTwo);
+            customerContext.Users.Add(userThree);
+
 
             var userOnePermission = new UserPermissions(userOne, new Role("EndUser"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
             var userTwoPermission = new UserPermissions(userTwo, new Role("EndUser"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
+            var userThreePermission = new UserPermissions(userThree, new Role("DepartmentManager"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
+
 
             customerContext.UserPermissions.Add(userOnePermission);
             customerContext.UserPermissions.Add(userTwoPermission);
+            customerContext.UserPermissions.Add(userThreePermission);
+
 
             customerContext.SaveChanges();
 

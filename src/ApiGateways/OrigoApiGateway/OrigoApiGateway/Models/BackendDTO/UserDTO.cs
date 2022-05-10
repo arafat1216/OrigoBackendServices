@@ -19,5 +19,6 @@ namespace OrigoApiGateway.Models.BackendDTO
         public string DepartmentName { get; init; }
 
         public UserPreferenceDTO UserPreference { get; init; }
+        public IList<ManagerOf> ManagerOf { get; init; }
     }
 }

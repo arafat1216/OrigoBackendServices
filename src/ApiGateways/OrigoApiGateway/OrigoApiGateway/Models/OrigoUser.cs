@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OrigoApiGateway.Models.BackendDTO;
+using System;
 using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models
@@ -23,5 +24,7 @@ namespace OrigoApiGateway.Models
         public string DepartmentName { get; init; }
 
         public UserPreference UserPreference { get; init; }
+        public IList<ManagerOf> ManagerOf { get; init; }
+
     }
 }

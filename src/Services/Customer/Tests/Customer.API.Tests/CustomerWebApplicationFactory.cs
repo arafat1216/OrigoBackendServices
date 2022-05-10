@@ -24,8 +24,10 @@ namespace Customer.API.Tests;
         public Guid SUB_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.SUB_DEPARTMENT_ID;
         public Guid USER_ONE_ID => CustomerTestDataSeedingForDatabase.USER_ONE_ID;
         public Guid USER_TWO_ID => CustomerTestDataSeedingForDatabase.USER_TWO_ID;
+        public Guid USER_THREE_ID => CustomerTestDataSeedingForDatabase.USER_THREE_ID;
 
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureTestServices(services =>
             {

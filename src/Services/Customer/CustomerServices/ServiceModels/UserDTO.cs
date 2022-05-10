@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace CustomerServices.ServiceModels
@@ -31,7 +32,7 @@ namespace CustomerServices.ServiceModels
         public string DepartmentName { get; set; }
 
         public string Role { get; set; }
-        public ManagerOfDTO ManagerOf { get; set; }
+        public IList<ManagerOfDTO> ManagerOf { get; set; }
 
     }
 }
