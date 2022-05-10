@@ -582,7 +582,7 @@ namespace AssetServices
         #region LifeCycleSetting
         public async Task<LifeCycleSettingDTO> AddLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId)
         {
-            var lifeCycleSetting = new LifeCycleSetting(customerId, lifeCycleSettingDTO.BuyoutAllowed, CallerId);
+            var lifeCycleSetting = new LifeCycleSetting(customerId, lifeCycleSettingDTO.AssetCategoryId, lifeCycleSettingDTO.BuyoutAllowed, lifeCycleSettingDTO.MinBuyoutPrice, CallerId);
 
             var addedSetting = await _assetLifecycleRepository.AddLifeCycleSettingAsync(lifeCycleSetting);
             return _mapper.Map<LifeCycleSettingDTO>(addedSetting);
@@ -590,48 +590,37 @@ namespace AssetServices
 
         public async Task<LifeCycleSettingDTO> UpdateLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId)
         {
-            var existingSetting = await _assetLifecycleRepository.GetLifeCycleSettingByCustomerAsync(customerId);
+            var existingSettings = await _assetLifecycleRepository.GetLifeCycleSettingByCustomerAsync(customerId);
 
-            if (existingSetting == null)
+            if (existingSettings == null || existingSettings.Count < 1)
             {
                 throw new ResourceNotFoundException("No LifeCycletSetting were found using the given Customer. Did you enter the correct customer Id?", _logger);
             }
+            var lifeCycleSetting = existingSettings.FirstOrDefault(x=>x.AssetCategoryId == lifeCycleSettingDTO.AssetCategoryId);
+            
+            if (lifeCycleSetting == null)
+            {
+                throw new ResourceNotFoundException("No LifeCycletSetting were found for this AssetCategory", _logger);
+            }
 
-            if (existingSetting.BuyoutAllowed != lifeCycleSettingDTO.BuyoutAllowed)
+            if (lifeCycleSetting.BuyoutAllowed != lifeCycleSettingDTO.BuyoutAllowed)
             {
-                existingSetting.UpdateBuyoutAllowed(lifeCycleSettingDTO.BuyoutAllowed, CallerId);
-                await _assetLifecycleRepository.SaveEntitiesAsync();
+                lifeCycleSetting.SetBuyoutAllowed(lifeCycleSettingDTO.BuyoutAllowed, CallerId);
             }
-            return _mapper.Map<LifeCycleSettingDTO>(existingSetting);
-        }
-        public async Task<LifeCycleSettingDTO> GetLifeCycleSettingByCustomer(Guid customerId)
-        {
-            var existingSetting = await _assetLifecycleRepository.GetLifeCycleSettingByCustomerAsync(customerId);
-            return _mapper.Map<LifeCycleSettingDTO>(existingSetting);
-        }
 
-        public async Task<LifeCycleSettingDTO> SetCategorySettingForCustomerAsync(Guid customerId, CategoryLifeCycleSettingDTO categorySettingDTO, Guid CallerId)
-        {
-            var existingSetting = await _assetLifecycleRepository.GetLifeCycleSettingByCustomerAsync(customerId);
+            if (lifeCycleSetting.MinBuyoutPrice != lifeCycleSettingDTO.MinBuyoutPrice)
+            {
+                lifeCycleSetting.SetMinBuyoutPrice(lifeCycleSettingDTO.MinBuyoutPrice, CallerId);
+            }
 
-            if(existingSetting == null)
-            {
-                throw new ResourceNotFoundException("No LifeCycletSetting were found using the given Customer. Did you enter the correct customer Id?", _logger);
-            }
-            var existingCategorySetting = existingSetting.CategoryLifeCycleSettings.FirstOrDefault(x => x.AssetCategoryId == categorySettingDTO.AssetCategoryId);
-            if (existingCategorySetting == null)
-            {
-                existingSetting.SetMinBuyoutPrice(categorySettingDTO.MinBuyoutPrice, categorySettingDTO.AssetCategoryId, CallerId);
-            }
-            else
-            {
-                if(existingCategorySetting.MinBuyoutPrice != categorySettingDTO.MinBuyoutPrice)
-                    existingSetting.UpdateMinBuyoutPrice(categorySettingDTO.MinBuyoutPrice, categorySettingDTO.AssetCategoryId, CallerId);
-            }
             await _assetLifecycleRepository.SaveEntitiesAsync();
-            return _mapper.Map<LifeCycleSettingDTO>(existingSetting);
+            return _mapper.Map<LifeCycleSettingDTO>(lifeCycleSetting);
         }
-
+        public async Task<IList<LifeCycleSettingDTO>> GetLifeCycleSettingByCustomer(Guid customerId)
+        {
+            var existingSetting = await _assetLifecycleRepository.GetLifeCycleSettingByCustomerAsync(customerId);
+            return _mapper.Map<IList<LifeCycleSettingDTO>>(existingSetting);
+        }
 
         #endregion
 

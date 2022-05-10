@@ -31,6 +31,6 @@ namespace AssetServices.Models
         Task<AssetLifecycle?> MakeAssetAvailableAsync(Guid customerId, Guid callerId, Guid assetLifeCycleId);
         Task<IList<AssetLifecycle>> GetAssetForUser(Guid userId);
         Task<LifeCycleSetting> AddLifeCycleSettingAsync(LifeCycleSetting lifeCycleSetting);
-        Task<LifeCycleSetting> GetLifeCycleSettingByCustomerAsync(Guid customerId);
+        Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomerAsync(Guid customerId);
     }
 }

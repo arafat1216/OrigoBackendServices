@@ -91,8 +91,7 @@ internal static class AssetTestDataSeedingForDatabase
         assetLifecycleFive.AssignAsset(assetFour, CALLER_ID);
         assetLifecycleFive.AssignAssetLifecycleHolder(null,DEPARTMENT_ID, CALLER_ID);
 
-        var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID, true, Guid.Empty);
-        lifeCycleSetting.SetMinBuyoutPrice(700M, 1, Guid.Empty);
+        var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID, 1, true, 700M, Guid.Empty);
 
         dbContext.Users.AddRange(userOne);
         dbContext.Assets.AddRange(assetOne, assetTwo, assetThree);

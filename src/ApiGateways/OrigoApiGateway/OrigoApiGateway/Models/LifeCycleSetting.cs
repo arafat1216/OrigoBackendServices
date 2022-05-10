@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models
 {
@@ -8,7 +7,9 @@ namespace OrigoApiGateway.Models
         public Guid Id { get; init; }
         public Guid CustomerId { get; init; }
         public bool BuyoutAllowed { get; set; }
+        public int AssetCategoryId { get; set; }
+        public string AssetCategoryName { get; set; }
+        public decimal MinBuyoutPrice { get; set; }
         public DateTime CreatedDate { get; set; }
-        public IList<CategoryLifeCycleSetting> CategoryLifeCycleSettings { get; set; }
     }
 }

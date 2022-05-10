@@ -171,11 +171,11 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
-        public async Task<LifeCycleSetting> GetLifeCycleSettingByCustomer(Guid customerId)
+        public async Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomer(Guid customerId)
         {
             try
             {
-                var settings = await HttpClient.GetFromJsonAsync<LifeCycleSetting>($"{_options.ApiPath}/customers/{customerId}/lifecycle-setting");
+                var settings = await HttpClient.GetFromJsonAsync<IList<LifeCycleSetting>>($"{_options.ApiPath}/customers/{customerId}/lifecycle-setting");
 
                 if (settings == null)
                     return null;
@@ -206,7 +206,7 @@ namespace OrigoApiGateway.Services
                 var response = new HttpResponseMessage();
                 var newSettingtDTO = _mapper.Map<NewLifeCycleSettingDTO>(setting);
                 newSettingtDTO.CallerId = callerId;
-                if (existingSetting == null || existingSetting!.Id == Guid.Empty)
+                if (existingSetting == null || existingSetting!.FirstOrDefault(x=>x.AssetCategoryId == setting.AssetCategoryId) ==null)
                     response = await HttpClient.PostAsJsonAsync(requestUri, newSettingtDTO);
                 else
                     response = await HttpClient.PutAsJsonAsync(requestUri, newSettingtDTO);
@@ -218,45 +218,11 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var newSetting = await response.Content.ReadFromJsonAsync<LifeCycleSetting>();
-                if(setting.CategoryLifeCycleSettings != null && setting.CategoryLifeCycleSettings.Any())
-                {
-                    var allCategorySetting = new List<CategoryLifeCycleSetting>();
-                    foreach(var item in setting.CategoryLifeCycleSettings)
-                    {
-                        var categorySetting = _mapper.Map<NewCategoryLifeCycleSettingDTO>(item);
-                        categorySetting.CallerId = callerId;
-                        var addedCatgorySetting = await SetCategoryLifeCycleSettingForCustomerAsync(customerId, categorySetting);
-                        allCategorySetting.Add(addedCatgorySetting);
-                    }
-                    newSetting.CategoryLifeCycleSettings = allCategorySetting;
-                }
                 return newSetting;
             }
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Unable to set LifeCycleSetting.");
-                throw;
-            }
-        }
-
-        public async Task<CategoryLifeCycleSetting> SetCategoryLifeCycleSettingForCustomerAsync(Guid customerId, NewCategoryLifeCycleSettingDTO newSetting)
-        {
-            try
-            {
-                var requestUri = $"{_options.ApiPath}/customers/{customerId}/category-lifecycle-setting";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, newSetting);
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorDescription = await response.Content.ReadAsStringAsync();
-                    var exception = new BadHttpRequestException(errorDescription, (int)response.StatusCode);
-                    throw exception;
-                }
-                var setting = await response.Content.ReadFromJsonAsync<CategoryLifeCycleSetting>();
-                return setting;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "Unable to set CategoryLifeCycleSetting.");
                 throw;
             }
         }

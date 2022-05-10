@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace AssetServices.DomainEvents
 {
-    public class UpdateBuyoutAllowedDomainEvent : BaseEvent
+    public class SetBuyoutAllowedDomainEvent : BaseEvent
     {
-        public UpdateBuyoutAllowedDomainEvent(LifeCycleSetting lifeCycleSetting, Guid callerId, bool previousStatus) : base(
+        public SetBuyoutAllowedDomainEvent(LifeCycleSetting lifeCycleSetting, Guid callerId, bool previousStatus) : base(
         lifeCycleSetting.ExternalId)
         {
             LifeCycleSetting = lifeCycleSetting;
@@ -24,7 +24,7 @@ namespace AssetServices.DomainEvents
 
         public override string EventMessage()
         {
-            return $"LifeCycleSetting for setting id {LifeCycleSetting.ExternalId}; Changing 'Buyout Allowed' from {PreviousStatus}.";
+            return $"LifeCycleSetting for id {LifeCycleSetting.ExternalId}; Asset {LifeCycleSetting.AssetCategoryName}; Changing 'Buyout Allowed' from {PreviousStatus} to {LifeCycleSetting.BuyoutAllowed}.";
         }
     }
 }

@@ -307,15 +307,15 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     {
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/lifecycle-setting";
         _testOutputHelper.WriteLine(requestUri);
-        var setting = await _httpClient.GetFromJsonAsync<LifeCycleSetting>(requestUri);
-        Assert.Equal(setting!.CustomerId, _customerId);
-        Assert.True(setting!.BuyoutAllowed);
+        var setting = await _httpClient.GetFromJsonAsync<IList<LifeCycleSetting>>(requestUri);
+        Assert.Equal(setting!.FirstOrDefault()!.CustomerId, _customerId);
+        Assert.Equal(1, setting!.Count);
     }
 
     [Fact]
     public async Task CreateLifeCycleSetting()
     {
-        var newSettings = new NewLifeCycleSetting { BuyoutAllowed = true, CallerId = _callerId };
+        var newSettings = new NewLifeCycleSetting {AssetCategoryId = 1, BuyoutAllowed = true, CallerId = _callerId };
         var customerId = Guid.NewGuid();
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
         var requestUri = $"/api/v1/Assets/customers/{customerId}/lifecycle-setting";
@@ -323,12 +323,12 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newSettings);
 
         var setting =
-            await _httpClient.GetFromJsonAsync<LifeCycleSetting>(
+            await _httpClient.GetFromJsonAsync<IList<LifeCycleSetting>>(
                 $"/api/v1/Assets/customers/{customerId}/lifecycle-setting");
 
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
-        Assert.Equal(setting!.CustomerId, customerId);
-        Assert.True(setting!.BuyoutAllowed == newSettings.BuyoutAllowed);
+        Assert.Equal(setting!.FirstOrDefault()!.CustomerId, customerId);
+        Assert.True(setting!.FirstOrDefault(x=>x.AssetCategoryId == newSettings.AssetCategoryId)!.BuyoutAllowed == newSettings.BuyoutAllowed);
     }
 
     [Fact]
@@ -347,37 +347,17 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     [Fact]
     public async Task UpdateLifeCycleSetting()
     {
-        var newSettings = new NewLifeCycleSetting { BuyoutAllowed = false, CallerId = _callerId };
+        var newSettings = new NewLifeCycleSetting {AssetCategoryId = 1, BuyoutAllowed = false, CallerId = _callerId };
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/lifecycle-setting";
         _testOutputHelper.WriteLine(requestUri);
         var createResponse = await _httpClient.PutAsJsonAsync(requestUri, newSettings);
         var setting =
-            await _httpClient.GetFromJsonAsync<LifeCycleSetting>(
+            await _httpClient.GetFromJsonAsync<IList<LifeCycleSetting>>(
                 $"/api/v1/Assets/customers/{_customerId}/lifecycle-setting");
-        Assert.Equal(setting!.CustomerId, _customerId);
-        Assert.True(setting!.BuyoutAllowed == newSettings.BuyoutAllowed);
-    }
 
-    [Fact]
-    public async Task SetCategoryLifeCycleSetting()
-    {
-        var newSettings = new NewCategoryLifeCycleSetting
-        {
-            AssetCategoryId = 1, MinBuyoutPrice = 200m, CallerId = _callerId
-        };
-        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
-        var requestUri = $"/api/v1/Assets/customers/{_customerId}/category-lifecycle-setting";
-        _testOutputHelper.WriteLine(requestUri);
-        var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newSettings);
-        var setting =
-            await _httpClient.GetFromJsonAsync<LifeCycleSetting>(
-                $"/api/v1/Assets/customers/{_customerId}/lifecycle-setting");
-        Assert.Equal(setting!.CustomerId, _customerId);
-        Assert.True(setting!.BuyoutAllowed);
-        Assert.True(
-            setting!.CategoryLifeCycleSettings.FirstOrDefault(x => x.AssetCategoryId == newSettings.AssetCategoryId)!
-                .MinBuyoutPrice == newSettings.MinBuyoutPrice);
+        Assert.Equal(setting!.FirstOrDefault()!.CustomerId, _customerId);
+        Assert.True(setting!.FirstOrDefault(x=>x.AssetCategoryId == newSettings.AssetCategoryId)!.BuyoutAllowed == newSettings.BuyoutAllowed);
     }
 
     [Theory]

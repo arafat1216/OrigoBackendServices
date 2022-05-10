@@ -8,10 +8,12 @@ namespace AssetServices.Models;
 
 public class LifeCycleSetting : Entity, IAggregateRoot
 {
-    public LifeCycleSetting(Guid customerId, bool buyoutAllowed, Guid callerId)
+    public LifeCycleSetting(Guid customerId, int assetCategoryId, bool buyoutAllowed, decimal minBuyoutPrice, Guid callerId)
     {
         CustomerId = customerId;
         BuyoutAllowed = buyoutAllowed;
+        MinBuyoutPrice = minBuyoutPrice;
+        AssetCategoryId = assetCategoryId;
         CreatedBy = callerId;
     }
 
@@ -34,26 +36,44 @@ public class LifeCycleSetting : Entity, IAggregateRoot
     /// </summary>
     public bool BuyoutAllowed { get; protected set; }
 
-    private readonly List<CategoryLifeCycleSetting> _categoryLifeCycleSettings = new();
+    /// <summary>
+    /// the min buyout price for this category and for this customer.
+    /// </summary>
+    public decimal MinBuyoutPrice { get; protected set; } = decimal.Zero;
 
     /// <summary>
-    ///     All Category specific settings associated with this lifecycle setting.
+    /// The category id that the setting is for.
     /// </summary>
-    public IReadOnlyCollection<CategoryLifeCycleSetting> CategoryLifeCycleSettings =>
-        _categoryLifeCycleSettings.AsReadOnly();
+    public int AssetCategoryId { get; init; }
+
+    /// <summary>
+    /// Return the name of the category based on the Category Id.
+    /// </summary>
+    public string AssetCategoryName
+    {
+        get
+        {
+            return AssetCategoryId switch
+            {
+                1 => "Mobile phone",
+                2 => "Tablet",
+                _ => "Unknown"
+            };
+        }
+    }
 
     /// <summary>
     ///     Update Buyout Allowed property for this setting.
     /// </summary>
     /// <param name="buyoutAllowed">The data for updating buyoutAllowed</param>
     /// <param name="callerId">The userid making this assignment</param>
-    public void UpdateBuyoutAllowed(bool buyoutAllowed, Guid callerId)
+    public void SetBuyoutAllowed(bool buyoutAllowed, Guid callerId)
     {
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         var previousStatus = BuyoutAllowed;
-        AddDomainEvent(new UpdateBuyoutAllowedDomainEvent(this, callerId, previousStatus));
         BuyoutAllowed = buyoutAllowed;
+        AddDomainEvent(new SetBuyoutAllowedDomainEvent(this, callerId, previousStatus));
     }
 
     /// <summary>
@@ -62,31 +82,11 @@ public class LifeCycleSetting : Entity, IAggregateRoot
     /// <param name="buyoutPrice">The amount that will be set min buyout price</param>
     /// <param name="categoryId">The specific Asset Category Id for this setting</param>
     /// <param name="callerId">The userid making this assignment</param>
-    public void SetMinBuyoutPrice(decimal buyoutPrice, int categoryId, Guid callerId)
+    public void SetMinBuyoutPrice(decimal buyoutPrice, Guid callerId)
     {
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
-        var categorySetting = new CategoryLifeCycleSetting
-        {
-            AssetCategoryId = categoryId, MinBuyoutPrice = buyoutPrice
-        };
-        _categoryLifeCycleSettings.Add(categorySetting);
-        AddDomainEvent(new SetBuyoutPriceDomainEvent(categorySetting, CustomerId, callerId));
-    }
-
-    /// <summary>
-    ///     Update Min Buyout Price for this setting and Category.
-    /// </summary>
-    /// <param name="buyoutPrice">The amount that will be set min buyout price</param>
-    /// <param name="categoryId">The specific Asset Category Id for this setting</param>
-    /// <param name="callerId">The userid making this assignment</param>
-    public void UpdateMinBuyoutPrice(decimal buyoutPrice, int categoryId, Guid callerId)
-    {
-        UpdatedBy = callerId;
-        LastUpdatedDate = DateTime.UtcNow;
-        var categorySetting = _categoryLifeCycleSettings.FirstOrDefault(x => x.AssetCategoryId == categoryId);
-        var previousAmount = categorySetting!.MinBuyoutPrice;
-        categorySetting!.MinBuyoutPrice = buyoutPrice;
-        AddDomainEvent(new UpdateMinBuyoutPriceDomainEvent(categorySetting, previousAmount, CustomerId, callerId));
+        MinBuyoutPrice = buyoutPrice;
+        AddDomainEvent(new SetBuyoutPriceDomainEvent(this, CustomerId, callerId));
     }
 }

@@ -222,7 +222,7 @@ namespace OrigoApiGateway.Controllers
 
         [Route("customers/{organizationId:guid}/lifecycle-setting")]
         [HttpGet]
-        [ProducesResponseType(typeof(LifeCycleSetting), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<LifeCycleSetting>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]

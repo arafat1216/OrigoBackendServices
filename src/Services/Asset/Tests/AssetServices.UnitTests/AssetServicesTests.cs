@@ -981,6 +981,7 @@ public class AssetServicesTests : AssetBaseTest
         {
             CustomerId = COMPANY_ID,
             BuyoutAllowed = false,
+            AssetCategoryId = 1
         };
 
         // Act 
@@ -988,8 +989,8 @@ public class AssetServicesTests : AssetBaseTest
         var updatedSetting = await assetService.GetLifeCycleSettingByCustomer(lifeCycleSetting.CustomerId);
 
         // Assert
-        Assert.True(updatedSetting.BuyoutAllowed == lifeCycleSetting.BuyoutAllowed);
-        Assert.True(updatedSetting.CustomerId == lifeCycleSetting.CustomerId);
+        Assert.True(updatedSetting.FirstOrDefault(x=>x.AssetCategoryId == lifeCycleSetting.AssetCategoryId)!.BuyoutAllowed == lifeCycleSetting.BuyoutAllowed);
+        Assert.True(updatedSetting.FirstOrDefault(x => x.AssetCategoryId == lifeCycleSetting.AssetCategoryId)!.CustomerId == lifeCycleSetting.CustomerId);
     }
 
 
@@ -1019,14 +1020,14 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void SetCategorySettingForCustomerAsync_NotFound()
+    public async void SetLifeCycleSettingForCustomerAsync_NotFound()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
-        var CategorylifeCycleSetting = new CategoryLifeCycleSettingDTO()
+        var lifeCycleSetting = new LifeCycleSettingDTO()
         {
             AssetCategoryId = 1,
             MinBuyoutPrice=800M
@@ -1034,33 +1035,33 @@ public class AssetServicesTests : AssetBaseTest
 
         // Act and assert
         await Assert.ThrowsAsync<ResourceNotFoundException>(() =>
-            assetService.SetCategorySettingForCustomerAsync(Guid.NewGuid(), CategorylifeCycleSetting, Guid.Empty));
+            assetService.UpdateLifeCycleSettingForCustomerAsync(Guid.NewGuid(), lifeCycleSetting, Guid.Empty));
     }
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void SetCategorySettingForCustomerAsync()
+    public async void SetLifeCycleSettingForCustomerAsync()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
-        var CategorylifeCycleSetting = new CategoryLifeCycleSettingDTO()
+        var lifeCycleSetting = new LifeCycleSettingDTO()
         {
             AssetCategoryId = 2,
             MinBuyoutPrice=800M
         };
 
         // Act
-        var setting = await assetService.SetCategorySettingForCustomerAsync(COMPANY_ID, CategorylifeCycleSetting, Guid.Empty);
-        var addedSetting = await assetService.GetLifeCycleSettingByCustomer(COMPANY_ID);
-
+        var setting = await assetService.AddLifeCycleSettingForCustomerAsync(COMPANY_ID, lifeCycleSetting, Guid.Empty);
+        var allSetting = await assetService.GetLifeCycleSettingByCustomer(COMPANY_ID);
+        var addedSetting = allSetting.FirstOrDefault(x => x.AssetCategoryId == lifeCycleSetting.AssetCategoryId);
 
         // Assert
-        Assert.True(addedSetting.CategoryLifeCycleSettings.Count == 2);
-        Assert.True(addedSetting.CategoryLifeCycleSettings.FirstOrDefault(x=>x.AssetCategoryId == 2).MinBuyoutPrice == CategorylifeCycleSetting.MinBuyoutPrice);
-        Assert.True(addedSetting.CategoryLifeCycleSettings.FirstOrDefault(x => x.AssetCategoryId == 2).AssetCategoryName == "Tablet");
+        Assert.True(allSetting.Count == 2);
+        Assert.True(addedSetting!.MinBuyoutPrice == lifeCycleSetting.MinBuyoutPrice);
+        Assert.True(addedSetting!.AssetCategoryName == "Tablet");
     }
 
     [Fact]
@@ -1072,20 +1073,20 @@ public class AssetServicesTests : AssetBaseTest
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
-        var CategorylifeCycleSetting = new CategoryLifeCycleSettingDTO()
+        var lifeCycleSetting = new LifeCycleSettingDTO()
         {
             AssetCategoryId = 1,
             MinBuyoutPrice = 800M
         };
 
         // Act
-        var setting = await assetService.SetCategorySettingForCustomerAsync(COMPANY_ID, CategorylifeCycleSetting, Guid.Empty);
-        var addedSetting = await assetService.GetLifeCycleSettingByCustomer(COMPANY_ID);
-
+        var setting = await assetService.UpdateLifeCycleSettingForCustomerAsync(COMPANY_ID, lifeCycleSetting, Guid.Empty);
+        var allSetting = await assetService.GetLifeCycleSettingByCustomer(COMPANY_ID);
+        var addedSetting = allSetting.FirstOrDefault(x => x.AssetCategoryId == lifeCycleSetting.AssetCategoryId);
 
         // Assert
-        Assert.True(addedSetting.CategoryLifeCycleSettings.FirstOrDefault(x => x.AssetCategoryId == 1).MinBuyoutPrice == CategorylifeCycleSetting.MinBuyoutPrice);
-        Assert.True(addedSetting.CategoryLifeCycleSettings.FirstOrDefault(x => x.AssetCategoryId == 1).AssetCategoryName == "Mobile phone");
+        Assert.True(addedSetting!.MinBuyoutPrice == lifeCycleSetting.MinBuyoutPrice);
+        Assert.True(addedSetting!.AssetCategoryName == "Mobile phone");
     }
     
     [Fact]

@@ -20,6 +20,5 @@ public class NewAssetProfile : Profile
             .ForMember(destination => destination.PaidByCompany, opt => opt.MapFrom(src => src.PaidByCompany ?? 0.0m))
             .ForMember(destination => destination.Description, opt => opt.MapFrom(src => src.Description ?? string.Empty));
         CreateMap<NewLifeCycleSetting, LifeCycleSettingDTO>();
-        CreateMap<NewCategoryLifeCycleSetting, CategoryLifeCycleSettingDTO>();
     }
 }

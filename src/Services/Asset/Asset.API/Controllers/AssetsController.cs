@@ -257,7 +257,7 @@ namespace Asset.API.Controllers
 
         [Route("customers/{customerId:guid}/lifecycle-setting")]
         [HttpGet]
-        [ProducesResponseType(typeof(LifeCycleSetting), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(IList<LifeCycleSetting>), (int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> GetLifeCycleSetting(Guid customerId)
         {
@@ -266,7 +266,7 @@ namespace Asset.API.Controllers
                 var setting = await _assetServices.GetLifeCycleSettingByCustomer(customerId);
                 if (setting == null)
                     return Ok(new object());
-                return Ok(_mapper.Map<LifeCycleSetting>(setting));
+                return Ok(_mapper.Map<IList<LifeCycleSetting>>(setting));
             }
             catch (Exception ex)
             {
@@ -305,29 +305,6 @@ namespace Asset.API.Controllers
                 var newSettingDTO = _mapper.Map<LifeCycleSettingDTO>(setting);
                 var updatedSetting = await _assetServices.UpdateLifeCycleSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
                 return Ok(_mapper.Map<LifeCycleSetting>(updatedSetting));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [Route("customers/{customerId:guid}/category-lifecycle-setting")]
-        [HttpPost]
-        [ProducesResponseType(typeof(LifeCycleSetting), (int)HttpStatusCode.Created)]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SetCategoryLifeCycleSetting(Guid customerId, [FromBody] NewCategoryLifeCycleSetting CategorySetting)
-        {
-            try
-            {
-                var newSettingDTO = _mapper.Map<CategoryLifeCycleSettingDTO>(CategorySetting);
-                var updatedSetting = await _assetServices.SetCategorySettingForCustomerAsync(customerId, newSettingDTO, CategorySetting.CallerId);
-                return Ok(_mapper.Map<LifeCycleSetting>(updatedSetting));
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {

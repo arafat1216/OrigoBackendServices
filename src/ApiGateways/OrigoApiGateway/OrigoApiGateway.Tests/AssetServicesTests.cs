@@ -454,19 +454,15 @@ namespace OrigoApiGateway.Tests
                     StatusCode = HttpStatusCode.OK,
                     Content = new StringContent(
                         @"
-                        {
+                        [{
                             ""id"": ""978ffca7-73c0-4494-ad4b-6c092733f634"",
                             ""customerId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
                             ""buyoutAllowed"": true,
                             ""createdDate"": ""2022-04-29T14:46:42.421138"",
-                            ""categoryLifeCycleSettings"": [
-                                {
-                                ""assetCategoryId"": 1,
-                                ""assetCategoryName"": ""Mobile phone"",
-                                ""minBuyoutPrice"": 700
-                                }
-                            ]
-                        }
+                            ""assetCategoryId"": 1,
+                            ""assetCategoryName"": ""Mobile phone"",
+                            ""minBuyoutPrice"": 700
+                        }]
                     ")
                 });
 
@@ -489,8 +485,8 @@ namespace OrigoApiGateway.Tests
             var assetings = await assetService.GetLifeCycleSettingByCustomer(new Guid(CUSTOMER_ID));
 
             // Assert
-            Assert.Equal(CUSTOMER_ID, assetings.CustomerId.ToString().ToLower());
-            Assert.Equal(1, assetings.CategoryLifeCycleSettings.Count);
+            Assert.Equal(CUSTOMER_ID, assetings.FirstOrDefault().CustomerId.ToString().ToLower());
+            Assert.Equal(1, assetings.Count);
         }
 
         [Fact]
@@ -512,19 +508,15 @@ namespace OrigoApiGateway.Tests
                     StatusCode = HttpStatusCode.OK,
                     Content = new StringContent(
                         @"
-                        {
+                        [{
                             ""id"": ""978ffca7-73c0-4494-ad4b-6c092733f634"",
                             ""customerId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
                             ""buyoutAllowed"": true,
                             ""createdDate"": ""2022-04-29T14:46:42.421138"",
-                            ""categoryLifeCycleSettings"": [
-                                {
-                                ""assetCategoryId"": 1,
-                                ""assetCategoryName"": ""Mobile phone"",
-                                ""minBuyoutPrice"": 700
-                                }
-                            ]
-                        }
+                            ""assetCategoryId"": 1,
+                            ""assetCategoryName"": ""Mobile phone"",
+                            ""minBuyoutPrice"": 700
+                        }]
                     ")
                 });
 
@@ -543,8 +535,9 @@ namespace OrigoApiGateway.Tests
                             ""customerId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
                             ""buyoutAllowed"": false,
                             ""createdDate"": ""2022-04-29T14:46:42.421138"",
-                            ""categoryLifeCycleSettings"": []
-                        }
+                            ""assetCategoryId"": 1,
+                            ""assetCategoryName"": ""Mobile phone"",
+                            ""minBuyoutPrice"": 700                        }
                     ")
                 });
 
@@ -565,6 +558,7 @@ namespace OrigoApiGateway.Tests
 
             var newSettings = new NewLifeCycleSetting()
             {
+                AssetCategoryId = 1,
                 BuyoutAllowed = false
             };
 
@@ -600,13 +594,9 @@ namespace OrigoApiGateway.Tests
                             ""customerId"": ""00000000-0000-0000-0000-000000000000"",
                             ""buyoutAllowed"": true,
                             ""createdDate"": ""2022-04-29T14:46:42.421138"",
-                            ""categoryLifeCycleSettings"": [
-                                {
-                                ""assetCategoryId"": 1,
-                                ""assetCategoryName"": ""Mobile phone"",
-                                ""minBuyoutPrice"": 700
-                                }
-                            ]
+                            ""assetCategoryId"": 1,
+                            ""assetCategoryName"": ""Mobile phone"",
+                            ""minBuyoutPrice"": 700
                         }
                     ")
                 });
@@ -626,7 +616,9 @@ namespace OrigoApiGateway.Tests
                             ""customerId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
                             ""buyoutAllowed"": false,
                             ""createdDate"": ""2022-04-29T14:46:42.421138"",
-                            ""categoryLifeCycleSettings"": []
+                            ""assetCategoryId"": 1,
+                            ""assetCategoryName"": ""Mobile phone"",
+                            ""minBuyoutPrice"": 700
                         }
                     ")
                 });
@@ -657,123 +649,6 @@ namespace OrigoApiGateway.Tests
             // Assert
             Assert.Equal(CUSTOMER_ID, assetings.CustomerId.ToString().ToLower());
             Assert.True(!assetings.BuyoutAllowed);
-        }
-
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async void SetLifeCycleSetting_CustomerExistWithCategorySetting()
-        {
-            // Arrange
-            const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
-
-            var mockFactory = new Mock<IHttpClientFactory>();
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
-                    x.RequestUri != null && x.RequestUri.ToString().Contains("/lifecycle-setting") && x.Method == HttpMethod.Get
-                    ),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(
-                        @"
-                        {
-                            ""id"": ""978ffca7-73c0-4494-ad4b-6c092733f634"",
-                            ""customerId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
-                            ""buyoutAllowed"": true,
-                            ""createdDate"": ""2022-04-29T14:46:42.421138"",
-                            ""categoryLifeCycleSettings"": [
-                                {
-                                ""assetCategoryId"": 1,
-                                ""assetCategoryName"": ""Mobile phone"",
-                                ""minBuyoutPrice"": 700
-                                }
-                            ]
-                        }
-                    ")
-                });
-
-            mockHttpMessageHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
-                    x.RequestUri != null && x.RequestUri.ToString().Contains("/lifecycle-setting") && x.Method == HttpMethod.Put
-                    ),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(
-                        @"
-                        {
-                            ""id"": ""978ffca7-73c0-4494-ad4b-6c092733f634"",
-                            ""customerId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
-                            ""buyoutAllowed"": false,
-                            ""createdDate"": ""2022-04-29T14:46:42.421138"",
-                            ""categoryLifeCycleSettings"": [
-                                {
-                                ""assetCategoryId"": 1,
-                                ""assetCategoryName"": ""Mobile phone"",
-                                ""minBuyoutPrice"": 700
-                                }
-                            ]
-                        }
-                    ")
-                });
-
-            mockHttpMessageHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
-                    x.RequestUri != null && x.RequestUri.ToString().Contains("/category-lifecycle-setting") && x.Method == HttpMethod.Post
-                    ),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(
-                        @"
-                        {
-                            ""assetCategoryId"": 1,
-                            ""assetCategoryName"": ""Mobile phone"",
-                            ""minBuyoutPrice"": 800
-                        }
-                    ")
-                });
-
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
-            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-            var options = new AssetConfiguration() { ApiPath = @"/assets" };
-            var optionsMock = new Mock<IOptions<AssetConfiguration>>();
-            optionsMock.Setup(o => o.Value).Returns(options);
-
-            var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
-            var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
-
-
-            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
-
-            var newSettings = new NewLifeCycleSetting()
-            {
-                BuyoutAllowed = false,
-                CategoryLifeCycleSettings = new List<NewCategoryLifeCycleSetting>()
-                {
-                    new NewCategoryLifeCycleSetting()
-                    {
-                        AssetCategoryId = 1,
-                        MinBuyoutPrice = 800
-                    }
-                }
-            };
-
-            // Act
-            var assetings = await assetService.SetLifeCycleSettingForCustomerAsync(new Guid(CUSTOMER_ID), newSettings, Guid.Empty);
-
-            // Assert
-            Assert.Equal(CUSTOMER_ID, assetings.CustomerId.ToString().ToLower());
-            Assert.True(!assetings.BuyoutAllowed);
-            Assert.True(assetings.CategoryLifeCycleSettings.Count == 1);
-            Assert.True(assetings.CategoryLifeCycleSettings.FirstOrDefault().MinBuyoutPrice == 800);
         }
 
         [Fact]

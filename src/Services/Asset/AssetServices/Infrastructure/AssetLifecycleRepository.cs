@@ -286,10 +286,9 @@ namespace AssetServices.Infrastructure
             return savedLifeCycleSettings.FirstOrDefault() ?? throw new InvalidOperationException();
         }
 
-        public async Task<LifeCycleSetting> GetLifeCycleSettingByCustomerAsync(Guid customerId)
+        public async Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomerAsync(Guid customerId)
         {
-            return await _assetContext.LifeCycleSettings.Include(x=>x.CategoryLifeCycleSettings)
-                .FirstOrDefaultAsync(u => u.CustomerId == customerId);
+            return await _assetContext.LifeCycleSettings.Where(u => u.CustomerId == customerId).ToListAsync();
         }
 
         #endregion

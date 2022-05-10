@@ -36,8 +36,7 @@ namespace OrigoApiGateway.Services
         Task<string> CreateAssetSeedData();
         Task<decimal> GetCustomerTotalBookValue(Guid customerId);
         Task<OrigoAsset> MakeAssetAvailableAsync(Guid customerId, MakeAssetAvailable data, Guid callerId);
-        Task<LifeCycleSetting> GetLifeCycleSettingByCustomer(Guid customerId);
+        Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomer(Guid customerId);
         Task<LifeCycleSetting> SetLifeCycleSettingForCustomerAsync(Guid customerId, NewLifeCycleSetting setting, Guid callerId);
-        Task<CategoryLifeCycleSetting> SetCategoryLifeCycleSettingForCustomerAsync(Guid customerId, NewCategoryLifeCycleSettingDTO newSetting);
     }
 }
