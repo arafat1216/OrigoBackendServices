@@ -35,6 +35,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     private readonly Guid _user;
     private readonly Guid _assetOne;
     private readonly Guid _assetTwo;
+    private readonly Guid _assetThree;
 
     private readonly AssetWebApplicationFactory<Startup> _factory;
 
@@ -48,6 +49,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         _user = factory.ASSETHOLDER_ONE_ID;
         _assetOne = factory.ASSETLIFECYCLE_ONE_ID;
         _assetTwo = factory.ASSETLIFECYCLE_TWO_ID;
+        _assetThree = factory.ASSETLIFECYCLE_THREE_ID;
         _factory = factory;
     }
 
@@ -343,6 +345,25 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.True(pagedAsset!.Items.Where(x => x.AssetStatus == AssetLifecycleStatus.InUse).Count() == 5);
     }
 
+    [Fact]
+    public async Task MakeAssetAvailableAsync()
+    {
+        var postData = new MakeAssetAvailable()
+        {
+            AssetLifeCycleId = _assetThree,
+            CallerId = _callerId
+        };
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/make-available";
+        _testOutputHelper.WriteLine(requestUri);
+        var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+        Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+        var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+        Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.Available);
+        Assert.True(updatedAsset!.AssetHolderId == null || updatedAsset!.AssetHolderId == Guid.Empty);
+        Assert.True(updatedAsset!.Labels == null || !updatedAsset!.Labels.Any());
+    }
 
     [Fact]
     public async Task UpdateLifeCycleSetting()

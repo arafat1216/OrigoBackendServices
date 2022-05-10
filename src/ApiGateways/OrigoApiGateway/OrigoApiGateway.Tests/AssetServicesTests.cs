@@ -439,6 +439,91 @@ namespace OrigoApiGateway.Tests
 
         [Fact]
         [Trait("Category", "UnitTest")]
+        public async void MakeAssetAvailableAsync()
+        {
+            // Arrange
+            const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
+
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        {
+                            ""id"": ""80665d26-90b4-4a3a-a20d-686b64466f32"",
+                            ""organizationId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                            ""alias"": ""alias_2"",
+                            ""note"": """",
+                            ""description"": """",
+                            ""assetTag"": """",
+                            ""assetCategoryId"": 1,
+                            ""assetCategoryName"": ""Mobile phone"",
+                            ""brand"": ""Samsung"",
+                            ""productName"": ""Samsung Galaxy S21"",
+                            ""lifecycleType"": 2,
+                            ""lifecycleName"": ""Transactional"",
+                            ""paidByCompany"": 0,
+                            ""currencyCode"": 0,
+                            ""bookValue"": 0,
+                            ""buyoutPrice"": 0.00,
+                            ""purchaseDate"": ""0001-01-01T00:00:00"",
+                            ""createdDate"": ""2022-05-10T08:11:17.9941683Z"",
+                            ""managedByDepartmentId"": ""6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72"",
+                            ""assetHolderId"": null,
+                            ""assetStatus"": 3,
+                            ""assetStatusName"": ""Available"",
+                            ""labels"": [],
+                            ""serialNumber"": ""123456789012399"",
+                            ""imei"": [
+                                512217111821626
+                            ],
+                            ""macAddress"": ""840F1D0C06AD"",
+                            ""orderNumber"": """",
+                            ""productId"": """",
+                            ""invoiceNumber"": """",
+                            ""transactionId"": """",
+                            ""isPersonal"": false
+                        }
+                    ")
+                });
+
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new AssetConfiguration() { ApiPath = @"/assets" };
+            var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+
+
+            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+
+            var postData = new MakeAssetAvailable()
+            {
+                AssetLifeCycleId = Guid.Parse("80665d26-90b4-4a3a-a20d-686b64466f32")
+            };
+
+            // Act
+            var asset = await assetService.MakeAssetAvailableAsync(new Guid(CUSTOMER_ID), postData, Guid.Empty);
+
+            // Assert
+            Assert.Equal(CUSTOMER_ID, asset.OrganizationId.ToString().ToLower());
+            Assert.True(asset.AssetHolderId == null || asset.AssetHolderId == Guid.Empty);
+            Assert.True(asset.Labels == null || !asset.Labels.Any());
+            Assert.True(asset.AssetStatus == Common.Enums.AssetLifecycleStatus.Available);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
         public async void GetLifeCycleSettingByCustomer()
         {
             // Arrange

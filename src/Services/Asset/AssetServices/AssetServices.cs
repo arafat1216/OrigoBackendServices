@@ -402,8 +402,8 @@ namespace AssetServices
             var updatedAssetLifeCycle = await _assetLifecycleRepository.MakeAssetAvailableAsync(customerId, callerId, assetLifeCycleId);          
             if(updatedAssetLifeCycle == null)
                 throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct customer Id?", _logger);
-
-            return _mapper.Map<AssetLifecycleDTO>(updatedAssetLifeCycle);
+            var assetData = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetLifeCycleId);
+            return _mapper.Map<AssetLifecycleDTO>(assetData);
         }
 
 

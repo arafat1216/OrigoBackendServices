@@ -32,6 +32,7 @@ public class AssetWebApplicationFactory<TProgram> : WebApplicationFactory<TProgr
     public Guid ORGANIZATION_ID => AssetTestDataSeedingForDatabase.ORGANIZATION_ID;
     public Guid ASSETLIFECYCLE_ONE_ID => AssetTestDataSeedingForDatabase.ASSETLIFECYCLE_ONE_ID;
     public Guid ASSETLIFECYCLE_TWO_ID => AssetTestDataSeedingForDatabase.ASSETLIFECYCLE_TWO_ID;
+    public Guid ASSETLIFECYCLE_THREE_ID => AssetTestDataSeedingForDatabase.ASSETLIFECYCLE_THREE_ID;
     public Guid DEPARTMENT_ID => AssetTestDataSeedingForDatabase.DEPARTMENT_ID;
     public Guid COMPANY_ID => AssetTestDataSeedingForDatabase.COMPANY_ID;
     public Guid ASSETHOLDER_ONE_ID => AssetTestDataSeedingForDatabase.ASSETHOLDER_ONE_ID;

@@ -354,7 +354,7 @@ namespace Asset.API.Controllers
 
         [Route("customers/{customerId:guid}/make-available")]
         [HttpPost]
-        [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> MakeAssetAvailable(Guid customerId, [FromBody] MakeAssetAvailable data)
         {
