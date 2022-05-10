@@ -206,7 +206,7 @@ namespace OrigoApiGateway.Services
                 var response = new HttpResponseMessage();
                 var newSettingtDTO = _mapper.Map<NewLifeCycleSettingDTO>(setting);
                 newSettingtDTO.CallerId = callerId;
-                if (existingSetting == null || existingSetting!.FirstOrDefault(x=>x.AssetCategoryId == setting.AssetCategoryId) ==null)
+                if (existingSetting == null || existingSetting!.FirstOrDefault(x=>x.AssetCategoryId == setting.AssetCategoryId) == null)
                     response = await HttpClient.PostAsJsonAsync(requestUri, newSettingtDTO);
                 else
                     response = await HttpClient.PutAsJsonAsync(requestUri, newSettingtDTO);
