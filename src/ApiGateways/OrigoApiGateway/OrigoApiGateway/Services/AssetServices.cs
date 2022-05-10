@@ -645,6 +645,25 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
+        public string GetCurrencyByCountryCode(string? countryCode = null)
+        {
+            if (string.IsNullOrEmpty(countryCode))
+                return CurrencyCode.NOK.ToString();
+
+            switch (countryCode.ToUpper().Trim())
+            {
+                case "NO":
+                    return CurrencyCode.NOK.ToString();
+                case "SE":
+                    return CurrencyCode.SEK.ToString();
+                case "DK":
+                    return CurrencyCode.DKK.ToString();
+                case "US":
+                    return CurrencyCode.USD.ToString();
+                default:
+                    return CurrencyCode.EUR.ToString();
+            };
+        }
         public async Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, UpdateAssetLifecycleType data)
         {
             try

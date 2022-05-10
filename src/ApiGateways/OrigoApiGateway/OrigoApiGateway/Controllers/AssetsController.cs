@@ -897,6 +897,25 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("currency")]
+        [HttpGet]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public ActionResult GetCurrencyByCountryCode([FromQuery] string? countryCode = null)
+        {
+            try
+            {
+                var currency = _assetServices.GetCurrencyByCountryCode(countryCode);
+                return Ok(currency);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
         [Route("min-buyout-price")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<MinBuyoutPrice>), (int)HttpStatusCode.OK)]
