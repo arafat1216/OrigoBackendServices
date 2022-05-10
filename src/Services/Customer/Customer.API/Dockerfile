@@ -84,6 +84,7 @@ RUN dotnet test \
 	--configuration Release \
 	--no-restore \
 	--no-build \
+	-nodereuse:false \
     ../Tests/CustomerServices.UnitTests/CustomerServices.UnitTests.csproj
 
 # Build and Test Integration tests
@@ -100,6 +101,7 @@ RUN dotnet test \
 	--configuration Release \
 	--no-restore \
 	--no-build \
+	-nodereuse:false \
 	../Tests/Customer.API.Tests/Customer.API.IntegrationTests.csproj
 
 RUN reportgenerator \
