@@ -26,7 +26,8 @@ public class AssetLifecycleProfile : Profile
         CreateMap<AssetLifecycle, AssetLifecycleDTO>()
             .ForMember(dest => dest.ContractHolderUserId,
             opts => opts.MapFrom(src => src.ContractHolderUser!.ExternalId))
-            .ForMember(dest=> dest.Labels, opts => opts.MapFrom(src => src.Labels));
+            .ForMember(dest=> dest.Labels, opts => opts.MapFrom(src => src.Labels))
+            .ForMember(dest => dest.Source, opts => opts.MapFrom(src => src.Source.ToString()));
         CreateMap<PagedModel<AssetLifecycle>, PagedModel<AssetLifecycleDTO>>();
        
 

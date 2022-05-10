@@ -160,4 +160,6 @@ public record Asset
     /// Is a personal or non-personal asset.
     /// </summary>
     public bool IsPersonal { get; set; }
+
+    public string Source { get; set; }
 }

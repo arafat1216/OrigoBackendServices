@@ -241,6 +241,60 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     }
 
     [Fact]
+    public async Task CreateAssetWithFileImportedSource()
+    {
+        var newAsset = new NewAsset
+        {
+            Alias = "Just another name",
+            AssetCategoryId = 1,
+            Note = "A long note",
+            Brand = "iPhone",
+            ProductName = "12 Pro Max",
+            LifecycleType = LifecycleType.Transactional,
+            PurchaseDate = new DateTime(2022, 2, 2),
+            ManagedByDepartmentId = Guid.NewGuid(),
+            AssetHolderId = Guid.NewGuid(),
+            Imei = new List<long> { 356728115537645 },
+            CallerId = _callerId,
+            Source = "FileImport"
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newAsset));
+        var requestUri = $"/api/v1/Assets/customers/{_organizationId}";
+        _testOutputHelper.WriteLine(requestUri);
+        var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newAsset);
+        var assetReturned = await createResponse.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        Assert.Equal("FileImport", assetReturned!.Source);
+    }
+
+    [Fact]
+    public async Task CreateAssetWithIncorrectSource()
+    {
+        var newAsset = new NewAsset
+        {
+            Alias = "Just another name",
+            AssetCategoryId = 1,
+            Note = "A long note",
+            Brand = "iPhone",
+            ProductName = "12 Pro Max",
+            LifecycleType = LifecycleType.Transactional,
+            PurchaseDate = new DateTime(2022, 2, 2),
+            ManagedByDepartmentId = Guid.NewGuid(),
+            AssetHolderId = Guid.NewGuid(),
+            Imei = new List<long> { 356728115537645 },
+            CallerId = _callerId,
+            Source = "NOT_EXISTS"
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newAsset));
+        var requestUri = $"/api/v1/Assets/customers/{_organizationId}";
+        _testOutputHelper.WriteLine(requestUri);
+        var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newAsset);
+        var assetReturned = await createResponse.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        Assert.Equal("Unknown", assetReturned!.Source);
+    }
+
+    [Fact]
     public async Task CreateAssetWithEmptyNote()
     {
         var newAsset = new NewAsset

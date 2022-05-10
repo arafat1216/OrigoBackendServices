@@ -1,3 +1,4 @@
+#nullable enable
 using Common.Enums;
 using System;
 using System.Collections.Generic;
@@ -121,5 +122,10 @@ namespace OrigoApiGateway.Models
         /// Is a personal or non-personal asset.
         /// </summary>
         public bool IsPersonal { get; set; }
+
+        /// <summary>
+        /// Which source was this fetched from.
+        /// </summary>
+        public string? Source { get; set; }
     }
 }

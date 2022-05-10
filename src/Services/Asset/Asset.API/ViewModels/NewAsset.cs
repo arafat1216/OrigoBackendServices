@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AssetServices.Models;
 using Common.Enums;
 
 namespace Asset.API.ViewModels;
@@ -142,4 +143,10 @@ public record NewAsset
     /// Is a personal or non-personal asset.
     /// </summary>
     public bool? IsPersonal { get; set; } = true;
+
+    /// <summary>
+    /// The source for the imported asset lifecycle.
+    /// Possible values: ManuelRegistration, FileImport, Webshop, Unknown
+    /// </summary>
+    public string? Source { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models
@@ -83,5 +84,7 @@ namespace OrigoApiGateway.Models
         /// Is a personal or non-personal asset.
         /// </summary>
         public bool? IsPersonal { get; set; } = true;
+
+        public string? Source { get; set; } = string.Empty;
     }
 }

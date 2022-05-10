@@ -76,6 +76,11 @@ public class AssetLifecycle : Entity, IAggregateRoot
     public Asset? Asset { get; private set; }
 
     /// <summary>
+    /// Which source was this fetched from.
+    /// </summary>
+    public AssetLifeCycleSource Source { get; set; }
+
+    /// <summary>
     /// Return a category id based on the type of the asset.
     /// </summary>
     public int AssetCategoryId

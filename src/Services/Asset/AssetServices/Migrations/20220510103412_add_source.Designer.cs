@@ -4,6 +4,7 @@ using AssetServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AssetServices.Migrations
 {
     [DbContext(typeof(AssetsContext))]
-    partial class AssetsContextModelSnapshot : ModelSnapshot
+    [Migration("20220510103412_add_source")]
+    partial class add_source
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -215,6 +217,33 @@ namespace AssetServices.Migrations
                     b.ToTable("AssetLifeCycles");
                 });
 
+            modelBuilder.Entity("AssetServices.Models.CategoryLifeCycleSetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("AssetCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LifeCycleSettingId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("MinBuyoutPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LifeCycleSettingId");
+
+                    b.ToTable("CategoryLifeCycleSettings");
+                });
+
             modelBuilder.Entity("AssetServices.Models.CustomerLabel", b =>
                 {
                     b.Property<int>("Id")
@@ -265,9 +294,6 @@ namespace AssetServices.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("AssetCategoryId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("BuyoutAllowed")
                         .HasColumnType("bit");
 
@@ -275,9 +301,7 @@ namespace AssetServices.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
@@ -292,12 +316,7 @@ namespace AssetServices.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("LastUpdatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
-
-                    b.Property<decimal>("MinBuyoutPrice")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -412,6 +431,13 @@ namespace AssetServices.Migrations
                     b.Navigation("ContractHolderUser");
                 });
 
+            modelBuilder.Entity("AssetServices.Models.CategoryLifeCycleSetting", b =>
+                {
+                    b.HasOne("AssetServices.Models.LifeCycleSetting", null)
+                        .WithMany("CategoryLifeCycleSettings")
+                        .HasForeignKey("LifeCycleSettingId");
+                });
+
             modelBuilder.Entity("AssetServices.Models.CustomerLabel", b =>
                 {
                     b.HasOne("AssetServices.Models.AssetLifecycle", null)
@@ -445,6 +471,11 @@ namespace AssetServices.Migrations
             modelBuilder.Entity("AssetServices.Models.AssetLifecycle", b =>
                 {
                     b.Navigation("Labels");
+                });
+
+            modelBuilder.Entity("AssetServices.Models.LifeCycleSetting", b =>
+                {
+                    b.Navigation("CategoryLifeCycleSettings");
                 });
 
             modelBuilder.Entity("AssetServices.Models.MobilePhone", b =>

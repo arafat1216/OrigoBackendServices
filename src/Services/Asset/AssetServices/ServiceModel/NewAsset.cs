@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AssetServices.Models;
 using Common.Enums;
 
 namespace AssetServices.ServiceModel
@@ -142,5 +143,7 @@ namespace AssetServices.ServiceModel
         /// Is a personal or non-personal asset.
         /// </summary>
         public bool IsPersonal { get; set; }
+
+        public string? Source { get; set; }
     }
 }

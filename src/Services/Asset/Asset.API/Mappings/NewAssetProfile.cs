@@ -18,7 +18,8 @@ public class NewAssetProfile : Profile
             .ForMember(destination => destination.AssetTag, opt => opt.MapFrom(src => src.AssetTag ?? string.Empty))
             .ForMember(destination => destination.Imei, opt => opt.MapFrom(src => src.Imei ?? new List<long>()))
             .ForMember(destination => destination.PaidByCompany, opt => opt.MapFrom(src => src.PaidByCompany ?? 0.0m))
-            .ForMember(destination => destination.Description, opt => opt.MapFrom(src => src.Description ?? string.Empty));
+            .ForMember(destination => destination.Description, opt => opt.MapFrom(src => src.Description ?? string.Empty))
+            .ForMember(destination => destination.Source, opt => opt.MapFrom(src => src.Source ?? string.Empty));
         CreateMap<NewLifeCycleSetting, LifeCycleSettingDTO>();
     }
 }

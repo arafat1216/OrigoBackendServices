@@ -135,5 +135,10 @@ namespace OrigoApiGateway.Models.BackendDTO
         /// Is a personal or non-personal asset.
         /// </summary>
         public bool IsPersonal { get; set; }
+
+        /// <summary>
+        /// Which source was this fetched from.
+        /// </summary>
+        public string? Source { get; init; }
     }
 }

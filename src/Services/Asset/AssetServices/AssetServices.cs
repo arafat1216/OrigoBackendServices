@@ -304,6 +304,13 @@ namespace AssetServices
                     }
                 }
             }
+
+            var sourceConverted = AssetLifeCycleSource.Unknown;
+            if (Enum.TryParse(typeof(AssetLifeCycleSource), newAssetDTO.Source, out var sourceTryConverted))
+            {
+                sourceConverted = (AssetLifeCycleSource)(sourceTryConverted ?? AssetLifeCycleSource.Unknown);
+            }
+
             var assetLifecycle = new AssetLifecycle
             {
                 CustomerId = customerId,
@@ -317,7 +324,8 @@ namespace AssetServices
                 OrderNumber = newAssetDTO.OrderNumber ?? string.Empty,
                 ProductId = newAssetDTO.ProductId ?? string.Empty,
                 InvoiceNumber = newAssetDTO.InvoiceNumber ?? string.Empty,
-                TransactionId = newAssetDTO.TransactionId ?? string.Empty
+                TransactionId = newAssetDTO.TransactionId ?? string.Empty,
+                Source = sourceConverted
             };
 
             Asset asset = newAssetDTO.AssetCategoryId == 1
