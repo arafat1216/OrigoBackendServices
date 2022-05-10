@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.ComponentModel;
 using System.Reflection;
+using System.Text.Json;
 
 #region Sources & References
 
@@ -29,12 +31,12 @@ var apiVersion = new ApiVersion(1, 0);
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("secrets/appsettings.secrets.json", optional: true);
-
 builder.Configuration.AddUserSecrets<Program>(optional: true);
 
 builder.Services.AddHealthChecks();
 builder.Services.AddControllers()
                 .AddDapr();
+
 
 builder.Services.AddDbContext<HardwareServiceOrderContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("HardwareServiceOrderConnectionString"), sqlOption =>
@@ -115,9 +117,11 @@ builder.Services.AddMvc();
 
 builder.Services.AddApplicationInsightsTelemetry();
 
+builder.Services.Configure<ServiceProviderConfiguration>(builder.Configuration.GetSection("ServiceProviderConfiguration"));
+builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("Email"));
 builder.Services.AddScoped<IHardwareServiceOrderService, HardwareServiceOrderService>();
 builder.Services.AddScoped<IHardwareServiceOrderRepository, HardwareServiceOrderRepository>();
-builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("Email"));
+builder.Services.AddScoped<ProviderFactory>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IFlatDictionaryProvider, FlatDictionary>();
 #endregion Builder
@@ -129,11 +133,6 @@ var app = builder.Build();
 
 // The API version descriptor provider used to enumerate defined API versions.
 var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-
-if (app.Environment.IsDevelopment())
-{
-    builder.Configuration.AddUserSecrets<Program>(optional: true);
-}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

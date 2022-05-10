@@ -36,10 +36,12 @@ namespace HardwareServiceOrderServices.Models
         /// <summary>
         ///     The phone-number in <c>E.164</c> format.
         /// </summary>
+        [Phone]
         [RegularExpression("^\\+[1-9]\\d{1,14}$")]
         [StringLength(maximumLength:15)] // The longest possible length for a valid E.164 phone-number
         public string? LoanDevicePhoneNumber { get; set; }
 
+        [EmailAddress]
         [StringLength(maximumLength:320)] // The RFC's max-length for email addresses
         public string? LoanDeviceEmail { get; set; }
 

@@ -14,12 +14,13 @@ namespace HardwareServiceOrderServices.Models
         private HardwareServiceOrder() { }
 
         // TODO: Add service provider parameter
-        public HardwareServiceOrder(Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, string? externalProviderLink, ServiceType serviceType, ServiceStatus status, ServiceProvider serviceProvider)
+        public HardwareServiceOrder(Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, string? externalServiceManagementLink, ServiceType serviceType, ServiceStatus status, ServiceProvider serviceProvider)
         {
             AssetLifecycleId = assetLifecycleId;
             DeliveryAddress = deliveryAddress;
             UserDescription = userDescription;
-            ExternalProviderLink = externalProviderLink;
+
+            ExternalServiceManagementLink = externalServiceManagementLink;
             ServiceType = serviceType;
             Status = status;
         }
@@ -47,10 +48,22 @@ namespace HardwareServiceOrderServices.Models
         public string UserDescription { get; set; }
 
         /// <summary>
-        ///     A URL to the service-providers status-system. Usually this offers a portal where the user can 
+        ///     A URL to the service-provider's service-status/management system. This is usually a portal where the user can 
         ///     interact with, and/or see information about the service.
         /// </summary>
-        public string? ExternalProviderLink { get; set; }
+        public string? ExternalServiceManagementLink { get; set; }
+
+        /// <summary>
+        ///     The identifier that was provided by the service-provider. This is what's used when looking up the service-order
+        ///     in the provider's systems/APIs.
+        /// </summary>
+        public string ServiceProviderOrderId1 { get; set; }
+
+        /// <summary>
+        ///     The identifier that was provided by the service-provider. This is what's used when looking up the service-order
+        ///     in the provider's systems/APIs. If the service-provider don't use several identifiers, then this will be <see langword="null"/>.
+        /// </summary>
+        public string? ServiceProviderOrderId2 { get; set; }
 
 
         /*
