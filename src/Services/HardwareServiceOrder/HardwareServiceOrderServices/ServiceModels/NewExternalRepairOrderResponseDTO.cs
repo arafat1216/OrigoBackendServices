@@ -1,10 +1,10 @@
 ﻿namespace HardwareServiceOrderServices.ServiceModels
 {
     /// <summary>
-    ///     Contains the new/updated data that is returned by the service-provider after a new repair order has been created.
+    ///     Contains the new/updated data that is returned by the external service-provider after a new repair order has been created.
     ///     What information that's available may differ between providers.
     /// </summary>
-    public class NewRepairOrderResponseDTO
+    public class NewExternalRepairOrderResponseDTO
     {
 
         /// <summary>
@@ -27,7 +27,7 @@
 
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="NewRepairOrderResponseDTO"/> class.
+        ///     Initializes a new instance of the <see cref="NewExternalRepairOrderResponseDTO"/> class.
         /// </summary>
         /// <param name="serviceProviderOrderId1"> The identifier that was provided by the service-provider. This is what's used when looking up the 
         ///     service-order in the provider's systems/APIs. </param>
@@ -35,7 +35,7 @@
         ///     service-order in the provider's systems/APIs. </param>
         /// <param name="externalServiceManagementLink"> A URL to the service-provider's service-status/management system. This is usually a portal 
         ///     where the user can interact with, and/or see information about the service. </param>
-        public NewRepairOrderResponseDTO(string serviceProviderOrderId1, string? serviceProviderOrderId2 = null, string? externalServiceManagementLink = null)
+        public NewExternalRepairOrderResponseDTO(string serviceProviderOrderId1, string? serviceProviderOrderId2 = null, string? externalServiceManagementLink = null)
         {
             ServiceProviderOrderId1 = serviceProviderOrderId1;
             ServiceProviderOrderId2 = serviceProviderOrderId2;

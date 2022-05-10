@@ -4,9 +4,9 @@ using System.Text.Json.Serialization;
 namespace HardwareServiceOrderServices.ServiceModels
 {
     /// <summary>
-    ///     Contains the information required for registering a new repair-order with a service-provider.
+    ///     Contains the information required for registering a new repair-order with an external service-provider.
     /// </summary>
-    public class NewRepairOrderDTO
+    public class NewExternalRepairOrderDTO
     {
         /// <summary>
         ///     The ID of the user that handles the service-order.
@@ -85,7 +85,7 @@ namespace HardwareServiceOrderServices.ServiceModels
 
 
         [JsonConstructor]
-        public NewRepairOrderDTO(Guid userId, string fistName, string lastName, string? phoneNumber, string email, Guid organizationId, string? organizationNumber, DeliveryAddressDTO deliveryAddress, AssetInfoDTO assetInfo, string errorDescription)
+        public NewExternalRepairOrderDTO(Guid userId, string fistName, string lastName, string? phoneNumber, string email, Guid organizationId, string? organizationNumber, DeliveryAddressDTO deliveryAddress, AssetInfoDTO assetInfo, string errorDescription)
         {
             UserId = userId;
             FirstName = fistName;

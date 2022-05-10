@@ -51,7 +51,7 @@ namespace HardwareServiceOrder.API.Controllers
                     PurchaseDate = DateOnly.FromDateTime(DateTime.Now),
                 };
 
-                NewRepairOrderDTO repairOrder = new(Guid.NewGuid(), "Firstname", "Lastname", null, "test@test.com", Guid.NewGuid(), null, address, asset, "Something is wrong!");
+                NewExternalRepairOrderDTO repairOrder = new(Guid.NewGuid(), "Firstname", "Lastname", null, "test@test.com", Guid.NewGuid(), null, address, asset, "Something is wrong!");
 
                 //var result = await serviceProvider.CreateRepairOrderAsync(repairOrder, (int)ServiceTypeEnum.SUR, Guid.NewGuid().ToString());
 

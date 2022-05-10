@@ -16,7 +16,7 @@ namespace HardwareServiceOrderServices
         /// <param name="serviceTypeId"> The ID of the service type that should be used. </param>
         /// <param name="serviceId"> The customer's Conmodo <see cref="CustomerSettings.ServiceId"/>. </param>
         /// <returns> The repair order. </returns>
-        Task<NewRepairOrderResponseDTO> CreateRepairOrderAsync(NewRepairOrderDTO newRepairOrder, int serviceTypeId, string serviceId);
+        Task<NewExternalRepairOrderResponseDTO> CreateRepairOrderAsync(NewExternalRepairOrderDTO newRepairOrder, int serviceTypeId, string serviceId);
 
         /// <summary>
         ///     Retrieve a specific repair order using it's ID(s). Based on the service-provider, one or several keys may be required.

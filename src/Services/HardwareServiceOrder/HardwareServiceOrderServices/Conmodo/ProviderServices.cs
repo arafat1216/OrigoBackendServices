@@ -24,7 +24,7 @@ namespace HardwareServiceOrderServices.Conmodo
 
 
         /// <inheritdoc/>
-        public async Task<NewRepairOrderResponseDTO> CreateRepairOrderAsync(NewRepairOrderDTO newRepairOrder, int serviceTypeId, string serviceId)
+        public async Task<NewExternalRepairOrderResponseDTO> CreateRepairOrderAsync(NewExternalRepairOrderDTO newRepairOrder, int serviceTypeId, string serviceId)
         {
             string commId = serviceId;
             string? category = new CategoryMapper().ToConmodo(newRepairOrder.AssetInfo.AssetCategoryId);
@@ -41,7 +41,7 @@ namespace HardwareServiceOrderServices.Conmodo
             var response = await ApiRequests.CreateServiceOrderAsync(orderRequest);
 
             // Create the return object
-            NewRepairOrderResponseDTO repairOrderResponse = new(response.OrderNumber.ToString(), null, response.DirectCustomerLink);
+            NewExternalRepairOrderResponseDTO repairOrderResponse = new(response.OrderNumber.ToString(), null, response.DirectCustomerLink);
             return repairOrderResponse;
         }
 
