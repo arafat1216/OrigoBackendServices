@@ -101,10 +101,13 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     [Fact]
     public async Task GetCustomerItemCount_ForCustomerWithDepartmentAndStatus()
     {
+        // Arrange
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
         var requestUri =
             $"/api/v1/Assets/customers/{_customerId}/count?departmentId={_departmentId}&assetLifecycleStatus={(int)AssetLifecycleStatus.InUse}";
         _testOutputHelper.WriteLine(requestUri);
-        var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
+        var count = await httpClient.GetFromJsonAsync<int>(requestUri);
         Assert.Equal(2, count);
     }
 
