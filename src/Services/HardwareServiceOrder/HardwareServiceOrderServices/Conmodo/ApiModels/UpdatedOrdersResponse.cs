@@ -5,6 +5,6 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
     internal class UpdatedOrdersResponse
     {
         [JsonPropertyName("order")]
-        public List<Order>? Order { get; set; }
+        public IEnumerable<Order>? Order { get; set; }
     }
 }

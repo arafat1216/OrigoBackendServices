@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Common.Converters;
 
 namespace HardwareServiceOrderServices.Conmodo.ApiModels
 {
@@ -29,6 +30,7 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         [JsonPropertyName("errorDescription")]
         public string ErrorDescription { get; set; }
 
+        [JsonConverter(typeof(DateOnlyNullableJsonConverter))]
         [JsonPropertyName("boughtDate")]
         public DateOnly? BoughtDate { get; set; }
 
@@ -43,8 +45,7 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         ///     IDs to valid extra services are supplied by Conmodo
         /// </summary>
         [JsonPropertyName("extraServices")]
-        public HashSet<int>? ExtraServices { get; set; }
-        //public ISet<int>? ExtraServices { get; set; }
+        public ISet<int>? ExtraServices { get; set; }
 
         [JsonPropertyName("owner")]
         public Contact? Owner { get; set; }
@@ -53,16 +54,18 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         [JsonPropertyName("customerHandler")]
         public Contact CustomerHandler { get; set; }
 
+        // TODO: Why is this not implemented in Conmodo when it is added to their docs?
         /// <summary>
         ///     The order number in Conmodo's service system
         /// </summary>
+        [JsonIgnore]
         [JsonPropertyName("orderNumber")]
         public int? OrderNumber { get; set; }
 
         /// <summary>
         ///     Optional field for cost place
         /// </summary>
-        [JsonPropertyName("orderNumber")]
+        [JsonPropertyName("costPlace")]
         public string? CostPlace { get; set; }
 
         /// <summary>
@@ -76,5 +79,39 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         /// </summary>
         [JsonPropertyName("invoiceReference")]
         public string? InvoiceReference { get; set; }
+
+
+        /// <summary>
+        ///     System-reserved constructor. Should not be used!
+        /// </summary>
+        [Obsolete("Reserved constructor for the JSON serializers.", error: true)]
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public CreateOrderRequest()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+        }
+
+
+        public CreateOrderRequest(string commId, string reference, Contact customerHandler, StartStatus startStatus, string errorDescription)
+        {
+            CommId = commId;
+            Reference = reference;
+            CustomerHandler = customerHandler;
+            StartStatus = startStatus;
+            ErrorDescription = errorDescription;
+        }
+
+        public CreateOrderRequest(string commId, string reference, Contact customerHandler, StartStatus startStatus, string errorDescription, ProductInfo productInfo, DateOnly? purchaseDate, Contact serviceRequestOwner)
+        {
+            CommId = commId;
+            Reference = reference;
+            CustomerHandler = customerHandler;
+            StartStatus = startStatus;
+            ErrorDescription = errorDescription;
+
+            ProductInfo = productInfo;
+            BoughtDate = purchaseDate;
+            Owner = serviceRequestOwner;
+        }
     }
 }

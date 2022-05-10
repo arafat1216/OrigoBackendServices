@@ -29,11 +29,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Conmodo\Mappings\" />
-	  <Folder Include="Conmodo\Requests\" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <Compile Update="Resources\HardwareServiceOrder.Designer.cs">
 	    <DesignTime>True</DesignTime>
 	    <AutoGen>True</AutoGen>
