@@ -7,7 +7,7 @@ namespace HardwareServiceOrderServices.Conmodo
     /// <summary>
     ///     The point-of-entry service-class that implements the provider-interfaces for Conmodo.
     /// </summary>
-    public class ProviderServices : IAftermarketProvider, IRepairProvider
+    internal class ProviderServices : IAftermarketProvider, IRepairProvider
     {
         private ApiRequests ApiRequests { get; }
 
