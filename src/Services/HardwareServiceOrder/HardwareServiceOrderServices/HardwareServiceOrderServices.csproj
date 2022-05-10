@@ -18,16 +18,10 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
-
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\Core\Common.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Conmodo\Mappings\" />
-	  <Folder Include="Conmodo\Requests\" />
 	</ItemGroup>
 
 </Project>

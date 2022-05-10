@@ -30,7 +30,6 @@ var apiVersion = new ApiVersion(1, 0);
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("secrets/appsettings.secrets.json", optional: true);
-
 builder.Configuration.AddUserSecrets<Program>(optional: true);
 
 builder.Services.AddHealthChecks();
@@ -117,8 +116,10 @@ builder.Services.AddMvc();
 
 builder.Services.AddApplicationInsightsTelemetry();
 
+builder.Services.Configure<ServiceProviderConfiguration>(builder.Configuration.GetSection("ServiceProviderConfiguration"));
 builder.Services.AddScoped<IHardwareServiceOrderService, HardwareServiceOrderService>();
 builder.Services.AddScoped<IHardwareServiceOrderRepository, HardwareServiceOrderRepository>();
+builder.Services.AddScoped<ProviderFactory>();
 
 #endregion Builder
 
@@ -129,11 +130,6 @@ var app = builder.Build();
 
 // The API version descriptor provider used to enumerate defined API versions.
 var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-
-if (app.Environment.IsDevelopment())
-{
-    builder.Configuration.AddUserSecrets<Program>(optional: true);
-}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
