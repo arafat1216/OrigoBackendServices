@@ -539,6 +539,128 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("{assetId:Guid}/customers/{organizationId:guid}/re-assignment-personal")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
+        public async Task<ActionResult> ReAssignAssetPersonal(Guid assetId, Guid organizationId, [FromBody] ReAssignmentPersonal data)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to manage assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid.TryParse(actor, out Guid callerId);
+                if (data.DepartmentId == Guid.Empty)
+                    return BadRequest("No Department selected.");
+                if (data.UserId == Guid.Empty)
+                    return BadRequest("No User selected.");
+
+                var updatedAssets = await _assetServices.ReAssignAssetToUser(organizationId, data.UserId, assetId, data.DepartmentId, callerId);
+                if (updatedAssets == null)
+                {
+                    return NotFound();
+                }
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
+            }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, "Unable to Re-Assign Personal For the asset ");
+            }
+        }
+
+        [Route("{assetId:Guid}/customers/{organizationId:guid}/re-assignment-nonpersonal")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
+        public async Task<ActionResult> ReAssignAssetNonPersonal(Guid assetId, Guid organizationId, [FromBody] ReAssignmentNonPersonal data)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to manage assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid.TryParse(actor, out Guid callerId);
+                if (data.DepartmentId == Guid.Empty)
+                    return BadRequest("No Department selected.");
+
+                var updatedAssets = await _assetServices.ReAssignAssetToDepartment(organizationId, assetId, data.DepartmentId, callerId);
+                if (updatedAssets == null)
+                {
+                    return NotFound();
+                }
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
+            }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, "Unable to Re-Assign Non-Personal For the asset ");
+            }
+        }
+
 
         [Route("{assetId:Guid}/customers/{organizationId:guid}/Update")]
         [HttpPatch]

@@ -39,5 +39,7 @@ namespace OrigoApiGateway.Services
         Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomer(Guid customerId);
         Task<LifeCycleSetting> SetLifeCycleSettingForCustomerAsync(Guid customerId, NewLifeCycleSetting setting, Guid callerId);
         string GetCurrencyByCountryCode(string? countryCode = null);
+        Task<OrigoAsset> ReAssignAssetToDepartment(Guid customerId, Guid assetId, Guid departmentId, Guid callerId);
+        Task<OrigoAsset> ReAssignAssetToUser(Guid customerId, Guid userId, Guid assetId, Guid departmentId, Guid callerId);
     }
 }

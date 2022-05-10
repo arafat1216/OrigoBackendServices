@@ -32,10 +32,12 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     private readonly Guid _organizationId;
     private readonly Guid _customerId;
     private readonly Guid _departmentId;
+    private readonly Guid _departmentIdTwo;
     private readonly Guid _user;
     private readonly Guid _assetOne;
     private readonly Guid _assetTwo;
     private readonly Guid _assetThree;
+    private readonly Guid _assetFive;
 
     private readonly AssetWebApplicationFactory<Startup> _factory;
 
@@ -46,10 +48,12 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         _organizationId = factory.ORGANIZATION_ID;
         _customerId = factory.COMPANY_ID;
         _departmentId = factory.DEPARTMENT_ID;
+        _departmentIdTwo = factory.DEPARTMENT_TWO_ID;
         _user = factory.ASSETHOLDER_ONE_ID;
         _assetOne = factory.ASSETLIFECYCLE_ONE_ID;
         _assetTwo = factory.ASSETLIFECYCLE_TWO_ID;
         _assetThree = factory.ASSETLIFECYCLE_THREE_ID;
+        _assetFive = factory.ASSETLIFECYCLE_FIVE_ID;
         _factory = factory;
     }
 
@@ -342,6 +346,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     [Fact]
     public async Task UnAssignAssetsFromUser()
     {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
         var data = new UnAssignAssetToUser { CallerId = _callerId, DepartmentId = _departmentId };
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(data));
         var userId = Guid.Parse("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
@@ -349,11 +354,11 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
 
         var requestUri = $"/api/v1/Assets/customers/{customerId}/users/{userId}";
         _testOutputHelper.WriteLine(requestUri);
-        var deleteResponse = await _httpClient.PatchAsync(requestUri, JsonContent.Create(data));
+        var deleteResponse = await httpClient.PatchAsync(requestUri, JsonContent.Create(data));
         Assert.Equal(HttpStatusCode.Accepted, deleteResponse.StatusCode);
 
         var pagedAssetList =
-            await _httpClient.GetFromJsonAsync<PagedAssetList>($"/api/v1/Assets/customers/{customerId}");
+            await httpClient.GetFromJsonAsync<PagedAssetList>($"/api/v1/Assets/customers/{customerId}");
 
         Assert.NotNull(pagedAssetList);
         Assert.Equal(5, pagedAssetList!.TotalItems);
@@ -421,6 +426,115 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.True(updatedAsset!.AssetHolderId == null || updatedAsset!.AssetHolderId == Guid.Empty);
         Assert.True(updatedAsset!.Labels == null || !updatedAsset!.Labels.Any());
     }
+
+    [Theory]
+    [InlineData("00000000-0000-0000-0000-000000000000", "40ca1747-5dd3-41f1-9301-d7eafa4ee09b")]
+    [InlineData("40ca1747-5dd3-41f1-9301-d7eafa4ee09b", "00000000-0000-0000-0000-000000000000")]
+    [InlineData("00000000-0000-0000-0000-000000000000", "00000000-0000-0000-0000-000000000000")]
+    [InlineData("40ca1747-5dd3-41f1-9301-d7eafa4ee09b", "40ca1747-5dd3-41f1-9301-d7eafa4ee09b")]
+    public async Task ReAssignAssetToHolder_PersonalWithError(string userId, string deptId)
+    {
+        // Arrange
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+        var postData = new ReAssignAsset()
+        {
+            Personal = true,
+            UserId = Guid.Parse(userId),
+            DepartmentId = Guid.Parse(deptId),
+            CallerId = _callerId
+        };
+
+        // Act
+        var requestUri = $"/api/v1/Assets/{_assetFive}/customers/{_customerId}/re-assignment";
+        _testOutputHelper.WriteLine(requestUri);
+        var responsePost = await httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+        // Assert
+        if(postData.UserId != Guid.Empty && postData.DepartmentId != Guid.Empty)
+            Assert.Equal(HttpStatusCode.InternalServerError, responsePost.StatusCode);
+        else
+            Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
+    }
+
+    [Fact]
+    public async Task ReAssignAssetToHolder_Personal()
+    {
+        // Arrange
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+        var postData = new ReAssignAsset()
+        {
+            Personal = true,
+            UserId = _user,
+            DepartmentId = _departmentIdTwo,
+            CallerId = _callerId
+        };
+
+        // Act
+        var requestUri = $"/api/v1/Assets/{_assetFive}/customers/{_customerId}/re-assignment";
+        _testOutputHelper.WriteLine(requestUri);
+        var responsePost = await httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+        var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+        Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.InUse);
+        Assert.True(updatedAsset!.AssetHolderId == postData.UserId);
+        Assert.True(updatedAsset!.ManagedByDepartmentId == postData.DepartmentId);
+        Assert.True(updatedAsset!.IsPersonal == postData.Personal);
+    }
+
+    [Theory]
+    [InlineData("40ca1747-5dd3-41f1-9301-d7eafa4ee09b", "00000000-0000-0000-0000-000000000000")]
+    [InlineData("00000000-0000-0000-0000-000000000000", "00000000-0000-0000-0000-000000000000")]
+    public async Task ReAssignAssetToHolder_NonPersonalWithError(string userId, string deptId)
+    {
+        // Arrange
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+        var postData = new ReAssignAsset()
+        {
+            Personal = false,
+            UserId = Guid.Parse(userId),
+            DepartmentId = Guid.Parse(deptId),
+            CallerId = _callerId
+        };
+
+        // Act
+        var requestUri = $"/api/v1/Assets/{_assetFive}/customers/{_customerId}/re-assignment";
+        _testOutputHelper.WriteLine(requestUri);
+        var responsePost = await httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
+    }
+
+    [Fact]
+    public async Task ReAssignAssetToHolder_NonPersonal()
+    {
+        // Arrange
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+        var postData = new ReAssignAsset()
+        {
+            Personal = false,
+            DepartmentId = _departmentIdTwo,
+            CallerId = _callerId
+        };
+
+        // Act
+        var requestUri = $"/api/v1/Assets/{_assetFive}/customers/{_customerId}/re-assignment";
+        _testOutputHelper.WriteLine(requestUri);
+        var responsePost = await httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+        var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+        Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.InUse);
+        Assert.True(updatedAsset!.AssetHolderId == null);
+        Assert.True(updatedAsset!.ManagedByDepartmentId == postData.DepartmentId);
+        Assert.True(updatedAsset!.IsPersonal == postData.Personal);
+    }
+
 
     [Fact]
     public async Task UpdateLifeCycleSetting()

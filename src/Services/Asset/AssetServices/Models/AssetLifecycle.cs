@@ -284,6 +284,34 @@ public class AssetLifecycle : Entity, IAggregateRoot
     }
 
     /// <summary>
+    /// Re-assigning this asset fto other user/department. 
+    /// </summary>
+    /// <param name="callerId">The userid making this assignment</param>
+    public void ReAssignAssetLifeCycleToHolder(User? contractHolderUser, Guid departmentId, Guid callerId)
+    {
+        var previousDepartmentId = ManagedByDepartmentId;
+        var previousContractHolderUser = ContractHolderUser;
+        if (contractHolderUser != null)
+        {
+            // Re-assign to another user
+            if (ContractHolderUser != null)
+                AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, ContractHolderUser));
+            ContractHolderUser = contractHolderUser;
+        }
+        // Re-assign to another department
+        if (ManagedByDepartmentId != null)
+            AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this, callerId));
+        ManagedByDepartmentId = departmentId;
+        if (_assetLifecycleStatus != AssetLifecycleStatus.InUse) 
+            UpdateAssetStatus(AssetLifecycleStatus.InUse, callerId);
+        IsPersonal = contractHolderUser != null ? true : false;
+        AddDomainEvent(new ReAssignAssetLifeCycleDomainEvent(this, callerId, previousContractHolderUser, previousDepartmentId));
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+    }
+
+
+    /// <summary>
     /// Assign a customer label for this asset lifecycle.
     /// </summary>
     /// <param name="customerLabel">The label to assign to the asset lifecycle</param>

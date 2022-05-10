@@ -378,6 +378,91 @@ namespace OrigoApiGateway.Services
             }
         }
 
+        public async Task<OrigoAsset> ReAssignAssetToDepartment(Guid customerId, Guid assetId, Guid departmentId, Guid callerId)
+        {
+            try
+            {
+
+                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/re-assignment";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, JsonContent.Create(new
+                {
+                    Personal = false,
+                    DepartmentId = departmentId,
+                    CallerId = callerId
+                }));
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                OrigoAsset result = null;
+                if (asset != null)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        result = _mapper.Map<OrigoMobilePhone>(asset);
+                    else
+                        result = _mapper.Map<OrigoTablet>(asset);
+                }
+                return result;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to re-assign the asset");
+                throw;
+            }
+        }
+
+        public async Task<OrigoAsset> ReAssignAssetToUser(Guid customerId, Guid userId, Guid assetId, Guid departmentId, Guid callerId)
+        {
+            try
+            {
+
+                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/re-assignment";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, JsonContent.Create(new
+                {
+                    Personal = true,
+                    UserId = userId,
+                    DepartmentId = departmentId,
+                    CallerId = callerId
+                }));
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                OrigoAsset result = null;
+                if (asset != null)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        result = _mapper.Map<OrigoMobilePhone>(asset);
+                    else
+                        result = _mapper.Map<OrigoTablet>(asset);
+                }
+                return result;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to re-assign the asset");
+                throw;
+            }
+        }
+
         public async Task<OrigoAsset> UpdateAssetAsync(Guid customerId, Guid assetId, OrigoUpdateAssetDTO updateAsset)
         {
             try

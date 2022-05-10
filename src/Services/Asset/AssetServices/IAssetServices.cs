@@ -44,5 +44,6 @@ namespace AssetServices
         Task<LifeCycleSettingDTO> UpdateLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId);
         Task<IList<LifeCycleSettingDTO>> GetLifeCycleSettingByCustomer(Guid customerId);
         IList<MinBuyoutPriceBaseline> GetBaseMinBuyoutPrice(string? country, int? assetCategoryId);
+        Task<AssetLifecycleDTO> ReAssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, Guid? userId, Guid departmentId, bool personal, Guid callerId);
     }
 }

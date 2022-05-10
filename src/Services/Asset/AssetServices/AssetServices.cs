@@ -512,6 +512,26 @@ namespace AssetServices
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
 
+        public async Task<AssetLifecycleDTO> ReAssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, Guid? userId, Guid departmentId, bool personal, Guid callerId)
+        {
+            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
+            if (assetLifecycle == null) throw new ResourceNotFoundException("No asset were found using the given AssetId. Did you enter the correct Asset Id?", _logger);
+            if (personal)
+            {
+                var user = await _assetLifecycleRepository.GetUser(userId!.Value);
+                if (user == null) throw new ResourceNotFoundException("No User were found using the given UserId. Did you enter the correct User Id?", _logger);
+                assetLifecycle.ReAssignAssetLifeCycleToHolder(user, departmentId, callerId);
+            }
+            else
+            {
+                assetLifecycle.ReAssignAssetLifeCycleToHolder(null, departmentId, callerId);
+            }
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
+        }
+
+
+
         public IList<AssetCategory> GetAssetCategories(string language = "EN")
         {
             try

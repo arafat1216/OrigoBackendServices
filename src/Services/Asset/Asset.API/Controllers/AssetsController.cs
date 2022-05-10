@@ -362,7 +362,18 @@ namespace Asset.API.Controllers
             return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
         }
 
+        [Route("{assetId:Guid}/customers/{customerId:guid}/re-assignment")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> ReAssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, [FromBody] ReAssignAsset postData)
+        {
+            if ((postData.Personal && (postData.DepartmentId == Guid.Empty || postData.UserId == Guid.Empty )) || (!postData.Personal && postData.DepartmentId == Guid.Empty)) return BadRequest();
 
+            var updatedAsset = await _assetServices.ReAssignAssetLifeCycleToHolder(customerId, assetId, postData.UserId, postData.DepartmentId, postData.Personal, postData.CallerId);
+            var mapped = _mapper.Map<ViewModels.Asset>(updatedAsset);
+            return Ok(mapped);
+        }
 
         [Route("lifecycles")]
         [HttpGet]
