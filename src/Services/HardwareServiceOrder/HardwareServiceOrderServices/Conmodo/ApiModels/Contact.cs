@@ -79,7 +79,7 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         /// <param name="email"></param>
         /// <param name="cellPhoneNumber"></param>
         /// <param name="deliveryAddress"></param>
-        public Contact(string externalContactId, string firstName, string lastName, string email, string cellPhoneNumber, Delivery deliveryAddress)
+        public Contact(string externalContactId, string firstName, string lastName, string email, string? cellPhoneNumber, Delivery deliveryAddress)
         {
             ExternalContactId = externalContactId;
             FirstName = firstName;
