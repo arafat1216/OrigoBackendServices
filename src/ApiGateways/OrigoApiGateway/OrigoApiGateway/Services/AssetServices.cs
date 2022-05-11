@@ -171,7 +171,7 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
-        public async Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomer(Guid customerId)
+        public async Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomer(Guid customerId, string currency)
         {
             try
             {
@@ -179,6 +179,10 @@ namespace OrigoApiGateway.Services
 
                 if (settings == null)
                     return null;
+                foreach(var setting in settings)
+                {
+                    setting.Currency = currency;
+                }
                 return settings;
             }
             catch (HttpRequestException exception)
@@ -197,11 +201,11 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
-        public async Task<LifeCycleSetting> SetLifeCycleSettingForCustomerAsync(Guid customerId, NewLifeCycleSetting setting, Guid callerId)
+        public async Task<LifeCycleSetting> SetLifeCycleSettingForCustomerAsync(Guid customerId, NewLifeCycleSetting setting, string currency, Guid callerId)
         {
             try
             {
-                var existingSetting = await GetLifeCycleSettingByCustomer(customerId);
+                var existingSetting = await GetLifeCycleSettingByCustomer(customerId, currency);
                 var requestUri = $"{_options.ApiPath}/customers/{customerId}/lifecycle-setting";
                 var response = new HttpResponseMessage();
                 var newSettingtDTO = _mapper.Map<NewLifeCycleSettingDTO>(setting);
@@ -218,6 +222,7 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var newSetting = await response.Content.ReadFromJsonAsync<LifeCycleSetting>();
+                newSetting.Currency = currency;
                 return newSetting;
             }
             catch (Exception exception)
@@ -684,7 +689,10 @@ namespace OrigoApiGateway.Services
                 var allMinBuyoutPrices = await HttpClient.GetFromJsonAsync<IList<MinBuyoutPrice>>($"{_options.ApiPath}/min-buyout-price?{(string.IsNullOrWhiteSpace(country) ? "" : $"country={country}")}&{(assetCategoryId == null ? "" : $"assetCategoryId={assetCategoryId}")}");
                 if (allMinBuyoutPrices == null)
                     return null;
-
+                foreach(var data in allMinBuyoutPrices)
+                {
+                    data.Currency = GetCurrencyByCountry(data.Country);
+                }
                 return allMinBuyoutPrices;
             }
             catch (HttpRequestException exception)
@@ -730,20 +738,20 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
-        public string GetCurrencyByCountryCode(string? countryCode = null)
+        public string GetCurrencyByCountry(string? country = null)
         {
-            if (string.IsNullOrEmpty(countryCode))
+            if (string.IsNullOrEmpty(country))
                 return CurrencyCode.NOK.ToString();
 
-            switch (countryCode.ToUpper().Trim())
+            switch (country.ToUpper().Trim())
             {
-                case "NO":
+                case "NORWAY":
                     return CurrencyCode.NOK.ToString();
-                case "SE":
+                case "SWEDEN":
                     return CurrencyCode.SEK.ToString();
-                case "DK":
+                case "DENMARK":
                     return CurrencyCode.DKK.ToString();
-                case "US":
+                case "UNITED STATES":
                     return CurrencyCode.USD.ToString();
                 default:
                     return CurrencyCode.EUR.ToString();

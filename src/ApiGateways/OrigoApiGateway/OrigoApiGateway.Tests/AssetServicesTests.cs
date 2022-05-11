@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -567,11 +568,12 @@ namespace OrigoApiGateway.Tests
             var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
 
             // Act
-            var assetings = await assetService.GetLifeCycleSettingByCustomer(new Guid(CUSTOMER_ID));
+            var assetings = await assetService.GetLifeCycleSettingByCustomer(new Guid(CUSTOMER_ID), CurrencyCode.NOK.ToString());
 
             // Assert
             Assert.Equal(CUSTOMER_ID, assetings.FirstOrDefault().CustomerId.ToString().ToLower());
             Assert.Equal(1, assetings.Count);
+            Assert.Equal(CurrencyCode.NOK.ToString(), assetings.FirstOrDefault().Currency);
         }
 
         [Fact]
@@ -648,10 +650,11 @@ namespace OrigoApiGateway.Tests
             };
 
             // Act
-            var assetings = await assetService.SetLifeCycleSettingForCustomerAsync(new Guid(CUSTOMER_ID), newSettings, Guid.Empty);
+            var assetings = await assetService.SetLifeCycleSettingForCustomerAsync(new Guid(CUSTOMER_ID), newSettings, CurrencyCode.NOK.ToString(), Guid.Empty);
 
             // Assert
             Assert.Equal(CUSTOMER_ID, assetings.CustomerId.ToString().ToLower());
+            Assert.Equal(CurrencyCode.NOK.ToString(), assetings.Currency);
             Assert.True(!assetings.BuyoutAllowed);
         }
 
@@ -729,10 +732,11 @@ namespace OrigoApiGateway.Tests
             };
 
             // Act
-            var assetings = await assetService.SetLifeCycleSettingForCustomerAsync(new Guid(CUSTOMER_ID), newSettings, Guid.Empty);
+            var assetings = await assetService.SetLifeCycleSettingForCustomerAsync(new Guid(CUSTOMER_ID), newSettings, CurrencyCode.NOK.ToString(), Guid.Empty);
 
             // Assert
             Assert.Equal(CUSTOMER_ID, assetings.CustomerId.ToString().ToLower());
+            Assert.Equal(CurrencyCode.NOK.ToString(), assetings.Currency);
             Assert.True(!assetings.BuyoutAllowed);
         }
 

@@ -35,6 +35,7 @@ namespace OrigoApiGateway.Controllers
         // ReSharper disable once NotAccessedField.Local
         private readonly ILogger<AssetsController> _logger;
         private readonly IAssetServices _assetServices;
+        private readonly ICustomerServices _customerServices;
         private readonly IStorageService _storageService;
         private readonly IMapper _mapper;
 
@@ -124,8 +125,9 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+                var currency = await _customerServices.GetCurrencyByCustomer(organizationId);
                 var totalBookValue = await _assetServices.GetCustomerTotalBookValue(organizationId);
-                return Ok(new CustomerAssetValue(){ OrganizationId = organizationId, Amount = totalBookValue });
+                return Ok(new CustomerAssetValue(){ OrganizationId = organizationId, Amount = totalBookValue, Currency = currency });
             }
             catch (Exception ex)
             {
@@ -244,8 +246,8 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
-                var settings = await _assetServices.GetLifeCycleSettingByCustomer(organizationId);
+                var currency = await _customerServices.GetCurrencyByCustomer(organizationId);
+                var settings = await _assetServices.GetLifeCycleSettingByCustomer(organizationId, currency);
                 if (settings == null)
                 {
                     return NotFound();
@@ -289,8 +291,8 @@ namespace OrigoApiGateway.Controllers
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
-
-                var createdSetting = await _assetServices.SetLifeCycleSettingForCustomerAsync(organizationId, setting, callerId);
+                var currency = await _customerServices.GetCurrencyByCustomer(organizationId);
+                var createdSetting = await _assetServices.SetLifeCycleSettingForCustomerAsync(organizationId, setting, currency, callerId);
 
                 if (createdSetting != null)
                 {
@@ -1011,25 +1013,6 @@ namespace OrigoApiGateway.Controllers
                     return NotFound();
                 }
                 return Ok(lifecycles);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest();
-            }
-        }
-
-        [Route("currency")]
-        [HttpGet]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public ActionResult GetCurrencyByCountryCode([FromQuery] string? countryCode = null)
-        {
-            try
-            {
-                var currency = _assetServices.GetCurrencyByCountryCode(countryCode);
-                return Ok(currency);
             }
             catch (Exception ex)
             {
