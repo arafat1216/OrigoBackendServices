@@ -62,7 +62,7 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<int>> GetCount(Guid customerId, Guid? departmentId = null, AssetLifecycleStatus assetLifecycleStatus = AssetLifecycleStatus.Active)
         {
-            var count = await _assetServices.GetAssetsCountAsync(customerId, departmentId, assetLifecycleStatus);
+            var count = await _assetServices.GetAssetsCountAsync(customerId, assetLifecycleStatus, departmentId);
 
             return Ok(count);
         }

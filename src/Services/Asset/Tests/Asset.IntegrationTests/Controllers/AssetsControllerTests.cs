@@ -80,7 +80,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/count";
         _testOutputHelper.WriteLine(requestUri);
         var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
-        Assert.Equal(0, count);
+        Assert.Equal(5, count);
     }
 
     [Fact]

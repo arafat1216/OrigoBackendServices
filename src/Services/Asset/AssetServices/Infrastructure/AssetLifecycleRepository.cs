@@ -48,7 +48,7 @@ namespace AssetServices.Infrastructure
         public async Task<IList<CustomerAssetCount>> GetAssetLifecyclesCountsAsync()
         {
             var assetCountList = await _assetContext.AssetLifeCycles
-            .Where(a => a.AssetLifecycleStatus == AssetLifecycleStatus.Active)
+            .Where(a => a.IsActiveState)
             .GroupBy(a => a.CustomerId)
             .Select(group => new CustomerAssetCount()
             {
@@ -60,19 +60,24 @@ namespace AssetServices.Infrastructure
             return assetCountList;
         }
 
-        public async Task<int> GetAssetLifecyclesCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus assetLifecycleStatus)
+        public async Task<int> GetAssetLifecyclesCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus)
         {
             if (departmentId!=null && departmentId != Guid.Empty)
             {
-                return await _assetContext.AssetLifeCycles
-                .Where(a => a.CustomerId == customerId && a.ManagedByDepartmentId == departmentId && a.AssetLifecycleStatus == assetLifecycleStatus).CountAsync();
+                var countStatus = await _assetContext.AssetLifeCycles
+                .Where(a => a.CustomerId == customerId && a.ManagedByDepartmentId == departmentId && ((assetLifecycleStatus.HasValue && a.AssetLifecycleStatus == assetLifecycleStatus) || a.IsActiveState))
+                .GroupBy(a => a.AssetLifecycleStatus)
+                .Select(c => new
+                {
+                    StatusId = c.Key,
+                    Count = c.Count(a => a.AssetLifecycleStatus == AssetLifecycleStatus.)
+                }).ToListAsync();
             }
             else
             {
                 return await _assetContext.AssetLifeCycles
-                .Where(a => a.CustomerId == customerId && a.AssetLifecycleStatus == assetLifecycleStatus).CountAsync();
+                .Where(predicate: a => a.CustomerId == customerId && ((assetLifecycleStatus.HasValue && a.AssetLifecycleStatus == assetLifecycleStatus) || a.IsActiveState)).CountAsync();
             }
-
         }
 
         public async Task<decimal> GetCustomerTotalBookValue(Guid customerId)

@@ -159,6 +159,20 @@ public class AssetLifecycle : Entity, IAggregateRoot
     }
     private AssetLifecycleStatus _assetLifecycleStatus;
 
+    public static bool IsActiveState(int transaction, AssetLifecycleStatus assetLifecycleStatus)
+    {
+        LifecycleType.NoLifecycle => assetLifecycleStatus == AssetLifecycleStatus.Active,
+        LifecycleType.Transactional => assetLifecycleStatus == AssetLifecycleStatus.InputRequired ||
+                                       assetLifecycleStatus == AssetLifecycleStatus.InUse ||
+                                       assetLifecycleStatus == AssetLifecycleStatus.RepairOrdered ||
+                                       assetLifecycleStatus == AssetLifecycleStatus.OnRepair ||
+                                       assetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
+                                       assetLifecycleStatus == AssetLifecycleStatus.Available,
+        LifecycleType.Leasing => false,
+        LifecycleType.BYOD => false,
+        _ => false
+    };
+
     /// <summary>
     /// The asset lifecycle type this asset lifecycle is setup with.
     /// </summary>

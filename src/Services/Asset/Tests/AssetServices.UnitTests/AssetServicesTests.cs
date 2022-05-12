@@ -79,7 +79,7 @@ public class AssetServicesTests : AssetBaseTest
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
 
             // Act
-            var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, DEPARTMENT_ID);
+            var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, departmentId: DEPARTMENT_ID);
 
             // Assert
             Assert.Equal(0, assetsFromCompany);
@@ -95,7 +95,7 @@ public class AssetServicesTests : AssetBaseTest
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
 
             // Act
-            var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, null, AssetLifecycleStatus.InUse);
+            var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, AssetLifecycleStatus.InUse, null);
 
             // Assert
             Assert.Equal(6, assetsFromCompany);
@@ -111,7 +111,7 @@ public class AssetServicesTests : AssetBaseTest
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
 
             // Act
-            var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, DEPARTMENT_ID, AssetLifecycleStatus.InUse);
+            var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, AssetLifecycleStatus.InUse, DEPARTMENT_ID);
 
             // Assert
             Assert.Equal(2, assetsFromCompany);
