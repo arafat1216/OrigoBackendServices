@@ -49,6 +49,27 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         ///     A list of accessories accompanying the repair object. Values can be found in /basedata
         /// </summary>
         [JsonPropertyName("accessories")]
-        public List<string>? Accessories { get; set; }
+        public IEnumerable<string>? Accessories { get; set; }
+
+
+        /// <summary>
+        ///     System-reserved constructor. Should not be used!
+        /// </summary>
+        [Obsolete("Reserved constructor for the JSON serializers.")]
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public ProductInfo()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+        }
+
+        public ProductInfo(string? category, string brand, string model, string? imei, string? serial, IEnumerable<string>? accessories)
+        {
+            Category = category;
+            Brand = brand;
+            Model = model;
+            Imei = imei;
+            Serial = serial;
+            Accessories = accessories;
+        }
     }
 }

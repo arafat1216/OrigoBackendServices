@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Common.Converters;
+using System.Text.Json.Serialization;
 
 namespace HardwareServiceOrderServices.Conmodo.ApiModels
 {
@@ -8,7 +9,7 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
     internal class Contact
     {
         /// <summary>
-        ///     If left blank, will always create new contact in Conmodo's system"
+        ///     If left blank, will always create new contact in Conmodo's system
         /// </summary>
         [JsonPropertyName("externalContactId")]
         public string? ExternalContactId { get; set; }
@@ -19,9 +20,10 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         [JsonPropertyName("lastName")]
         public string? LastName { get; set; }
 
-        // TODO: Should this be altered to a DateTime or Date?
+        // TODO: Should this be DateOnly, DateTime or DateTimeOffset?
+        [JsonConverter(typeof(DateOnlyNullableJsonConverter))]
         [JsonPropertyName("birthday")]
-        public DateTimeOffset? Birthday { get; set; }
+        public DateOnly? Birthday { get; set; }
 
         [JsonPropertyName("companyName")]
         public string? CompanyName { get; set; }
@@ -60,5 +62,45 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         public Delivery? Delivery { get; set; }
 
 
+        /// <summary>
+        ///     System-reserved constructor. Should not be used!
+        /// </summary>
+        [Obsolete("Reserved constructor for the JSON serializers.", error: true)]
+        public Contact()
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Contact"/> class intended for use in <see cref="CreateOrderRequest.Owner"/>.
+        /// </summary>
+        /// <param name="externalContactId"></param>
+        /// <param name="firstName"></param>
+        /// <param name="lastName"></param>
+        /// <param name="email"></param>
+        /// <param name="cellPhoneNumber"></param>
+        /// <param name="deliveryAddress"></param>
+        public Contact(string externalContactId, string firstName, string lastName, string email, string? cellPhoneNumber, Delivery deliveryAddress)
+        {
+            ExternalContactId = externalContactId;
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            CellPhoneNumber = cellPhoneNumber;
+            Delivery = deliveryAddress;
+        }
+
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Contact"/> class intended for use in <see cref="CreateOrderRequest.CustomerHandler"/>.
+        /// </summary>
+        /// <param name="externalContactId"></param>
+        /// <param name="companyName"></param>
+        /// <param name="organizationNumber"></param>
+        public Contact(string externalContactId, string companyName, string organizationNumber)
+        {
+            ExternalContactId = externalContactId;
+            CompanyName = companyName;
+            OrganizationNumber = organizationNumber;
+        }
     }
 }
