@@ -149,6 +149,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
+                var statuFilter = status == null ? "" : $"&status={(int)status}";
                 var assets = await HttpClient.GetFromJsonAsync<PagedModel<HardwareSuperType>>($"{_options.ApiPath}/customers/{customerId}?q={search}&page={page}&limit={limit}{statuFilter}");
 
                 if (assets == null)
