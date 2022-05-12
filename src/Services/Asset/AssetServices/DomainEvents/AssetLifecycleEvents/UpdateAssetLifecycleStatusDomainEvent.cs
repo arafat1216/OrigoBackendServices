@@ -8,9 +8,9 @@ using Common.Logging;
 
 namespace AssetServices.DomainEvents.AssetLifecycleEvents
 {
-    public class AssignLifecycleStatusToAssetLifecycleDomainEvent : BaseEvent
+    public class UpdateAssetLifecycleStatusDomainEvent : BaseEvent
     {
-        public AssignLifecycleStatusToAssetLifecycleDomainEvent(AssetLifecycle assetLifecycle, Guid callerId, AssetLifecycleStatus previousAssetLifecycleStatus):base(assetLifecycle.ExternalId)
+        public UpdateAssetLifecycleStatusDomainEvent(AssetLifecycle assetLifecycle, Guid callerId, AssetLifecycleStatus previousAssetLifecycleStatus):base(assetLifecycle.ExternalId)
         {
             AssetLifecycle = assetLifecycle;
             CallerId = callerId;

@@ -59,6 +59,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssetServices.UnitTests", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{53A585AE-D327-48BE-98EE-128E4F32E5EC}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		azure-pipelines-assets.yml = azure-pipelines-assets.yml
 		azure-pipelines-customers.yml = azure-pipelines-customers.yml
 		azure-pipelines-hardware-service-order.yml = azure-pipelines-hardware-service-order.yml

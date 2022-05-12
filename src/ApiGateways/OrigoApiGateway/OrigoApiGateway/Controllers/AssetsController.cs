@@ -423,6 +423,7 @@ namespace OrigoApiGateway.Controllers
 
         [Route("customers/{organizationId:guid}/assetStatus")]
         [HttpPatch]
+        [Obsolete("Do not call. Will be deleted in the future")]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
