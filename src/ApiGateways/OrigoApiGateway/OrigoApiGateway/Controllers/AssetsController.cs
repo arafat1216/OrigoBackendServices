@@ -39,12 +39,13 @@ namespace OrigoApiGateway.Controllers
         private readonly IStorageService _storageService;
         private readonly IMapper _mapper;
 
-        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices, IStorageService storageService, IMapper mapper)
+        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices, IStorageService storageService, IMapper mapper, ICustomerServices customerServices)
         {
             _logger = logger;
             _assetServices = assetServices;
             _storageService = storageService;
             _mapper = mapper;
+            _customerServices = customerServices;
         }
 
         [Route("customers/count")]
@@ -125,6 +126,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
                 var currency = await _customerServices.GetCurrencyByCustomer(organizationId);
                 var totalBookValue = await _assetServices.GetCustomerTotalBookValue(organizationId);
                 return Ok(new CustomerAssetValue(){ OrganizationId = organizationId, Amount = totalBookValue, Currency = currency });

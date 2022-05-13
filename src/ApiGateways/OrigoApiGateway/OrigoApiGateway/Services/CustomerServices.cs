@@ -345,6 +345,8 @@ namespace OrigoApiGateway.Services
         public async Task<string> GetCurrencyByCustomer(Guid customerId)
         {
             var customer = await GetCustomerAsync(customerId);
+            if (customer.Location == null) return CurrencyCode.EUR.ToString();
+            
             var country = customer.Location.Country;
             if (string.IsNullOrEmpty(country))
                 country = customer.Address.Country;
