@@ -82,7 +82,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult<CustomerAssetCount>> GetCustomerItemCount(Guid organizationId, Guid? departmentId = null, AssetLifecycleStatus assetLifecycleStatus = AssetLifecycleStatus.Active)
+        public async Task<ActionResult<CustomerAssetCount>> GetCustomerItemCount(Guid organizationId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus)
         {
             try
             {

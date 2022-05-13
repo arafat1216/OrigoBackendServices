@@ -17,6 +17,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace OrigoApiGateway.Services
 {
@@ -60,15 +61,24 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus assetLifecycleStatus)
+        public async Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId,
+            AssetLifecycleStatus? assetLifecycleStatus)
         {
             try
             {
-                string departmentFilter = "";
-                if(departmentId != null && departmentId != Guid.Empty)
-                    departmentFilter = $"{departmentId}";
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/count";
+                if (departmentId != null && departmentId != Guid.Empty)
+                {
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "departmentId", $"{departmentId}");
+                }
 
-                var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/customers/{customerId}/count?departmentId={departmentFilter}&assetLifecycleStatus={(int)assetLifecycleStatus}");
+                if (assetLifecycleStatus.HasValue)
+                {
+                    requestUri = QueryHelpers.AddQueryString($"{_options.ApiPath}/customers/{customerId}/count",
+                        "assetLifecycleStatus", $"{(int)assetLifecycleStatus}");
+                }
+
+                var count = await HttpClient.GetFromJsonAsync<int>(requestUri);
 
                 return count;
             }
