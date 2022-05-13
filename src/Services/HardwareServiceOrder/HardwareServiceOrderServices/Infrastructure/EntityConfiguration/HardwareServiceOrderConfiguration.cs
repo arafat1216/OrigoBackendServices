@@ -33,7 +33,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                    .ValueGeneratedOnAddOrUpdate()
                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
-
+           // builder.OwnsOne(typeof(User), "User");
         }
     }
 }

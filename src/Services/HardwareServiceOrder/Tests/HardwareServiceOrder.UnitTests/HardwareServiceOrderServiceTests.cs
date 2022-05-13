@@ -13,6 +13,7 @@ namespace HardwareServiceOrder.UnitTests
     {
         private readonly IMapper? _mapper;
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
+        private readonly HardwareServiceOrderContext _dbContext;
         public HardwareServiceOrderServiceTests() : base(new DbContextOptionsBuilder<HardwareServiceOrderContext>()
 
         .UseSqlite("Data Source=sqlitehardwareserviceorderservicetests.db").Options)
@@ -26,8 +27,10 @@ namespace HardwareServiceOrder.UnitTests
                 _mapper = mappingConfig.CreateMapper();
             }
 
-            var hardwareServiceRepository = new HardwareServiceOrderRepository(new HardwareServiceOrderContext(ContextOptions));
+            _dbContext = new HardwareServiceOrderContext(ContextOptions);
+            var hardwareServiceRepository = new HardwareServiceOrderRepository(_dbContext);
             _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository, _mapper);
+            
         }
 
         [Fact]
@@ -49,6 +52,14 @@ namespace HardwareServiceOrder.UnitTests
             Assert.Equal(serviceId, settings.ServiceId);
             Assert.Equal("[+8801724592272]", settings.LoanDevicePhoneNumber);
             Assert.Equal("[test@test.com]", settings.LoanDeviceEmail);
+        }
+
+        [Fact]
+        public async Task GetOrders_EF_Owned_Does_Not_Need_Include()
+        {
+            var order = await _dbContext.HardwareServiceOrders.FirstOrDefaultAsync();
+            Assert.NotNull(order);
+            Assert.NotNull(order!.OrderedBy);
         }
     }
 }

@@ -14,7 +14,15 @@ namespace HardwareServiceOrderServices.Models
         private HardwareServiceOrder() { }
 
         // TODO: Add service provider parameter
-        public HardwareServiceOrder(Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, string? externalProviderLink, ServiceType serviceType, ServiceStatus status, ServiceProvider serviceProvider)
+        public HardwareServiceOrder(
+            Guid assetLifecycleId,
+            DeliveryAddress deliveryAddress,
+            string userDescription,
+            string? externalProviderLink,
+            ServiceType serviceType,
+            ServiceStatus status,
+            ServiceProvider serviceProvider,
+            User createdBy)
         {
             AssetLifecycleId = assetLifecycleId;
             DeliveryAddress = deliveryAddress;
@@ -22,6 +30,8 @@ namespace HardwareServiceOrderServices.Models
             ExternalProviderLink = externalProviderLink;
             ServiceType = serviceType;
             Status = status;
+            OrderedBy = createdBy;
+            ServiceProvider = serviceProvider;
         }
 
         /// <summary>
@@ -91,5 +101,10 @@ namespace HardwareServiceOrderServices.Models
         ///     The service-provider that is handling the service.
         /// </summary>
         public virtual ServiceProvider ServiceProvider { get; set; }
+
+        /// <summary>
+        /// The user who created the order
+        /// </summary>
+        public virtual User OrderedBy { get; set; }
     }
 }
