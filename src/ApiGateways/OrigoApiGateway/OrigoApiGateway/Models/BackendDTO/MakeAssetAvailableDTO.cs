@@ -10,6 +10,7 @@ namespace OrigoApiGateway.Models.BackendDTO
     {
         [Required]
         public Guid AssetLifeCycleId { get; set; }
+        public EmailPersonAttributeDTO PreviousUser { get; set; }
 
         /// <summary>
         /// id of user making the endpoint call. Can be ignored by frontend.

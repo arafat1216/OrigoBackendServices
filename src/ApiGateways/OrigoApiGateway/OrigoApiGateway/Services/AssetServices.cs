@@ -363,7 +363,18 @@ namespace OrigoApiGateway.Services
                 makeAssetAvailableDTO.CallerId = callerId; // Guid.Empty if tryparse fails.
 
                 var requestUri = $"{_options.ApiPath}/customers/{customerId}/make-available";
-                
+                var existingAsset = await GetAssetForCustomerAsync(customerId, data.AssetLifeCycleId);
+                if(existingAsset.AssetHolderId != null)
+                {
+                    var user = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
+                    makeAssetAvailableDTO.PreviousUser = new EmailPersonAttributeDTO()
+                    {
+                        Email = user.Email,
+                        Name = user.FirstName,
+                        PreferedLanguage = user.UserPreference.Language
+                    };
+                }
+
                 var response = await HttpClient.PostAsJsonAsync(requestUri, makeAssetAvailableDTO);
                 if (!response.IsSuccessStatusCode)
                 {
@@ -394,18 +405,26 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAsset> ReAssignAssetToDepartment(Guid customerId, Guid assetId, Guid departmentId, Guid callerId)
+        public async Task<OrigoAsset> ReAssignAssetToDepartment(Guid customerId, Guid assetId, ReassignedToDepartmentDTO data)
         {
             try
             {
-
-                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/re-assignment";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, JsonContent.Create(new
+                var existingAsset = await GetAssetForCustomerAsync(customerId, assetId);
+                var department = await _departmentsServices.GetDepartment(customerId, existingAsset.ManagedByDepartmentId.Value);
+                var oldManagers = new List<EmailPersonAttributeDTO>();
+                foreach (var manager in department.ManagedBy)
                 {
-                    Personal = false,
-                    DepartmentId = departmentId,
-                    CallerId = callerId
-                }));
+                    var oldManager = await _userServices.GetUserAsync(customerId, manager.UserId);
+                    oldManagers.Add(new EmailPersonAttributeDTO()
+                    {
+                        Name = oldManager.FirstName,
+                        Email = oldManager.Email,
+                        PreferedLanguage = oldManager.UserPreference!.Language
+                    });
+                }
+                data.PreviousManagers = oldManagers;
+                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/re-assignment";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, JsonContent.Create(data));
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -436,19 +455,36 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAsset> ReAssignAssetToUser(Guid customerId, Guid userId, Guid assetId, Guid departmentId, Guid callerId)
+        public async Task<OrigoAsset> ReAssignAssetToUser(Guid customerId, Guid assetId, ReassignedToUserDTO data)
         {
             try
             {
-
-                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/re-assignment";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, JsonContent.Create(new
+                var existingAsset = await GetAssetForCustomerAsync(customerId, assetId);
+                if (existingAsset.AssetHolderId != null)
                 {
-                    Personal = true,
-                    UserId = userId,
-                    DepartmentId = departmentId,
-                    CallerId = callerId
-                }));
+                    var previousUser = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
+                    data.PreviousUser = new EmailPersonAttributeDTO()
+                    {
+                        Name = previousUser.FirstName,
+                        Email = previousUser.Email,
+                        PreferedLanguage = previousUser.UserPreference!.Language
+                    };
+                }
+                var department = await _departmentsServices.GetDepartment(customerId, existingAsset.ManagedByDepartmentId.Value);
+                var oldManagers = new List<EmailPersonAttributeDTO>();
+                foreach(var manager in department.ManagedBy)
+                {
+                    var oldManager = await _userServices.GetUserAsync(customerId, manager.UserId);
+                    oldManagers.Add(new EmailPersonAttributeDTO()
+                    {
+                        Name = oldManager.FirstName,
+                        Email = oldManager.Email,
+                        PreferedLanguage = oldManager.UserPreference!.Language
+                    });
+                }
+                data.PreviousManagers = oldManagers;
+                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/re-assignment";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, JsonContent.Create(data));
 
                 if (!response.IsSuccessStatusCode)
                 {

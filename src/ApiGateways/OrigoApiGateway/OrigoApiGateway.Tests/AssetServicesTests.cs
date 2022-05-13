@@ -447,7 +447,9 @@ namespace OrigoApiGateway.Tests
             var mockFactory = new Mock<IHttpClientFactory>();
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                    x.RequestUri != null && x.RequestUri.ToString().Contains("/make-available") && x.Method == HttpMethod.Post
+                    ),
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage
                 {
@@ -491,6 +493,96 @@ namespace OrigoApiGateway.Tests
                         }
                     ")
                 });
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                    x.RequestUri != null && x.Method == HttpMethod.Get
+                    ),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        {
+                          ""id"": ""4e7413da-54c9-4f79-b882-f66ce48e5074"",
+                          ""organizationId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                          ""alias"": ""alias_0"",
+                          ""note"": """",
+                          ""description"": """",
+                          ""assetTag"": """",
+                          ""assetCategoryId"": 1,
+                          ""assetCategoryName"": ""Mobile phone"",
+                          ""brand"": ""Samsung"",
+                          ""productName"": ""Samsung Galaxy S20"",
+                          ""lifecycleType"": 2,
+                          ""lifecycleName"": ""Transactional"",
+                          ""paidByCompany"": 0,
+                          ""bookValue"": 0,
+                          ""buyoutPrice"": 0,
+                          ""purchaseDate"": ""0001-01-01T00:00:00"",
+                          ""createdDate"": ""2022-05-11T21:30:02.1795951Z"",
+                          ""managedByDepartmentId"": null,
+                          ""assetHolderId"": ""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
+                          ""assetStatus"": 9,
+                          ""assetStatusName"": ""InUse"",
+                          ""labels"": [
+                            {
+                              ""id"": ""c553ae5b-6a3f-49c2-8d3e-8644d8f7e975"",
+                              ""text"": ""Label1"",
+                              ""color"": 0,
+                              ""colorName"": ""Blue""
+                            },
+                            {
+                              ""id"": ""fa0c43b6-1101-4698-bad9-2fb58b2032b3"",
+                              ""text"": ""CompanyOne"",
+                              ""color"": 2,
+                              ""colorName"": ""Lightblue""
+                            }
+                          ],
+                          ""serialNumber"": ""123456789012345"",
+                          ""imei"": [
+                            500119468586675
+                          ],
+                          ""macAddress"": ""B26EDC46046B"",
+                          ""orderNumber"": """",
+                          ""productId"": """",
+                          ""invoiceNumber"": """",
+                          ""transactionId"": """",
+                          ""isPersonal"": true,
+                          ""source"": ""Unknown""
+                        }
+                    ")
+                });
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                    x.RequestUri != null && x.RequestUri.ToString().Contains("/users/") && x.Method == HttpMethod.Get
+                    ),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        {
+                          ""id"": ""a12c5f56-aee9-47e0-9f5f-a726818323a9"",
+                          ""firstName"": ""Kari"",
+                          ""lastName"": ""Normann"",
+                          ""email"": ""kari@normann.no"",
+                          ""mobileNumber"": ""+4790603360"",
+                          ""employeeId"": ""EID:909091"",
+                          ""userPreference"": {
+                            ""language"": ""no""
+                          },
+                          ""organizationName"": ""ORGANIZATION ONE"",
+                          ""userStatusName"": ""Deactivated"",
+                          ""userStatus"": 1,
+                          ""assignedToDepartment"": ""00000000-0000-0000-0000-000000000000"",
+                          ""departmentName"": null,
+                          ""role"": ""EndUser"",
+                          ""managerOf"": []
+                        }
+                    ")
+                });
 
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
@@ -500,6 +592,8 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            userOptionsMock.Setup(o => o.Value).Returns(new UserConfiguration() { ApiPath = @"/organizations" });
+
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
             var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);

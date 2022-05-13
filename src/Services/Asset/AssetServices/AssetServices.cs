@@ -16,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AssetServices.ServiceModel;
 using AutoMapper;
+using AssetServices.Email;
 
 namespace AssetServices
 {
@@ -24,12 +25,17 @@ namespace AssetServices
         private readonly IAssetLifecycleRepository _assetLifecycleRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<AssetServices> _logger;
+        private readonly IEmailService _emailService;
 
-        public AssetServices(ILogger<AssetServices> logger, IAssetLifecycleRepository assetLifecycleRepository, IMapper mapper)
+        public AssetServices(ILogger<AssetServices> logger, 
+            IAssetLifecycleRepository assetLifecycleRepository, 
+            IMapper mapper,
+            IEmailService emailService)
         {
             _logger = logger;
             _assetLifecycleRepository = assetLifecycleRepository;
             _mapper = mapper;
+            _emailService = emailService;
         }
 
         public async Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync()
@@ -389,13 +395,21 @@ namespace AssetServices
             return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecycles);
         }
 
-        public async Task<AssetLifecycleDTO> MakeAssetAvailableAsync(Guid customerId, Guid callerId, Guid assetLifeCycleId)
+        public async Task<AssetLifecycleDTO> MakeAssetAvailableAsync(Guid customerId, MakeAssetAvailableDTO data)
         {
-            var updatedAssetLifeCycle = await _assetLifecycleRepository.MakeAssetAvailableAsync(customerId, callerId, assetLifeCycleId);          
-            if(updatedAssetLifeCycle == null)
-                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct customer Id?", _logger);
-            var assetData = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetLifeCycleId);
-            return _mapper.Map<AssetLifecycleDTO>(assetData);
+            var updatedAssetLifeCycle = await _assetLifecycleRepository.MakeAssetAvailableAsync(customerId, data.CallerId, data.AssetLifeCycleId);
+            if (updatedAssetLifeCycle == null)
+                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
+            if (data.PreviousUser != null)
+            {
+                await _emailService.UnassignedFromUserEmailAsync(new Email.Model.UnassignedFromUserNotification()
+                {
+                    FirstName = data.PreviousUser.Name,
+                    Recipient = data.PreviousUser.Email
+                }, string.IsNullOrEmpty(data.PreviousUser.PreferedLanguage) ? "en" : data.PreviousUser.PreferedLanguage);
+            }
+                
+            return _mapper.Map<AssetLifecycleDTO>(updatedAssetLifeCycle);
         }
 
 
@@ -494,21 +508,48 @@ namespace AssetServices
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
 
-        public async Task<AssetLifecycleDTO> ReAssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, Guid? userId, Guid departmentId, bool personal, Guid callerId)
+        public async Task<AssetLifecycleDTO> ReAssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, ReAssignAssetDTO postData)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
             if (assetLifecycle == null) throw new ResourceNotFoundException("No asset were found using the given AssetId. Did you enter the correct Asset Id?", _logger);
-            if (personal)
+            if (postData.Personal)
             {
-                var user = await _assetLifecycleRepository.GetUser(userId!.Value);
+                var user = await _assetLifecycleRepository.GetUser(postData.UserId);
                 if (user == null) throw new ResourceNotFoundException("No User were found using the given UserId. Did you enter the correct User Id?", _logger);
-                assetLifecycle.ReAssignAssetLifeCycleToHolder(user, departmentId, callerId);
+                assetLifecycle.ReAssignAssetLifeCycleToHolder(user, postData.DepartmentId, postData.DepartmentId);           
             }
             else
             {
-                assetLifecycle.ReAssignAssetLifeCycleToHolder(null, departmentId, callerId);
+                assetLifecycle.ReAssignAssetLifeCycleToHolder(null, postData.DepartmentId, postData.CallerId);
             }
             await _assetLifecycleRepository.SaveEntitiesAsync();
+
+            // Email sendouts
+            if (postData.PreviousUser != null)
+            {
+                await _emailService.UnassignedFromUserEmailAsync(new Email.Model.UnassignedFromUserNotification()
+                {
+                    FirstName = postData.PreviousUser.Name,
+                    Recipient = postData.PreviousUser.Email
+                }, string.IsNullOrEmpty(postData.PreviousUser.PreferedLanguage) ? "en" : postData.PreviousUser.PreferedLanguage);
+            }
+            if (postData.NewUser != null)
+            {
+                await _emailService.ReAssignedToUserEmailAsync(new Email.Model.ReAssignedToUserNotification()
+                {
+                    FirstName = postData.NewUser.Name,
+                    Recipient = postData.NewUser.Email,
+                    AssetLink = "https://www.example.com/"
+                }, string.IsNullOrEmpty(postData.NewUser.PreferedLanguage) ? "en" : postData.NewUser.PreferedLanguage);
+            }
+
+            if (postData.PreviousManagers != null && postData.PreviousManagers.Any())
+            {
+                await _emailService.UnassignedFromManagerEmailAsync(new Email.Model.UnassignedFromManagerNotification()
+                {
+                    Recipient = postData.PreviousManagers.Select(x => x.Email).ToList(),
+                }, string.IsNullOrEmpty(postData.PreviousManagers.FirstOrDefault()!.PreferedLanguage) ? "en" : postData.PreviousManagers.FirstOrDefault()!.PreferedLanguage);
+            }
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
 

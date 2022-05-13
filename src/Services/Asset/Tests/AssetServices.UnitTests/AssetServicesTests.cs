@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using AssetServices.Attributes;
+using AssetServices.Email;
 using AssetServices.Exceptions;
 using AssetServices.Infrastructure;
 using AssetServices.Models;
@@ -43,7 +44,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
         // Act
         var assetsFromUser = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_ONE_ID);
@@ -60,7 +61,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
         // Act
         var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, null);
@@ -76,7 +77,7 @@ public class AssetServicesTests : AssetBaseTest
             // Arrange
             await using var context = new AssetsContext(ContextOptions);
             var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
             // Act
             var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, null, departmentId: DEPARTMENT_ID);
@@ -92,7 +93,7 @@ public class AssetServicesTests : AssetBaseTest
             // Arrange
             await using var context = new AssetsContext(ContextOptions);
             var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
             // Act
             var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, AssetLifecycleStatus.InUse, null);
@@ -108,7 +109,7 @@ public class AssetServicesTests : AssetBaseTest
             // Arrange
             await using var context = new AssetsContext(ContextOptions);
             var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
             // Act
             var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, AssetLifecycleStatus.InUse, DEPARTMENT_ID);
@@ -125,7 +126,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
         // Act
         var assetsFromUser = await
@@ -158,7 +159,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var newAssetDTO = new NewAssetDTO
         {
             CallerId = Guid.Empty,
@@ -193,7 +194,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var newAssetDTO = new NewAssetDTO
         {
             CallerId = Guid.Empty,
@@ -228,7 +229,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var newAssetDTO = new NewAssetDTO
         {
             CallerId = Guid.Empty,
@@ -265,7 +266,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var newAssetDTO = new NewAssetDTO
         {
             CallerId = Guid.Empty,
@@ -301,7 +302,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var newAssetDTO = new NewAssetDTO
         {
             CallerId = Guid.Empty,
@@ -334,7 +335,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var newAssetDTO = new NewAssetDTO
         {
             CallerId = Guid.Empty,
@@ -369,7 +370,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var newAssetDTO = new NewAssetDTO
         {
             CallerId = Guid.Empty,
@@ -403,7 +404,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var newAssetDTO = new NewAssetDTO
         {
             CallerId = Guid.Empty,
@@ -435,7 +436,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var newAssetDTO = new NewAssetDTO
         {
             CallerId = Guid.Empty,
@@ -595,7 +596,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
         IList<Label> labelsToAdd = new List<Label>();
         labelsToAdd.Add(new Label("Repair", LabelColor.Red));
@@ -620,7 +621,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
         // Act
         await assetService.DeleteLabelsForCustomerAsync(COMPANY_ID, new List<Guid> { LABEL_ONE_ID, LABEL_TWO_ID });
@@ -639,7 +640,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
         var labels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
         labels[0].PatchLabel(Guid.Empty, new Label("Deprecated", LabelColor.Orange));
@@ -664,7 +665,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
         var labels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
         IList<Guid> labelGuids = new List<Guid>();
@@ -692,7 +693,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
         var labels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
         IList<Guid> labelGuids = labels.Select(label => label.ExternalId).ToList();
@@ -719,7 +720,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
         var departmentId = Guid.NewGuid();
 
@@ -743,7 +744,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var newAssetDTO = new NewAssetDTO
         {
             CallerId = Guid.Empty,
@@ -778,7 +779,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var newAssetDTO = new NewAssetDTO
         {
             CallerId = Guid.Empty,
@@ -813,7 +814,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var newAssetDTO1 = new NewAssetDTO
         {
             CallerId = Guid.Empty,
@@ -869,13 +870,18 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var assetLifecyclesFromUser = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_ONE_ID);
 
         var assetGuid = assetLifecyclesFromUser.FirstOrDefault()!.ExternalId;
 
         // Act
-        var updatedAssetsLifecycles = await assetService.MakeAssetAvailableAsync(COMPANY_ID, Guid.Empty, assetGuid);
+        var data = new MakeAssetAvailableDTO()
+        {
+            AssetLifeCycleId = assetGuid,
+            CallerId = Guid.Empty
+        };
+        var updatedAssetsLifecycles = await assetService.MakeAssetAvailableAsync(COMPANY_ID, data);
 
         // Assert
         Assert.True(updatedAssetsLifecycles.ContractHolderUserId == null);
@@ -891,7 +897,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var lifeCycleSetting = new LifeCycleSettingDTO()
         {
             CustomerId = Guid.NewGuid(),
@@ -911,7 +917,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var lifeCycleSetting = new LifeCycleSettingDTO()
         {
             CustomerId = COMPANY_ID,
@@ -937,7 +943,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var lifeCycleSetting = new LifeCycleSettingDTO()
         {
             CustomerId = Guid.NewGuid(),
@@ -961,7 +967,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var lifeCycleSetting = new LifeCycleSettingDTO()
         {
             AssetCategoryId = 1,
@@ -981,7 +987,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var lifeCycleSetting = new LifeCycleSettingDTO()
         {
             AssetCategoryId = 2,
@@ -1007,7 +1013,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         var lifeCycleSetting = new LifeCycleSettingDTO()
         {
             AssetCategoryId = 1,
@@ -1032,7 +1038,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
         
         var asset = await assetService.AssignAssetLifeCycleToHolder(COMPANY_ID, ASSETLIFECYCLE_ONE_ID, Guid.Empty, DEPARTMENT_ID, CALLER_ID);
        
@@ -1049,7 +1055,7 @@ public class AssetServicesTests : AssetBaseTest
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper);
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
         var asset = await assetService.AssignAssetLifeCycleToHolder(COMPANY_ID, ASSETLIFECYCLE_ONE_ID, ASSETHOLDER_ONE_ID, null, CALLER_ID);
 

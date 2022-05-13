@@ -220,8 +220,11 @@ namespace AssetServices.Infrastructure
         public async Task<AssetLifecycle?> MakeAssetAvailableAsync(Guid customerId, Guid callerId, Guid assetLifeCycleId)
         {
             var assetLifecycles = await _assetContext.AssetLifeCycles
-                .Include(a => a.ContractHolderUser)
-                .Include(al => al.Labels)
+                .Include(al => al.Asset)
+                .ThenInclude(hw => (hw as MobilePhone).Imeis)
+                //.ThenInclude(hw => (hw as Tablet).Imeis)
+                .Include(al => al.ContractHolderUser)
+                .Include(a => a.Labels)
                 .Where(a => a.CustomerId == customerId && a.ExternalId == assetLifeCycleId)
                 .FirstOrDefaultAsync();
 

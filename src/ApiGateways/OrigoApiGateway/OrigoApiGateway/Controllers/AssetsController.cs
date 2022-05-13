@@ -576,7 +576,9 @@ namespace OrigoApiGateway.Controllers
                 if (data.UserId == Guid.Empty)
                     return BadRequest("No User selected.");
 
-                var updatedAssets = await _assetServices.ReAssignAssetToUser(organizationId, data.UserId, assetId, data.DepartmentId, callerId);
+                var postData = _mapper.Map<ReassignedToUserDTO>(data);
+                postData.CallerId = callerId;
+                var updatedAssets = await _assetServices.ReAssignAssetToUser(organizationId, assetId, postData);
                 if (updatedAssets == null)
                 {
                     return NotFound();
@@ -635,8 +637,9 @@ namespace OrigoApiGateway.Controllers
                 Guid.TryParse(actor, out Guid callerId);
                 if (data.DepartmentId == Guid.Empty)
                     return BadRequest("No Department selected.");
-
-                var updatedAssets = await _assetServices.ReAssignAssetToDepartment(organizationId, assetId, data.DepartmentId, callerId);
+                var postData = _mapper.Map<ReassignedToDepartmentDTO>(data);
+                postData.CallerId = callerId;
+                var updatedAssets = await _assetServices.ReAssignAssetToDepartment(organizationId, assetId, postData);
                 if (updatedAssets == null)
                 {
                     return NotFound();
