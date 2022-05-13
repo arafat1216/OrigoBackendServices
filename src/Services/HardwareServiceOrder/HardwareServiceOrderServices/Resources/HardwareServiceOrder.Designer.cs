@@ -63,6 +63,33 @@ namespace HardwareServiceOrderServices.Resources {
         /// <summary>
         ///   Looks up a localized string similar to ![Origo](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAQAAAAABGUUKwAAAQUUlEQVR4Ae1YC5AV1Zn+zzndt++dOzPMMDC8BnRGGBBmEQtFNxIepXGNKYLJBoTEZDfRiOUmMVvurlmzhKGiiZSJ2SxZJbgbDDEbFyzZzSisY7JQUYoEeUkEQSEMCAzDY153Lvf27cfZ7+++PW8GQm1t1VbdU/fc0336nP/x/Y/zdxMVWgGBAgIFBAoIFBAoIFBAoIBAAYECAgUECggUECggUEDgcghoEsT9/6pdKb+rlOnKFImIs+rcFm2IUenEMUUyVmnmzFItYqZha8/MuZ0inW45M2HnKVq7zAnW8t5oXzBxhX/9e [rest of string was truncated]&quot;;.
         /// </summary>
+        internal static string AssetDiscardedEmail {
+            get {
+                return ResourceManager.GetString("AssetDiscardedEmail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ![Origo](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAQAAAAABGUUKwAAAQUUlEQVR4Ae1YC5AV1Zn+zzndt++dOzPMMDC8BnRGGBBmEQtFNxIepXGNKYLJBoTEZDfRiOUmMVvurlmzhKGiiZSJ2SxZJbgbDDEbFyzZzSisY7JQUYoEeUkEQSEMCAzDY153Lvf27cfZ7+++PW8GQm1t1VbdU/fc0336nP/x/Y/zdxMVWgGBAgIFBAoIFBAoIFBAoIBAAYECAgUECggUECggUEDgcghoEsT9/6pdKb+rlOnKFImIs+rcFm2IUenEMUUyVmnmzFItYqZha8/MuZ0inW45M2HnKVq7zAnW8t5oXzBxhX/9e [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string AssetRepairEmail {
+            get {
+                return ResourceManager.GetString("AssetRepairEmail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ![Origo](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAQAAAAABGUUKwAAAQUUlEQVR4Ae1YC5AV1Zn+zzndt++dOzPMMDC8BnRGGBBmEQtFNxIepXGNKYLJBoTEZDfRiOUmMVvurlmzhKGiiZSJ2SxZJbgbDDEbFyzZzSisY7JQUYoEeUkEQSEMCAzDY153Lvf27cfZ7+++PW8GQm1t1VbdU/fc0336nP/x/Y/zdxMVWgGBAgIFBAoIFBAoIFBAoIBAAYECAgUECggUECggUEDgcghoEsT9/6pdKb+rlOnKFImIs+rcFm2IUenEMUUyVmnmzFItYqZha8/MuZ0inW45M2HnKVq7zAnW8t5oXzBxhX/9e [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string LoanDeviceEmail {
+            get {
+                return ResourceManager.GetString("LoanDeviceEmail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ![Origo](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAQAAAAABGUUKwAAAQUUlEQVR4Ae1YC5AV1Zn+zzndt++dOzPMMDC8BnRGGBBmEQtFNxIepXGNKYLJBoTEZDfRiOUmMVvurlmzhKGiiZSJ2SxZJbgbDDEbFyzZzSisY7JQUYoEeUkEQSEMCAzDY153Lvf27cfZ7+++PW8GQm1t1VbdU/fc0336nP/x/Y/zdxMVWgGBAgIFBAoIFBAoIFBAoIBAAYECAgUECggUECggUEDgcghoEsT9/6pdKb+rlOnKFImIs+rcFm2IUenEMUUyVmnmzFItYqZha8/MuZ0inW45M2HnKVq7zAnW8t5oXzBxhX/9e [rest of string was truncated]&quot;;.
+        /// </summary>
         internal static string OrderConfirmationEmail {
             get {
                 return ResourceManager.GetString("OrderConfirmationEmail", resourceCulture);

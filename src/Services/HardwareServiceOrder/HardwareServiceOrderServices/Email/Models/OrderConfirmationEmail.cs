@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HardwareServiceOrderServices.Email.Models
+﻿namespace HardwareServiceOrderServices.Email.Models
 {
-    public class OrderConfirmation
+    public class OrderConfirmationEmail
     {
         /// <summary>
         /// First name of the email recipient

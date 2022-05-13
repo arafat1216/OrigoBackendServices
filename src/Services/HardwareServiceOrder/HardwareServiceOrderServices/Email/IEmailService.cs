@@ -10,6 +10,6 @@ namespace HardwareServiceOrderServices.Email
         /// <param name="order">Information that will be dynamically inserted into the email.</param>
         /// <param name="languageCode">Code of the language to be used for sending email.</param>
         /// <returns></returns>
-        Task SendOrderConfirmationEmailAsync(OrderConfirmation order, string languageCode);
+        Task SendOrderConfirmationEmailAsync(OrderConfirmationEmail order, string languageCode);
     }
 }
