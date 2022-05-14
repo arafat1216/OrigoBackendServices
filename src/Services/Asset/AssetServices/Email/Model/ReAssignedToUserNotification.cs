@@ -23,7 +23,7 @@ namespace AssetServices.Email.Model
         /// <summary>
         /// Subject of the email
         /// </summary>
-        public string Subject { get; set; } = "New Asset Assigned";
+        public string Subject { get; set; } = "New Asset";
         public const string TemplateName = "ReassignedToUser";
     }
 }

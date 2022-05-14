@@ -19,7 +19,7 @@ namespace AssetServices.Email.Model
         /// <summary>
         /// Subject of the email
         /// </summary>
-        public string Subject { get; set; } = "Asset unassigned";
+        public string Subject { get; set; } = "Unassigned Asset";
         public const string TemplateName = "UnassignedFromUser";
     }
 }

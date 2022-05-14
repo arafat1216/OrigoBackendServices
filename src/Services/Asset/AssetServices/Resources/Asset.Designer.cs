@@ -61,7 +61,10 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ![Origo](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAQAAAAABGUUKwAAAQUUlEQVR4Ae1YC5AV1Zn+zzndt++dOzPMMDC8BnRGGBBmEQtFNxIepXGNKYLJBoTEZDfRiOUmMVvurlmzhKGiiZSJ2SxZJbgbDDEbFyzZzSisY7JQUYoEeUkEQSEMCAzDY153Lvf27cfZ7+++PW8GQm1t1VbdU/fc0336nP/x/Y/zdxMVWgGBAgIFBAoIFBAoIFBAoIBAAYECAgUECggUECggUEDgcghoEsT9/6pdKb+rlOnKFImIs+rcFm2IUenEMUUyVmnmzFItYqZha8/MuZ0inW45M2HnKVq7zAnW8t5oXzBxhX/9e [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///An asset was successfully reassigned from your department.
+        ///
+        ///[View Asset]({{AssetLink}}).
         /// </summary>
         internal static string ReassignedToUser {
             get {
@@ -70,7 +73,10 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ![Origo](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAQAAAAABGUUKwAAAQUUlEQVR4Ae1YC5AV1Zn+zzndt++dOzPMMDC8BnRGGBBmEQtFNxIepXGNKYLJBoTEZDfRiOUmMVvurlmzhKGiiZSJ2SxZJbgbDDEbFyzZzSisY7JQUYoEeUkEQSEMCAzDY153Lvf27cfZ7+++PW8GQm1t1VbdU/fc0336nP/x/Y/zdxMVWgGBAgIFBAoIFBAoIFBAoIBAAYECAgUECggUECggUEDgcghoEsT9/6pdKb+rlOnKFImIs+rcFm2IUenEMUUyVmnmzFItYqZha8/MuZ0inW45M2HnKVq7zAnW8t5oXzBxhX/9e [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to Hello!
+        ///An asset was successfully unassigned from your department.
+        ///This means you are no longer responsible for this asset, and it is therefore no longer visible to you.
+        ///&lt;/br&gt;.
         /// </summary>
         internal static string UnassignedFromManager {
             get {
@@ -79,7 +85,10 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ![Origo](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAQAAAAABGUUKwAAAQUUlEQVR4Ae1YC5AV1Zn+zzndt++dOzPMMDC8BnRGGBBmEQtFNxIepXGNKYLJBoTEZDfRiOUmMVvurlmzhKGiiZSJ2SxZJbgbDDEbFyzZzSisY7JQUYoEeUkEQSEMCAzDY153Lvf27cfZ7+++PW8GQm1t1VbdU/fc0336nP/x/Y/zdxMVWgGBAgIFBAoIFBAoIFBAoIBAAYECAgUECggUECggUEDgcghoEsT9/6pdKb+rlOnKFImIs+rcFm2IUenEMUUyVmnmzFItYqZha8/MuZ0inW45M2HnKVq7zAnW8t5oXzBxhX/9e [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///An asset was successfully unassigned from you.
+        ///This means you are no longer responsible for this asset, and it is therefore no longer visible to you.
+        ///&lt;/br&gt;.
         /// </summary>
         internal static string UnassignedFromUser {
             get {
