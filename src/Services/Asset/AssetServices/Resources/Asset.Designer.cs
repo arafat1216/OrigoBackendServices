@@ -62,8 +62,9 @@ namespace AssetServices.Resources {
         
         /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///&lt;/br&gt;
         ///An asset was successfully reassigned from your department.
-        ///
+        ///&lt;/br&gt;
         ///[View Asset]({{AssetLink}}).
         /// </summary>
         internal static string ReassignedToUser {
@@ -74,7 +75,9 @@ namespace AssetServices.Resources {
         
         /// <summary>
         ///   Looks up a localized string similar to Hello!
+        ///&lt;/br&gt;
         ///An asset was successfully unassigned from your department.
+        ///&lt;/br&gt;
         ///This means you are no longer responsible for this asset, and it is therefore no longer visible to you.
         ///&lt;/br&gt;.
         /// </summary>
@@ -86,7 +89,9 @@ namespace AssetServices.Resources {
         
         /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///&lt;/br&gt;
         ///An asset was successfully unassigned from you.
+        ///&lt;/br&gt;
         ///This means you are no longer responsible for this asset, and it is therefore no longer visible to you.
         ///&lt;/br&gt;.
         /// </summary>

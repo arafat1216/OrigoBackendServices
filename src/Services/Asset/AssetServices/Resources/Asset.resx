@@ -119,19 +119,24 @@
   </resheader>
   <data name="ReassignedToUser" xml:space="preserve">
     <value>Hello {{FirstName}}!
+&lt;/br&gt;
 An asset was successfully reassigned from your department.
-
+&lt;/br&gt;
 [View Asset]({{AssetLink}})</value>
   </data>
   <data name="UnassignedFromManager" xml:space="preserve">
     <value>Hello!
+&lt;/br&gt;
 An asset was successfully unassigned from your department.
+&lt;/br&gt;
 This means you are no longer responsible for this asset, and it is therefore no longer visible to you.
 &lt;/br&gt;</value>
   </data>
   <data name="UnassignedFromUser" xml:space="preserve">
     <value>Hello {{FirstName}}!
+&lt;/br&gt;
 An asset was successfully unassigned from you.
+&lt;/br&gt;
 This means you are no longer responsible for this asset, and it is therefore no longer visible to you.
 &lt;/br&gt;</value>
   </data>
