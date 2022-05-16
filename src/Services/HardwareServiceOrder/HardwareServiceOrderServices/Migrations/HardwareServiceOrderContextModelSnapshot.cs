@@ -288,7 +288,10 @@ namespace HardwareServiceOrderServices.Migrations
                             b1.Property<string>("Country")
                                 .IsRequired()
                                 .HasMaxLength(2)
-                                .HasColumnType("nvarchar(2)");
+                                .IsUnicode(false)
+                                .HasColumnType("char(2)")
+                                .IsFixedLength()
+                                .HasComment("The 2-character country-code using the uppercase <c>ISO 3166 alpha-2</c> standard.");
 
                             b1.Property<string>("PostalCode")
                                 .IsRequired()

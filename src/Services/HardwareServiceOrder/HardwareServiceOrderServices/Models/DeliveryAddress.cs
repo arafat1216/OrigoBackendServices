@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HardwareServiceOrderServices.Models
 {
-    [Owned]
     /// <summary>
     ///     Represents a single shipping address.
     /// </summary>

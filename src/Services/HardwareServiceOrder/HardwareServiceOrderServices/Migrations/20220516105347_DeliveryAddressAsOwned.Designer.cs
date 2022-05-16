@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HardwareServiceOrderServices.Migrations
 {
     [DbContext(typeof(HardwareServiceOrderContext))]
-    [Migration("20220516103737_DeliveryAddressAsOwned")]
+    [Migration("20220516105347_DeliveryAddressAsOwned")]
     partial class DeliveryAddressAsOwned
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -290,7 +290,10 @@ namespace HardwareServiceOrderServices.Migrations
                             b1.Property<string>("Country")
                                 .IsRequired()
                                 .HasMaxLength(2)
-                                .HasColumnType("nvarchar(2)");
+                                .IsUnicode(false)
+                                .HasColumnType("char(2)")
+                                .IsFixedLength()
+                                .HasComment("The 2-character country-code using the uppercase <c>ISO 3166 alpha-2</c> standard.");
 
                             b1.Property<string>("PostalCode")
                                 .IsRequired()

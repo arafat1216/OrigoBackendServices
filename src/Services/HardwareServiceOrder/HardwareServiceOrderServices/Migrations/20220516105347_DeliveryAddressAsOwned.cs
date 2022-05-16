@@ -46,9 +46,12 @@ namespace HardwareServiceOrderServices.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "DeliveryAddress_Country",
                 table: "HardwareServiceOrders",
-                type: "nvarchar(2)",
+                type: "char(2)",
+                unicode: false,
+                fixedLength: true,
                 maxLength: 2,
-                nullable: true);
+                nullable: true,
+                comment: "The 2-character country-code using the uppercase <c>ISO 3166 alpha-2</c> standard.");
 
             migrationBuilder.AddColumn<string>(
                 name: "DeliveryAddress_PostalCode",
