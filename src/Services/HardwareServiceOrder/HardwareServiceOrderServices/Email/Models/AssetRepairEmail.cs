@@ -3,6 +3,10 @@
     public class AssetRepairEmail
     {
         /// <summary>
+        /// ID of the customer
+        /// </summary>
+        public Guid CustomerId { get; set; }
+        /// <summary>
         /// Unique identifier of the order
         /// </summary>
         public Guid OrderId { get; set; }

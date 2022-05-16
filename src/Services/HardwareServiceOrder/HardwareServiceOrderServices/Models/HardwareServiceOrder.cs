@@ -14,6 +14,7 @@ namespace HardwareServiceOrderServices.Models
 
         // TODO: Add service provider parameter
         public HardwareServiceOrder(
+            Guid customerId,
             Guid assetLifecycleId,
             DeliveryAddress deliveryAddress,
             string userDescription,
@@ -31,6 +32,7 @@ namespace HardwareServiceOrderServices.Models
             Status = status;
             OrderedBy = createdBy;
             ServiceProvider = serviceProvider;
+            CustomerId = customerId;
         }
 
         /// <summary>
@@ -45,7 +47,9 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="serviceProvider"></param>
         /// <param name="createdBy"></param>
         /// <param name="createdDateTime"></param>
+        /// <param name="customerId"></param>
         public HardwareServiceOrder(
+            Guid customerId,
             Guid assetLifecycleId,
             DeliveryAddress deliveryAddress,
             string userDescription,
@@ -56,6 +60,7 @@ namespace HardwareServiceOrderServices.Models
             User createdBy,
             DateTime createdDateTime)
         {
+            CustomerId = customerId;
             AssetLifecycleId = assetLifecycleId;
             DeliveryAddress = deliveryAddress;
             UserDescription = userDescription;
@@ -71,6 +76,11 @@ namespace HardwareServiceOrderServices.Models
         ///     The service-ID that is used as an identifier outside the microservice.
         /// </summary>
         public Guid ExternalId { get; set; } = Guid.NewGuid();
+
+        /// <summary>
+        /// ID of the customer
+        /// </summary>
+        public Guid CustomerId { get; set; }
 
         /// <summary>
         ///     The identifier for the asset lifecycle attached to the service order.

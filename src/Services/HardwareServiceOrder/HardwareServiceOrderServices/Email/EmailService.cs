@@ -1,6 +1,8 @@
-﻿using Common.Configuration;
+﻿using AutoMapper;
+using Common.Configuration;
 using Common.Utilities;
 using HardwareServiceOrderServices.Email.Models;
+using HardwareServiceOrderServices.Models;
 using Microsoft.Extensions.Options;
 using System.Globalization;
 using System.Net.Http.Json;
@@ -13,11 +15,16 @@ namespace HardwareServiceOrderServices.Email
         private readonly HttpClient _httpClient;
         private readonly IFlatDictionaryProvider _flatDictionaryProvider;
         private readonly ResourceManager _resourceManager;
+        private readonly IHardwareServiceOrderRepository _hardwareServiceOrderRepository;
+        private readonly IMapper _mapper;
+        private readonly OrigoConfiguration _origoConfiguration;
 
         public EmailService(
-            IOptions<EmailConfiguration> emailConfiguration, 
-            IFlatDictionaryProvider flatDictionaryProvider, 
-            ResourceManager resourceManager)
+            IOptions<EmailConfiguration> emailConfiguration,
+            IFlatDictionaryProvider flatDictionaryProvider,
+            ResourceManager resourceManager,
+            IMapper mapper,
+            IOptions<OrigoConfiguration> origoConfiguration)
         {
             _emailConfiguration = emailConfiguration.Value;
 
@@ -27,10 +34,17 @@ namespace HardwareServiceOrderServices.Email
             _flatDictionaryProvider = flatDictionaryProvider;
 
             _resourceManager = resourceManager;
+
+            _mapper = mapper;
+
+            _origoConfiguration = origoConfiguration.Value;
         }
 
         private async Task SendAsync(string subject, string body, string to, Dictionary<string, string> variable)
         {
+            if (string.IsNullOrEmpty(_emailConfiguration.BaseUrl))
+                return;
+
             try
             {
                 var request = new Dictionary<string, object>
@@ -64,6 +78,21 @@ namespace HardwareServiceOrderServices.Email
             var template = _resourceManager.GetString(OrderConfirmationEmail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(data);
             await SendAsync(data.Subject, template, data.Recipient, variables);
+        }
+
+        public async Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime olderThan, List<int> statusIds, string languageCode = "EN")
+        {
+            var orders = await _hardwareServiceOrderRepository.GetAllOrdersAsync(olderThan, statusIds);
+            var emails = _mapper.Map<List<AssetRepairEmail>>(orders);
+
+            emails.ForEach(async email =>
+            {
+                email.OrderLink = string.Format($"{_origoConfiguration.BaseUrl}/{_origoConfiguration}", email.CustomerId, email.OrderId);
+                var template = _resourceManager.GetString(AssetRepairEmail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+                await SendAsync(email.Subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
+            });
+
+            return emails;
         }
     }
 }

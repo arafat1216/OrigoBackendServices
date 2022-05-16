@@ -11,5 +11,14 @@ namespace HardwareServiceOrderServices.Email
         /// <param name="languageCode">Code of the language to be used for sending email.</param>
         /// <returns></returns>
         Task SendOrderConfirmationEmailAsync(OrderConfirmationEmail order, string languageCode);
+
+        /// <summary>
+        /// Send asset repair email
+        /// </summary>
+        /// <param name="olderThan"></param>
+        /// <param name="statusIds"></param>
+        /// <param name="languageCode"></param>
+        /// <returns></returns>
+        Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime olderThan, List<int> statusIds, string languageCode = "EN");
     }
 }

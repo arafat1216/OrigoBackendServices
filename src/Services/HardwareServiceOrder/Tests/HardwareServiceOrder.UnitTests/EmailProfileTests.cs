@@ -26,7 +26,7 @@ namespace HardwareServiceOrder.UnitTests
             var serviceTye = new ServiceType() { Id = 1 };
             var serviceStatus = new ServiceStatus() { };
             var serviceProvider = new ServiceProvider { OrganizationId = Guid.NewGuid() };
-            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(assetLifecycleId: Guid.NewGuid(), deliveryAddress, "UserDescription", "externalLink", serviceTye, new ServiceStatus() { Id = 3 }, serviceProvider, new User(Guid.NewGuid(), "test@test.com", "UserName"), DateTime.Today.AddDays(-7));
+            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(customerId: Guid.NewGuid(),assetLifecycleId: Guid.NewGuid(), deliveryAddress, "UserDescription", "externalLink", serviceTye, new ServiceStatus() { Id = 3 }, serviceProvider, new User(Guid.NewGuid(), "test@test.com", "UserName"), DateTime.Today.AddDays(-7));
 
             var assetRepairEmail = _mapper.Map<AssetRepairEmail>(order);
             Assert.NotNull(assetRepairEmail);
@@ -36,6 +36,7 @@ namespace HardwareServiceOrder.UnitTests
             Assert.Equal("Repair Reminder", assetRepairEmail.Subject);
             Assert.Equal(order.CreatedDate, assetRepairEmail.OrderDate);
             Assert.Equal(order.ExternalId, assetRepairEmail.OrderId);
+            Assert.Equal(order.CustomerId, assetRepairEmail.CustomerId);
             Assert.Null(assetRepairEmail.OrderLink);
         }
 
@@ -46,7 +47,7 @@ namespace HardwareServiceOrder.UnitTests
             var serviceTye = new ServiceType() { Id = 1 };
             var serviceStatus = new ServiceStatus() { };
             var serviceProvider = new ServiceProvider { OrganizationId = Guid.NewGuid() };
-            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(assetLifecycleId: Guid.NewGuid(), deliveryAddress, "UserDescription", "externalLink", serviceTye, new ServiceStatus() { Id = 3 }, serviceProvider, new User(Guid.NewGuid(), "test@test.com", "UserName"), DateTime.Today.AddDays(-7));
+            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(customerId: Guid.NewGuid(), assetLifecycleId: Guid.NewGuid(), deliveryAddress, "UserDescription", "externalLink", serviceTye, new ServiceStatus() { Id = 3 }, serviceProvider, new User(Guid.NewGuid(), "test@test.com", "UserName"), DateTime.Today.AddDays(-7));
 
             var assetRepairEmail = _mapper.Map<LoanDeviceEmail>(order);
             Assert.NotNull(assetRepairEmail);
@@ -62,7 +63,7 @@ namespace HardwareServiceOrder.UnitTests
             var serviceTye = new ServiceType() { Id = 1 };
             var serviceStatus = new ServiceStatus() { };
             var serviceProvider = new ServiceProvider { OrganizationId = Guid.NewGuid() };
-            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(assetLifecycleId: Guid.NewGuid(), deliveryAddress, "UserDescription", "externalLink", serviceTye, new ServiceStatus() { Id = 3 }, serviceProvider, new User(Guid.NewGuid(), "test@test.com", "UserName"), DateTime.Today.AddDays(-7));
+            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(customerId: Guid.NewGuid(), assetLifecycleId: Guid.NewGuid(), deliveryAddress, "UserDescription", "externalLink", serviceTye, new ServiceStatus() { Id = 3 }, serviceProvider, new User(Guid.NewGuid(), "test@test.com", "UserName"), DateTime.Today.AddDays(-7));
 
             var assetRepairEmail = _mapper.Map<AssetDiscardedEmail>(order);
             Assert.NotNull(assetRepairEmail);
