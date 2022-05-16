@@ -18,6 +18,8 @@ namespace Customer.API.IntegrationTests.Helpers
         public static readonly Guid USER_ONE_ID = Guid.Parse("a12c5f56-aee9-47e0-9f5f-a726818323a9");
         public static readonly Guid USER_TWO_ID = Guid.Parse("8246626C-3BDD-46E7-BCDF-10FC038C0463");
         public static readonly Guid USER_THREE_ID = Guid.Parse("9f19a9e5-a4f0-431e-9137-e8bfba285c7f");
+        public static readonly string USER_ONE_EMAIL = "kari@normann.no";
+
 
 
 
@@ -84,7 +86,7 @@ namespace Customer.API.IntegrationTests.Helpers
                                 USER_ONE_ID,
                                 "Kari",
                                 "Normann",
-                                "kari@normann.no",
+                                USER_ONE_EMAIL,
                                 "+4790603360",
                                 "EID:909091",
                                 new UserPreference("no", CALLER_ID),

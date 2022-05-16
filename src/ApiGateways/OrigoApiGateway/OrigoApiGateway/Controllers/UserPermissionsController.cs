@@ -90,7 +90,7 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-
+        [Obsolete("Will be replaced by AddUsersPermission")]
         [HttpPut]
         [ProducesResponseType(typeof(OrigoUserPermissions), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -107,6 +107,42 @@ namespace OrigoApiGateway.Controllers
 
                 var addedRole = await _userPermissionServices.AddUserPermissionsForUserAsync(userName, userPermissionsDTO);
                 return CreatedAtAction(nameof(AddUserPermission), addedRole);
+            }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
+        /// <summary>
+        /// Assigning roles and permissions for multiple users
+        /// </summary>
+        /// <param name="usersPermissions">List of user permissions to be added</param>
+        /// <returns></returns>
+        [Route("/origoapi/v{version:apiVersion}/customers/users/permissions")]
+        [HttpPut]
+        [ProducesResponseType(typeof(OrigoUsersPermissions), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
+        public async Task<ActionResult<OrigoUsersPermissions>> AddUsersPermissions([FromBody] NewUsersPermissions usersPermissions)
+        {
+            try
+            {
+                var userPermissionsDTO = _mapper.Map<NewUsersPermissionsDTO>(usersPermissions);
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                userPermissionsDTO.CallerId = callerId;
+
+                var addedRoles = await _userPermissionServices.AddUsersPermissionsForUsersAsync(userPermissionsDTO);
+                return CreatedAtAction(nameof(AddUsersPermissions), addedRoles);
             }
             catch (BadHttpRequestException ex)
             {
