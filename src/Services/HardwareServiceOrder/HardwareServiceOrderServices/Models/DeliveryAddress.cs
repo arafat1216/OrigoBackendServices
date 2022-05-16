@@ -1,12 +1,13 @@
-﻿using Common.Seedwork;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace HardwareServiceOrderServices.Models
 {
+    [Owned]
     /// <summary>
     ///     Represents a single shipping address.
     /// </summary>
-    public class DeliveryAddress : EntityV2
+    public class DeliveryAddress
     {
         /// <summary>
         ///     The name of the recipient. Typically this will be the name of a person or company.

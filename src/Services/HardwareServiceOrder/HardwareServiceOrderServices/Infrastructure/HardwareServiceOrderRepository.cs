@@ -46,6 +46,35 @@ namespace HardwareServiceOrderServices.Infrastructure
             return settings;
         }
 
+        /// <summary>
+        /// Get all status regardless of customer
+        /// </summary>
+        /// <param name="olderThan">Must return orders those are older than specified date</param>
+        /// <param name="statusIds">The value-mappings can be retrieved from <see cref="ServiceStatusEnum"/>.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<HardwareServiceOrder>> GetAllOrdersAsync(DateTime? olderThan = null, List<int>? statusIds = null)
+        {
+            var orders = _hardwareServiceOrderContext.HardwareServiceOrders.Include(m => m.Status).AsQueryable();
+
+            if (olderThan != null)
+                orders = orders.Where(m => m.CreatedDate <= olderThan);
+
+            if (statusIds != null)
+                orders = orders.Where(m => statusIds.Contains(m.Status.Id));
+
+            return await orders.ToListAsync();
+        }
+
+        public Task<List<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<HardwareServiceOrder> GetOrderByIdAsync(Guid orderId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<CustomerSettings> GetSettingsAsync(Guid customerId)
         {
             return await _hardwareServiceOrderContext.CustomerSettings.FirstOrDefaultAsync(m => m.CustomerId == customerId);

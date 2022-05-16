@@ -21,7 +21,6 @@ namespace HardwareServiceOrderServices.Infrastructure
         public bool IsSQLite => _isSQLite;
 
         public DbSet<CustomerSettings> CustomerSettings { get; set; }
-        public DbSet<DeliveryAddress> DeliveryAddresses { get; set; }
         public DbSet<HardwareServiceOrder> HardwareServiceOrders { get; set; }
         public DbSet<ServiceProvider> ServiceProviders { get; set; }
         public DbSet<ServiceStatus> ServiceStatuses { get; set; }
@@ -31,7 +30,6 @@ namespace HardwareServiceOrderServices.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new CustomerSettingsConfiguration(_isSQLite));
-            modelBuilder.ApplyConfiguration(new DeliveryAddressConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new HardwareServiceOrderConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new ServiceProviderConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new ServiceStatusConfiguration(_isSQLite));

@@ -35,9 +35,43 @@ namespace HardwareServiceOrderServices.Models
         }
 
         /// <summary>
+        /// Contructor for unit testing.
+        /// </summary>
+        /// <param name="assetLifecycleId"></param>
+        /// <param name="deliveryAddress"></param>
+        /// <param name="userDescription"></param>
+        /// <param name="externalProviderLink"></param>
+        /// <param name="serviceType"></param>
+        /// <param name="status"></param>
+        /// <param name="serviceProvider"></param>
+        /// <param name="createdBy"></param>
+        /// <param name="createdDateTime"></param>
+        public HardwareServiceOrder(
+            Guid assetLifecycleId,
+            DeliveryAddress deliveryAddress,
+            string userDescription,
+            string? externalProviderLink,
+            ServiceType serviceType,
+            ServiceStatus status,
+            ServiceProvider serviceProvider,
+            User createdBy,
+            DateTime createdDateTime)
+        {
+            AssetLifecycleId = assetLifecycleId;
+            DeliveryAddress = deliveryAddress;
+            UserDescription = userDescription;
+            ExternalProviderLink = externalProviderLink;
+            ServiceType = serviceType;
+            Status = status;
+            OrderedBy = createdBy;
+            ServiceProvider = serviceProvider;
+            CreatedDate = createdDateTime;
+        }
+
+        /// <summary>
         ///     The service-ID that is used as an identifier outside the microservice.
         /// </summary>
-        public Guid ExternalId { get; set; }
+        public Guid ExternalId { get; set; } = Guid.NewGuid();
 
         /// <summary>
         ///     The identifier for the asset lifecycle attached to the service order.
@@ -105,6 +139,6 @@ namespace HardwareServiceOrderServices.Models
         /// <summary>
         /// The user who created the order
         /// </summary>
-        public virtual User OrderedBy { get; set; }
+        public User OrderedBy { get; set; }
     }
 }

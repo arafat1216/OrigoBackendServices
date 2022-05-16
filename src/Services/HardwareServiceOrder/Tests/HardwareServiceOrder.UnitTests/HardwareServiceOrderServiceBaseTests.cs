@@ -23,21 +23,18 @@ namespace HardwareServiceOrder.UnitTests
             context.Database.EnsureCreated();
 
             var deliveryAddress = new DeliveryAddress("Recipient", "Description", "Address1", "Address2", "PostalCode", "City", "Country");
-            var serviceTye = new ServiceType() {  };
+            var serviceTye = new ServiceType() {Id = 1 };
             var serviceStatus = new ServiceStatus() { };
             var serviceProvider = new ServiceProvider { OrganizationId = CUSTOMER_ONE_ID };
-            
-            //context.Add(deliveryAddress);
-            //context.Add(serviceTye);
-            //context.Add(serviceStatus);
-            //context.Add(serviceProvider);
-            //context.SaveChanges();
 
-            var user = new User(Guid.NewGuid(), "test@test.com", "UserName");
-            //var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(assetLifecycleId: Guid.NewGuid(), deliveryAddress, "UserDescription", "externalLink", serviceTye, serviceStatus, serviceProvider);
-            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(assetLifecycleId: Guid.NewGuid(), deliveryAddress, "UserDescription", "externalLink", serviceTye, serviceStatus, serviceProvider, user);
-            context.Add(order);
-            
+            var order1 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(assetLifecycleId: Guid.NewGuid(), deliveryAddress, "UserDescription", "externalLink", serviceTye, serviceStatus, serviceProvider, new User(Guid.NewGuid(), "test@test.com", "UserName"));
+            var order2 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(assetLifecycleId: Guid.NewGuid(), deliveryAddress, "UserDescription", "externalLink", serviceTye, new ServiceStatus() { Id = 3 }, serviceProvider, new User(Guid.NewGuid(), "test@test.com", "UserName"), DateTime.Today.AddDays(-7));
+            var order3 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(assetLifecycleId: Guid.NewGuid(), deliveryAddress, "UserDescription", "externalLink", serviceTye, new ServiceStatus() { Id = 2 }, serviceProvider, new User(Guid.NewGuid(), "test@test.com", "UserName"), DateTime.Today.AddDays(-8));
+
+            context.Add(order1);
+            context.Add(order2);
+            context.Add(order3);
+
             context.SaveChanges();
         }
     }

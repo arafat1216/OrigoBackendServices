@@ -3,6 +3,10 @@
     public class AssetRepairEmail
     {
         /// <summary>
+        /// Unique identifier of the order
+        /// </summary>
+        public Guid OrderId { get; set; }
+        /// <summary>
         /// First name of the email recipient
         /// </summary>
         public string FirstName { get; set; }
@@ -17,7 +21,7 @@
         /// <summary>
         /// Date of the order
         /// </summary>
-        public DateTime OrderDate { get; set; }
+        public DateTimeOffset OrderDate { get; set; }
         /// <summary>
         /// Email address of the recipient
         /// </summary>

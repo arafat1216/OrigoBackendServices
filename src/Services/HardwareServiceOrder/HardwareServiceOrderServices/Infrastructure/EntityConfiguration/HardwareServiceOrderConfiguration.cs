@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
@@ -22,18 +23,32 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             /*
              * Properties
              */
+            if (_isSqlLite)
+            {
+                builder.Property(e => e.CreatedDate)
+                    .HasConversion(new DateTimeOffsetToBinaryConverter())
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                    .ValueGeneratedOnAdd()
+                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
-            builder.Property(e => e.CreatedDate)
-                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
+                builder.Property(e => e.LastUpdatedDate)
+                   .HasConversion(new DateTimeOffsetToBinaryConverter())
+                   .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                   .ValueGeneratedOnAddOrUpdate()
+                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            }
+            else
+            {
+                builder.Property(e => e.CreatedDate)
+                   .HasDefaultValueSql("SYSUTCDATETIME()")
                    .ValueGeneratedOnAdd()
                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
-            builder.Property(e => e.LastUpdatedDate)
-                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
+                builder.Property(e => e.LastUpdatedDate)
+                   .HasDefaultValueSql("SYSUTCDATETIME()")
                    .ValueGeneratedOnAddOrUpdate()
                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-
-           // builder.OwnsOne(typeof(User), "User");
+            }
         }
     }
 }
