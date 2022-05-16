@@ -89,12 +89,12 @@ namespace AssetServices.Infrastructure
         public async Task<decimal> GetCustomerTotalBookValue(Guid customerId)
         {
             var assets = await _assetContext.AssetLifeCycles
-                .Where(a => a.CustomerId == customerId &&
-                            a.AssetLifecycleStatus == AssetLifecycleStatus.InUse ||
-                            a.AssetLifecycleStatus == AssetLifecycleStatus.InputRequired ||
-                            a.AssetLifecycleStatus == AssetLifecycleStatus.Repair ||
-                            a.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
-                            a.AssetLifecycleStatus == AssetLifecycleStatus.Available
+                .Where(a => a.CustomerId == customerId && a.AssetLifecycleType == LifecycleType.Transactional &&
+                            (a.AssetLifecycleStatus == AssetLifecycleStatus.InUse ||
+                             a.AssetLifecycleStatus == AssetLifecycleStatus.InputRequired ||
+                             a.AssetLifecycleStatus == AssetLifecycleStatus.Repair ||
+                             a.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
+                             a.AssetLifecycleStatus == AssetLifecycleStatus.Available)
                 ).ToListAsync();
             return assets.Sum(x => x.BookValue);
         }
