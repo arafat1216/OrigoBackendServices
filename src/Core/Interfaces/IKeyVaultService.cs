@@ -1,7 +1,5 @@
 ﻿using Azure.Security.KeyVault.Keys;
 using Azure.Security.KeyVault.Secrets;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Common.Interfaces
 {

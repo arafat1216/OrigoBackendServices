@@ -1,9 +1,7 @@
-using CustomerServices.Infrastructure;
 using CustomerServices.Infrastructure.Context;
 using CustomerServices.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 
 // ReSharper disable InconsistentNaming
 

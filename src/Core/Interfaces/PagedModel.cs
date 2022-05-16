@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Common.Interfaces
+﻿namespace Common.Interfaces
 {
     public class PagedModel<TModel>
     {

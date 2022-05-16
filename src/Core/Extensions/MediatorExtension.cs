@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using Common.Seedwork;
+﻿using Common.Seedwork;
 using MediatR;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace Common.Extensions

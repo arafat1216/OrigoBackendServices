@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Asset.API.ViewModels;
+﻿using Asset.API.ViewModels;
 using AssetServices.ServiceModel;
 using AutoMapper;
 

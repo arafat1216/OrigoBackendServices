@@ -1,8 +1,6 @@
-﻿using Azure.Storage.Blobs;
-using Common.Configuration;
+﻿using Common.Configuration;
 using Common.Utilities;
 using HardwareServiceOrderServices.Email.Models;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using System.Globalization;
 using System.Net.Http.Json;

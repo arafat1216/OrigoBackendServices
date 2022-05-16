@@ -1,6 +1,5 @@
 ﻿using Common.Seedwork;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 
 namespace AssetServices.Models
 {

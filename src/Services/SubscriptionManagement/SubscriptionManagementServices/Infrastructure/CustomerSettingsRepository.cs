@@ -7,7 +7,6 @@ using Common.Utilities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SubscriptionManagementServices.Models;
-using SubscriptionManagementServices.ServiceModels;
 
 namespace SubscriptionManagementServices.Infrastructure
 {

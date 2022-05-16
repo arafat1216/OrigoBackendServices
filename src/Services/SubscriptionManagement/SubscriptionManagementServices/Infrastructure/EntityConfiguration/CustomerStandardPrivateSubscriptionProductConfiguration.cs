@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SubscriptionManagementServices.Models;
-using System;
-using System.Collections.Generic;
 namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 {
     public class CustomerStandardPrivateSubscriptionProductConfiguration : IEntityTypeConfiguration<CustomerStandardPrivateSubscriptionProduct>

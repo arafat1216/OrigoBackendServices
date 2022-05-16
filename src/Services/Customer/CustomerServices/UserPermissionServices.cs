@@ -4,7 +4,6 @@ using Common.Extensions;
 using Common.Logging;
 using Common.Utilities;
 using CustomerServices.Exceptions;
-using CustomerServices.Infrastructure;
 using CustomerServices.Infrastructure.Context;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;

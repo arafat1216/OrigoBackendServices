@@ -1,17 +1,13 @@
-﻿using Customer.API.Controllers;
-using Xunit;
+﻿using Xunit;
 using Customer.API.Tests;
 using System.Net.Http;
 using System;
 using Xunit.Abstractions;
-using System.Collections.Generic;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Customer.API.WriteModels;
 using CustomerServices.ServiceModels;
 using System.Threading.Tasks;
 using System.Net;
-using CustomerServices.Models;
 //Customer.API.IntegrationTests.Controllers
 namespace Customer.API.IntegrationTests.Controllers
 {

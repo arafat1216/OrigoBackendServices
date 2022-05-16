@@ -1,6 +1,4 @@
 ﻿using Common.Seedwork;
-using SubscriptionManagementServices.DomainEvents;
-using System.Text.Json.Serialization;
 
 namespace SubscriptionManagementServices.Models
 {

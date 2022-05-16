@@ -1,10 +1,8 @@
 ﻿using AssetServices.DomainEvents;
-using Common.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
-using AssetServices.DomainEvents.AssetLifecycleEvents;
 
 namespace AssetServices.Models
 {

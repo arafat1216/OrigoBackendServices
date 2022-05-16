@@ -1,5 +1,4 @@
 ﻿using Common.Seedwork;
-using System.ComponentModel.DataAnnotations;
 
 namespace HardwareServiceOrderServices.Models
 {

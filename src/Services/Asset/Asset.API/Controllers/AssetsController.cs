@@ -19,7 +19,6 @@ using Common.Enums;
 using Common.Exceptions;
 using Dapr;
 using Microsoft.FeatureManagement;
-using Microsoft.FeatureManagement.Mvc;
 
 namespace Asset.API.Controllers
 {

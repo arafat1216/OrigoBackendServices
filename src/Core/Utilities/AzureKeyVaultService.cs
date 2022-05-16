@@ -3,9 +3,6 @@ using Azure.Security.KeyVault.Keys;
 using Azure.Security.KeyVault.Secrets;
 using Common.Interfaces;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Common.Utilities
 {
