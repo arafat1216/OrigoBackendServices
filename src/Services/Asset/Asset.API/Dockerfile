@@ -69,11 +69,6 @@ ARG BUILD_ID
 LABEL test=${BUILD_ID}
 
 # Build and Test Unit tests
-RUN dotnet build \
-	--configuration Release \
-	--no-restore \
-	../Tests/AssetServices.UnitTests/AssetServices.UnitTests.csproj
-
 RUN dotnet test \
 	--logger "trx;LogFileName=test_results.trx" \
 	--collect:"XPlat Code Coverage" \
@@ -81,15 +76,9 @@ RUN dotnet test \
 	/p:CoverletOutput=/TestResults/Coverage1/ \
 	--configuration Release \
 	--no-restore \
-	--no-build \
 	../Tests/AssetServices.UnitTests/AssetServices.UnitTests.csproj
 
 # Build and Test Integration tests
-RUN dotnet build \
-	--configuration Release \
-	--no-restore \
-	../Tests/Asset.IntegrationTests/Asset.IntegrationTests.csproj
-
 RUN dotnet test \
 	--logger "trx;LogFileName=test_results2.trx" \
 	--collect:"XPlat Code Coverage" \
@@ -97,7 +86,6 @@ RUN dotnet test \
 	/p:CoverletOutput=/TestResults/Coverage2/ \
 	--configuration Release \
 	--no-restore \
-	--no-build \
 	../Tests/Asset.IntegrationTests/Asset.IntegrationTests.csproj
 
 RUN reportgenerator \
