@@ -19,7 +19,6 @@ using Common.Enums;
 using Common.Exceptions;
 using Dapr;
 using Microsoft.FeatureManagement;
-using Microsoft.FeatureManagement.Mvc;
 
 namespace Asset.API.Controllers
 {
@@ -60,9 +59,9 @@ namespace Asset.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<int>> GetCount(Guid customerId, Guid? departmentId = null, AssetLifecycleStatus assetLifecycleStatus = AssetLifecycleStatus.Active)
+        public async Task<ActionResult<int>> GetCount(Guid customerId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus)
         {
-            var count = await _assetServices.GetAssetsCountAsync(customerId, departmentId, assetLifecycleStatus);
+            var count = await _assetServices.GetAssetsCountAsync(customerId, assetLifecycleStatus, departmentId);
 
             return Ok(count);
         }
@@ -358,7 +357,8 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> MakeAssetAvailable(Guid customerId, [FromBody] MakeAssetAvailable data)
         {
-            var updatedAssets = await _assetServices.MakeAssetAvailableAsync(customerId, data.CallerId, data.AssetLifeCycleId);
+            var dataDTO = _mapper.Map<MakeAssetAvailableDTO>(data);
+            var updatedAssets = await _assetServices.MakeAssetAvailableAsync(customerId, dataDTO);
             return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
         }
 
@@ -369,8 +369,9 @@ namespace Asset.API.Controllers
         public async Task<ActionResult> ReAssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, [FromBody] ReAssignAsset postData)
         {
             if ((postData.Personal && (postData.DepartmentId == Guid.Empty || postData.UserId == Guid.Empty )) || (!postData.Personal && postData.DepartmentId == Guid.Empty)) return BadRequest();
-
-            var updatedAsset = await _assetServices.ReAssignAssetLifeCycleToHolder(customerId, assetId, postData.UserId, postData.DepartmentId, postData.Personal, postData.CallerId);
+            
+            var dataDTO = _mapper.Map<ReAssignAssetDTO>(postData);
+            var updatedAsset = await _assetServices.ReAssignAssetLifeCycleToHolder(customerId, assetId, dataDTO);
             var mapped = _mapper.Map<ViewModels.Asset>(updatedAsset);
             return Ok(mapped);
         }

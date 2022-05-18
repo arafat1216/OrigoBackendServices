@@ -1,5 +1,4 @@
 ﻿using Common.Exceptions;
-using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices;
 using CustomerServices.Exceptions;

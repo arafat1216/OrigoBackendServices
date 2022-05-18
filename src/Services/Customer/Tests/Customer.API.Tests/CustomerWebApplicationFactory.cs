@@ -25,6 +25,8 @@ namespace Customer.API.Tests;
         public Guid USER_ONE_ID => CustomerTestDataSeedingForDatabase.USER_ONE_ID;
         public Guid USER_TWO_ID => CustomerTestDataSeedingForDatabase.USER_TWO_ID;
         public Guid USER_THREE_ID => CustomerTestDataSeedingForDatabase.USER_THREE_ID;
+        public string USER_ONE_EMAIL => CustomerTestDataSeedingForDatabase.USER_ONE_EMAIL;
+
 
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

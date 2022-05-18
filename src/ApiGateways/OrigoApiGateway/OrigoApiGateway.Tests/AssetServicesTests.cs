@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -37,7 +38,7 @@ namespace OrigoApiGateway.Tests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void GetBaseMinBuyoutPrice()
+        public async Task GetBaseMinBuyoutPrice()
         {
             // Arrange
             var mockFactory = new Mock<IHttpClientFactory>();
@@ -77,7 +78,7 @@ namespace OrigoApiGateway.Tests
             var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
 
             // Act
             var minBuyoutPrices = await assetService.GetBaseMinBuyoutPrice();
@@ -88,7 +89,7 @@ namespace OrigoApiGateway.Tests
         
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void GetAssetsForUser_ForUserOne_CheckCount()
+        public async Task GetAssetsForUser_ForUserOne_CheckCount()
         {
             // Arrange
             const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
@@ -158,18 +159,18 @@ namespace OrigoApiGateway.Tests
             var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
             // Act
             var assetsFromUser = await assetService.GetAssetsForUserAsync(new Guid(CUSTOMER_ID), Guid.NewGuid());
 
             // Assert
             Assert.Equal(2, assetsFromUser.Count);
-            Assert.Equal("iPhone", (assetsFromUser[0] as OrigoMobilePhone).Brand);
+            Assert.Equal("iPhone", (assetsFromUser[0] as OrigoMobilePhone)!.Brand);
         }
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void GetAvailableAssetForCustomer()
+        public async Task GetAvailableAssetForCustomer()
         {
             // Arrange
             const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
@@ -198,7 +199,7 @@ namespace OrigoApiGateway.Tests
             var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
 
             // Act
             var pagedAsset = await assetService.GetAssetsForCustomerAsync(new Guid(CUSTOMER_ID));
@@ -211,7 +212,7 @@ namespace OrigoApiGateway.Tests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void UpdateStatusOnAssets()
+        public async Task UpdateStatusOnAssets()
         {
             // Arrange
             const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
@@ -281,13 +282,13 @@ namespace OrigoApiGateway.Tests
             var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
 
             IList<Guid> assetGuidList = new List<Guid>();
             assetGuidList.Add(new Guid("64add3ea-74ae-48a3-aad7-1a811f25ccdc"));
             assetGuidList.Add(new Guid("ef8710e8-ca5c-4832-ae27-139100d1ae63"));
 
-            UpdateAssetsStatus data = new UpdateAssetsStatus
+            var data = new UpdateAssetsStatus
             {
                 AssetGuidList = assetGuidList,
                 AssetStatus =  1
@@ -298,13 +299,13 @@ namespace OrigoApiGateway.Tests
 
             // Assert
             Assert.Equal(2, updatedAssets.Count);
-            Assert.Equal("NoStatus", (updatedAssets[0] as OrigoMobilePhone).AssetStatusName);
-            Assert.Equal(0, (int)(updatedAssets[1] as OrigoMobilePhone).AssetStatus);
+            Assert.Equal("NoStatus", (updatedAssets[0] as OrigoMobilePhone)!.AssetStatusName);
+            Assert.Equal(0, (int)(updatedAssets[1] as OrigoMobilePhone)!.AssetStatus);
         }
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void CreateLabelsForCustomer()
+        public async Task CreateLabelsForCustomer()
         {
             // Arrange
             const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
@@ -351,21 +352,21 @@ namespace OrigoApiGateway.Tests
             var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
 
             IList<NewLabel> newLabels = new List<NewLabel>();
-            newLabels.Add(new NewLabel { Text = "Manager", Color = Common.Enums.LabelColor.Red });
-            newLabels.Add(new NewLabel { Text = "Department", Color = Common.Enums.LabelColor.Orange });
-            newLabels.Add(new NewLabel { Text = "Customer service", Color = Common.Enums.LabelColor.Gray });
+            newLabels.Add(new NewLabel { Text = "Manager", Color = LabelColor.Red });
+            newLabels.Add(new NewLabel { Text = "Department", Color = LabelColor.Orange });
+            newLabels.Add(new NewLabel { Text = "Customer service", Color = LabelColor.Gray });
 
-            AddLabelsData data = new AddLabelsData
+            var data = new AddLabelsData
             {
                 NewLabels = newLabels,
                 CallerId = Guid.Empty
             };
 
             // Act
-            IList<Label> createdLabels = await assetService.CreateLabelsForCustomerAsync(new Guid(CUSTOMER_ID), data);
+            var createdLabels = await assetService.CreateLabelsForCustomerAsync(new Guid(CUSTOMER_ID), data);
 
             // Assert
             Assert.Equal(3, createdLabels.Count);
@@ -376,11 +377,10 @@ namespace OrigoApiGateway.Tests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void DeleteLabelsForCustomer()
+        public async Task DeleteLabelsForCustomer()
         {
             // Arrange
             const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
-            const string LABEL_ONE_ID = "94D22A10-FC47-4F23-A524-B30D022DD8AF";
             const string LABEL_TWO_ID = "53D6241B-7297-44E4-857B-9EEA69BEB174";
             const string LABEL_THREE_ID = "484289DA-FA13-4629-8AAA-CF988F905681";
 
@@ -415,20 +415,20 @@ namespace OrigoApiGateway.Tests
             var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
 
             IList<Guid> guidList = new List<Guid>();
             guidList.Add(new Guid(LABEL_THREE_ID));
             guidList.Add(new Guid(LABEL_TWO_ID));
 
-            DeleteCustomerLabelsData data = new DeleteCustomerLabelsData
+            var data = new DeleteCustomerLabelsData
             {
                 LabelGuids = guidList,
                 CallerId = Guid.Empty
             };
 
             // Act
-            IList<Label> remainingLabels = await assetService.DeleteCustomerLabelsAsync(new Guid(CUSTOMER_ID), data);
+            var remainingLabels = await assetService.DeleteCustomerLabelsAsync(new Guid(CUSTOMER_ID), data);
 
             // Assert
             Assert.Equal(1, remainingLabels.Count);
@@ -439,7 +439,7 @@ namespace OrigoApiGateway.Tests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void MakeAssetAvailableAsync()
+        public async Task MakeAssetAvailableAsync()
         {
             // Arrange
             const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
@@ -447,7 +447,9 @@ namespace OrigoApiGateway.Tests
             var mockFactory = new Mock<IHttpClientFactory>();
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                    x.RequestUri != null && x.RequestUri.ToString().Contains("/make-available") && x.Method == HttpMethod.Post
+                    ),
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage
                 {
@@ -491,6 +493,96 @@ namespace OrigoApiGateway.Tests
                         }
                     ")
                 });
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                    x.RequestUri != null && x.Method == HttpMethod.Get
+                    ),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        {
+                          ""id"": ""4e7413da-54c9-4f79-b882-f66ce48e5074"",
+                          ""organizationId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                          ""alias"": ""alias_0"",
+                          ""note"": """",
+                          ""description"": """",
+                          ""assetTag"": """",
+                          ""assetCategoryId"": 1,
+                          ""assetCategoryName"": ""Mobile phone"",
+                          ""brand"": ""Samsung"",
+                          ""productName"": ""Samsung Galaxy S20"",
+                          ""lifecycleType"": 2,
+                          ""lifecycleName"": ""Transactional"",
+                          ""paidByCompany"": 0,
+                          ""bookValue"": 0,
+                          ""buyoutPrice"": 0,
+                          ""purchaseDate"": ""0001-01-01T00:00:00"",
+                          ""createdDate"": ""2022-05-11T21:30:02.1795951Z"",
+                          ""managedByDepartmentId"": null,
+                          ""assetHolderId"": ""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
+                          ""assetStatus"": 9,
+                          ""assetStatusName"": ""InUse"",
+                          ""labels"": [
+                            {
+                              ""id"": ""c553ae5b-6a3f-49c2-8d3e-8644d8f7e975"",
+                              ""text"": ""Label1"",
+                              ""color"": 0,
+                              ""colorName"": ""Blue""
+                            },
+                            {
+                              ""id"": ""fa0c43b6-1101-4698-bad9-2fb58b2032b3"",
+                              ""text"": ""CompanyOne"",
+                              ""color"": 2,
+                              ""colorName"": ""Lightblue""
+                            }
+                          ],
+                          ""serialNumber"": ""123456789012345"",
+                          ""imei"": [
+                            500119468586675
+                          ],
+                          ""macAddress"": ""B26EDC46046B"",
+                          ""orderNumber"": """",
+                          ""productId"": """",
+                          ""invoiceNumber"": """",
+                          ""transactionId"": """",
+                          ""isPersonal"": true,
+                          ""source"": ""Unknown""
+                        }
+                    ")
+                });
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                    x.RequestUri != null && x.RequestUri.ToString().Contains("/users/") && x.Method == HttpMethod.Get
+                    ),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        {
+                          ""id"": ""a12c5f56-aee9-47e0-9f5f-a726818323a9"",
+                          ""firstName"": ""Kari"",
+                          ""lastName"": ""Normann"",
+                          ""email"": ""kari@normann.no"",
+                          ""mobileNumber"": ""+4790603360"",
+                          ""employeeId"": ""EID:909091"",
+                          ""userPreference"": {
+                            ""language"": ""no""
+                          },
+                          ""organizationName"": ""ORGANIZATION ONE"",
+                          ""userStatusName"": ""Deactivated"",
+                          ""userStatus"": 1,
+                          ""assignedToDepartment"": ""00000000-0000-0000-0000-000000000000"",
+                          ""departmentName"": null,
+                          ""role"": ""EndUser"",
+                          ""managerOf"": []
+                        }
+                    ")
+                });
 
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
@@ -500,12 +592,14 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            userOptionsMock.Setup(o => o.Value).Returns(new UserConfiguration() { ApiPath = @"/organizations" });
+
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
             var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
 
             var postData = new MakeAssetAvailable()
             {
@@ -519,12 +613,12 @@ namespace OrigoApiGateway.Tests
             Assert.Equal(CUSTOMER_ID, asset.OrganizationId.ToString().ToLower());
             Assert.True(asset.AssetHolderId == null || asset.AssetHolderId == Guid.Empty);
             Assert.True(asset.Labels == null || !asset.Labels.Any());
-            Assert.True(asset.AssetStatus == Common.Enums.AssetLifecycleStatus.Available);
+            Assert.True(asset.AssetStatus == AssetLifecycleStatus.Available);
         }
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void GetLifeCycleSettingByCustomer()
+        public async Task GetLifeCycleSettingByCustomer()
         {
             // Arrange
             const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
@@ -564,19 +658,20 @@ namespace OrigoApiGateway.Tests
             var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
 
             // Act
-            var assetings = await assetService.GetLifeCycleSettingByCustomer(new Guid(CUSTOMER_ID));
+            var assetings = await assetService.GetLifeCycleSettingByCustomer(new Guid(CUSTOMER_ID), CurrencyCode.NOK.ToString());
 
             // Assert
-            Assert.Equal(CUSTOMER_ID, assetings.FirstOrDefault().CustomerId.ToString().ToLower());
+            Assert.Equal(CUSTOMER_ID, assetings.FirstOrDefault()!.CustomerId.ToString().ToLower());
             Assert.Equal(1, assetings.Count);
+            Assert.Equal(CurrencyCode.NOK.ToString(), assetings.FirstOrDefault()!.Currency);
         }
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void SetLifeCycleSetting_CustomerExist()
+        public async Task SetLifeCycleSetting_CustomerExist()
         {
             // Arrange
             const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
@@ -639,7 +734,7 @@ namespace OrigoApiGateway.Tests
             var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
 
             var newSettings = new NewLifeCycleSetting()
             {
@@ -648,16 +743,17 @@ namespace OrigoApiGateway.Tests
             };
 
             // Act
-            var assetings = await assetService.SetLifeCycleSettingForCustomerAsync(new Guid(CUSTOMER_ID), newSettings, Guid.Empty);
+            var lifeCycleSetting = await assetService.SetLifeCycleSettingForCustomerAsync(new Guid(CUSTOMER_ID), newSettings, CurrencyCode.NOK.ToString(), Guid.Empty);
 
             // Assert
-            Assert.Equal(CUSTOMER_ID, assetings.CustomerId.ToString().ToLower());
-            Assert.True(!assetings.BuyoutAllowed);
+            Assert.Equal(CUSTOMER_ID, lifeCycleSetting.CustomerId.ToString().ToLower());
+            Assert.Equal(CurrencyCode.NOK.ToString(), lifeCycleSetting.Currency);
+            Assert.True(!lifeCycleSetting.BuyoutAllowed);
         }
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void SetLifeCycleSetting_CustomerDoesNotExist()
+        public async Task SetLifeCycleSetting_CustomerDoesNotExist()
         {
             // Arrange
             const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
@@ -721,7 +817,7 @@ namespace OrigoApiGateway.Tests
             var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
 
             var newSettings = new NewLifeCycleSetting()
             {
@@ -729,22 +825,22 @@ namespace OrigoApiGateway.Tests
             };
 
             // Act
-            var assetings = await assetService.SetLifeCycleSettingForCustomerAsync(new Guid(CUSTOMER_ID), newSettings, Guid.Empty);
+            var assetings = await assetService.SetLifeCycleSettingForCustomerAsync(new Guid(CUSTOMER_ID), newSettings, CurrencyCode.NOK.ToString(), Guid.Empty);
 
             // Assert
             Assert.Equal(CUSTOMER_ID, assetings.CustomerId.ToString().ToLower());
+            Assert.Equal(CurrencyCode.NOK.ToString(), assetings.Currency);
             Assert.True(!assetings.BuyoutAllowed);
         }
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void UpdateLabelsForCustomer()
+        public async Task UpdateLabelsForCustomer()
         {
             // Arrange
             const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
             const string LABEL_ONE_ID = "94D22A10-FC47-4F23-A524-B30D022DD8AF";
             const string LABEL_TWO_ID = "53D6241B-7297-44E4-857B-9EEA69BEB174";
-            const string LABEL_THREE_ID = "484289DA-FA13-4629-8AAA-CF988F905681";
 
             var mockFactory = new Mock<IHttpClientFactory>();
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -790,20 +886,20 @@ namespace OrigoApiGateway.Tests
             var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
 
             IList<Label> labels = new List<Label>();
-            labels.Add(new Label { Id = new Guid(LABEL_ONE_ID), Text = "Administrator", Color = Common.Enums.LabelColor.Blue });
-            labels.Add(new Label { Id = new Guid(LABEL_TWO_ID), Text = "Assistant", Color = Common.Enums.LabelColor.Lightblue });
+            labels.Add(new Label { Id = new Guid(LABEL_ONE_ID), Text = "Administrator", Color = LabelColor.Blue });
+            labels.Add(new Label { Id = new Guid(LABEL_TWO_ID), Text = "Assistant", Color = LabelColor.Lightblue });
 
-            UpdateCustomerLabelsData data = new UpdateCustomerLabelsData
+            var data = new UpdateCustomerLabelsData
             {
                 Labels = labels,
                 CallerId = Guid.Empty
             };
 
             // Act
-            IList<Label> labelsResult = await assetService.UpdateLabelsForCustomerAsync(new Guid(CUSTOMER_ID), data);
+            var labelsResult = await assetService.UpdateLabelsForCustomerAsync(new Guid(CUSTOMER_ID), data);
 
             // Assert
             Assert.Equal(3, labelsResult.Count);

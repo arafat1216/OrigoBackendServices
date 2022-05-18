@@ -17,6 +17,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace OrigoApiGateway.Services
 {
@@ -60,15 +61,24 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus assetLifecycleStatus)
+        public async Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId,
+            AssetLifecycleStatus? assetLifecycleStatus)
         {
             try
             {
-                string departmentFilter = "";
-                if(departmentId != null && departmentId != Guid.Empty)
-                    departmentFilter = $"{departmentId}";
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/count";
+                if (departmentId != null && departmentId != Guid.Empty)
+                {
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "departmentId", $"{departmentId}");
+                }
 
-                var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/customers/{customerId}/count?departmentId={departmentFilter}&assetLifecycleStatus={(int)assetLifecycleStatus}");
+                if (assetLifecycleStatus.HasValue)
+                {
+                    requestUri = QueryHelpers.AddQueryString($"{_options.ApiPath}/customers/{customerId}/count",
+                        "assetLifecycleStatus", $"{(int)assetLifecycleStatus}");
+                }
+
+                var count = await HttpClient.GetFromJsonAsync<int>(requestUri);
 
                 return count;
             }
@@ -145,11 +155,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 1000)
+        public async Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 1000, AssetLifecycleStatus? status = null)
         {
             try
             {
-                var assets = await HttpClient.GetFromJsonAsync<PagedModel<HardwareSuperType>>($"{_options.ApiPath}/customers/{customerId}?q={search}&page={page}&limit={limit}");
+                var statuFilter = status == null ? "" : $"&status={(int)status}";
+                var assets = await HttpClient.GetFromJsonAsync<PagedModel<HardwareSuperType>>($"{_options.ApiPath}/customers/{customerId}?q={search}&page={page}&limit={limit}{statuFilter}");
 
                 if (assets == null)
                     return null;
@@ -171,7 +182,7 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
-        public async Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomer(Guid customerId)
+        public async Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomer(Guid customerId, string currency)
         {
             try
             {
@@ -179,6 +190,10 @@ namespace OrigoApiGateway.Services
 
                 if (settings == null)
                     return null;
+                foreach(var setting in settings)
+                {
+                    setting.Currency = currency;
+                }
                 return settings;
             }
             catch (HttpRequestException exception)
@@ -197,11 +212,11 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
-        public async Task<LifeCycleSetting> SetLifeCycleSettingForCustomerAsync(Guid customerId, NewLifeCycleSetting setting, Guid callerId)
+        public async Task<LifeCycleSetting> SetLifeCycleSettingForCustomerAsync(Guid customerId, NewLifeCycleSetting setting, string currency, Guid callerId)
         {
             try
             {
-                var existingSetting = await GetLifeCycleSettingByCustomer(customerId);
+                var existingSetting = await GetLifeCycleSettingByCustomer(customerId, currency);
                 var requestUri = $"{_options.ApiPath}/customers/{customerId}/lifecycle-setting";
                 var response = new HttpResponseMessage();
                 var newSettingtDTO = _mapper.Map<NewLifeCycleSettingDTO>(setting);
@@ -218,6 +233,7 @@ namespace OrigoApiGateway.Services
                     throw exception;
                 }
                 var newSetting = await response.Content.ReadFromJsonAsync<LifeCycleSetting>();
+                newSetting.Currency = currency;
                 return newSetting;
             }
             catch (Exception exception)
@@ -347,7 +363,18 @@ namespace OrigoApiGateway.Services
                 makeAssetAvailableDTO.CallerId = callerId; // Guid.Empty if tryparse fails.
 
                 var requestUri = $"{_options.ApiPath}/customers/{customerId}/make-available";
-                
+                var existingAsset = await GetAssetForCustomerAsync(customerId, data.AssetLifeCycleId);
+                if(existingAsset.AssetHolderId != null)
+                {
+                    var user = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
+                    makeAssetAvailableDTO.PreviousUser = new EmailPersonAttributeDTO()
+                    {
+                        Email = user.Email,
+                        Name = user.FirstName,
+                        PreferedLanguage = user.UserPreference.Language
+                    };
+                }
+
                 var response = await HttpClient.PostAsJsonAsync(requestUri, makeAssetAvailableDTO);
                 if (!response.IsSuccessStatusCode)
                 {
@@ -378,18 +405,26 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAsset> ReAssignAssetToDepartment(Guid customerId, Guid assetId, Guid departmentId, Guid callerId)
+        public async Task<OrigoAsset> ReAssignAssetToDepartment(Guid customerId, Guid assetId, ReassignedToDepartmentDTO data)
         {
             try
             {
-
-                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/re-assignment";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, JsonContent.Create(new
+                var existingAsset = await GetAssetForCustomerAsync(customerId, assetId);
+                var department = await _departmentsServices.GetDepartment(customerId, existingAsset.ManagedByDepartmentId.Value);
+                var oldManagers = new List<EmailPersonAttributeDTO>();
+                foreach (var manager in department.ManagedBy)
                 {
-                    Personal = false,
-                    DepartmentId = departmentId,
-                    CallerId = callerId
-                }));
+                    var oldManager = await _userServices.GetUserAsync(customerId, manager.UserId);
+                    oldManagers.Add(new EmailPersonAttributeDTO()
+                    {
+                        Name = oldManager.FirstName,
+                        Email = oldManager.Email,
+                        PreferedLanguage = oldManager.UserPreference!.Language
+                    });
+                }
+                data.PreviousManagers = oldManagers;
+                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/re-assignment";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, JsonContent.Create(data));
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -420,19 +455,36 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAsset> ReAssignAssetToUser(Guid customerId, Guid userId, Guid assetId, Guid departmentId, Guid callerId)
+        public async Task<OrigoAsset> ReAssignAssetToUser(Guid customerId, Guid assetId, ReassignedToUserDTO data)
         {
             try
             {
-
-                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/re-assignment";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, JsonContent.Create(new
+                var existingAsset = await GetAssetForCustomerAsync(customerId, assetId);
+                if (existingAsset.AssetHolderId != null)
                 {
-                    Personal = true,
-                    UserId = userId,
-                    DepartmentId = departmentId,
-                    CallerId = callerId
-                }));
+                    var previousUser = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
+                    data.PreviousUser = new EmailPersonAttributeDTO()
+                    {
+                        Name = previousUser.FirstName,
+                        Email = previousUser.Email,
+                        PreferedLanguage = previousUser.UserPreference!.Language
+                    };
+                }
+                var department = await _departmentsServices.GetDepartment(customerId, existingAsset.ManagedByDepartmentId.Value);
+                var oldManagers = new List<EmailPersonAttributeDTO>();
+                foreach(var manager in department.ManagedBy)
+                {
+                    var oldManager = await _userServices.GetUserAsync(customerId, manager.UserId);
+                    oldManagers.Add(new EmailPersonAttributeDTO()
+                    {
+                        Name = oldManager.FirstName,
+                        Email = oldManager.Email,
+                        PreferedLanguage = oldManager.UserPreference!.Language
+                    });
+                }
+                data.PreviousManagers = oldManagers;
+                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}/re-assignment";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, JsonContent.Create(data));
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -684,7 +736,10 @@ namespace OrigoApiGateway.Services
                 var allMinBuyoutPrices = await HttpClient.GetFromJsonAsync<IList<MinBuyoutPrice>>($"{_options.ApiPath}/min-buyout-price?{(string.IsNullOrWhiteSpace(country) ? "" : $"country={country}")}&{(assetCategoryId == null ? "" : $"assetCategoryId={assetCategoryId}")}");
                 if (allMinBuyoutPrices == null)
                     return null;
-
+                foreach(var data in allMinBuyoutPrices)
+                {
+                    data.Currency = GetCurrencyByCountry(data.Country);
+                }
                 return allMinBuyoutPrices;
             }
             catch (HttpRequestException exception)
@@ -730,20 +785,20 @@ namespace OrigoApiGateway.Services
             return null;
         }
 
-        public string GetCurrencyByCountryCode(string? countryCode = null)
+        public string GetCurrencyByCountry(string? country = null)
         {
-            if (string.IsNullOrEmpty(countryCode))
+            if (string.IsNullOrEmpty(country))
                 return CurrencyCode.NOK.ToString();
 
-            switch (countryCode.ToUpper().Trim())
+            switch (country.ToUpper().Trim())
             {
-                case "NO":
+                case "NORWAY":
                     return CurrencyCode.NOK.ToString();
-                case "SE":
+                case "SWEDEN":
                     return CurrencyCode.SEK.ToString();
-                case "DK":
+                case "DENMARK":
                     return CurrencyCode.DKK.ToString();
-                case "US":
+                case "UNITED STATES":
                     return CurrencyCode.USD.ToString();
                 default:
                     return CurrencyCode.EUR.ToString();

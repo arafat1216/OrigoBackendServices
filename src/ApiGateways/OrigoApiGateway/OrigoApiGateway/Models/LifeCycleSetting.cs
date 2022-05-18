@@ -10,6 +10,7 @@ namespace OrigoApiGateway.Models
         public int AssetCategoryId { get; set; }
         public string AssetCategoryName { get; set; }
         public decimal MinBuyoutPrice { get; set; }
+        public string Currency { get; set; }
         public DateTime CreatedDate { get; set; }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using HardwareServiceOrder.API.Controllers;
 using HardwareServiceOrder.API.ViewModels;
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -66,6 +66,23 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             Assert.NotNull(settings!.ServiceId);
             Assert.NotNull(settings!.LoanDevice.Email);
             Assert.NotNull(settings!.LoanDevice.PhoneNumber);
+        }
+
+        [Fact]
+        public async Task GetSettings_Customer_Not_Exist()
+        {
+            var customerId = Guid.NewGuid();
+
+            var url = $"/api/v1/hardware-repair/{customerId}/config";
+            _testOutputHelper.WriteLine(url);
+            var request = await _httpClient.GetAsync(url);
+            var settings = await request.Content.ReadFromJsonAsync<CustomerSettings>();
+            Assert.NotNull(settings);
+            Assert.Equal(HttpStatusCode.OK, request.StatusCode);
+            Assert.Equal(settings!.CustomerId, customerId);
+            Assert.Null(settings!.ServiceId);
+            Assert.Null(settings!.LoanDevice);
+            Assert.Null(settings!.LoanDevice);
         }
     }
 }

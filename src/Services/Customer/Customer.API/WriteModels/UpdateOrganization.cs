@@ -1,5 +1,4 @@
-﻿using Customer.API.ViewModels;
-using CustomerServices.ServiceModels;
+﻿using CustomerServices.ServiceModels;
 using System;
 
 namespace Customer.API.WriteModels

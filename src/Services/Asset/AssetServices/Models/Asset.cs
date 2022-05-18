@@ -1,6 +1,4 @@
-﻿using AssetServices.DomainEvents;
-using Common.Enums;
-using Common.Seedwork;
+﻿using Common.Seedwork;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

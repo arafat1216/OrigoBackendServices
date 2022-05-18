@@ -17,7 +17,7 @@ namespace HardwareServiceOrderServices.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.3")
+                .HasAnnotation("ProductVersion", "6.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -73,70 +73,6 @@ namespace HardwareServiceOrderServices.Migrations
                     b.ToTable("CustomerSettings", (string)null);
                 });
 
-            modelBuilder.Entity("HardwareServiceOrderServices.Models.DeliveryAddress", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Address1")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Address2")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasMaxLength(85)
-                        .HasColumnType("nvarchar(85)");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasMaxLength(2)
-                        .IsUnicode(false)
-                        .HasColumnType("char(2)")
-                        .IsFixedLength()
-                        .HasComment("The 2-character country-code using the uppercase <c>ISO 3166 alpha-2</c> standard.");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset>("LastUpdatedDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
-
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
-                        .HasMaxLength(12)
-                        .HasColumnType("nvarchar(12)");
-
-                    b.Property<string>("Recipient")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DeliveryAddresses");
-                });
-
             modelBuilder.Entity("HardwareServiceOrderServices.Models.HardwareServiceOrder", b =>
                 {
                     b.Property<int>("Id")
@@ -158,9 +94,6 @@ namespace HardwareServiceOrderServices.Migrations
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("DeliveryAddressId")
-                        .HasColumnType("int");
 
                     b.Property<Guid>("ExternalId")
                         .HasColumnType("uniqueidentifier");
@@ -197,8 +130,6 @@ namespace HardwareServiceOrderServices.Migrations
                     b.HasAlternateKey("ExternalId");
 
                     b.HasIndex("AssetLifecycleId");
-
-                    b.HasIndex("DeliveryAddressId");
 
                     b.HasIndex("ServiceProviderId");
 
@@ -319,10 +250,6 @@ namespace HardwareServiceOrderServices.Migrations
 
             modelBuilder.Entity("HardwareServiceOrderServices.Models.HardwareServiceOrder", b =>
                 {
-                    b.HasOne("HardwareServiceOrderServices.Models.DeliveryAddress", "DeliveryAddress")
-                        .WithMany()
-                        .HasForeignKey("DeliveryAddressId");
-
                     b.HasOne("HardwareServiceOrderServices.Models.ServiceProvider", "ServiceProvider")
                         .WithMany()
                         .HasForeignKey("ServiceProviderId")
@@ -341,7 +268,76 @@ namespace HardwareServiceOrderServices.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.OwnsOne("HardwareServiceOrderServices.Models.DeliveryAddress", "DeliveryAddress", b1 =>
+                        {
+                            b1.Property<int>("HardwareServiceOrderId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Address1")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Address2")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasMaxLength(85)
+                                .HasColumnType("nvarchar(85)");
+
+                            b1.Property<string>("Country")
+                                .IsRequired()
+                                .HasMaxLength(2)
+                                .IsUnicode(false)
+                                .HasColumnType("char(2)")
+                                .IsFixedLength()
+                                .HasComment("The 2-character country-code using the uppercase <c>ISO 3166 alpha-2</c> standard.");
+
+                            b1.Property<string>("PostalCode")
+                                .IsRequired()
+                                .HasMaxLength(12)
+                                .HasColumnType("nvarchar(12)");
+
+                            b1.Property<string>("Recipient")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("HardwareServiceOrderId");
+
+                            b1.ToTable("HardwareServiceOrders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("HardwareServiceOrderId");
+                        });
+
+                    b.OwnsOne("HardwareServiceOrderServices.Models.User", "OrderedBy", b1 =>
+                        {
+                            b1.Property<int>("HardwareServiceOrderId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Email")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<Guid>("ExternalId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("HardwareServiceOrderId");
+
+                            b1.ToTable("HardwareServiceOrders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("HardwareServiceOrderId");
+                        });
+
                     b.Navigation("DeliveryAddress");
+
+                    b.Navigation("OrderedBy")
+                        .IsRequired();
 
                     b.Navigation("ServiceProvider");
 

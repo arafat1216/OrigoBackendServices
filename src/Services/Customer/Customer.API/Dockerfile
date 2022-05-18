@@ -71,11 +71,6 @@ ARG BUILD_ID
 LABEL test=${BUILD_ID}
 
 # Build and Test Unit tests
-RUN dotnet build \
-	--configuration Release \
-	--no-restore \
-	../Tests/CustomerServices.UnitTests/CustomerServices.UnitTests.csproj
-
 RUN dotnet test \
 	--logger "trx;LogFileName=test_results.trx" \
 	--collect:"XPlat Code Coverage" \
@@ -83,16 +78,9 @@ RUN dotnet test \
 	/p:CoverletOutput=/TestResults/Coverage1/ \
 	--configuration Release \
 	--no-restore \
-	--no-build \
-	-nodereuse:false \
     ../Tests/CustomerServices.UnitTests/CustomerServices.UnitTests.csproj
 
 # Build and Test Integration tests
-RUN dotnet build \
-	--configuration Release \
-	--no-restore \
-	../Tests/Customer.API.Tests/Customer.API.IntegrationTests.csproj
-
 RUN dotnet test \
 	--logger "trx;LogFileName=test_results2.trx" \
 	--collect:"XPlat Code Coverage" \
@@ -100,15 +88,13 @@ RUN dotnet test \
 	/p:CoverletOutput=/TestResults/Coverage2/ \
 	--configuration Release \
 	--no-restore \
-	--no-build \
-	-nodereuse:false \
+	--blame-hang-timeout 1m \
 	../Tests/Customer.API.Tests/Customer.API.IntegrationTests.csproj
 
 RUN reportgenerator \
 	-reports:/TestResults/**/coverage.cobertura.xml \
 	-targetdir:/CodeCoverage \
-	-reporttypes:"SonarQube;HtmlInline_AzurePipelines;HtmlInline_AzurePipelines_Dark;Cobertura" \
-	-verbosity:Verbose
+	-reporttypes:"SonarQube;HtmlInline_AzurePipelines;HtmlInline_AzurePipelines_Dark;Cobertura"
 
 RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 

@@ -1,10 +1,13 @@
 using System;
 using System.Reflection;
+using System.Resources;
 using Asset.API.Filters;
 using AssetServices;
+using AssetServices.Email;
 using AssetServices.Infrastructure;
 using AssetServices.Mappings;
 using AssetServices.Models;
+using Common.Configuration;
 using Common.Logging;
 using Common.Utilities;
 using Dapr.Client;
@@ -68,10 +71,14 @@ namespace Asset.API
                     sqlOptions.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
                 });
             });
+            services.AddSingleton(s => new ResourceManager("AssetServices.Resources.Asset", Assembly.GetAssembly(typeof(EmailService))));
             services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
             services.AddScoped<IAssetServices, AssetServices.AssetServices>();
             services.AddScoped<IAssetTestDataService, AssetTestDataService>();
             services.AddScoped<IAssetLifecycleRepository, AssetLifecycleRepository>();
+            services.Configure<EmailConfiguration>(Configuration.GetSection("Email"));
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IFlatDictionaryProvider, FlatDictionary>();
             services.AddScoped<ErrorExceptionFilter>();
             // Feature flag initialization.
             services.Configure<FeatureFlagConfiguration>(Configuration.GetSection("FeatureFlag"));

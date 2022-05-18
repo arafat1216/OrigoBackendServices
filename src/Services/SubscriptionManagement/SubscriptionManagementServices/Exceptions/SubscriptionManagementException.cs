@@ -1,5 +1,4 @@
 ﻿using Common.Model;
-using System.Runtime.Serialization;
 
 namespace SubscriptionManagementServices.Exceptions
 {

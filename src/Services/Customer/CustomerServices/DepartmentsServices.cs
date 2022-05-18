@@ -62,7 +62,7 @@ namespace CustomerServices
                         var userPermission = await _userPermissionRepository.GetUserPermissionsAsync(user.Email);
                         if (userPermission != null)
                         {
-                            var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString());
+                            var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString() || a.Role.Name == PredefinedRole.Manager.ToString());
                             if (role != null) customer.AddDepartmentManager(department, user, callerId);
                         }
                     }
@@ -112,7 +112,7 @@ namespace CustomerServices
                         var userPermission = await _userPermissionRepository.GetUserPermissionsAsync(user.Email);
                         if (userPermission != null)
                         {
-                            var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString());
+                            var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString() || a.Role.Name == PredefinedRole.Manager.ToString());
                             if (role != null) users.Add(user);
                         }
                     }
@@ -167,7 +167,7 @@ namespace CustomerServices
                         var userPermission = await _userPermissionRepository.GetUserPermissionsAsync(user.Email);
                         if (userPermission != null)
                         {
-                            var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString());
+                            var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString() || a.Role.Name == PredefinedRole.Manager.ToString());
                             if (role != null) customer.AddDepartmentManager(departmentToUpdate, user, callerId);
                         }
                     }

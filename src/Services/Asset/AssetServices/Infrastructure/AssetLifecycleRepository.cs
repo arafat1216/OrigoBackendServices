@@ -48,7 +48,6 @@ namespace AssetServices.Infrastructure
         public async Task<IList<CustomerAssetCount>> GetAssetLifecyclesCountsAsync()
         {
             var assetCountList = await _assetContext.AssetLifeCycles
-            .Where(a => a.AssetLifecycleStatus == AssetLifecycleStatus.Active)
             .GroupBy(a => a.CustomerId)
             .Select(group => new CustomerAssetCount()
             {
@@ -60,58 +59,75 @@ namespace AssetServices.Infrastructure
             return assetCountList;
         }
 
-        public async Task<int> GetAssetLifecyclesCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus assetLifecycleStatus)
+        public async Task<int> GetAssetLifecyclesCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus)
         {
-            if (departmentId!=null && departmentId != Guid.Empty)
+            if (departmentId != null && departmentId != Guid.Empty)
             {
-                return await _assetContext.AssetLifeCycles
-                .Where(a => a.CustomerId == customerId && a.ManagedByDepartmentId == departmentId && a.AssetLifecycleStatus == assetLifecycleStatus).CountAsync();
+                var countStatus = await _assetContext.AssetLifeCycles
+                    .Where(a => a.CustomerId == customerId && a.ManagedByDepartmentId == departmentId)
+                    .GroupBy(a => a.AssetLifecycleStatus)
+                    .Select(c => new { StatusId = c.Key, Count = c.Count() })
+                    .ToListAsync();
+                return assetLifecycleStatus.HasValue
+                    ? countStatus.FirstOrDefault(c => c.StatusId == assetLifecycleStatus)?.Count ?? 0
+                    : countStatus.Sum(c => AssetLifecycle.IsActiveState(c.StatusId) ? c.Count : 0);
             }
             else
             {
-                return await _assetContext.AssetLifeCycles
-                .Where(a => a.CustomerId == customerId && a.AssetLifecycleStatus == assetLifecycleStatus).CountAsync();
-            }
+                var countStatus = await _assetContext.AssetLifeCycles
+                    .Where(a => a.CustomerId == customerId)
+                    .GroupBy(a => a.AssetLifecycleStatus)
+                    .Select(c => new { StatusId = c.Key, Count = c.Count() })
+                    .ToListAsync();
 
+                return assetLifecycleStatus.HasValue
+                    ? countStatus.FirstOrDefault(c => c.StatusId == assetLifecycleStatus)?.Count ?? 0
+                    : countStatus.Sum(c => AssetLifecycle.IsActiveState(c.StatusId) ? c.Count : 0);
+            }
         }
 
         public async Task<decimal> GetCustomerTotalBookValue(Guid customerId)
         {
             var assets = await _assetContext.AssetLifeCycles
-                .Where(a => a.CustomerId == customerId && a.AssetLifecycleStatus == AssetLifecycleStatus.Active).ToListAsync();
-            return assets.Sum(x=>x.BookValue);
+                .Where(a => a.CustomerId == customerId && a.AssetLifecycleType == LifecycleType.Transactional &&
+                            (a.AssetLifecycleStatus == AssetLifecycleStatus.InUse ||
+                             a.AssetLifecycleStatus == AssetLifecycleStatus.InputRequired ||
+                             a.AssetLifecycleStatus == AssetLifecycleStatus.Repair ||
+                             a.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
+                             a.AssetLifecycleStatus == AssetLifecycleStatus.Available)
+                ).ToListAsync();
+            return assets.Sum(x => x.BookValue);
         }
 
-        public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string search, int page, int limit, AssetLifecycleStatus? status, CancellationToken cancellationToken)
+        public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string search,
+            AssetLifecycleStatus? status, int page, int limit, CancellationToken cancellationToken)
         {
-            var assets = await _assetContext.AssetLifeCycles.Include(al => al.Asset)
-                    .ThenInclude(hw => (hw as MobilePhone).Imeis)
-                    //.ThenInclude(hw => (hw as Tablet).Imeis)
-                    .Include(a => a.Labels)
-                    .Include(al => al.ContractHolderUser)
-                    .Where(al => al.CustomerId == customerId).ToListAsync();
-
-            if (long.TryParse(search, out long imei))
-            {
-                assets = assets.Where(a => a.Asset!.Brand.ToLower().Contains(search.ToLower())
-                || a.Asset.ProductName.ToLower().Contains(search.ToLower())
-                || (a.ContractHolderUser != null ? a.ContractHolderUser!.Name.ToLower().Contains(search.ToLower()) : false )
-                || (a.Asset as HardwareAsset)!.SerialNumber.ToLower().Contains(search.ToLower())
-                || (a.Asset as MobilePhone is not null && (a.Asset as MobilePhone).Imeis.Any(im => im.Imei == imei))).ToList();
-
-                return assets.AsEnumerable().PaginateAsync(page, limit);
-            }
-
+            IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
+            query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
+            query = query.Include(al => al.Labels);
+            query = query.Include(al => al.ContractHolderUser);
+            query = query.Where(al => al.CustomerId == customerId);
             if (!string.IsNullOrEmpty(search))
-                assets = assets.Where(a => a.Asset!.Brand.ToLower().Contains(search.ToLower())
-                || a.Asset.ProductName.ToLower().Contains(search.ToLower())
-                || (a.ContractHolderUser != null ? a.ContractHolderUser!.Name.ToLower().Contains(search.ToLower()) : false)
-                || (a.Asset as HardwareAsset)!.SerialNumber.ToLower().Contains(search.ToLower())).ToList();
-
+            {
+                var imeiFound = false;
+                long imei = 0;
+                if (search.Length >= 15 && long.TryParse(search, out imei))
+                {
+                    imeiFound = true;
+                }
+                query = query.Where(al => al.Asset != null &&
+                                          (
+                                              al.Asset.Brand.ToLower().Contains(search.ToLower()) ||
+                                              al.Asset.ProductName.ToLower().Contains(search.ToLower())) ||
+                                              (imeiFound && al.Asset is MobilePhone && (al.Asset as MobilePhone).Imeis.Any(im => im.Imei == imei)) ||
+                                              (al.Asset is MobilePhone && (al.Asset as MobilePhone).SerialNumber.ToLower().Contains(search.ToLower()))
+                );
+            }
             if (status != null)
-                assets = assets.Where(a => a.AssetLifecycleStatus == status).ToList();
+                query = query.Where(al => al.AssetLifecycleStatus == status);
 
-            return assets.AsEnumerable().PaginateAsync(page, limit);
+            query = query.AsSplitQuery().AsNoTracking();
+            return await query.PaginateAsync(page, limit, cancellationToken);
         }
 
         public async Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList)
@@ -203,8 +219,11 @@ namespace AssetServices.Infrastructure
         public async Task<AssetLifecycle?> MakeAssetAvailableAsync(Guid customerId, Guid callerId, Guid assetLifeCycleId)
         {
             var assetLifecycles = await _assetContext.AssetLifeCycles
-                .Include(a => a.ContractHolderUser)
-                .Include(al => al.Labels)
+                .Include(al => al.Asset)
+                .ThenInclude(hw => (hw as MobilePhone).Imeis)
+                //.ThenInclude(hw => (hw as Tablet).Imeis)
+                .Include(al => al.ContractHolderUser)
+                .Include(a => a.Labels)
                 .Where(a => a.CustomerId == customerId && a.ExternalId == assetLifeCycleId)
                 .FirstOrDefaultAsync();
 

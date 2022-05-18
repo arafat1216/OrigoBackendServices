@@ -1,8 +1,10 @@
-﻿using Common.Enums;
+﻿using AutoMapper;
+using Common.Enums;
 using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
+using CustomerServices.ServiceModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -24,11 +26,13 @@ namespace Customer.API.Controllers
     {
         private readonly IUserPermissionServices _userPermissionServices;
         private readonly ILogger<UserPermissionsController> _logger;
+        private readonly IMapper _mapper;
 
-        public UserPermissionsController(ILogger<UserPermissionsController> logger, IUserPermissionServices userServices)
+        public UserPermissionsController(ILogger<UserPermissionsController> logger, IUserPermissionServices userServices, IMapper mapper)
         {
             _logger = logger;
             _userPermissionServices = userServices;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -108,6 +112,31 @@ namespace Customer.API.Controllers
             {
                 _logger.LogError("{0}", ex);
                 return NotFound($"Role {userRole.Role} not found.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex);
+                throw;
+            }
+        }
+        /// <summary>
+        /// Assignig users permissions and roles
+        /// </summary>
+        /// <param name="newUserPermissions">List of users to get role and permissions</param>
+        /// <returns></returns>
+        [Route("/api/v{version:apiVersion}/organizations/users/permissions")]
+        [HttpPut]
+        [ProducesResponseType(typeof(UserPermissions), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+
+        public async Task<ActionResult<ViewModels.UsersPermissions>> AssignUsersPermissions([FromBody] NewUsersPermission newUserPermissions)
+        {
+            try
+            {
+                var userPermission = await _userPermissionServices.AssignUsersPermissionsAsync(newUserPermissions, newUserPermissions.CallerId);
+                if(userPermission.UserPermissions.Count == 0) return NotFound();
+                
+                return Ok(_mapper.Map<UsersPermissions>(userPermission));
             }
             catch (Exception ex)
             {

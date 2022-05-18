@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.Enums;
 using Common.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -341,6 +342,29 @@ namespace OrigoApiGateway.Services
             throw new NotImplementedException();
         }
 
+        public async Task<string> GetCurrencyByCustomer(Guid customerId)
+        {
+            var customer = await GetCustomerAsync(customerId);
+            var country = customer.Location == null?
+                customer.Address == null ? null : customer.Address.Country
+                : customer.Location.Country;
+            
+            if (string.IsNullOrEmpty(country)) return CurrencyCode.NOK.ToString();
+
+            switch (country.ToUpper().Trim())
+            {
+                case "NO":
+                    return CurrencyCode.NOK.ToString();
+                case "SE":
+                    return CurrencyCode.SEK.ToString();
+                case "DK":
+                    return CurrencyCode.DKK.ToString();
+                case "US":
+                    return CurrencyCode.USD.ToString();
+                default:
+                    return CurrencyCode.EUR.ToString();
+            };
+        }
         //public async Task<string> CheckAndProvisionWebShopUser(string email, string orgnumber); //$"{_options.ApiPath}/webshopUser
     }
 }

@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
-using System;
 using System.Linq;
 
 namespace CustomerServices.Mappings

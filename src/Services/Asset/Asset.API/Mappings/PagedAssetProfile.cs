@@ -2,8 +2,6 @@
 using AssetServices.ServiceModel;
 using AutoMapper;
 using Common.Interfaces;
-using System.Linq;
-using System.Text.Json;
 
 namespace Asset.API.Mappings;
 

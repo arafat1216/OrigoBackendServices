@@ -13,9 +13,9 @@ namespace OrigoApiGateway.Services
     public interface IAssetServices
     {
         Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync();
-        Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus assetLifecycleStatus);
+        Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus);
         Task<IList<object>> GetAssetsForUserAsync(Guid customerId, Guid userId);
-        Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 1000);
+        Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId, string search = "", int page = 1, int limit = 1000, AssetLifecycleStatus? status = null);
         Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId);
         Task<OrigoAsset> AddAssetForCustomerAsync(Guid customerId, NewAssetDTO newAsset);
         Task<IList<object>> UpdateStatusOnAssets(Guid customerId, UpdateAssetsStatus updatedAssetStatus, Guid callerId);
@@ -36,10 +36,10 @@ namespace OrigoApiGateway.Services
         Task<string> CreateAssetSeedData();
         Task<decimal> GetCustomerTotalBookValue(Guid customerId);
         Task<OrigoAsset> MakeAssetAvailableAsync(Guid customerId, MakeAssetAvailable data, Guid callerId);
-        Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomer(Guid customerId);
-        Task<LifeCycleSetting> SetLifeCycleSettingForCustomerAsync(Guid customerId, NewLifeCycleSetting setting, Guid callerId);
-        string GetCurrencyByCountryCode(string? countryCode = null);
-        Task<OrigoAsset> ReAssignAssetToDepartment(Guid customerId, Guid assetId, Guid departmentId, Guid callerId);
-        Task<OrigoAsset> ReAssignAssetToUser(Guid customerId, Guid userId, Guid assetId, Guid departmentId, Guid callerId);
+        Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomer(Guid customerId, string currency);
+        Task<LifeCycleSetting> SetLifeCycleSettingForCustomerAsync(Guid customerId, NewLifeCycleSetting setting, string currency, Guid callerId);
+        string GetCurrencyByCountry(string? country = null);
+        Task<OrigoAsset> ReAssignAssetToDepartment(Guid customerId, Guid assetId, ReassignedToDepartmentDTO data);
+        Task<OrigoAsset> ReAssignAssetToUser(Guid customerId, Guid assetId, ReassignedToUserDTO data);
     }
 }

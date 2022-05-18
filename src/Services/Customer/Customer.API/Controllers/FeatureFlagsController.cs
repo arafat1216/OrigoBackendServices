@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices;
 using Microsoft.AspNetCore.Mvc;

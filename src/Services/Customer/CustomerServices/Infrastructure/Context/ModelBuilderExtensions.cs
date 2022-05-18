@@ -25,7 +25,9 @@ namespace CustomerServices.Infrastructure.Context
                 new Role(4, "GroupAdmin"),
                 new Role(5, "PartnerAdmin"),
                 new Role(7, "PartnerReadOnlyAdmin"),
-                new Role(6, "SystemAdmin")
+                new Role(6, "SystemAdmin"),
+                new Role(8, "Manager"),
+                new Role(9, "Admin")
             );
         }
     }

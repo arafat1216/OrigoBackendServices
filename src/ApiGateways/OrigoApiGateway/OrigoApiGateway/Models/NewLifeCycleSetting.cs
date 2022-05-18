@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace OrigoApiGateway.Models
+﻿namespace OrigoApiGateway.Models
 {
     public class NewLifeCycleSetting
     {

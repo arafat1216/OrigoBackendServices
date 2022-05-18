@@ -1,5 +1,3 @@
-using System;
-
 namespace Common.Logging
 {
     public interface IEvent

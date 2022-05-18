@@ -1,5 +1,4 @@
-﻿using System;
-using Common.Enums;
+﻿using Common.Enums;
 
 namespace Common.Model;
 

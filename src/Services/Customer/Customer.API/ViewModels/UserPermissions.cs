@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Customer.API.ViewModels
 {
+    [Obsolete("This will be replaced when the refactoring of userpermission happens")]
     public class UserPermissions
     {
         public UserPermissions(IReadOnlyCollection<string> permissionNames, IReadOnlyCollection<Guid> accessList, string role, Guid userId)

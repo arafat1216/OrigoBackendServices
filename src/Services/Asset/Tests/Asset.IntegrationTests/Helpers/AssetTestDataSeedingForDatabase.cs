@@ -66,7 +66,7 @@ internal static class AssetTestDataSeedingForDatabase
         {
             CustomerId = COMPANY_ID,
             Alias = "alias_2",
-            AssetLifecycleStatus = AssetLifecycleStatus.Active,
+            AssetLifecycleStatus = AssetLifecycleStatus.InUse,
             AssetLifecycleType = LifecycleType.Transactional
         };
         assetLifecycleThree.AssignAsset(assetThree, CALLER_ID);

@@ -1,6 +1,4 @@
-﻿using Common.Enums;
-using Common.Interfaces;
-using Customer.API.Controllers;
+﻿using Common.Interfaces;
 using Customer.API.IntegrationTests.Helpers;
 using Customer.API.Tests;
 using Customer.API.ViewModels;

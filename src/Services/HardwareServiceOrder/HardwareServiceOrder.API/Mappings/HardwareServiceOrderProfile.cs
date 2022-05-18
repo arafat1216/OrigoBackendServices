@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using HardwareServiceOrder.API.ViewModels;
-using HardwareServiceOrderServices.ServiceModels;
 
 namespace HardwareServiceOrder.API.Mappings
 {

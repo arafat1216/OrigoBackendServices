@@ -1,11 +1,12 @@
-﻿using Common.Enums;
+﻿using AutoMapper;
+using Common.Enums;
 using Common.Extensions;
 using Common.Logging;
 using Common.Utilities;
 using CustomerServices.Exceptions;
-using CustomerServices.Infrastructure;
 using CustomerServices.Infrastructure.Context;
 using CustomerServices.Models;
+using CustomerServices.ServiceModels;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -21,12 +22,15 @@ namespace CustomerServices
         private readonly CustomerContext _customerContext;
         private readonly IFunctionalEventLogService _functionalEventLogService;
         private readonly IMediator _mediator;
+        private readonly IMapper _mapper;
 
-        public UserPermissionServices(CustomerContext customerContext, IFunctionalEventLogService functionalEventLogService, IMediator mediator)
+        public UserPermissionServices(CustomerContext customerContext, IFunctionalEventLogService functionalEventLogService, IMediator mediator, IMapper mapper)
         {
             _customerContext = customerContext;
             _functionalEventLogService = functionalEventLogService;
             _mediator = mediator;
+            _mapper = mapper;
+
         }
 
         private async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
@@ -94,7 +98,7 @@ namespace CustomerServices
             var userPermissions = await GetUserPermissionsAsync(userName);
             var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)roleType);
 
-            if (roleType == PredefinedRole.DepartmentManager && accessList.Count == 0)// Check if the lists contains at least one id.
+            if ((roleType == PredefinedRole.DepartmentManager || roleType == PredefinedRole.Manager) && accessList.Count == 0)// Check if the lists contains at least one id.
             {
                 return null;
             }
@@ -152,7 +156,7 @@ namespace CustomerServices
                         _customerContext.Entry(userPermission).State = EntityState.Modified;
                     }
 
-                    if (roleType == PredefinedRole.DepartmentManager && !userPermission.AccessList.Any())
+                    if ((roleType == PredefinedRole.DepartmentManager || roleType == PredefinedRole.Manager) && !userPermission.AccessList.Any())
                     {
                         userPermission.RemoveRole(callerId);
                         _customerContext.UserPermissions.Remove(userPermission);
@@ -177,6 +181,46 @@ namespace CustomerServices
         {
             _customerContext.Entry(userPermission).State = EntityState.Modified;
             await SaveEntitiesAsync();
+        }
+
+        public async Task<UsersPermissionsDTO> AssignUsersPermissionsAsync(NewUsersPermission newUserPermissions, Guid callerId)
+        {
+            //List of error messages with cause of failure for user(s)
+            List<string> errorMessages = new List<string>();
+
+            UsersPermissionsDTO usersPermissions = new UsersPermissionsDTO
+            {
+                UserPermissions = new List<NewUserPermissionDTO>()
+            };
+
+            foreach (var userPermission in newUserPermissions.UserPermissions)
+            {
+                try
+                {
+                    var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.UserId == userPermission.UserId);
+                    if (user == null) throw new UserNotFoundException($"Could not find user with id {userPermission.UserId}");
+                    var assigne = await AssignUserPermissionsAsync(user.Email, userPermission.Role, userPermission.AccessList, callerId);
+                    var dto = _mapper.Map<NewUserPermissionDTO>(assigne);
+                    usersPermissions.UserPermissions.Add(dto);
+
+                }
+                catch (InvalidRoleNameException)
+                {
+                    errorMessages.Add($"Invalid role name {userPermission.Role} for {userPermission.UserId}");
+                }
+                catch (UserNotFoundException)
+                {
+                    errorMessages.Add($"User with id {userPermission.UserId} does not exist");
+                }
+                catch (UserNameDoesNotExistException)
+                {
+                    errorMessages.Add($"Invalid role {userPermission.Role} name for {userPermission.UserId}");
+                }
+            }
+
+            usersPermissions.ErrorMessages = errorMessages;
+
+            return usersPermissions;
         }
     }
 }

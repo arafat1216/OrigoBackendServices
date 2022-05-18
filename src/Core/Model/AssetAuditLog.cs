@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Common.Models
+﻿namespace Common.Models
 {
     /// <summary>
     /// Mock model of a log object for asset events/changes

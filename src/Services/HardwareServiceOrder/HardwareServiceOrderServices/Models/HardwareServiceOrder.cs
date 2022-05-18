@@ -1,5 +1,4 @@
 ﻿using Common.Seedwork;
-using System.ComponentModel.DataAnnotations;
 
 namespace HardwareServiceOrderServices.Models
 {
@@ -14,21 +13,47 @@ namespace HardwareServiceOrderServices.Models
         private HardwareServiceOrder() { }
 
         // TODO: Add service provider parameter
-        public HardwareServiceOrder(Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, string? externalServiceManagementLink, ServiceType serviceType, ServiceStatus status, ServiceProvider serviceProvider)
+        public HardwareServiceOrder(Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, string? externalServiceManagementLink, ServiceType serviceType, ServiceStatus status, ServiceProvider serviceProvider, User createdBy)
         {
             AssetLifecycleId = assetLifecycleId;
             DeliveryAddress = deliveryAddress;
             UserDescription = userDescription;
-
             ExternalServiceManagementLink = externalServiceManagementLink;
             ServiceType = serviceType;
             Status = status;
+            OrderedBy = createdBy;
+            ServiceProvider = serviceProvider;
+        }
+
+        /// <summary>
+        ///     Contructor for unit testing.
+        /// </summary>
+        /// <param name="assetLifecycleId"></param>
+        /// <param name="deliveryAddress"></param>
+        /// <param name="userDescription"></param>
+        /// <param name="externalServiceManagementLink"></param>
+        /// <param name="serviceType"></param>
+        /// <param name="status"></param>
+        /// <param name="serviceProvider"></param>
+        /// <param name="createdBy"></param>
+        /// <param name="createdDateTime"></param>
+        public HardwareServiceOrder(Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, string? externalServiceManagementLink, ServiceType serviceType, ServiceStatus status, ServiceProvider serviceProvider, User createdBy, DateTime createdDateTime)
+        {
+            AssetLifecycleId = assetLifecycleId;
+            DeliveryAddress = deliveryAddress;
+            UserDescription = userDescription;
+            ExternalServiceManagementLink = externalServiceManagementLink;
+            ServiceType = serviceType;
+            Status = status;
+            OrderedBy = createdBy;
+            ServiceProvider = serviceProvider;
+            CreatedDate = createdDateTime;
         }
 
         /// <summary>
         ///     The service-ID that is used as an identifier outside the microservice.
         /// </summary>
-        public Guid ExternalId { get; set; }
+        public Guid ExternalId { get; set; } = Guid.NewGuid();
 
         /// <summary>
         ///     The identifier for the asset lifecycle attached to the service order.
@@ -104,5 +129,10 @@ namespace HardwareServiceOrderServices.Models
         ///     The service-provider that is handling the service.
         /// </summary>
         public virtual ServiceProvider ServiceProvider { get; set; }
+
+        /// <summary>
+        /// The user who created the order
+        /// </summary>
+        public User OrderedBy { get; set; }
     }
 }

@@ -51,7 +51,8 @@ namespace HardwareServiceOrder.API.Controllers
         public async Task<IActionResult> GetConfiguration(Guid customerId)
         {
             var settings = await _hardwareServiceOrderService.GetSettingsAsync(customerId);
-            return Ok(_mapper.Map<CustomerSettings>(settings));
+            var dto = _mapper.Map<CustomerSettings>(settings) ?? new CustomerSettings { CustomerId = customerId };
+            return Ok(dto);
         }
 
         [Route("{customerId:Guid}/orders")]

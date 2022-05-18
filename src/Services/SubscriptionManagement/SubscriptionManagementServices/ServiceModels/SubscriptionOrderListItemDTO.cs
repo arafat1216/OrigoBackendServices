@@ -1,6 +1,4 @@
-﻿using SubscriptionManagementServices.Types;
-
-namespace SubscriptionManagementServices.ServiceModels
+﻿namespace SubscriptionManagementServices.ServiceModels
 {
     public class SubscriptionOrderListItemDTO
     {

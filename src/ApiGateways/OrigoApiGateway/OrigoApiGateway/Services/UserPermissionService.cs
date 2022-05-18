@@ -171,5 +171,21 @@ namespace OrigoApiGateway.Services
 
         }
 
+        public async Task<OrigoUsersPermissions> AddUsersPermissionsForUsersAsync(NewUsersPermissionsDTO userPermission)
+        {
+            
+            var response = await _httpClient.PutAsJsonAsync($"{_options.ApiPath}/users/permissions", userPermission);
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new BadHttpRequestException("Unable to save user permissions", (int)response.StatusCode);
+            }
+
+            var userPermissions = await response.Content.ReadFromJsonAsync<OrigoUsersPermissions>();
+            return userPermissions;
+        }
     }
 }

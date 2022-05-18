@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using AssetServices.Models;
 using Common.Enums;
 
 namespace Asset.API.ViewModels;

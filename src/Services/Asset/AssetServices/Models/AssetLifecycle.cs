@@ -16,7 +16,6 @@ public class AssetLifecycle : Entity, IAggregateRoot
 
     public AssetLifecycle()
     {
-
     }
 
     /// <summary>
@@ -159,6 +158,13 @@ public class AssetLifecycle : Entity, IAggregateRoot
     }
     private AssetLifecycleStatus _assetLifecycleStatus;
 
+    public static bool IsActiveState(AssetLifecycleStatus assetLifecycleStatus)
+    {
+        return assetLifecycleStatus is AssetLifecycleStatus.InputRequired or AssetLifecycleStatus.InUse
+            or AssetLifecycleStatus.Repair or AssetLifecycleStatus.PendingReturn
+            or AssetLifecycleStatus.Available or AssetLifecycleStatus.Active;
+    }
+
     /// <summary>
     /// The asset lifecycle type this asset lifecycle is setup with.
     /// </summary>
@@ -223,7 +229,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     public void AssignAssetLifecycleHolder(User? contractHolderUser, Guid? departmentId, Guid callerId)
     {
 
-        //Assigne to user
+        //Assign to user
         if (contractHolderUser != null && departmentId == null)
         {
             //unassigne previous owner and add domain events for it - cant have to owners
@@ -278,7 +284,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         var previousContractHolderUser = ContractHolderUser;
         AddDomainEvent(new MakeAssetAvailableDomainEvent(this, callerId, previousLifecycleStatus, previousContractHolderUser));
         ContractHolderUser = null;
-        if(_labels != null && _labels.Any())
+        if(_labels.Any())
             _labels.Clear();
         _assetLifecycleStatus = AssetLifecycleStatus.Available;
     }
@@ -337,10 +343,31 @@ public class AssetLifecycle : Entity, IAggregateRoot
         AddDomainEvent(new RemoveLabelAssignmentForAssetLifecycleDomainEvent(this, callerId, customerLabel));
     }
 
+    [Obsolete("LifecycleType should be immutable for Asset Lifecycles")]
     public void AssignLifecycleType(LifecycleType lifecycleType, Guid callerId)
     {
+        if (lifecycleType == AssetLifecycleType)
+        {
+            return;
+        }
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
+        switch (lifecycleType)
+        {
+            case LifecycleType.Transactional when (IsPersonal && ContractHolderUser != null) || (!IsPersonal && (ManagedByDepartmentId != null && ManagedByDepartmentId != Guid.Empty)):
+                UpdateAssetStatus(AssetLifecycleStatus.InUse, callerId);
+                break;
+            case LifecycleType.Transactional:
+                UpdateAssetStatus(AssetLifecycleStatus.InputRequired, callerId);
+                break;
+            case LifecycleType.NoLifecycle:
+                UpdateAssetStatus(AssetLifecycleStatus.Active, callerId);
+                break;
+            default:
+                UpdateAssetStatus(AssetLifecycleStatus.Active, callerId);
+                break;
+        }
+
         _assetLifecycleType = lifecycleType;
         AddDomainEvent(new AssignLifecycleTypeToAssetLifecycleDomainEvent(this, callerId, lifecycleType));
     }
@@ -351,6 +378,36 @@ public class AssetLifecycle : Entity, IAggregateRoot
         LastUpdatedDate = DateTime.UtcNow;
         var previousLifecycleStatus = _assetLifecycleStatus;
         _assetLifecycleStatus = lifecycleStatus;
-        AddDomainEvent(new AssignLifecycleStatusToAssetLifecycleDomainEvent(this, callerId, previousLifecycleStatus));
+        AddDomainEvent(new UpdateAssetLifecycleStatusDomainEvent(this, callerId, previousLifecycleStatus));
+    }
+
+    public void HasBeenStolen(Guid callerId)
+    {
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        var previousLifecycleStatus = _assetLifecycleStatus;
+        _assetLifecycleStatus = AssetLifecycleStatus.Stolen;
+        AddDomainEvent(new AssetHasBeenStolenDomainEvent(this, previousLifecycleStatus, callerId));
+    }
+
+    public static AssetLifecycle CreateAssetLifecycle(Guid customerId, string alias, LifecycleType assetLifecycleType, DateTime purchaseDate, string note, string description, decimal paidByCompany, string orderNumber, string productId, string invoiceNumber, string transactionId, AssetLifeCycleSource source)
+    {
+        var assetLifecycleStatus = assetLifecycleType == LifecycleType.Transactional ? AssetLifecycleStatus.InputRequired : AssetLifecycleStatus.Active;
+        return new AssetLifecycle
+        {
+            CustomerId = customerId,
+            Alias = alias,
+            AssetLifecycleType = assetLifecycleType,
+            AssetLifecycleStatus = assetLifecycleStatus,
+            PurchaseDate = purchaseDate,
+            Note = note,
+            Description = description,
+            PaidByCompany = paidByCompany,
+            OrderNumber = orderNumber,
+            ProductId = productId,
+            InvoiceNumber = invoiceNumber,
+            TransactionId = transactionId,
+            Source = source
+        };
     }
 }

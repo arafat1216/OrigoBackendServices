@@ -1,7 +1,6 @@
 ﻿using AssetServices.DomainEvents;
 using Common.Seedwork;
 using System;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace AssetServices.Models

@@ -12,5 +12,6 @@ namespace OrigoApiGateway.Models.Asset
         public Guid OrganizationId { get; set; }
         [Required]
         public decimal Amount { get; set; }
+        public string Currency { get; set; }
     }
 }

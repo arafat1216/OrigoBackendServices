@@ -1,8 +1,6 @@
-﻿using Azure.Storage.Blobs;
-using Common.Configuration;
+﻿using Common.Configuration;
 using Common.Utilities;
 using HardwareServiceOrderServices.Email.Models;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using System.Globalization;
 using System.Net.Http.Json;
@@ -61,9 +59,9 @@ namespace HardwareServiceOrderServices.Email
             }
         }
 
-        public async Task SendOrderConfirmationEmailAsync(OrderConfirmation data, string languageCode)
+        public async Task SendOrderConfirmationEmailAsync(OrderConfirmationEmail data, string languageCode)
         {
-            var template = _resourceManager.GetString(OrderConfirmation.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var template = _resourceManager.GetString(OrderConfirmationEmail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(data);
             await SendAsync(data.Subject, template, data.Recipient, variables);
         }
