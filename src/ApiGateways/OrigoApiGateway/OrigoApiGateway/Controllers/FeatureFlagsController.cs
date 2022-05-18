@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace OrigoApiGateway.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "SystemAdmin")]
+    [Authorize]
     [ApiVersion("1.0")]
     [Route("origoapi/api/v{version:apiVersion}/feature-flags")]
     public class FeatureFlagsController : ControllerBase
@@ -54,6 +54,7 @@ namespace OrigoApiGateway.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
+        [Authorize(Roles = "SystemAdmin")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Created)]
         public async Task<ActionResult<IList<string>>> AddFeatureFlags(OrigoNewFeatureFlag newFeatureFlag)
         {
@@ -66,6 +67,7 @@ namespace OrigoApiGateway.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpDelete]
+        [Authorize(Roles = "SystemAdmin")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IList<string>>> DeleteFeatureFlags(OrigoDeleteFeatureFlag deleteFeatureFlag)
         {
