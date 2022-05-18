@@ -24,7 +24,8 @@ namespace HardwareServiceOrderServices.Email
             IFlatDictionaryProvider flatDictionaryProvider,
             ResourceManager resourceManager,
             IMapper mapper,
-            IOptions<OrigoConfiguration> origoConfiguration)
+            IOptions<OrigoConfiguration> origoConfiguration,
+            IHardwareServiceOrderRepository hardwareServiceOrderRepository)
         {
             _emailConfiguration = emailConfiguration.Value;
 
@@ -38,6 +39,8 @@ namespace HardwareServiceOrderServices.Email
             _mapper = mapper;
 
             _origoConfiguration = origoConfiguration.Value;
+
+            _hardwareServiceOrderRepository = hardwareServiceOrderRepository;
         }
 
         private async Task SendAsync(string subject, string body, string to, Dictionary<string, string> variable)
@@ -87,7 +90,7 @@ namespace HardwareServiceOrderServices.Email
 
             emails.ForEach(async email =>
             {
-                email.OrderLink = string.Format($"{_origoConfiguration.BaseUrl}/{_origoConfiguration}", email.CustomerId, email.OrderId);
+                email.OrderLink = string.Format($"{_origoConfiguration.BaseUrl}/{_origoConfiguration.OrderPath}", email.CustomerId, email.OrderId);
                 var template = _resourceManager.GetString(AssetRepairEmail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
                 await SendAsync(email.Subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
             });
