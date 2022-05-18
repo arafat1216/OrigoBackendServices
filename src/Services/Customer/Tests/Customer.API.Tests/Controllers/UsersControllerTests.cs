@@ -60,7 +60,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(3, read?.TotalItems);
+            Assert.Equal(4, read?.TotalItems);
 
         }
 
@@ -88,7 +88,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(3, read?.TotalItems);
+            Assert.Equal(4, read?.TotalItems);
             Assert.Equal("Head department", read?.Items[1].DepartmentName);
         }
 
@@ -208,7 +208,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var read = await getResponse.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
-            Assert.Equal(2, read?.TotalItems);
+            Assert.Equal(3, read?.TotalItems);
         }
         [Fact]
         public async Task AssignManagerToDepartment_ShouldReturnOk()
@@ -247,7 +247,7 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permission = await responsePermissionsCheck.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissionsCheck.StatusCode);
-            Assert.Equal(2,permission?.Count);
+            Assert.Equal(1,permission?.Count);
             Assert.Equal(3,permission?[0].AccessList?.Count);
         }
         [Fact]
@@ -287,8 +287,7 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permission = await responsePermissions.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissions.StatusCode);
-            Assert.Equal(2, permission?.Count);
-            Assert.Equal("EndUser", permission?[1].Role);
+            Assert.Equal(1, permission?.Count);
             Assert.Equal("DepartmentManager", permission?[0].Role);
             Assert.Equal(3, permission?[0].AccessList.Count);
 
@@ -309,10 +308,8 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permissionAfter = await responsePermissionsAfter.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissionsAfter.StatusCode);
-            Assert.Equal(2, permissionAfter?.Count);
+            Assert.Equal(1, permissionAfter?.Count);
             Assert.Equal(1, permissionAfter?[0].AccessList?.Count);
-            Assert.Equal(1, permissionAfter?[1].AccessList?.Count);
-            Assert.Equal("EndUser", permissionAfter?[1].Role);
             Assert.Equal("DepartmentManager", permissionAfter?[0].Role);
 
 
@@ -337,7 +334,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, responseGet_UserTwo.StatusCode);
             Assert.NotNull(userTwo);
 
-            //Assign role to user
+            //Assign role to user one
             var role = new NewUserPermission
             {
                 AccessList = new List<Guid> { _customerId },
@@ -348,7 +345,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var putPermission = httpClient.PutAsJsonAsync(requestPermissions, role);
             Assert.Equal(HttpStatusCode.OK, putPermission?.Result.StatusCode);
 
-            //Assign roles to users
+            //Assign roles to user two
             var roleTwo = new NewUserPermission
             {
                 AccessList = new List<Guid> { _customerId },
@@ -376,8 +373,7 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permissions_userOne = await responsePermissions_userOne.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissions_userOne.StatusCode);
-            Assert.Equal("EndUser", permissions_userOne?[1].Role);
-            Assert.Equal(1, permissions_userOne?[1].AccessList.Count);
+            Assert.Equal(1, permissions_userOne?.Count);
             Assert.Equal("DepartmentManager", permissions_userOne?[0].Role);
             Assert.Equal(2, permissions_userOne?[0].AccessList.Count);
 
@@ -387,9 +383,7 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permissions_userTwo = await responsePermissions_userTwo.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissions_userTwo.StatusCode);
-            Assert.Equal(2, permissions_userTwo?.Count);
-            Assert.Equal("EndUser", permissions_userTwo?[1].Role);
-            Assert.Equal(1, permissions_userTwo?[1].AccessList?.Count);
+            Assert.Equal(1, permissions_userTwo?.Count);
             Assert.Equal("DepartmentManager", permissions_userTwo?[0].Role);
             Assert.Equal(3, permissions_userTwo?[0].AccessList?.Count);
         }
@@ -473,11 +467,9 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permissions_userOne = await responsePermissions_userOne.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissions_userOne.StatusCode);
-            Assert.Equal(2, permissions_userOne?.Count);
-            Assert.Equal("EndUser", permissions_userOne?[0].Role);
-            Assert.Equal("DepartmentManager", permissions_userOne?[1].Role);
+            Assert.Equal(1, permissions_userOne?.Count);
+            Assert.Equal("DepartmentManager", permissions_userOne?[0].Role);
             Assert.Equal(1, permissions_userOne?[0].AccessList.Count);
-            Assert.Equal(1, permissions_userOne?[1].AccessList.Count);
 
             //Find permissions set for user two
             var requestPermissions_userTwo = $"/api/v1/organizations/users/{userTwo?.Email}/permissions";
@@ -485,11 +477,9 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permissions_userTwo = await responsePermissions_userTwo.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissions_userTwo.StatusCode);
-            Assert.Equal(2, permissions_userTwo?.Count);
-            Assert.Equal("EndUser", permissions_userTwo?[0].Role);
-            Assert.Equal("DepartmentManager", permissions_userOne?[1].Role);
-            Assert.Equal(1, permissions_userOne?[0].AccessList.Count);
-            Assert.Equal(1, permissions_userTwo?[1].AccessList?.Count);
+            Assert.Equal(1, permissions_userTwo?.Count);
+            Assert.Equal("DepartmentManager", permissions_userTwo?[0].Role);
+            Assert.Equal(1, permissions_userTwo?[0].AccessList?.Count);
         }
         [Fact]
         public async Task UnAssignManagerToDepartment_UnConnectedDepartment_RemoveOnlyOneDepartment()
@@ -561,10 +551,8 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permissions_user = await responsePermissions_user.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissions_user.StatusCode);
-            Assert.Equal(2, permissions_user?.Count);
-            Assert.Equal("EndUser", permissions_user?[1].Role);
+            Assert.Equal(1, permissions_user?.Count);
             Assert.Equal("DepartmentManager", permissions_user?[0].Role);
-            Assert.Equal(1, permissions_user?[1].AccessList?.Count);
             Assert.Equal(3, permissions_user?[0].AccessList?.Count);
 
         }
@@ -600,10 +588,11 @@ namespace Customer.API.IntegrationTests.Controllers
         [Fact]
         public async Task GetUsers_DepartmentManagers_CheckViewModel()
         {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
             //Assign manager
             var requestUriDepartment = $"/api/v1/organizations/{_customerId}/users/{_userThreeId}/department/{_headDepartmentId}/manager";
-            var responseDepartment = await _httpClient.PostAsync(requestUriDepartment, JsonContent.Create(_callerId));
+            var responseDepartment = await httpClient.PostAsync(requestUriDepartment, JsonContent.Create(_callerId));
             Assert.Equal(HttpStatusCode.OK, responseDepartment.StatusCode);
 
             //Get all users
@@ -612,18 +601,18 @@ namespace Customer.API.IntegrationTests.Controllers
             var limit = 1000;
             var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}";
 
-            var response = await _httpClient.GetAsync(requestUri);
+            var response = await httpClient.GetAsync(requestUri);
             var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(3, read?.TotalItems);
+            Assert.Equal(4, read?.TotalItems);
             Assert.Equal(1, read?.Items[2]?.ManagerOf.Count);
             Assert.Equal(_headDepartmentId, read?.Items[2]?.ManagerOf[0].DepartmentId);
             Assert.Equal("Head department", read?.Items[2]?.ManagerOf[0].DepartmentName);
 
             //Get user
             var requestUriUser = $"/api/v1/organizations/users/{_userThreeId}";
-            var responseUser = await _httpClient.GetAsync(requestUriUser);
+            var responseUser = await httpClient.GetAsync(requestUriUser);
 
             var user = await responseUser.Content.ReadFromJsonAsync<User>();
 
@@ -634,7 +623,7 @@ namespace Customer.API.IntegrationTests.Controllers
 
             //Get user for customer
             var requestUriUserCustomer = $"/api/v1/organizations/{_customerId}/users/{_userThreeId}";
-            var responseUserGetCustomer = await _httpClient.GetAsync(requestUriUserCustomer);
+            var responseUserGetCustomer = await httpClient.GetAsync(requestUriUserCustomer);
 
             var customerUser = await responseUserGetCustomer.Content.ReadFromJsonAsync<User>();
             Assert.Equal(HttpStatusCode.OK, responseUserGetCustomer.StatusCode);
