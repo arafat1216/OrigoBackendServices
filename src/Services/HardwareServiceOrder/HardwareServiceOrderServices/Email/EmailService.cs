@@ -97,5 +97,19 @@ namespace HardwareServiceOrderServices.Email
 
             return emails;
         }
+
+        public async Task<List<LoanDeviceEmail>> SendLoanDeviceEmailAsync(List<int> statusIds, string languageCode = "EN")
+        {
+            var orders = await _hardwareServiceOrderRepository.GetAllOrdersAsync(statusIds: statusIds);
+            var emails = _mapper.Map<List<LoanDeviceEmail>>(orders);
+
+            emails.ForEach(async email =>
+            {
+                var template = _resourceManager.GetString(LoanDeviceEmail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+                await SendAsync(email.Subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
+            });
+
+            return emails;
+        }
     }
 }
