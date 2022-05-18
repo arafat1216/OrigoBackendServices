@@ -7,10 +7,10 @@ namespace HardwareServiceOrderServices.Conmodo
     /// <summary>
     ///     Responsible for performing all API requests toward Conmodo.
     /// </summary>
-    internal class ApiRequests
+    internal class ApiRequests : IApiRequests
     {
         /// <summary>
-        ///     A configured and instantiated <see cref="System.Net.Http.HttpClient"/> used for all external requests.
+        ///     A configured and instantiated <see cref="HttpClient"/> used for all external requests.
         /// </summary>
         private readonly HttpClient _httpClient;
 
@@ -34,11 +34,7 @@ namespace HardwareServiceOrderServices.Conmodo
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", _base64EncodedAuthenticationString);
         }
 
-        /// <summary>
-        ///     Perform a simple test-call to the API.
-        /// </summary>
-        /// <returns> The retrieved value. </returns>
-        /// <exception cref="HttpRequestException"> Thrown when we get a failure code or an invalid response object. </exception>
+        /// <inheritdoc/>
         public async Task<string> TestAsync()
         {
             var response = await _httpClient.GetAsync("/test/hello");
@@ -55,41 +51,29 @@ namespace HardwareServiceOrderServices.Conmodo
             }
         }
 
-        /// <summary>
-        ///     Retrieves the status for the requested order.
-        /// </summary>
-        /// <param name="commId"> Conmodo's service ID. </param>
-        /// <returns> An object containing the details for the requested service-order. </returns>
+        /// <inheritdoc/>
         public async Task<OrderResponse> GetOrderAsync(string commId)
         {
             string url = $"order?commId={commId}";
             return await GetAsync<OrderResponse>(url);
         }
 
-        /// <summary>
-        ///     Retrieves a list of all orders with updates after the provided timestamp.
-        /// </summary>
-        /// <param name="since"> Conmodo's system will keep track. If provided, retrieve order updated since provided date. </param>
-        /// <returns> An object containing all updated orders. </returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0071:Simplify interpolation", Justification = "Results in less clear code")]
+        /// <inheritdoc/>
         public async Task<UpdatedOrdersResponse> GetUpdatedOrdersAsync(DateTimeOffset? since)
         {
             string url = $"order/news";
 
             if (since is not null)
             {
-                url += $"?since={since.Value.ToString("O")}";
+                var encodedDate = System.Net.WebUtility.UrlEncode(since.Value.ToString("O"));
+                url += $"?since={encodedDate}";
             }
 
             return await GetAsync<UpdatedOrdersResponse>(url);
         }
 
 
-        /// <summary>
-        ///     Creates a new service-order.
-        /// </summary>
-        /// <param name="orderRequest"> The service-order that should be created. </param>
-        /// <returns> The response object. </returns>
+        /// <inheritdoc/>
         public async Task<CreateOrderResponse> CreateServiceOrderAsync(CreateOrderRequest orderRequest)
         {
             string url = "order";

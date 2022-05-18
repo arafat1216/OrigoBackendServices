@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using HardwareServiceOrder.API.ViewModels;
 using HardwareServiceOrderServices;
-using HardwareServiceOrderServices.ServiceModels;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;

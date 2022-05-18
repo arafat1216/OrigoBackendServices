@@ -12,6 +12,7 @@ namespace HardwareServiceOrder.API.Controllers
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("1.0")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Minor Code Smell", "S2737:\"catch\" clauses should do more than rethrow", Justification = "<Pending>")]
     public class TestController : ControllerBase
     {
 
@@ -23,8 +24,8 @@ namespace HardwareServiceOrder.API.Controllers
         }
 
 
-        [HttpGet("1")]
-        public async Task<ActionResult> Test1()
+        [HttpPost("create/1")]
+        public async Task<ActionResult> CreateTest1()
         {
             try
             {
@@ -66,8 +67,8 @@ namespace HardwareServiceOrder.API.Controllers
         }
 
 
-        [HttpGet("2")]
-        public async Task<ActionResult> Test2()
+        [HttpPost("create/2")]
+        public async Task<ActionResult> CreateTest2()
         {
             try
             {
@@ -80,6 +81,23 @@ namespace HardwareServiceOrder.API.Controllers
                 throw;
             }
 
+        }
+
+
+        [HttpGet("update/1")]
+        public async Task<ActionResult> UpdateTest1()
+        {
+            try
+            {
+                var providerInterface = await _providerFactory.GetRepairProviderAsync(1, "username", "password");
+
+                var result = await providerInterface.GetUpdatedRepairOrdersAsync(DateTimeOffset.Parse("2010-01-01"));
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
         }
     }
 }

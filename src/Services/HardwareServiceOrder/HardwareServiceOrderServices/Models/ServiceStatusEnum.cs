@@ -110,6 +110,9 @@
         /// </summary>
         CompletedCredited = 15,
 
-
+        /// <summary>
+        ///     The service-request is closed, and the asset has been discarded/recycled.
+        /// </summary>
+        CompletedDiscarded = 16
     }
 }
