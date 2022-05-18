@@ -202,7 +202,9 @@ public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFa
         Assert.Equal(2, department?.ManagedBy.Count);
         Assert.Equal(_userOne, department?.ManagedBy[0].UserId);
         Assert.Equal("kari@normann.no", department?.ManagedBy[0].UserName);
+        Assert.Equal("Kari Normann", department?.ManagedBy[0].Name);
         Assert.Equal(_userTwo, department?.ManagedBy[1].UserId);
+        Assert.Equal("Atish Kumar", department?.ManagedBy[1].Name);
         Assert.Equal("atish@normann.no", department?.ManagedBy[1].UserName);
 
     }
