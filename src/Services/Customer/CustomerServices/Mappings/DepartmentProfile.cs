@@ -15,7 +15,8 @@ namespace CustomerServices.Mappings
             .ForMember(u => u.ManagedBy, opt => opt.MapFrom(src => src.Managers.Select(a => new ManagedByDTO
             {
                 UserId = a.UserId,
-                UserName   = a.Email
+                UserName   = a.Email,
+                Name = $"{a.FirstName} {a.LastName}"
             })));
         }
     }

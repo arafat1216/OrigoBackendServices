@@ -151,8 +151,7 @@ namespace CustomerServices
                             if (role == PredefinedRole.DepartmentManager || role == PredefinedRole.Manager)
                                 access.AddRange(accessList);
 
-                            // Give both end user role and specified role
-                            await _userPermissionServices.AssignUserPermissionsAsync(user.Email, $"{PredefinedRole.EndUser}", new List<Guid>(), _callerId);
+                            // Give role
                             await _userPermissionServices.AssignUserPermissionsAsync(user.Email, role.ToString(), access, _callerId);
                         }
                         else
