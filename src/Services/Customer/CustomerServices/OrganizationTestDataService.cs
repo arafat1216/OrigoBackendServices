@@ -148,7 +148,7 @@ namespace CustomerServices
                         if (UserPermissions.TryGetValue(user.UserId, out PredefinedRole role))
                         {
                             var access = new List<Guid>();
-                            if (role == PredefinedRole.DepartmentManager)
+                            if (role == PredefinedRole.DepartmentManager || role == PredefinedRole.Manager)
                                 access.AddRange(accessList);
 
                             // Give both end user role and specified role

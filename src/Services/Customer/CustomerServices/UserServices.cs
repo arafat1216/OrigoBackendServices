@@ -397,7 +397,7 @@ namespace CustomerServices
             //Check if user have department role for other departments
             var usersPermission = await _userPermissionServices.GetUserPermissionsAsync(user.Email);
             UserPermissions managerPermission = null;
-            if (usersPermission != null) managerPermission = usersPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString());
+            if (usersPermission != null) managerPermission = usersPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString() || a.Role.Name == PredefinedRole.Manager.ToString());
 
             //User needs to have the role as department manager before getting assigned as a manager for a department
             if (managerPermission == null) throw new MissingRolePermissionsException();
@@ -445,7 +445,7 @@ namespace CustomerServices
             var usersPermission = await _userPermissionServices.GetUserPermissionsAsync(user.Email);
             if (usersPermission == null) return;
 
-            var managerPermission = usersPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString());
+            var managerPermission = usersPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString() || a.Role.Name == PredefinedRole.Manager.ToString());
 
             //User needs to have the role as department manager before getting assigned as a manager for a department
             if (managerPermission == null) throw new MissingRolePermissionsException();

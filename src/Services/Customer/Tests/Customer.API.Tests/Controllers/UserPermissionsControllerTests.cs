@@ -89,7 +89,7 @@ namespace Customer.API.IntegrationTests.Controllers
                         { 
                             UserId = _userTwoId,
                             AccessList = new List<Guid> { _customerId, _subDepartmentId },
-                            Role = "DepartmentManager" 
+                            Role = "Manager" 
                     }
                 }
             };
@@ -104,7 +104,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal("EndUser",read?.UserPermissions[0].Role);
             Assert.Equal("EndUser", read?.UserPermissions[1].Role);
             Assert.Equal("DepartmentManager", read?.UserPermissions[2].Role);
-            Assert.Equal("DepartmentManager", read?.UserPermissions[3].Role);
+            Assert.Equal("Manager", read?.UserPermissions[3].Role);
 
             Assert.Equal(_userOneId, read?.UserPermissions[0].UserId);
             Assert.Equal(_userTwoId, read?.UserPermissions[1].UserId);
@@ -198,6 +198,47 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var response = await _httpClient.PutAsJsonAsync(requestUri, requestBody);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+        [Fact]
+        public async Task AssignUsersPermissions_NewRoles()
+        {
+            var requestBody = new NewUsersPermission
+            {
+                UserPermissions = new List<NewUserPermissionDTO>
+                {
+                    new NewUserPermissionDTO
+                        {
+                            UserId = _userOneId,
+                            AccessList = new List<Guid> { _customerId,_headDepartmentId },
+                            Role = "Manager"
+                        },
+                    new NewUserPermissionDTO
+                        {
+                            UserId = _userTwoId,
+                            AccessList = new List<Guid> { _customerId, _headDepartmentId, _subDepartmentId },
+                            Role = "Admin"
+                        }
+                }
+            };
+            var requestUri = $"/api/v1/organizations/users/permissions";
+
+            var response = await _httpClient.PutAsJsonAsync(requestUri, requestBody);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var read = await response.Content.ReadFromJsonAsync<ViewModels.UsersPermissions>();
+
+            Assert.Equal(2, read?.UserPermissions.Count);
+            Assert.Equal("Manager", read?.UserPermissions[0].Role);
+            Assert.Equal("Admin", read?.UserPermissions[1].Role);
+
+            Assert.Equal(_userOneId, read?.UserPermissions[0].UserId);
+            Assert.Equal(_userTwoId, read?.UserPermissions[1].UserId);
+
+            Assert.Equal(2, read?.UserPermissions[0].AccessList.Count);
+            Assert.Equal(3, read?.UserPermissions[1].AccessList.Count);
+
+            Assert.Equal(0, read?.ErrorMessages.Count);
+
         }
     }
 }

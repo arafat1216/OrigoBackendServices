@@ -98,7 +98,7 @@ namespace CustomerServices
             var userPermissions = await GetUserPermissionsAsync(userName);
             var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)roleType);
 
-            if (roleType == PredefinedRole.DepartmentManager && accessList.Count == 0)// Check if the lists contains at least one id.
+            if ((roleType == PredefinedRole.DepartmentManager || roleType == PredefinedRole.Manager) && accessList.Count == 0)// Check if the lists contains at least one id.
             {
                 return null;
             }
@@ -156,7 +156,7 @@ namespace CustomerServices
                         _customerContext.Entry(userPermission).State = EntityState.Modified;
                     }
 
-                    if (roleType == PredefinedRole.DepartmentManager && !userPermission.AccessList.Any())
+                    if ((roleType == PredefinedRole.DepartmentManager || roleType == PredefinedRole.Manager) && !userPermission.AccessList.Any())
                     {
                         userPermission.RemoveRole(callerId);
                         _customerContext.UserPermissions.Remove(userPermission);
