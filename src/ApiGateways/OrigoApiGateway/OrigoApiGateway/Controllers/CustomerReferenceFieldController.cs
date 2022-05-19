@@ -17,7 +17,7 @@ namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
+    [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
     [Route("origoapi/v{version:apiVersion}/Customers/{organizationId:Guid}/customer-reference-field")]
     public class CustomerReferenceFieldController : ControllerBase
     {

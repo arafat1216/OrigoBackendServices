@@ -105,12 +105,18 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Conflict)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Organization>> CreateCustomer([FromBody] NewOrganization newCustomer)
         {
             try
             {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString() || role != PredefinedRole.PartnerAdmin.ToString())
+                {
+                    return Forbid();
+                }
+
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
 
@@ -135,12 +141,27 @@ namespace OrigoApiGateway.Controllers
         [HttpPut]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Organization>> UpdateOrganization([FromBody] UpdateOrganization organizationToChange)
         {
             try
             {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                {
+                    return Forbid();
+                }
+                // If role is not System admin, check access list
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationToChange.OrganizationId.ToString())))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var organizationToChangeDTO = Mapper.Map<UpdateOrganizationDTO>(organizationToChange);
 
 
@@ -193,12 +214,28 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Organization>> PatchOrganization([FromBody] UpdateOrganization organizationToChange)
         {
             try
             {
+                // If role is not System admin, check access list
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                {
+                    return Forbid();
+                }
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationToChange.OrganizationId.ToString())))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var organizationToChangeDTO = Mapper.Map<UpdateOrganizationDTO>(organizationToChange);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
@@ -226,12 +263,27 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Organization>> DeleteOrganization(Guid organizationId)
         {
             try
             {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role != PredefinedRole.PartnerAdmin.ToString() || role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    return Forbid();
+                }
+                // If role is not System admin, check access list
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
@@ -269,6 +321,17 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IEnumerable<OrigoOperator>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult> GetAllOperatorsForCustomer(Guid organizationId)
         {
+            // If role is not System admin, check access list
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                {
+                    return Forbid();
+                }
+            }
+
             var customersOperators = await SubscriptionManagementService.GetAllOperatorsForCustomerAsync(organizationId);
             return Ok(customersOperators);
         }
@@ -281,8 +344,26 @@ namespace OrigoApiGateway.Controllers
         /// <returns></returns>
         [Route("{organizationId:Guid}/operators")]
         [HttpPost]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         public async Task<ActionResult> CreateOperatorListForCustomerAsync(Guid organizationId, [FromBody] List<int> operators)
         {
+            // If role is not System admin, check access list
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            {
+                return Forbid();
+            }
+            
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                {
+                    return Forbid();
+                }
+            }
 
             var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
             Guid callerId;
@@ -305,8 +386,24 @@ namespace OrigoApiGateway.Controllers
         /// <returns></returns>
         [Route("{organizationId:Guid}/operators/{id}")]
         [HttpDelete]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         public async Task<ActionResult> DeleteFromCustomersOperatorList(Guid organizationId, int id)
         {
+            // If role is not System admin, check access list
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            {
+                return Forbid();
+            }
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                {
+                    return Forbid();
+                }
+            }
             await SubscriptionManagementService.DeleteOperatorForCustomerAsync(organizationId, id);
             return NoContent();
         }
@@ -319,12 +416,18 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                // If role is not System admin, check access list
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                    {
+                        return Forbid();
+                    }
+                }
 
                 var subscriptionProductList = await SubscriptionManagementService.GetAllSubscriptionProductForCustomerAsync(organizationId);
-                //if (subscriptionProductList == null)
-                //{
-                //    return BadRequest();
-                //}
                 return Ok(subscriptionProductList);
             }
             catch (Exception ex)
@@ -338,15 +441,29 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoSubscriptionProduct), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<OrigoSubscriptionProduct>> CreateSubscriptionProductForCustomer(Guid organizationId, [FromBody] NewSubscriptionProduct newSubscriptionProduct)
         {
             try
             {
+                // If role is not System admin, check access list
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                {
+                    return Forbid();
+                }
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var subscriptionProduct = await SubscriptionManagementService.AddSubscriptionProductForCustomerAsync(organizationId, newSubscriptionProduct);
-                //if (subscriptionProduct == null)
-                //{
-                //    return BadRequest();
-                //}
                 return CreatedAtAction(nameof(CreateSubscriptionProductForCustomer), subscriptionProduct);
             }
             catch (Exception ex)
@@ -362,10 +479,28 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/subscription-products/{subscriptionProductId}")]
         [ProducesResponseType(typeof(OrigoSubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<OrigoSubscriptionProduct>> UpdateOperatorSubscriptionProductForCustomer(Guid organizationId, int subscriptionProductId, [FromBody] UpdateSubscriptionProduct subscriptionProduct)
         {
             try
             {
+                // If role is not System admin, check access list
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                {
+                    return Forbid();
+                }
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var updatedSubscriptionProducts = await SubscriptionManagementService.UpdateOperatorSubscriptionProductForCustomerAsync(organizationId, subscriptionProductId, subscriptionProduct);
 
                 //return the updated subscription product
@@ -382,15 +517,27 @@ namespace OrigoApiGateway.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoSubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<OrigoSubscriptionProduct>> DeleteSubscriptionProductsForCustomer(Guid organizationId, int subscriptionProductId)
         {
             try
             {
+                // If role is not System admin, check access list
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var subscriptionProductList = await SubscriptionManagementService.DeleteSubscriptionProductForCustomerAsync(organizationId, subscriptionProductId);
-                //if (subscriptionProductList == null)
-                //{
-                //    return BadRequest();
-                //}
                 return Ok(subscriptionProductList);
             }
             catch (Exception ex)
@@ -410,6 +557,17 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/operator-accounts")]
         public async Task<IActionResult> GetAllOperatorAccountsForCustomer(Guid organizationId)
         {
+            // If role is not System admin, check access list
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                {
+                    return Forbid();
+                }
+            }
+
             var customerOperatorAccounts = await SubscriptionManagementService.GetAllOperatorAccountsForCustomerAsync(organizationId);
 
             return Ok(customerOperatorAccounts);
@@ -424,8 +582,23 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoCustomerOperatorAccount), (int)HttpStatusCode.Created)]
         [Route("{organizationId:Guid}/operator-accounts")]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
         public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] NewOperatorAccount customerOperatorAccount)
         {
+            // If role is not System admin, check access list
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            {
+                return Forbid();
+            }
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                {
+                    return Forbid();
+                }
+            }
             var operatorAccount = await SubscriptionManagementService.AddOperatorAccountForCustomerAsync(organizationId, customerOperatorAccount);
 
             return CreatedAtAction(nameof(AddOperatorAccountForCustomer), operatorAccount);
@@ -441,8 +614,25 @@ namespace OrigoApiGateway.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoCustomerOperatorAccount), (int)HttpStatusCode.OK)]
         [Route("{organizationId:Guid}/operator-accounts")]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
         public async Task<IActionResult> DeleteOperatorAccountForCustomer(Guid organizationId, [FromQuery] string accountNumber, [FromQuery] int operatorId)
         {
+            // If role is not System admin, check access list
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                {
+                    return Forbid();
+                }
+            }
+
             await SubscriptionManagementService.DeleteOperatorAccountForCustomerAsync(organizationId, accountNumber, operatorId);
 
             return Ok();
@@ -688,6 +878,20 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         public async Task<ActionResult> GetSubscriptionOrders(Guid organizationId)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
             var response = await SubscriptionManagementService.GetSubscriptionOrders(organizationId);
 
             return Ok(response);
@@ -697,6 +901,20 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         public async Task<ActionResult> GetSubscriptionOrderDetailView(Guid organizationId, Guid orderId, int orderType)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
             var response = await SubscriptionManagementService.GetSubscriptionOrderDetailViewAsync(organizationId, orderId, orderType);
 
             return Ok(response);
@@ -705,11 +923,24 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/standard-private-subscription-products")]
         [ProducesResponseType(typeof(IList<OrigoCustomerStandardPrivateSubscriptionProduct>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
         [HttpGet]
         public async Task<ActionResult> GetCustomerStandardPrivateSubscriptionProduct(Guid organizationId)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
             var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
             Guid callerId;
             Guid.TryParse(actor, out callerId);
@@ -722,10 +953,24 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/standard-private-subscription-products")]
         [ProducesResponseType(typeof(OrigoCustomerStandardPrivateSubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult> PostCustomerStandardPrivateSubscriptionProduct(Guid organizationId, [FromBody] NewStandardPrivateProduct standardPrivateProduct)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
             var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
             Guid callerId;
             Guid.TryParse(actor, out callerId);
@@ -744,10 +989,19 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoCustomerStandardPrivateSubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult> DeleteCustomerStandardPrivateSubscriptionProduct(Guid organizationId, int operatorId)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
             var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
             Guid callerId;
             Guid.TryParse(actor, out callerId);
@@ -761,11 +1015,21 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/assetsTotalBookValue")]
         [ProducesResponseType(typeof(CustomerAssetsTotalBookValue), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer)]
         [HttpGet]
         public async Task<ActionResult> GetAssetsTotalBookValue(Guid organizationId)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+
             var mockObject = new CustomerAssetsTotalBookValue { OrganizationId = organizationId, AssetsTotalBookValue = 12345 };
             return Ok(mockObject);
         }
