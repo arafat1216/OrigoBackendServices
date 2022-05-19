@@ -13,47 +13,63 @@ namespace HardwareServiceOrderServices.Models
         private HardwareServiceOrder() { }
 
         // TODO: Add service provider parameter
-        public HardwareServiceOrder(Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, string? externalServiceManagementLink, ServiceType serviceType, ServiceStatus status, ServiceProvider serviceProvider, User createdBy)
+
+
+        public HardwareServiceOrder(Guid customerId, User orderedBy, Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, ServiceProvider serviceProvider, string serviceProviderOrderId1, string? serviceProviderOrderId2, string? externalServiceManagementLink, ServiceType serviceType, ServiceStatus status)
         {
+            CustomerId = customerId;
+            OrderedBy = orderedBy;
             AssetLifecycleId = assetLifecycleId;
             DeliveryAddress = deliveryAddress;
             UserDescription = userDescription;
+            ServiceProvider = serviceProvider;
+            ServiceProviderOrderId1 = serviceProviderOrderId1;
+            ServiceProviderOrderId2 = serviceProviderOrderId2;
             ExternalServiceManagementLink = externalServiceManagementLink;
             ServiceType = serviceType;
             Status = status;
-            OrderedBy = createdBy;
-            ServiceProvider = serviceProvider;
         }
 
         /// <summary>
-        ///     Contructor for unit testing.
+        ///     Constructor for unit testing.
         /// </summary>
+        /// <param name="customerId"></param>
+        /// <param name="orderedBy"></param>
         /// <param name="assetLifecycleId"></param>
         /// <param name="deliveryAddress"></param>
         /// <param name="userDescription"></param>
+        /// <param name="serviceProvider"></param>
+        /// <param name="serviceProviderOrderId1"></param>
+        /// <param name="serviceProviderOrderId2"></param>
         /// <param name="externalServiceManagementLink"></param>
         /// <param name="serviceType"></param>
         /// <param name="status"></param>
-        /// <param name="serviceProvider"></param>
-        /// <param name="createdBy"></param>
         /// <param name="createdDateTime"></param>
-        public HardwareServiceOrder(Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, string? externalServiceManagementLink, ServiceType serviceType, ServiceStatus status, ServiceProvider serviceProvider, User createdBy, DateTime createdDateTime)
+        public HardwareServiceOrder(Guid customerId, User orderedBy, Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, ServiceProvider serviceProvider, string serviceProviderOrderId1, string? serviceProviderOrderId2, string? externalServiceManagementLink, ServiceType serviceType, ServiceStatus status, DateTimeOffset createdDate)
         {
+            CustomerId = customerId;
+            OrderedBy = orderedBy;
             AssetLifecycleId = assetLifecycleId;
             DeliveryAddress = deliveryAddress;
             UserDescription = userDescription;
+            ServiceProvider = serviceProvider;
             ExternalServiceManagementLink = externalServiceManagementLink;
+            ServiceProviderOrderId1 = serviceProviderOrderId1;
+            ServiceProviderOrderId2 = serviceProviderOrderId2;
             ServiceType = serviceType;
             Status = status;
-            OrderedBy = createdBy;
-            ServiceProvider = serviceProvider;
-            CreatedDate = createdDateTime;
+            CreatedDate = createdDate;
         }
 
         /// <summary>
         ///     The service-ID that is used as an identifier outside the microservice.
         /// </summary>
         public Guid ExternalId { get; set; } = Guid.NewGuid();
+
+        /// <summary>
+        /// ID of the customer
+        /// </summary>
+        public Guid CustomerId { get; set; }
 
         /// <summary>
         ///     The identifier for the asset lifecycle attached to the service order.
@@ -131,8 +147,8 @@ namespace HardwareServiceOrderServices.Models
         public virtual ServiceProvider ServiceProvider { get; set; }
 
         /// <summary>
-        /// The user who created the order
+        ///     The user who placed the order
         /// </summary>
-        public User OrderedBy { get; set; }
+        public virtual User OrderedBy { get; set; }
     }
 }

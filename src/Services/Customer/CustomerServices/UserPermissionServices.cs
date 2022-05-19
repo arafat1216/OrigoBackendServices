@@ -96,20 +96,49 @@ namespace CustomerServices
                 throw new UserNameDoesNotExistException();
 
             var userPermissions = await GetUserPermissionsAsync(userName);
-            var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)roleType);
 
             if ((roleType == PredefinedRole.DepartmentManager || roleType == PredefinedRole.Manager) && accessList.Count == 0)// Check if the lists contains at least one id.
             {
                 return null;
             }
 
+
+            var userPermission = userPermissions.FirstOrDefault(p => p.Role.Name == roleType.ToString());
+            //Update permission and remove if the user have more then one permission - users should only have one userPermission
+            if (userPermission != null)
+            {
+                var role = await GetRole(roleType);
+                userPermission.UpdateRole(role, callerId);
+
+                var remove = userPermissions.Where(a => a.Id != userPermission.Id).ToList();
+
+                if (remove.Any())
+                {
+                    foreach (var permission in remove)
+                    {
+                        _customerContext.Entry(permission).State = EntityState.Deleted;
+                    }
+                }
+            }
+
+
             var addNew = false; // Check if we need to add this permission or update it.
             if (userPermission == null)
             {
+                if (userPermissions.Any())
+                {
+                    foreach (var permissions in userPermissions)
+                    {
+                        _customerContext.Entry(permissions).State = EntityState.Deleted;
+
+                    }
+                }
+
                 addNew = true;
                 var role = await GetRole(roleType);
                 userPermission = new UserPermissions(user, role, accessList, callerId);
             }
+
             if (addNew)
             {
                 _customerContext.UserPermissions.Add(userPermission);
@@ -192,6 +221,14 @@ namespace CustomerServices
             {
                 UserPermissions = new List<NewUserPermissionDTO>()
             };
+
+            //Check if the request have unique userId - a user can only have one role
+            List<Guid> users = newUserPermissions.UserPermissions.Select(person => person.UserId).Distinct().ToList();
+            if (users.Count != newUserPermissions.UserPermissions.Count) 
+            {
+                throw new DuplicateException("Only one permission can be added to the user");
+            }
+            
 
             foreach (var userPermission in newUserPermissions.UserPermissions)
             {

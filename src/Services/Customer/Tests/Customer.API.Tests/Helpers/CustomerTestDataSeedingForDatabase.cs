@@ -20,6 +20,10 @@ namespace Customer.API.IntegrationTests.Helpers
         public static readonly Guid USER_THREE_ID = Guid.Parse("9f19a9e5-a4f0-431e-9137-e8bfba285c7f");
         public static readonly string USER_ONE_EMAIL = "kari@normann.no";
 
+        public static readonly Guid USER_FOUR_ID = Guid.Parse("208ad639-9fe8-476d-bd89-d9b8ddcb76bf");
+        public static readonly string USER_FOUR_EMAIL = "petter@pan.no";
+
+
 
 
 
@@ -112,19 +116,35 @@ namespace Customer.API.IntegrationTests.Helpers
                               new UserPreference("no", CALLER_ID),
                               CALLER_ID);
 
+            var userFour = new User(organization,
+                              USER_FOUR_ID,
+                              "Petter",
+                              "Pan",
+                              USER_FOUR_EMAIL,
+                              "+4790606022",
+                              "EID:909093",
+                              new UserPreference("no", CALLER_ID),
+                              CALLER_ID);
+
             customerContext.Users.Add(userOne);
             customerContext.Users.Add(userTwo);
             customerContext.Users.Add(userThree);
+            customerContext.Users.Add(userFour);
+
 
 
             var userOnePermission = new UserPermissions(userOne, new Role("EndUser"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
             var userTwoPermission = new UserPermissions(userTwo, new Role("EndUser"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
             var userThreePermission = new UserPermissions(userThree, new Role("DepartmentManager"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
+            var userFourPermission = new UserPermissions(userFour, new Role("DepartmentManager"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
+
 
 
             customerContext.UserPermissions.Add(userOnePermission);
             customerContext.UserPermissions.Add(userTwoPermission);
             customerContext.UserPermissions.Add(userThreePermission);
+            customerContext.UserPermissions.Add(userFourPermission);
+
 
 
             customerContext.SaveChanges();

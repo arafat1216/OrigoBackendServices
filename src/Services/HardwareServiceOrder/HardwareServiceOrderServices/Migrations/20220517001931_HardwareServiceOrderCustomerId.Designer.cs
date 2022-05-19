@@ -4,6 +4,7 @@ using HardwareServiceOrderServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HardwareServiceOrderServices.Migrations
 {
     [DbContext(typeof(HardwareServiceOrderContext))]
-    partial class HardwareServiceOrderContextModelSnapshot : ModelSnapshot
+    [Migration("20220517001931_HardwareServiceOrderCustomerId")]
+    partial class HardwareServiceOrderCustomerId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,7 +103,7 @@ namespace HardwareServiceOrderServices.Migrations
                     b.Property<Guid>("ExternalId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ExternalServiceManagementLink")
+                    b.Property<string>("ExternalProviderLink")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
@@ -114,13 +116,6 @@ namespace HardwareServiceOrderServices.Migrations
 
                     b.Property<int>("ServiceProviderId")
                         .HasColumnType("int");
-
-                    b.Property<string>("ServiceProviderOrderId1")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ServiceProviderOrderId2")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ServiceTypeId")
                         .HasColumnType("int");

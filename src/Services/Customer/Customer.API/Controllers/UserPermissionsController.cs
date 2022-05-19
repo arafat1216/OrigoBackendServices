@@ -82,7 +82,7 @@ namespace Customer.API.Controllers
             var allRoles = await _userPermissionServices.GetAllRolesAsync();
             return Ok(allRoles);
         }
-
+        [Obsolete("Will be replaced with AssignUsersPermissions")]
         [HttpPut]
         [ProducesResponseType(typeof(UserPermissions), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -137,6 +137,10 @@ namespace Customer.API.Controllers
                 if(userPermission.UserPermissions.Count == 0) return NotFound();
                 
                 return Ok(_mapper.Map<UsersPermissions>(userPermission));
+            }
+            catch (DuplicateException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {

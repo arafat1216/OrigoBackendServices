@@ -50,5 +50,14 @@ namespace CustomerServices.Models
             LastUpdatedDate = DateTime.Now;
             AddDomainEvent(new UserPermissionsRemovedDomainEvent(this));
         }
+        
+        public void UpdateRole(Role newRole, Guid callerId)
+        {
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.Now;
+            var previousRole = Role;
+            Role = newRole;
+            AddDomainEvent(new UserPermissionsChangedDomainEvent(this, previousRole));
+        }
     }
 }
