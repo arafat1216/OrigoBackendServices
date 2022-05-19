@@ -50,21 +50,14 @@ namespace OrigoApiGateway.Controllers
         [Route("customers/count")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<CustomerAssetCount>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+        [Authorize(Roles = "SystemAdmin")]
         public async Task<ActionResult<IList<CustomerAssetCount>>> GetAllCustomerItemCount()
         {
             try
             {
-                // only SystemAdmin has access
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role != PredefinedRole.SystemAdmin.ToString())
-                {
-                    return Forbid();
-                }
-
-                IList<CustomerAssetCount> assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync();
+                var assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync();
                 return Ok(assetCountList);
 
             }
