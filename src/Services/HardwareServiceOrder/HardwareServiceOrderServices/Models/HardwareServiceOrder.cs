@@ -13,63 +13,52 @@ namespace HardwareServiceOrderServices.Models
         private HardwareServiceOrder() { }
 
         // TODO: Add service provider parameter
-        public HardwareServiceOrder(
-            Guid customerId,
-            Guid assetLifecycleId,
-            DeliveryAddress deliveryAddress,
-            string userDescription,
-            string? externalProviderLink,
-            ServiceType serviceType,
-            ServiceStatus status,
-            ServiceProvider serviceProvider,
-            User createdBy)
+
+
+        public HardwareServiceOrder(Guid customerId, User orderedBy, Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, ServiceProvider serviceProvider, string serviceProviderOrderId1, string? serviceProviderOrderId2, string? externalServiceManagementLink, ServiceType serviceType, ServiceStatus status)
         {
+            CustomerId = customerId;
+            OrderedBy = orderedBy;
             AssetLifecycleId = assetLifecycleId;
             DeliveryAddress = deliveryAddress;
             UserDescription = userDescription;
-            ExternalProviderLink = externalProviderLink;
+            ServiceProvider = serviceProvider;
+            ServiceProviderOrderId1 = serviceProviderOrderId1;
+            ServiceProviderOrderId2 = serviceProviderOrderId2;
+            ExternalServiceManagementLink = externalServiceManagementLink;
             ServiceType = serviceType;
             Status = status;
-            OrderedBy = createdBy;
-            ServiceProvider = serviceProvider;
-            CustomerId = customerId;
         }
 
         /// <summary>
-        /// Contructor for unit testing.
+        ///     Constructor for unit testing.
         /// </summary>
+        /// <param name="customerId"></param>
+        /// <param name="orderedBy"></param>
         /// <param name="assetLifecycleId"></param>
         /// <param name="deliveryAddress"></param>
         /// <param name="userDescription"></param>
-        /// <param name="externalProviderLink"></param>
+        /// <param name="serviceProvider"></param>
+        /// <param name="serviceProviderOrderId1"></param>
+        /// <param name="serviceProviderOrderId2"></param>
+        /// <param name="externalServiceManagementLink"></param>
         /// <param name="serviceType"></param>
         /// <param name="status"></param>
-        /// <param name="serviceProvider"></param>
-        /// <param name="createdBy"></param>
         /// <param name="createdDateTime"></param>
-        /// <param name="customerId"></param>
-        public HardwareServiceOrder(
-            Guid customerId,
-            Guid assetLifecycleId,
-            DeliveryAddress deliveryAddress,
-            string userDescription,
-            string? externalProviderLink,
-            ServiceType serviceType,
-            ServiceStatus status,
-            ServiceProvider serviceProvider,
-            User createdBy,
-            DateTime createdDateTime)
+        public HardwareServiceOrder(Guid customerId, User orderedBy, Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, ServiceProvider serviceProvider, string serviceProviderOrderId1, string? serviceProviderOrderId2, string? externalServiceManagementLink, ServiceType serviceType, ServiceStatus status, DateTimeOffset createdDate)
         {
             CustomerId = customerId;
+            OrderedBy = orderedBy;
             AssetLifecycleId = assetLifecycleId;
             DeliveryAddress = deliveryAddress;
             UserDescription = userDescription;
-            ExternalProviderLink = externalProviderLink;
+            ServiceProvider = serviceProvider;
+            ExternalServiceManagementLink = externalServiceManagementLink;
+            ServiceProviderOrderId1 = serviceProviderOrderId1;
+            ServiceProviderOrderId2 = serviceProviderOrderId2;
             ServiceType = serviceType;
             Status = status;
-            OrderedBy = createdBy;
-            ServiceProvider = serviceProvider;
-            CreatedDate = createdDateTime;
+            CreatedDate = createdDate;
         }
 
         /// <summary>
@@ -100,10 +89,22 @@ namespace HardwareServiceOrderServices.Models
         public string UserDescription { get; set; }
 
         /// <summary>
-        ///     A URL to the service-providers status-system. Usually this offers a portal where the user can 
+        ///     A URL to the service-provider's service-status/management system. This is usually a portal where the user can 
         ///     interact with, and/or see information about the service.
         /// </summary>
-        public string? ExternalProviderLink { get; set; }
+        public string? ExternalServiceManagementLink { get; set; }
+
+        /// <summary>
+        ///     The identifier that was provided by the service-provider. This is what's used when looking up the service-order
+        ///     in the provider's systems/APIs.
+        /// </summary>
+        public string ServiceProviderOrderId1 { get; set; }
+
+        /// <summary>
+        ///     The identifier that was provided by the service-provider. This is what's used when looking up the service-order
+        ///     in the provider's systems/APIs. If the service-provider don't use several identifiers, then this will be <see langword="null"/>.
+        /// </summary>
+        public string? ServiceProviderOrderId2 { get; set; }
 
 
         /*
@@ -146,8 +147,8 @@ namespace HardwareServiceOrderServices.Models
         public virtual ServiceProvider ServiceProvider { get; set; }
 
         /// <summary>
-        /// The user who created the order
+        ///     The user who placed the order
         /// </summary>
-        public User OrderedBy { get; set; }
+        public virtual User OrderedBy { get; set; }
     }
 }

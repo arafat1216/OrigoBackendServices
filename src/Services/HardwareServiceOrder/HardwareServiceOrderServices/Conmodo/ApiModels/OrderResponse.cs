@@ -68,7 +68,7 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         /// </summary>
         [Required]
         [JsonPropertyName("packages")]
-        public List<Package> packages { get; set; }
+        public List<Package> Packages { get; set; }
 
         /// <summary>
         ///     Documents on the order, receipts etc.
@@ -84,5 +84,11 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         /// </summary>
         [JsonPropertyName("orderPrintURL")]
         public string? OrderPrintURL { get; set; }
+
+        /// <summary>
+        ///     Included in API responses, but not included in Conmodo's API documentation. Contains the IMEI number of the registered device.
+        /// </summary>
+        [JsonPropertyName("registeredImeiIn")]
+        public string? RegisteredImeiIn { get; set; }
     }
 }
