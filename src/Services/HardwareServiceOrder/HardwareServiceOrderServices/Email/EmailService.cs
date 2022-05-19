@@ -2,7 +2,8 @@
 using Common.Configuration;
 using Common.Utilities;
 using HardwareServiceOrderServices.Email.Models;
-using HardwareServiceOrderServices.Models;
+using HardwareServiceOrderServices.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Globalization;
 using System.Net.Http.Json;
@@ -15,9 +16,9 @@ namespace HardwareServiceOrderServices.Email
         private readonly HttpClient _httpClient;
         private readonly IFlatDictionaryProvider _flatDictionaryProvider;
         private readonly ResourceManager _resourceManager;
-        private readonly IHardwareServiceOrderRepository _hardwareServiceOrderRepository;
         private readonly IMapper _mapper;
         private readonly OrigoConfiguration _origoConfiguration;
+        private readonly HardwareServiceOrderContext _hardwareServiceOrderContext;
 
         public EmailService(
             IOptions<EmailConfiguration> emailConfiguration,
@@ -25,7 +26,7 @@ namespace HardwareServiceOrderServices.Email
             ResourceManager resourceManager,
             IMapper mapper,
             IOptions<OrigoConfiguration> origoConfiguration,
-            IHardwareServiceOrderRepository hardwareServiceOrderRepository)
+            HardwareServiceOrderContext hardwareServiceOrderContext)
         {
             _emailConfiguration = emailConfiguration.Value;
 
@@ -39,8 +40,7 @@ namespace HardwareServiceOrderServices.Email
             _mapper = mapper;
 
             _origoConfiguration = origoConfiguration.Value;
-
-            _hardwareServiceOrderRepository = hardwareServiceOrderRepository;
+            _hardwareServiceOrderContext = hardwareServiceOrderContext;
         }
 
         private async Task SendAsync(string subject, string body, string to, Dictionary<string, string> variable)
@@ -83,9 +83,17 @@ namespace HardwareServiceOrderServices.Email
             await SendAsync(data.Subject, template, data.Recipient, variables);
         }
 
-        public async Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime olderThan, List<int> statusIds, string languageCode = "EN")
+        public async Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime? olderThan, List<int> statusIds, string languageCode = "EN")
         {
-            var orders = await _hardwareServiceOrderRepository.GetAllOrdersAsync(olderThan, statusIds);
+
+            var orders = _hardwareServiceOrderContext.HardwareServiceOrders.Include(m => m.Status).AsQueryable();
+
+            if (olderThan != null)
+                orders = orders.Where(m => m.CreatedDate <= olderThan);
+
+            if (statusIds != null)
+                orders = orders.Where(m => statusIds.Contains(m.Status.Id));
+
             var emails = _mapper.Map<List<AssetRepairEmail>>(orders);
 
             emails.ForEach(async email =>
@@ -100,7 +108,11 @@ namespace HardwareServiceOrderServices.Email
 
         public async Task<List<LoanDeviceEmail>> SendLoanDeviceEmailAsync(List<int> statusIds, string languageCode = "EN")
         {
-            var orders = await _hardwareServiceOrderRepository.GetAllOrdersAsync(statusIds: statusIds);
+            var orders = await _hardwareServiceOrderContext.HardwareServiceOrders
+                .Include(m => m.Status)
+                .Where(m => statusIds.Contains(m.Status.Id) && !m.IsReturnLoanDeviceEmailSent)
+                .ToListAsync();
+
             var emails = _mapper.Map<List<LoanDeviceEmail>>(orders);
 
             emails.ForEach(async email =>
@@ -108,6 +120,42 @@ namespace HardwareServiceOrderServices.Email
                 var template = _resourceManager.GetString(LoanDeviceEmail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
                 await SendAsync(email.Subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
             });
+
+            orders.ForEach(order =>
+            {
+                order.IsReturnLoanDeviceEmailSent = true;
+                _hardwareServiceOrderContext.Entry(order).State = EntityState.Modified;
+            });
+
+            if (orders.Count > 0)
+                _hardwareServiceOrderContext.SaveChanges();
+
+            return emails;
+        }
+
+        public async Task<List<AssetDiscardedEmail>> SendOrderDiscardedEmailAsync(int statusId, string languageCode = "EN")
+        {
+            var orders = await _hardwareServiceOrderContext.HardwareServiceOrders
+                .Include(m => m.Status)
+                .Where(m => m.Status.Id == statusId && !m.IsOrderDiscardedEmailSent)
+                .ToListAsync();
+
+            var emails = _mapper.Map<List<AssetDiscardedEmail>>(orders);
+
+            emails.ForEach(async email =>
+            {
+                var template = _resourceManager.GetString(AssetDiscardedEmail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+                await SendAsync(email.Subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
+            });
+
+            orders.ForEach(order =>
+            {
+                order.IsOrderDiscardedEmailSent = true;
+                _hardwareServiceOrderContext.Entry(order).State = EntityState.Modified;
+            });
+
+            if (orders.Count > 0)
+                _hardwareServiceOrderContext.SaveChanges();
 
             return emails;
         }

@@ -150,5 +150,15 @@ namespace HardwareServiceOrderServices.Models
         ///     The user who placed the order
         /// </summary>
         public virtual User OrderedBy { get; set; }
+
+        /// <summary>
+        /// To ensure whether an email is already sent for returning loan device
+        /// </summary>
+        public bool IsReturnLoanDeviceEmailSent { get; set; }
+
+        /// <summary>
+        /// To ensure whether an email is already sent for discardig order
+        /// </summary>
+        public bool IsOrderDiscardedEmailSent { get; set; }
     }
 }

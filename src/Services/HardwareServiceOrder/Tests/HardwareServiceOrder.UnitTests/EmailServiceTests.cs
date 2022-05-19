@@ -21,6 +21,7 @@ namespace HardwareServiceOrder.UnitTests
     {
         private readonly IEmailService _emailService;
         private readonly OrigoConfiguration _origoConfiguration;
+        private readonly HardwareServiceOrderContext _hardwareServiceOrderContext;
         public EmailServiceTests() : base(new DbContextOptionsBuilder<HardwareServiceOrderContext>()
 
         .UseSqlite("Data Source=sqlitehardwareserviceorderservicetestsemail.db").Options)
@@ -38,15 +39,14 @@ namespace HardwareServiceOrder.UnitTests
             var origoOptions = Options.Create(_origoConfiguration);
             var flatDictionary = new FlatDictionary();
 
-            var dbContext = new HardwareServiceOrderContext(ContextOptions);
-            var repository = new HardwareServiceOrderRepository(dbContext);
+            _hardwareServiceOrderContext = new HardwareServiceOrderContext(ContextOptions);
 
             var mapper = new MapperConfiguration(mc =>
             {
                 mc.AddProfile(new EmailProfile());
             }).CreateMapper();
 
-            _emailService = new EmailService(emailOptions, flatDictionary, resourceManger, mapper, origoOptions, repository);
+            _emailService = new EmailService(emailOptions, flatDictionary, resourceManger, mapper, origoOptions, _hardwareServiceOrderContext);
         }
 
         [Fact]
@@ -71,6 +71,24 @@ namespace HardwareServiceOrder.UnitTests
             {
                 Assert.Equal(email.OrderLink, string.Format($"{_origoConfiguration.BaseUrl}/{_origoConfiguration.OrderPath}", email.CustomerId, email.OrderId));
             });
+        }
+
+        [Fact]
+        public async Task SendLoanDeviceEmail()
+        {
+            var emails = await _emailService.SendLoanDeviceEmailAsync(new List<int> { 2, 3 });
+            Assert.NotNull(emails);
+            Assert.Equal(2, emails.Count);
+            Assert.Equal(2, await _hardwareServiceOrderContext.HardwareServiceOrders.CountAsync(m => m.IsReturnLoanDeviceEmailSent));
+        }
+
+        [Fact]
+        public async Task SendAssetDiscardEmail()
+        {
+            var emails = await _emailService.SendOrderDiscardedEmailAsync(2);
+            Assert.NotNull(emails);
+            Assert.Single(emails);
+            Assert.Equal(1, await _hardwareServiceOrderContext.HardwareServiceOrders.CountAsync(m => m.IsOrderDiscardedEmailSent));
         }
     }
 }

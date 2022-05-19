@@ -51,5 +51,19 @@ namespace HardwareServiceOrder.API.Controllers
 
             return Ok(response);
         }
+
+        /// <summary>
+        /// Send order discarding email
+        /// </summary>
+        /// <param name="statusId"></param>
+        /// <param name="languageCode"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("order-discarded")]
+        public async Task<IActionResult> SendOrderDiscardedNotification(int? statusId, string languageCode = "EN")
+        {
+            var response = await _emailService.SendOrderDiscardedEmailAsync(statusId.GetValueOrDefault(), languageCode);
+            return Ok(response);
+        }
     }
 }
