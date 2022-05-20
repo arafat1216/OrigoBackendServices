@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Common.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Models.HardwareServiceOrder;
 using OrigoApiGateway.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Controllers
@@ -33,6 +37,21 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(CustomerSettings), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ConfigureSur(Guid customerId, [FromBody] string serviceId)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+
             var settings = await _hardwareRepairService.ConfigureServiceIdAsync(customerId, serviceId);
             return Ok(settings);
         }
@@ -48,6 +67,21 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(CustomerSettings), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ConfigureLoanDevice(Guid customerId, [FromBody] LoanDevice loanDevice)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+
             var settings = await _hardwareRepairService.ConfigureLoanPhoneAsync(customerId, loanDevice);
             return Ok(settings);
         }
@@ -62,6 +96,16 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(CustomerSettings), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetConfiguration(Guid customerId)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
             var settings = await _hardwareRepairService.GetSettingsAsync(customerId);
             return Ok(settings);
         }
@@ -77,6 +121,21 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(HardwareServiceOrder), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateHardwareServiceOrder(Guid customerId, [FromBody] HardwareServiceOrder model)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+
             return Ok();
         }
 
@@ -91,6 +150,21 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(HardwareServiceOrder), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetHardwareServiceOrder(Guid customerId, Guid orderId)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+
             return Ok();
         }
 
@@ -106,6 +180,21 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(HardwareServiceOrder), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> UpdateHardwareServiceOrder(Guid customerId, Guid orderId, HardwareServiceOrder model)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+
             return Ok();
         }
 
@@ -119,6 +208,17 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IEnumerable<HardwareServiceOrder>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+
             return Ok();
         }
 
@@ -133,6 +233,17 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IEnumerable<HardwareServiceOrderLog>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetHardwareServiceOrderLogs(Guid customerId, Guid orderId)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+
             return Ok();
         }
     }

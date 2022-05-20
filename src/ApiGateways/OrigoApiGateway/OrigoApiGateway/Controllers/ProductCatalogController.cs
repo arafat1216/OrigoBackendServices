@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Common.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -54,6 +55,17 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                // If role is not System admin, check access list
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 return Ok(await _productCatalogServices.GetProductPermissionsForOrganizationAsync(organizationId));
             }
             catch (MicroserviceErrorResponseException e)
@@ -169,10 +181,22 @@ namespace OrigoApiGateway.Controllers
             Tags = new[] { "Product Catalog: Orders" }
         )]
         [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
+
         public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByPartnerAndOrganizationAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId)
         {
             try
             {
+                // If role is not System admin, check access list
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                    {
+                        return Forbid();
+                    }
+                }
                 return Ok(await _productCatalogServices.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId, organizationId));
             }
             catch (MicroserviceErrorResponseException e)
@@ -206,10 +230,21 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
         public async Task<ActionResult> ReplaceOrderedProductsAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId, [FromBody] ProductOrdersPut productOrders)
         {
             try
             {
+                // If role is not System admin, check access list
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                    {
+                        return Forbid();
+                    }
+                }
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 var parseSuccess = Guid.TryParse(actor, out Guid actorResult);
 

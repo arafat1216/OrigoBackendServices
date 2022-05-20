@@ -200,7 +200,7 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
 
-                // Partner Admin, Group Admin and Customer Admin have access if organization is in their access list
+                // Partner Admin, Group Admin and Customer Admin/Admin have access if organization is in their access list
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
