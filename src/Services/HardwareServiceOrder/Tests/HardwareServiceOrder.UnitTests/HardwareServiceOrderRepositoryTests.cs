@@ -38,10 +38,10 @@ namespace HardwareServiceOrder.UnitTests
         [Fact]
         public async Task GetAllOrdersByStatuses()
         {
-            var orders = await _repository.GetAllOrdersAsync(DateTime.Today.AddDays(-7), statusIds: new List<int> { 2 });
+            var orders = await _repository.GetAllOrdersAsync(DateTime.Today.AddDays(-7), statusIds: new List<int> { 200 });
             Assert.Single(orders);
 
-            orders = await _repository.GetAllOrdersAsync(statusIds: new List<int> { 2, 3 });
+            orders = await _repository.GetAllOrdersAsync(statusIds: new List<int> { 200, 300 });
             Assert.Equal(2, orders.Count());
         }
     }

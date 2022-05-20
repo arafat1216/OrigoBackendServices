@@ -63,7 +63,7 @@ namespace HardwareServiceOrder.UnitTests
         [Fact]
         public async Task SendAssetRepairEmail()
         {
-            var emails = await _emailService.SendAssetRepairEmailAsync(DateTime.Today.AddDays(-7), 2);
+            var emails = await _emailService.SendAssetRepairEmailAsync(DateTime.Today.AddDays(-7), 200);
             Assert.NotNull(emails);
             Assert.Single(emails);
 
@@ -76,7 +76,7 @@ namespace HardwareServiceOrder.UnitTests
         [Fact]
         public async Task SendLoanDeviceEmail()
         {
-            var emails = await _emailService.SendLoanDeviceEmailAsync(new List<int> { 2, 3 });
+            var emails = await _emailService.SendLoanDeviceEmailAsync(new List<int> { 200, 300 });
             Assert.NotNull(emails);
             Assert.Equal(2, emails.Count);
             Assert.Equal(2, await _hardwareServiceOrderContext.HardwareServiceOrders.CountAsync(m => m.IsReturnLoanDeviceEmailSent));
@@ -85,7 +85,7 @@ namespace HardwareServiceOrder.UnitTests
         [Fact]
         public async Task SendAssetDiscardEmail()
         {
-            var emails = await _emailService.SendOrderDiscardedEmailAsync(2);
+            var emails = await _emailService.SendOrderDiscardedEmailAsync(200);
             Assert.NotNull(emails);
             Assert.Single(emails);
             Assert.Equal(1, await _hardwareServiceOrderContext.HardwareServiceOrders.CountAsync(m => m.IsOrderDiscardedEmailSent));
