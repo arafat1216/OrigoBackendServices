@@ -78,7 +78,7 @@ stages:
       vmImage: 'ubuntu-latest'
       environment: 'OrigoV2AKS.test'
       artifactDirectory: $(System.ArtifactsDirectory)
-      dbConnection: '$(AssetsDbConnectionTest)'
+      dbConnection: '$(CustomerDbConnectionTest)'
       releaseName: customerservices
       namespace: test
       tag: '$(Build.BuildId)'
