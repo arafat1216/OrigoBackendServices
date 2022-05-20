@@ -1,5 +1,6 @@
 ﻿using HardwareServiceOrder.API.ViewModels;
 using HardwareServiceOrderServices.Email;
+using HardwareServiceOrderServices.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HardwareServiceOrder.API.Controllers
@@ -21,18 +22,18 @@ namespace HardwareServiceOrder.API.Controllers
         /// <summary>
         /// Send asset repair notification email
         /// </summary>
-        /// <param name="statusIds"></param>
+        /// <param name="statusId"></param>
         /// <param name="olderThan"></param>
         /// <param name="languageCode"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("asset-repair")]
-        public async Task<IActionResult> SendAssetRepairNotification([FromBody] List<ServiceStatusEnum> statusIds, DateTime? olderThan = null, string languageCode = "EN")
+        public async Task<IActionResult> SendAssetRepairNotification(int? statusId, DateTime? olderThan = null, string languageCode = "EN")
         {
             if (olderThan == null)
                 olderThan = DateTime.Today.AddDays(-7);
-
-            var response = await _emailService.SendAssetRepairEmailAsync(olderThan.GetValueOrDefault(), statusIds.Cast<int>().ToList(), languageCode);
+            statusId = statusId ?? (int)ServiceStatusEnum.Registered;
+            var response = await _emailService.SendAssetRepairEmailAsync(olderThan.GetValueOrDefault(), statusId, languageCode);
 
             return Ok(response);
         }
@@ -45,8 +46,17 @@ namespace HardwareServiceOrder.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("loan-device")]
-        public async Task<IActionResult> SendLoanDeviceNotification([FromBody] List<ServiceStatusEnum> statusIds, string languageCode = "EN")
+        public async Task<IActionResult> SendLoanDeviceNotification([FromBody] List<ServiceStatusEnum>? statusIds, string languageCode = "EN")
         {
+            statusIds = statusIds == null || !statusIds.Any() ? new List<ServiceStatusEnum>
+            {
+                ServiceStatusEnum.CompletedRepaired,
+                ServiceStatusEnum.CompletedRepairedOnWarranty,
+                ServiceStatusEnum.CompletedReplaced,
+                ServiceStatusEnum.CompletedReplacedOnWarranty,
+                ServiceStatusEnum.CompletedNotRepaired
+            } : statusIds;
+
             var response = await _emailService.SendLoanDeviceEmailAsync(statusIds.Cast<int>().ToList(), languageCode);
 
             return Ok(response);
@@ -62,6 +72,7 @@ namespace HardwareServiceOrder.API.Controllers
         [Route("order-discarded")]
         public async Task<IActionResult> SendOrderDiscardedNotification(int? statusId, string languageCode = "EN")
         {
+            statusId = statusId ?? (int)ServiceStatusEnum.CompletedDiscarded;
             var response = await _emailService.SendOrderDiscardedEmailAsync(statusId.GetValueOrDefault(), languageCode);
             return Ok(response);
         }

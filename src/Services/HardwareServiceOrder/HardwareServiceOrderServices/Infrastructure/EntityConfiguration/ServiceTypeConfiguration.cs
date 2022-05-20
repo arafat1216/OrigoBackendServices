@@ -30,6 +30,13 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                    .ValueGeneratedOnAddOrUpdate()
                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
+            //Seed data
+            var serviceTypes = Enum.GetValues(typeof(ServiceTypeEnum))
+                    .Cast<int>()
+                    .Where(i => i != 0) //Ignoring Null
+                    .Select(m => new ServiceType { Id = m });
+
+            builder.HasData(serviceTypes);
         }
     }
 }

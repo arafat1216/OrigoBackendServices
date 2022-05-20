@@ -4,6 +4,7 @@ using HardwareServiceOrderServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HardwareServiceOrderServices.Migrations
 {
     [DbContext(typeof(HardwareServiceOrderContext))]
-    partial class HardwareServiceOrderContextModelSnapshot : ModelSnapshot
+    [Migration("20220520075230_ServiceStatusSeed")]
+    partial class ServiceStatusSeed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -153,7 +155,7 @@ namespace HardwareServiceOrderServices.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("HardwareServiceOrders", (string)null);
+                    b.ToTable("HardwareServiceOrders");
                 });
 
             modelBuilder.Entity("HardwareServiceOrderServices.Models.ServiceProvider", b =>
@@ -191,7 +193,7 @@ namespace HardwareServiceOrderServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServiceProviders", (string)null);
+                    b.ToTable("ServiceProviders");
                 });
 
             modelBuilder.Entity("HardwareServiceOrderServices.Models.ServiceStatus", b =>
@@ -226,7 +228,7 @@ namespace HardwareServiceOrderServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServiceStatuses", (string)null);
+                    b.ToTable("ServiceStatuses");
 
                     b.HasData(
                         new
@@ -407,7 +409,7 @@ namespace HardwareServiceOrderServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServiceTypes", (string)null);
+                    b.ToTable("ServiceTypes");
 
                     b.HasData(
                         new
@@ -468,7 +470,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("HardwareServiceOrderServices.Models.HardwareServiceOrder.DeliveryAddress#HardwareServiceOrderServices.Models.DeliveryAddress", "DeliveryAddress", b1 =>
+                    b.OwnsOne("HardwareServiceOrderServices.Models.DeliveryAddress", "DeliveryAddress", b1 =>
                         {
                             b1.Property<int>("HardwareServiceOrderId")
                                 .HasColumnType("int");
@@ -504,13 +506,13 @@ namespace HardwareServiceOrderServices.Migrations
 
                             b1.HasKey("HardwareServiceOrderId");
 
-                            b1.ToTable("HardwareServiceOrders", (string)null);
+                            b1.ToTable("HardwareServiceOrders");
 
                             b1.WithOwner()
                                 .HasForeignKey("HardwareServiceOrderId");
                         });
 
-                    b.OwnsOne("HardwareServiceOrderServices.Models.HardwareServiceOrder.OrderedBy#HardwareServiceOrderServices.Models.User", "OrderedBy", b1 =>
+                    b.OwnsOne("HardwareServiceOrderServices.Models.User", "OrderedBy", b1 =>
                         {
                             b1.Property<int>("HardwareServiceOrderId")
                                 .HasColumnType("int");
@@ -528,7 +530,7 @@ namespace HardwareServiceOrderServices.Migrations
 
                             b1.HasKey("HardwareServiceOrderId");
 
-                            b1.ToTable("HardwareServiceOrders", (string)null);
+                            b1.ToTable("HardwareServiceOrders");
 
                             b1.WithOwner()
                                 .HasForeignKey("HardwareServiceOrderId");

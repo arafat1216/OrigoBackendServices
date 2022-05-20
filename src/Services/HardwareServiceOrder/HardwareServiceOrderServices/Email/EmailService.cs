@@ -83,7 +83,7 @@ namespace HardwareServiceOrderServices.Email
             await SendAsync(data.Subject, template, data.Recipient, variables);
         }
 
-        public async Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime? olderThan, List<int> statusIds, string languageCode = "EN")
+        public async Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime? olderThan, int? statusId, string languageCode = "EN")
         {
 
             var orders = _hardwareServiceOrderContext.HardwareServiceOrders.Include(m => m.Status).AsQueryable();
@@ -91,8 +91,8 @@ namespace HardwareServiceOrderServices.Email
             if (olderThan != null)
                 orders = orders.Where(m => m.CreatedDate <= olderThan);
 
-            if (statusIds != null)
-                orders = orders.Where(m => statusIds.Contains(m.Status.Id));
+            if (statusId != null)
+                orders = orders.Where(m => m.Status.Id == statusId);
 
             var emails = _mapper.Map<List<AssetRepairEmail>>(orders);
 

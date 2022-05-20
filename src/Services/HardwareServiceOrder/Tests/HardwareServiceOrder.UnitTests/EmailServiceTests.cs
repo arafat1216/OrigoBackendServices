@@ -63,9 +63,9 @@ namespace HardwareServiceOrder.UnitTests
         [Fact]
         public async Task SendAssetRepairEmail()
         {
-            var emails = await _emailService.SendAssetRepairEmailAsync(DateTime.Today.AddDays(-7), new List<int> { 2, 3 });
+            var emails = await _emailService.SendAssetRepairEmailAsync(DateTime.Today.AddDays(-7), 2);
             Assert.NotNull(emails);
-            Assert.Equal(2, emails.Count);
+            Assert.Single(emails);
 
             emails.ForEach(email =>
             {

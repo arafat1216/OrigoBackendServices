@@ -16,10 +16,10 @@ namespace HardwareServiceOrderServices.Email
         /// Send asset repair email
         /// </summary>
         /// <param name="olderThan"></param>
-        /// <param name="statusIds"></param>
+        /// <param name="statusId"></param>
         /// <param name="languageCode"></param>
         /// <returns></returns>
-        Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime? olderThan, List<int> statusIds, string languageCode = "EN");
+        Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime? olderThan, int? statusId, string languageCode = "EN");
 
         /// <summary>
         /// Send loan device notification email
