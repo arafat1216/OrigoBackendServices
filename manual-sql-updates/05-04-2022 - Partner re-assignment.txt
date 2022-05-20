@@ -6,7 +6,7 @@ products so they correctly use the new partner.
 
 ----------------
 
-Step 0 (one time step):
+Step 0 (one time step in "Dev"):
 
 There are a frontend code component that goes along with this migration. As a result, the following PR must be
 changed from draft to release, and added into the codebase when the migration is first run in an environment
@@ -37,6 +37,13 @@ Copy the [Id] and [ExternalId] values, as these needs to be inserted in later st
 
 ----------------
 
+Step 2.5:
+
+If we need to have the same ExternalID on the partner across all environments, then the values in step 2 must
+be updated.
+
+----------------
+
 Step 3:
 
 Assign all existing customers to the new partner, using the following query. Update the new partnerId value
@@ -62,3 +69,9 @@ Update the new partnerId value in the query so it matches the [p.ExternalId] val
         WHERE PartnerId = '00000000-0000-0000-0000-000000000000'
 
 Commit once complete.
+
+----------------
+
+Step 5:
+
+If required, migrate the admins/users over to the new partner.
