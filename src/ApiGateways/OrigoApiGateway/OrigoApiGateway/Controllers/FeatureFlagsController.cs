@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Common.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Controllers
@@ -42,8 +46,19 @@ namespace OrigoApiGateway.Controllers
         [Route("{customerId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(List<string>), (int)HttpStatusCode.OK)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<int>> GetFeatureFlagsForCustomer(Guid customerId)
         {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+
             var featureFlags = await _featureFlagServices.GetFeatureFlags(customerId);
 
             return Ok(featureFlags);
