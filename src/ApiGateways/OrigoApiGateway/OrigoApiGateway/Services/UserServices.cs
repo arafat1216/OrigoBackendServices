@@ -388,5 +388,23 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+        public async Task<UserInfoDTO> GetUserInfo(string userName, Guid userId)
+        {
+            try
+            {
+                if(userName == null && userId == Guid.Empty) return null;
+
+                var response = userName != null ? 
+                    await HttpClient.GetFromJsonAsync<UserInfoDTO>($"{_options.ApiPath}/{userName}/users-info") : 
+                    await HttpClient.GetFromJsonAsync<UserInfoDTO>($"{_options.ApiPath}/{userId}/users-info");
+
+                return response;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetUserInfo failed with HttpRequestException.");
+                throw;
+            }
+        }
     }
 }

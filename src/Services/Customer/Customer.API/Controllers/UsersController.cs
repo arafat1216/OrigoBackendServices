@@ -335,5 +335,37 @@ namespace Customer.API.Controllers
             if (user == null) return NotFound();
             return Ok(_mapper.Map<User>(user));
         }
+        /// <summary>
+        /// Only used by userpermission gateway to get info about user to be made a claim for
+        /// Either userName or userId
+        /// </summary>
+        /// <param name="userName">Null or a vaue</param>
+        /// <returns></returns>
+        [Obsolete("Will be removed when controller for adding one user permission at a time gets removed")]
+        [Route("/api/v{version:apiVersion}/organizations/{userName}/users-info")]
+        [HttpGet]
+        [ProducesResponseType(typeof(UserInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<UserInfo>> GetUserFromUserName(string userName)
+        {
+            var user = await _userServices.GetUserInfoFromUserName(userName);
+            if (user == null) return NotFound();
+            return Ok(_mapper.Map<UserInfo>(user));
+        }
+        /// <summary>
+        /// Only used by userpermission gateway to get info about user to be made a claim for
+        /// </summary>
+        /// <param name="userId">Empty Guid or a value</param>
+        /// <returns></returns>
+        [Route("/api/v{version:apiVersion}/organizations/{userId:Guid}/users-info")]
+        [HttpGet]
+        [ProducesResponseType(typeof(UserInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<UserInfo>> GetUserFromUserId(Guid userId)
+        {
+            var user = await _userServices.GetUserInfoFromUserId(userId);
+            if (user == null) return NotFound();
+            return Ok(_mapper.Map<UserInfo>(user));
+        }
     }
 }

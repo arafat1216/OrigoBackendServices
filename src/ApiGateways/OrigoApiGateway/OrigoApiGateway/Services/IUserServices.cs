@@ -1,6 +1,8 @@
 ﻿using Common.Interfaces;
 using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.BackendDTO;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,5 +23,7 @@ namespace OrigoApiGateway.Services
         Task<OrigoUser> UnassignUserFromDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
         Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
         Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
+        Task<UserInfoDTO> GetUserInfo(string userName, Guid userId);
+
     }
 }

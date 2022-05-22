@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
@@ -27,12 +29,14 @@ namespace OrigoApiGateway.Controllers
         private readonly ILogger<UserPermissionsController> _logger;
         private readonly IUserPermissionService _userPermissionServices;
         private readonly IMapper _mapper;
+        private readonly IUserServices _userServices;
 
-        public UserPermissionsController(ILogger<UserPermissionsController> logger, IUserPermissionService customerServices, IMapper mapper)
+        public UserPermissionsController(ILogger<UserPermissionsController> logger, IUserPermissionService customerServices, IMapper mapper, IUserServices userServices)
         {
             _logger = logger;
             _userPermissionServices = customerServices;
             _mapper = mapper;
+            _userServices = userServices;
         }
 
         [HttpGet]
@@ -43,6 +47,43 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                //User that is requested access to
+                var user = await _userServices.GetUserInfo(userName, Guid.Empty);
+
+                //User info about the user making the claim
+                var email = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+
+                PredefinedRole tryParseResult;
+                if (Enum.TryParse<PredefinedRole>(role, out tryParseResult))
+                {
+                    switch (tryParseResult)
+                    {
+                        case PredefinedRole.EndUser:
+                            if(email != userName) return Forbid();
+                            break;
+                        case PredefinedRole.DepartmentManager:
+                            if (user.DepartmentId == Guid.Empty) return Forbid();
+                            else if(accessList == null || !accessList.Any() || !accessList.Contains(user.DepartmentId.ToString())) return Forbid();
+                            break;
+                        case PredefinedRole.Manager:
+                            if (user.DepartmentId == Guid.Empty) return Forbid();
+                            else if (accessList == null || !accessList.Any() || !accessList.Contains(user.DepartmentId.ToString())) return Forbid();
+                            break;
+                        case PredefinedRole.SystemAdmin:
+                            break;
+                        default:
+                            if (accessList == null || !accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();
+                            break;
+                    }
+                }
+                else
+                {
+                    //could not parse the predefined role
+                    return BadRequest($"Could not find a role for user making the claim");
+                }
+
                 var userRole = await _userPermissionServices.GetUserPermissionsAsync(userName);
                 if (userRole == null)
                 {
@@ -94,10 +135,27 @@ namespace OrigoApiGateway.Controllers
         [HttpPut]
         [ProducesResponseType(typeof(OrigoUserPermissions), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<OrigoUserPermissions>> AddUserPermission(string userName, [FromBody] NewUserPermissions userPermissions)
         {
             try
             {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                {
+                    return Forbid();
+                }
+                if(role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    //User that is requested access to
+                    var user = await _userServices.GetUserInfo(userName, Guid.Empty);
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();
+                   
+                }
+
                 var userPermissionsDTO = _mapper.Map<NewUserPermissionsDTO>(userPermissions);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
@@ -130,10 +188,30 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoUsersPermissions), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Created)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<OrigoUsersPermissions>> AddUsersPermissions([FromBody] NewUsersPermissions usersPermissions)
         {
             try
             {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    //User that is requested access to
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+
+                    foreach (var permission in usersPermissions.UserPermissions)
+                    {
+                        var user = await _userServices.GetUserInfo(null, permission.UserId);
+                        if (accessList == null || !accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();
+                    }
+
+                }
+
                 var userPermissionsDTO = _mapper.Map<NewUsersPermissionsDTO>(usersPermissions);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
@@ -159,10 +237,28 @@ namespace OrigoApiGateway.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoUserPermissions), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<OrigoUserPermissions>> RemoveUserPermission(string userName, [FromBody] NewUserPermissions userPermissions)
         {
             try
             {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                {
+                    return Forbid();
+                }
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    //User that is requested access to
+                    var user = await _userServices.GetUserInfo(userName, Guid.Empty);
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();
+
+                }
+
                 var userPermissionsDTO = _mapper.Map<NewUserPermissionsDTO>(userPermissions);
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;

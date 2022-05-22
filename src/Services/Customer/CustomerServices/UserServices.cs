@@ -476,5 +476,14 @@ namespace CustomerServices
             await _organizationRepository.SaveEntitiesAsync();
             return userDTO;
         }
+
+        public async Task<UserInfo> GetUserInfoFromUserName(string userName)
+        {
+            return _mapper.Map<UserInfo>(await _organizationRepository.GetUserByUserName(userName));
+        }
+        public async Task<UserInfo> GetUserInfoFromUserId(Guid userId)
+        {
+            return _mapper.Map<UserInfo>(await _organizationRepository.GetUserAsync(userId));
+        }
     }
 }

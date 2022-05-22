@@ -23,6 +23,7 @@ namespace Customer.API.IntegrationTests.Controllers
         private readonly Guid _headDepartmentId;
         private readonly Guid _subDepartmentId;
         private readonly Guid _userOneId;
+        private readonly string _userOneEmail;
         private readonly Guid _userTwoId;
         private readonly Guid _userThreeId;
         private readonly Guid _callerId;
@@ -41,6 +42,7 @@ namespace Customer.API.IntegrationTests.Controllers
             _userOneId = factory.USER_ONE_ID;
             _userTwoId = factory.USER_TWO_ID;
             _userThreeId = factory.USER_THREE_ID;
+            _userOneEmail = factory.USER_ONE_EMAIL;
             _callerId = Guid.NewGuid();
             _factory = factory;
         }
@@ -630,6 +632,62 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.NotNull(customerUser);
             Assert.Equal(_headDepartmentId, customerUser?.ManagerOf[0].DepartmentId);
             Assert.Equal("Head department", customerUser?.ManagerOf[0].DepartmentName);
+        }
+        [Fact]
+        public async Task GetUserInfoFromUserName_Ok()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+
+            var request = $"/api/v1/organizations/{_userOneEmail}/users-info";
+            var response = await httpClient.GetAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+
+            var userInfo = await response.Content.ReadFromJsonAsync<ViewModels.UserInfo>();
+
+            Assert.NotNull(userInfo);
+            Assert.Equal(_customerId, userInfo?.OrganizationId);
+            Assert.Equal(_userOneId, userInfo?.UserId);
+            Assert.Equal(Guid.Empty,userInfo?.DepartmentId);
+            Assert.Equal(_userOneEmail, userInfo?.UserName);
+
+        }
+        [Fact]
+        public async Task GetUserFromUserId_Ok()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var request = $"/api/v1/organizations/{_userOneId}/users-info";
+            var response = await httpClient.GetAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+
+            var userInfo = await response.Content.ReadFromJsonAsync<ViewModels.UserInfo>();
+
+            Assert.NotNull(userInfo);
+            Assert.Equal(_customerId, userInfo?.OrganizationId);
+            Assert.Equal(_userOneId, userInfo?.UserId);
+            Assert.Equal(Guid.Empty, userInfo?.DepartmentId);
+            Assert.Equal(_userOneEmail, userInfo?.UserName);
+        }
+        [Fact]
+        public async Task GetUserFromUserId_NotFound()
+        {
+            var NOT_VALID_GUID = Guid.Parse("012439f0-9cbc-42f4-8936-c1854865c1a7");
+
+            var request = $"/api/v1/organizations/{NOT_VALID_GUID}/users-info";
+            var response = await _httpClient.GetAsync(request);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+        [Fact]
+        public async Task GetUserInfoFromUserName_NotFound()
+        {
+            var NOT_VALID_USERNAME = "mail@mail.com";
+
+            var request = $"/api/v1/organizations/{NOT_VALID_USERNAME}/users-info";
+            var response = await _httpClient.GetAsync(request);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
     }

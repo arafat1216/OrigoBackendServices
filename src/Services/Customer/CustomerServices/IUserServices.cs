@@ -25,5 +25,9 @@ namespace CustomerServices
         Task<UserDTO> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
         Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
         Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
+        Task<UserInfo> GetUserInfoFromUserName(string userName);
+        Task<UserInfo> GetUserInfoFromUserId(Guid userId);
+
+
     }
 }
