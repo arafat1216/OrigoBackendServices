@@ -31,8 +31,8 @@ namespace HardwareServiceOrder.UnitTests
             var serviceProvider = new ServiceProvider { OrganizationId = CUSTOMER_ONE_ID };
 
             var order1 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_ONE_ID, new User(Guid.NewGuid(), "test@test.com", "UserName"), Guid.NewGuid(), deliveryAddress, "UserDescription", serviceProvider, Guid.NewGuid().ToString(), null, "externalLink", serviceType, new ServiceStatus { Id = 100 });
-            var order2 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_TWO_ID, new User(Guid.NewGuid(), "test@test.com", "UserName"), Guid.NewGuid(), deliveryAddress, "UserDescription", serviceProvider, Guid.NewGuid().ToString(), null, "externalLink", serviceType, new ServiceStatus { Id = 200 }, DateTime.Today.AddDays(-7));
-            var order3 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_THREE_ID, new User(Guid.NewGuid(), "test@test.com", "UserName"), Guid.NewGuid(), deliveryAddress, "UserDescription", serviceProvider, Guid.NewGuid().ToString(), null, "externalLink", serviceType, new ServiceStatus { Id = 300 }, DateTime.Today.AddDays(-8));
+            var order2 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_TWO_ID, new User(Guid.NewGuid(), "test@test.com", "UserName"), Guid.NewGuid(), "[AssetName]", deliveryAddress, "UserDescription", serviceProvider, Guid.NewGuid().ToString(), null, "externalLink", serviceType, new ServiceStatus { Id = 200 }, DateTime.Today.AddDays(-7));
+            var order3 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_THREE_ID, new User(Guid.NewGuid(), "test@test.com", "UserName"), Guid.NewGuid(), "[AssetName]", deliveryAddress, "UserDescription", serviceProvider, Guid.NewGuid().ToString(), null, "externalLink", serviceType, new ServiceStatus { Id = 300 }, DateTime.Today.AddDays(-8));
 
             context.Add(order1);
             context.Add(order2);

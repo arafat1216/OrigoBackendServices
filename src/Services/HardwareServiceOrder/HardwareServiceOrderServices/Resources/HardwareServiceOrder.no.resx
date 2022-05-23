@@ -118,54 +118,36 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="OrderConfirmationEmail" xml:space="preserve">
-    <value>![Origo](data:image/png;base64,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)
+    <value>Hello {{FirstName}}!
 
-&lt;/br&gt;
+### **Order details:**
 
-## **Ordrebekreftelse**
+Assets: {{AssetName}} ({{AssetId}})  
+Order date: {{OrderDate}}  
+Repair type: {{RepairType}}  
+Fault category: {{FaultCategory}}
 
-&lt;/br&gt;
-
-Hei {{FirstName}}!
-
-### **Bestillingsdetaljer:**
-
-Eiendeler: {{AssetName}} ({{AssetId}})  
-Ordredato: {{OrderDate}}  
-Reparasjonstype: {{RepairType}}  
-Kategori for feil: {{FaultCategory}}
-
-[Vis rekkefølge i Origo]({{OrderLink}})
+[View order in Origo]({{OrderLink}})
 
 ### **Next steps:** 
-1. Sikkerhetskopier enheten
-2. Tilbakestille enheten til fabrikkstandard
-3. Fjern SIM-kort
+1. Backup your device
+2. Factory reset your device
+3. Remove SIM card
 
-⚠️ Hvis trinn 1 til 3 ikke er utført på riktig måte, kan ikke reparasjonen fullføres
+⚠️ if step 1 to 3 is not done properly the repair cannot be completed
 
-4. Send enheten til reparasjonsleverandøren ved hjelp av pakkeseddelen
-5. Reparasjonsleverandøren evaluerer enheten
+4. Send the device to the repair provider using the package slip
+5. The repair provider evaluates your device
 6. You get repair options to choose from (not if warranty)
-7. Du får reparasjonsalternativer å velge mellom (ikke hvis garanti)
+7. The repair provider repairs your device and sends it back to you
 
-[Hent pakkeseddel](PackageSlipLink)
+[Get package slip](PackageSlipLink)
 
-PS: Reparasjonsleverandøren kan kontakte deg direkte om reparasjonen.
+PS: The repair provider may contact you directly about the repair.
 
 
-### **Låneenhet:**
+### **Loan device:**
 
-I løpet av reparasjonsperioden kan du få en låneenhet fra selskapet ditt. Kontakt [kontaktinformasjon for låneenhet](LoanDeviceContact) hvis du trenger en låneenhet.
-
-&lt;/br&gt;      
-
---- 
-
-&lt;/br&gt;
-Vi sendte deg denne e-posten fordi du har en Origo-bruker
-Sendt fra Origo Business Cloud.
-
-</value>
+During the repair period you can get a loan device from your company. Contact [loan device contact info](LoanDeviceContact) if you need a loan device.</value>
   </data>
 </root>

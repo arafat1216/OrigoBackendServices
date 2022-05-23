@@ -159,5 +159,25 @@ namespace HardwareServiceOrderServices.Email
 
             return emails;
         }
+
+        public async Task<List<OrderCancellationEmail>> SendOrderCancellationEmailAsync(int statusId, string languageCode = "en")
+        {
+            var orders = _hardwareServiceOrderContext.HardwareServiceOrders
+                .Include(m => m.Status)
+                .Include(m => m.ServiceType)
+                .Where(m => m.Status.Id == statusId)
+                .AsQueryable();
+
+            var emails = _mapper.Map<List<OrderCancellationEmail>>(orders);
+
+            emails.ForEach(async email =>
+            {
+                email.OrderLink = string.Format($"{_origoConfiguration.BaseUrl}/{_origoConfiguration.OrderPath}", email.CustomerId, email.OrderId);
+                var template = _resourceManager.GetString(OrderCancellationEmail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+                await SendAsync(email.Subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
+            });
+
+            return emails;
+        }
     }
 }

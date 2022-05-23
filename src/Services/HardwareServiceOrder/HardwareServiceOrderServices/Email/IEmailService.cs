@@ -36,5 +36,13 @@ namespace HardwareServiceOrderServices.Email
         /// <param name="languageCode">Code of the language in ISO 639-1 format.</param>
         /// <returns></returns>
         Task<List<AssetDiscardedEmail>> SendOrderDiscardedEmailAsync(int statusId, string languageCode = "en");
+
+        /// <summary>
+        /// Send email for cancelled order
+        /// </summary>
+        /// <param name="statusId">Status identifier</param>
+        /// <param name="languageCode">Code of the language in ISO 639-1 format.</param>
+        /// <returns></returns>
+        Task<List<OrderCancellationEmail>> SendOrderCancellationEmailAsync(int statusId, string languageCode = "en");   
     }
 }

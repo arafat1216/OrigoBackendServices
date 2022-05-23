@@ -54,5 +54,14 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var request = await _httpClient.PostAsync(url, JsonContent.Create(""));
             Assert.Equal(HttpStatusCode.OK, request.StatusCode);
         }
+
+        [Fact]
+        public async Task SendOrderCancelledNotification()
+        {
+            var url = $"/api/v1/hardware-repair-notifications/order-cancelled?languageCode=en";
+            _testOutputHelper.WriteLine(url);
+            var request = await _httpClient.PostAsync(url, JsonContent.Create(""));
+            Assert.Equal(HttpStatusCode.OK, request.StatusCode);
+        }
     }
 }

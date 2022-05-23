@@ -36,6 +36,7 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="customerId"></param>
         /// <param name="orderedBy"></param>
         /// <param name="assetLifecycleId"></param>
+        /// <param name="assetName"></param>
         /// <param name="deliveryAddress"></param>
         /// <param name="userDescription"></param>
         /// <param name="serviceProvider"></param>
@@ -44,12 +45,26 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="externalServiceManagementLink"></param>
         /// <param name="serviceType"></param>
         /// <param name="status"></param>
-        /// <param name="createdDateTime"></param>
-        public HardwareServiceOrder(Guid customerId, User orderedBy, Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, ServiceProvider serviceProvider, string serviceProviderOrderId1, string? serviceProviderOrderId2, string? externalServiceManagementLink, ServiceType serviceType, ServiceStatus status, DateTimeOffset createdDate)
+        /// <param name="createdDate"></param>
+        public HardwareServiceOrder(
+            Guid customerId, 
+            User orderedBy,
+            Guid assetLifecycleId,
+            string assetName,
+            DeliveryAddress deliveryAddress,
+            string userDescription,
+            ServiceProvider serviceProvider,
+            string serviceProviderOrderId1,
+            string? serviceProviderOrderId2,
+            string? externalServiceManagementLink,
+            ServiceType serviceType,
+            ServiceStatus status,
+            DateTimeOffset createdDate)
         {
             CustomerId = customerId;
             OrderedBy = orderedBy;
             AssetLifecycleId = assetLifecycleId;
+            AssetName = assetName;
             DeliveryAddress = deliveryAddress;
             UserDescription = userDescription;
             ServiceProvider = serviceProvider;
@@ -75,6 +90,11 @@ namespace HardwareServiceOrderServices.Models
         ///     The identifier for the asset lifecycle attached to the service order.
         /// </summary>
         public Guid AssetLifecycleId { get; set; }
+
+        /// <summary>
+        ///     The name of the asset
+        /// </summary>
+        public string AssetName { get; set; }
 
         /// <summary>
         ///     The delivery address used when returning the completed service order. <para>
@@ -160,5 +180,10 @@ namespace HardwareServiceOrderServices.Models
         /// To ensure whether an email is already sent for discardig order
         /// </summary>
         public bool IsOrderDiscardedEmailSent { get; set; }
+
+        /// <summary>
+        /// To ensure whether an email is already sent for cancelled order
+        /// </summary>
+        public bool IsOrderCancellationEmailSent { get; set; }
     }
 }

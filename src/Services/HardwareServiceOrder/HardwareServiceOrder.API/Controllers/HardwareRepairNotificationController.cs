@@ -76,5 +76,20 @@ namespace HardwareServiceOrder.API.Controllers
             var response = await _emailService.SendOrderDiscardedEmailAsync(statusId.GetValueOrDefault(), languageCode.ToLower());
             return Ok(response);
         }
+
+        /// <summary>
+        /// Send order discarding email
+        /// </summary>
+        /// <param name="statusId">Status identifier</param>
+        /// <param name="languageCode">Code of the language in ISO 639-1 format</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("order-cancelled")]
+        public async Task<IActionResult> SendOrderCancellationNotification(int? statusId, string languageCode = "en")
+        {
+            statusId = statusId ?? (int)ServiceStatusEnum.Canceled;
+            var response = await _emailService.SendOrderCancellationEmailAsync(statusId.GetValueOrDefault(), languageCode.ToLower());
+            return Ok(response);
+        }
     }
 }

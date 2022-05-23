@@ -61,7 +61,9 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ![Origo](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAQAAAAABGUUKwAAAQUUlEQVR4Ae1YC5AV1Zn+zzndt++dOzPMMDC8BnRGGBBmEQtFNxIepXGNKYLJBoTEZDfRiOUmMVvurlmzhKGiiZSJ2SxZJbgbDDEbFyzZzSisY7JQUYoEeUkEQSEMCAzDY153Lvf27cfZ7+++PW8GQm1t1VbdU/fc0336nP/x/Y/zdxMVWgGBAgIFBAoIFBAoIFBAoIBAAYECAgUECggUECggUEDgcghoEsT9/6pdKb+rlOnKFImIs+rcFm2IUenEMUUyVmnmzFItYqZha8/MuZ0inW45M2HnKVq7zAnW8t5oXzBxhX/9e [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///
+        ///In connection to a recent repair order your asset was discarded. Please contact your manager to get a new asset..
         /// </summary>
         internal static string AssetDiscardedEmail {
             get {
@@ -70,7 +72,21 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ![Origo](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAQAAAAABGUUKwAAAQUUlEQVR4Ae1YC5AV1Zn+zzndt++dOzPMMDC8BnRGGBBmEQtFNxIepXGNKYLJBoTEZDfRiOUmMVvurlmzhKGiiZSJ2SxZJbgbDDEbFyzZzSisY7JQUYoEeUkEQSEMCAzDY153Lvf27cfZ7+++PW8GQm1t1VbdU/fc0336nP/x/Y/zdxMVWgGBAgIFBAoIFBAoIFBAoIBAAYECAgUECggUECggUEDgcghoEsT9/6pdKb+rlOnKFImIs+rcFm2IUenEMUUyVmnmzFItYqZha8/MuZ0inW45M2HnKVq7zAnW8t5oXzBxhX/9e [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///
+        ///You registered a [repair order]({{OrderLink}}) [{{OrderDate}}], but we cannot see having received the asset. Please follow the instructions below so we can help you fix it!
+        ///
+        ///Next steps:
+        ///
+        ///1. Backup your device
+        ///2. Factory reset your device
+        ///3. Remove the SIM card
+        ///
+        ///⚠️ if step 1 to 3 is not done properly the repair cannot be completed
+        ///
+        ///4. Send the device to the repair provider using the package slip
+        ///5. The repair provider evaluates your device
+        ///6. You get repair options to choo [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string AssetRepairEmail {
             get {
@@ -79,7 +95,9 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ![Origo](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAQAAAAABGUUKwAAAQUUlEQVR4Ae1YC5AV1Zn+zzndt++dOzPMMDC8BnRGGBBmEQtFNxIepXGNKYLJBoTEZDfRiOUmMVvurlmzhKGiiZSJ2SxZJbgbDDEbFyzZzSisY7JQUYoEeUkEQSEMCAzDY153Lvf27cfZ7+++PW8GQm1t1VbdU/fc0336nP/x/Y/zdxMVWgGBAgIFBAoIFBAoIFBAoIBAAYECAgUECggUECggUEDgcghoEsT9/6pdKb+rlOnKFImIs+rcFm2IUenEMUUyVmnmzFItYqZha8/MuZ0inW45M2HnKVq7zAnW8t5oXzBxhX/9e [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///
+        ///I connection to a recent repair order we would like to remind you to return any loan device..
         /// </summary>
         internal static string LoanDeviceEmail {
             get {
@@ -88,7 +106,48 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ![Origo](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAQAAAAABGUUKwAAAQUUlEQVR4Ae1YC5AV1Zn+zzndt++dOzPMMDC8BnRGGBBmEQtFNxIepXGNKYLJBoTEZDfRiOUmMVvurlmzhKGiiZSJ2SxZJbgbDDEbFyzZzSisY7JQUYoEeUkEQSEMCAzDY153Lvf27cfZ7+++PW8GQm1t1VbdU/fc0336nP/x/Y/zdxMVWgGBAgIFBAoIFBAoIFBAoIBAAYECAgUECggUECggUEDgcghoEsT9/6pdKb+rlOnKFImIs+rcFm2IUenEMUUyVmnmzFItYqZha8/MuZ0inW45M2HnKVq7zAnW8t5oXzBxhX/9e [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///
+        ///Your repair order is canceled. If your asset still needs repair please create a new repair order.
+        ///
+        ///
+        ///### **Order details:**
+        ///
+        ///Assets: {{AssetName}} ({{AssetId}})  
+        ///Order date: {{OrderDate}}  
+        ///Repair type: {{RepairType}}  
+        ///Fault category: {{FaultCategory}}
+        ///
+        ///[View order in Origo]({{OrderLink}}).
+        /// </summary>
+        internal static string OrderCancellationEmail {
+            get {
+                return ResourceManager.GetString("OrderCancellationEmail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///
+        ///### **Order details:**
+        ///
+        ///Assets: {{AssetName}} ({{AssetId}})  
+        ///Order date: {{OrderDate}}  
+        ///Repair type: {{RepairType}}  
+        ///Fault category: {{FaultCategory}}
+        ///
+        ///[View order in Origo]({{OrderLink}})
+        ///
+        ///### **Next steps:** 
+        ///1. Backup your device
+        ///2. Factory reset your device
+        ///3. Remove SIM card
+        ///
+        ///⚠️ if step 1 to 3 is not done properly the repair cannot be completed
+        ///
+        ///4. Send the device to the repair provider using the package slip
+        ///5. The repair provider evaluates your device
+        ///6. Y [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string OrderConfirmationEmail {
             get {
