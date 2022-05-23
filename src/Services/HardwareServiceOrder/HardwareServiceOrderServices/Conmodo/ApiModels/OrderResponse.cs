@@ -61,7 +61,7 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         /// </summary>
         [Required]
         [JsonPropertyName("messages")]
-        public List<Image> Messages { get; set; }
+        public List<Message> Messages { get; set; }
 
         /// <summary>
         ///     Packages on the order
