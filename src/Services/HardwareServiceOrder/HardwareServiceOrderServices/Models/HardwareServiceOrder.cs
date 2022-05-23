@@ -15,11 +15,24 @@ namespace HardwareServiceOrderServices.Models
         // TODO: Add service provider parameter
 
 
-        public HardwareServiceOrder(Guid customerId, User orderedBy, Guid assetLifecycleId, DeliveryAddress deliveryAddress, string userDescription, ServiceProvider serviceProvider, string serviceProviderOrderId1, string? serviceProviderOrderId2, string? externalServiceManagementLink, ServiceType serviceType, ServiceStatus status)
+        public HardwareServiceOrder(
+            Guid customerId, 
+            User orderedBy, 
+            Guid assetLifecycleId, 
+            string assetName,
+            DeliveryAddress deliveryAddress, 
+            string userDescription, 
+            ServiceProvider serviceProvider, 
+            string serviceProviderOrderId1, 
+            string? serviceProviderOrderId2, 
+            string? externalServiceManagementLink, 
+            ServiceType serviceType, 
+            ServiceStatus status)
         {
             CustomerId = customerId;
             OrderedBy = orderedBy;
             AssetLifecycleId = assetLifecycleId;
+            AssetName = assetName;
             DeliveryAddress = deliveryAddress;
             UserDescription = userDescription;
             ServiceProvider = serviceProvider;
