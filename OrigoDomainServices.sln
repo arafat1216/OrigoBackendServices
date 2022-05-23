@@ -42,13 +42,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "customer-api", "customer-ap
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{569E8B6B-0521-491B-959F-8840E457A0E6}"
 	ProjectSection(SolutionItems) = preProject
-		charts\asset-api\templates\_helpers.tpl = charts\asset-api\templates\_helpers.tpl
 		charts\asset-api\templates\collector-config.yaml = charts\asset-api\templates\collector-config.yaml
 		charts\asset-api\templates\deployment.yaml = charts\asset-api\templates\deployment.yaml
 		charts\asset-api\templates\ingress.yaml = charts\asset-api\templates\ingress.yaml
 		charts\asset-api\templates\NOTES.txt = charts\asset-api\templates\NOTES.txt
 		charts\asset-api\templates\secrets.yaml = charts\asset-api\templates\secrets.yaml
 		charts\asset-api\templates\service.yaml = charts\asset-api\templates\service.yaml
+		charts\asset-api\templates\_helpers.tpl = charts\asset-api\templates\_helpers.tpl
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "src\Core\Common.csproj", "{7ED75F5E-1C74-48A9-9CC2-B1323181456A}"
@@ -97,7 +97,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "origoapigateway", "origoapi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{DE0A244E-6997-43B7-B187-E97D4847AAC1}"
 	ProjectSection(SolutionItems) = preProject
-		charts\origoapigateway\templates\_helpers.tpl = charts\origoapigateway\templates\_helpers.tpl
 		charts\origoapigateway\templates\collector-config.yaml = charts\origoapigateway\templates\collector-config.yaml
 		charts\origoapigateway\templates\deployment.yaml = charts\origoapigateway\templates\deployment.yaml
 		charts\origoapigateway\templates\ingress.yaml = charts\origoapigateway\templates\ingress.yaml
@@ -105,6 +104,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 		charts\origoapigateway\templates\NOTES.txt = charts\origoapigateway\templates\NOTES.txt
 		charts\origoapigateway\templates\secrets.yaml = charts\origoapigateway\templates\secrets.yaml
 		charts\origoapigateway\templates\service.yaml = charts\origoapigateway\templates\service.yaml
+		charts\origoapigateway\templates\_helpers.tpl = charts\origoapigateway\templates\_helpers.tpl
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{DDAD494B-7538-4083-A574-D6F6A7B9A168}"
@@ -138,24 +138,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "product-catalog-api", "prod
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{C1E2A43E-79A8-402F-8B7B-BA220EF2A58C}"
 	ProjectSection(SolutionItems) = preProject
-		charts\product-catalog-api\templates\_helpers.tpl = charts\product-catalog-api\templates\_helpers.tpl
 		charts\product-catalog-api\templates\collector-config.yaml = charts\product-catalog-api\templates\collector-config.yaml
 		charts\product-catalog-api\templates\deployment.yaml = charts\product-catalog-api\templates\deployment.yaml
 		charts\product-catalog-api\templates\ingress.yaml = charts\product-catalog-api\templates\ingress.yaml
 		charts\product-catalog-api\templates\NOTES.txt = charts\product-catalog-api\templates\NOTES.txt
 		charts\product-catalog-api\templates\secrets.yaml = charts\product-catalog-api\templates\secrets.yaml
 		charts\product-catalog-api\templates\service.yaml = charts\product-catalog-api\templates\service.yaml
+		charts\product-catalog-api\templates\_helpers.tpl = charts\product-catalog-api\templates\_helpers.tpl
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{8C6EE1D2-3BC6-4CCF-AD12-4D07D585F5D0}"
 	ProjectSection(SolutionItems) = preProject
-		charts\customer-api\templates\_helpers.tpl = charts\customer-api\templates\_helpers.tpl
 		charts\customer-api\templates\collector-config.yaml = charts\customer-api\templates\collector-config.yaml
 		charts\customer-api\templates\deployment.yaml = charts\customer-api\templates\deployment.yaml
 		charts\customer-api\templates\ingress.yaml = charts\customer-api\templates\ingress.yaml
 		charts\customer-api\templates\NOTES.txt = charts\customer-api\templates\NOTES.txt
 		charts\customer-api\templates\secrets.yaml = charts\customer-api\templates\secrets.yaml
 		charts\customer-api\templates\service.yaml = charts\customer-api\templates\service.yaml
+		charts\customer-api\templates\_helpers.tpl = charts\customer-api\templates\_helpers.tpl
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SubscriptionManagement", "SubscriptionManagement", "{FB3F2ABC-6AA4-482C-B6DD-E6E82290BDCD}"
@@ -175,13 +175,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "subscriptionmanagement-api"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{BB6D93F7-D6F3-4371-8A24-861F55818C65}"
 	ProjectSection(SolutionItems) = preProject
-		charts\subscriptionmanagement-api\templates\_helpers.tpl = charts\subscriptionmanagement-api\templates\_helpers.tpl
 		charts\subscriptionmanagement-api\templates\collector-config.yaml = charts\subscriptionmanagement-api\templates\collector-config.yaml
 		charts\subscriptionmanagement-api\templates\deployment.yaml = charts\subscriptionmanagement-api\templates\deployment.yaml
 		charts\subscriptionmanagement-api\templates\ingress.yaml = charts\subscriptionmanagement-api\templates\ingress.yaml
 		charts\subscriptionmanagement-api\templates\NOTES.txt = charts\subscriptionmanagement-api\templates\NOTES.txt
 		charts\subscriptionmanagement-api\templates\secrets.yaml = charts\subscriptionmanagement-api\templates\secrets.yaml
 		charts\subscriptionmanagement-api\templates\service.yaml = charts\subscriptionmanagement-api\templates\service.yaml
+		charts\subscriptionmanagement-api\templates\_helpers.tpl = charts\subscriptionmanagement-api\templates\_helpers.tpl
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubscriptionManagement.UnitTests", "src\Services\SubscriptionManagement\Tests\SubscriptionManagement.UnitTests\SubscriptionManagement.UnitTests.csproj", "{7AD902AC-65A6-4CCF-A32D-6F8DB84FDDF2}"
@@ -217,13 +217,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hardware-service-order-api"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{F1F3D2C9-0067-44AB-9665-B0ADBBEC98F5}"
 	ProjectSection(SolutionItems) = preProject
-		charts\hardware-service-order-api\templates\_helpers.tpl = charts\hardware-service-order-api\templates\_helpers.tpl
 		charts\hardware-service-order-api\templates\collector-config.yaml = charts\hardware-service-order-api\templates\collector-config.yaml
 		charts\hardware-service-order-api\templates\deployment.yaml = charts\hardware-service-order-api\templates\deployment.yaml
 		charts\hardware-service-order-api\templates\ingress.yaml = charts\hardware-service-order-api\templates\ingress.yaml
 		charts\hardware-service-order-api\templates\NOTES.txt = charts\hardware-service-order-api\templates\NOTES.txt
 		charts\hardware-service-order-api\templates\secrets.yaml = charts\hardware-service-order-api\templates\secrets.yaml
 		charts\hardware-service-order-api\templates\service.yaml = charts\hardware-service-order-api\templates\service.yaml
+		charts\hardware-service-order-api\templates\_helpers.tpl = charts\hardware-service-order-api\templates\_helpers.tpl
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrigoGateway.IntegrationTests", "src\ApiGateways\OrigoApiGateway\OrigoGateway.IntegrationTests\OrigoGateway.IntegrationTests.csproj", "{BB7C1D89-BE4D-43D9-BBB3-428D6E052A2A}"
@@ -231,6 +231,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductCatalog.UnitTests", "src\Services\ProductCatalog\Tests\ProductCatalog.UnitTests\ProductCatalog.UnitTests.csproj", "{9F55996C-FAA7-46E5-A936-1E323FE2B449}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductCatalog.IntegrationTests", "src\Services\ProductCatalog\Tests\ProductCatalog.IntegrationTests\ProductCatalog.IntegrationTests.csproj", "{C96FB905-9CC7-40E0-84D2-A01FF0F514FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HardwareServiceOrder.Conmodo.UnitTests", "src\Services\HardwareServiceOrder\Tests\HardwareServiceOrder.Conmodo.UnitTests\HardwareServiceOrder.Conmodo.UnitTests.csproj", "{F07F57E7-48FF-4A0B-B28F-1B647B13E4BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -350,6 +352,10 @@ Global
 		{C96FB905-9CC7-40E0-84D2-A01FF0F514FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C96FB905-9CC7-40E0-84D2-A01FF0F514FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C96FB905-9CC7-40E0-84D2-A01FF0F514FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F07F57E7-48FF-4A0B-B28F-1B647B13E4BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F07F57E7-48FF-4A0B-B28F-1B647B13E4BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F07F57E7-48FF-4A0B-B28F-1B647B13E4BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F07F57E7-48FF-4A0B-B28F-1B647B13E4BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -413,6 +419,7 @@ Global
 		{BB7C1D89-BE4D-43D9-BBB3-428D6E052A2A} = {1D6FE7EF-D120-4993-BD84-39701AB88B5B}
 		{9F55996C-FAA7-46E5-A936-1E323FE2B449} = {01059CFC-C74C-4175-A661-61AA0C90DAC0}
 		{C96FB905-9CC7-40E0-84D2-A01FF0F514FE} = {01059CFC-C74C-4175-A661-61AA0C90DAC0}
+		{F07F57E7-48FF-4A0B-B28F-1B647B13E4BD} = {209FAFA6-5360-4C71-A9D4-87110AC21E96}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DAEDEBBF-933A-4FFE-B734-B9E748AF86E1}

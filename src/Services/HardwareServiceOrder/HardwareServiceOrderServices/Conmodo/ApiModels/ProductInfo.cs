@@ -55,7 +55,7 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         /// <summary>
         ///     System-reserved constructor. Should not be used!
         /// </summary>
-        [Obsolete("Reserved constructor for the JSON serializers.")]
+        [Obsolete("Reserved constructor for unit-testing and the JSON serializers.")]
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public ProductInfo()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
