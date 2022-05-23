@@ -27,7 +27,6 @@ namespace HardwareServiceOrderServices.Conmodo
         /// <summary>
         ///     Unit-test constructor
         /// </summary>
-        [assembly: InternalsVisibleToAttribute("HardwareServiceOrder.Conmodo.UnitTests")]
         internal ProviderServices(IApiRequests apiRequests)
         {
             ApiRequests = apiRequests;
@@ -83,11 +82,13 @@ namespace HardwareServiceOrderServices.Conmodo
                 // Examples:
                 // NOLF<one or more numbers>
                 // NOLF<one or more numbers>-<one or more numbers>
-                id1Validated = Regex.IsMatch(serviceProviderOrderId1.ToUpper(), "^(NOLF+\\d{1,}){1,1}([-]+\\d{1,}){0,1}$");
+                id1Validated = Regex.IsMatch(serviceProviderOrderId1.ToUpper(), "^(NOLF+\\d{1,}){1,1}([-]{1}\\d{1,}){0,1}$");
             }
 
             if (!id1Validated)
-                throw new ArgumentException("Invalid ID provided.");
+                throw new ArgumentException("Invalid ID provided.", nameof(serviceProviderOrderId1));
+            if (serviceProviderOrderId2 is not null && !id2Validated)
+                throw new ArgumentException("Invalid ID provided.", nameof(serviceProviderOrderId2));
 
             if (id2Validated)
                 return await GetRepairOrderPostValidationAsync(serviceProviderOrderId1, claimNumber);
@@ -199,6 +200,16 @@ namespace HardwareServiceOrderServices.Conmodo
 
             // Once all the async fetches has been completed, return the result.
             return await Task.WhenAll(listOfTasks);
+        }
+
+
+        /// <summary>
+        ///     Trigger a simple request to Conmodo's test-call endpoint.
+        /// </summary>
+        /// <returns> If the endpoint was reached, it returns the string "<c>Ok!</c>". </returns>
+        public async Task<string> TestCall()
+        {
+            return await ApiRequests.TestAsync();
         }
     }
 }
