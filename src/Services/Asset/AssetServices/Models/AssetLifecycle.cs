@@ -230,7 +230,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     {
 
         //Assign to user
-        if (contractHolderUser != null && departmentId == null)
+        if (contractHolderUser != null && (departmentId == null || departmentId == Guid.Empty))
         {
             //unassigne previous owner and add domain events for it - cant have to owners
             if (ContractHolderUser != null) AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, ContractHolderUser));
@@ -249,7 +249,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
         }
-        else if (departmentId != null && contractHolderUser == null)
+        else if ((departmentId != null || departmentId != Guid.Empty) && contractHolderUser == null)
         {
             //unassigne previous owner and add domain events for it
             if (ContractHolderUser != null) AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this,callerId, ContractHolderUser));

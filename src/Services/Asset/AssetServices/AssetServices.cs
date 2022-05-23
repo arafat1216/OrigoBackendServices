@@ -497,7 +497,7 @@ namespace AssetServices
             if ((departmentId == null || departmentId == Guid.Empty) && userId != null && userId != Guid.Empty)
             {
                 var user = await _assetLifecycleRepository.GetUser(userId.Value);
-                assetLifecycle.AssignAssetLifecycleHolder(user ?? new User { ExternalId = userId.Value }, departmentId, callerId);
+                assetLifecycle.AssignAssetLifecycleHolder(user ?? new User { ExternalId = userId.Value }, null, callerId);
             }
             else
             {

@@ -60,7 +60,6 @@ internal static class AssetTestDataSeedingForDatabase
             AssetLifecycleType = LifecycleType.Transactional
         };
         assetLifecycleTwo.AssignAsset(assetTwo, CALLER_ID);
-        assetLifecycleTwo.AssignAssetLifecycleHolder(userOne,null, CALLER_ID);
 
         var assetLifecycleThree = new AssetLifecycle(ASSETLIFECYCLE_THREE_ID)
         {

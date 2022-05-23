@@ -99,7 +99,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
             $"/api/v1/Assets/customers/{_customerId}/count?departmentId=&assetLifecycleStatus={(int)AssetLifecycleStatus.InUse}";
         _testOutputHelper.WriteLine(requestUri);
         var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
-        Assert.Equal(5, count);
+        Assert.Equal(4, count);
     }
 
     [Fact]
@@ -346,14 +346,28 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     [Fact]
     public async Task UnAssignAssetsFromUser()
     {
-        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
-        var data = new UnAssignAssetToUser { CallerId = _callerId, DepartmentId = _departmentId };
-        _testOutputHelper.WriteLine(JsonSerializer.Serialize(data));
         var userId = Guid.Parse("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
         var customerId = Guid.Parse("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
 
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+        var asset = new AssignAssetToUser
+        {
+            UserId = userId,
+            CallerId = _callerId
+        };
+        var requestUriUser = $"/api/v1/Assets/{_assetTwo}/customer/{customerId}/assign";
+        var response = await httpClient.PostAsync(requestUriUser, JsonContent.Create(asset));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var data = new UnAssignAssetToUser
+        { 
+            CallerId = _callerId, 
+            DepartmentId = _departmentId 
+        };
+        
+
         var requestUri = $"/api/v1/Assets/customers/{customerId}/users/{userId}";
-        _testOutputHelper.WriteLine(requestUri);
         var deleteResponse = await httpClient.PatchAsync(requestUri, JsonContent.Create(data));
         Assert.Equal(HttpStatusCode.Accepted, deleteResponse.StatusCode);
 
@@ -402,9 +416,9 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         _testOutputHelper.WriteLine(requestUri);
         var pagedAsset = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
 
-        Assert.True(pagedAsset!.TotalItems == 5);
-        Assert.True(pagedAsset!.Items.Count == 5);
-        Assert.True(pagedAsset!.Items.Where(x => x.AssetStatus == AssetLifecycleStatus.InUse).Count() == 5);
+        Assert.True(pagedAsset!.TotalItems == 4);
+        Assert.True(pagedAsset!.Items.Count == 4);
+        Assert.True(pagedAsset!.Items.Where(x => x.AssetStatus == AssetLifecycleStatus.InUse).Count() == 4);
     }
 
     [Fact]
@@ -778,6 +792,25 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var requestUri = $"/api/v1/Assets/{_assetOne}/customer/{_customerId}/assign";
         var response = await _httpClient.PostAsJsonAsync(requestUri, assignement);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AssignAssetLifeCycleToHolder_ToAUser()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+        var asset = new AssignAssetToUser
+        {
+            UserId = _user,
+            CallerId = _callerId
+        };
+        var requestUri = $"/api/v1/Assets/{_assetTwo}/customer/{_customerId}/assign";
+        var response = await httpClient.PostAsync(requestUri, JsonContent.Create(asset));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var assignedAsset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+        Assert.Equal(AssetLifecycleStatus.InUse, assignedAsset?.AssetStatus);
     }
 
 }
