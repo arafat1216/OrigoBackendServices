@@ -83,7 +83,7 @@ namespace HardwareServiceOrderServices.Email
             await SendAsync(data.Subject, template, data.Recipient, variables);
         }
 
-        public async Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime? olderThan, int? statusId, string languageCode = "EN")
+        public async Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime? olderThan, int? statusId, string languageCode = "en")
         {
 
             var orders = _hardwareServiceOrderContext.HardwareServiceOrders.Include(m => m.Status).AsQueryable();
@@ -106,7 +106,7 @@ namespace HardwareServiceOrderServices.Email
             return emails;
         }
 
-        public async Task<List<LoanDeviceEmail>> SendLoanDeviceEmailAsync(List<int> statusIds, string languageCode = "EN")
+        public async Task<List<LoanDeviceEmail>> SendLoanDeviceEmailAsync(List<int> statusIds, string languageCode = "en")
         {
             var orders = await _hardwareServiceOrderContext.HardwareServiceOrders
                 .Include(m => m.Status)
@@ -133,7 +133,7 @@ namespace HardwareServiceOrderServices.Email
             return emails;
         }
 
-        public async Task<List<AssetDiscardedEmail>> SendOrderDiscardedEmailAsync(int statusId, string languageCode = "EN")
+        public async Task<List<AssetDiscardedEmail>> SendOrderDiscardedEmailAsync(int statusId, string languageCode = "en")
         {
             var orders = await _hardwareServiceOrderContext.HardwareServiceOrders
                 .Include(m => m.Status)

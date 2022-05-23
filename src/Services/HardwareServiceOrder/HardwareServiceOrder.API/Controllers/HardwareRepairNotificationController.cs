@@ -28,7 +28,7 @@ namespace HardwareServiceOrder.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("asset-repair")]
-        public async Task<IActionResult> SendAssetRepairNotification(int? statusId, DateTime? olderThan = null, string languageCode = "EN")
+        public async Task<IActionResult> SendAssetRepairNotification(int? statusId, DateTime? olderThan = null, string languageCode = "en")
         {
             if (olderThan == null)
                 olderThan = DateTime.Today.AddDays(-7);
@@ -46,7 +46,7 @@ namespace HardwareServiceOrder.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("loan-device")]
-        public async Task<IActionResult> SendLoanDeviceNotification([FromBody] List<ServiceStatusEnum>? statusIds, string languageCode = "EN")
+        public async Task<IActionResult> SendLoanDeviceNotification([FromBody] List<ServiceStatusEnum>? statusIds, string languageCode = "en")
         {
             statusIds = statusIds == null || !statusIds.Any() ? new List<ServiceStatusEnum>
             {
@@ -70,7 +70,7 @@ namespace HardwareServiceOrder.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("order-discarded")]
-        public async Task<IActionResult> SendOrderDiscardedNotification(int? statusId, string languageCode = "EN")
+        public async Task<IActionResult> SendOrderDiscardedNotification(int? statusId, string languageCode = "en")
         {
             statusId = statusId ?? (int)ServiceStatusEnum.CompletedDiscarded;
             var response = await _emailService.SendOrderDiscardedEmailAsync(statusId.GetValueOrDefault(), languageCode);

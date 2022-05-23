@@ -31,7 +31,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         [Fact]
         public async Task SendAssetRepairNotification()
         {
-            var url = $"/api/v1/hardware-repair-notifications/asset-repair?languageCode=EN";
+            var url = $"/api/v1/hardware-repair-notifications/asset-repair?languageCode=en";
             _testOutputHelper.WriteLine(url);
             var request = await _httpClient.PostAsync(url, JsonContent.Create(""));
             Assert.Equal(HttpStatusCode.OK, request.StatusCode);
@@ -40,7 +40,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         [Fact]
         public async Task SendLoanDeviceNotification()
         {
-            var url = $"/api/v1/hardware-repair-notifications/loan-device?languageCode=EN";
+            var url = $"/api/v1/hardware-repair-notifications/loan-device?languageCode=en";
             _testOutputHelper.WriteLine(url);
             var request = await _httpClient.PostAsync(url, JsonContent.Create(new List<int> { }));
             Assert.Equal(HttpStatusCode.OK, request.StatusCode);
@@ -49,7 +49,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         [Fact]
         public async Task SendOrderDiscardedNotification()
         {
-            var url = $"/api/v1/hardware-repair-notifications/order-discarded?languageCode=EN";
+            var url = $"/api/v1/hardware-repair-notifications/order-discarded?languageCode=en";
             _testOutputHelper.WriteLine(url);
             var request = await _httpClient.PostAsync(url, JsonContent.Create(""));
             Assert.Equal(HttpStatusCode.OK, request.StatusCode);

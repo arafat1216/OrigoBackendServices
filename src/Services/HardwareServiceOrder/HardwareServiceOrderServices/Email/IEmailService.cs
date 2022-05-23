@@ -19,7 +19,7 @@ namespace HardwareServiceOrderServices.Email
         /// <param name="statusId"></param>
         /// <param name="languageCode"></param>
         /// <returns></returns>
-        Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime? olderThan, int? statusId, string languageCode = "EN");
+        Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime? olderThan, int? statusId, string languageCode = "en");
 
         /// <summary>
         /// Send loan device notification email
@@ -27,7 +27,7 @@ namespace HardwareServiceOrderServices.Email
         /// <param name="statusIds"></param>
         /// <param name="languageCode"></param>
         /// <returns></returns>
-        Task<List<LoanDeviceEmail>> SendLoanDeviceEmailAsync(List<int> statusIds, string languageCode = "EN");
+        Task<List<LoanDeviceEmail>> SendLoanDeviceEmailAsync(List<int> statusIds, string languageCode = "en");
 
         /// <summary>
         /// Send order discarding email
@@ -35,6 +35,6 @@ namespace HardwareServiceOrderServices.Email
         /// <param name="statusId"></param>
         /// <param name="languageCode"></param>
         /// <returns></returns>
-        Task<List<AssetDiscardedEmail>> SendOrderDiscardedEmailAsync(int statusId, string languageCode = "EN");
+        Task<List<AssetDiscardedEmail>> SendOrderDiscardedEmailAsync(int statusId, string languageCode = "en");
     }
 }
