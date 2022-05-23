@@ -22,9 +22,9 @@ namespace HardwareServiceOrder.API.Controllers
         /// <summary>
         /// Send asset repair notification email
         /// </summary>
-        /// <param name="statusId"></param>
-        /// <param name="olderThan"></param>
-        /// <param name="languageCode"></param>
+        /// <param name="statusId">Status identifier</param>
+        /// <param name="olderThan">The DateTime for filtering orders. If specified, all orders that are older than specified datetime will be returned. If not specified, seven days older orders will be returned.</param>
+        /// <param name="languageCode">Code of the language in ISO 639-1 format.</param>
         /// <returns></returns>
         [HttpPost]
         [Route("asset-repair")]
@@ -33,7 +33,7 @@ namespace HardwareServiceOrder.API.Controllers
             if (olderThan == null)
                 olderThan = DateTime.Today.AddDays(-7);
             statusId = statusId ?? (int)ServiceStatusEnum.Registered;
-            var response = await _emailService.SendAssetRepairEmailAsync(olderThan.GetValueOrDefault(), statusId, languageCode);
+            var response = await _emailService.SendAssetRepairEmailAsync(olderThan.GetValueOrDefault(), statusId, languageCode.ToLower());
 
             return Ok(response);
         }
@@ -41,8 +41,8 @@ namespace HardwareServiceOrder.API.Controllers
         /// <summary>
         /// Send return loan device email notification
         /// </summary>
-        /// <param name="statusIds"></param>
-        /// <param name="languageCode"></param>
+        /// <param name="statusIds">List of statuses for filtering</param>
+        /// <param name="languageCode">Code of the language in ISO 639-1 format</param>
         /// <returns></returns>
         [HttpPost]
         [Route("loan-device")]
@@ -57,7 +57,7 @@ namespace HardwareServiceOrder.API.Controllers
                 ServiceStatusEnum.CompletedNotRepaired
             } : statusIds;
 
-            var response = await _emailService.SendLoanDeviceEmailAsync(statusIds.Cast<int>().ToList(), languageCode);
+            var response = await _emailService.SendLoanDeviceEmailAsync(statusIds.Cast<int>().ToList(), languageCode.ToLower());
 
             return Ok(response);
         }
@@ -65,15 +65,15 @@ namespace HardwareServiceOrder.API.Controllers
         /// <summary>
         /// Send order discarding email
         /// </summary>
-        /// <param name="statusId"></param>
-        /// <param name="languageCode"></param>
+        /// <param name="statusId">Status identifier</param>
+        /// <param name="languageCode">Code of the language in ISO 639-1 format</param>
         /// <returns></returns>
         [HttpPost]
         [Route("order-discarded")]
         public async Task<IActionResult> SendOrderDiscardedNotification(int? statusId, string languageCode = "en")
         {
             statusId = statusId ?? (int)ServiceStatusEnum.CompletedDiscarded;
-            var response = await _emailService.SendOrderDiscardedEmailAsync(statusId.GetValueOrDefault(), languageCode);
+            var response = await _emailService.SendOrderDiscardedEmailAsync(statusId.GetValueOrDefault(), languageCode.ToLower());
             return Ok(response);
         }
     }

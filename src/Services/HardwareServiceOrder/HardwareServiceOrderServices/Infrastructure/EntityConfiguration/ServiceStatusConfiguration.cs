@@ -29,14 +29,6 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                    .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
                    .ValueGeneratedOnAddOrUpdate()
                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-
-            //Seed data
-            var statuses = Enum.GetValues(typeof(ServiceStatusEnum))
-                    .Cast<int>()
-                    .Where(i => i != 0) //Ignoring Null
-                    .Select(m => new ServiceStatus { Id = m });
-
-            builder.HasData(statuses);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using HardwareServiceOrderServices.Infrastructure.EntityConfiguration;
 using HardwareServiceOrderServices.Models;
+using HardwareServiceOrderServices.SeedData;
 using Microsoft.EntityFrameworkCore;
 
 namespace HardwareServiceOrderServices.Infrastructure
@@ -34,6 +35,8 @@ namespace HardwareServiceOrderServices.Infrastructure
             modelBuilder.ApplyConfiguration(new EntityConfiguration.ServiceProviderConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new ServiceStatusConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new ServiceTypeConfiguration(_isSQLite));
+            modelBuilder.SeedServiceStatus();
+            modelBuilder.SeedServiceType();
         }
     }
 }
