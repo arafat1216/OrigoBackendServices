@@ -1,22 +1,16 @@
 ### Order Type: {{OrderType}}
+
 ---
+
 #### User
-**Name:**  {{FirstName}} {{LastName}}
 
-**Born:**  {{BirthDate}}
+**Name:**  {{UserInfo.FirstName}} {{UserInfo.LastName}}
 
-**Address:**  {{Address}}, {{PostalCode}}, {{PostalPlace}}, {{Country}}
+**Born:**  {{UserInfo.BirthDate}}
 
-**Email:**  {{Email}}
+**Address:**  {{UserInfo.Address}}, {{UserInfo.PostalCode}}, {{UserInfo.PostalPlace}}, {{UserInfo.Country}}
 
-#### Owner
-**Name:**  {{RealOwner.FirstName}} {{RealOwner.LastName}}
-
-**Born:**  {{RealOwner.BirthDate}}
-
-**Address:**  {{RealOwner.Address}}, {{RealOwner.PostalCode}}, {{RealOwner.PostalPlace}}, {{RealOwner.Country}}
-
-**Email:**  {{RealOwner.Email}}
+**Email:**  {{UserInfo.Email}}
 
 #### Mobile Number
 {{MobileNumber}}
