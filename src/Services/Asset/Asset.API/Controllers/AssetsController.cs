@@ -436,7 +436,7 @@ namespace Asset.API.Controllers
         {
             try
             {
-                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.CallerId, asset.Alias, asset.SerialNumber, asset.Brand, asset.ProductName, asset.PurchaseDate, asset.Note, asset.AssetTag, asset.Description, asset.Imei);
+                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.CallerId, asset?.Alias, asset?.SerialNumber, asset?.Brand, asset?.ProductName, asset?.PurchaseDate, asset?.Note, asset?.AssetTag, asset?.Description, asset?.Imei);
 
                 var value = _mapper.Map<ViewModels.Asset>(updatedAsset);
                 return Ok(value);

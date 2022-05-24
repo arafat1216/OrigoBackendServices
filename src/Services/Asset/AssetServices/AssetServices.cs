@@ -413,10 +413,18 @@ namespace AssetServices
         }
 
 
-        public async Task<AssetLifecycleDTO> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string alias, string serialNumber, string brand, string model, DateTime purchaseDate, string note, string tag, string description, IList<long> imei)
+        public async Task<AssetLifecycleDTO> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string? alias, string? serialNumber, string? brand, string? model, DateTime? purchaseDate, string? note, string? tag, string? description, IList<long>? imei)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
+            if (assetLifecycle == null)
+            {
+                throw new InvalidAssetDataException($"Asset Lifecycle {assetId} not found");
+            }
             var asset = assetLifecycle.Asset;
+            if (asset == null)
+            {
+                throw new InvalidAssetDataException($"Asset for asset life cycle {assetId} not found");
+            }
 
             if (!string.IsNullOrWhiteSpace(brand) && asset.Brand != brand)
             {
@@ -451,19 +459,20 @@ namespace AssetServices
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
 
-        private void UpdateDerivedAssetType(Asset asset, string serialNumber, IList<long> imei, Guid callerId)
+        private void UpdateDerivedAssetType(Asset asset, string? serialNumber, IList<long>? imei, Guid callerId)
         {
             var phone = asset as MobilePhone;
             if (phone != null)
             {
-                if (phone.SerialNumber != serialNumber)
+                if (!string.IsNullOrEmpty(serialNumber) && phone.SerialNumber != serialNumber)
                 {
                     phone.ChangeSerialNumber(serialNumber, callerId);
                 }
-                if (imei != null && phone.Imeis != imei)
+
+                if (imei != null)
                 {
                     var uniqueListOfImeis = AssetValidatorUtility.MakeUniqueIMEIList(imei);
-                    if (uniqueListOfImeis != null)
+                    if (phone.Imeis.Select(i => i.Imei).SequenceEqual(uniqueListOfImeis))
                     {
                         phone.SetImei(uniqueListOfImeis, callerId);
                     }
@@ -471,20 +480,22 @@ namespace AssetServices
             }
 
             var tablet = asset as Tablet;
-            if (tablet != null)
+            if (tablet == null)
             {
-                if (!string.IsNullOrWhiteSpace(serialNumber) && tablet.SerialNumber != serialNumber)
-                {
-                    tablet.ChangeSerialNumber(serialNumber, callerId);
-                }
-                if (imei != null && tablet.Imeis != imei)
-                {
-                    var uniqueListOfImeis = AssetValidatorUtility.MakeUniqueIMEIList(imei);
-                    if (uniqueListOfImeis != null)
-                    {
-                        tablet.SetImei(uniqueListOfImeis, callerId);
-                    }
+                return;
+            }
 
+            if (!string.IsNullOrWhiteSpace(serialNumber) && tablet.SerialNumber != serialNumber)
+            {
+                tablet.ChangeSerialNumber(serialNumber, callerId);
+            }
+
+            if (imei != null)
+            {
+                var uniqueListOfImeis = AssetValidatorUtility.MakeUniqueIMEIList(imei);
+                if (tablet.Imeis.Select(i => i.Imei).SequenceEqual(uniqueListOfImeis))
+                {
+                    tablet.SetImei(uniqueListOfImeis, callerId);
                 }
             }
         }
