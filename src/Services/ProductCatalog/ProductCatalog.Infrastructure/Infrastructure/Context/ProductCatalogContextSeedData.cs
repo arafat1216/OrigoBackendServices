@@ -113,8 +113,11 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
             modelBuilder.Entity<ProductRequiresOne>(entity =>{
                 entity.HasData(new ProductRequiresOne { ProductId = 1, RequiresProductId = 2});
             });
-            
 
+            modelBuilder.Entity<ProductExcludes>(entity =>{
+                entity.HasData(new ProductExcludes { ProductId = 2, ExcludesProductId = 3}); // Entry module is exclusive of Transactional Module
+                entity.HasData(new ProductExcludes { ProductId = 3, ExcludesProductId = 2}); // Transactional module is exclusive of Entry module
+            });
         }
     }
 }
