@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Seedwork;
 
 namespace AssetServices.Infrastructure
 {
@@ -271,7 +272,10 @@ namespace AssetServices.Infrastructure
 
                 editedEntities.ForEach(entity =>
                 {
-                    entity.Property("LastUpdatedDate")!.CurrentValue = DateTime.UtcNow;
+                    if (!entity.Entity.GetType().IsSubclassOf(typeof(ValueObject)))
+                    {
+                        entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
+                    }
                 });
                 // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
                 await _assetContext.SaveChangesAsync(cancellationToken);
