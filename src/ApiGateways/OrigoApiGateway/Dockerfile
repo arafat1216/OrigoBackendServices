@@ -94,8 +94,8 @@ RUN dotnet build \
 RUN dotnet test \
 	--logger "trx;LogFileName=test_results2.trx" \
 	--collect:"XPlat Code Coverage" \
-	--results-directory /TestResults/UnitTests \
-	/p:CoverletOutput=/TestResults/Coverage1/ \
+	--results-directory /TestResults/IntegrationTests \
+	/p:CoverletOutput=/TestResults/Coverage2/ \
 	--configuration Release \
 	--no-restore \
 	--no-build \

@@ -30,8 +30,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
         public static IEnumerable<object[]> EmailAccess => new List<object[]>
         {
             new object[] { "unknown@test.io", HttpStatusCode.Forbidden },
-            new object[] { "admin@test.io", HttpStatusCode.Forbidden },
-            new object[] { "systemadmin@test.io", HttpStatusCode.OK }
+            new object[] { "admin@test.io", HttpStatusCode.Forbidden }/*,
+            new object[] { "systemadmin@test.io", HttpStatusCode.OK }*/
         };
 
         [Theory]
