@@ -164,6 +164,34 @@ namespace OrigoApiGateway.Services
 
                 if (assets == null)
                     return null;
+
+                foreach (var asset in assets.Items)
+                {
+                    try
+                    {
+                        if (asset.ManagedByDepartmentId != null)
+                        {
+                            var department = await _departmentsServices.GetDepartment(asset.OrganizationId, asset.ManagedByDepartmentId ?? throw new ArgumentNullException("DepartmentId"));
+                            if (department != null) asset.DepartmentName = department.Name;
+                        }
+                        if (asset.AssetHolderId != null)
+                        {
+                            var user = await _userServices.GetUserAsync(asset.AssetHolderId ?? throw new ArgumentNullException("UserId"));
+                            if (user != null) asset.AssetHolderName = user.DisplayName;
+                        }
+                    }
+                    catch (HttpRequestException ex)
+                    {
+                        _logger.LogError(ex, "Department or User fetch in GetAssetsForCustomerAsync failed with HttpRequestException.");
+
+                    }
+                    catch (ArgumentNullException ex)
+                    {
+                        _logger.LogError($"{ex.Message} was null in GetAssetsForCustomerAsync failed with HttpRequestException.");
+
+                    }
+                }
+
                 return assets;
             }
             catch (HttpRequestException exception)
@@ -175,6 +203,10 @@ namespace OrigoApiGateway.Services
                 _logger.LogError(exception, "GetAssetsForCustomerAsync failed with content type is not valid.");
             }
             catch (JsonException exception)
+            {
+                _logger.LogError(exception, "GetAssetsForCustomerAsync failed with invalid JSON.");
+            }
+            catch (ResourceNotFoundException exception)
             {
                 _logger.LogError(exception, "GetAssetsForCustomerAsync failed with invalid JSON.");
             }

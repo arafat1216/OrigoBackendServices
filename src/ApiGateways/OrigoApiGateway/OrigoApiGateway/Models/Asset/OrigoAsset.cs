@@ -103,12 +103,18 @@ namespace OrigoApiGateway.Models
         /// The department or cost center this asset is assigned to.
         /// </summary>
         public Guid? ManagedByDepartmentId { get; init; }
-
+        /// <summary>
+        /// Name of the department or cost center this asset is assigned to.
+        /// </summary>
+        public string? DepartmentName { get; set; }
         /// <summary>
         /// The employee holding the asset.
         /// </summary>
         public Guid? AssetHolderId { get; init; }
-
+        /// <summary>
+        /// Name of the employee holding the asset.
+        /// </summary>
+        public string? AssetHolderName { get; set; }
         /// <summary>
         /// The status of the asset.
         /// <see cref="AssetStatus">AssetStatus</see>
