@@ -28,6 +28,7 @@ namespace HardwareServiceOrderServices.Models
             CreatedBy = callerId;
         }
 
+        // TODO: Should this be renamed and moved to the customer's provider settings? It's not really a service-ID, but the customer's API username.
         /// <summary>
         ///     The customer's own Conmodo Service ID
         /// </summary>
@@ -38,11 +39,11 @@ namespace HardwareServiceOrderServices.Models
         /// </summary>
         [Phone]
         [RegularExpression("^\\+[1-9]\\d{1,14}$")]
-        [StringLength(maximumLength:15)] // The longest possible length for a valid E.164 phone-number
+        [StringLength(maximumLength: 15)] // The longest possible length for a valid E.164 phone-number
         public string? LoanDevicePhoneNumber { get; set; }
 
         [EmailAddress]
-        [StringLength(maximumLength:320)] // The RFC's max-length for email addresses
+        [StringLength(maximumLength: 320)] // The RFC's max-length for email addresses
         public string? LoanDeviceEmail { get; set; }
 
         public Guid CustomerId { get; set; }

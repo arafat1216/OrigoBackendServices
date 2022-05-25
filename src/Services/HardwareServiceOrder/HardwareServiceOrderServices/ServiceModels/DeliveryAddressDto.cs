@@ -5,22 +5,27 @@ namespace HardwareServiceOrderServices.ServiceModels
     /// <inheritdoc cref="Models.DeliveryAddress"/>
     public class DeliveryAddressDTO
     {
+        /// <example> MyPartner A/S </example>
         /// <inheritdoc cref="Models.DeliveryAddress.Recipient"/>
         [Required]
         public string Recipient { get; set; }
 
+        /// <example> CoolStreet 89A </example>
         /// <inheritdoc cref="Models.DeliveryAddress.Address1"/>
         [Required]
         public string Address1 { get; set; }
 
+        /// <example> null </example>
         /// <inheritdoc cref="Models.DeliveryAddress.Address2"/>
         public string? Address2 { get; set; }
 
+        /// <example> 0279 </example>
         /// <inheritdoc cref="Models.DeliveryAddress.PostalCode"/>
         [Required]
         [StringLength(maximumLength: 12)]
         public string PostalCode { get; set; }
 
+        /// <example> Oslo </example>
         /// <inheritdoc cref="Models.DeliveryAddress.City"/>
         [Required]
         [StringLength(maximumLength: 85)]
@@ -31,6 +36,7 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// </summary>
         private string _country = null!;
 
+        /// <example> NO </example>
         /// <inheritdoc cref="Models.DeliveryAddress.Country"/>
         [Required]
         [RegularExpression("^[A-Z]{2}")]

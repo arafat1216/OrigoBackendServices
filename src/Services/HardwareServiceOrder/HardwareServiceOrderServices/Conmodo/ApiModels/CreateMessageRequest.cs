@@ -12,6 +12,9 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         [JsonPropertyName("commId")]
         public string CommId { get; set; }
 
+        /// <summary>
+        ///     Message text to Conmodo
+        /// </summary>
         [Required]
         [JsonPropertyName("message")]
         public string Message { get; set; }
@@ -20,6 +23,9 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         [JsonPropertyName("customerHandler")]
         public Contact CustomerHandler { get; set; }
 
+        /// <summary>
+        ///     For replying to cost-proposals, this object must be included.
+        /// </summary>
         [JsonPropertyName("priceSuggestionReply")]
         public PriceSuggestionReply? PriceSuggestionReply { get; set; }
     }

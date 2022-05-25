@@ -10,9 +10,17 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
     /// <see cref="BaseDataResponse"/>
     internal class StartStatus
     {
+        /// <summary>
+        ///     The initial status for a repair.
+        /// </summary>
+        /// <example> 25045 </example>
         [JsonPropertyName("startStatusID")]
         public int? StartStatusID { get; set; }
 
+        /// <summary>
+        ///     The initial status for a repair.
+        /// </summary>
+        /// <example> "Betalbar?" </example>
         [JsonPropertyName("startStatusName")]
         public string? StartStatusName { get; set; }
 
@@ -25,6 +33,10 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         [JsonPropertyName("identifier")]
         public string? Identifier { get; set; }
 
+
+        /// <summary>
+        ///     A constructor that is reserved for unit-testing and the JSON (de-)serializers.
+        /// </summary>
         public StartStatus()
         {
         }

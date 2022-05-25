@@ -9,22 +9,30 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
     internal class ProductInfo
     {
         /// <summary>
-        ///     Available values can be found in /basedata
+        ///     The type of device.
         /// </summary>
-        /// <example> Cellphone </example>
+        /// <remarks>
+        ///     Available values can be found in '/basedata' (API endpoint)
+        /// </remarks>
+        /// <example> Mobiltelefon </example>
+        /// <example> Tablet </example>
+        /// <example> Bærbar </example>
         [JsonPropertyName("category")]
         public string? Category { get; set; }
 
         /// <summary>
-        ///     The brand of the device being sent in or out. They are described in /basedata
+        ///     The brand of the device.
         /// </summary>
+        /// <remarks>
+        ///     Supported values are described in '/basedata' (API endpoint)
+        /// </remarks>
         /// <example> Samsung </example>
         [Required]
         [JsonPropertyName("brand")]
         public string Brand { get; set; }
 
         /// <summary>
-        /// 
+        ///     The model of the device.
         /// </summary>
         /// <example> Galaxy S7 </example>
         [Required]
@@ -32,21 +40,22 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         public string Model { get; set; }
 
         /// <summary>
-        ///     IMEI number if the device has an IMEI. Required if serialNumber is not set
+        ///     IMEI number if the device has an IMEI. Required if the <see cref="Serial"/>-number is not set.
         /// </summary>
+        /// <example> "356782119717695" </example>
         [JsonPropertyName("imei")]
         [MinLength(14)]
         [MaxLength(15)]
         public string? Imei { get; set; }
 
         /// <summary>
-        ///     Required if imeiNumber is not set
+        ///     Required if the <see cref="Imei"/> is not set.
         /// </summary>
         [JsonPropertyName("serial")]
         public string? Serial { get; set; }
 
         /// <summary>
-        ///     A list of accessories accompanying the repair object. Values can be found in /basedata
+        ///     A list of accessories accompanying the repair object. Values can be found in '/basedata' (API call)
         /// </summary>
         [JsonPropertyName("accessories")]
         public IEnumerable<string>? Accessories { get; set; }
