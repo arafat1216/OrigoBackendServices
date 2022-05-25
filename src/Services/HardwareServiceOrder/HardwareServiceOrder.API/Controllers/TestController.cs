@@ -1,6 +1,7 @@
 ﻿#if DEBUG
 
 using HardwareServiceOrderServices;
+using HardwareServiceOrderServices.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HardwareServiceOrder.API.Controllers
@@ -83,6 +84,20 @@ namespace HardwareServiceOrder.API.Controllers
 
         }
 
+        /// <summary>
+        ///     Create a repair order
+        /// </summary>
+        /// <param name="repairOrder"></param>
+        /// <returns></returns>
+        [HttpPost("create/3")]
+        public async Task<ActionResult> CreateTest3([FromBody] NewExternalRepairOrderDTO repairOrder)
+        {
+            var providerInterface = await _providerFactory.GetRepairProviderAsync(1, "52079706");
+            var orderResponse = providerInterface.CreateRepairOrderAsync(repairOrder, (int)ServiceTypeEnum.SUR, "52079706");
+
+            return Ok(orderResponse);
+        }
+
 
         [HttpGet("update/1")]
         public async Task<ActionResult> UpdateTest1()
@@ -99,6 +114,7 @@ namespace HardwareServiceOrder.API.Controllers
                 throw;
             }
         }
+
     }
 }
 

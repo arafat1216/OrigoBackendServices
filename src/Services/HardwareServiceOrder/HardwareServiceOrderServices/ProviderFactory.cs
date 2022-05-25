@@ -76,7 +76,7 @@ namespace HardwareServiceOrderServices
             // TODO: Temp override for testing/debug purposes
             apiUsername = conmodoConfiguration!.ApiUsername;
 
-            var provider = new Conmodo.ProviderServices(conmodoConfiguration.ApiBaseUrl, apiUsername, conmodoConfiguration.ApiPassword);
+            var provider = new Conmodo.ConmodoProviderServices(conmodoConfiguration.ApiBaseUrl, apiUsername, conmodoConfiguration.ApiPassword);
             return provider;
         }
 

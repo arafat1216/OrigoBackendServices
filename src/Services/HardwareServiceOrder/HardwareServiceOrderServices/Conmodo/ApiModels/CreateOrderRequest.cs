@@ -7,15 +7,18 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
     internal class CreateOrderRequest
     {
         /// <summary>
-        ///     Your reference shown on the order label
+        ///     Used as the customers/users reference. The field will appear on repair documents and invoices.
         /// </summary>
+        /// <example> "CustomersReference1" </example>
         [Required]
         [JsonPropertyName("reference")]
         public string Reference { get; set; }
 
         /// <summary>
-        ///     Integration partner's order number
+        ///     The integration partner's unique identifier or order-number. This is a set by the partner (in this case our solution), and can be used as
+        ///     an alternative identifier when retrieving orders in the API.
         /// </summary>
+        /// <example> "PartnersCommId_001" </example>
         [Required]
         [JsonPropertyName("commId")]
         public string CommId { get; set; }
@@ -24,6 +27,9 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         [JsonPropertyName("startStatus")]
         public StartStatus StartStatus { get; set; }
 
+        /// <summary>
+        ///     Describes what's wrong with the device.
+        /// </summary>
         [Required]
         [MaxLength(1000)]
         [MinLength(0)]
@@ -34,19 +40,30 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         [JsonPropertyName("boughtDate")]
         public DateOnly? BoughtDate { get; set; }
 
+        /// <summary>
+        ///     If set, Conmdo will repair up to that price without providing a cost estimate. If repair exceeds this value, a cost estimate is provided.
+        /// </summary>
         [JsonPropertyName("maxRepairPrice")]
         public float? MaxRepairPrice { get; set; }
 
+        /// <summary>
+        ///     Information about the provided device.
+        /// </summary>
         [JsonPropertyName("productInfo")]
         public ProductInfo? ProductInfo { get; set; }
 
-        // Conmodo's openapi definition has this marked as "uniqueItems: true", so we use ISet to enforce the uniqueness. 
+        // Note: Conmodo's OpenAPI documentation has this marked as "uniqueItems: true", so we should use ISet to ensure/enforce uniqueness.
         /// <summary>
-        ///     IDs to valid extra services are supplied by Conmodo
+        ///     Defines additional service that should to be added to a repair, such as freight to/from customer, preswap, backups, etc.
         /// </summary>
+        /// <example> [272,279] </example>
         [JsonPropertyName("extraServices")]
         public ISet<int>? ExtraServices { get; set; }
 
+        /// <summary>
+        ///     Owner is the user of the device (from Conmodo's perspective, meaning the person handling the service)
+        ///     This information is used for transportation etc.
+        /// </summary>
         [JsonPropertyName("owner")]
         public Contact? Owner { get; set; }
 
@@ -54,7 +71,8 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         [JsonPropertyName("customerHandler")]
         public Contact CustomerHandler { get; set; }
 
-        // TODO: Why is this not implemented in Conmodo when it is added to their docs?
+        // TODO: This is specified in their documentation, but don't seem to be accepted by their endpoint.
+        // Why is this not implemented in Conmodo when it is added to their docs?!
         /// <summary>
         ///     The order number in Conmodo's service system
         /// </summary>
@@ -92,16 +110,7 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         }
 
 
-        public CreateOrderRequest(string commId, string reference, Contact customerHandler, StartStatus startStatus, string errorDescription)
-        {
-            CommId = commId;
-            Reference = reference;
-            CustomerHandler = customerHandler;
-            StartStatus = startStatus;
-            ErrorDescription = errorDescription;
-        }
-
-        public CreateOrderRequest(string commId, string reference, Contact customerHandler, StartStatus startStatus, string errorDescription, ProductInfo productInfo, DateOnly? purchaseDate, Contact serviceRequestOwner)
+        public CreateOrderRequest(string commId, string reference, Contact customerHandler, StartStatus startStatus, string errorDescription, ProductInfo productInfo, DateOnly? purchaseDate, Contact serviceRequestOwner, ISet<int>? extraServices)
         {
             CommId = commId;
             Reference = reference;
@@ -112,6 +121,8 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
             ProductInfo = productInfo;
             BoughtDate = purchaseDate;
             Owner = serviceRequestOwner;
+
+            ExtraServices = extraServices;
         }
     }
 }

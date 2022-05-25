@@ -8,7 +8,7 @@ namespace HardwareServiceOrderServices.Conmodo
     /// <summary>
     ///     The point-of-entry service-class that implements the provider-interfaces for Conmodo.
     /// </summary>
-    internal class ProviderServices : IRepairProvider, IAftermarketProvider
+    public class ConmodoProviderServices : IRepairProvider, IAftermarketProvider
     {
         private IApiRequests ApiRequests { get; }
 
@@ -18,7 +18,7 @@ namespace HardwareServiceOrderServices.Conmodo
         /// <param name="apiBaseUrl"> The URL base path to Conmodo's API, ending with a slash. E.g. "<c>https://service-test.conmodo.com/api/v1/</c>". </param>
         /// <param name="apiUsername"> The customer's account-ID / API username. </param>
         /// <param name="apiPassword"> Our API password. </param>
-        public ProviderServices(string apiBaseUrl, string apiUsername, string apiPassword)
+        public ConmodoProviderServices(string apiBaseUrl, string apiUsername, string apiPassword)
         {
             ApiRequests = new ApiRequests(apiBaseUrl, apiUsername, apiPassword);
         }
@@ -27,7 +27,7 @@ namespace HardwareServiceOrderServices.Conmodo
         /// <summary>
         ///     Unit-test constructor
         /// </summary>
-        internal ProviderServices(IApiRequests apiRequests)
+        internal ConmodoProviderServices(IApiRequests apiRequests)
         {
             ApiRequests = apiRequests;
         }
@@ -41,16 +41,28 @@ namespace HardwareServiceOrderServices.Conmodo
             if (string.IsNullOrEmpty(newRepairOrder.AssetInfo.Model))
                 throw new ArgumentException("The asset's model name is missing.", nameof(newRepairOrder));
 
+            // TODO: This list-implementation is a quick-fix. Once we add in support for pre-swap or Swedish customers, this needs to be replaced.
+            // Registers extra services
+            HashSet<int> extraServices = new()
+            {
+                (int)ExtraServicesEnum.SentInByCustomerOrUser_NO,
+                (int)ExtraServicesEnum.ReturnToCustomerOrUser_NO
+            };
+
             string commId = serviceId;
             string? category = new CategoryMapper().ToConmodo(newRepairOrder.AssetInfo.AssetCategoryId);
             StartStatus startStatus = new StartStatusMapper().FromServiceType(serviceTypeId);
 
-            // Create the request objects
+            // Create the request objects            
             ProductInfo productInfo = new(category, newRepairOrder.AssetInfo.Brand, newRepairOrder.AssetInfo.Model, newRepairOrder.AssetInfo.Imei, newRepairOrder.AssetInfo.SerialNumber, newRepairOrder.AssetInfo.Accessories);
             Delivery deliveryAddress = new(newRepairOrder.DeliveryAddress.Address1, newRepairOrder.DeliveryAddress.Address2, newRepairOrder.DeliveryAddress.PostalCode, newRepairOrder.DeliveryAddress.City);
-            Contact serviceRequestOwner = new(newRepairOrder.UserId.ToString(), newRepairOrder.FirstName, newRepairOrder.LastName, newRepairOrder.Email, newRepairOrder.PhoneNumber, deliveryAddress);
             Contact customerHandler = new(newRepairOrder.PartnerId.ToString(), newRepairOrder.PartnerName, newRepairOrder.PartnerOrganizationNumber);
-            CreateOrderRequest orderRequest = new(commId, newRepairOrder.OrganizationName, customerHandler, startStatus, newRepairOrder.ErrorDescription, productInfo, newRepairOrder.AssetInfo.PurchaseDate, serviceRequestOwner);
+            Contact serviceRequestOwner = (newRepairOrder.HasCompanyDeliveryAddress() == true)
+                // Return to a company
+                ? new(newRepairOrder.UserId.ToString(), newRepairOrder.FirstName, newRepairOrder.LastName, newRepairOrder.OrganizationName, newRepairOrder.OrganizationNumber, newRepairOrder.Email, newRepairOrder.PhoneNumber, deliveryAddress, newRepairOrder.DeliveryAddress.Country)
+                // Return to a user or a custom address
+                : new(newRepairOrder.UserId.ToString(), newRepairOrder.FirstName, newRepairOrder.LastName, newRepairOrder.Email, newRepairOrder.PhoneNumber, deliveryAddress, newRepairOrder.DeliveryAddress.Country);
+            CreateOrderRequest orderRequest = new(commId, newRepairOrder.OrganizationName, customerHandler, startStatus, newRepairOrder.ErrorDescription, productInfo, newRepairOrder.AssetInfo.PurchaseDate, serviceRequestOwner, extraServices);
 
             // Do the request
             var response = await ApiRequests.CreateServiceOrderAsync(orderRequest);

@@ -9,7 +9,10 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
     internal class Contact
     {
         /// <summary>
-        ///     If left blank, will always create new contact in Conmodo's system
+        ///     If left blank, will always create new contact in Conmodo's system. <para>
+        ///     
+        ///     For <see cref="CreateOrderRequest.CustomerHandler">customerHandler</see> this is used to identify who handled the service.
+        ///     Can be set at fixed value if this is not something the needs to kept track of. </para>
         /// </summary>
         [JsonPropertyName("externalContactId")]
         public string? ExternalContactId { get; set; }
@@ -43,9 +46,16 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         [JsonPropertyName("faxNumber")]
         public string? FaxNumber { get; set; }
 
+        /// <summary>
+        ///     All correspondence from Conmodo is sent to this email address
+        /// </summary>
         [JsonPropertyName("email")]
         public string? Email { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <example> "SE" </example>
         [JsonPropertyName("country")]
         public string? Country { get; set; }
 
@@ -58,6 +68,9 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         [JsonPropertyName("postCity")]
         public string? PostCity { get; set; }
 
+        /// <summary>
+        ///     The address the device was sent from (and will be returned to if 'return to customer' is registered as an extra service).
+        /// </summary>
         [JsonPropertyName("delivery")]
         public Delivery? Delivery { get; set; }
 
@@ -72,6 +85,7 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="Contact"/> class intended for use in <see cref="CreateOrderRequest.Owner"/>.
+        ///     This is used for personal/user-attached devices.
         /// </summary>
         /// <param name="externalContactId"></param>
         /// <param name="firstName"></param>
@@ -79,7 +93,8 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         /// <param name="email"></param>
         /// <param name="cellPhoneNumber"></param>
         /// <param name="deliveryAddress"></param>
-        public Contact(string externalContactId, string firstName, string lastName, string email, string? cellPhoneNumber, Delivery deliveryAddress)
+        /// <param name="country"></param>
+        public Contact(string externalContactId, string firstName, string lastName, string email, string? cellPhoneNumber, Delivery deliveryAddress, string country)
         {
             ExternalContactId = externalContactId;
             FirstName = firstName;
@@ -87,7 +102,36 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
             Email = email;
             CellPhoneNumber = cellPhoneNumber;
             Delivery = deliveryAddress;
+            Country = country;
         }
+
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Contact"/> class intended for use in <see cref="CreateOrderRequest.Owner"/>.
+        ///     This is used for non-personal/functional devices.
+        /// </summary>
+        /// <param name="externalContactId"></param>
+        /// <param name="firstName"></param>
+        /// <param name="lastName"></param>
+        /// <param name="companyName"></param>
+        /// <param name="organizationNumber"></param>
+        /// <param name="email"></param>
+        /// <param name="cellPhoneNumber"></param>
+        /// <param name="deliveryAddress"></param>
+        /// <param name="country"></param>
+        public Contact(string externalContactId, string firstName, string lastName, string companyName, string organizationNumber, string email, string? cellPhoneNumber, Delivery deliveryAddress, string country)
+        {
+            ExternalContactId = externalContactId;
+            FirstName = firstName;
+            LastName = lastName;
+            CompanyName = companyName;
+            OrganizationNumber = organizationNumber;
+            Email = email;
+            CellPhoneNumber = cellPhoneNumber;
+            Delivery = deliveryAddress;
+            Country = country;
+        }
+
 
 
         /// <summary>
