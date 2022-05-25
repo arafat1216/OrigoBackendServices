@@ -40,7 +40,7 @@ namespace HardwareServiceOrderServices.Models
         ///     The 2-character country-code using the uppercase <c>ISO 3166 alpha-2</c> standard.
         /// </summary>
         [Required]
-        [RegularExpression("^[A-Z]{2}")]
+        [RegularExpression("^[A-Z]{2}$")]
         [StringLength(maximumLength: 2, MinimumLength = 2)]
         public string Country { get; set; }
 

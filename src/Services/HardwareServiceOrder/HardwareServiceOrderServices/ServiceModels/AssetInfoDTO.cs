@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Common.Converters;
+using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace HardwareServiceOrderServices.ServiceModels
 {
@@ -35,7 +38,7 @@ namespace HardwareServiceOrderServices.ServiceModels
         ///     IMEI is always required for phones. For other asset-types this is required if <c><see cref="SerialNumber"/></c> is not provided. </para>
         /// </summary>
         /// <example> 498973602928506 </example>
-        [RegularExpression("^[0-9]")]
+        [RegularExpression("^[0-9]{14,15}$")]
         [MinLength(14, ErrorMessage = "IMEI is too short.")]
         [MaxLength(15, ErrorMessage = "IMEI is too long.")]
         public string? Imei { get; set; }
@@ -50,12 +53,13 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// <summary>
         ///     The original purchase-date.
         /// </summary>
+        /// <example> 2021-05-30 </example>
+        [JsonConverter(typeof(DateOnlyNullableJsonConverter))]
         public DateOnly? PurchaseDate { get; set; }
 
         /// <summary>
         ///     An optional list of accessories that is/will be sent in along with the asset.
         /// </summary>
-        /// <example> Charger </example>
         public IEnumerable<string>? Accessories { get; set; }
 
 
