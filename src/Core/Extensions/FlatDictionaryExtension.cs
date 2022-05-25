@@ -13,7 +13,7 @@ namespace Common.Extensions
         {
             return value switch
             {
-                DateTime dateTime => dateTime.ToString("o"),
+                DateTime dateTime => dateTime.ToString("yyyy-MM-dd"),
                 bool boolean => boolean.ToStringLowerCase(),
                 _ => value?.ToString()
             };

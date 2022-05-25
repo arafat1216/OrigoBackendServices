@@ -99,6 +99,7 @@ namespace SubscriptionManagement.UnitTests
             var flactDictionary = new FlatDictionary();
 
             var result = flactDictionary.Execute(newTransferToBusinessFromPrivate);
+            Assert.Equal(newTransferToBusinessFromPrivate.PrivateSubscription.BirthDate.GetValueOrDefault().ToString("yyyy-MM-dd"), result["PrivateSubscription.BirthDate"]);
         }
     }
 }

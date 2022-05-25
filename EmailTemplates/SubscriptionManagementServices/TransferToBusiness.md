@@ -9,6 +9,24 @@
 
 **Email:**  {{PrivateSubscription.Email}}
 
+**MobileNumber:** {{MobileNumber}}
+
+
+#### Product
+**Product Name:** {{SubscriptionProductName}}
+
+**DataPackage:** {{DataPackageName}}
+
+**Transfer Date:** {{OrderExecutionDate}}
+
+#### Customer Reference Fields
+| Name    | Type    | Value   |
+|---------|---------|---------|
+| {{CustomerReferenceFields[0].Name}} | {{CustomerReferenceFields[0].Type}} | {{CustomerReferenceFields[0].Value}} |
+| {{CustomerReferenceFields[1].Name}} | {{CustomerReferenceFields[1].Type}} | {{CustomerReferenceFields[1].Value}} |
+| {{CustomerReferenceFields[2].Name}} | {{CustomerReferenceFields[2].Type}} | {{CustomerReferenceFields[2].Value}} |
+| {{CustomerReferenceFields[3].Name}} | {{CustomerReferenceFields[3].Type}} | {{CustomerReferenceFields[3].Value}} |
+
 #### Owner
 **Name:**  {{PrivateSubscription.RealOwner.FirstName}} {{PrivateSubscription.RealOwner.LastName}}
 
@@ -34,23 +52,6 @@
 
 **Operator Account Name:** {{OperatorAccountOwner}}
 
-**MobileNumber:** {{MobileNumber}}
-
 **SimCard Number:** {{SimCardNumber}}
 
 **SIMCard Action:** {{SIMCardAction}}
-
-#### Product
-**Product Name:** {{SubscriptionProductName}}
-
-**DataPackage:** {{DataPackageName}}
-
-**Transfer Date:** {{OrderExecutionDate}}
-
-#### Customer Reference Fields
-| Name    | Type    | Value   |
-|---------|---------|---------|
-| {{CustomerReferenceFields[0].Name}} | {{CustomerReferenceFields[0].Type}} | {{CustomerReferenceFields[0].Value}} |
-| {{CustomerReferenceFields[1].Name}} | {{CustomerReferenceFields[1].Type}} | {{CustomerReferenceFields[1].Value}} |
-| {{CustomerReferenceFields[2].Name}} | {{CustomerReferenceFields[2].Type}} | {{CustomerReferenceFields[2].Value}} |
-| {{CustomerReferenceFields[3].Name}} | {{CustomerReferenceFields[3].Type}} | {{CustomerReferenceFields[3].Value}} |
