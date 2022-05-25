@@ -30,40 +30,55 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             /*
              * Properties
              */
+
             if (_isSqlLite)
             {
                 builder.Property(e => e.CreatedDate)
-                    .HasConversion(new DateTimeOffsetToBinaryConverter())
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                    .ValueGeneratedOnAdd()
-                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+                       .HasConversion(new DateTimeOffsetToBinaryConverter())
+                       .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                       .ValueGeneratedOnAdd().Metadata
+                       .SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
                 builder.Property(e => e.LastUpdatedDate)
-                   .HasConversion(new DateTimeOffsetToBinaryConverter())
-                   .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                   .ValueGeneratedOnAddOrUpdate()
-                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+                       .HasConversion(new DateTimeOffsetToBinaryConverter())
+                       .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                       .ValueGeneratedOnAddOrUpdate().Metadata
+                       .SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             }
             else
             {
                 builder.Property(e => e.CreatedDate)
-                   .HasDefaultValueSql("SYSUTCDATETIME()")
-                   .ValueGeneratedOnAdd()
-                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+                       .HasDefaultValueSql("SYSUTCDATETIME()")
+                       .ValueGeneratedOnAdd().Metadata
+                       .SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
                 builder.Property(e => e.LastUpdatedDate)
-                   .HasDefaultValueSql("SYSUTCDATETIME()")
-                   .ValueGeneratedOnAddOrUpdate()
-                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+                       .HasDefaultValueSql("SYSUTCDATETIME()")
+                       .ValueGeneratedOnAddOrUpdate().Metadata
+                       .SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             }
 
-            builder.OwnsOne(m => m.DeliveryAddress)
-                .Property(e => e.Country)
-                .HasComment("The 2-character country-code using the uppercase <c>ISO 3166 alpha-2</c> standard.")
-                .HasMaxLength(2)
-                   .IsFixedLength()
-                   .IsUnicode(false)
-                   .Metadata.SetValueComparer(comparer);
+
+            /*
+             * Owned Entities
+             */
+
+            builder.OwnsOne(o => o.DeliveryAddress, da =>
+            {
+                da.Property(e => e.PostalCode)
+                  .HasMaxLength(12);
+
+                da.Property(e => e.City)
+                  .HasMaxLength(85);
+
+                da.Property(e => e.Country)
+                  .HasComment("The 2-character country-code using the uppercase <c>ISO 3166 alpha-2</c> standard.")
+                  .HasMaxLength(2)
+                  .IsFixedLength()
+                  .IsUnicode(false).Metadata
+                  .SetValueComparer(comparer);
+            });
+
         }
     }
 }

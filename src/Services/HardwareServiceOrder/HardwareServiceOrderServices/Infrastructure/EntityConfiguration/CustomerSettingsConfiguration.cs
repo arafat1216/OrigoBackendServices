@@ -42,10 +42,12 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
             builder.Property(e => e.LoanDeviceEmail)
+                   .HasMaxLength(320)
                    .Metadata.SetValueComparer(comparer);
 
             builder.Property(e => e.LoanDevicePhoneNumber)
                    .HasComment("A phone-number using E.164 format.")
+                   .HasMaxLength(15)
                    .IsUnicode(false);
         }
     }
