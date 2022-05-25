@@ -74,7 +74,7 @@ namespace HardwareServiceOrderServices.Conmodo.Mappings
                 // will throw an exception indicating that we should swap to the method that explicitly checks and remaps these events/statuses.
                 catch (ConmodoEventMappingException)
                 {
-                    newStatus = GetStatusFromEventHistory((int)@event.EventId, conmodoEvents, replacementDeviceAdded);
+                    newStatus = GetCompletedStatusFromEventHistory((int)@event.EventId, conmodoEvents, replacementDeviceAdded);
                 }
 
                 // Null indicates an uninteresting event. Skip to the next check as we want to ignore these.
@@ -100,48 +100,48 @@ namespace HardwareServiceOrderServices.Conmodo.Mappings
         /// <param name="replacementDeviceAdded"> A <see cref="bool"/> that tells the re-mapper if a replacement device has been provided. 
         ///     If this is <see langword="null"/> or <see langword="false"/> the system will assume no replacement-devices has been supplied. </param>
         /// <returns> The closest status-ID implemented by the solution, or <see langword="null"/> if the event should be ignored. </returns>
-        private int? GetStatusFromEventHistory(int conmodoEventId, in IEnumerable<Event> historicalEvents, bool? replacementDeviceAdded)
+        private int? GetCompletedStatusFromEventHistory(int conmodoEventId, in IEnumerable<Event> historicalEvents, bool? replacementDeviceAdded)
         {
             switch (conmodoEventId)
             {
-                case 31:                                                                        // Conmodo's description: 'Levert kunde'
-                case 25433:                                                                     // Conmodo's description: 'Pakke utlevert fra posten'
+                case (int)ConmodoEventIdEnum.Levert_Kunde:                                      // ID: 31
+                case (int)ConmodoEventIdEnum.Pakke_utlevert_fra_posten:                         // ID: 25433
                     {
-                        // Not Repaired
-                        if (historicalEvents.Any(e => e.EventId == 42))                           // Conmodo's description (42): 'Returneres ureparert'
+                        // Is it explicitly marked as 'Not Repaired' (ID: 42)?
+                        if (historicalEvents.Any(e => e.EventId == (int)ConmodoEventIdEnum.Returneres_ureparert))   // ID: 42
                         {
                             return (int)ServiceStatusEnum.CompletedNotRepaired;
                         }
-                        // Repaired
+
+                        /*
+                         * NOTE:
+                         * 
+                         * If the 'Not Repaired' (ID: 42) check above fails, then we will always assume we are dealing with a complete, and valid repair!
+                         * This means that all code below this point should be treated as completed repairs (or replacements).
+                         */
+
+                        // Repaired: Warranty
+                        // Note: Repairs can have hybrid statuses (parts repaired on warranty, other parts not covered by warranty).
+                        // Since we need to map it to one status, we won't map to warranty if the user needs to pay for anything.
+                        if (historicalEvents.Any(e => e.EventId == (int)ConmodoEventIdEnum.PaymentStatus_Garanti) && !historicalEvents.Any(e => e.EventId == (int)ConmodoEventIdEnum.PaymentStatus_Betalbar))
+                        {
+                            // Repaired: Warranty --> Device was replaced
+                            if (replacementDeviceAdded == true)
+                                return (int)ServiceStatusEnum.CompletedReplacedOnWarranty;
+                            // Repaired: Warranty --> Device was repaired
+                            else
+                                return (int)ServiceStatusEnum.CompletedRepairedOnWarranty;
+                        }
+                        // Repaired: No warranty
                         else
                         {
-                            // Repaired --> Warranty
-                            if (historicalEvents.Any(e => e.EventId == 8))                        // Conmodo's description (8): 'Garanti'
-                            {
-                                // Repaired --> Warranty --> Device is replaced
-                                if (replacementDeviceAdded == true)
-                                    return (int)ServiceStatusEnum.CompletedReplacedOnWarranty;
-                                // Repaired --> Warranty --> Device was repaired
-                                else
-                                    return (int)ServiceStatusEnum.CompletedRepairedOnWarranty;
-                            }
-                            // Repaired --> No warranty
+                            // Repaired: No warranty --> Device is replaced
+                            if (replacementDeviceAdded == true)
+                                return (int)ServiceStatusEnum.CompletedReplaced;
+                            // Repaired: No warranty --> Device was repaired
                             else
-                            {
-                                // Repaired --> No warranty --> Device is replaced
-                                if (replacementDeviceAdded == true)
-                                    return (int)ServiceStatusEnum.CompletedReplaced;
-                                // Repaired --> No warranty --> Device was repaired
-                                else
-                                    return (int)ServiceStatusEnum.CompletedRepaired;
-                            }
+                                return (int)ServiceStatusEnum.CompletedRepaired;
                         }
-
-                        // If none of the above, then break and run default behavior.
-                        // This should never happen, but is a safety-net so we don't accidentally step into other cases...
-#pragma warning disable CS0162 // Unreachable code detected
-                        break;
-#pragma warning restore CS0162 // Unreachable code detected
                     }
 
                 default:
@@ -159,8 +159,8 @@ namespace HardwareServiceOrderServices.Conmodo.Mappings
         /// <param name="conmodoEventId"> Conmodo's event-ID that should be re-mapped. </param>
         /// <returns> The closest status-ID implemented by the solution, or <see langword="null"/> if the event should be ignored. </returns>
         /// <exception cref="ConmodoEventMappingException"> Thrown when we have event/status re-mappings that requires knowledge of previous events. 
-        ///     When thrown, the caller should instead try and resolve the event using <see cref="GetStatusFromEventHistory(int, in IEnumerable{Event}, bool?)"/>. </exception>
-        /// <see cref="GetStatusFromEventHistory(int, in IEnumerable{Event}, bool?)"/>
+        ///     When thrown, the caller should instead try and resolve the event using <see cref="GetCompletedStatusFromEventHistory(int, in IEnumerable{Event}, bool?)"/>. </exception>
+        /// <see cref="GetCompletedStatusFromEventHistory(int, in IEnumerable{Event}, bool?)"/>
         private int? GetStatusFromEventId(int conmodoEventId)
         {
             switch (conmodoEventId)
@@ -173,6 +173,9 @@ namespace HardwareServiceOrderServices.Conmodo.Mappings
 
                 case 21:                                                    // Conmodo's description: 'Registrert'
                 case 25424:                                                 // Conmodo's description: 'Sendes Serviceverkstedet'
+                case 25045:                                                 // Conmodo's description: 'Betalbar?'
+                case 25007:                                                 // Conmodo's description: 'Garanti?'
+                case 25456:                                                 // Conmodo's description: 'Preswap?'
                     return (int)ServiceStatusEnum.Registered;
 
                 // Events that returns "Registered: In Transit"
@@ -180,7 +183,7 @@ namespace HardwareServiceOrderServices.Conmodo.Mappings
                     return (int)ServiceStatusEnum.RegisteredInTransit;
 
                 // Events that returns "Registered: User Action Needed":
-                // <none>
+                // <none currently>
 
 
                 /***********************************
@@ -188,9 +191,8 @@ namespace HardwareServiceOrderServices.Conmodo.Mappings
                  ***********************************/
 
                 // Events that returns "Ongoing: Ongoing":
-                case 13:                                                    // Conmodo's description: 'Ferdig'
-                case 30:                                                    // Conmodo's description: 'Mottatt Forhandler'
-                case 25025:                                                 // Conmodo's description: 'Ingen betaling'
+                case 13:                                                    // Conmodo's description: 'Ferdig'. Additional details received from e-mail communication: 'Ordren er ferdig reparert/swappet. Og er klar for å sendes til kunde/forhandler'
+                case 25025:                                                 // Conmodo's description: 'Ingen betaling'. Additional details received from e-mail communication: 'Dette er en betalerstatus, og indikterer at en eller flere deler ikke blir belastet. Hvis dere skal ha betalerstatus som viser at den er påbegynt, bør dere også ta med Betalbar 25009'
                 case 25051:                                                 // Conmodo's description: 'Venter på bytteenhet'
                 case 25074:                                                 // Conmodo's description: 'Venter salgspakke'
                 case 25395:                                                 // Conmodo's description: 'Venter på bekreftelse fra Forsikringsselskap'
@@ -205,6 +207,7 @@ namespace HardwareServiceOrderServices.Conmodo.Mappings
                 case 25024:                                                 // Conmodo's description: 'Sendt eksternt verksted'
                 case 25546:                                                 // Conmodo's description: 'Received internal shipment'
                 case 25545:                                                 // Conmodo's description: 'Sent internal shipment'
+                case (int)ConmodoEventIdEnum.Mottatt_Servicested:           // ID: 3
                     return (int)ServiceStatusEnum.Ongoing;
 
                 // Events that returns "Ongoing: User Action Needed":
@@ -213,7 +216,7 @@ namespace HardwareServiceOrderServices.Conmodo.Mappings
                 case 25441:                                                 // Conmodo's description: 'Avventer svar fra kunde'
                 case 25538:                                                 // Conmodo's description: 'Avventer svar fra forhandler FMiP'
                 case 25539:                                                 // Conmodo's description: 'Avventer svar fra kunde FMiP'
-                case 25434:                                                 // Conmodo's description: 'Pakke returnert avsender'
+                case 25434:                                                 // Conmodo's description: 'Pakke returnert avsender'. Additional details received from e-mail communication: 'Dersom ordre får denne status, så er ordren ferdig. Men pakken er blitt returert grunnet at den ikke er hentet på posten/transportør'
                 case 25557:                                                 // Conmodo's description: 'Enhet returnert fra mottaker'
                     return (int)ServiceStatusEnum.OngoingUserActionNeeded;
 
@@ -221,10 +224,11 @@ namespace HardwareServiceOrderServices.Conmodo.Mappings
                 case 25558:                                                 // Conmodo's description: 'Pakke plukket opp av transportør'
                 case 25529:                                                 // Conmodo's description: 'Preswap enhet sendt'
                 case 25050:                                                 // Conmodo's description: 'Ettersending'
+                case 25013:                                                 // Conmodo's description: 'Sendt direkte til kunde' 
                     return (int)ServiceStatusEnum.OngoingInTransit;
 
                 // Events that returns "Ongoing: Ready For Pickup":
-                case 25432:                                                 // Conmodo's description: 'Pakke klar til henting hos posten'
+                case 25432:                                                 // Conmodo's description: 'Pakke klar til henting hos posten'. Additional details received from e-mail communication: 'Kommer kun dersom transportør har skannet utlevering. Ellers vil de ha annen siste status, eks. <Plukket opp av transportør> eller <Sendt direkte til kunde>'
                 case 25534:                                                 // Conmodo's description: 'Klar for utlevering'
                     return (int)ServiceStatusEnum.OngoingReadyForPickup;
 
@@ -232,7 +236,7 @@ namespace HardwareServiceOrderServices.Conmodo.Mappings
                 /***********************************
                  * State: Canceled
                  ***********************************/
-                case 22:                                                    // Conmodo's description: 'Feilregistrering'
+                case (int)ConmodoEventIdEnum.Feilregistrering:              // ID: 22
                     return (int)ServiceStatusEnum.Canceled;
 
 
@@ -245,12 +249,12 @@ namespace HardwareServiceOrderServices.Conmodo.Mappings
                 // Events that returns "Completed: Repaired On Warranty":
                 // Events that returns "Completed: Replaced":
                 // Events that returns "Completed: Replaced On Warranty":
-                case 31:
-                case 25433:
+                case (int)ConmodoEventIdEnum.Levert_Kunde:                  // ID: 31
+                case (int)ConmodoEventIdEnum.Pakke_utlevert_fra_posten:     // ID: 25433
                     throw new ConmodoEventMappingException("These events require additional information. Please use 'GetCompletedStatusFromHistory' to resolve the historical requirements.");
 
                 // Events that returns "Completed: Discarded":
-                case 25006:                                                 // Conmodo's description: 'Beholdt app.etter avt.'
+                case 25006:                                                 // Conmodo's description: 'Beholdt app.etter avt.'. Additional details received from e-mail communication: 'NB! Dersom Techstep ønsker swap reparasjon på samme ordre som Preswap ordren, så vil disse også få Beholdt status, med en understatus "Repair". Derretter status Back to Stock som viser at reparert enhet er lagt til på lager'
                 case 25547:                                                 // Conmodo's description: 'Recycle'
                     return (int)ServiceStatusEnum.CompletedDiscarded;
 
@@ -276,21 +280,30 @@ namespace HardwareServiceOrderServices.Conmodo.Mappings
                  * Other / default / ignored values
                  ***********************************/
 
-                // Events that we should ignore, and that therefore should return 'null':
-
+                // Events that we don't support, and that therefore should return 'null':
                 case 25463:                                                 // Conmodo's description: 'Back to storage'
                 case 25443:                                                 // Conmodo's description: 'Annen betaler'
-                case 25009:                                                 // Conmodo's description: 'Betalbar'
-                case 25045:                                                 // Conmodo's description: 'Betalbar?'
                 case 25457:                                                 // Conmodo's description: 'Preswap'
-                case 25456:                                                 // Conmodo's description: 'Preswap?'
                 case 25008:                                                 // Conmodo's description: 'Forsikring?'
                 case 36:                                                    // Conmodo's description: 'Forsikring'
                 case 25067:                                                 // Conmodo's description: 'Reklamasjon - Tidligere Service?'
-                case 25007:                                                 // Conmodo's description: 'Garanti?'
                     return null;
 
-                // Unmapped events. These all return "Unknown" as they are likely caused by a missing mapping value.
+
+                // Other events that isn't a status update / we should ignore / we don't care about remapping, and that therefore should return 'null':
+                case (int)ConmodoEventIdEnum.PaymentStatus_Garanti:         // ID: 8
+                case (int)ConmodoEventIdEnum.Returneres_ureparert:          // ID: 42
+                case (int)ConmodoEventIdEnum.PaymentStatus_Betalbar:        // ID: 25009
+                    return null;
+
+
+                // Events that should NEVER happen. If they do, we don't know what's going on, and something has likely been bypassed:
+                case (int)ConmodoEventIdEnum.Mottatt_Forhandler:            // ID: 30
+                    return (int)ServiceStatusEnum.Unknown;
+
+
+                // Unmapped events (default). These all return "Unknown" as they are likely caused by a missing mapping value, or is
+                // unsupported and should throw an 'error' when received:
                 default:
                     return (int)ServiceStatusEnum.Unknown;
             }
