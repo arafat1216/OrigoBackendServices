@@ -441,7 +441,7 @@ namespace AssetServices
 
             if (purchaseDate != null && assetLifecycle.PurchaseDate != purchaseDate)
             {
-                assetLifecycle.UpdatePurchaseDate(purchaseDate, callerId);
+                assetLifecycle.UpdatePurchaseDate(purchaseDate.Value, callerId);
             }
             if (!asset.AssetPropertiesAreValid)
             {

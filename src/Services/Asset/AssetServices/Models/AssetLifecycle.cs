@@ -50,7 +50,12 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <summary>
     /// The purchase date of the asset lifecycle.
     /// </summary>
-    public DateTime PurchaseDate { get; init; }
+    public DateTime PurchaseDate
+    {
+        get => _purchaseDate;
+        init => _purchaseDate = value;
+    }
+    private DateTime _purchaseDate;
     /// <summary>
     /// A comment related to the asset lifecycle.
     /// </summary>
@@ -277,7 +282,6 @@ public class AssetLifecycle : Entity, IAggregateRoot
 
     public void UpdateAlias(string alias, Guid callerId)
     {
-
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         var previousAlias = _alias;
@@ -285,9 +289,13 @@ public class AssetLifecycle : Entity, IAggregateRoot
         AddDomainEvent(new ChangedAliasDomainEvent(this, callerId, previousAlias));
     }
 
-    public void UpdatePurchaseDate(DateTime? purchaseDate, Guid callerId)
+    public void UpdatePurchaseDate(DateTime purchaseDate, Guid callerId)
     {
-        throw new NotImplementedException();
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        var previousPurchaseDate = PurchaseDate;
+        _purchaseDate = purchaseDate;
+        AddDomainEvent(new ChangedPurchaseDateDomainEvent(this, callerId, previousPurchaseDate));
     }
 
     /// <summary>

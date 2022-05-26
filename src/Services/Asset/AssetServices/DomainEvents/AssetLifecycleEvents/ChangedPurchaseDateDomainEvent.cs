@@ -8,22 +8,22 @@ using Common.Logging;
 
 namespace AssetServices.DomainEvents.AssetLifecycleEvents
 {
-    public class ChangedAliasDomainEvent : BaseEvent
+    public class ChangedPurchaseDateDomainEvent : BaseEvent
     {
-        public ChangedAliasDomainEvent(AssetLifecycle assetLifecycle, Guid callerId, string previousAlias) : base(assetLifecycle.ExternalId)
+        public ChangedPurchaseDateDomainEvent(AssetLifecycle assetLifecycle, Guid callerId, DateTime previousPurchaseDate) : base(assetLifecycle.ExternalId)
         {
             AssetLifecycle = assetLifecycle;
             CallerId = callerId;
-            PreviousAlias = previousAlias;
+            PreviousPurchaseDate = previousPurchaseDate;
         }
 
         public AssetLifecycle AssetLifecycle { get; protected set; }
         public Guid CallerId { get; protected set; }
-        public string PreviousAlias { get; protected set; }
+        public DateTime PreviousPurchaseDate { get; protected set; }
 
         public override string EventMessage()
         {
-            return $"Alias for Asset Life Cycle has changed from {PreviousAlias} to {AssetLifecycle.Alias}.";
+            return $"Purchase date for Asset Life Cycle has changed from {PreviousPurchaseDate} to {AssetLifecycle.PurchaseDate}.";
         }
     }
 }

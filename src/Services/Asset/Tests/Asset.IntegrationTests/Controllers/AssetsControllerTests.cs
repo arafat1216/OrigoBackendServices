@@ -799,7 +799,43 @@ namespace Asset.IntegrationTests.Controllers
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var asset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
-            Assert.Equal(NEW_ALIAS_NAME, asset!.Brand);
+            Assert.Equal(NEW_ALIAS_NAME, asset!.Alias);
+        }
+
+        [Fact]
+        public async Task PatchAsset_UpdatePurchaseDate()
+        {
+            // Arrange
+            var newPurchaseDate = new DateTime(2021, 12, 12);
+
+            var updateAsset = new UpdateAsset { PurchaseDate = newPurchaseDate, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/{_assetOne}/customers/{_customerId}/Update";
+
+            // Act
+            var response = await _httpClient.PostAsJsonAsync(requestUri, updateAsset);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var asset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.Equal(newPurchaseDate, asset!.PurchaseDate);
+        }
+
+        [Fact]
+        public async Task PatchAsset_UpdateSerialNumber()
+        {
+            // Arrange
+            const string NEW_SERIAL_NUMBER = "123456666444";
+
+            var updateAsset = new UpdateAsset { SerialNumber = NEW_SERIAL_NUMBER, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/{_assetOne}/customers/{_customerId}/Update";
+
+            // Act
+            var response = await _httpClient.PostAsJsonAsync(requestUri, updateAsset);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var asset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.Equal(NEW_SERIAL_NUMBER, asset!.SerialNumber);
         }
 
         [Fact]
