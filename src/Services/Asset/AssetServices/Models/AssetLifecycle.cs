@@ -33,7 +33,12 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <summary>
     /// An alias describing this asset lifecycle.
     /// </summary>
-    public string Alias { get; init; } = string.Empty;
+    public string Alias
+    {
+        get => _alias;
+        init => _alias = value;
+    }
+    private string _alias;
     /// <summary>
     /// The start period for this asset lifecycle.
     /// </summary>
@@ -268,8 +273,21 @@ public class AssetLifecycle : Entity, IAggregateRoot
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
         }
+    }
 
+    public void UpdateAlias(string alias, Guid callerId)
+    {
 
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        var previousAlias = _alias;
+        _alias = alias;
+        AddDomainEvent(new ChangedAliasDomainEvent(this, callerId, previousAlias));
+    }
+
+    public void UpdatePurchaseDate(DateTime? purchaseDate, Guid callerId)
+    {
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -372,7 +390,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         AddDomainEvent(new AssignLifecycleTypeToAssetLifecycleDomainEvent(this, callerId, lifecycleType));
     }
 
-    public void UpdateAssetStatus(AssetLifecycleStatus lifecycleStatus, Guid callerId)
+    private void UpdateAssetStatus(AssetLifecycleStatus lifecycleStatus, Guid callerId)
     {
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;

@@ -30,7 +30,6 @@ namespace AssetServices
             {
                 builder.Append(await CreateAssetLables());
                 builder.Append(await CreateAssetsData());
-                builder.Append(await AssignLabelsToAssets());
             }
             catch (Exception ex)
             {
@@ -77,78 +76,11 @@ namespace AssetServices
             {
                 // 1 = Mobile Phone, 2 = Tablet 
                 var assets = Seed.GetAssetData();
-                //foreach (var asset in assets)
-                //{
-                //    var existingAsset = await _assetLifecycleRepository.GetAssetlifAsync(asset.CustomerId, asset.ExternalId);
-                //    if (existingAsset == null)
-                //    {
-                //        await _assetLifecycleRepository.AddAsync(asset);
-                //    }
-                //    else
-                //    {
-                //        existingAsset.UpdateBrand(asset.Brand, _callerId);
-                //        existingAsset.UpdateProductName(asset.ProductName, _callerId);
-                //        existingAsset.ChangePurchaseDate(asset.PurchaseDate, _callerId);
-                //        existingAsset.UpdateNote(asset.Note, _callerId);
-                //        existingAsset.UpdateTag(asset.AssetTag, _callerId);
-                //        existingAsset.UpdateDescription(asset.Description, _callerId);
-                //        existingAsset.AssignAssetToUser(asset.AssetHolderId, _callerId);
-                //        existingAsset.UpdateAssetStatus(asset.LifecycleStatus, _callerId);
-                //        existingAsset.SetLifeCycleType(asset.LifecycleType, _callerId);
-                //        if (asset.AssetCategory.Id == 1)
-                //        {
-                //            MobilePhone phone = existingAsset as MobilePhone;
-                //            var a = asset as MobilePhone;
-                //            phone.ChangeSerialNumber(a.SerialNumber, _callerId);
-                //            phone.SetImei(a.Imeis.Select(i => i.Imei).ToList(), _callerId);
-                //        }
-                //        else if (asset.AssetCategory.Id == 2)
-                //        {
-                //            Tablet tablet = existingAsset as Tablet;
-                //            var a = asset as Tablet;
-                //            tablet.ChangeSerialNumber(a.SerialNumber, _callerId);
-                //            tablet.SetImei(a.Imeis.Select(i => i.Imei).ToList(), _callerId);
-                //        }
-                //    }
-                //}
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 errorMessage = "Asset creation exception\r\n";
-            }
-            return errorMessage;
-        }
-
-        private async Task<string> AssignLabelsToAssets()
-        {
-            string errorMessage = string.Empty;
-            try
-            {
-                //var assetsAndLabels = Seed.LabelsForAssets();
-                //IList<AssetLifecycleLabel> newLabels = new List<AssetLifecycleLabel>();
-                //var categories = await _assetLifecycleRepository.GetAssetCategoriesAsync();
-                //// 1 = Mobile Phone, 2 = Tablet 
-                //var assets = Seed.GetAssetData(categories.First(c => c.Id == 1), categories.First(c => c.Id == 2));
-                //foreach (var assetId in assetsAndLabels.Keys)
-                //{
-                //    var asset = await _assetLifecycleRepository.GetAssetAsync(assets.FirstOrDefault(a => a.ExternalId == assetId).CustomerId, assetId);
-                //    var customerLabel = await _assetLifecycleRepository.GetCustomerLabelAsync(assetsAndLabels[assetId]);
-                //    if (asset != null && customerLabel != null)
-                //    {
-                //        var assetLabel = await _assetLifecycleRepository.GetAssetLabelForAssetAsync(asset.Id, customerLabel.Id);
-                //        if (assetLabel == null)
-                //        {
-                //            newLabels.Add(new AssetLifecycleLabel(asset.Id, customerLabel.Id, _callerId));
-                //        }
-                //    }
-                //}
-                //await _assetLifecycleRepository.AddAssetLabelsForAsset(newLabels);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                errorMessage = "Asset Label assignment exception\r\n";
             }
             return errorMessage;
         }

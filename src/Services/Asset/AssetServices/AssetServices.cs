@@ -386,12 +386,12 @@ namespace AssetServices
                 return new List<AssetLifecycleDTO>();
             }
 
-            foreach (var assetLifecycle in assetLifecycles)
-            {
-                assetLifecycle.UpdateAssetStatus(lifecycleStatus, callerId);
-            }
+            //foreach (var assetLifecycle in assetLifecycles)
+            //{
+            //    assetLifecycle.UpdateAssetStatus(lifecycleStatus, callerId);
+            //}
 
-            await _assetLifecycleRepository.SaveEntitiesAsync();
+            //await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecycles);
         }
 
@@ -434,7 +434,15 @@ namespace AssetServices
             {
                 asset.UpdateProductName(model, callerId);
             }
+            if (alias != null && assetLifecycle.Alias != alias.Trim())
+            {
+                assetLifecycle.UpdateAlias(alias.Trim(), callerId);
+            }
 
+            if (purchaseDate != null && assetLifecycle.PurchaseDate != purchaseDate)
+            {
+                assetLifecycle.UpdatePurchaseDate(purchaseDate, callerId);
+            }
             if (!asset.AssetPropertiesAreValid)
             {
                 var exceptionMsg = new StringBuilder();

@@ -785,6 +785,24 @@ namespace Asset.IntegrationTests.Controllers
         }
 
         [Fact]
+        public async Task PatchAsset_UpdateAlias()
+        {
+            // Arrange
+            const string NEW_ALIAS_NAME = "New alias";
+
+            var updateAsset = new UpdateAsset { Alias = NEW_ALIAS_NAME, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/{_assetOne}/customers/{_customerId}/Update";
+
+            // Act
+            var response = await _httpClient.PostAsJsonAsync(requestUri, updateAsset);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var asset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.Equal(NEW_ALIAS_NAME, asset!.Brand);
+        }
+
+        [Fact]
         public async Task PatchAsset_AssignToMultiple()
         {
             var assignment = new AssignAssetToUser { CallerId = _callerId, DepartmentId = _customerId, UserId = _user };
