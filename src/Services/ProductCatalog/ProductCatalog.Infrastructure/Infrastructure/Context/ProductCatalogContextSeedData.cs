@@ -80,6 +80,14 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
 
                 entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 4, Language = "en", Name = "Basic Non-personal Asset Management", Description = "Allows organizations to perform non-personal asset management tasks.", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 4, Language = "nb", Name = "Grunnleggende administrering av ikke-personlige assets", Description = "Gir kunder tilgang til grunnleggende administrering av ikke-personlige assets.", UpdatedBy = systemUserId });
+            
+                // Basic Book Value Management
+                entity.HasData(new Feature { Id = 5, AccessControlPermissionNode = "BasicBookValueManagement", FeatureTypeId = 1, UpdatedBy = systemUserId });
+
+                entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 5, Language = "en", Name = "Basic Book Value Management", Description = "Allows organizations to Book value and Purchase price related tasks.", UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new FeatureTranslation { FeatureId = 5, Language = "nb", Name = "Håndtering av Bokført verdi", Description = "Gir organisasjonen mulighet til å utføre oppgaver relatert til bokført verdi og kjøpspris", UpdatedBy = systemUserId });
+            
+            
             });
 
             modelBuilder.Entity<Product>(entity => 
@@ -99,6 +107,11 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 3, Language = "en", Name = "Transactional Device Lifecycle Management", Description = "Lifecycle management for transasctional devices.", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 3, Language = "nb", Name = "Transactional Device Lifecycle Management", Description = "Livssyklusadministrasjon for transaksjonelle enheter", UpdatedBy = systemUserId });
 
+                entity.HasData(new Product { Id = 4, PartnerId = Guid.Empty, ProductTypeId = 3 });
+
+                entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 4, Language = "en", Name = "Book Value and Purchase Price", Description = "Allow Bookvalue and Purchas Price", UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 4, Language = "nb", Name = "Bokført verdi og kjøpspris", Description = "Tilgjengeliggjør bokført verdi og kjøpspris", UpdatedBy = systemUserId });
+
             });
             modelBuilder.Entity<ProductFeature>(entity =>{
 
@@ -108,10 +121,13 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                 entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 1});
                 entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 2});
                 entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 4});
+                entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 5});
+                entity.HasData(new ProductFeature { ProductId = 4, FeatureId = 5});
             });
 
             modelBuilder.Entity<ProductRequiresOne>(entity =>{
                 entity.HasData(new ProductRequiresOne { ProductId = 1, RequiresProductId = 2});
+                entity.HasData(new ProductRequiresOne { ProductId = 4, RequiresProductId = 2});
             });
 
             modelBuilder.Entity<ProductExcludes>(entity =>{
