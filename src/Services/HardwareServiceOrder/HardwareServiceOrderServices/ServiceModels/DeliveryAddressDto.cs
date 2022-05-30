@@ -50,5 +50,26 @@ namespace HardwareServiceOrderServices.ServiceModels
             get { return _country; }
             set { _country = value.ToUpperInvariant(); }
         }
+
+
+        /// <summary>
+        ///     Reserved constructor for JSON serializers
+        /// </summary>
+        public DeliveryAddressDTO()
+        {
+
+        }
+
+
+        public DeliveryAddressDTO(RecipientTypeEnum recipientType, string recipient, string address1, string? address2, string postalCode, string city, string country)
+        {
+            RecipientType = recipientType;
+            Recipient = recipient;
+            Address1 = address1;
+            Address2 = address2;
+            PostalCode = postalCode;
+            City = city;
+            Country = country;
+        }
     }
 }
