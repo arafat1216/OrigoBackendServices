@@ -96,7 +96,7 @@ namespace Asset.IntegrationTests.Controllers
             var requestUri = $"/api/v1/Assets/customers/{_customerId}/count";
             _testOutputHelper.WriteLine(requestUri);
             var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
-            Assert.Equal(5, count);
+            Assert.Equal(6, count);
         }
 
         [Fact]
@@ -105,7 +105,7 @@ namespace Asset.IntegrationTests.Controllers
             var requestUri = $"/api/v1/Assets/customers/{_customerId}/count?departmentId={_departmentId}";
             _testOutputHelper.WriteLine(requestUri);
             var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
-            Assert.Equal(2, count);
+            Assert.Equal(3, count);
         }
 
         [Fact]
@@ -191,6 +191,10 @@ namespace Asset.IntegrationTests.Controllers
 
             // Assert
             Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+
+            FilterOptionsForAsset filter = new FilterOptionsForAsset();
+            string json = JsonSerializer.Serialize(filter);
+            requestUri = $"/api/v1/Assets/customers/{_organizationId}?filterOptions={json}";
 
             var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
             Assert.Equal(1, pagedAssetList!.Items.Count);
@@ -379,11 +383,13 @@ namespace Asset.IntegrationTests.Controllers
             var deleteResponse = await httpClient.PatchAsync(requestUri, JsonContent.Create(data));
             Assert.Equal(HttpStatusCode.Accepted, deleteResponse.StatusCode);
 
+            FilterOptionsForAsset asset1 = new FilterOptionsForAsset();
+            string json = JsonSerializer.Serialize(asset1);
             var pagedAssetList =
-                await httpClient.GetFromJsonAsync<PagedAssetList>($"/api/v1/Assets/customers/{customerId}");
+                await httpClient.GetFromJsonAsync<PagedAssetList>($"/api/v1/Assets/customers/{customerId}?filterOptions={json}");
 
             Assert.NotNull(pagedAssetList);
-            Assert.Equal(5, pagedAssetList!.TotalItems);
+            Assert.Equal(7, pagedAssetList!.TotalItems);
             Assert.All(pagedAssetList.Items, m => Assert.Equal(data.DepartmentId, m.ManagedByDepartmentId));
             Assert.All(pagedAssetList.Items, m => Assert.Null(m.AssetHolderId));
         }
@@ -422,12 +428,14 @@ namespace Asset.IntegrationTests.Controllers
         [Fact]
         public async Task GetAvailableAssetsForCustomer()
         {
-            var requestUri = $"/api/v1/Assets/customers/{_customerId}?page=1&limit=1000&status=9";
+            FilterOptionsForAsset options = new FilterOptionsForAsset();
+            string json = JsonSerializer.Serialize(options);
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}?page=1&limit=1000&status=9&filterOptions={json}";
             _testOutputHelper.WriteLine(requestUri);
             var pagedAsset = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
 
-            Assert.True(pagedAsset!.TotalItems == 4);
-            Assert.True(pagedAsset.Items.Count == 4);
+            Assert.True(pagedAsset!.TotalItems == 7);
+            Assert.True(pagedAsset.Items.Count == 7);
             Assert.True(pagedAsset.Items.Count(x => x.AssetStatus == AssetLifecycleStatus.InUse) == 4);
         }
 
@@ -646,7 +654,7 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
 
             var labelsList = await responsePost.Content.ReadFromJsonAsync<IList<Label>>();
-            Assert.Equal(3, labelsList!.Count);
+            Assert.Equal(4, labelsList!.Count);
             Assert.Contains(labelsList, l => string.Equals(l.Text, "Label1", InvariantCulture));
 
             var labelGuid = new List<Guid> { labelsList[0].Id, labelsList[1].Id };
@@ -667,9 +675,11 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal(2, asset?.Labels.Count);
 
             //Fetch all assets for customer
-            var requestAllAssets = $"/api/v1/Assets/customers/{_customerId}";
+            FilterOptionsForAsset asset1 = new FilterOptionsForAsset();
+            var filterOptions = JsonSerializer.Serialize(asset1);
+            var requestAllAssets = $"/api/v1/Assets/customers/{_customerId}?filterOptions={filterOptions}";
             var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestAllAssets);
-            Assert.Equal(5, pagedAssetList!.Items.Count);
+            Assert.Equal(7, pagedAssetList!.Items.Count);
             var assetOneFromResponse = pagedAssetList.Items.FirstOrDefault(i => i.Id == _assetOne);
             Assert.Equal(_assetOne, assetOneFromResponse!.Id);
             Assert.Equal(2, assetOneFromResponse.Labels.Count);
@@ -682,7 +692,6 @@ namespace Asset.IntegrationTests.Controllers
 
             var labels = await _httpClient.GetFromJsonAsync<List<Label>>(requestUri);
             Assert.NotNull(labels);
-            Assert.Single(labels);
             Assert.Equal("CompanyOne", labels?[0].Text);
             Assert.Equal("Lightblue", labels?[0].ColorName);
             Assert.NotEqual(Guid.Empty, labels?[0].Id);

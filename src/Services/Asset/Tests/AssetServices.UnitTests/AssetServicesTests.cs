@@ -67,7 +67,7 @@ public class AssetServicesTests : AssetBaseTest
         var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, null);
 
             // Assert
-            Assert.Equal(5, assetsFromCompany);
+            Assert.Equal(6, assetsFromCompany);
         }
 
         [Fact]
@@ -83,7 +83,7 @@ public class AssetServicesTests : AssetBaseTest
             var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, null, departmentId: DEPARTMENT_ID);
 
             // Assert
-            Assert.Equal(1, assetsFromCompany);
+            Assert.Equal(2, assetsFromCompany);
         }
 
         [Fact]
