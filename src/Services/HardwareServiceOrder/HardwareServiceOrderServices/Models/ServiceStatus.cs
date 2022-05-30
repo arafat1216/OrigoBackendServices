@@ -8,7 +8,7 @@ namespace HardwareServiceOrderServices.Models
     /// <example> In Transit </example>
     public class ServiceStatus : EntityV2
     {
-        /// <inheritdoc cref="Entity.Id"/>
+        /// <inheritdoc cref="EntityV2.Id"/>
         /// <remarks>
         ///     The value-mappings can be retrieved from <see cref="ServiceStatusEnum"/>.
         /// </remarks>

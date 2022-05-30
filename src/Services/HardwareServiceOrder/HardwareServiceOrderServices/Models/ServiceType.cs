@@ -7,7 +7,7 @@ namespace HardwareServiceOrderServices.Models
     /// </summary>
     public class ServiceType : EntityV2
     {
-        /// <inheritdoc cref="Entity.Id"/>
+        /// <inheritdoc cref="EntityV2.Id"/>
         /// <remarks>
         ///     The value-mappings can be retrieved from <see cref="ServiceTypeEnum"/>.
         /// </remarks>
