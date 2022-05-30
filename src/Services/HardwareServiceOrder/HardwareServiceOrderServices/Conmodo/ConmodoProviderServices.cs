@@ -113,13 +113,16 @@ namespace HardwareServiceOrderServices.Conmodo
         /// <remarks>
         ///     Handles the <see langword="async"/> portion of <see cref="GetRepairOrderAsync(string, string?)"/> once the input has been validated.
         /// </remarks>
-        /// <param name="commId"> </param>
+        /// <param name="commId"> Our custom identifier that was provided to Conmodo when we created the service-order. </param>
         /// <param name="orderNo"> Conmodo's order-number. In some parts of Conmodo's documentation this is referred to as <c>claimNumber</c>. </param>
         private async Task<ExternalRepairOrderDTO> GetRepairOrderPostValidationAsync(string commId, int? orderNo)
         {
-            var response = await ApiRequests.GetOrderAsync(commId);
+            OrderResponse? response = await ApiRequests.GetOrderAsync(commId);
             AssetInfoDTO? deliveredAsset = null;
             AssetInfoDTO? returnedAsset = null;
+
+            // Set the orderNo value if it's missing.
+            orderNo ??= response.DeltaOrderNumber;
 
             // If possible, create the "delivered asset" object based on whatever information we have available
             if (response.ProductInfoIn is not null)
@@ -149,7 +152,7 @@ namespace HardwareServiceOrderServices.Conmodo
             bool? isAssetReplaced = CheckForAssetReplacement(deliveredAsset, returnedAsset, response.Events);
             var externalEventList = eventMapper.FromConmodo(response.Events, isAssetReplaced);
 
-            ExternalRepairOrderDTO repairOrder = new(externalEventList, deliveredAsset, returnedAsset, isAssetReplaced);
+            ExternalRepairOrderDTO repairOrder = new(commId, orderNo.ToString(), externalEventList, deliveredAsset, returnedAsset, isAssetReplaced);
             return repairOrder;
         }
 

@@ -9,7 +9,7 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
     internal class OrderResponse
     {
         /// <summary>
-        ///     Your reference shown on the order label"
+        ///     Your reference shown on the order label
         /// </summary>
         [Required]
         [JsonPropertyName("reference")]
