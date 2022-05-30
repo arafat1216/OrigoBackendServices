@@ -19,6 +19,7 @@ namespace AssetServices.UnitTests
         protected readonly Guid ASSETLIFECYCLE_THREE_ID = new("80665d26-90b4-4a3a-a20d-686b64466f32");
         protected readonly Guid ASSETLIFECYCLE_FOUR_ID = new("bdb4c26c-33fd-40d7-a237-e74728609c1c");
         protected readonly Guid ASSETLIFECYCLE_FIVE_ID = new("4315bba8-698f-4ddd-aee2-82554c91721f");
+        protected readonly Guid ASSETLIFECYCLE_SIX_ID = new("4515bba8-698f-4ddd-aee2-82554c91721f");
         protected readonly Guid COMPANY_ID = new("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
         protected readonly Guid DEPARTMENT_ID = new("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72");
         protected readonly int ASSET_CATEGORY_ID = 1;
@@ -80,19 +81,28 @@ namespace AssetServices.UnitTests
             assetLifecycleFour.AssignAsset(assetFour, CALLER_ID);
             assetLifecycleFour.AssignAssetLifecycleHolder(userOne, null, CALLER_ID);
             assetLifecycleFour.HasBeenStolen(CALLER_ID);
+            assetLifecycleFour.AssignCustomerLabel(labelOne, CALLER_ID);
 
             var assetLifecycleFive = new AssetLifecycle(ASSETLIFECYCLE_FOUR_ID) { CustomerId = COMPANY_ID, Alias = "alias_4", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleFive.AssignAsset(assetFive, CALLER_ID);
             assetLifecycleFive.AssignAssetLifecycleHolder(userOne,null, CALLER_ID);
             assetLifecycleFive.MakeAssetAvailable(CALLER_ID);
+            assetLifecycleFive.AssignCustomerLabel(labelOne, CALLER_ID);
 
             var assetLifecycleSix = new AssetLifecycle(ASSETLIFECYCLE_FIVE_ID) { CustomerId = COMPANY_ID, Alias = "alias_5", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleSix.AssignAsset(assetSix, CALLER_ID);
             assetLifecycleSix.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
+            assetLifecycleSix.AssignCustomerLabel(labelTwo, CALLER_ID);
+
+            var assetLifecycleSeven = new AssetLifecycle(ASSETLIFECYCLE_SIX_ID) { CustomerId = COMPANY_ID, Alias = "alias_6", AssetLifecycleStatus = AssetLifecycleStatus.Active, AssetLifecycleType = LifecycleType.NoLifecycle };
+            assetLifecycleSeven.AssignAsset(assetSix, CALLER_ID);
+            assetLifecycleSeven.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
+            assetLifecycleSeven.AssignCustomerLabel(labelTwo, CALLER_ID);
 
             var assetLifecycleOther = new AssetLifecycle { CustomerId = Guid.NewGuid(), Alias = "alias_4", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleOther.AssignAsset(assetOther, CALLER_ID);
             assetLifecycleOther.AssignAssetLifecycleHolder(new User{ExternalId = Guid.NewGuid()},null, CALLER_ID);
+
 
             var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID,1, true,500M, Guid.Empty);
             lifeCycleSetting.SetMinBuyoutPrice(700M, Guid.Empty);
@@ -100,7 +110,7 @@ namespace AssetServices.UnitTests
             context.Users.AddRange(userOne, userTwo);
             context.Assets.AddRange(assetOne, assetTwo, assetThree, assetFour, assetFive, assetSix, assetOther);
             context.CustomerLabels.AddRange(labelOne, labelTwo);
-            context.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree, assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleOther);
+            context.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree, assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleOther);
             context.LifeCycleSettings.AddRange(lifeCycleSetting);
             context.SaveChanges();
         }

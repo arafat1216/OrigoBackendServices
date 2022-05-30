@@ -134,7 +134,7 @@ public class AssetServicesTests : AssetBaseTest
                 new CancellationToken());
 
         // Assert
-        Assert.Equal(6, assetsFromUser.Items.Count);
+        Assert.Equal(7, assetsFromUser.Items.Count);
 
 
         // search with Filter Options
@@ -148,7 +148,7 @@ public class AssetServicesTests : AssetBaseTest
         assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, labels, null, 1, 10,
              new CancellationToken());
 
-        Assert.Equal(3, assetsFromUser.Items.Count);
+        Assert.Equal(1, assetsFromUser.Items.Count);
 
 
 
@@ -170,7 +170,7 @@ public class AssetServicesTests : AssetBaseTest
 
         assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, depts, null, null, null, 1, 10, new CancellationToken());
 
-        Assert.Equal(3, assetsFromUser.Items.Count);
+        Assert.Equal(2, assetsFromUser.Items.Count);
 
 
         //filter data only status
@@ -191,9 +191,9 @@ public class AssetServicesTests : AssetBaseTest
         status = new List<AssetLifecycleStatus>{AssetLifecycleStatus.Active ,
             AssetLifecycleStatus.Recycled};
 
-        category = new int[] { 2 };
+        category = new int[] { 1 };
 
-        labels = new Guid[] { new Guid("BA92FC18-9399-4AC1-9BEB-57DCE85FF657") };
+        labels = new Guid[] { new Guid("D3EF00AB-C3B6-4751-982F-BF66738BC068") };
 
         assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, status, depts, category, labels, null, 1, 10,
              new CancellationToken());
@@ -208,14 +208,14 @@ public class AssetServicesTests : AssetBaseTest
              new CancellationToken());
 
         // Assert 
-        Assert.Equal(4, assetsFromUser.Items.Count);
+        Assert.Equal(5, assetsFromUser.Items.Count);
 
         // search with IMEI
         assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, "512217111821626", 1, 10,
              new CancellationToken());
 
         // Assert 
-        Assert.Equal(4, assetsFromUser.Items.Count);
+        Assert.Equal(5, assetsFromUser.Items.Count);
 
 
     }
