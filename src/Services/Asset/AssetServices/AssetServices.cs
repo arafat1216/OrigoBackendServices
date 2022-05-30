@@ -303,20 +303,10 @@ namespace AssetServices
                 sourceConverted = (AssetLifeCycleSource)(sourceTryConverted ?? AssetLifeCycleSource.Unknown);
             }
 
-            var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(
-                customerId : customerId,
-                alias : newAssetDTO.Alias,
-                assetLifecycleType : newAssetDTO.LifecycleType,
-                purchaseDate : newAssetDTO.PurchaseDate,
-                note : newAssetDTO.Note,
-                description : newAssetDTO.Description,
-                paidByCompany : newAssetDTO.PaidByCompany,
-                orderNumber : newAssetDTO.OrderNumber ?? string.Empty,
-                productId : newAssetDTO.ProductId ?? string.Empty,
-                invoiceNumber : newAssetDTO.InvoiceNumber ?? string.Empty,
-                transactionId : newAssetDTO.TransactionId ?? string.Empty,
-                source : sourceConverted
-            );
+            var newAssetLifecycle = _mapper.Map<CreateAssetLifecycleDTO>(newAssetDTO);
+            newAssetLifecycle.Source = sourceConverted;
+            newAssetLifecycle.CustomerId = customerId;
+            var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(newAssetLifecycle);
 
             Asset asset = newAssetDTO.AssetCategoryId == 1
                 ? new MobilePhone(Guid.NewGuid(), newAssetDTO.CallerId, newAssetDTO.SerialNumber, newAssetDTO.Brand, newAssetDTO.ProductName,

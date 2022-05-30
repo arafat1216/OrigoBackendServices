@@ -32,6 +32,7 @@ public class AssetsContext : DbContext
     {
         modelBuilder.ApplyConfiguration(new AssetConfiguration(IsSQLite));
         modelBuilder.ApplyConfiguration(new AssetLifecycleConfiguration(IsSQLite));
+        modelBuilder.ApplyConfiguration(new SalaryDeductionTransactionConfiguration(IsSQLite));
         modelBuilder.ApplyConfiguration(new LifeCycleSettingConfiguration(IsSQLite));
     }
 }

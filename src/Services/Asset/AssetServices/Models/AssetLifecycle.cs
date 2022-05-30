@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using AssetServices.DomainEvents.AssetLifecycleEvents;
+using AssetServices.ServiceModel;
 using Common.Enums;
 using Common.Seedwork;
 
@@ -42,11 +44,11 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <summary>
     /// The start period for this asset lifecycle.
     /// </summary>
-    public DateTime StartPeriod { get; init; }
+    public DateTime? StartPeriod { get; init; }
     /// <summary>
     /// The end period for this asset lifecycle.
     /// </summary>
-    public DateTime EndPeriod { get; init; }
+    public DateTime? EndPeriod { get; init; }
     /// <summary>
     /// The purchase date of the asset lifecycle.
     /// </summary>
@@ -212,6 +214,11 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// </summary>
     public string TransactionId { get; init; } = string.Empty;
 
+    private List<SalaryDeductionTransaction> _salaryDeductionTransactionList = new();
+
+    public IReadOnlyCollection<SalaryDeductionTransaction> SalaryDeductionTransactionList =>
+        _salaryDeductionTransactionList.AsReadOnly();
+
     /// <summary>
     /// Assign an asset to this asset lifecycle.
     /// </summary>
@@ -261,7 +268,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         }
         else if ((departmentId != null || departmentId != Guid.Empty) && contractHolderUser == null)
         {
-            //unassigne previous owner and add domain events for it
+            //unassign previous owner and add domain events for it
             if (ContractHolderUser != null) AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this,callerId, ContractHolderUser));
             if (ManagedByDepartmentId != null) AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this,callerId));
             ContractHolderUser = null;
@@ -416,24 +423,72 @@ public class AssetLifecycle : Entity, IAggregateRoot
         AddDomainEvent(new AssetHasBeenStolenDomainEvent(this, previousLifecycleStatus, callerId));
     }
 
-    public static AssetLifecycle CreateAssetLifecycle(Guid customerId, string alias, LifecycleType assetLifecycleType, DateTime purchaseDate, string note, string description, decimal paidByCompany, string orderNumber, string productId, string invoiceNumber, string transactionId, AssetLifeCycleSource source)
+    public static AssetLifecycle CreateAssetLifecycle(CreateAssetLifecycleDTO assetLifecycleDTO)
     {
-        var assetLifecycleStatus = assetLifecycleType == LifecycleType.Transactional ? AssetLifecycleStatus.InputRequired : AssetLifecycleStatus.Active;
+        var assetLifecycleStatus = assetLifecycleDTO.LifecycleType == LifecycleType.Transactional ? AssetLifecycleStatus.InputRequired : AssetLifecycleStatus.Active;
+        var salaryDeductionTransactions = CreateSalaryDeductionTransactions(assetLifecycleDTO.PurchaseDate,
+            assetLifecycleDTO.MonthlySalaryDeductionRuntime, assetLifecycleDTO.MonthlySalaryDeduction, assetLifecycleDTO.LifecycleType, assetLifecycleDTO.CallerId);
         return new AssetLifecycle
         {
-            CustomerId = customerId,
-            Alias = alias,
-            AssetLifecycleType = assetLifecycleType,
+            CustomerId = assetLifecycleDTO.CustomerId,
+            Alias = assetLifecycleDTO.Alias,
+            AssetLifecycleType = assetLifecycleDTO.LifecycleType,
             AssetLifecycleStatus = assetLifecycleStatus,
-            PurchaseDate = purchaseDate,
-            Note = note,
-            Description = description,
-            PaidByCompany = paidByCompany,
-            OrderNumber = orderNumber,
-            ProductId = productId,
-            InvoiceNumber = invoiceNumber,
-            TransactionId = transactionId,
-            Source = source
+            PurchaseDate = assetLifecycleDTO.PurchaseDate,
+            StartPeriod = GetStartPeriodFromPurchaseDate(assetLifecycleDTO.PurchaseDate, assetLifecycleDTO.LifecycleType),
+            EndPeriod = GetEndPeriodFromPurchaseDate(assetLifecycleDTO.PurchaseDate, assetLifecycleDTO.MonthlySalaryDeductionRuntime, assetLifecycleDTO.LifecycleType),
+            _salaryDeductionTransactionList = salaryDeductionTransactions,
+            Note = assetLifecycleDTO.Note,
+            Description = assetLifecycleDTO.Description,
+            PaidByCompany = assetLifecycleDTO.PaidByCompany,
+            OrderNumber = assetLifecycleDTO.OrderNumber ?? string.Empty,
+            ProductId = assetLifecycleDTO.ProductId ?? string.Empty,
+            InvoiceNumber = assetLifecycleDTO.InvoiceNumber ?? string.Empty,
+            TransactionId = assetLifecycleDTO.TransactionId ?? string.Empty,
+            Source = assetLifecycleDTO.Source
         };
+    }
+
+    private static List<SalaryDeductionTransaction> CreateSalaryDeductionTransactions(DateTime purchaseDate,
+        int? monthlySalaryDeductionRuntime, decimal? monthlySalaryDeduction, LifecycleType lifecycleType, Guid callerId)
+    {
+        var startDate = GetStartPeriodFromPurchaseDate(purchaseDate, lifecycleType);
+        if (lifecycleType == LifecycleType.NoLifecycle || !monthlySalaryDeductionRuntime.HasValue || !monthlySalaryDeduction.HasValue || startDate == null)
+        {
+            return new List<SalaryDeductionTransaction>();
+        }
+        var salaryDeductionList = new List<SalaryDeductionTransaction>();
+        for (var monthIndex = 0; monthIndex < monthlySalaryDeductionRuntime; monthIndex++)
+        {
+            salaryDeductionList.Add(new SalaryDeductionTransaction
+            {
+                Amount = monthlySalaryDeduction.Value,
+                CurrencyCode = CurrencyCode.NOK,
+                Year = startDate.Value.AddMonths(monthIndex).Year,
+                Month = startDate.Value.AddMonths(monthIndex).Month
+            });
+        }
+
+        return salaryDeductionList;
+    }
+
+    private static DateTime? GetEndPeriodFromPurchaseDate(DateTime purchaseDate, int? runtime, LifecycleType lifecycleType)
+    {
+        var startDate = GetStartPeriodFromPurchaseDate(purchaseDate, lifecycleType);
+        if (!runtime.HasValue || lifecycleType == LifecycleType.NoLifecycle || startDate == null)
+        {
+            return null;
+        }
+
+        return startDate.Value.AddMonths(runtime.Value).AddDays(-1);
+    }
+
+    private static DateTime? GetStartPeriodFromPurchaseDate(DateTime purchaseDate, LifecycleType lifecycleType)
+    {
+        if (lifecycleType == LifecycleType.NoLifecycle)
+        {
+            return null;
+        }
+        return purchaseDate.Date.AddMonths(1).AddDays(-purchaseDate.Day + 1);
     }
 }

@@ -313,6 +313,7 @@ namespace Asset.IntegrationTests.Controllers
             var requestUri = $"/api/v1/Assets/customers/{_organizationId}";
             _testOutputHelper.WriteLine(requestUri);
             var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newAsset);
+            _testOutputHelper.WriteLine(await createResponse.Content.ReadAsStringAsync());
             var assetReturned = await createResponse.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
             Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
             Assert.Equal("Unknown", assetReturned!.Source);
