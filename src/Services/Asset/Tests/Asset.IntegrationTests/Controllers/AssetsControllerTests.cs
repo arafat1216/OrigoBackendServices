@@ -112,10 +112,10 @@ namespace Asset.IntegrationTests.Controllers
         public async Task GetCustomerItemCount_ForCustomerWithStatus()
         {
             var requestUri =
-                $"/api/v1/Assets/customers/{_customerId}/count?departmentId=&assetLifecycleStatus={(int)AssetLifecycleStatus.InUse}";
+                $"/api/v1/Assets/customers/{_customerId}/count?departmentId=&assetLifecycleStatus={(int)AssetLifecycleStatus.Available}";
             _testOutputHelper.WriteLine(requestUri);
             var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
-            Assert.Equal(4, count);
+            Assert.Equal(1, count);
         }
 
         [Fact]
