@@ -85,11 +85,6 @@ namespace OrigoApiGateway.Controllers
                 }
 
                 var userRole = await _userPermissionServices.GetUserPermissionsAsync(userName);
-                if (userRole == null)
-                {
-                    return NotFound();
-                }
-
                 return Ok(userRole);
             }
             catch (Exception ex)

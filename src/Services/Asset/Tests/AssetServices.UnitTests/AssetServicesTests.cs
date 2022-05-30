@@ -1063,28 +1063,4 @@ public class AssetServicesTests : AssetBaseTest
         Assert.Equal(ASSETHOLDER_ONE_ID, asset.ContractHolderUserId);
         Assert.Null(asset.ManagedByDepartmentId);
     }
-
-    [Fact]
-    [Trait("Category", "UnitTest")]
-    public async void AssetLifeCycle_AssigneStatusBasedOnLifecycleType()
-    {
-        var assetLifecycle = new AssetLifecycle
-        {
-            CustomerId = Guid.NewGuid(),
-            Alias = "Alias",
-            PurchaseDate = DateTime.Now,
-            Note = "Note",
-            Description = "Description",
-            PaidByCompany = 0,
-            Source = AssetLifeCycleSource.Unknown
-        };
-        Assert.Equal(LifecycleType.NoLifecycle, assetLifecycle.AssetLifecycleType);
-        Assert.Equal(AssetLifecycleStatus.Active, assetLifecycle.AssetLifecycleStatus);
-        assetLifecycle.AssignLifecycleType(LifecycleType.Transactional, Guid.NewGuid());
-        Assert.Equal(LifecycleType.Transactional, assetLifecycle.AssetLifecycleType);
-        Assert.Equal(AssetLifecycleStatus.InputRequired, assetLifecycle.AssetLifecycleStatus);
-        assetLifecycle.AssignAssetLifecycleHolder(null, Guid.NewGuid(), Guid.NewGuid());
-        Assert.Equal(AssetLifecycleStatus.InUse, assetLifecycle.AssetLifecycleStatus);
-        Assert.Equal(AssetLifecycleStatus.InUse, assetLifecycle.AssetLifecycleStatus);
-    }
 }

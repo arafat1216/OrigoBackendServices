@@ -20,7 +20,6 @@ namespace OrigoApiGateway.Services
     {
         private readonly HttpClient _httpClient;
         private readonly UserPermissionsConfigurations _options;
-        private HttpClient HttpClient { get; }
         private readonly ILogger<UserPermissionService> _logger;
         private readonly IMapper _mapper;
 
@@ -30,7 +29,6 @@ namespace OrigoApiGateway.Services
             _options = options.Value;
             _logger = logger;
             _mapper = mapper;
-            HttpClient = new HttpClient();
         }
 
         public async Task<ClaimsIdentity> GetUserPermissionsIdentityAsync(string sub, string userName, CancellationToken cancellationToken)
@@ -42,14 +40,21 @@ namespace OrigoApiGateway.Services
                 return new ClaimsIdentity();
             }
 
-            var claimPermissions = userPermissions?.First()?.PermissionNames?
+            var claimPermissions = userPermissions.First()?.PermissionNames?
                 .Select(permissionName => new Claim("Permissions", permissionName)).ToList();
-            var claimAccessList = userPermissions?.First()?.AccessList?
+            var claimAccessList = userPermissions.First()?.AccessList?
                 .Select(accessTo => new Claim("AccessList", accessTo.ToString())).ToList();
 
+            if (claimPermissions == null)
+            {
+                return new ClaimsIdentity();
+            }
             var permissionsIdentity = new ClaimsIdentity(claimPermissions);
             permissionsIdentity.AddClaims(claimPermissions);
-            permissionsIdentity.AddClaims(claimAccessList);
+            if (claimAccessList != null)
+            {
+                permissionsIdentity.AddClaims(claimAccessList);
+            }
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, userPermissions.First().Role));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, userPermissions.First().UserId.ToString()));
 

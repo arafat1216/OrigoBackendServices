@@ -14,8 +14,11 @@ ARG FEED_ACCESSTOKEN
 ARG PULL_REQUEST_KEY
 ARG PULL_REQUEST_SOURCEBRANCH
 
-# Register the NuGet package-feed
-RUN dotnet nuget add source "$FEED_SOURCE" --name "source-name" --username "useless" --password "$FEED_ACCESSTOKEN" --store-password-in-clear-text
+ARG RUN_LOCAL
+
+RUN if [ -z "RUN_LOCAL" ] ; then \
+	dotnet nuget add source "$FEED_SOURCE" --name "source-name" --username "useless" --password "$FEED_ACCESSTOKEN" --store-password-in-clear-text; \
+fi
 
 WORKDIR /src
 
@@ -34,30 +37,32 @@ COPY /src/ApiGateways/OrigoApiGateway/. ApiGateways/OrigoApiGateway/.
 
 WORKDIR "/src/ApiGateways/OrigoApiGateway"
 
-# Provide extra parameters if this is a PR
-RUN if [ -z "$PULL_REQUEST_KEY" ] ; then \
-  dotnet sonarscanner begin \
-    /k:"${SONAR_PROJECT_KEY}" \
-    /o:"${SONAR_ORGANIZATION_KEY}" \
-    /d:sonar.host.url="${SONAR_HOST_URL}" \
-    /d:sonar.login="${SONAR_TOKEN}" \
-	/d:sonar.verbose=true \
-	/d:sonar.coverageReportPaths=/CodeCoverage/SonarQube.xml \
-    /d:sonar.cs.xunit.reportsPaths=/**/TestResults/**/*.trx \
-    /d:sonar.sourceEncoding=UTF-8; \
-else \
-  dotnet sonarscanner begin \
-    /k:"${SONAR_PROJECT_KEY}" \
-    /o:"${SONAR_ORGANIZATION_KEY}" \
-    /d:sonar.pullrequest.base=trunk \
-    /d:sonar.pullrequest.key="${PULL_REQUEST_KEY}" \
-    /d:sonar.pullrequest.branch="${PULL_REQUEST_SOURCEBRANCH}" \
-    /d:sonar.host.url="${SONAR_HOST_URL}" \
-    /d:sonar.login="${SONAR_TOKEN}" \
-	/d:sonar.verbose=true \
-	/d:sonar.coverageReportPaths=/CodeCoverage/SonarQube.xml \
-    /d:sonar.cs.xunit.reportsPaths=/**/TestResults/**/*.trx \
-    /d:sonar.sourceEncoding=UTF-8; \
+RUN if [ -z "RUN_LOCAL" ] ; then \
+	# Provide extra parameters if this is a PR
+	if [ -z "$PULL_REQUEST_KEY" ] ; then \
+	  dotnet sonarscanner begin \
+		/k:"${SONAR_PROJECT_KEY}" \
+		/o:"${SONAR_ORGANIZATION_KEY}" \
+		/d:sonar.host.url="${SONAR_HOST_URL}" \
+		/d:sonar.login="${SONAR_TOKEN}" \
+		/d:sonar.verbose=true \
+		/d:sonar.coverageReportPaths=/CodeCoverage/SonarQube.xml \
+		/d:sonar.cs.xunit.reportsPaths=/**/TestResults/**/*.trx \
+		/d:sonar.sourceEncoding=UTF-8; \
+	else \
+	  dotnet sonarscanner begin \
+		/k:"${SONAR_PROJECT_KEY}" \
+		/o:"${SONAR_ORGANIZATION_KEY}" \
+		/d:sonar.pullrequest.base=trunk \
+		/d:sonar.pullrequest.key="${PULL_REQUEST_KEY}" \
+		/d:sonar.pullrequest.branch="${PULL_REQUEST_SOURCEBRANCH}" \
+		/d:sonar.host.url="${SONAR_HOST_URL}" \
+		/d:sonar.login="${SONAR_TOKEN}" \
+		/d:sonar.verbose=true \
+		/d:sonar.coverageReportPaths=/CodeCoverage/SonarQube.xml \
+		/d:sonar.cs.xunit.reportsPaths=/**/TestResults/**/*.trx \
+		/d:sonar.sourceEncoding=UTF-8; \
+	fi \
 fi
   
 RUN dotnet build \
@@ -108,7 +113,9 @@ RUN reportgenerator \
 	-reporttypes:"SonarQube;HtmlInline_AzurePipelines;HtmlInline_AzurePipelines_Dark;Cobertura" \
 	-verbosity:Verbose
 
-RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
+RUN if [ -z "RUN_LOCAL" ] ; then \
+	dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"; \
+fi
 
 FROM build AS publish
 WORKDIR "/src/ApiGateways/OrigoApiGateway/OrigoApiGateway"

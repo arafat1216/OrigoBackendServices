@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "OrigoGateway.IntegrationTests": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
