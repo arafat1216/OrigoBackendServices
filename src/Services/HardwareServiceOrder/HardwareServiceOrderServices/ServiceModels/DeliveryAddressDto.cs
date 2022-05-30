@@ -1,10 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using HardwareServiceOrderServices.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace HardwareServiceOrderServices.ServiceModels
 {
     /// <inheritdoc cref="Models.DeliveryAddress"/>
     public class DeliveryAddressDTO
     {
+        [Required]
+        public RecipientTypeEnum RecipientType { get; set; }
+
         /// <example> MyPartner A/S </example>
         /// <inheritdoc cref="Models.DeliveryAddress.Recipient"/>
         [Required]

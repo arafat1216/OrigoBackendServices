@@ -106,12 +106,33 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// <summary>
         ///     Reserved JSON (de-)serializer constructor.
         /// </summary>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public NewExternalRepairOrderDTO()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
 
         }
 
+        public NewExternalRepairOrderDTO(Guid userId, string firstName, string lastName, string? phoneNumber, string email, Guid organizationId, string organizationName, string? organizationNumber, Guid partnerId, string partnerName, string partnerOrganizationNumber, DeliveryAddressDTO deliveryAddress, AssetInfoDTO assetInfo, string errorDescription)
+        {
+            UserId = userId;
+            FirstName = firstName;
+            LastName = lastName;
+            PhoneNumber = phoneNumber;
+            Email = email;
+            OrganizationId = organizationId;
+            OrganizationName = organizationName;
+            OrganizationNumber = organizationNumber;
+            PartnerId = partnerId;
+            PartnerName = partnerName;
+            PartnerOrganizationNumber = partnerOrganizationNumber;
+            DeliveryAddress = deliveryAddress;
+            AssetInfo = assetInfo;
+            ErrorDescription = errorDescription;
+        }
 
+        // TODO: Will be removed soon.
+        [Obsolete("Only to be used for manual testing inside the test-controller.")]
         public NewExternalRepairOrderDTO(Guid userId, string fistName, string lastName, string? phoneNumber, string email, Guid organizationId, string? organizationNumber, DeliveryAddressDTO deliveryAddress, AssetInfoDTO assetInfo, string errorDescription)
         {
             UserId = userId;
@@ -122,32 +143,6 @@ namespace HardwareServiceOrderServices.ServiceModels
             DeliveryAddress = deliveryAddress;
             AssetInfo = assetInfo;
             ErrorDescription = errorDescription;
-        }
-
-        // TODO: Should we introduce Levenshtein distance or Hamming distance to allow for typos? Or should we change it so this is provided by the caller?
-        /// <summary>
-        ///     Attempts to determine if the <see cref="DeliveryAddress"/> is for the company or the user.
-        /// </summary>
-        /// <returns> Returns <see langword="true"/> if the delivery address contains the <see cref="OrganizationName"/> or <see langword="false"/> if
-        ///     it contains either the <see cref="FirstName"/> or <see cref="LastName"/>. If we can't find either, meaning it's likely a custom shipping address,
-        ///     then <see langword="null"/> is returned. </returns>
-        public bool? HasCompanyDeliveryAddress()
-        {
-            // If it contains the company name, it's likely the company that's the receiver.
-            if (DeliveryAddress.Recipient.Contains(OrganizationName, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-            // If not, it's likely the user if parts of their name exist as a part of the receiver's name.
-            else if (DeliveryAddress.Recipient.Contains(FirstName, StringComparison.OrdinalIgnoreCase) || DeliveryAddress.Recipient.Contains(LastName, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-            // If none of the above, it's likely a custom delivery address, meaning it's not going to the attached organization
-            else
-            {
-                return null;
-            }
         }
     }
 }

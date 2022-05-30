@@ -34,7 +34,7 @@ namespace HardwareServiceOrderServices.Conmodo
 
 
         /// <inheritdoc/>
-        public async Task<NewExternalRepairOrderResponseDTO> CreateRepairOrderAsync(NewExternalRepairOrderDTO newRepairOrder, int serviceTypeId, string serviceId)
+        public async Task<NewExternalRepairOrderResponseDTO> CreateRepairOrderAsync(NewExternalRepairOrderDTO newRepairOrder, int serviceTypeId, string serviceOrderId)
         {
             if (string.IsNullOrEmpty(newRepairOrder.AssetInfo.Brand))
                 throw new ArgumentException("The asset's brand name is missing.", nameof(newRepairOrder));
@@ -49,26 +49,30 @@ namespace HardwareServiceOrderServices.Conmodo
                 (int)ExtraServicesEnum.ReturnToCustomerOrUser_NO
             };
 
-            string commId = serviceId;
             string? category = new CategoryMapper().ToConmodo(newRepairOrder.AssetInfo.AssetCategoryId);
             StartStatus startStatus = new StartStatusMapper().FromServiceType(serviceTypeId);
-
-            // Create the request objects            
             ProductInfo productInfo = new(category, newRepairOrder.AssetInfo.Brand, newRepairOrder.AssetInfo.Model, newRepairOrder.AssetInfo.Imei, newRepairOrder.AssetInfo.SerialNumber, newRepairOrder.AssetInfo.Accessories);
             Delivery deliveryAddress = new(newRepairOrder.DeliveryAddress.Address1, newRepairOrder.DeliveryAddress.Address2, newRepairOrder.DeliveryAddress.PostalCode, newRepairOrder.DeliveryAddress.City);
             Contact customerHandler = new(newRepairOrder.PartnerId.ToString(), newRepairOrder.PartnerName, newRepairOrder.PartnerOrganizationNumber);
-            Contact serviceRequestOwner = (newRepairOrder.HasCompanyDeliveryAddress() == true)
-                // Return to a company
-                ? new(newRepairOrder.UserId.ToString(), newRepairOrder.FirstName, newRepairOrder.LastName, newRepairOrder.OrganizationName, newRepairOrder.OrganizationNumber, newRepairOrder.Email, newRepairOrder.PhoneNumber, deliveryAddress, newRepairOrder.DeliveryAddress.Country)
-                // Return to a user or a custom address
-                : new(newRepairOrder.UserId.ToString(), newRepairOrder.FirstName, newRepairOrder.LastName, newRepairOrder.Email, newRepairOrder.PhoneNumber, deliveryAddress, newRepairOrder.DeliveryAddress.Country);
-            CreateOrderRequest orderRequest = new(commId, newRepairOrder.OrganizationName, customerHandler, startStatus, newRepairOrder.ErrorDescription, productInfo, newRepairOrder.AssetInfo.PurchaseDate, serviceRequestOwner, extraServices);
+            Contact serviceRequestOwner;
+            
+            // Return to a company
+            if (newRepairOrder.DeliveryAddress.RecipientType == Models.RecipientTypeEnum.Organization)
+                serviceRequestOwner = new(newRepairOrder.UserId.ToString(), newRepairOrder.FirstName, newRepairOrder.LastName, newRepairOrder.OrganizationName, newRepairOrder.OrganizationNumber, newRepairOrder.Email, newRepairOrder.PhoneNumber, deliveryAddress, newRepairOrder.DeliveryAddress.Country);
+            // Return to a user
+            else if (newRepairOrder.DeliveryAddress.RecipientType == Models.RecipientTypeEnum.Personal)
+                serviceRequestOwner = new(newRepairOrder.UserId.ToString(), newRepairOrder.FirstName, newRepairOrder.LastName, newRepairOrder.Email, newRepairOrder.PhoneNumber, deliveryAddress, newRepairOrder.DeliveryAddress.Country);
+            // Unsupported value
+            else
+                throw new ArgumentException("An unsupported recipient type was used for the return address.");
+            
+            CreateOrderRequest orderRequest = new(serviceOrderId, newRepairOrder.OrganizationName, customerHandler, startStatus, newRepairOrder.ErrorDescription, productInfo, newRepairOrder.AssetInfo.PurchaseDate, serviceRequestOwner, extraServices);
 
             // Do the request
             var response = await ApiRequests.CreateServiceOrderAsync(orderRequest);
 
             // Create the return object
-            NewExternalRepairOrderResponseDTO repairOrderResponse = new(commId, response.OrderNumber.ToString(), response.DirectCustomerLink);
+            NewExternalRepairOrderResponseDTO repairOrderResponse = new(serviceOrderId, response.OrderNumber.ToString(), response.DirectCustomerLink);
             return repairOrderResponse;
         }
 

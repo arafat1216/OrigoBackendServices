@@ -1,25 +1,66 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace HardwareServiceOrderServices.Models
 {
     /// <summary>
     ///     Represents a single shipping address.
     /// </summary>
+    // See: https://www.posten.no/sende/adressering
+    // See: https://thegood.com/insights/address-line-2/
+    // See: https://incorporated.zone/address-line-2/
     public class DeliveryAddress
     {
+        /// <summary>
+        ///     A discriminator that tells us what kind of address this is. This is needed to the system can forward/register the correct kind if data.
+        /// </summary>
+        public RecipientTypeEnum RecipientType { get; set; }
+
         /// <summary>
         ///     The name of the recipient. Typically this will be the name of a person or company.
         /// </summary>
         public string Recipient { get; set; }
 
         /// <summary>
-        ///     Mandatory 1st address line.
+        ///     The primary address information (street address information).
         /// </summary>
         public string Address1 { get; set; }
 
         /// <summary>
-        ///     Optional 2nd address line.
+        ///     This is typically used for additional address designation that is not part of the primary address, such as:
+        ///     
+        ///     <list type="number">
+        ///         <item>
+        ///             <term>C/O</term>
+        ///             <description>in care of</description>
+        ///         </item>
+        ///         <item>
+        ///             <term>Attn</term>
+        ///             <description>attention</description>
+        ///         </item>
+        ///         <item>
+        ///             <term>Apartment number</term>
+        ///         </item>
+        ///         <item>
+        ///             <term>Suite number</term>
+        ///         </item>
+        ///         <item>
+        ///             <term>Unit number</term>
+        ///         </item>
+        ///         <item>
+        ///             <term>Space number</term>
+        ///         </item>
+        ///         <item>
+        ///             <term>Floor number</term>
+        ///         </item>
+        ///         <item>
+        ///             <term>Room number</term>
+        ///         </item>
+        ///         <item>
+        ///             <term>PO Box number</term>
+        ///         </item>
+        ///     </list><para>
+        ///     
+        ///     Please note that not all providers utilizes this field.</para>
         /// </summary>
         public string? Address2 { get; set; }
 
@@ -51,8 +92,9 @@ namespace HardwareServiceOrderServices.Models
         {
         }
 
-        public DeliveryAddress(string recipient, string description, string address1, string address2, string postalCode, string city, string country)
+        public DeliveryAddress(RecipientTypeEnum recipientType, string recipient, string address1, string address2, string postalCode, string city, string country)
         {
+            RecipientType = recipientType;
             Recipient = recipient;
             Address1 = address1;
             Address2 = address2;

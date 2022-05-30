@@ -26,7 +26,7 @@ namespace HardwareServiceOrder.UnitTests
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
-            var deliveryAddress = new DeliveryAddress("Recipient", "Description", "Address1", "Address2", "PostalCode", "City", "Country");
+            var deliveryAddress = new DeliveryAddress(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
             var serviceType = new ServiceType() { Id = 400 };
             var serviceProvider = new ServiceProvider { OrganizationId = CUSTOMER_ONE_ID };
 

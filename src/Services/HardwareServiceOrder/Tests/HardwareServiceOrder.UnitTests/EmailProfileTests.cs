@@ -22,7 +22,7 @@ namespace HardwareServiceOrder.UnitTests
         [Fact]
         public void HardwareServiceOrderToAssetRepairEmail()
         {
-            var deliveryAddress = new DeliveryAddress("Recipient", "Description", "Address1", "Address2", "PostalCode", "City", "Country");
+            var deliveryAddress = new DeliveryAddress(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
             var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.Recycle };
             var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Registered };
             var serviceProvider = new ServiceProvider { OrganizationId = Guid.NewGuid() };
@@ -67,7 +67,7 @@ namespace HardwareServiceOrder.UnitTests
         [Fact]
         public void HardwareServiceOrderToLoanDevice()
         {
-            var deliveryAddress = new DeliveryAddress("Recipient", "Description", "Address1", "Address2", "PostalCode", "City", "Country");
+            var deliveryAddress = new DeliveryAddress(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
             var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.Recycle };
             var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Registered };
             var serviceProvider = new ServiceProvider { OrganizationId = Guid.NewGuid() };
@@ -83,7 +83,7 @@ namespace HardwareServiceOrder.UnitTests
         [Fact]
         public void HardwareServiceOrderToAssetDiscardedEmail()
         {
-            var deliveryAddress = new DeliveryAddress("Recipient", "Description", "Address1", "Address2", "PostalCode", "City", "Country");
+            var deliveryAddress = new DeliveryAddress(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
             var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.Recycle };
             var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Registered };
             var serviceProvider = new ServiceProvider { OrganizationId = Guid.NewGuid() };
