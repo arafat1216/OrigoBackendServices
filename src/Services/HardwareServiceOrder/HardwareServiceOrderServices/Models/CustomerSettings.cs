@@ -28,7 +28,7 @@ namespace HardwareServiceOrderServices.Models
             CreatedBy = callerId;
         }
 
-        // TODO: Should this be renamed and moved to the customer's provider settings? It's not really a service-ID, but the customer's API username.
+        // TODO: Should this be renamed and moved to the customer's provider settings? It's not really a service-ID, but the customer's API username. It is also specific for Conmodo.
         /// <summary>
         ///     The customer's own Conmodo Service ID
         /// </summary>

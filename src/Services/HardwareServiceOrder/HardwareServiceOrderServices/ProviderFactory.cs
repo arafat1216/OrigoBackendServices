@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using HardwareServiceOrderServices.Models;
+using Microsoft.Extensions.Options;
 
 namespace HardwareServiceOrderServices
 {
@@ -63,7 +64,7 @@ namespace HardwareServiceOrderServices
         /// <summary>
         ///     Retrieves Conmodo's repair interface.
         /// </summary>
-        /// <param name="apiUsername"> The customer's API username. </param>
+        /// <param name="apiUsername"> The customer's API username. This is their <see cref="CustomerSettings.ServiceId"/>. </param>
         /// <returns> The corresponding <see cref="IRepairProvider"/>. </returns>
         /// <exception cref="ApplicationException"> Thrown when the configurations/secrets was not found. </exception>
         private IRepairProvider GetConmodo(string apiUsername)

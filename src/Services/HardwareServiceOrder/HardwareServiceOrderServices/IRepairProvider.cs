@@ -14,9 +14,10 @@ namespace HardwareServiceOrderServices
         /// </summary>
         /// <param name="newRepairOrder"> The repair order details. </param>
         /// <param name="serviceTypeId"> The ID of the service type that should be used. </param>
-        /// <param name="serviceId"> The customer's Conmodo <see cref="CustomerSettings.ServiceId"/>. </param>
-        /// <returns> The repair order. </returns>
-        Task<NewExternalRepairOrderResponseDTO> CreateRepairOrderAsync(NewExternalRepairOrderDTO newRepairOrder, int serviceTypeId, string serviceId);
+        /// <param name="serviceOrderId"> If supported by the provider, the ID we want to associate with the service order. 
+        ///     For some providers this may function as an alternate key/identifier, or can be used for reference purposes. </param>
+        /// <returns> The registered repair order. </returns>
+        Task<NewExternalRepairOrderResponseDTO> CreateRepairOrderAsync(NewExternalRepairOrderDTO newRepairOrder, int serviceTypeId, string serviceOrderId);
 
         /// <summary>
         ///     Retrieve a specific repair order using it's ID(s). Based on the service-provider, one or several keys may be required.

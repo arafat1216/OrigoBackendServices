@@ -93,7 +93,7 @@ namespace HardwareServiceOrder.API.Controllers
         public async Task<ActionResult> CreateTest3([FromBody] NewExternalRepairOrderDTO repairOrder)
         {
             var providerInterface = await _providerFactory.GetRepairProviderAsync(1, "52079706");
-            var orderResponse = providerInterface.CreateRepairOrderAsync(repairOrder, (int)ServiceTypeEnum.SUR, "52079706");
+            var orderResponse = providerInterface.CreateRepairOrderAsync(repairOrder, (int)ServiceTypeEnum.SUR, Guid.Empty.ToString());
 
             return Ok(orderResponse);
         }
