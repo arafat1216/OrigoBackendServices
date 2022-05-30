@@ -96,7 +96,7 @@ public class AssetServicesTests : AssetBaseTest
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
             // Act
-            var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, AssetLifecycleStatus.InUse, null);
+            var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, AssetLifecycleStatus.InUse);
 
             // Assert
             Assert.Equal(2, assetsFromCompany);
@@ -257,7 +257,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void SaveAssetForCustomer_WithoutAssetHolderAndDepartmentAssigned()
+    public async Task SaveAssetForCustomer_WithoutAssetHolderAndDepartmentAssigned()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -292,7 +292,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void SaveAssetForCustomer_WithPaidByCompany()
+    public async Task SaveAssetForCustomer_WithPaidByCompany()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -329,7 +329,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void SaveAssetForCustomer_WithoutPaidByCompany()
+    public async Task SaveAssetForCustomer_WithoutPaidByCompany()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -433,7 +433,7 @@ public class AssetServicesTests : AssetBaseTest
     }
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async Task AddAssetForCustomerAsync_NewAssetNoLifcycle_AssetStatusShouldBeInUse()
+    public async Task AddAssetForCustomerAsync_NewAssetNoLifecycle_AssetStatusShouldBeInUse()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -467,7 +467,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void AddAssetForCustomerAsync_IMEINot15Digits_ShouldThrowInvalidAssetDataException()
+    public async Task AddAssetForCustomerAsync_IMEINot15Digits_ShouldThrowInvalidAssetDataException()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -499,7 +499,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void AddAssetForCustomerAsync_IMEIWithNoElementInList_ShouldReturnInputRequired()
+    public async Task AddAssetForCustomerAsync_IMEIWithNoElementInList_ShouldReturnInputRequired()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -625,7 +625,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void ImeiValidationAttribute_Invalid()
+    public async Task ImeiValidationAttribute_Invalid()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -642,7 +642,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void ImeiValidationAttribute_Valid()
+    public async Task ImeiValidationAttribute_Valid()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -659,7 +659,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void CreateLabelsForCustomer()
+    public async Task CreateLabelsForCustomer()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -684,7 +684,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void DeleteLabelsForCustomer()
+    public async Task DeleteLabelsForCustomer()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -703,7 +703,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void UpdateLabelsForCustomer()
+    public async Task UpdateLabelsForCustomer()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -728,7 +728,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void AssignLabelsForAsset()
+    public async Task AssignLabelsForAsset()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -756,7 +756,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void UnAssignLabelsForAsset()
+    public async Task UnAssignLabelsForAsset()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -823,7 +823,7 @@ public class AssetServicesTests : AssetBaseTest
             Brand = "iPhone",
             ProductName = "iPhone X",
             LifecycleType = LifecycleType.Transactional,
-            PurchaseDate = new DateTime(2020, 1, 1),
+            PurchaseDate = purchaseDate,
             AssetHolderId = ASSETHOLDER_ONE_ID,
             Imei = new List<long> { 458718920164666 },
             MacAddress = "5e:c4:33:df:61:70",
@@ -933,7 +933,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void MakeAssetAvailableAsync()
+    public async Task MakeAssetAvailableAsync()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -960,7 +960,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void UpdateLifeCycleSettingForCustomerAsync_NotFound()
+    public async Task UpdateLifeCycleSettingForCustomerAsync_NotFound()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -980,7 +980,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void UpdateLifeCycleSettingForCustomerAsync()
+    public async Task UpdateLifeCycleSettingForCustomerAsync()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -995,7 +995,7 @@ public class AssetServicesTests : AssetBaseTest
         };
 
         // Act 
-        var setting = await assetService.UpdateLifeCycleSettingForCustomerAsync(lifeCycleSetting.CustomerId, lifeCycleSetting, Guid.Empty);
+        await assetService.UpdateLifeCycleSettingForCustomerAsync(lifeCycleSetting.CustomerId, lifeCycleSetting, Guid.Empty);
         var updatedSetting = await assetService.GetLifeCycleSettingByCustomer(lifeCycleSetting.CustomerId);
 
         // Assert
@@ -1006,7 +1006,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void AddLifeCycleSettingForCustomerAsync()
+    public async Task AddLifeCycleSettingForCustomerAsync()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -1030,7 +1030,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void SetLifeCycleSettingForCustomerAsync_NotFound()
+    public async Task SetLifeCycleSettingForCustomerAsync_NotFound()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -1050,7 +1050,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void SetLifeCycleSettingForCustomerAsync()
+    public async Task SetLifeCycleSettingForCustomerAsync()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -1064,7 +1064,7 @@ public class AssetServicesTests : AssetBaseTest
         };
 
         // Act
-        var setting = await assetService.AddLifeCycleSettingForCustomerAsync(COMPANY_ID, lifeCycleSetting, Guid.Empty);
+        await assetService.AddLifeCycleSettingForCustomerAsync(COMPANY_ID, lifeCycleSetting, Guid.Empty);
         var allSetting = await assetService.GetLifeCycleSettingByCustomer(COMPANY_ID);
         var addedSetting = allSetting.FirstOrDefault(x => x.AssetCategoryId == lifeCycleSetting.AssetCategoryId);
 
@@ -1076,7 +1076,7 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async void UpdateCategorySettingForCustomerAsync()
+    public async Task UpdateCategorySettingForCustomerAsync()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -1090,7 +1090,7 @@ public class AssetServicesTests : AssetBaseTest
         };
 
         // Act
-        var setting = await assetService.UpdateLifeCycleSettingForCustomerAsync(COMPANY_ID, lifeCycleSetting, Guid.Empty);
+        await assetService.UpdateLifeCycleSettingForCustomerAsync(COMPANY_ID, lifeCycleSetting, Guid.Empty);
         var allSetting = await assetService.GetLifeCycleSettingByCustomer(COMPANY_ID);
         var addedSetting = allSetting.FirstOrDefault(x => x.AssetCategoryId == lifeCycleSetting.AssetCategoryId);
 
@@ -1101,7 +1101,7 @@ public class AssetServicesTests : AssetBaseTest
     
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async Task AssignAssetLifeCycleToHolder_AssigneToDepartment()
+    public async Task AssignAssetLifeCycleToHolder_AssignToDepartment()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -1111,7 +1111,7 @@ public class AssetServicesTests : AssetBaseTest
         
         var asset = await assetService.AssignAssetLifeCycleToHolder(COMPANY_ID, ASSETLIFECYCLE_ONE_ID, Guid.Empty, DEPARTMENT_ID, CALLER_ID);
        
-        Assert.False(asset.IsPersonal);
+        Assert.False(asset!.IsPersonal);
         Assert.Equal(DEPARTMENT_ID, asset.ManagedByDepartmentId);
         Assert.Null(asset.ContractHolderUserId);
 
