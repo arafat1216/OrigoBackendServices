@@ -205,7 +205,7 @@ namespace OrigoApiGateway.Tests
 
 
             // Act
-            var pagedAsset = await assetService.GetAssetsForCustomerAsync(new Guid(CUSTOMER_ID));
+            var pagedAsset = await assetService.GetAssetsForCustomerAsync(new Guid(CUSTOMER_ID), new FilterOptionsForAsset());
 
             // Assert
             Assert.True(pagedAsset.TotalItems == 3);

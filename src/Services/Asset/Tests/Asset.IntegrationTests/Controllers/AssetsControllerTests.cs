@@ -60,18 +60,34 @@ namespace Asset.IntegrationTests.Controllers
         [Fact]
         public async Task GetAssetsForCustomer()
         {
-            // Arrange
+            int[] category = new int[] { 1,2 };
+            IList<Guid?> depts = new List<Guid?> { new Guid("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72") };
+            IList<AssetLifecycleStatus> status = new List<AssetLifecycleStatus>{AssetLifecycleStatus.Active ,
+            AssetLifecycleStatus.Recycled};
+            Guid[] labels = new Guid[] { new Guid("cab4bb77-3471-4ab3-ae5e-2d4fce450f36"),
+            new Guid("dab4bb77-3471-4ab3-ae5e-2d4fce450f37")};
+
+
+            var filterOptions = new FilterOptionsForAsset
+            {
+                Status = status,
+                Label = labels,
+                Department = depts,
+                Category = category
+            };
+
+            var json = JsonSerializer.Serialize(filterOptions);
+
             var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
-            var requestUri = $"/api/v1/Assets/customers/{_customerId}";
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}?filterOptions={json}";
 
             // Act
             var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
 
             // Assert
-            Assert.Equal(5, pagedAssetList!.Items.Count);
-            Assert.Equal(DateTime.UtcNow.Date, pagedAssetList.Items[0].CreatedDate.Date);
-            Assert.Equal(DateTime.UtcNow.Date, pagedAssetList.Items[1].CreatedDate.Date);
-            Assert.Equal(DateTime.UtcNow.Date, pagedAssetList.Items[2].CreatedDate.Date);
+            Assert.Equal(2, pagedAssetList!.Items.Count);
+            Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[0]!.CreatedDate.Date);
+            Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[1]!.CreatedDate.Date);
         }
 
         [Fact]

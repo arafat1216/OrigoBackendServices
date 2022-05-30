@@ -129,27 +129,96 @@ public class AssetServicesTests : AssetBaseTest
         var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
         // Act
-        var assetsFromUser = await
-            assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, string.Empty, 1, 10, null,
+        var assetsFromUser =
+            await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, string.Empty, 1, 10,
                 new CancellationToken());
 
-            // Assert
-            Assert.Equal(6, assetsFromUser.Items.Count);
+        // Assert
+        Assert.Equal(6, assetsFromUser.Items.Count);
+
+
+        // search with Filter Options
+
+
+        //filter data only label
+
+        Guid[] labels = new Guid[] { new Guid("D3EF00AB-C3B6-4751-982F-BF66738BC068") };
+
+
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, labels, null, 1, 10,
+             new CancellationToken());
+
+        Assert.Equal(3, assetsFromUser.Items.Count);
+
+
+
+        //filter data only category
+
+        int[] category = new int[] { 1 };
+
+
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, category, null, null, 1, 10,
+             new CancellationToken());
+
+        Assert.Equal(6, assetsFromUser.Items.Count);
+
+
+
+        //filter data only department
+
+        IList<Guid?> depts = new List<Guid?> { new Guid("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72") };
+
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, depts, null, null, null, 1, 10, new CancellationToken());
+
+        Assert.Equal(3, assetsFromUser.Items.Count);
+
+
+        //filter data only status
+
+        IList<AssetLifecycleStatus> status = new List<AssetLifecycleStatus>{AssetLifecycleStatus.Active ,
+            AssetLifecycleStatus.Recycled};
+
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, status, null, null, null, null, 1, 10,
+            new CancellationToken());
+
+
+        Assert.Equal(2, assetsFromUser.Items.Count);
+
+
+        //filter data all options
+
+
+        status = new List<AssetLifecycleStatus>{AssetLifecycleStatus.Active ,
+            AssetLifecycleStatus.Recycled};
+
+        category = new int[] { 2 };
+
+        labels = new Guid[] { new Guid("BA92FC18-9399-4AC1-9BEB-57DCE85FF657") };
+
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, status, depts, category, labels, null, 1, 10,
+             new CancellationToken());
+
+        Assert.Equal(1, assetsFromUser.Items.Count);
+
+
+
 
         // search with serial key
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, "123456789012399", 1, 10,
-            null, new CancellationToken());
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, "123456789012399", 1, 10,
+             new CancellationToken());
 
-            // Assert 
-            Assert.Equal(4, assetsFromUser.Items.Count);
+        // Assert 
+        Assert.Equal(4, assetsFromUser.Items.Count);
 
         // search with IMEI
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, "512217111821626", 1, 10,
-            null, new CancellationToken());
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, "512217111821626", 1, 10,
+             new CancellationToken());
 
-            // Assert 
-            Assert.Equal(4, assetsFromUser.Items.Count);
-        }
+        // Assert 
+        Assert.Equal(4, assetsFromUser.Items.Count);
+
+
+    }
 
     [Fact]
     [Trait("Category", "UnitTest")]

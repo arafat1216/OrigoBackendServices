@@ -177,7 +177,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult> Get(Guid organizationId, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000, AssetLifecycleStatus? status = null)
+        public async Task<ActionResult> Get(Guid organizationId,[FromQuery] FilterOptionsForAsset filterOptions, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
             try
             {
@@ -196,7 +196,7 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId, search, page, limit);
+                var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId, filterOptions, search, page, limit);
                 if (assets == null)
                 {
                     return NotFound();

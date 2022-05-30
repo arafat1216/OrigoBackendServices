@@ -24,6 +24,7 @@ internal static class AssetTestDataSeedingForDatabase
     public static readonly Guid DEPARTMENT_ID = new("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72");
     public static readonly Guid DEPARTMENT_TWO_ID = new("fe625c35-91d0-448e-a803-0dcbbd97f1d5");
     public static readonly Guid COMPANY_ID = new("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
+    public static readonly Guid COMPANY_ID_TWO = new("dab4bb77-3471-4ab3-ae5e-2d4fce450f37");
     public static readonly Guid ASSETHOLDER_ONE_ID = new("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
 
     public static void InitialiseDbForTests(AssetsContext dbContext)
@@ -40,6 +41,12 @@ internal static class AssetTestDataSeedingForDatabase
 
         var assetFour = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012397", "Apple", "iPhone 11 Pro",
             new List<AssetImei> { new(512217111821624) }, "840F1D0C06AB");
+
+        var assetFive = new Tablet(Guid.NewGuid(), CALLER_ID, "123456789012397", "Apple", "iPhone 11 Pro",
+            new List<AssetImei> { new(512217111821624) }, "840F1D0C06AB");
+
+        var labelOne = new CustomerLabel(COMPANY_ID, COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
+        var labelTwo = new CustomerLabel(COMPANY_ID_TWO, COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
 
         var userOne = new User { ExternalId = ASSETHOLDER_ONE_ID };
         var assetLifecycleOne = new AssetLifecycle(ASSETLIFECYCLE_ONE_ID)
@@ -91,16 +98,41 @@ internal static class AssetTestDataSeedingForDatabase
         assetLifecycleFive.AssignAsset(assetFour, CALLER_ID);
         assetLifecycleFive.AssignAssetLifecycleHolder(null,DEPARTMENT_ID, CALLER_ID);
 
+        var assetLifecycleSix = new AssetLifecycle(ASSETLIFECYCLE_FIVE_ID)
+        {
+            CustomerId = COMPANY_ID,
+            Alias = "alias_5",
+            AssetLifecycleStatus = AssetLifecycleStatus.Active,
+            AssetLifecycleType = LifecycleType.NoLifecycle
+        };
+        assetLifecycleSix.AssignAsset(assetFour, CALLER_ID);
+        assetLifecycleSix.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
+        assetLifecycleSix.AssignCustomerLabel(labelOne, CALLER_ID);
+
+
+        var assetLifecycleSeven = new AssetLifecycle(ASSETLIFECYCLE_FIVE_ID)
+        {
+            CustomerId = COMPANY_ID,
+            Alias = "alias_6",
+            AssetLifecycleStatus = AssetLifecycleStatus.Recycled,
+            AssetLifecycleType = LifecycleType.NoLifecycle
+        };
+        assetLifecycleSeven.AssignAsset(assetFive, CALLER_ID);
+        assetLifecycleSeven.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
+        assetLifecycleSeven.AssignCustomerLabel(labelTwo, CALLER_ID);
+
+
         var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID, 1, true, 700M, Guid.Empty);
 
         dbContext.Users.AddRange(userOne);
-        dbContext.Assets.AddRange(assetOne, assetTwo, assetThree);
+        dbContext.Assets.AddRange(assetOne, assetTwo, assetThree,assetFour ,assetFive);
         dbContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree,
-            assetLifecycleFour, assetLifecycleFive);
+            assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven);
         dbContext.LifeCycleSettings.AddRange(lifeCycleSetting);
 
         var label = new CustomerLabel(COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
-        dbContext.CustomerLabels.Add(label);
+
+        dbContext.CustomerLabels.AddRange(labelOne, labelTwo);
 
         dbContext.SaveChanges();
     }

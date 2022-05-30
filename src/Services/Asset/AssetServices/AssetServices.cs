@@ -64,11 +64,12 @@ namespace AssetServices
             await _assetLifecycleRepository.UnAssignAssetLifecyclesForUserAsync(customerId: customerId, userId: userId, departmentId: departmentId, callerId: callerId);
         }
 
-        public async Task<PagedModel<AssetLifecycleDTO>> GetAssetLifecyclesForCustomerAsync(Guid customerId, string search, int page, int limit, AssetLifecycleStatus? status, CancellationToken cancellationToken)
+        public async Task<PagedModel<AssetLifecycleDTO>> GetAssetLifecyclesForCustomerAsync(Guid customerId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
+           Guid[]? label, string search, int page, int limit, CancellationToken cancellationToken)
         {
             try
             {
-                var pagedAssetLifeCycles = await _assetLifecycleRepository.GetAssetLifecyclesAsync(customerId, search, status, page, limit, cancellationToken);
+                var pagedAssetLifeCycles = await _assetLifecycleRepository.GetAssetLifecyclesAsync(customerId, status, department, category, label, search, page, limit, cancellationToken);
                 var pagedServiceAssetLifecycles = _mapper.Map<PagedModel<AssetLifecycleDTO>>(pagedAssetLifeCycles);
                 return pagedServiceAssetLifecycles;
             }

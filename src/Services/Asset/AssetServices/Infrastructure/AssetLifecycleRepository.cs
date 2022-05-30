@@ -100,8 +100,8 @@ namespace AssetServices.Infrastructure
             return assets.Sum(x => x.BookValue);
         }
 
-        public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string search,
-            AssetLifecycleStatus? status, int page, int limit, CancellationToken cancellationToken)
+        public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
+           Guid[]? label, string search, int page, int limit, CancellationToken cancellationToken)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
             query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
@@ -124,8 +124,36 @@ namespace AssetServices.Infrastructure
                                               (al.Asset is MobilePhone && (al.Asset as MobilePhone).SerialNumber.ToLower().Contains(search.ToLower()))
                 );
             }
+
+            
+
             if (status != null)
-                query = query.Where(al => al.AssetLifecycleStatus == status);
+            {
+                query = query.Where(al => status.Contains(al.AssetLifecycleStatus));
+            }
+            if (department != null)
+            {
+                query = query.Where(al => department.Contains(al.ManagedByDepartmentId));
+            }
+
+            if (category != null && category.Length == 1)
+            {
+                if(category[0] == 1)
+                 query = query.Where(al => al.Asset is MobilePhone);
+                else if(category[0] == 2)
+                 query = query.Where(al => al.Asset is Tablet);
+                
+                //query = query.Where(al => category.Contains(al.AssetCategoryId));
+            }
+            else if(category != null && category.Length == 2)
+            {
+                query = query.Where(al => al.Asset is MobilePhone || al.Asset is Tablet);
+            }
+
+            if (label != null)
+            {
+                query = query.Where(al => al.Labels.Any(e => label.Contains(e.ExternalId)) );
+            }
 
             query = query.AsSplitQuery().AsNoTracking();
             return await query.PaginateAsync(page, limit, cancellationToken);
