@@ -653,7 +653,7 @@ namespace AssetServices
         #region LifeCycleSetting
         public async Task<LifeCycleSettingDTO> AddLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId)
         {
-            var lifeCycleSetting = new LifeCycleSetting(customerId, lifeCycleSettingDTO.AssetCategoryId, lifeCycleSettingDTO.BuyoutAllowed, lifeCycleSettingDTO.MinBuyoutPrice, CallerId);
+            var lifeCycleSetting = new LifeCycleSetting(customerId, lifeCycleSettingDTO.AssetCategoryId, lifeCycleSettingDTO.BuyoutAllowed, lifeCycleSettingDTO.MinBuyoutPrice, lifeCycleSettingDTO.Runtime, CallerId);
 
             var addedSetting = await _assetLifecycleRepository.AddLifeCycleSettingAsync(lifeCycleSetting);
             return _mapper.Map<LifeCycleSettingDTO>(addedSetting);

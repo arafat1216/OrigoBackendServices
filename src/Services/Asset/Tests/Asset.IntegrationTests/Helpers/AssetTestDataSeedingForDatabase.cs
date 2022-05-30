@@ -122,7 +122,7 @@ internal static class AssetTestDataSeedingForDatabase
         assetLifecycleSeven.AssignCustomerLabel(labelTwo, CALLER_ID);
 
 
-        var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID, 1, true, 700M, Guid.Empty);
+        var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID, 1, true, 700M, 24, Guid.Empty);
 
         dbContext.Users.AddRange(userOne);
         dbContext.Assets.AddRange(assetOne, assetTwo, assetThree,assetFour ,assetFive);

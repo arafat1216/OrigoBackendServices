@@ -103,8 +103,7 @@ namespace AssetServices.UnitTests
             assetLifecycleOther.AssignAsset(assetOther, CALLER_ID);
             assetLifecycleOther.AssignAssetLifecycleHolder(new User{ExternalId = Guid.NewGuid()},null, CALLER_ID);
 
-
-            var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID,1, true,500M, Guid.Empty);
+            var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID,1, true, 500M, 24, Guid.Empty);
             lifeCycleSetting.SetMinBuyoutPrice(700M, Guid.Empty);
 
             context.Users.AddRange(userOne, userTwo);

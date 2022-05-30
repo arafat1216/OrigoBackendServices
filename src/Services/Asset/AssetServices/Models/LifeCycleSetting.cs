@@ -6,13 +6,14 @@ namespace AssetServices.Models;
 
 public class LifeCycleSetting : Entity, IAggregateRoot
 {
-    public LifeCycleSetting(Guid customerId, int assetCategoryId, bool buyoutAllowed, decimal minBuyoutPrice, Guid callerId)
+    public LifeCycleSetting(Guid customerId, int assetCategoryId, bool buyoutAllowed, decimal minBuyoutPrice, int runtime, Guid callerId)
     {
         CustomerId = customerId;
         BuyoutAllowed = buyoutAllowed;
         MinBuyoutPrice = minBuyoutPrice;
         AssetCategoryId = assetCategoryId;
         CreatedBy = callerId;
+        Runtime = runtime;
     }
 
     public LifeCycleSetting()
@@ -43,6 +44,11 @@ public class LifeCycleSetting : Entity, IAggregateRoot
     /// The category id that the setting is for.
     /// </summary>
     public int AssetCategoryId { get; init; }
+
+    /// <summary>
+    /// The runtime set for this customer for this category.
+    /// </summary>
+    public int Runtime { get; set; }
 
     /// <summary>
     /// Return the name of the category based on the Category Id.

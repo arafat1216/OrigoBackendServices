@@ -1017,15 +1017,17 @@ public class AssetServicesTests : AssetBaseTest
         {
             CustomerId = Guid.NewGuid(),
             BuyoutAllowed = true,
+            Runtime = 32
         };
 
         // Act
         var addedSetting = await assetService.AddLifeCycleSettingForCustomerAsync(lifeCycleSetting.CustomerId, lifeCycleSetting, Guid.Empty);
 
         // Assert
-        Assert.True(addedSetting.BuyoutAllowed == lifeCycleSetting.BuyoutAllowed);
-        Assert.True(addedSetting.CustomerId == lifeCycleSetting.CustomerId);
-        Assert.True(addedSetting.CreatedDate.Date == DateTime.UtcNow.Date);
+        Assert.Equal(lifeCycleSetting.BuyoutAllowed, addedSetting.BuyoutAllowed);
+        Assert.Equal(lifeCycleSetting.CustomerId, addedSetting.CustomerId);
+        Assert.Equal(DateTime.UtcNow.Date, addedSetting.CreatedDate.Date);
+        Assert.Equal(lifeCycleSetting.Runtime, addedSetting.Runtime);
     }
 
     [Fact]
@@ -1060,7 +1062,8 @@ public class AssetServicesTests : AssetBaseTest
         var lifeCycleSetting = new LifeCycleSettingDTO()
         {
             AssetCategoryId = 2,
-            MinBuyoutPrice=800M
+            MinBuyoutPrice=800M,
+            Runtime = 24
         };
 
         // Act
@@ -1069,9 +1072,10 @@ public class AssetServicesTests : AssetBaseTest
         var addedSetting = allSetting.FirstOrDefault(x => x.AssetCategoryId == lifeCycleSetting.AssetCategoryId);
 
         // Assert
-        Assert.True(allSetting.Count == 2);
-        Assert.True(addedSetting!.MinBuyoutPrice == lifeCycleSetting.MinBuyoutPrice);
-        Assert.True(addedSetting!.AssetCategoryName == "Tablet");
+        Assert.Equal(2, allSetting.Count);
+        Assert.Equal(lifeCycleSetting.MinBuyoutPrice, addedSetting!.MinBuyoutPrice);
+        Assert.Equal("Tablet", addedSetting!.AssetCategoryName);
+        Assert.Equal(24, addedSetting!.Runtime);
     }
 
     [Fact]
