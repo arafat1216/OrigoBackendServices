@@ -15,7 +15,7 @@ namespace HardwareServiceOrderServices.ServiceModels
         [Required]
         public string Address1 { get; set; }
 
-        /// <example> null </example>
+        /// <example> C/O: John Doe </example>
         /// <inheritdoc cref="Models.DeliveryAddress.Address2"/>
         public string? Address2 { get; set; }
 
@@ -39,7 +39,7 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// <example> NO </example>
         /// <inheritdoc cref="Models.DeliveryAddress.Country"/>
         [Required]
-        [RegularExpression("^[A-Z]{2}")]
+        [RegularExpression("^[A-Z]{2}$")]
         [StringLength(maximumLength: 2, MinimumLength = 2)]
         public string Country
         {
