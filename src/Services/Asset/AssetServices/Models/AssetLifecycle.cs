@@ -460,4 +460,13 @@ public class AssetLifecycle : Entity, IAggregateRoot
         }
         return purchaseDate.Date.AddMonths(1).AddDays(-purchaseDate.Day + 1);
     }
+
+    public void SentToRepair(Guid callerId)
+    {
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        var previousLifecycleStatus = _assetLifecycleStatus;
+        _assetLifecycleStatus = AssetLifecycleStatus.Repair;
+        AddDomainEvent(new AssetSentToRepairDomainEvent(this, previousLifecycleStatus, callerId));
+    }
 }
