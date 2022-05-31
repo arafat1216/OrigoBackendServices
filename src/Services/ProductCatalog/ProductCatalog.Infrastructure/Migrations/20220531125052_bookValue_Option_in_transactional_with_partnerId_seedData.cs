@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ProductCatalog.Infrastructure.Migrations
 {
-    public partial class bookValue_Option_in_transactional : Migration
+    public partial class bookValue_Option_in_transactional_with_partnerId_seedData : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,10 +14,31 @@ namespace ProductCatalog.Infrastructure.Migrations
                 columns: new[] { "Id", "AccessControlPermissionNode", "FeatureTypeId", "UpdatedBy" },
                 values: new object[] { 5, "BasicBookValueManagement", 1, new Guid("00000000-0000-0000-0000-000000000001") });
 
+            migrationBuilder.UpdateData(
+                table: "Products",
+                keyColumn: "Id",
+                keyValue: 1,
+                column: "PartnerId",
+                value: new Guid("5741b4a1-4eef-4fc2-b1b8-0ba7f41ed93c"));
+
+            migrationBuilder.UpdateData(
+                table: "Products",
+                keyColumn: "Id",
+                keyValue: 2,
+                column: "PartnerId",
+                value: new Guid("5741b4a1-4eef-4fc2-b1b8-0ba7f41ed93c"));
+
+            migrationBuilder.UpdateData(
+                table: "Products",
+                keyColumn: "Id",
+                keyValue: 3,
+                column: "PartnerId",
+                value: new Guid("5741b4a1-4eef-4fc2-b1b8-0ba7f41ed93c"));
+
             migrationBuilder.InsertData(
                 table: "Products",
                 columns: new[] { "Id", "PartnerId", "ProductTypeId", "UpdatedBy" },
-                values: new object[] { 4, new Guid("00000000-0000-0000-0000-000000000000"), 3, new Guid("00000000-0000-0000-0000-000000000000") });
+                values: new object[] { 4, new Guid("5741b4a1-4eef-4fc2-b1b8-0ba7f41ed93c"), 3, new Guid("00000000-0000-0000-0000-000000000000") });
 
             migrationBuilder.InsertData(
                 table: "FeatureTranslation",
@@ -25,7 +46,7 @@ namespace ProductCatalog.Infrastructure.Migrations
                 values: new object[,]
                 {
                     { 5, "en", "Allows organizations to Book value and Purchase price related tasks.", "Basic Book Value Management", new Guid("00000000-0000-0000-0000-000000000001") },
-                    { 5, "nb", "Gir kunder tilgang til grunnleggende administrering av ikke-personlige assets.", "Grunnleggende administrering av ikke-personlige assets", new Guid("00000000-0000-0000-0000-000000000001") }
+                    { 5, "nb", "Gir organisasjonen mulighet til å utføre oppgaver relatert til bokført verdi og kjøpspris", "Håndtering av Bokført verdi", new Guid("00000000-0000-0000-0000-000000000001") }
                 });
 
             migrationBuilder.InsertData(
@@ -48,7 +69,7 @@ namespace ProductCatalog.Infrastructure.Migrations
                 values: new object[,]
                 {
                     { "en", 4, "Allow Bookvalue and Purchas Price", "Book Value and Purchase Price", new Guid("00000000-0000-0000-0000-000000000001") },
-                    { "nb", 4, "Ett partner spesifikk abonnement-håndtering produkt", "Abonnement-håndtering", new Guid("00000000-0000-0000-0000-000000000001") }
+                    { "nb", 4, "Tilgjengeliggjør bokført verdi og kjøpspris", "Bokført verdi og kjøpspris", new Guid("00000000-0000-0000-0000-000000000001") }
                 });
         }
 
@@ -98,6 +119,27 @@ namespace ProductCatalog.Infrastructure.Migrations
                 table: "Products",
                 keyColumn: "Id",
                 keyValue: 4);
+
+            migrationBuilder.UpdateData(
+                table: "Products",
+                keyColumn: "Id",
+                keyValue: 1,
+                column: "PartnerId",
+                value: new Guid("00000000-0000-0000-0000-000000000000"));
+
+            migrationBuilder.UpdateData(
+                table: "Products",
+                keyColumn: "Id",
+                keyValue: 2,
+                column: "PartnerId",
+                value: new Guid("00000000-0000-0000-0000-000000000000"));
+
+            migrationBuilder.UpdateData(
+                table: "Products",
+                keyColumn: "Id",
+                keyValue: 3,
+                column: "PartnerId",
+                value: new Guid("00000000-0000-0000-0000-000000000000"));
         }
     }
 }

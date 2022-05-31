@@ -12,8 +12,8 @@ using ProductCatalog.Infrastructure.Infrastructure.Context;
 namespace ProductCatalog.Infrastructure.Migrations
 {
     [DbContext(typeof(ProductCatalogContext))]
-    [Migration("20220524210656_bookValue_Option_in_transactional")]
-    partial class bookValue_Option_in_transactional
+    [Migration("20220531125052_bookValue_Option_in_transactional_with_partnerId_seedData")]
+    partial class bookValue_Option_in_transactional_with_partnerId_seedData
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -653,28 +653,28 @@ namespace ProductCatalog.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            PartnerId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            PartnerId = new Guid("5741b4a1-4eef-4fc2-b1b8-0ba7f41ed93c"),
                             ProductTypeId = 3,
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             Id = 2,
-                            PartnerId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            PartnerId = new Guid("5741b4a1-4eef-4fc2-b1b8-0ba7f41ed93c"),
                             ProductTypeId = 2,
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             Id = 3,
-                            PartnerId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            PartnerId = new Guid("5741b4a1-4eef-4fc2-b1b8-0ba7f41ed93c"),
                             ProductTypeId = 2,
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         },
                         new
                         {
                             Id = 4,
-                            PartnerId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            PartnerId = new Guid("5741b4a1-4eef-4fc2-b1b8-0ba7f41ed93c"),
                             ProductTypeId = 3,
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
                         });
@@ -935,8 +935,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                                 {
                                     FeatureId = 5,
                                     Language = "nb",
-                                    Description = "Gir kunder tilgang til grunnleggende administrering av ikke-personlige assets.",
-                                    Name = "Grunnleggende administrering av ikke-personlige assets",
+                                    Description = "Gir organisasjonen mulighet til å utføre oppgaver relatert til bokført verdi og kjøpspris",
+                                    Name = "Håndtering av Bokført verdi",
                                     UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                                 });
                         });
@@ -1242,8 +1242,8 @@ namespace ProductCatalog.Infrastructure.Migrations
                                 {
                                     ProductId = 4,
                                     Language = "nb",
-                                    Description = "Ett partner spesifikk abonnement-håndtering produkt",
-                                    Name = "Abonnement-håndtering",
+                                    Description = "Tilgjengeliggjør bokført verdi og kjøpspris",
+                                    Name = "Bokført verdi og kjøpspris",
                                     UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                                 });
                         });
