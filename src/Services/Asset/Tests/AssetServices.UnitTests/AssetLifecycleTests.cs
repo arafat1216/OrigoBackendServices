@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using AssetServices.DomainEvents.AssetLifecycleEvents;
 using AssetServices.Models;
 using AssetServices.ServiceModel;
 using Common.Enums;
@@ -79,5 +80,55 @@ public class AssetLifecycleTests
         Assert.Equal(2, assetLifeCycle.SalaryDeductionTransactionList.Last().Month);
         Assert.Equal(2025, assetLifeCycle.SalaryDeductionTransactionList.Last().Year);
         Assert.False(assetLifeCycle.SalaryDeductionTransactionList.Last().Cancelled);
+    }
+
+    [Fact]
+    public void AssignLifecycleHolder_NoHolderSetThenSetUser_CheckDomainEventsCreated()
+    {
+        // Arrange
+        Guid userId = Guid.NewGuid();
+        var user = new User() { ExternalId = userId };
+
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        // Act
+        assetLifecycle.AssignAssetLifecycleHolder(user, null, Guid.Empty);
+
+        // Assert
+        Assert.Equal(2, assetLifecycle.DomainEvents.Count);
+        Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(AssignContractHolderToAssetLifeCycleDomainEvent));
+        Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(UpdateAssetLifecycleStatusDomainEvent));
+        Assert.Equal(userId, assetLifecycle.ContractHolderUser!.ExternalId);
+        Assert.Null(assetLifecycle.ManagedByDepartmentId);
+    }
+
+    [Fact]
+    public void AssignLifecycleHolder_PersonalHolderSetThenSetUser_CheckDomainEventsCreated()
+    {
+        // Arrange
+        Guid newUserId = Guid.NewGuid();
+        const string USER_NAME = "test@test.com";
+        var user = new User() { ExternalId = newUserId };
+
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional,
+            //userName = USER_NAME
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        // Act
+        assetLifecycle.AssignAssetLifecycleHolder(user, null, Guid.Empty);
+
+        // Assert
+        Assert.Equal(2, assetLifecycle.DomainEvents.Count);
+        Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(AssignContractHolderToAssetLifeCycleDomainEvent));
+        Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(UpdateAssetLifecycleStatusDomainEvent));
+        Assert.Equal(newUserId, assetLifecycle.ContractHolderUser!.ExternalId);
+        Assert.Null(assetLifecycle.ManagedByDepartmentId);
     }
 }

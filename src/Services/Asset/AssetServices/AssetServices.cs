@@ -499,66 +499,47 @@ namespace AssetServices
             }
         }
 
-        public async Task<AssetLifecycleDTO?> AssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, Guid? userId, Guid? departmentId, Guid callerId)
-        {
-            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
-            if (assetLifecycle == null) return null;
-
-            if ((departmentId == null || departmentId == Guid.Empty) && userId != null && userId != Guid.Empty)
-            {
-                var user = await _assetLifecycleRepository.GetUser(userId.Value);
-                assetLifecycle.AssignAssetLifecycleHolder(user ?? new User { ExternalId = userId.Value }, null, callerId);
-            }
-            else
-            {
-                assetLifecycle.AssignAssetLifecycleHolder(null, departmentId, callerId);
-            }
-
-            await _assetLifecycleRepository.SaveEntitiesAsync();
-            return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
-        }
-
-        public async Task<AssetLifecycleDTO> ReAssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, ReAssignAssetDTO postData)
+        public async Task<AssetLifecycleDTO> AssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, AssignAssetDTO assignAssetDTO)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
             if (assetLifecycle == null) throw new ResourceNotFoundException("No asset were found using the given AssetId. Did you enter the correct Asset Id?", _logger);
-            if (postData.Personal)
+            if (assignAssetDTO.UserId != Guid.Empty)
             {
-                var user = await _assetLifecycleRepository.GetUser(postData.UserId);
+                var user = await _assetLifecycleRepository.GetUser(assignAssetDTO.UserId);
                 if (user == null) throw new ResourceNotFoundException("No User were found using the given UserId. Did you enter the correct User Id?", _logger);
-                assetLifecycle.ReAssignAssetLifeCycleToHolder(user, postData.DepartmentId, postData.DepartmentId);           
+                assetLifecycle.AssignAssetLifecycleHolder(user, null, assignAssetDTO.CallerId);
             }
             else
             {
-                assetLifecycle.ReAssignAssetLifeCycleToHolder(null, postData.DepartmentId, postData.CallerId);
+                assetLifecycle.AssignAssetLifecycleHolder(null, assignAssetDTO.DepartmentId, assignAssetDTO.CallerId);
             }
             await _assetLifecycleRepository.SaveEntitiesAsync();
 
-            // Email sendouts
-            if (postData.PreviousUser != null)
+            // Send emails
+            if (assignAssetDTO.PreviousUser != null)
             {
                 await _emailService.UnassignedFromUserEmailAsync(new Email.Model.UnassignedFromUserNotification()
                 {
-                    FirstName = postData.PreviousUser.Name,
-                    Recipient = postData.PreviousUser.Email
-                }, string.IsNullOrEmpty(postData.PreviousUser.PreferedLanguage) ? "en" : postData.PreviousUser.PreferedLanguage);
+                    FirstName = assignAssetDTO.PreviousUser.Name,
+                    Recipient = assignAssetDTO.PreviousUser.Email
+                }, string.IsNullOrEmpty(assignAssetDTO.PreviousUser.PreferedLanguage) ? "en" : assignAssetDTO.PreviousUser.PreferedLanguage);
             }
-            if (postData.NewUser != null)
+            if (assignAssetDTO.NewUser != null)
             {
                 await _emailService.ReAssignedToUserEmailAsync(new Email.Model.ReAssignedToUserNotification()
                 {
-                    FirstName = postData.NewUser.Name,
-                    Recipient = postData.NewUser.Email,
+                    FirstName = assignAssetDTO.NewUser.Name,
+                    Recipient = assignAssetDTO.NewUser.Email,
                     AssetLink = "https://www.example.com/"
-                }, string.IsNullOrEmpty(postData.NewUser.PreferedLanguage) ? "en" : postData.NewUser.PreferedLanguage);
+                }, string.IsNullOrEmpty(assignAssetDTO.NewUser.PreferedLanguage) ? "en" : assignAssetDTO.NewUser.PreferedLanguage);
             }
 
-            if (postData.PreviousManagers != null && postData.PreviousManagers.Any())
+            if (assignAssetDTO.PreviousManagers != null && assignAssetDTO.PreviousManagers.Any())
             {
                 await _emailService.UnassignedFromManagerEmailAsync(new Email.Model.UnassignedFromManagerNotification()
                 {
-                    Recipient = postData.PreviousManagers.Select(x => x.Email).ToList(),
-                }, string.IsNullOrEmpty(postData.PreviousManagers.FirstOrDefault()!.PreferedLanguage) ? "en" : postData.PreviousManagers.FirstOrDefault()!.PreferedLanguage);
+                    Recipient = assignAssetDTO.PreviousManagers.Select(x => x.Email).ToList(),
+                }, string.IsNullOrEmpty(assignAssetDTO.PreviousManagers.FirstOrDefault()!.PreferedLanguage) ? "en" : assignAssetDTO.PreviousManagers.FirstOrDefault()!.PreferedLanguage);
             }
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }

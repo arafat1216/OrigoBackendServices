@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace AssetServices.ServiceModel
 {
-    public class ReAssignAssetDTO
+    public class AssignAssetDTO
     {
         public bool Personal { get; set; }
         public Guid UserId { get; set; } = Guid.Empty;

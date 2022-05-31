@@ -1112,9 +1112,15 @@ public class AssetServicesTests : AssetBaseTest
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
-        
-        var asset = await assetService.AssignAssetLifeCycleToHolder(COMPANY_ID, ASSETLIFECYCLE_ONE_ID, Guid.Empty, DEPARTMENT_ID, CALLER_ID);
+        var assignAssetDTO = new AssignAssetDTO
+        {
+            UserId = Guid.Empty, DepartmentId = DEPARTMENT_ID, CallerId = CALLER_ID
+        };
+
+        // Act
+        var asset = await assetService.AssignAssetLifeCycleToHolder(COMPANY_ID, ASSETLIFECYCLE_ONE_ID, assignAssetDTO);
        
+        // Assert
         Assert.False(asset!.IsPersonal);
         Assert.Equal(DEPARTMENT_ID, asset.ManagedByDepartmentId);
         Assert.Null(asset.ContractHolderUserId);
@@ -1129,9 +1135,18 @@ public class AssetServicesTests : AssetBaseTest
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+        var assignAssetDTO = new AssignAssetDTO
+        {
+            UserId = ASSETHOLDER_ONE_ID,
+            Personal = true,
+            DepartmentId = Guid.Empty,
+            CallerId = CALLER_ID
+        };
 
-        var asset = await assetService.AssignAssetLifeCycleToHolder(COMPANY_ID, ASSETLIFECYCLE_ONE_ID, ASSETHOLDER_ONE_ID, null, CALLER_ID);
+        // Act
+        var asset = await assetService.AssignAssetLifeCycleToHolder(COMPANY_ID, ASSETLIFECYCLE_ONE_ID, assignAssetDTO);
 
+        // Assert
         Assert.True(asset!.IsPersonal);
         Assert.Equal(ASSETHOLDER_ONE_ID, asset.ContractHolderUserId);
         Assert.Null(asset.ManagedByDepartmentId);

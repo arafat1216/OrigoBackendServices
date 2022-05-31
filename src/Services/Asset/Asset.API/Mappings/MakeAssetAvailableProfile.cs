@@ -16,7 +16,7 @@ namespace Asset.API.Mappings
                 .ForMember(destination => destination.Email, opt => opt.MapFrom(src => src.Email))
                 .ForMember(destination => destination.Name, opt => opt.MapFrom(src => src.Name ?? null))
                 .ForMember(destination => destination.PreferedLanguage, opt => opt.MapFrom(src => src.PreferedLanguage));
-            CreateMap<ReAssignAsset, ReAssignAssetDTO>()
+            CreateMap<ReAssignAsset, AssignAssetDTO>()
                 .ForMember(destination => destination.Personal, opt => opt.MapFrom(src => src.Personal))
                 .ForMember(destination => destination.UserId, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(destination => destination.PreviousUser, opt => opt.MapFrom(src => src.PreviousUser))

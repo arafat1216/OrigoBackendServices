@@ -21,6 +21,8 @@ internal static class AssetTestDataSeedingForDatabase
     public static readonly Guid ASSETLIFECYCLE_THREE_ID = new("80665d26-90b4-4a3a-a20d-686b64466f32");
     public static readonly Guid ASSETLIFECYCLE_FOUR_ID = new("bdb4c26c-33fd-40d7-a237-e74728609c1c");
     public static readonly Guid ASSETLIFECYCLE_FIVE_ID = new("4315bba8-698f-4ddd-aee2-82554c91721f");
+    public static readonly Guid ASSETLIFECYCLE_SIX_ID = new("a066d864-e0c4-11ec-a601-00155dd40b8e");
+    public static readonly Guid ASSETLIFECYCLE_SEVEN_ID = new("b3c62ea0-e0c4-11ec-a915-00155dd40b8e");
     public static readonly Guid DEPARTMENT_ID = new("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72");
     public static readonly Guid DEPARTMENT_TWO_ID = new("fe625c35-91d0-448e-a803-0dcbbd97f1d5");
     public static readonly Guid COMPANY_ID = new("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
@@ -98,7 +100,7 @@ internal static class AssetTestDataSeedingForDatabase
         assetLifecycleFive.AssignAsset(assetFour, CALLER_ID);
         assetLifecycleFive.AssignAssetLifecycleHolder(null,DEPARTMENT_ID, CALLER_ID);
 
-        var assetLifecycleSix = new AssetLifecycle(ASSETLIFECYCLE_FIVE_ID)
+        var assetLifecycleSix = new AssetLifecycle(ASSETLIFECYCLE_SIX_ID)
         {
             CustomerId = COMPANY_ID,
             Alias = "alias_5",
@@ -110,7 +112,7 @@ internal static class AssetTestDataSeedingForDatabase
         assetLifecycleSix.AssignCustomerLabel(labelOne, CALLER_ID);
 
 
-        var assetLifecycleSeven = new AssetLifecycle(ASSETLIFECYCLE_FIVE_ID)
+        var assetLifecycleSeven = new AssetLifecycle(ASSETLIFECYCLE_SEVEN_ID)
         {
             CustomerId = COMPANY_ID,
             Alias = "alias_6",

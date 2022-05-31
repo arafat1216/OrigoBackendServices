@@ -245,16 +245,13 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <param name="callerId">The userid making this assignment</param>
     public void AssignAssetLifecycleHolder(User? contractHolderUser, Guid? departmentId, Guid callerId)
     {
-
-        //Assign to user
-        if (contractHolderUser != null && (departmentId == null || departmentId == Guid.Empty))
+        // Assign to user if user is set.
+        if (contractHolderUser != null)
         {
-            //unassigne previous owner and add domain events for it - cant have to owners
+            // Unassign previous owner and add domain events for it - cant have two owners
             if (ContractHolderUser != null) AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, ContractHolderUser));
             if (ManagedByDepartmentId != null) AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this, callerId));
             ManagedByDepartmentId = null;
-
-            
             IsPersonal = true;
             ContractHolderUser = contractHolderUser;
             var previousContractHolderUser = ContractHolderUser;
@@ -266,7 +263,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
         }
-        else if ((departmentId != null || departmentId != Guid.Empty) && contractHolderUser == null)
+        else if (departmentId != null && departmentId != Guid.Empty)
         {
             //unassign previous owner and add domain events for it
             if (ContractHolderUser != null) AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this,callerId, ContractHolderUser));
@@ -321,34 +318,6 @@ public class AssetLifecycle : Entity, IAggregateRoot
             _labels.Clear();
         _assetLifecycleStatus = AssetLifecycleStatus.Available;
     }
-
-    /// <summary>
-    /// Re-assigning this asset fto other user/department. 
-    /// </summary>
-    /// <param name="callerId">The userid making this assignment</param>
-    public void ReAssignAssetLifeCycleToHolder(User? contractHolderUser, Guid departmentId, Guid callerId)
-    {
-        var previousDepartmentId = ManagedByDepartmentId;
-        var previousContractHolderUser = ContractHolderUser;
-        if (contractHolderUser != null)
-        {
-            // Re-assign to another user
-            if (ContractHolderUser != null)
-                AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, ContractHolderUser));
-            ContractHolderUser = contractHolderUser;
-        }
-        // Re-assign to another department
-        if (ManagedByDepartmentId != null)
-            AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this, callerId));
-        ManagedByDepartmentId = departmentId;
-        if (_assetLifecycleStatus != AssetLifecycleStatus.InUse) 
-            UpdateAssetStatus(AssetLifecycleStatus.InUse, callerId);
-        IsPersonal = contractHolderUser != null ? true : false;
-        AddDomainEvent(new ReAssignAssetLifeCycleDomainEvent(this, callerId, previousContractHolderUser, previousDepartmentId));
-        UpdatedBy = callerId;
-        LastUpdatedDate = DateTime.UtcNow;
-    }
-
 
     /// <summary>
     /// Assign a customer label for this asset lifecycle.

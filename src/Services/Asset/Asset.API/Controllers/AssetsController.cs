@@ -373,8 +373,8 @@ namespace Asset.API.Controllers
         {
             if ((postData.Personal && (postData.DepartmentId == Guid.Empty || postData.UserId == Guid.Empty )) || (!postData.Personal && postData.DepartmentId == Guid.Empty)) return BadRequest();
             
-            var dataDTO = _mapper.Map<ReAssignAssetDTO>(postData);
-            var updatedAsset = await _assetServices.ReAssignAssetLifeCycleToHolder(customerId, assetId, dataDTO);
+            var dataDTO = _mapper.Map<AssignAssetDTO>(postData);
+            var updatedAsset = await _assetServices.AssignAssetLifeCycleToHolder(customerId, assetId, dataDTO);
             var mapped = _mapper.Map<ViewModels.Asset>(updatedAsset);
             return Ok(mapped);
         }
@@ -464,7 +464,14 @@ namespace Asset.API.Controllers
         {
             if ((asset.UserId == Guid.Empty && asset.DepartmentId == Guid.Empty) || (asset.UserId != Guid.Empty && asset.DepartmentId != Guid.Empty)) return BadRequest();
 
-            var updatedAsset = await _assetServices.AssignAssetLifeCycleToHolder(customerId, assetId, asset.UserId, asset.DepartmentId, asset.CallerId);
+            var assignAssetDTO = new AssignAssetDTO
+            {
+                UserId = asset.UserId,
+                DepartmentId = asset.DepartmentId,
+                Personal = asset.UserId != Guid.Empty,
+                CallerId = asset.CallerId
+            };
+            var updatedAsset = await _assetServices.AssignAssetLifeCycleToHolder(customerId, assetId, assignAssetDTO);
             var mapped = _mapper.Map<ViewModels.Asset>(updatedAsset);
             return Ok(mapped);
         }

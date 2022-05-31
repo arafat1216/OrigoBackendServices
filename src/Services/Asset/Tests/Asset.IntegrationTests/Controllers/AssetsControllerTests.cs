@@ -490,28 +490,28 @@ namespace Asset.IntegrationTests.Controllers
         }
 
         [Fact]
-        public async Task ReAssignAssetToHolder_Personal()
+        public async Task ReAssignAssetToHolder_WithUserAndDepartment_ShouldSetToPersonal()
         {
             // Arrange
             var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
-            var postData = new ReAssignAsset
+            var reAssignAsset = new ReAssignAsset
             {
-                Personal = true, UserId = _user, DepartmentId = _departmentIdTwo, CallerId = _callerId
+                UserId = _user, DepartmentId = _departmentIdTwo, CallerId = _callerId
             };
 
             // Act
             var requestUri = $"/api/v1/Assets/{_assetFive}/customers/{_customerId}/re-assignment";
             _testOutputHelper.WriteLine(requestUri);
-            var responsePost = await httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+            var responsePost = await httpClient.PostAsync(requestUri, JsonContent.Create(reAssignAsset));
 
             var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
-            Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.InUse);
-            Assert.True(updatedAsset.AssetHolderId == postData.UserId);
-            Assert.True(updatedAsset.ManagedByDepartmentId == postData.DepartmentId);
-            Assert.True(updatedAsset.IsPersonal == postData.Personal);
+            Assert.Equal(AssetLifecycleStatus.InUse, updatedAsset!.AssetStatus);
+            Assert.Equal(reAssignAsset.UserId, updatedAsset.AssetHolderId);
+            Assert.Null(updatedAsset.ManagedByDepartmentId);
+            Assert.True(updatedAsset.IsPersonal);
         }
 
         [Theory]
@@ -543,7 +543,7 @@ namespace Asset.IntegrationTests.Controllers
         {
             // Arrange
             var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
-            var postData = new ReAssignAsset
+            var reAssignAsset = new ReAssignAsset
             {
                 Personal = false, DepartmentId = _departmentIdTwo, CallerId = _callerId
             };
@@ -551,16 +551,16 @@ namespace Asset.IntegrationTests.Controllers
             // Act
             var requestUri = $"/api/v1/Assets/{_assetFive}/customers/{_customerId}/re-assignment";
             _testOutputHelper.WriteLine(requestUri);
-            var responsePost = await httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+            var responsePost = await httpClient.PostAsync(requestUri, JsonContent.Create(reAssignAsset));
 
             var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
-            Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.InUse);
-            Assert.True(updatedAsset.AssetHolderId == null);
-            Assert.True(updatedAsset.ManagedByDepartmentId == postData.DepartmentId);
-            Assert.True(updatedAsset.IsPersonal == postData.Personal);
+            Assert.Equal(AssetLifecycleStatus.InUse, updatedAsset!.AssetStatus);
+            Assert.Null(updatedAsset.AssetHolderId);
+            Assert.Equal(reAssignAsset.DepartmentId, updatedAsset.ManagedByDepartmentId);
+            Assert.Equal(reAssignAsset.Personal, updatedAsset.IsPersonal);
         }
 
 
