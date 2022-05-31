@@ -2,9 +2,11 @@
 {
     public class Location
     {
-        public string Address { get; set; }
+        public string Recipient { get; set; }
+        public string Address1 { get; set; }
+        public string? Address2 { get; set; }
         public string PostalCode { get; set; }
-        public string PostalPlace { get; set; }
+        public string City { get; set; }
         public string Country { get; set; }
     }
 }

@@ -6,7 +6,7 @@
         public string FaultType { get; set; }
         public string BasicDescription { get; set; }
         public string UserDescription { get; set; }
-        public Guid AssetLifecycleId { get; set; }
+        public Guid AssetId { get; set; }
         public Location DeliveryAddress { get; set; }
     }
 }

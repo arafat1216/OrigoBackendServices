@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using HardwareServiceOrder.API.Mappings;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Infrastructure;
 using HardwareServiceOrderServices.Models;
@@ -16,6 +17,8 @@ namespace HardwareServiceOrder.UnitTests
     public class HardwareServiceOrderServiceTests : HardwareServiceOrderServiceBaseTests
     {
         private readonly IMapper? _mapper;
+
+        private readonly IMapper mapper;
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
         private readonly HardwareServiceOrderContext _dbContext;
         public HardwareServiceOrderServiceTests() : base(new DbContextOptionsBuilder<HardwareServiceOrderContext>()
@@ -30,6 +33,16 @@ namespace HardwareServiceOrder.UnitTests
                 });
                 _mapper = mappingConfig.CreateMapper();
             }
+
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<API.ViewModels.Location, DeliveryAddressDTO>();
+
+                cfg.CreateMap<API.ViewModels.HardwareServiceOrder, HardwareServiceOrderDTO>()
+                    .ForMember(dest => dest.DeliveryAddress, opt => opt.MapFrom(src => src.DeliveryAddress));
+            });
+
+            mapper = config.CreateMapper();
 
             _dbContext = new HardwareServiceOrderContext(ContextOptions);
             var hardwareServiceRepository = new HardwareServiceOrderRepository(_dbContext);
@@ -72,5 +85,41 @@ namespace HardwareServiceOrder.UnitTests
             Assert.NotNull(order);
             Assert.NotNull(order!.Owner);
         }
+
+        [Fact]
+        public async Task MapHardwareViewModelToDto()
+        {
+            var serviceOrder = new API.ViewModels.HardwareServiceOrder
+            {
+                Id = new Guid("42447F76-D9A8-4F0A-B0FF-B4683ACEDD62"),
+                BasicDescription = "sd",
+                UserDescription = "de",
+                FaultType = "sd",
+                AssetId = new Guid("42447F76-D9A8-4F0A-B0FF-B4683ACEDD62"),
+                DeliveryAddress = new API.ViewModels.Location
+                {
+                    Recipient = "fs",
+                    Address1 = "f",
+                    Address2 = "f",
+                    City = "f",
+                    Country = "FS",
+                    PostalCode = "erg"
+                }
+            };
+            
+            var serviceOrderDTO = mapper.Map<API.ViewModels.HardwareServiceOrder, HardwareServiceOrderDTO>(serviceOrder);
+
+            Assert.NotNull(serviceOrderDTO);
+            Assert.Equal(serviceOrder.FaultType, serviceOrderDTO.FaultType);
+            Assert.Equal(serviceOrder.DeliveryAddress.Address2, serviceOrderDTO.DeliveryAddress.Address2);
+            Assert.Equal(serviceOrder.DeliveryAddress.Address1, serviceOrderDTO.DeliveryAddress.Address1);
+            Assert.Equal(serviceOrder.DeliveryAddress.City, serviceOrderDTO.DeliveryAddress.City);
+            Assert.Equal(serviceOrder.DeliveryAddress.Country, serviceOrderDTO.DeliveryAddress.Country);
+            Assert.Equal(serviceOrder.DeliveryAddress.Recipient, serviceOrderDTO.DeliveryAddress.Recipient);
+            Assert.Equal(serviceOrder.AssetId, serviceOrderDTO.AssetId);
+            Assert.Equal(serviceOrder.BasicDescription, serviceOrderDTO.BasicDescription);
+            Assert.Equal(serviceOrder.UserDescription, serviceOrderDTO.UserDescription);
+        }
+
     }
 }

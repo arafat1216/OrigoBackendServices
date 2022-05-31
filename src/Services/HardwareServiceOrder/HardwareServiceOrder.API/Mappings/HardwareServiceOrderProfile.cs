@@ -17,8 +17,10 @@ namespace HardwareServiceOrder.API.Mappings
                 .ForMember(d => d.ApiPassword, opts => opts.Ignore());
 
             CreateMap<HardwareServiceOrderDTO, ViewModels.HardwareServiceOrder>();
+            CreateMap<DeliveryAddressDTO, Location>();
+            CreateMap<ViewModels.HardwareServiceOrder, HardwareServiceOrderDTO>()
+                .ForMember(dest => dest.DeliveryAddress, opt => opt.MapFrom(src => src.DeliveryAddress));
 
-            CreateMap<ViewModels.HardwareServiceOrder, HardwareServiceOrderDTO>();
         }
     }
 }

@@ -15,6 +15,7 @@ namespace HardwareServiceOrder.API.Controllers
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
         private readonly ILogger<HardwareRepairController> _logger;
         private readonly IMapper _mapper;
+        private readonly IMapper _mapperForHwDto;
 
         public HardwareRepairController(
             IHardwareServiceOrderService hardwareServiceOrderService,
@@ -24,6 +25,15 @@ namespace HardwareServiceOrder.API.Controllers
             _hardwareServiceOrderService = hardwareServiceOrderService;
             _logger = logger;
             _mapper = mapper;
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<Location, DeliveryAddressDTO>();
+
+                cfg.CreateMap<ViewModels.HardwareServiceOrder, HardwareServiceOrderDTO>()
+                    .ForMember(dest => dest.DeliveryAddress, opt => opt.MapFrom(src => src.DeliveryAddress));
+            });
+
+            _mapperForHwDto = config.CreateMapper();
         }
 
         [Route("{customerId:Guid}/config/sur")]
@@ -64,7 +74,7 @@ namespace HardwareServiceOrder.API.Controllers
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> CreateHardwareServiceOrder(Guid customerId, [FromBody] ViewModels.HardwareServiceOrder model)
         {
-            var dto = _mapper.Map<HardwareServiceOrderDTO>(model);
+            var dto = _mapperForHwDto.Map<HardwareServiceOrderDTO>(model);
             var vm = _mapper.Map<ViewModels.HardwareServiceOrder>(await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, dto));
             return Ok(vm);
         }
