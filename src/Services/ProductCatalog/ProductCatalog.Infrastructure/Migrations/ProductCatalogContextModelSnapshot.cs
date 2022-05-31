@@ -338,13 +338,13 @@ namespace ProductCatalog.Infrastructure.Migrations
                         {
                             ProductId = 2,
                             ExcludesProductId = 3,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         },
                         new
                         {
                             ProductId = 3,
                             ExcludesProductId = 2,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         });
                 });
 
@@ -394,49 +394,49 @@ namespace ProductCatalog.Infrastructure.Migrations
                         {
                             FeatureId = 3,
                             ProductId = 1,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         },
                         new
                         {
                             FeatureId = 1,
                             ProductId = 2,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         },
                         new
                         {
                             FeatureId = 2,
                             ProductId = 2,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         },
                         new
                         {
                             FeatureId = 1,
                             ProductId = 3,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         },
                         new
                         {
                             FeatureId = 2,
                             ProductId = 3,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         },
                         new
                         {
                             FeatureId = 4,
                             ProductId = 3,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         },
                         new
                         {
                             FeatureId = 5,
                             ProductId = 3,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         },
                         new
                         {
                             FeatureId = 5,
                             ProductId = 4,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         });
                 });
 
@@ -528,13 +528,13 @@ namespace ProductCatalog.Infrastructure.Migrations
                         {
                             ProductId = 1,
                             RequiresProductId = 2,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         },
                         new
                         {
                             ProductId = 4,
                             RequiresProductId = 2,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         });
                 });
 
@@ -653,28 +653,28 @@ namespace ProductCatalog.Infrastructure.Migrations
                             Id = 1,
                             PartnerId = new Guid("5741b4a1-4eef-4fc2-b1b8-0ba7f41ed93c"),
                             ProductTypeId = 3,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         },
                         new
                         {
                             Id = 2,
                             PartnerId = new Guid("5741b4a1-4eef-4fc2-b1b8-0ba7f41ed93c"),
                             ProductTypeId = 2,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         },
                         new
                         {
                             Id = 3,
                             PartnerId = new Guid("5741b4a1-4eef-4fc2-b1b8-0ba7f41ed93c"),
                             ProductTypeId = 2,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         },
                         new
                         {
                             Id = 4,
                             PartnerId = new Guid("5741b4a1-4eef-4fc2-b1b8-0ba7f41ed93c"),
                             ProductTypeId = 3,
-                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000000")
+                            UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         });
                 });
 

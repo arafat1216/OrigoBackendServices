@@ -96,22 +96,22 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
 
             modelBuilder.Entity<Product>(entity => 
             {
-                entity.HasData(new Product { Id = 1, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = 3 });
+                entity.HasData(new Product { Id = 1, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = 3, UpdatedBy = systemUserId });
 
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 1, Language = "en", Name = "Subscription management", Description = "A partner product based subscription management", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 1, Language = "nb", Name = "Abonnement-håndtering", Description = "Ett partner spesifikk abonnement-håndtering produkt", UpdatedBy = systemUserId });
 
-                entity.HasData(new Product { Id = 2, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = 2 });
+                entity.HasData(new Product { Id = 2, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = 2, UpdatedBy = systemUserId });
 
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 2, Language = "en", Name = "Entry", Description = "Simple Asset Management for units purchased transactionally in Techstep's own WebShop.", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 2, Language = "nb", Name = "Entry", Description = "Enkel Asset Management for enheter kjøpt transaksjonelt i Techstep egen nettbutikk.", UpdatedBy = systemUserId });
 
-                entity.HasData(new Product { Id = 3, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = 2 });
+                entity.HasData(new Product { Id = 3, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = 2, UpdatedBy = systemUserId });
 
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 3, Language = "en", Name = "Transactional Device Lifecycle Management", Description = "Lifecycle management for transasctional devices.", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 3, Language = "nb", Name = "Transactional Device Lifecycle Management", Description = "Livssyklusadministrasjon for transaksjonelle enheter", UpdatedBy = systemUserId });
 
-                entity.HasData(new Product { Id = 4, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = 3 });
+                entity.HasData(new Product { Id = 4, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = 3, UpdatedBy = systemUserId });
 
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 4, Language = "en", Name = "Book Value and Purchase Price", Description = "Allow Bookvalue and Purchas Price", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 4, Language = "nb", Name = "Bokført verdi og kjøpspris", Description = "Tilgjengeliggjør bokført verdi og kjøpspris", UpdatedBy = systemUserId });
@@ -119,24 +119,24 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
             });
             modelBuilder.Entity<ProductFeature>(entity =>{
 
-                entity.HasData(new ProductFeature { ProductId = 1, FeatureId = 3});
-                entity.HasData(new ProductFeature { ProductId = 2, FeatureId = 1});
-                entity.HasData(new ProductFeature { ProductId = 2, FeatureId = 2});
-                entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 1});
-                entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 2});
-                entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 4});
-                entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 5});
-                entity.HasData(new ProductFeature { ProductId = 4, FeatureId = 5});
+                entity.HasData(new ProductFeature { ProductId = 1, FeatureId = 3, UpdatedBy = systemUserId});
+                entity.HasData(new ProductFeature { ProductId = 2, FeatureId = 1, UpdatedBy = systemUserId });
+                entity.HasData(new ProductFeature { ProductId = 2, FeatureId = 2, UpdatedBy = systemUserId });
+                entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 1, UpdatedBy = systemUserId });
+                entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 2, UpdatedBy = systemUserId });
+                entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 4, UpdatedBy = systemUserId });
+                entity.HasData(new ProductFeature { ProductId = 3, FeatureId = 5, UpdatedBy = systemUserId });
+                entity.HasData(new ProductFeature { ProductId = 4, FeatureId = 5, UpdatedBy = systemUserId });
             });
 
             modelBuilder.Entity<ProductRequiresOne>(entity =>{
-                entity.HasData(new ProductRequiresOne { ProductId = 1, RequiresProductId = 2});
-                entity.HasData(new ProductRequiresOne { ProductId = 4, RequiresProductId = 2});
+                entity.HasData(new ProductRequiresOne { ProductId = 1, RequiresProductId = 2, UpdatedBy = systemUserId });
+                entity.HasData(new ProductRequiresOne { ProductId = 4, RequiresProductId = 2, UpdatedBy = systemUserId });
             });
 
             modelBuilder.Entity<ProductExcludes>(entity =>{
-                entity.HasData(new ProductExcludes { ProductId = 2, ExcludesProductId = 3}); // Entry module is exclusive of Transactional Module
-                entity.HasData(new ProductExcludes { ProductId = 3, ExcludesProductId = 2}); // Transactional module is exclusive of Entry module
+                entity.HasData(new ProductExcludes { ProductId = 2, ExcludesProductId = 3, UpdatedBy = systemUserId }); // Entry module is exclusive of Transactional Module
+                entity.HasData(new ProductExcludes { ProductId = 3, ExcludesProductId = 2, UpdatedBy = systemUserId }); // Transactional module is exclusive of Entry module
             });
         }
     }
