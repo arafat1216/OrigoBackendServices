@@ -90,24 +90,28 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
             
             });
 
+            //
+            // Note: Partner ID is for the 'Techstep ASA' partner as per in dev, test and prod env. (It may not exist locally unless manually updated)
+            // 
+
             modelBuilder.Entity<Product>(entity => 
             {
-                entity.HasData(new Product { Id = 1, PartnerId = Guid.Empty, ProductTypeId = 3 });
+                entity.HasData(new Product { Id = 1, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = 3 });
 
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 1, Language = "en", Name = "Subscription management", Description = "A partner product based subscription management", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 1, Language = "nb", Name = "Abonnement-håndtering", Description = "Ett partner spesifikk abonnement-håndtering produkt", UpdatedBy = systemUserId });
 
-                entity.HasData(new Product { Id = 2, PartnerId = Guid.Empty, ProductTypeId = 2 });
+                entity.HasData(new Product { Id = 2, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = 2 });
 
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 2, Language = "en", Name = "Entry", Description = "Simple Asset Management for units purchased transactionally in Techstep's own WebShop.", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 2, Language = "nb", Name = "Entry", Description = "Enkel Asset Management for enheter kjøpt transaksjonelt i Techstep egen nettbutikk.", UpdatedBy = systemUserId });
 
-                entity.HasData(new Product { Id = 3, PartnerId = Guid.Empty, ProductTypeId = 2 });
+                entity.HasData(new Product { Id = 3, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = 2 });
 
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 3, Language = "en", Name = "Transactional Device Lifecycle Management", Description = "Lifecycle management for transasctional devices.", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 3, Language = "nb", Name = "Transactional Device Lifecycle Management", Description = "Livssyklusadministrasjon for transaksjonelle enheter", UpdatedBy = systemUserId });
 
-                entity.HasData(new Product { Id = 4, PartnerId = Guid.Empty, ProductTypeId = 3 });
+                entity.HasData(new Product { Id = 4, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = 3 });
 
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 4, Language = "en", Name = "Book Value and Purchase Price", Description = "Allow Bookvalue and Purchas Price", UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new ProductTranslation { ProductId = 4, Language = "nb", Name = "Bokført verdi og kjøpspris", Description = "Tilgjengeliggjør bokført verdi og kjøpspris", UpdatedBy = systemUserId });
