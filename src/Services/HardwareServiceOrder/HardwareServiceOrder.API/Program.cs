@@ -1,10 +1,13 @@
 using Common.Configuration;
 using Common.Utilities;
+using Dapr.Client;
 using HardwareServiceOrder.API;
 using HardwareServiceOrderServices;
+using HardwareServiceOrderServices.Configuration;
 using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Infrastructure;
 using HardwareServiceOrderServices.Models;
+using HardwareServiceOrderServices.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
@@ -121,7 +124,7 @@ builder.Services.AddApplicationInsightsTelemetry();
 
 builder.Services.Configure<ServiceProviderConfiguration>(builder.Configuration.GetSection("ServiceProviderConfiguration"));
 builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("Email"));
-builder.Services.AddSingleton<ResourceManager>(s=> new ResourceManager("HardwareServiceOrderServices.Resources.HardwareServiceOrder", Assembly.GetAssembly(typeof(EmailService))));
+builder.Services.AddSingleton(s=> new ResourceManager("HardwareServiceOrderServices.Resources.HardwareServiceOrder", Assembly.GetAssembly(typeof(EmailService))));
 builder.Services.AddScoped<IHardwareServiceOrderService, HardwareServiceOrderService>();
 builder.Services.AddScoped<IHardwareServiceOrderRepository, HardwareServiceOrderRepository>();
 builder.Services.AddScoped<ProviderFactory>();
@@ -129,6 +132,39 @@ builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection(
 builder.Services.Configure<OrigoConfiguration>(builder.Configuration.GetSection("Origo"));
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IFlatDictionaryProvider, FlatDictionary>();
+
+builder.Services.AddScoped<ServiceOrderCanceledStatusHandlerService>();
+builder.Services.AddScoped<ServiceOrderCompletedStatusHandlerService>();
+builder.Services.AddScoped<ServiceOrderOngoingStatusHandlerService>();
+builder.Services.AddScoped<ServiceOrderRegisteredStatusHandlerService>();
+builder.Services.AddScoped<ServiceOrderUnKnownStatusHandlerService>();
+
+builder.Services.AddScoped(s => new Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService>
+{
+    {ServiceStatusEnum.Canceled, s.GetRequiredService<ServiceOrderCanceledStatusHandlerService>() },
+    //Completed
+    {ServiceStatusEnum.CompletedNotRepaired, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
+    {ServiceStatusEnum.CompletedRepaired, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
+    {ServiceStatusEnum.CompletedRepairedOnWarranty, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
+    {ServiceStatusEnum.CompletedReplaced, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
+    {ServiceStatusEnum.CompletedReplacedOnWarranty, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
+    {ServiceStatusEnum.CompletedCredited, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
+    {ServiceStatusEnum.CompletedDiscarded, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
+    //Ongoing
+    {ServiceStatusEnum.Ongoing, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
+    {ServiceStatusEnum.OngoingUserActionNeeded, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
+    {ServiceStatusEnum.OngoingInTransit, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
+    {ServiceStatusEnum.OngoingReadyForPickup, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
+    //Registered
+    {ServiceStatusEnum.Registered, s.GetRequiredService<ServiceOrderRegisteredStatusHandlerService>() },
+    {ServiceStatusEnum.RegisteredInTransit, s.GetRequiredService<ServiceOrderRegisteredStatusHandlerService>() },
+    {ServiceStatusEnum.RegisteredUserActionNeeded, s.GetRequiredService<ServiceOrderRegisteredStatusHandlerService>() },
+    //Unknown
+    { ServiceStatusEnum.Unknown, s.GetRequiredService<ServiceOrderUnKnownStatusHandlerService>() }
+});
+
+builder.Services.Configure<AssetConfiguration>(builder.Configuration.GetSection("Asset"));
+builder.Services.AddSingleton<IAssetService>(s => new AssetService(s.GetRequiredService<IOptions<AssetConfiguration>>(), DaprClient.CreateInvokeHttpClient("assetservices")));
 #endregion Builder
 
 

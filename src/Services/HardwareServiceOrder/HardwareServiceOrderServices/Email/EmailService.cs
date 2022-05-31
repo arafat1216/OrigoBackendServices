@@ -179,5 +179,13 @@ namespace HardwareServiceOrderServices.Email
 
             return emails;
         }
+
+        public async Task SendEmailAsync(string to, string subjectKey, string bodyTemplateKey, Dictionary<string, string> parameters, string languageCode = "en")
+        {
+            var body = _resourceManager.GetString(bodyTemplateKey, CultureInfo.CreateSpecificCulture(languageCode));
+            var subject = _resourceManager.GetString(subjectKey, CultureInfo.CreateSpecificCulture(languageCode));
+
+            await SendAsync(subject, body, to, parameters);
+        }
     }
 }

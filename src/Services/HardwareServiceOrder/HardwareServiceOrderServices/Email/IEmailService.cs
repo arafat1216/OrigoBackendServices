@@ -43,6 +43,17 @@ namespace HardwareServiceOrderServices.Email
         /// <param name="statusId">Status identifier</param>
         /// <param name="languageCode">Code of the language in ISO 639-1 format.</param>
         /// <returns></returns>
-        Task<List<OrderCancellationEmail>> SendOrderCancellationEmailAsync(int statusId, string languageCode = "en");   
+        Task<List<OrderCancellationEmail>> SendOrderCancellationEmailAsync(int statusId, string languageCode = "en");
+
+        /// <summary>
+        /// Send email
+        /// </summary>
+        /// <param name="to">The receipient</param>
+        /// <param name="bodyTemplateKey">Name of resource file key for retrieving body</param>
+        /// <param name="subjectKey">Name of the resource file key for retrieving subject</param>
+        /// <param name="parameters">List fields used in the email body.</param>
+        /// <param name="languageCode"></param>
+        /// <returns>Code of the language in ISO 639-1 format.</returns>
+        Task SendEmailAsync(string to, string subjectKey, string bodyTemplateKey, Dictionary<string, string> parameters, string languageCode = "en");
     }
 }

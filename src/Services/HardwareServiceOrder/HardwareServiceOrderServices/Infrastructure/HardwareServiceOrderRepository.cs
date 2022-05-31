@@ -70,14 +70,43 @@ namespace HardwareServiceOrderServices.Infrastructure
             throw new NotImplementedException();
         }
 
-        public Task<HardwareServiceOrder> GetOrderByIdAsync(Guid orderId)
+        /// <inheritdoc cref="GetOrderByIdAsync(Guid)"/>
+        public async Task<HardwareServiceOrder> GetOrderByIdAsync(Guid orderId)
         {
-            throw new NotImplementedException();
+            var order = await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == orderId);
+            return order;
         }
 
         public async Task<CustomerSettings> GetSettingsAsync(Guid customerId)
         {
             return await _hardwareServiceOrderContext.CustomerSettings.FirstOrDefaultAsync(m => m.CustomerId == customerId);
+        }
+
+        /// <summary>
+        /// Update the status of a service order
+        /// </summary>
+        /// <param name="orderId">Order Identifier</param>
+        /// <param name="newStatus">New status <see cref="ServiceStatusEnum"/></param>
+        /// <returns></returns>
+        public async Task<HardwareServiceOrder> UpdateOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus)
+        {
+            var order = await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == orderId);
+
+            if (order == null)
+                throw new ArgumentException($"No service order exists with ID {orderId}");
+
+            var status = await _hardwareServiceOrderContext.ServiceStatuses.FindAsync((int)newStatus);
+
+            if (status == null)
+                throw new ArgumentException("New status is invalid");
+
+            order.Status = status;
+
+            _hardwareServiceOrderContext.Entry(order).State = EntityState.Modified;
+
+            await _hardwareServiceOrderContext.SaveChangesAsync();
+
+            return order;
         }
     }
 }

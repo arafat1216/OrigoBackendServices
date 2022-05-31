@@ -10,5 +10,6 @@ namespace HardwareServiceOrderServices
     {
         public string BaseUrl { get; set; }
         public string OrderPath { get; set; }
+        public string DeveloperEmail { get; set; }
     }
 }

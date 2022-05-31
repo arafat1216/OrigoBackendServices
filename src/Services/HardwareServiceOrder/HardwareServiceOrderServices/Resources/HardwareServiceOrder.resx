@@ -197,4 +197,28 @@ Fault category: {{FaultCategory}}
 
 [View order in Origo]({{OrderLink}})</value>
   </data>
+  <data name="OngoingUserActionNeeded_Body" xml:space="preserve">
+    <value />
+  </data>
+  <data name="OngoingUserActionNeeded_Subject" xml:space="preserve">
+    <value />
+  </data>
+  <data name="RegisteredUserActionNeeded_Subject" xml:space="preserve">
+    <value />
+  </data>
+  <data name="RegisteredUserActionNeeded_Body" xml:space="preserve">
+    <value />
+  </data>
+  <data name="Unknown_Subject" xml:space="preserve">
+    <value>Something went wrong with an order</value>
+  </data>
+  <data name="Unknown_Body" xml:space="preserve">
+    <value>Hi There,
+
+The following order has received unknown status from the service provider. Please have a look.
+
+[View Oder](OrderLink)
+
+{{Order}}</value>
+  </data>
 </root>
