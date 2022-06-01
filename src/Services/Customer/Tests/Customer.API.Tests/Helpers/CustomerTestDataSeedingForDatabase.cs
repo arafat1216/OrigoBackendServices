@@ -12,6 +12,7 @@ namespace Customer.API.IntegrationTests.Helpers
         public static readonly Guid ORGANIZATION_ID = Guid.Parse("f5635deb-9b38-411c-9577-5423c9290106");
         public static readonly Guid HEAD_DEPARTMENT_ID = Guid.Parse("37d6d1b1-54a5-465d-a313-b6c250d66db4");
         public static readonly Guid SUB_DEPARTMENT_ID = Guid.Parse("5355134f-4852-4c36-99d1-fa9d4a1d7a61");
+        public static readonly Guid INDEPENDENT_DEPARTMENT_ID = Guid.Parse("384821b4-1872-484e-af44-14cf61e16266");
         public static readonly Guid CALLER_ID = Guid.Parse("a05f97fc-2e3d-4be3-a64c-e2f30ed90b93");
         public static readonly Guid PARENT_ID = Guid.Parse("fa82e042-f4bc-4de1-b68d-dfcb95a64c65");
         public static readonly Guid LOCATION_ID = Guid.Parse("089f6c40-1ae4-4fd0-b2d1-c5181d9fbfde");
@@ -85,6 +86,15 @@ namespace Customer.API.IntegrationTests.Helpers
                                             headDepartment);
 
             customerContext.Departments.Add(subDepartment);
+            var independentDepartment = new Department("Independent department",
+                                            "costCenterId",
+                                            "Description",
+                                            organization,
+                                            INDEPENDENT_DEPARTMENT_ID,
+                                            CALLER_ID,
+                                            null);
+
+            customerContext.Departments.Add(independentDepartment);
 
             var userOne = new User(organization,
                                 USER_ONE_ID,

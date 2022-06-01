@@ -458,8 +458,19 @@ namespace CustomerServices
             {
                 managerPermission.RemoveAccess(access, callerId);
             }
-
             await _userPermissionServices.UpdatePermission(managerPermission);
+
+            //add EndUser role if this is the only department 
+            if (managerPermission.AccessList.Count > 0 && managerPermission.AccessList.All(a => a == customerId))
+            {
+                var endUserPermission = await _userPermissionServices.AssignUserPermissionsAsync(user.Email, PredefinedRole.EndUser.ToString(), new List<Guid> { customerId }, callerId);
+
+                if (endUserPermission == null)
+                {
+                    throw new MissingRolePermissionsException();
+                }
+            }
+
         }
 
         public async Task<UserDTO> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)

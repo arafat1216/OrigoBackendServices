@@ -22,6 +22,7 @@ namespace Customer.API.Tests;
         public Guid ORGANIZATION_ID => CustomerTestDataSeedingForDatabase.ORGANIZATION_ID;
         public Guid HEAD_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.HEAD_DEPARTMENT_ID;
         public Guid SUB_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.SUB_DEPARTMENT_ID;
+        public Guid INDEPENDENT_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.INDEPENDENT_DEPARTMENT_ID;
         public Guid USER_ONE_ID => CustomerTestDataSeedingForDatabase.USER_ONE_ID;
         public Guid USER_TWO_ID => CustomerTestDataSeedingForDatabase.USER_TWO_ID;
         public Guid USER_THREE_ID => CustomerTestDataSeedingForDatabase.USER_THREE_ID;
