@@ -88,12 +88,13 @@ namespace HardwareServiceOrderServices.Infrastructure
         /// <param name="orderId">Order Identifier</param>
         /// <param name="newStatus">New status <see cref="ServiceStatusEnum"/></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Throws exception when orderId is invalid</exception>
         public async Task<HardwareServiceOrder> UpdateOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus)
         {
             var order = await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == orderId);
 
             if (order == null)
-                throw new ArgumentException($"No service order exists with ID {orderId}");
+                throw new ArgumentException($"No service order exists with ID {orderId}", nameof(orderId));
 
             var status = await _hardwareServiceOrderContext.ServiceStatuses.FindAsync((int)newStatus);
 

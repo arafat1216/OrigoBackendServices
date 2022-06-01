@@ -217,7 +217,7 @@ Fault category: {{FaultCategory}}
 
 The following order has received unknown status from the service provider. Please have a look.
 
-[View Oder](OrderLink)
+[View Order](OrderLink)
 
 {{Order}}</value>
   </data>

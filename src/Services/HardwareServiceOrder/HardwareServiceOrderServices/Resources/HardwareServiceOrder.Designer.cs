@@ -8,11 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace HardwareServiceOrderServices.Resources
-{
+namespace HardwareServiceOrderServices.Resources {
     using System;
-
-
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -23,65 +22,55 @@ namespace HardwareServiceOrderServices.Resources
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class HardwareServiceOrder
-    {
-
+    internal class HardwareServiceOrder {
+        
         private static global::System.Resources.ResourceManager resourceMan;
-
+        
         private static global::System.Globalization.CultureInfo resourceCulture;
-
+        
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal HardwareServiceOrder()
-        {
+        internal HardwareServiceOrder() {
         }
-
+        
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager
-        {
-            get
-            {
-                if (object.ReferenceEquals(resourceMan, null))
-                {
+        internal static global::System.Resources.ResourceManager ResourceManager {
+            get {
+                if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("HardwareServiceOrderServices.Resources.HardwareServiceOrder", typeof(HardwareServiceOrder).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
             }
         }
-
+        
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture
-        {
-            get
-            {
+        internal static global::System.Globalization.CultureInfo Culture {
+            get {
                 return resourceCulture;
             }
-            set
-            {
+            set {
                 resourceCulture = value;
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
         ///
         ///In connection to a recent repair order your asset was discarded. Please contact your manager to get a new asset..
         /// </summary>
-        internal static string AssetDiscardedEmail
-        {
-            get
-            {
+        internal static string AssetDiscardedEmail {
+            get {
                 return ResourceManager.GetString("AssetDiscardedEmail", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
         ///
@@ -99,49 +88,41 @@ namespace HardwareServiceOrderServices.Resources
         ///5. The repair provider evaluates your device
         ///6. You get repair options to choo [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string AssetRepairEmail
-        {
-            get
-            {
+        internal static string AssetRepairEmail {
+            get {
                 return ResourceManager.GetString("AssetRepairEmail", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
         ///
         ///I connection to a recent repair order we would like to remind you to return any loan device..
         /// </summary>
-        internal static string LoanDeviceEmail
-        {
-            get
-            {
+        internal static string LoanDeviceEmail {
+            get {
                 return ResourceManager.GetString("LoanDeviceEmail", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
-        internal static string OngoingUserActionNeeded_Body
-        {
-            get
-            {
+        internal static string OngoingUserActionNeeded_Body {
+            get {
                 return ResourceManager.GetString("OngoingUserActionNeeded_Body", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
-        internal static string OngoingUserActionNeeded_Subject
-        {
-            get
-            {
+        internal static string OngoingUserActionNeeded_Subject {
+            get {
                 return ResourceManager.GetString("OngoingUserActionNeeded_Subject", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
         ///
@@ -157,14 +138,12 @@ namespace HardwareServiceOrderServices.Resources
         ///
         ///[View order in Origo]({{OrderLink}}).
         /// </summary>
-        internal static string OrderCancellationEmail
-        {
-            get
-            {
+        internal static string OrderCancellationEmail {
+            get {
                 return ResourceManager.GetString("OrderCancellationEmail", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
         ///
@@ -188,60 +167,50 @@ namespace HardwareServiceOrderServices.Resources
         ///5. The repair provider evaluates your device
         ///6. Y [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string OrderConfirmationEmail
-        {
-            get
-            {
+        internal static string OrderConfirmationEmail {
+            get {
                 return ResourceManager.GetString("OrderConfirmationEmail", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
-        internal static string RegisteredUserActionNeeded_Body
-        {
-            get
-            {
+        internal static string RegisteredUserActionNeeded_Body {
+            get {
                 return ResourceManager.GetString("RegisteredUserActionNeeded_Body", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
-        internal static string RegisteredUserActionNeeded_Subject
-        {
-            get
-            {
+        internal static string RegisteredUserActionNeeded_Subject {
+            get {
                 return ResourceManager.GetString("RegisteredUserActionNeeded_Subject", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Hi There,
         ///
         ///The following order has received unknown status from the service provider. Please have a look.
         ///
-        ///[View Oder](OrderLink)
+        ///[View Order](OrderLink)
         ///
         ///{{Order}}.
         /// </summary>
-        internal static string Unknown_Body
-        {
-            get
-            {
+        internal static string Unknown_Body {
+            get {
                 return ResourceManager.GetString("Unknown_Body", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Something went wrong with an order.
         /// </summary>
-        internal static string Unknown_Subject
-        {
-            get
-            {
+        internal static string Unknown_Subject {
+            get {
                 return ResourceManager.GetString("Unknown_Subject", resourceCulture);
             }
         }
