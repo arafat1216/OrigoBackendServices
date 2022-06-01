@@ -2,6 +2,7 @@ using Common.Configuration;
 using Common.Utilities;
 using Dapr.Client;
 using HardwareServiceOrder.API;
+using HardwareServiceOrder.API.Extensions;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Configuration;
 using HardwareServiceOrderServices.Email;
@@ -13,10 +14,8 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System.ComponentModel;
 using System.Reflection;
 using System.Resources;
-using System.Text.Json;
 
 #region Sources & References
 
@@ -84,6 +83,9 @@ builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwa
 
 builder.Services.AddSwaggerGen(options =>
 {
+    // Add custom converters to enable DateOnly support in swagger
+    options.UseDateOnlyStringConverters();
+
     // Add a custom operation filter which sets default values
     options.OperationFilter<SwaggerDefaultValues>();
 
@@ -91,7 +93,7 @@ builder.Services.AddSwaggerGen(options =>
 
     // Retrieve all assemblies containing XML comments
     var xmlFiles = new[]
-{
+    {
         // Include the current assembly (this project)
         $"{Assembly.GetExecutingAssembly().GetName().Name}.xml",
 
@@ -113,7 +115,6 @@ builder.Services.AddSwaggerGen(options =>
             options.IncludeXmlComments(xmlCommentsFullPath);
         }
     }
-
 });
 
 #endregion Services configuration: API Versioning w/Swagger
