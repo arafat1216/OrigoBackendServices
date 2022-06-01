@@ -147,7 +147,28 @@ public class AssetLifecycleTests
         assetLifecycle.IsSentToRepair(callerId);
 
         // Assert
-        Assert.Equal(1, assetLifecycle.DomainEvents.Count);
+        Assert.Equal(2, assetLifecycle.DomainEvents.Count);
+        Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(UpdateAssetLifecycleStatusDomainEvent));
         Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(AssetSentToRepairDomainEvent));
+    }
+
+    [Fact]
+    public void CreateAsset_HasBeenStolen_CheckDomainEventsCreated()
+    {
+        // Arrange
+        Guid callerId = Guid.NewGuid();
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        // Act
+        assetLifecycle.HasBeenStolen(callerId);
+
+        // Assert
+        Assert.Equal(2, assetLifecycle.DomainEvents.Count);
+        Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(UpdateAssetLifecycleStatusDomainEvent));
+        Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(AssetHasBeenStolenDomainEvent));
     }
 }
