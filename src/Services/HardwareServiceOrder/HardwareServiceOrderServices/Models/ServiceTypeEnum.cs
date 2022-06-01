@@ -8,11 +8,21 @@
         /// </summary>
         Null = 0,
 
+        /// <summary>
+        ///     Not yet implemented.
+        /// </summary>
         Recycle = 1,
 
+        /// <summary>
+        ///     Not yet implemented.
+        /// </summary>
         Remarketing = 2,
 
+        /// <summary>
+        ///     Same Unit Repair. A repair is done on the device that is sent in.
+        /// </summary>
         SUR = 3,
+
 
         SWAP = 4,
     }

@@ -1,8 +1,11 @@
 ﻿#if DEBUG
 
+using Common.Converters;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 
 namespace HardwareServiceOrder.API.Controllers
 {
@@ -25,39 +28,16 @@ namespace HardwareServiceOrder.API.Controllers
         }
 
 
-        [HttpPost("create/1")]
-        public async Task<ActionResult> CreateTest1()
+        /// <summary>
+        ///     Retrieve a given provider-interface.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("get/providerInterface")]
+        public async Task<ActionResult> GetProviderInterface([FromQuery] int providerId = 1)
         {
             try
             {
-                //var serviceProvider = new HardwareServiceOrderServices.Conmodo.ProviderServices("", "", "52079706");
-
-                DeliveryAddressDTO address = new()
-                {
-                    Recipient = "Recipient",
-                    Address1 = "Address1",
-                    Address2 = null,
-                    PostalCode = "6060",
-                    City = "City",
-                    Country = "NO",
-                };
-
-                AssetInfoDTO asset = new()
-                {
-                    AssetCategoryId = 1,
-                    Brand = "Samsung",
-                    Model = "Galaxy S7",
-                    Imei = null,
-                    SerialNumber = null,
-                    Accessories = null,
-                    PurchaseDate = DateOnly.FromDateTime(DateTime.Now),
-                };
-
-                NewExternalRepairOrderDTO repairOrder = new(Guid.NewGuid(), "Firstname", "Lastname", null, "test@test.com", Guid.NewGuid(), null, address, asset, "Something is wrong!");
-
-                //var result = await serviceProvider.CreateRepairOrderAsync(repairOrder, (int)ServiceTypeEnum.SUR, Guid.NewGuid().ToString());
-
-                //return Ok(result);
+                var providerInterface = await _providerFactory.GetRepairProviderAsync(providerId);
 
                 return Ok();
             }
@@ -67,46 +47,23 @@ namespace HardwareServiceOrder.API.Controllers
             }
         }
 
-
-        [HttpPost("create/2")]
-        public async Task<ActionResult> CreateTest2()
-        {
-            try
-            {
-                var providerInterface = await _providerFactory.GetRepairProviderAsync(1);
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                throw;
-            }
-
-        }
 
         /// <summary>
-        ///     Create a repair order
+        ///     Trigger the "get updated orders" method
         /// </summary>
-        /// <param name="repairOrder"></param>
+        /// <param name="providerId"></param>
+        /// <param name="apiUsername"></param>
+        /// <param name="apiPassword"></param>
+        /// <param name="since"></param>
         /// <returns></returns>
-        [HttpPost("create/3")]
-        public async Task<ActionResult> CreateTest3([FromBody] NewExternalRepairOrderDTO repairOrder)
-        {
-            var providerInterface = await _providerFactory.GetRepairProviderAsync(1, "52079706");
-            var orderResponse = providerInterface.CreateRepairOrderAsync(repairOrder, (int)ServiceTypeEnum.SUR, Guid.Empty.ToString());
-
-            return Ok(orderResponse);
-        }
-
-
-        [HttpGet("update/1")]
-        public async Task<ActionResult> UpdateTest1()
+        [HttpGet("update/getAllUpdatedOrders")]
+        public async Task<ActionResult> GetUpdatedRepairOrders([FromQuery] int providerId = 1, string? apiUsername = "52079706", string? apiPassword = null, string since = "2010-01-01")
         {
             try
             {
-                var providerInterface = await _providerFactory.GetRepairProviderAsync(1, "username", "password");
+                var providerInterface = await _providerFactory.GetRepairProviderAsync(providerId, apiUsername, apiPassword);
 
-                var result = await providerInterface.GetUpdatedRepairOrdersAsync(DateTimeOffset.Parse("2010-01-01"));
+                var result = await providerInterface.GetUpdatedRepairOrdersAsync(DateTimeOffset.Parse(since));
                 return Ok(result);
             }
             catch (Exception e)
@@ -115,6 +72,71 @@ namespace HardwareServiceOrder.API.Controllers
             }
         }
 
+
+        /// <summary>
+        ///     Create a new repair order
+        /// </summary>
+        /// <param name="repairOrder"></param>
+        /// <param name="providerId"></param>
+        /// <param name="apiUsername"></param>
+        /// <param name="apiPassword"></param>
+        /// <returns></returns>
+        [HttpPost("create/repairOrder")]
+        public async Task<ActionResult> CreateRepairOrder([FromBody] NewExternalRepairOrderDTO repairOrder, [FromQuery] int providerId = 1, string? apiUsername = "52079706", string? apiPassword = null)
+        {
+            var providerInterface = await _providerFactory.GetRepairProviderAsync(providerId, apiUsername, apiPassword);
+            var orderResponse = providerInterface.CreateRepairOrderAsync(repairOrder, (int)ServiceTypeEnum.SUR, Guid.Empty.ToString());
+
+            return Ok(orderResponse);
+        }
+
+
+        [HttpGet("serializer")]
+        public async Task<ActionResult> TestSerialization()
+        {
+            HttpClient client = new HttpClient();
+            var result = await client.GetAsync("https://localhost:7263/api/v1/test/data/1");
+            var responseBody = await result.Content.ReadFromJsonAsync<TestEntity>();
+
+            return Ok(responseBody);
+        }
+
+        [HttpPost("serializer")]
+        public async Task<ActionResult> TestPostSerialization()
+        {
+            var a = new TestEntity()
+            {
+                Date = DateOnly.Parse("2020-01-01")
+            };
+
+            HttpClient client = new HttpClient();
+            var result = await client.PostAsJsonAsync("https://localhost:7263/api/v1/test/data/1", a);
+            var responseBody = await result.Content.ReadFromJsonAsync<TestEntity>();
+
+            return Ok(responseBody);
+        }
+
+        [HttpGet("data/1")]
+        public async Task<TestEntity> GetDate()
+        {
+            return new TestEntity()
+            {
+                Date = DateOnly.Parse("2020-01-01")
+            };
+        }
+
+        [HttpPost("data/1")]
+        public async Task<ActionResult> PostData(TestEntity testEntity)
+        {
+            return Ok(testEntity);
+        }
+
+    }
+
+    public class TestEntity
+    {
+        [JsonConverter(typeof(DateOnlyNullableJsonConverter))]
+        public DateOnly? Date { get; set; }
     }
 }
 

@@ -109,7 +109,18 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         {
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="commId"></param>
+        /// <param name="reference"></param>
+        /// <param name="customerHandler"></param>
+        /// <param name="startStatus"></param>
+        /// <param name="errorDescription"></param>
+        /// <param name="productInfo"></param>
+        /// <param name="purchaseDate"></param>
+        /// <param name="serviceRequestOwner"></param>
+        /// <param name="extraServices"></param>
         public CreateOrderRequest(string commId, string reference, Contact customerHandler, StartStatus startStatus, string errorDescription, ProductInfo productInfo, DateOnly? purchaseDate, Contact serviceRequestOwner, ISet<int>? extraServices)
         {
             CommId = commId;

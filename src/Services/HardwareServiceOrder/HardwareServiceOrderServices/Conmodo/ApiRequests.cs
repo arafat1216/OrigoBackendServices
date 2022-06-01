@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Net.Http.Json;
 using HardwareServiceOrderServices.Conmodo.ApiModels;
+using System.Text.Json;
 
 namespace HardwareServiceOrderServices.Conmodo
 {
@@ -132,24 +133,40 @@ namespace HardwareServiceOrderServices.Conmodo
         private async Task<TResponse> PostAsync<TResponse, TRequest>(string url, TRequest data) where TResponse : class
                                                                                                 where TRequest : class
         {
-            var response = await _httpClient.PostAsJsonAsync(url, data);
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var responseBody = await response.Content.ReadFromJsonAsync<TResponse>();
+                var jsonRequest = JsonSerializer.Serialize(data);
+                var stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync(url, stringContent);
 
-                if (responseBody is null)
-                    throw new HttpRequestException("Response body is null.");
+                //var response = await _httpClient.PostAsJsonAsync(url, data);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseBody = await response.Content.ReadFromJsonAsync<TResponse>();
+
+                    if (responseBody is null)
+                        throw new HttpRequestException("Response body is null.");
+                    else
+                        return responseBody;
+                }
                 else
-                    return responseBody;
-            }
-            else
-            {
-                string responseBody = await response.Content.ReadAsStringAsync();
-                var innerException = new HttpRequestException($"External response:\n{responseBody}");
+                {
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    var innerException = new HttpRequestException($"External response:\n{responseBody}");
 
-                throw new HttpRequestException($"External request failed.", innerException, response.StatusCode);
+                    throw new HttpRequestException($"External request failed.", innerException, response.StatusCode);
+                }
             }
+            catch (HttpRequestException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+
         }
     }
 }
