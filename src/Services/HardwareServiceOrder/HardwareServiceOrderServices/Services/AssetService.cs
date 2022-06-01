@@ -29,16 +29,17 @@ namespace HardwareServiceOrderServices.Services
         {
             var requestBody = new List<Guid> { assetLifeCycleId };
 
-            try
-            {
-                var request = await _httpClient.PostAsJsonAsync($"{_config.ApiPath}/customers/{customerId}/assetStatus/{(int)status}", requestBody);
-                request.EnsureSuccessStatusCode();
-            }
-            catch (Exception)
-            {
+            throw new NotImplementedException();
+            //try
+            //{
+            //    var request = await _httpClient.PostAsJsonAsync($"{_config.ApiPath}/customers/{customerId}/assetStatus/{(int)status}", requestBody);
+            //    request.EnsureSuccessStatusCode();
+            //}
+            //catch (Exception)
+            //{
 
-                throw;
-            }
+            //    throw;
+            //}
         }
     }
 }
