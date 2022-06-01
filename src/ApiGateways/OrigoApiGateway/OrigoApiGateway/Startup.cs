@@ -59,7 +59,7 @@ namespace OrigoApiGateway
             });
 
             services.AddHealthChecks();
-                   
+
 
             services.AddHealthChecksUI().AddInMemoryStorage();
             var blobConnectionString = Configuration.GetSection("Storage:ConnectionString").Value;
@@ -124,7 +124,7 @@ namespace OrigoApiGateway
                     x.GetRequiredService<IOptions<UserConfiguration>>(),
                     x.GetRequiredService<IMapper>()
                 ),
-                x.GetRequiredService<IMapper>(), 
+                x.GetRequiredService<IMapper>(),
                 new DepartmentsServices(
                     x.GetRequiredService<ILogger<DepartmentsServices>>(),
                     DaprClient.CreateInvokeHttpClient("customerservices"),
@@ -136,7 +136,11 @@ namespace OrigoApiGateway
             services.AddSingleton<IHardwareRepairService>(x => new HardwareRepairService(
                x.GetRequiredService<ILogger<HardwareRepairService>>(),
                DaprClient.CreateInvokeHttpClient("hardwareserviceorderservices"),
-               x.GetRequiredService<IOptions<HardwareServiceOrderConfiguration>>()));
+               x.GetRequiredService<IOptions<HardwareServiceOrderConfiguration>>(),
+               x.GetRequiredService<IAssetServices>(),
+               x.GetRequiredService<IUserServices>(),
+               x.GetRequiredService<ICustomerServices>(),
+               x.GetRequiredService<IPartnerServices>()));
 
             services.AddSingleton<ICustomerServices>(x => new CustomerServices(
                 x.GetRequiredService<ILogger<CustomerServices>>(),
@@ -254,7 +258,7 @@ namespace OrigoApiGateway
                                     x.GetRequiredService<IOptions<UserConfiguration>>(),
                                     x.GetRequiredService<IMapper>()
                                 ),
-                                x.GetRequiredService<IMapper>(), 
+                                x.GetRequiredService<IMapper>(),
                                 new DepartmentsServices(
                                     x.GetRequiredService<ILogger<DepartmentsServices>>(),
                                     DaprClient.CreateInvokeHttpClient("customerservices"),

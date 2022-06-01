@@ -1,6 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Common.Enums;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models.HardwareServiceOrder;
+using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
+using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
+using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -13,15 +17,29 @@ namespace OrigoApiGateway.Services
     {
         private readonly ILogger<HardwareRepairService> _logger;
         private readonly HardwareServiceOrderConfiguration _options;
+        private readonly IAssetServices _assetServices;
+        private readonly IUserServices _userServices;
+        private readonly ICustomerServices _customerServices;
+        private readonly IPartnerServices _partnerServices;
 
         private HttpClient HttpClient { get; }
 
-        public HardwareRepairService(ILogger<HardwareRepairService> logger, HttpClient httpClient,
-         IOptions<HardwareServiceOrderConfiguration> options)
+        public HardwareRepairService(
+            ILogger<HardwareRepairService> logger,
+            HttpClient httpClient,
+            IOptions<HardwareServiceOrderConfiguration> options,
+            IAssetServices assetServices,
+            IUserServices userServices,
+            ICustomerServices customerServices,
+            IPartnerServices partnerServices)
         {
             _logger = logger;
             HttpClient = httpClient;
             _options = options.Value;
+            _assetServices = assetServices;
+            _userServices = userServices;
+            _customerServices = customerServices;
+            _partnerServices = partnerServices;
         }
 
         public async Task<CustomerSettings> ConfigureLoanPhoneAsync(Guid customerId, LoanDevice loanDevice)
@@ -98,13 +116,57 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<HardwareServiceOrder> CreateHardwareServiceOrderAsync(Guid customerId, HardwareServiceOrder model)
+        public async Task<OrigoHardwareServiceOrder> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, NewHardwareServiceOrder model)
         {
             try
             {
-                var request = await HttpClient.PostAsync($"{_options.ApiPath}/{customerId}/orders", JsonContent.Create(model));
+                var dto = new NewHardwareServiceOrderDTO(model);
+
+                //Verify whether the asset can be sent to repair
+                var asset = await _assetServices.GetAssetForCustomerAsync(customerId, model.AssetInfo.AssetLifecycleId);
+
+                if (asset.AssetStatus != AssetLifecycleStatus.InUse)
+                {
+                    throw new ArgumentException("This asset cannot be sent to repair.");
+                }
+
+                //Get owner information
+                userId = asset.AssetHolderId ?? userId;
+                var userInfo = await _userServices.GetUserAsync(userId);
+
+                //Get organization information
+                var organization = await _customerServices.GetCustomerAsync(customerId);
+
+                if (organization == null)
+                    throw new ArgumentException($"Unable retrieve organization for customerID {customerId}", nameof(customerId));
+
+                if (organization.PartnerId == null)
+                    throw new ArgumentException($"There is no partner associated with customerID {customerId}", nameof(customerId));
+
+                //Get partner information
+                var partner = await _partnerServices.GetPartnerAsync(organization.PartnerId.GetValueOrDefault());
+                
+                if (partner == null)
+                    throw new ArgumentException($"No partner is for customerId {customerId}", nameof(customerId));
+                
+                dto.OrderedBy = new OrderedByUserDTO
+                {
+                    Email = userInfo.Email,
+                    FistName = userInfo.FirstName,
+                    LastName = userInfo.LastName,
+                    Id = userId,
+                    PhoneNumber = userInfo.MobileNumber,
+                    OrganizationId = organization.OrganizationId,
+                    OrganizationName = organization.Name,
+                    OrganizationNumber = organization.OrganizationNumber,
+                    PartnerId = partner.Id,
+                    PartnerName = partner.Name,
+                    PartnerOrganizationNumber = partner.OrganizationNumber
+                };
+
+                var request = await HttpClient.PostAsync($"{_options.ApiPath}/{customerId}/orders", JsonContent.Create(dto));
                 request.EnsureSuccessStatusCode();
-                return await request.Content.ReadFromJsonAsync<HardwareServiceOrder>();
+                return await request.Content.ReadFromJsonAsync<OrigoHardwareServiceOrder>();
             }
             catch (HttpRequestException exception)
             {
@@ -123,11 +185,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<HardwareServiceOrder> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
+        public async Task<OrigoHardwareServiceOrder> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
         {
             try
             {
-                var response = await HttpClient.GetFromJsonAsync<HardwareServiceOrder>($"{_options.ApiPath}/{customerId}/orders/{orderId}");
+                var response = await HttpClient.GetFromJsonAsync<OrigoHardwareServiceOrder>($"{_options.ApiPath}/{customerId}/orders/{orderId}");
                 return response;
             }
             catch (HttpRequestException exception)
@@ -147,11 +209,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<List<HardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId)
+        public async Task<List<OrigoHardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId)
         {
             try
             {
-                var response = await HttpClient.GetFromJsonAsync<List<HardwareServiceOrder>>($"{_options.ApiPath}/{customerId}/orders");
+                var response = await HttpClient.GetFromJsonAsync<List<OrigoHardwareServiceOrder>>($"{_options.ApiPath}/{customerId}/orders");
                 return response;
             }
             catch (HttpRequestException exception)
@@ -171,13 +233,13 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<HardwareServiceOrder> UpdateHardwareServiceOrderAsync(Guid customerId, Guid orderId, HardwareServiceOrder model)
+        public async Task<OrigoHardwareServiceOrder> UpdateHardwareServiceOrderAsync(Guid customerId, Guid orderId, NewHardwareServiceOrder model)
         {
             try
             {
                 var request = await HttpClient.PatchAsync($"{_options.ApiPath}/{customerId}/orders", JsonContent.Create(model));
                 request.EnsureSuccessStatusCode();
-                return await request.Content.ReadFromJsonAsync<HardwareServiceOrder>();
+                return await request.Content.ReadFromJsonAsync<OrigoHardwareServiceOrder>();
             }
             catch (HttpRequestException exception)
             {
