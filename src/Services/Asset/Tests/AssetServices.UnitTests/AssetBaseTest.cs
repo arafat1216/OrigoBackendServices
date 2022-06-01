@@ -20,6 +20,8 @@ namespace AssetServices.UnitTests
         protected readonly Guid ASSETLIFECYCLE_FOUR_ID = new("bdb4c26c-33fd-40d7-a237-e74728609c1c");
         protected readonly Guid ASSETLIFECYCLE_FIVE_ID = new("4315bba8-698f-4ddd-aee2-82554c91721f");
         protected readonly Guid ASSETLIFECYCLE_SIX_ID = new("4515bba8-698f-4ddd-aee2-82554c91721f");
+        protected readonly Guid ASSETLIFECYCLE_SEVEN_ID = new("1dee1675-0a94-4571-be24-d87ce0fb986a");
+
         protected readonly Guid COMPANY_ID = new("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
         protected readonly Guid DEPARTMENT_ID = new("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72");
         protected readonly int ASSET_CATEGORY_ID = 1;
@@ -61,7 +63,9 @@ namespace AssetServices.UnitTests
             var assetFive = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012399", "Apple", "iPhone 12", new List<AssetImei>() { new AssetImei(512217111821626) }, "840F1D0C06AD");
             
             var assetSix = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012399", "Apple", "iPhone 12", new List<AssetImei>() { new AssetImei(512217111821626) }, "840F1D0C06AD");
-            
+
+            var assetSeven = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123458789012399", "Samsung", "Samsung Galaxy S21", new List<AssetImei>() { new AssetImei(335958985460224) }, "A93FE191233B");
+
             var assetOther = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123457789012399", "Samsung", "Samsung Galaxy S21", new List<AssetImei>() { new AssetImei(308757706784653) }, "2E423AD72484");
 
             var labelOne = new CustomerLabel(LABEL_ONE_ID, COMPANY_ID, Guid.Empty, new Label("Label_1", LabelColor.Blue));
@@ -102,6 +106,12 @@ namespace AssetServices.UnitTests
             var assetLifecycleOther = new AssetLifecycle { CustomerId = Guid.NewGuid(), Alias = "alias_4", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleOther.AssignAsset(assetOther, CALLER_ID);
             assetLifecycleOther.AssignAssetLifecycleHolder(new User{ExternalId = Guid.NewGuid()},null, CALLER_ID);
+
+            var assetLifecycleEight = new AssetLifecycle(ASSETLIFECYCLE_SEVEN_ID) { CustomerId = COMPANY_ID, Alias = "alias_7", AssetLifecycleStatus = AssetLifecycleStatus.Active, AssetLifecycleType = LifecycleType.Transactional };
+            assetLifecycleEight.AssignAsset(assetSeven, CALLER_ID);
+            assetLifecycleEight.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
+            assetLifecycleEight.SentToRepair(CALLER_ID);
+
 
             var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID,1, true, 500M, 24, Guid.Empty);
             lifeCycleSetting.SetMinBuyoutPrice(700M, Guid.Empty);

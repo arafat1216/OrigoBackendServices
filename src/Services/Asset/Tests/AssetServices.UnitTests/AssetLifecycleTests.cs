@@ -131,4 +131,23 @@ public class AssetLifecycleTests
         Assert.Equal(newUserId, assetLifecycle.ContractHolderUser!.ExternalId);
         Assert.Null(assetLifecycle.ManagedByDepartmentId);
     }
+
+    [Fact]
+    public void CreateAsset_SentToRepair_CheckDomainEventsCreated()
+    {
+        // Arrange
+        Guid callerId = Guid.NewGuid();
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        // Act
+        assetLifecycle.SentToRepair(callerId);
+
+        // Assert
+        Assert.Equal(1, assetLifecycle.DomainEvents.Count);
+        Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(AssetSentToRepairDomainEvent));
+    }
 }
