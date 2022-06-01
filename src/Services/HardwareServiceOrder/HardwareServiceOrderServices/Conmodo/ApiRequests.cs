@@ -117,6 +117,7 @@ namespace HardwareServiceOrderServices.Conmodo
             }
         }
 
+
         /// <summary>
         ///     Serializes the <paramref name="data"/>, and performs a POST request. 
         ///     The response is then de-serialized back to the <typeparamref name="TResponse"/> object and returned.
@@ -133,38 +134,23 @@ namespace HardwareServiceOrderServices.Conmodo
         private async Task<TResponse> PostAsync<TResponse, TRequest>(string url, TRequest data) where TResponse : class
                                                                                                 where TRequest : class
         {
-            try
+            var response = await _httpClient.PostAsJsonAsync(url, data);
+
+            if (response.IsSuccessStatusCode)
             {
-                var jsonRequest = JsonSerializer.Serialize(data);
-                var stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync(url, stringContent);
+                var responseBody = await response.Content.ReadFromJsonAsync<TResponse>();
 
-                //var response = await _httpClient.PostAsJsonAsync(url, data);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseBody = await response.Content.ReadFromJsonAsync<TResponse>();
-
-                    if (responseBody is null)
-                        throw new HttpRequestException("Response body is null.");
-                    else
-                        return responseBody;
-                }
+                if (responseBody is null)
+                    throw new HttpRequestException("Response body is null.");
                 else
-                {
-                    string responseBody = await response.Content.ReadAsStringAsync();
-                    var innerException = new HttpRequestException($"External response:\n{responseBody}");
+                    return responseBody;
+            }
+            else
+            {
+                string responseBody = await response.Content.ReadAsStringAsync();
+                var innerException = new HttpRequestException($"External response:\n{responseBody}");
 
-                    throw new HttpRequestException($"External request failed.", innerException, response.StatusCode);
-                }
-            }
-            catch (HttpRequestException)
-            {
-                throw;
-            }
-            catch (Exception e)
-            {
-                throw;
+                throw new HttpRequestException($"External request failed.", innerException, response.StatusCode);
             }
 
         }

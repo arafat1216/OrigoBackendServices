@@ -85,59 +85,23 @@ namespace HardwareServiceOrder.API.Controllers
         public async Task<ActionResult> CreateRepairOrder([FromBody] NewExternalRepairOrderDTO repairOrder, [FromQuery] int providerId = 1, string? apiUsername = "52079706", string? apiPassword = null)
         {
             var providerInterface = await _providerFactory.GetRepairProviderAsync(providerId, apiUsername, apiPassword);
-            var orderResponse = providerInterface.CreateRepairOrderAsync(repairOrder, (int)ServiceTypeEnum.SUR, Guid.Empty.ToString());
+            var orderResponse = await providerInterface.CreateRepairOrderAsync(repairOrder, (int)ServiceTypeEnum.SUR, Guid.Empty.ToString());
 
             return Ok(orderResponse);
         }
 
 
-        [HttpGet("serializer")]
-        public async Task<ActionResult> TestSerialization()
+        [HttpGet("getRepairOrder")]
+            public async Task<ActionResult> GetRepairOrder([FromQuery] Guid orderId, [FromQuery] int providerId = 1, string? apiUsername = "52079706", string? apiPassword = null)
         {
-            HttpClient client = new HttpClient();
-            var result = await client.GetAsync("https://localhost:7263/api/v1/test/data/1");
-            var responseBody = await result.Content.ReadFromJsonAsync<TestEntity>();
+            var providerInterface = await _providerFactory.GetRepairProviderAsync(providerId, apiUsername, apiPassword);
+            var response = await providerInterface.GetRepairOrderAsync(orderId.ToString(), null);
 
-            return Ok(responseBody);
-        }
-
-        [HttpPost("serializer")]
-        public async Task<ActionResult> TestPostSerialization()
-        {
-            var a = new TestEntity()
-            {
-                Date = DateOnly.Parse("2020-01-01")
-            };
-
-            HttpClient client = new HttpClient();
-            var result = await client.PostAsJsonAsync("https://localhost:7263/api/v1/test/data/1", a);
-            var responseBody = await result.Content.ReadFromJsonAsync<TestEntity>();
-
-            return Ok(responseBody);
-        }
-
-        [HttpGet("data/1")]
-        public async Task<TestEntity> GetDate()
-        {
-            return new TestEntity()
-            {
-                Date = DateOnly.Parse("2020-01-01")
-            };
-        }
-
-        [HttpPost("data/1")]
-        public async Task<ActionResult> PostData(TestEntity testEntity)
-        {
-            return Ok(testEntity);
+            return Ok(response);
         }
 
     }
 
-    public class TestEntity
-    {
-        [JsonConverter(typeof(DateOnlyNullableJsonConverter))]
-        public DateOnly? Date { get; set; }
-    }
 }
 
 #endif
