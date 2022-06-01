@@ -15,6 +15,8 @@ namespace OrigoGateway.IntegrationTests
 {
     public class OrigoGatewayWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
     {
+        public Guid ORGANIZATION_ID = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureTestServices(services =>
