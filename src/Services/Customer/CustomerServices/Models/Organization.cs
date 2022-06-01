@@ -95,9 +95,17 @@ namespace CustomerServices.Models
             protected set { _users = value; }
         }
 
+        /// <summary>
+        /// The departments for this organization
+        /// </summary>
         [JsonIgnore]
         public ICollection<Department> Departments { get; protected set; }
-
+        
+        /// <summary>
+        /// Should users be automatically be generated in Okta when created?
+        /// Federated users will be generated in Okta through Just-In-Time creation.
+        /// </summary>
+        public bool AddUsersToOkta { get; internal set; }
 
         /// <summary>
         ///     A default constructor reserved for EntityFramework. This should not be used in-code.
@@ -111,7 +119,7 @@ namespace CustomerServices.Models
 
         public Organization(Guid organizationId, Guid callerId, Guid? parentId, string companyName, string orgNumber, Address companyAddress,
                             ContactPerson organizationContactPerson, OrganizationPreferences organizationPreferences, Location organizationLocation, 
-                            Partner? partner, bool isCustomer)
+                            Partner? partner, bool isCustomer, bool addUsersToOkta = false)
         {
             Name = companyName;
             ParentId = parentId;
@@ -127,6 +135,7 @@ namespace CustomerServices.Models
             CreatedBy = callerId;
             UpdatedBy = callerId;
             IsDeleted = false;
+            AddUsersToOkta = addUsersToOkta;
 
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }

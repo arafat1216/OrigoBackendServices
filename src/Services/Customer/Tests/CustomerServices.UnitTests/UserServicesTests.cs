@@ -96,6 +96,47 @@ namespace CustomerServices.UnitTests
             var newUserRead = await userServices.GetUserAsync(CUSTOMER_ONE_ID, newUser.Id);
             Assert.NotNull(newUserRead);
         }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void AddUserForCustomer_WithFederatedUsers_ShouldNotCallOkta()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userPermissionServices = Mock.Of<IUserPermissionServices>();
+            var oktaMock = new Mock<IOktaServices>();
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, oktaMock.Object, _mapper, userPermissionServices);
+
+            // Act
+            const string EMAIL_TEST_TEST = "email@test.test";
+            var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
+            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, "Role");
+
+            // Assert
+            oktaMock.Verify(okta => okta.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void AddUserForCustomer_WithAddToOkta_ShouldCallOkta()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userPermissionServices = Mock.Of<IUserPermissionServices>();
+            var oktaMock = new Mock<IOktaServices>();
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, oktaMock.Object, _mapper, userPermissionServices);
+
+            // Act
+            const string EMAIL_TEST_TEST = "email@test.test";
+            var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
+            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_TWO_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, "Role");
+
+            // Assert
+            oktaMock.Verify(okta => okta.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Once);
+        }
+
         [Fact]
         [Trait("Category", "UnitTest")]
         public async void AssignUserPermissions_DepartmentManager_WithEmptyAccsessList()
