@@ -461,7 +461,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         return purchaseDate.Date.AddMonths(1).AddDays(-purchaseDate.Day + 1);
     }
 
-    public void SentToRepair(Guid callerId)
+    public void IsSentToRepair(Guid callerId)
     {
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;

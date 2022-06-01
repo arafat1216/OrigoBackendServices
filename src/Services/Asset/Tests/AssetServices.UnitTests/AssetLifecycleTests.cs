@@ -133,7 +133,7 @@ public class AssetLifecycleTests
     }
 
     [Fact]
-    public void CreateAsset_SentToRepair_CheckDomainEventsCreated()
+    public void CreateAsset_IsSentToRepair_CheckDomainEventsCreated()
     {
         // Arrange
         Guid callerId = Guid.NewGuid();
@@ -144,7 +144,7 @@ public class AssetLifecycleTests
         var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
 
         // Act
-        assetLifecycle.SentToRepair(callerId);
+        assetLifecycle.IsSentToRepair(callerId);
 
         // Assert
         Assert.Equal(1, assetLifecycle.DomainEvents.Count);

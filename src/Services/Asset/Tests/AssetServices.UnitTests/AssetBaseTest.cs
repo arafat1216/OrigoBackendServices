@@ -110,7 +110,7 @@ namespace AssetServices.UnitTests
             var assetLifecycleEight = new AssetLifecycle(ASSETLIFECYCLE_SEVEN_ID) { CustomerId = COMPANY_ID, Alias = "alias_7", AssetLifecycleStatus = AssetLifecycleStatus.Active, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleEight.AssignAsset(assetSeven, CALLER_ID);
             assetLifecycleEight.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
-            assetLifecycleEight.SentToRepair(CALLER_ID);
+            assetLifecycleEight.IsSentToRepair(CALLER_ID);
 
 
             var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID,1, true, 500M, 24, Guid.Empty);
