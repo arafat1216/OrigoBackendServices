@@ -387,9 +387,8 @@ public class AssetLifecycle : Entity, IAggregateRoot
     {
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
-        var previousLifecycleStatus = _assetLifecycleStatus;
         UpdateAssetStatus(AssetLifecycleStatus.Stolen, callerId);
-        AddDomainEvent(new AssetHasBeenStolenDomainEvent(this, previousLifecycleStatus, callerId));
+        AddDomainEvent(new AssetHasBeenStolenDomainEvent(this, _assetLifecycleStatus, callerId));
     }
 
     public static AssetLifecycle CreateAssetLifecycle(CreateAssetLifecycleDTO assetLifecycleDTO)
@@ -465,8 +464,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     {
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
-        var previousLifecycleStatus = _assetLifecycleStatus;
         UpdateAssetStatus(AssetLifecycleStatus.Repair, callerId);
-        AddDomainEvent(new AssetSentToRepairDomainEvent(this, previousLifecycleStatus, callerId));
+        AddDomainEvent(new AssetSentToRepairDomainEvent(this, _assetLifecycleStatus, callerId));
     }
 }
