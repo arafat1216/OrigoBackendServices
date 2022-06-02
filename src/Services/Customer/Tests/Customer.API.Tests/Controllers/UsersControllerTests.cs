@@ -740,7 +740,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(1, permissions_user?[0].AccessList?.Count);
         }
         [Fact]
-        public async Task UnAssignManagerToDepartment_UserShouldIsManagerForAnotherDepartment()
+        public async Task UnAssignManagerToDepartment_UserIsManagerForAnotherDepartment_ShouldKeepManagerRole()
         {
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
@@ -795,6 +795,57 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(1, permissions_user?.Count);
             Assert.Equal("Manager", permissions_user?[0].Role);
             Assert.Equal(2, permissions_user?[0].AccessList?.Count);
+        }
+        [Fact]
+        public async Task CreateUserForCustomer_NewUserWithNoRole_ShouldGetEndUser()
+        {
+
+            var body = new NewUser
+            {
+                CallerId = _callerId,
+                Email = "test@mail.com",
+                FirstName = "test",
+                LastName = "user",
+                EmployeeId = "123",
+                MobileNumber = "+479898645",
+                UserPreference = new UserPreference { Language = "en" }
+            };
+            var request = $"/api/v1/organizations/{_customerId}/users";
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            var user = await response.Content.ReadFromJsonAsync<ViewModels.User>();
+
+            Assert.NotNull(user);
+            Assert.Equal("EndUser", user?.Role);
+
+
+        }
+        [Fact]
+        public async Task CreateUserForCustomer_NotValidRole_ShouldNotThrowExceptionOnlyGiveEnUserRole()
+        {
+
+            var body = new NewUser
+            {
+                CallerId = _callerId,
+                Email = "test@mail.com",
+                FirstName = "test",
+                LastName = "user",
+                EmployeeId = "123",
+                MobileNumber = "+479898645",
+                UserPreference = new UserPreference { Language = "en" },
+                Role = "Boss"
+            };
+            var request = $"/api/v1/organizations/{_customerId}/users";
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            var user = await response.Content.ReadFromJsonAsync<ViewModels.User>();
+
+            Assert.NotNull(user);
+            Assert.Equal("EndUser", user?.Role);
+
+
         }
 
     }

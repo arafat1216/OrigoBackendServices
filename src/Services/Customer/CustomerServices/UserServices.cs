@@ -146,21 +146,35 @@ namespace CustomerServices
             var mappedNewUserDTO = _mapper.Map<UserDTO>(newUser);
 
             //Add user permission if role is added in the request - type of role gets checked in AssignUserPermissionAsync
-            if (role != null)
-            {
-                try
+            UserPermissions? userPermission;
+            
+                if (role != null)
                 {
-                    var userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid>() { customerId }, callerId);
-                    if (userPermission != null)
+                    try
                     {
-                        mappedNewUserDTO.Role = role;
+
+                        userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid>() { customerId }, callerId);
+                    }
+                    catch (InvalidRoleNameException)
+                    {
+                        userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, PredefinedRole.EndUser.ToString(), new List<Guid>() { customerId }, callerId);
+
                     }
                 }
-                catch (InvalidRoleNameException)
+                else
+                {
+                    userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, PredefinedRole.EndUser.ToString(), new List<Guid>() { customerId }, callerId);
+                }
+
+                if (userPermission != null)
+                {
+                   mappedNewUserDTO.Role = userPermission.Role.Name.ToString();
+                }
+                else
                 {
                     mappedNewUserDTO.Role = null;
                 }
-            }
+
 
             return mappedNewUserDTO;
         }
