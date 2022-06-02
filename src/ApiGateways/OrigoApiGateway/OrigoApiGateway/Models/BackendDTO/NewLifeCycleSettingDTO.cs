@@ -7,6 +7,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         public bool BuyoutAllowed { get; set; }
         public int AssetCategoryId { get; set; }
         public decimal MinBuyoutPrice { get; set; }
+        public int Runtime { get; set; }
         public Guid CallerId { get; set; }
     }
 }

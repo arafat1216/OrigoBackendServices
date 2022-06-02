@@ -643,7 +643,8 @@ namespace OrigoApiGateway.Tests
                             ""createdDate"": ""2022-04-29T14:46:42.421138"",
                             ""assetCategoryId"": 1,
                             ""assetCategoryName"": ""Mobile phone"",
-                            ""minBuyoutPrice"": 700
+                            ""minBuyoutPrice"": 700,
+                            ""runtime"": 12
                         }]
                     ")
                 });
@@ -670,6 +671,7 @@ namespace OrigoApiGateway.Tests
             Assert.Equal(CUSTOMER_ID, assetings.FirstOrDefault()!.CustomerId.ToString().ToLower());
             Assert.Equal(1, assetings.Count);
             Assert.Equal(CurrencyCode.NOK.ToString(), assetings.FirstOrDefault()!.Currency);
+            Assert.Equal(12, assetings.FirstOrDefault()!.Runtime);
         }
 
         [Fact]

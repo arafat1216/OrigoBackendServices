@@ -10,6 +10,7 @@ namespace Asset.API.ViewModels
         public int AssetCategoryId { get; init; }
         public bool BuyoutAllowed { get; set; }
         public decimal MinBuyoutPrice { get; set; }
+        public int Runtime { get; set; }
         public DateTime CreatedDate { get; set; }
     }
 }

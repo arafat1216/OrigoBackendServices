@@ -655,6 +655,11 @@ namespace AssetServices
                 lifeCycleSetting.SetMinBuyoutPrice(lifeCycleSettingDTO.MinBuyoutPrice, CallerId);
             }
 
+            if (lifeCycleSetting.Runtime != lifeCycleSettingDTO.Runtime)
+            {
+                lifeCycleSetting.SetLifeCycleRuntime(lifeCycleSettingDTO.Runtime, CallerId);
+            }
+
             await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<LifeCycleSettingDTO>(lifeCycleSetting);
         }

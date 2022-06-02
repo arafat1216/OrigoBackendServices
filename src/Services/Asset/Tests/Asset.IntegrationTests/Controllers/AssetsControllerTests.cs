@@ -409,7 +409,7 @@ namespace Asset.IntegrationTests.Controllers
         public async Task CreateLifeCycleSetting()
         {
             var newSettings =
-                new NewLifeCycleSetting { AssetCategoryId = 1, BuyoutAllowed = true, CallerId = _callerId };
+                new NewLifeCycleSetting { AssetCategoryId = 1, BuyoutAllowed = true, Runtime = 12, CallerId = _callerId };
             var customerId = Guid.NewGuid();
             _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
             var requestUri = $"/api/v1/Assets/customers/{customerId}/lifecycle-setting";
@@ -424,6 +424,8 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal(setting!.FirstOrDefault()!.CustomerId, customerId);
             Assert.True(setting!.FirstOrDefault(x => x.AssetCategoryId == newSettings.AssetCategoryId)!.BuyoutAllowed ==
                         newSettings.BuyoutAllowed);
+            Assert.True(setting!.FirstOrDefault(x => x.AssetCategoryId == newSettings.AssetCategoryId)!.Runtime ==
+                        newSettings.Runtime);
         }
 
         [Fact]

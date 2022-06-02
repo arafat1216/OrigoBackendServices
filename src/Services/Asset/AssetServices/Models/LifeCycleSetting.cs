@@ -46,9 +46,9 @@ public class LifeCycleSetting : Entity, IAggregateRoot
     public int AssetCategoryId { get; init; }
 
     /// <summary>
-    /// The runtime set for this customer for this category.
+    /// the runtime month for this category and for this customer.
     /// </summary>
-    public int Runtime { get; set; }
+    public int Runtime { get; protected set; }
 
     /// <summary>
     /// Return the name of the category based on the Category Id.
@@ -92,5 +92,19 @@ public class LifeCycleSetting : Entity, IAggregateRoot
         LastUpdatedDate = DateTime.UtcNow;
         MinBuyoutPrice = buyoutPrice;
         AddDomainEvent(new SetBuyoutPriceDomainEvent(this, CustomerId, callerId));
+    }
+
+    /// <summary>
+    ///     Set Asset Runtime for this setting and Category.
+    /// </summary>
+    /// <param name="runtime">The amount that will be set min buyout price</param>
+    /// <param name="callerId">The userid making this assignment</param>
+    public void SetLifeCycleRuntime(int runtime, Guid callerId)
+    {
+        var previousRuntime = Runtime;
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        Runtime = runtime;
+        AddDomainEvent(new SetRuntimeDomainEvent(this, CustomerId, callerId, previousRuntime));
     }
 }
