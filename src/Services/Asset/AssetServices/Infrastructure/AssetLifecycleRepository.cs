@@ -342,6 +342,11 @@ namespace AssetServices.Infrastructure
             return await _assetContext.LifeCycleSettings.Where(u => u.CustomerId == customerId).ToListAsync();
         }
 
+        public async Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid assetLifeCycleId)
+        {
+            return await _assetContext.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == assetLifeCycleId);
+        }
+
         #endregion
 
     }

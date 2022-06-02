@@ -679,5 +679,19 @@ namespace AssetServices
 
             return dynamicObject.GetType().GetProperty(name) != null;
         }
+
+        public async Task AssetLifeCycleSendToRepair(Guid assetLifecycleId, Guid callerId)
+        {
+            var assetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(assetLifecycleId);
+
+            if(assetLifeCycle == null)
+            {
+                throw new ResourceNotFoundException($"Asset lifecycle with id {assetLifecycleId} not found", _logger);
+            }
+
+            assetLifeCycle.IsSentToRepair(callerId);
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+        }
     }
 }

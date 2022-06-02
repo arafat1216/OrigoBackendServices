@@ -371,8 +371,8 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> ReAssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, [FromBody] ReAssignAsset postData)
         {
-            if ((postData.Personal && (postData.DepartmentId == Guid.Empty || postData.UserId == Guid.Empty )) || (!postData.Personal && postData.DepartmentId == Guid.Empty)) return BadRequest();
-            
+            if ((postData.Personal && (postData.DepartmentId == Guid.Empty || postData.UserId == Guid.Empty)) || (!postData.Personal && postData.DepartmentId == Guid.Empty)) return BadRequest();
+
             var dataDTO = _mapper.Map<AssignAssetDTO>(postData);
             var updatedAsset = await _assetServices.AssignAssetLifeCycleToHolder(customerId, assetId, dataDTO);
             var mapped = _mapper.Map<ViewModels.Asset>(updatedAsset);
@@ -529,5 +529,36 @@ namespace Asset.API.Controllers
                 return BadRequest();
             }
         }
+        [Route("{assetLifecycleId:Guid}/send-to-repair")]
+        [HttpPatch]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+
+        public async Task<ActionResult> SendToRepair(Guid assetLifecycleId, [FromBody] Guid callerId)
+        {
+            try
+            {
+                if (assetLifecycleId == Guid.Empty)
+                {
+                    return BadRequest("AssetLifeCycleChangeStatusToRepair assetLifecycleId is a empty Guid");
+                }
+
+                await _assetServices.AssetLifeCycleSendToRepair(assetLifecycleId, callerId);
+
+                return Ok();
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger?.LogError("AssetLifeCycleChangeStatusToRepair returns ResourceNotFoundException", ex.Message);
+                return BadRequest($"AssetLifeCycleChangeStatusToRepair returns ResourceNotFoundException with assetLifecycleId {assetLifecycleId}");
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("AssetLifeCycleChangeStatusToRepair returns Exception", ex.Message);
+                return BadRequest($"AssetLifeCycleChangeStatusToRepair returns Exception with assetLifecycleId {assetLifecycleId}");
+            }
+        }
+
+
     }
 }

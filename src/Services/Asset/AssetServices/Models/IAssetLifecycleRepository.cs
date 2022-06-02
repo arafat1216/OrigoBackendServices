@@ -33,5 +33,7 @@ namespace AssetServices.Models
         Task<IList<AssetLifecycle>> GetAssetForUser(Guid userId);
         Task<LifeCycleSetting> AddLifeCycleSettingAsync(LifeCycleSetting lifeCycleSetting);
         Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomerAsync(Guid customerId);
+        Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid assetLifeCycleId);
+
     }
 }

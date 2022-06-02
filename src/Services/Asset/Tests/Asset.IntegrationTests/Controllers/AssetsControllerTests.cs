@@ -889,5 +889,40 @@ namespace Asset.IntegrationTests.Controllers
 
             Assert.Equal(AssetLifecycleStatus.InUse, assignedAsset?.AssetStatus);
         }
+        [Fact]
+        public async Task AssetLifeCycleChangeStatusToRepair()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+            var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetTwo}/customers/{_customerId}";
+            var responseGetAssetLifeCycle = await httpClient.GetAsync(requestGetAssetLifeCycle);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+            var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.NotNull(assetLifeCycle);
+            Assert.Equal(_assetTwo, assetLifeCycle?.Id);
+            Assert.Equal(AssetLifecycleStatus.Available, assetLifeCycle?.AssetStatus);
+
+            var requestUri = $"/api/v1/Assets/{_assetTwo}/send-to-repair";
+            var response = await httpClient.PatchAsync(requestUri, JsonContent.Create(_callerId));
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var requestGetAssetLifeCycleAfter = $"/api/v1/Assets/{_assetTwo}/customers/{_customerId}";
+            var responseGetAssetLifeCycleAfter = await httpClient.GetAsync(requestGetAssetLifeCycleAfter);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycleAfter.StatusCode);
+            var assetLifeCycleAfter = await responseGetAssetLifeCycleAfter.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.Equal(AssetLifecycleStatus.Repair, assetLifeCycleAfter?.AssetStatus);
+        }
+        [Fact]
+        public async Task AssetLifeCycleChangeStatusToRepair_NotValidGuidForAsset_ReturnsNotFound()
+        {
+            var NOT_VALID_GUID = Guid.NewGuid();
+            var requestUri = $"/api/v1/Assets/{NOT_VALID_GUID}/send-to-repair";
+            var response = await _httpClient.PatchAsync(requestUri, JsonContent.Create(_callerId));
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal($"AssetLifeCycleChangeStatusToRepair returns ResourceNotFoundException with assetLifecycleId {NOT_VALID_GUID}", response.Content.ReadAsStringAsync().Result);
+        }
     }
 }
