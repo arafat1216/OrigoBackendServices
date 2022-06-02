@@ -35,6 +35,7 @@ namespace HardwareServiceOrderServices.Infrastructure
             modelBuilder.ApplyConfiguration(new EntityConfiguration.ServiceProviderConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new ServiceStatusConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new ServiceTypeConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new CustomerServiceProviderConfiguration(_isSQLite));
             modelBuilder.SeedServiceStatus();
             modelBuilder.SeedServiceType();
         }
