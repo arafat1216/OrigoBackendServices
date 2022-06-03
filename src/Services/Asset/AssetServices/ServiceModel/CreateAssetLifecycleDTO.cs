@@ -88,6 +88,11 @@ public class CreateAssetLifecycleDTO
     public int? MonthlySalaryDeductionRuntime { get; set; }
 
     /// <summary>
+    ///     The number of months the asset will be leased to the transactional customer.
+    /// </summary>
+    public int Runtime { get; set; }
+
+    /// <summary>
     ///     The invoice# this asset will be invoiced on.
     /// </summary>
     public string? InvoiceNumber { get; set; }

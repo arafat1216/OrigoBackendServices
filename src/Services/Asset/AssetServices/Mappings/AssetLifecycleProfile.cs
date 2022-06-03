@@ -29,6 +29,8 @@ public class AssetLifecycleProfile : Profile
             .ForMember(dest=> dest.Labels, opts => opts.MapFrom(src => src.Labels))
             .ForMember(dest => dest.Source, opts => opts.MapFrom(src => src.Source.ToString()));
         CreateMap<PagedModel<AssetLifecycle>, PagedModel<AssetLifecycleDTO>>();
-        CreateMap<NewAssetDTO, CreateAssetLifecycleDTO>().ForMember(dest => dest.Source, opts => opts.Ignore());
+        CreateMap<NewAssetDTO, CreateAssetLifecycleDTO>()
+            .ForMember(dest => dest.Source, opts => opts.Ignore())
+            .ForMember(dest => dest.Runtime, opts => opts.Ignore());
     }
 }

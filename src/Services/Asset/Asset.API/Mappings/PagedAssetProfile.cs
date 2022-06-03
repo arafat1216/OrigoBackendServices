@@ -31,7 +31,9 @@ public class PagedAssetProfile : Profile
             .ForMember(dest => dest.AssetCategoryId, opts => opts.MapFrom(src => src.AssetCategoryId))
             .ForMember(dest => dest.BookValue, opts => opts.MapFrom(src => src.BookValue))
             .ForMember(dest => dest.BuyoutPrice, opts => opts.MapFrom(src => src.BuyoutPrice))
-            .ForMember(dest => dest.Labels, opts => opts.MapFrom(src => src.Labels));
+            .ForMember(dest => dest.Labels, opts => opts.MapFrom(src => src.Labels))
+            .ForMember(dest => dest.StartPeriod, opts => opts.MapFrom(src => src.StartPeriod))
+            .ForMember(dest => dest.EndPeriod, opts => opts.MapFrom(src => src.EndPeriod));
 
         CreateMap<LifeCycleSettingDTO, LifeCycleSetting>()
             .ForMember(dest => dest.Id, opts => opts.MapFrom(src => src.ExternalId));

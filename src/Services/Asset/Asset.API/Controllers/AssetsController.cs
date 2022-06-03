@@ -327,6 +327,10 @@ namespace Asset.API.Controllers
                 var updatedAsset = await _assetServices.AddAssetLifecycleForCustomerAsync(customerId, newAssetDTO);
                 return CreatedAtAction(nameof(CreateAsset), new { id = updatedAsset.ExternalId }, _mapper.Map<ViewModels.Asset>(updatedAsset));
             }
+            catch (AssetLifeCycleSettingNotFoundException)
+            {
+                return BadRequest("Unable to find LifeCycle Setting for the Customer and the Asset CategoryId");
+            }
             catch (AssetCategoryNotFoundException)
             {
                 return BadRequest("Unable to find Asset CategoryId");

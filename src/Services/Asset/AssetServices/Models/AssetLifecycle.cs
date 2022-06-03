@@ -404,7 +404,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
             AssetLifecycleStatus = assetLifecycleStatus,
             PurchaseDate = assetLifecycleDTO.PurchaseDate,
             StartPeriod = GetStartPeriodFromPurchaseDate(assetLifecycleDTO.PurchaseDate, assetLifecycleDTO.LifecycleType),
-            EndPeriod = GetEndPeriodFromPurchaseDate(assetLifecycleDTO.PurchaseDate, assetLifecycleDTO.MonthlySalaryDeductionRuntime, assetLifecycleDTO.LifecycleType),
+            EndPeriod = GetEndPeriodFromPurchaseDate(assetLifecycleDTO.PurchaseDate, (assetLifecycleDTO.LifecycleType == LifecycleType.Transactional? assetLifecycleDTO.Runtime : assetLifecycleDTO.MonthlySalaryDeductionRuntime) , assetLifecycleDTO.LifecycleType),
             _salaryDeductionTransactionList = salaryDeductionTransactions,
             Note = assetLifecycleDTO.Note,
             Description = assetLifecycleDTO.Description,

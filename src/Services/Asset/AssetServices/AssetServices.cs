@@ -276,6 +276,9 @@ namespace AssetServices
 
         public async Task<AssetLifecycleDTO> AddAssetLifecycleForCustomerAsync(Guid customerId, NewAssetDTO newAssetDTO)
         {
+            var lifeCycleSetting = await _assetLifecycleRepository.GetCustomerLifeCycleSettingAssetCategory(customerId, newAssetDTO.AssetCategoryId);
+            if (lifeCycleSetting == null && newAssetDTO.LifecycleType == LifecycleType.Transactional)
+                throw new AssetLifeCycleSettingNotFoundException();
 
             if (!string.IsNullOrEmpty(newAssetDTO.AssetTag) && (newAssetDTO.AssetTag.Contains("A4010") ||  //Non personal with leasing/as a service
                                                                  newAssetDTO.AssetTag.Contains("A4020")))   //Non personal purchased transactional
@@ -306,6 +309,7 @@ namespace AssetServices
             var newAssetLifecycle = _mapper.Map<CreateAssetLifecycleDTO>(newAssetDTO);
             newAssetLifecycle.Source = sourceConverted;
             newAssetLifecycle.CustomerId = customerId;
+            newAssetLifecycle.Runtime = lifeCycleSetting!.Runtime;
             var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(newAssetLifecycle);
 
             Asset asset = newAssetDTO.AssetCategoryId == 1

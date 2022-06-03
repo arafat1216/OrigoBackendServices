@@ -100,6 +100,15 @@ namespace OrigoApiGateway.Models
         public DateTime CreatedDate { get; init; }
 
         /// <summary>
+        /// The start period for this asset lifecycle.
+        /// </summary>
+        public DateTime? StartPeriod { get; init; }
+        /// <summary>
+        /// The end period for this asset lifecycle.
+        /// </summary>
+        public DateTime? EndPeriod { get; init; }
+
+        /// <summary>
         /// The department or cost center this asset is assigned to.
         /// </summary>
         public Guid? ManagedByDepartmentId { get; init; }

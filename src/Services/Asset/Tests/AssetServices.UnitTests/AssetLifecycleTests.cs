@@ -52,7 +52,7 @@ public class AssetLifecycleTests
         var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
         {
             PurchaseDate = new DateTime(2022, 2, 12),
-            MonthlySalaryDeductionRuntime = 36,
+            Runtime = 36,
             LifecycleType = LifecycleType.Transactional
         };
         var assetLifeCycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);

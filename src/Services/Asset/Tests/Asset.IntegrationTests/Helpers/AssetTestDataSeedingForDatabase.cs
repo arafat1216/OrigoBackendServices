@@ -136,13 +136,14 @@ internal static class AssetTestDataSeedingForDatabase
         assetLifecycleEight.AssignAsset(assetTwo, CALLER_ID);
 
 
-        var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID, 1, true, 700M, 24, Guid.Empty);
+        var lifeCycleSettingOne = new LifeCycleSetting(COMPANY_ID, 1, true, 700M, 24, Guid.Empty);
+        var lifeCycleSettingTwo = new LifeCycleSetting(ORGANIZATION_ID, 1, true, 700M, 24, Guid.Empty);
 
         dbContext.Users.AddRange(userOne);
         dbContext.Assets.AddRange(assetOne, assetTwo, assetThree,assetFour ,assetFive);
         dbContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree,
             assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleEight);
-        dbContext.LifeCycleSettings.AddRange(lifeCycleSetting);
+        dbContext.LifeCycleSettings.AddRange(lifeCycleSettingOne, lifeCycleSettingTwo);
 
         var label = new CustomerLabel(COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
 
