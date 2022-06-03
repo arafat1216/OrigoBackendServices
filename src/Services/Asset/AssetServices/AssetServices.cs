@@ -505,7 +505,7 @@ namespace AssetServices
             if (assetLifecycle == null) throw new ResourceNotFoundException("No asset were found using the given AssetId. Did you enter the correct Asset Id?", _logger);
             if (assignAssetDTO.UserId != Guid.Empty)
             {
-                var user = await _assetLifecycleRepository.GetUser(assignAssetDTO.UserId);
+                var user = await _assetLifecycleRepository.GetUser(assignAssetDTO.UserId) ?? new User { ExternalId = assignAssetDTO.UserId };
                 if (user == null) throw new ResourceNotFoundException("No User were found using the given UserId. Did you enter the correct User Id?", _logger);
                 assetLifecycle.AssignAssetLifecycleHolder(user, null, assignAssetDTO.CallerId);
             }

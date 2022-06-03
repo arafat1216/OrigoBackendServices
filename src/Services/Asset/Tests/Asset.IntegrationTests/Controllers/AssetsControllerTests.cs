@@ -510,7 +510,7 @@ namespace Asset.IntegrationTests.Controllers
             // Assert
             if (postData.UserId != Guid.Empty && postData.DepartmentId != Guid.Empty)
             {
-                Assert.Equal(HttpStatusCode.InternalServerError, responsePost.StatusCode);
+                Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
             }
             else
             {
@@ -1177,5 +1177,22 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal($"AssetLifeCycleRepairCompleted returns InvalidAssetDataException with assetLifecycleId {_assetTwo} with message: Asset life cycle has status Available", response.Content.ReadAsStringAsync().Result);
         }
 
+        [Fact]
+        public async Task AssignAssetLifeCycleToHolder_IfUserDontExist_NewUserIsAdded()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+            Guid NEW_ASSETHOLDER_ID = new("dfe7639b-27d5-41b8-9926-43eba7f7e408");
+
+            var asset = new AssignAssetToUser { UserId = NEW_ASSETHOLDER_ID, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/{_assetTwo}/customer/{_customerId}/assign";
+            var response = await httpClient.PostAsync(requestUri, JsonContent.Create(asset));
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var assignedAsset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.NotNull(assignedAsset);
+            Assert.Equal(assignedAsset?.AssetHolderId, NEW_ASSETHOLDER_ID);
+        }
     }
 }
