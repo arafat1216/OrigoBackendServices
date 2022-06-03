@@ -78,5 +78,6 @@
         /// <param name="events">List of events</param>
         /// <returns></returns>
         Task UpdateServiceEventsAsync(HardwareServiceOrder order, IEnumerable<ServiceEvent> events);
+        Task<HardwareServiceOrder> CreateHardwareServiceOrder(HardwareServiceOrder serviceOrder);
     }
 }

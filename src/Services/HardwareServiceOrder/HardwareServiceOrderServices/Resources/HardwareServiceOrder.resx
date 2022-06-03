@@ -236,4 +236,7 @@ The following order has received unknown status from the service provider. Pleas
   <data name="OrderConfirmationEmail_Subject" xml:space="preserve">
     <value>Order Confirmation</value>
   </data>
+  <data name="OrderConfirmationEmail_Subject" xml:space="preserve">
+    <value>Hello {{FirstName}}!</value>
+  </data>
 </root>

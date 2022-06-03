@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using HardwareServiceOrderServices.Email;
+using HardwareServiceOrderServices.Email.Models;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
 using HardwareServiceOrderServices.Services;
@@ -9,16 +11,19 @@ namespace HardwareServiceOrderServices
     {
         private readonly IHardwareServiceOrderRepository _hardwareServiceOrderRepository;
         private readonly IMapper _mapper;
+        private IEmailService _emailService;
         private readonly IProviderFactory _providerFactory;
         private readonly Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> _serviceOrderStatusHandlers;
         public HardwareServiceOrderService(
             IHardwareServiceOrderRepository hardwareServiceOrderRepository,
             IMapper mapper,
             IProviderFactory providerFactory,
-            Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> serviceOrderStatusHandlers)
+            Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> serviceOrderStatusHandlers,
+            IEmailService emailService)
         {
             _hardwareServiceOrderRepository = hardwareServiceOrderRepository;
             _mapper = mapper;
+            _emailService = emailService;
             _providerFactory = providerFactory;
             _serviceOrderStatusHandlers = serviceOrderStatusHandlers;
         }
@@ -48,9 +53,64 @@ namespace HardwareServiceOrderServices
             return dto;
         }
 
-        public Task<HardwareServiceOrderDTO> CreateHardwareServiceOrderAsync(Guid customerId, HardwareServiceOrderDTO model)
+        public async Task<HardwareServiceOrderDTO> CreateHardwareServiceOrderAsync(Guid customerId, HardwareServiceOrderDTO serviceOrderDTO)
         {
-            throw new NotImplementedException();
+            var customerSettingDto = GetSettingsAsync(customerId).Result;
+
+            var newExternalOrder = new NewExternalRepairOrderDTO(new Guid(), serviceOrderDTO.FirstName, serviceOrderDTO.LastName, serviceOrderDTO.PhoneNumber,
+                    serviceOrderDTO.Email, serviceOrderDTO.OrganizationId, serviceOrderDTO.OrganizationNumber, serviceOrderDTO.DeliveryAddress,
+                    serviceOrderDTO.AssetInfo, serviceOrderDTO.ErrorDescription);
+
+            //Creating Conmodo order
+            var externalOrderResponseDTO =
+                _repairProvider.CreateRepairOrderAsync(newExternalOrder,(int)ServiceTypeEnum.SUR, "23767").Result;
+
+            var deliveryAddress = new DeliveryAddress(serviceOrderDTO.DeliveryAddress.Recipient, "", serviceOrderDTO.DeliveryAddress.Address1,
+                serviceOrderDTO.DeliveryAddress.Address2, serviceOrderDTO.DeliveryAddress.PostalCode, serviceOrderDTO.DeliveryAddress.City,
+                serviceOrderDTO.DeliveryAddress.Country);
+
+            var fullName = serviceOrderDTO.FirstName + " " + serviceOrderDTO.LastName;
+            var user = new User(new Guid(),fullName,serviceOrderDTO.Email);
+
+            var serviceOrder = new HardwareServiceOrder(customerId, user, serviceOrderDTO.AssetInfo.AssetLifecycleId
+                , serviceOrderDTO.AssetInfo.AssetName, deliveryAddress, serviceOrderDTO.UserDescription, serviceOrderDTO.ServiceProvider, "", "", serviceOrderDTO.ExternalProviderLink, serviceOrderDTO.ServiceType, serviceOrderDTO.ServiceStatus
+               );
+
+            //Creating order at Origo
+            var a = await _hardwareServiceOrderRepository.CreateHardwareServiceOrder(serviceOrder);
+
+
+            //Sending Confirmation Email
+
+            if(a != null)
+            {
+                try
+                {
+                    
+                    var orderConfirmationMail = new OrderConfirmationEmail
+                    {
+                        AssetId = serviceOrderDTO.AssetId.ToString(),
+                        AssetName = serviceOrderDTO.AssetInfo.AssetName,
+                        FirstName = serviceOrderDTO.FirstName,
+                        OrderDate = a.CreatedDate.UtcDateTime,
+                        OrderLink = serviceOrderDTO.ExternalProviderLink,
+                        Recipient = serviceOrderDTO.DeliveryAddress.Recipient,
+                        FaultCategory = serviceOrderDTO.FaultType,
+                        LoanDeviceContact = customerSettingDto.LoanDevicePhoneNumber,
+                        Subject = serviceOrderDTO.Email,
+                        RepairType = serviceOrderDTO.FaultType
+                    };
+                    var emailResponse = _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMail, "en");
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+
+            }
+
+            //var orderDTO = _mapper.Map<Task<HardwareServiceOrderDTO>>(serviceOrderDTO);
+            return serviceOrderDTO;
         }
 
         public Task<HardwareServiceOrderDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)

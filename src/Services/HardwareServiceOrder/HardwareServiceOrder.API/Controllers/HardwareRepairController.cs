@@ -28,9 +28,22 @@ namespace HardwareServiceOrder.API.Controllers
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<Location, DeliveryAddressDTO>();
+                cfg.CreateMap<AssetInfo, AssetInfoDTO>();
 
                 cfg.CreateMap<ViewModels.HardwareServiceOrder, HardwareServiceOrderDTO>()
-                    .ForMember(dest => dest.DeliveryAddress, opt => opt.MapFrom(src => src.DeliveryAddress));
+                    .ForMember(dest => dest.DeliveryAddress, opt => opt.MapFrom(src => src.DeliveryAddress))
+                    .ForMember(m => m.AssetInfo, opts => opts.MapFrom(s => s.AssetInfo))
+                .ForMember(m => m.FirstName, opts => opts.MapFrom(m => m.OrderedBy.FistName))
+                .ForMember(m => m.LastName, opts => opts.MapFrom(m => m.OrderedBy.LastName))
+                .ForMember(m => m.PartnerName, opts => opts.MapFrom(m => m.OrderedBy.PartnerName))
+                .ForMember(m => m.PartnerId, opts => opts.MapFrom(m => m.OrderedBy.PartnerId))
+                .ForMember(m => m.PartnerOrganizationNumber, opts => opts.MapFrom(m => m.OrderedBy.PartnerOrganizationNumber))
+                .ForMember(m => m.OrganizationId, opts => opts.MapFrom(m => m.OrderedBy.OrganizationId))
+                .ForMember(m => m.OrganizationName, opts => opts.MapFrom(m => m.OrderedBy.OrganizationName))
+                .ForMember(m => m.OrganizationNumber, opts => opts.MapFrom(m => m.OrderedBy.OrganizationNumber))
+                .ForMember(m => m.PhoneNumber, opts => opts.MapFrom(m => m.OrderedBy.PhoneNumber))
+                .ForMember(m => m.Id, opts => opts.MapFrom(m => m.OrderedBy.Id))
+                .ForMember(m => m.Email, opts => opts.MapFrom(m => m.OrderedBy.Email));
             });
 
             _mapperForHwDto = config.CreateMapper();

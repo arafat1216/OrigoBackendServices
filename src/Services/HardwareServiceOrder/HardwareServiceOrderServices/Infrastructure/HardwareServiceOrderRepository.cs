@@ -1,4 +1,5 @@
 ﻿using HardwareServiceOrderServices.Models;
+using HardwareServiceOrderServices.ServiceModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace HardwareServiceOrderServices.Infrastructure
@@ -131,6 +132,27 @@ namespace HardwareServiceOrderServices.Infrastructure
         public async Task<CustomerSettings> GetSettingsAsync(Guid customerId)
         {
             return await _hardwareServiceOrderContext.CustomerSettings.FirstOrDefaultAsync(m => m.CustomerId == customerId);
+        }
+
+        public async Task<HardwareServiceOrder> CreateHardwareServiceOrder(HardwareServiceOrder serviceOrder)
+        {
+            if (serviceOrder.ServiceProvider == null || serviceOrder.ServiceType == null 
+                || serviceOrder.Status == null)
+            {
+                throw new Exception();
+            }
+            _hardwareServiceOrderContext.HardwareServiceOrders.Add(serviceOrder);
+            //_hardwareServiceOrderContext.ServiceProviders.Add(serviceOrder.ServiceProvider);
+            //_hardwareServiceOrderContext.ServiceStatuses.Add(serviceOrder.Status);
+            //_hardwareServiceOrderContext.ServiceTypes.Add(serviceOrder.ServiceType);
+            await _hardwareServiceOrderContext.SaveChangesAsync();
+            var savedHardwareServiceOrder = await _hardwareServiceOrderContext.HardwareServiceOrders
+              .FirstOrDefaultAsync(a => a.ExternalId == serviceOrder.ExternalId);
+            if (savedHardwareServiceOrder == null)
+            {
+                throw new Exception();
+            }
+            return savedHardwareServiceOrder;
         }
 
         /// <summary>

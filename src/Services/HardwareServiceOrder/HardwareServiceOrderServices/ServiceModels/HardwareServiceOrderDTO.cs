@@ -6,6 +6,7 @@ namespace HardwareServiceOrderServices.ServiceModels
     {
         public Guid Id { get; set; }
         public Guid AssetId { get; set; }
+        public AssetInfoDTO AssetInfo { get; set; }
         public string FaultType { get; set; }
         public string BasicDescription { get; set; }
         public string UserDescription { get; set; }

@@ -259,5 +259,14 @@ namespace HardwareServiceOrderServices.Resources {
                 return ResourceManager.GetString("Unknown_Subject", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hello {{FirstName}}!.
+        /// </summary>
+        internal static string OrderConfirmationEmail_Subject {
+            get {
+                return ResourceManager.GetString("OrderConfirmationEmail_Subject", resourceCulture);
+            }
+        }
     }
 }
