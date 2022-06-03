@@ -277,8 +277,8 @@ namespace AssetServices
         public async Task<AssetLifecycleDTO> AddAssetLifecycleForCustomerAsync(Guid customerId, NewAssetDTO newAssetDTO)
         {
 
-            if ((newAssetDTO.AssetTag != null && newAssetDTO.AssetTag.Contains("A4010")) ||  //Non personal with leasing/as a service
-                (newAssetDTO.AssetTag != null && newAssetDTO.AssetTag.Contains("A4020")))   //Non personal purchased transactional
+            if (!string.IsNullOrEmpty(newAssetDTO.AssetTag) && (newAssetDTO.AssetTag.Contains("A4010") ||  //Non personal with leasing/as a service
+                                                                 newAssetDTO.AssetTag.Contains("A4020")))   //Non personal purchased transactional
             {
                 newAssetDTO.IsPersonal = false;
             }

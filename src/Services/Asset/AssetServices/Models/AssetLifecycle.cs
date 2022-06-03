@@ -413,7 +413,8 @@ public class AssetLifecycle : Entity, IAggregateRoot
             ProductId = assetLifecycleDTO.ProductId ?? string.Empty,
             InvoiceNumber = assetLifecycleDTO.InvoiceNumber ?? string.Empty,
             TransactionId = assetLifecycleDTO.TransactionId ?? string.Empty,
-            Source = assetLifecycleDTO.Source
+            Source = assetLifecycleDTO.Source,
+            IsPersonal = assetLifecycleDTO.IsPersonal
         };
     }
 

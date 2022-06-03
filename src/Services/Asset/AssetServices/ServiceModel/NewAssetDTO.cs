@@ -14,22 +14,22 @@ namespace AssetServices.ServiceModel
         /// <summary>
         /// Alias for the asset.
         /// </summary>
-        public string Alias { get; set; }
+        public string? Alias { get; set; }
 
         /// <summary>
         /// A note containing additional information or comments for the asset.
         /// </summary>
-        public string Note { get; set; }
+        public string? Note { get; set; }
 
         /// <summary>
         /// The asset brand (e.g. Samsung)
         /// </summary>
-        public string Brand { get; set; }
+        public string? Brand { get; set; }
 
         /// <summary>
         /// The model or product name of this asset (e.g. Samsung Galaxy)
         /// </summary>
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
         /// <summary>
         /// The type of lifecycle for this asset.
@@ -59,34 +59,34 @@ namespace AssetServices.ServiceModel
         /// <summary>
         /// A description of the asset.
         /// </summary>
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         /// <summary>
         /// The payment amount by company for the asset. For mobile phones and other devices
         /// This is the amount that company covered/paid for the asset's overall cost
         /// </summary>
-        public decimal PaidByCompany { get; set; }
+        public decimal? PaidByCompany { get; set; }
 
         /// <summary>
         /// Tags associated with this asset.
         /// </summary>
-        public string AssetTag { get; set; }
+        public string? AssetTag { get; set; }
 
         /// <summary>
         /// The imei of the asset. Applicable to assets with category Mobile Phone and Tablet.
         /// </summary>
-        public IList<long> Imei { get; set; }
+        public IList<long>? Imei { get; set; }
 
         /// <summary>
         /// The mac address of the asset. Applicable to assets with category Mobile Phone and Tablet.
         /// </summary>
-        public string MacAddress { get; set; }
+        public string? MacAddress { get; set; }
 
         /// <summary>
         /// The unique serial number for the asset. For mobile phones and other devices
         /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
-        public string SerialNumber { get; set; }
+        public string? SerialNumber { get; set; }
 
         /// <summary>
         ///     Order# this asset was part of.
@@ -141,7 +141,7 @@ namespace AssetServices.ServiceModel
         /// <summary>
         /// Is a personal or non-personal asset.
         /// </summary>
-        public bool IsPersonal { get; set; }
+        public bool? IsPersonal { get; set; }
 
         public string? Source { get; set; }
     }

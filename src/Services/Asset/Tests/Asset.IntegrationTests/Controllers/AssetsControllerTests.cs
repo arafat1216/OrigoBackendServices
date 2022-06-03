@@ -265,6 +265,28 @@ namespace Asset.IntegrationTests.Controllers
         }
 
         [Fact]
+        public async Task CreateAssetWithIsPersonalSetAndNoAssetTag()
+        {
+            var newAsset = new NewAsset
+            {
+                AssetCategoryId = 1,
+                ProductName = "12 Pro Max",
+                LifecycleType = LifecycleType.Transactional,
+                PurchaseDate = new DateTime(2022, 2, 2),
+                Imei = new List<long> { 356728115537645 },
+                IsPersonal = true,
+                CallerId = _callerId
+            };
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(newAsset));
+            var requestUri = $"/api/v1/Assets/customers/{_organizationId}";
+            _testOutputHelper.WriteLine(requestUri);
+            var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newAsset);
+            var assetReturned = await createResponse.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            Assert.True(assetReturned!.IsPersonal);
+        }
+
+        [Fact]
         public async Task CreateAssetWithFileImportedSource()
         {
             var newAsset = new NewAsset
