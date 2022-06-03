@@ -6,8 +6,7 @@ namespace HardwareServiceOrderServices.ServiceModels
     public class CustomerSettingsDTO
     {
         /// <inheritdoc cref="Models.CustomerSettings.ServiceId"/>
-        [Required]
-        public string ServiceId { get; set; }
+        public string? ServiceId { get; set; }
 
         /// <inheritdoc cref="Models.CustomerSettings.LoanDevicePhoneNumber"/>
         [Phone]
@@ -32,5 +31,15 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// <inheritdoc cref="Models.CustomerSettings.CustomerId"/>
         [Required]
         public Guid CustomerId { get; set; }
+
+        /// <summary>
+        /// Provider identifier
+        /// </summary>
+        public int ProviderId { get; set; }
+
+        /// <summary>
+        /// List of asset categories supported by the provider
+        /// </summary>
+        public List<int> AssetCategoryIds { get; set; }
     }
 }

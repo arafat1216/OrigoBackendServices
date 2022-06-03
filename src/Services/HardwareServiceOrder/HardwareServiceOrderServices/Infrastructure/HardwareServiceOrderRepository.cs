@@ -11,9 +11,16 @@ namespace HardwareServiceOrderServices.Infrastructure
             _hardwareServiceOrderContext = hardwareServiceOrderContext;
         }
 
-        public async Task<CustomerSettings> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, Guid callerId)
+        /// <inheritdoc cref="IHardwareServiceOrderRepository.ConfigureLoanPhoneAsync(Guid, string, string, Guid)"/>
+        public async Task<CustomerSettings> ConfigureLoanPhoneAsync(
+            Guid customerId,
+            string loanPhoneNumber,
+            string loanPhoneEmail,
+            Guid callerId
+            )
         {
             var settings = await GetSettingsAsync(customerId);
+
             if (settings == null)
             {
                 var newSettings = new CustomerSettings(customerId, loanPhoneNumber, loanPhoneEmail, callerId);
@@ -23,26 +30,67 @@ namespace HardwareServiceOrderServices.Infrastructure
             }
 
             settings.LoanDevicePhoneNumber = loanPhoneNumber;
+
             settings.LoanDeviceEmail = loanPhoneEmail;
+
             _hardwareServiceOrderContext.Entry(settings).State = EntityState.Modified;
+
             await _hardwareServiceOrderContext.SaveChangesAsync();
+
             return settings;
         }
 
-        public async Task<CustomerSettings> ConfigureServiceIdAsync(Guid customerId, string serviceId, Guid callerId)
+        private async Task ConfigureCustomerServiceProviderAsync(List<int> assetCategoryIds, int providerId, Guid customerId, string apiUsername)
+        {
+            var serviceProvider = await _hardwareServiceOrderContext.ServiceProviders.FirstOrDefaultAsync(m => m.Id == providerId);
+
+            if (serviceProvider == null)
+                throw new ArgumentException($"No service provider exists with ID {providerId}", nameof(providerId));
+
+            foreach (var assetCategoryId in assetCategoryIds)
+            {
+                var existing = await _hardwareServiceOrderContext.CustomerServiceProviders.FirstOrDefaultAsync(m => m.AssetCategoryId == assetCategoryId && m.ServiceProviderId == providerId && m.CustomerId == customerId);
+
+                if (existing != null)
+                {
+                    existing.ApiUserName = apiUsername;
+                    _hardwareServiceOrderContext.Entry(existing).State = EntityState.Modified;
+                }
+                else
+                {
+                    _hardwareServiceOrderContext.CustomerServiceProviders.Add(new CustomerServiceProvider
+                    {
+                        AssetCategoryId = assetCategoryId,
+                        ServiceProviderId = providerId,
+                        CustomerId = customerId,
+                        ApiUserName = apiUsername
+                    });
+                }
+                await _hardwareServiceOrderContext.SaveChangesAsync();
+            }
+        }
+
+        /// <inheritdoc cref="IHardwareServiceOrderRepository.ConfigureServiceIdAsync(Guid, List{int}, int, string, string, string, Guid)"/>
+        public async Task<CustomerSettings> ConfigureServiceIdAsync(
+            Guid customerId,
+            List<int> assetCategoryIds,
+            int providerId,
+            string apiUsername,
+            string loanPhoneNumber,
+            string loanPhoneEmail,
+            Guid callerId)
         {
             var settings = await GetSettingsAsync(customerId);
+
             if (settings == null)
             {
-                var newSettings = new CustomerSettings(customerId, serviceId, callerId);
-                _hardwareServiceOrderContext.Add(newSettings);
+                settings = new CustomerSettings(customerId, callerId);
+                _hardwareServiceOrderContext.Add(settings);
                 await _hardwareServiceOrderContext.SaveChangesAsync();
-                return newSettings;
             }
 
-            settings.ServiceId = serviceId;
-            _hardwareServiceOrderContext.Entry(settings).State = EntityState.Modified;
-            await _hardwareServiceOrderContext.SaveChangesAsync();
+            await ConfigureCustomerServiceProviderAsync(assetCategoryIds, providerId, customerId, apiUsername);
+
             return settings;
         }
 
@@ -108,6 +156,13 @@ namespace HardwareServiceOrderServices.Infrastructure
             await _hardwareServiceOrderContext.SaveChangesAsync();
 
             return order;
+        }
+
+        public async Task<string?> GetServiceIdAsync(Guid customerId)
+        {
+            var entity = await _hardwareServiceOrderContext.CustomerServiceProviders.FirstOrDefaultAsync(m => m.CustomerId == customerId);
+
+            return entity?.ApiUserName;
         }
     }
 }

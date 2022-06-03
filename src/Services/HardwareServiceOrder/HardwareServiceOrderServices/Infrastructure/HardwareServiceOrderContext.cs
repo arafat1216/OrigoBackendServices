@@ -26,6 +26,7 @@ namespace HardwareServiceOrderServices.Infrastructure
         public DbSet<ServiceProvider> ServiceProviders { get; set; }
         public DbSet<ServiceStatus> ServiceStatuses { get; set; }
         public DbSet<ServiceType> ServiceTypes { get; set; }
+        public DbSet<CustomerServiceProvider> CustomerServiceProviders { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,6 +39,7 @@ namespace HardwareServiceOrderServices.Infrastructure
             modelBuilder.ApplyConfiguration(new CustomerServiceProviderConfiguration(_isSQLite));
             modelBuilder.SeedServiceStatus();
             modelBuilder.SeedServiceType();
+            modelBuilder.SeedServiceProvider();
         }
     }
 }

@@ -46,8 +46,14 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         {
             var url = $"/api/v1/hardware-repair/{_customerId}/config/sur?callerId={_callerId}";
             _testOutputHelper.WriteLine(url);
-            var serviceId = "[serviceId]";
-            var request = await _httpClient.PatchAsync(url, JsonContent.Create(serviceId));
+            var dto = new CustomerSettings
+            {
+                ServiceId = "ServiceId",
+                AssetCategoryIds = new System.Collections.Generic.List<int> { 1, 2 },
+                ProviderId = 1,
+                CustomerId = _customerId,
+            };
+            var request = await _httpClient.PatchAsync(url, JsonContent.Create(dto));
             var settings = await request.Content.ReadFromJsonAsync<CustomerSettings>();
             Assert.NotNull(settings);
             Assert.NotNull(settings!.ServiceId);
@@ -81,8 +87,8 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, request.StatusCode);
             Assert.Equal(settings!.CustomerId, customerId);
             Assert.Null(settings!.ServiceId);
-            Assert.Null(settings!.LoanDevice);
-            Assert.Null(settings!.LoanDevice);
+            Assert.Null(settings!.LoanDevice.PhoneNumber);
+            Assert.Null(settings!.LoanDevice.Email);
         }
     }
 }

@@ -4,6 +4,7 @@ using HardwareServiceOrderServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HardwareServiceOrderServices.Migrations
 {
     [DbContext(typeof(HardwareServiceOrderContext))]
-    partial class HardwareServiceOrderContextModelSnapshot : ModelSnapshot
+    [Migration("20220603084445_customer_settings_update")]
+    partial class customer_settings_update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,16 +66,6 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
-                    b.Property<DateTime>("PeriodEnd")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("PeriodEnd");
-
-                    b.Property<DateTime>("PeriodStart")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("PeriodStart");
-
                     b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -82,17 +74,6 @@ namespace HardwareServiceOrderServices.Migrations
                     b.HasIndex("ServiceProviderId");
 
                     b.ToTable("CustomerServiceProvider", (string)null);
-
-                    b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb
-                                .HasPeriodStart("PeriodStart")
-                                .HasColumnName("PeriodStart");
-                            ttb
-                                .HasPeriodEnd("PeriodEnd")
-                                .HasColumnName("PeriodEnd");
-                        }
-                    ));
                 });
 
             modelBuilder.Entity("HardwareServiceOrderServices.Models.CustomerSettings", b =>
@@ -135,36 +116,12 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("varchar(15)")
                         .HasComment("A phone-number using E.164 format.");
 
-                    b.Property<DateTime>("PeriodEnd")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("PeriodEnd");
-
-                    b.Property<DateTime>("PeriodStart")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("PeriodStart");
-
-                    b.Property<string>("ServiceId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.ToTable("CustomerSettings", (string)null);
-
-                    b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb
-                                .HasPeriodStart("PeriodStart")
-                                .HasColumnName("PeriodStart");
-                            ttb
-                                .HasPeriodEnd("PeriodEnd")
-                                .HasColumnName("PeriodEnd");
-                        }
-                    ));
                 });
 
             modelBuilder.Entity("HardwareServiceOrderServices.Models.HardwareServiceOrder", b =>
@@ -177,6 +134,10 @@ namespace HardwareServiceOrderServices.Migrations
 
                     b.Property<Guid>("AssetLifecycleId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AssetName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -283,33 +244,12 @@ namespace HardwareServiceOrderServices.Migrations
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("PeriodEnd")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("PeriodEnd");
-
-                    b.Property<DateTime>("PeriodStart")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("PeriodStart");
-
                     b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.ToTable("ServiceProviders");
-
-                    b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb
-                                .HasPeriodStart("PeriodStart")
-                                .HasColumnName("PeriodStart");
-                            ttb
-                                .HasPeriodEnd("PeriodEnd")
-                                .HasColumnName("PeriodEnd");
-                        }
-                    ));
 
                     b.HasData(
                         new
@@ -357,33 +297,12 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
-                    b.Property<DateTime>("PeriodEnd")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("PeriodEnd");
-
-                    b.Property<DateTime>("PeriodStart")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("PeriodStart");
-
                     b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.ToTable("ServiceStatuses");
-
-                    b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb
-                                .HasPeriodStart("PeriodStart")
-                                .HasColumnName("PeriodStart");
-                            ttb
-                                .HasPeriodEnd("PeriodEnd")
-                                .HasColumnName("PeriodEnd");
-                        }
-                    ));
 
                     b.HasData(
                         new
@@ -527,33 +446,12 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
-                    b.Property<DateTime>("PeriodEnd")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("PeriodEnd");
-
-                    b.Property<DateTime>("PeriodStart")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("PeriodStart");
-
                     b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.ToTable("ServiceTypes");
-
-                    b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb
-                                .HasPeriodStart("PeriodStart")
-                                .HasColumnName("PeriodStart");
-                            ttb
-                                .HasPeriodEnd("PeriodEnd")
-                                .HasColumnName("PeriodEnd");
-                        }
-                    ));
 
                     b.HasData(
                         new
@@ -617,31 +515,6 @@ namespace HardwareServiceOrderServices.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("HardwareServiceOrderServices.Models.ContactDetails", "Owner", b1 =>
-                        {
-                            b1.Property<int>("HardwareServiceOrderId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("Email")
-                                .IsRequired()
-                                .HasMaxLength(320)
-                                .HasColumnType("nvarchar(320)");
-
-                            b1.Property<string>("FirstName")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<Guid>("UserId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.HasKey("HardwareServiceOrderId");
-
-                            b1.ToTable("HardwareServiceOrders");
-
-                            b1.WithOwner()
-                                .HasForeignKey("HardwareServiceOrderId");
-                        });
-
                     b.OwnsOne("HardwareServiceOrderServices.Models.DeliveryAddress", "DeliveryAddress", b1 =>
                         {
                             b1.Property<int>("HardwareServiceOrderId")
@@ -665,7 +538,7 @@ namespace HardwareServiceOrderServices.Migrations
                                 .IsUnicode(false)
                                 .HasColumnType("char(2)")
                                 .IsFixedLength()
-                                .HasComment("The 2-character country-code using the uppercase 'ISO 3166 alpha-2' standard.");
+                                .HasComment("The 2-character country-code using the uppercase <c>ISO 3166 alpha-2</c> standard.");
 
                             b1.Property<string>("PostalCode")
                                 .IsRequired()
@@ -687,9 +560,33 @@ namespace HardwareServiceOrderServices.Migrations
                                 .HasForeignKey("HardwareServiceOrderId");
                         });
 
+                    b.OwnsOne("HardwareServiceOrderServices.Models.User", "OrderedBy", b1 =>
+                        {
+                            b1.Property<int>("HardwareServiceOrderId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Email")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<Guid>("ExternalId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("HardwareServiceOrderId");
+
+                            b1.ToTable("HardwareServiceOrders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("HardwareServiceOrderId");
+                        });
+
                     b.Navigation("DeliveryAddress");
 
-                    b.Navigation("Owner")
+                    b.Navigation("OrderedBy")
                         .IsRequired();
 
                     b.Navigation("ServiceProvider");

@@ -30,26 +30,28 @@ namespace HardwareServiceOrder.UnitTests
             _dbContext = new HardwareServiceOrderContext(ContextOptions);
             var hardwareServiceRepository = new HardwareServiceOrderRepository(_dbContext);
             _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository, _mapper);
-            
+
         }
 
         [Fact]
         public async Task ConfigureServiceId()
         {
-            var serviceId = "[ServiceId]";
-            var settings = await _hardwareServiceOrderService.ConfigureServiceIdAsync(CUSTOMER_ONE_ID, serviceId, CALLER_ONE_ID);
-            Assert.Equal(serviceId, settings.ServiceId);
+            var dto = new CustomerSettingsDTO
+            {
+                ServiceId = "[ServiceId]",
+                AssetCategoryIds = new System.Collections.Generic.List<int> { 1, 2 },
+                ProviderId = 1
+            };
+            var settings = await _hardwareServiceOrderService.ConfigureServiceIdAsync(CUSTOMER_ONE_ID, dto, CALLER_ONE_ID);
+            Assert.Equal(dto.ServiceId, settings.ServiceId);
         }
 
         [Fact]
         public async Task ConfigureLoanPhone()
         {
-            var serviceId = "[ServiceId]";
-            await _hardwareServiceOrderService.ConfigureServiceIdAsync(CUSTOMER_ONE_ID, serviceId, CALLER_ONE_ID);
             await _hardwareServiceOrderService.ConfigureLoanPhoneAsync(CUSTOMER_ONE_ID, "[+8801724592272]", "[test@test.com]", CALLER_ONE_ID);
 
             var settings = await _hardwareServiceOrderService.GetSettingsAsync(CUSTOMER_ONE_ID);
-            Assert.Equal(serviceId, settings.ServiceId);
             Assert.Equal("[+8801724592272]", settings.LoanDevicePhoneNumber);
             Assert.Equal("[test@test.com]", settings.LoanDeviceEmail);
         }

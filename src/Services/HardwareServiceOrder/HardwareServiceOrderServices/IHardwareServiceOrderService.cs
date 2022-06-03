@@ -5,8 +5,8 @@ namespace HardwareServiceOrderServices
     public interface IHardwareServiceOrderService
     {
         // Configuration
-        Task<CustomerSettingsDTO> ConfigureServiceIdAsync(Guid customerId, string serviceId, Guid callerId);
-        Task<CustomerSettingsDTO> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmain, Guid callerId);
+        Task<CustomerSettingsDTO> ConfigureServiceIdAsync(Guid customerId, CustomerSettingsDTO customerSettings, Guid callerId);
+        Task<CustomerSettingsDTO> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, Guid callerId);
         Task<CustomerSettingsDTO> GetSettingsAsync(Guid customerId);
 
         // Order

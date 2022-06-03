@@ -18,6 +18,11 @@ namespace HardwareServiceOrderServices.Models
         public int ServiceProviderId { get; set; }
 
         /// <summary>
+        /// Navigation property for <see cref="Models.ServiceProvider"/>
+        /// </summary>
+        public ServiceProvider ServiceProvider { get; set; }
+
+        /// <summary>
         /// Supported asset category by the provider
         /// </summary>
         public int AssetCategoryId { get; set; }

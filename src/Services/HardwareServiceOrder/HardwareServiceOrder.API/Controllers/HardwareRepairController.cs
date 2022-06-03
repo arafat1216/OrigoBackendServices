@@ -29,18 +29,21 @@ namespace HardwareServiceOrder.API.Controllers
         [Route("{customerId:Guid}/config/sur")]
         [HttpPatch]
         [SwaggerOperation(Tags = new[] { "Configuration" })]
-        public async Task<IActionResult> ConfigureSur(Guid customerId, [FromBody] string serviceId, Guid callerId)
+        public async Task<IActionResult> ConfigureSur(Guid customerId, [FromBody] CustomerSettings customerSettings, Guid callerId)
         {
-            var settings = await _hardwareServiceOrderService.ConfigureServiceIdAsync(customerId, serviceId, callerId);
+            var dto = _mapper.Map<CustomerSettingsDTO>(customerSettings);
+
+            var settings = await _hardwareServiceOrderService.ConfigureServiceIdAsync(customerId, dto, callerId);
+
             return Ok(_mapper.Map<CustomerSettings>(settings));
         }
 
         [Route("{customerId:Guid}/config/loan-device")]
         [HttpPatch]
         [SwaggerOperation(Tags = new[] { "Configuration" })]
-        public async Task<IActionResult> ConfigureLoanDevice(Guid customerId, [FromBody] LoanDevice loanDevice)
+        public async Task<IActionResult> ConfigureLoanDevice(Guid customerId, [FromBody] LoanDevice loanDevice, Guid callerId)
         {
-            var settings = await _hardwareServiceOrderService.ConfigureLoanPhoneAsync(customerId, loanDevice?.PhoneNumber, loanDevice?.Email, loanDevice.CallerId);
+            var settings = await _hardwareServiceOrderService.ConfigureLoanPhoneAsync(customerId, loanDevice.PhoneNumber, loanDevice.Email, callerId);
             return Ok(_mapper.Map<CustomerSettings>(settings));
         }
 

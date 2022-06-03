@@ -10,7 +10,12 @@ namespace HardwareServiceOrder.API.Mappings
             CreateMap<CustomerSettingsDTO, CustomerSettings>()
                 .ForMember(d => d.LoanDevice, opts => opts.MapFrom(s => new LoanDevice(s.LoanDevicePhoneNumber, s.LoanDeviceEmail)));
 
+            CreateMap<CustomerSettings, CustomerSettingsDTO>()
+                .ForMember(d => d.LoanDevicePhoneNumber, opts => opts.MapFrom(s => s.LoanDevice.PhoneNumber))
+                .ForMember(d => d.LoanDevicePhoneNumber, opts => opts.MapFrom(s => s.LoanDevice.PhoneNumber));
+
             CreateMap<HardwareServiceOrderDTO, ViewModels.HardwareServiceOrder>();
+
             CreateMap<ViewModels.HardwareServiceOrder, HardwareServiceOrderDTO>();
         }
     }

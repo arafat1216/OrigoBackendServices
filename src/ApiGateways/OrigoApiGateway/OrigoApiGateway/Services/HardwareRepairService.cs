@@ -71,7 +71,20 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var request = await HttpClient.PatchAsync($"{_options.ApiPath}/{customerId}/config/sur", JsonContent.Create(serviceId));
+                //TODO: Hardcoded values should be replaced in later PR
+                var dto = new NewCustomerSettingsDTO
+                {
+                    CustomerId = customerId,
+                    ServiceId = serviceId,
+                    ProviderId = 1, //Provider identifier for conmodo
+                    AssetCategoryIds = new List<int>
+                    {
+                        1, // MobilePhone
+                        2 // Tablet
+                    }
+                };
+
+                var request = await HttpClient.PatchAsync($"{_options.ApiPath}/{customerId}/config/sur", JsonContent.Create(dto));
                 request.EnsureSuccessStatusCode();
                 return await request.Content.ReadFromJsonAsync<CustomerSettings>();
             }
@@ -145,10 +158,10 @@ namespace OrigoApiGateway.Services
 
                 //Get partner information
                 var partner = await _partnerServices.GetPartnerAsync(organization.PartnerId.GetValueOrDefault());
-                
+
                 if (partner == null)
                     throw new ArgumentException($"No partner is for customerId {customerId}", nameof(customerId));
-                
+
                 dto.OrderedBy = new OrderedByUserDTO
                 {
                     Email = userInfo.Email,

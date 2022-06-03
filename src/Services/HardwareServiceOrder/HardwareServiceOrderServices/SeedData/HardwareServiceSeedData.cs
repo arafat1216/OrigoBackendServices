@@ -17,7 +17,7 @@ namespace HardwareServiceOrderServices.SeedData
             var statuses = Enum.GetValues(typeof(ServiceStatusEnum))
                     .Cast<int>()
                     .Where(i => i > 0) //Ignoring Null
-                    .Select(m => new  { Id = m , CreatedBy = systemUserId, UpdatedBy = systemUserId, IsDeleted = false });
+                    .Select(m => new { Id = m, CreatedBy = systemUserId, UpdatedBy = systemUserId, IsDeleted = false });
 
             modelBuilder.Entity<ServiceStatus>().HasData(statuses);
         }
@@ -28,9 +28,17 @@ namespace HardwareServiceOrderServices.SeedData
             var serviceTypes = Enum.GetValues(typeof(ServiceTypeEnum))
                     .Cast<int>()
                     .Where(i => i > 0) //Ignoring Null
-                    .Select(m => new  { Id = m , CreatedBy = systemUserId, UpdatedBy = systemUserId, IsDeleted = false });
+                    .Select(m => new { Id = m, CreatedBy = systemUserId, UpdatedBy = systemUserId, IsDeleted = false });
 
             modelBuilder.Entity<ServiceType>().HasData(serviceTypes);
+        }
+
+        public static void SeedServiceProvider(this ModelBuilder modelBuilder)
+        {
+            //Conmodo Norway
+            modelBuilder.Entity<ServiceProvider>().HasData(new { Id = 1, CreatedBy = systemUserId, UpdatedBy = systemUserId, IsDeleted = false, OrganizationId = Guid.Empty });
+            //Conmodo Sweden
+            modelBuilder.Entity<ServiceProvider>().HasData(new { Id = 2, CreatedBy = systemUserId, UpdatedBy = systemUserId, IsDeleted = false, OrganizationId = Guid.Empty });
         }
     }
 }

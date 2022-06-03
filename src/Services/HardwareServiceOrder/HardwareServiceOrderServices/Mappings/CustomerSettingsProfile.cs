@@ -8,7 +8,10 @@ namespace HardwareServiceOrderServices.Mappings
     {
         public CustomerSettingsProfile()
         {
-            CreateMap<CustomerSettings, CustomerSettingsDTO>();
+            CreateMap<CustomerSettings, CustomerSettingsDTO>()
+                .ForMember(d => d.ProviderId, opts => opts.Ignore())
+                .ForMember(d => d.ServiceId, opts => opts.Ignore())
+                .ForMember(d => d.AssetCategoryIds, opts => opts.Ignore());
         }
     }
 }

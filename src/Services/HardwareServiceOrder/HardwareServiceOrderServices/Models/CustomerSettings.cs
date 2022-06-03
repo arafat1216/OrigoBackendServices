@@ -8,9 +8,8 @@ namespace HardwareServiceOrderServices.Models
     /// </summary>
     public class CustomerSettings : EntityV2, IAggregateRoot
     {
-        public CustomerSettings(Guid customerId, string serviceId, Guid callerId)
+        public CustomerSettings(Guid customerId, Guid callerId)
         {
-            ServiceId = serviceId;
             CustomerId = customerId;
             CreatedBy = callerId;
         }
@@ -27,12 +26,6 @@ namespace HardwareServiceOrderServices.Models
             LoanDevicePhoneNumber = loanPhoneNumber;
             CreatedBy = callerId;
         }
-
-        // TODO: Should this be renamed and moved to the customer's provider settings? It's not really a service-ID, but the customer's API username. It is also specific for Conmodo.
-        /// <summary>
-        ///     The customer's own Conmodo Service ID
-        /// </summary>
-        public string? ServiceId { get; set; }
 
         /// <summary>
         ///     The phone-number in <c>E.164</c> format.
