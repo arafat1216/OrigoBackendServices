@@ -63,22 +63,21 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
              * Owned Entities
              */
 
-            builder.OwnsOne(o => o.DeliveryAddress, da =>
+            builder.OwnsOne(o => o.DeliveryAddress, builder =>
             {
-                da.Property(e => e.PostalCode)
-                  .HasMaxLength(12);
-
-                da.Property(e => e.City)
-                  .HasMaxLength(85);
-
-                da.Property(e => e.Country)
-                  .HasComment("The 2-character country-code using the uppercase <c>ISO 3166 alpha-2</c> standard.")
-                  .HasMaxLength(2)
-                  .IsFixedLength()
-                  .IsUnicode(false).Metadata
-                  .SetValueComparer(comparer);
+                builder.Property(e => e.Country)
+                       .HasComment("The 2-character country-code using the uppercase 'ISO 3166 alpha-2' standard.")
+                       .HasMaxLength(2)
+                       .IsFixedLength()
+                       .IsUnicode(false).Metadata
+                       .SetValueComparer(comparer);
             });
 
+
+            builder.OwnsOne(o => o.Owner, builder =>
+            {
+                // Configure here as needed...
+            });
         }
     }
 }

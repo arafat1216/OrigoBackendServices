@@ -59,7 +59,7 @@ namespace HardwareServiceOrder.UnitTests
         {
             var order = await _dbContext.HardwareServiceOrders.FirstOrDefaultAsync();
             Assert.NotNull(order);
-            Assert.NotNull(order!.OrderedBy);
+            Assert.NotNull(order!.Owner);
         }
     }
 }

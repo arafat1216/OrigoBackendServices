@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HardwareServiceOrderServices.ServiceModels
 {
-    /// <inheritdoc cref="Models.DeliveryAddress"/>
+    /// <inheritdoc cref="DeliveryAddress"/>
     public class DeliveryAddressDTO : IValidatableObject
     {
         [Required]
@@ -74,17 +74,7 @@ namespace HardwareServiceOrderServices.ServiceModels
         }
 
 
-        private static ValidationResult ValidateRecipientType(RecipientTypeEnum value, ValidationContext context)
-        {
-            if (value == RecipientTypeEnum.Null)
-            {
-                return new ValidationResult($"The value {value} is not valid.", new List<string>() { context.MemberName });
-            }
-
-            // Nothing triggered, so it's OK!
-            return ValidationResult.Success;
-        }
-
+        /// <inheritdoc/>
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
 #pragma warning disable CS0618 // Type or member is obsolete

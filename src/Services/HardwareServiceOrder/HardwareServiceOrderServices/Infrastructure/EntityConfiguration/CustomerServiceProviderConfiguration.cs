@@ -21,9 +21,13 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 
         public void Configure(EntityTypeBuilder<CustomerServiceProvider> builder)
         {
-            builder.ToTable("CustomerServiceProvider");
+            builder.ToTable("CustomerServiceProvider", table => table.IsTemporal());
 
             builder.HasKey(x => new { x.CustomerId, x.Id, x.AssetCategoryId, x.ServiceProviderId });
+
+            /*
+             * Properties
+             */
 
             builder.Property(e => e.CreatedDate)
                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")

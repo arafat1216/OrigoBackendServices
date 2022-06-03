@@ -67,14 +67,20 @@ namespace HardwareServiceOrderServices.Models
         /// <summary>
         ///     The addresses zip/postal code.
         /// </summary>
+        /// <remarks>
+        ///     The longest worldwide postal-code is 12 characters.
+        /// </remarks>
         [Required]
-        [StringLength(maximumLength: 12)] // The longest worldwide postal-code.
+        [StringLength(maximumLength: 12)]
         public string PostalCode { get; set; }
 
         /// <summary>
         ///     The name of the city/town/village.
         /// </summary>
-        [StringLength(maximumLength: 85)] // The longest worldwide place/city name
+        /// <remarks>
+        ///     The longest worldwide place/city name is 85 characters.
+        /// </remarks>
+        [StringLength(maximumLength: 85)]
         public string City { get; set; }
 
         /// <summary>

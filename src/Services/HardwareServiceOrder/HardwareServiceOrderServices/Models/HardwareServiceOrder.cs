@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HardwareServiceOrderServices.Models
 {
@@ -17,9 +18,8 @@ namespace HardwareServiceOrderServices.Models
 
         public HardwareServiceOrder(
             Guid customerId, 
-            User orderedBy, 
+            ContactDetails owner, 
             Guid assetLifecycleId, 
-            string assetName,
             DeliveryAddress deliveryAddress, 
             string userDescription, 
             ServiceProvider serviceProvider, 
@@ -30,9 +30,8 @@ namespace HardwareServiceOrderServices.Models
             ServiceStatus status)
         {
             CustomerId = customerId;
-            OrderedBy = orderedBy;
+            Owner = owner;
             AssetLifecycleId = assetLifecycleId;
-            AssetName = assetName;
             DeliveryAddress = deliveryAddress;
             UserDescription = userDescription;
             ServiceProvider = serviceProvider;
@@ -47,9 +46,8 @@ namespace HardwareServiceOrderServices.Models
         ///     Constructor for unit testing.
         /// </summary>
         /// <param name="customerId"></param>
-        /// <param name="orderedBy"></param>
+        /// <param name="owner"></param>
         /// <param name="assetLifecycleId"></param>
-        /// <param name="assetName"></param>
         /// <param name="deliveryAddress"></param>
         /// <param name="userDescription"></param>
         /// <param name="serviceProvider"></param>
@@ -61,9 +59,8 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="createdDate"></param>
         public HardwareServiceOrder(
             Guid customerId, 
-            User orderedBy,
+            ContactDetails owner,
             Guid assetLifecycleId,
-            string assetName,
             DeliveryAddress deliveryAddress,
             string userDescription,
             ServiceProvider serviceProvider,
@@ -75,9 +72,8 @@ namespace HardwareServiceOrderServices.Models
             DateTimeOffset createdDate)
         {
             CustomerId = customerId;
-            OrderedBy = orderedBy;
+            Owner = owner;
             AssetLifecycleId = assetLifecycleId;
-            AssetName = assetName;
             DeliveryAddress = deliveryAddress;
             UserDescription = userDescription;
             ServiceProvider = serviceProvider;
@@ -100,14 +96,9 @@ namespace HardwareServiceOrderServices.Models
         public Guid CustomerId { get; set; }
 
         /// <summary>
-        ///     The identifier for the asset lifecycle attached to the service order.
+        ///     The identifier for the asset life-cycle attached to the service order.
         /// </summary>
         public Guid AssetLifecycleId { get; set; }
-
-        /// <summary>
-        ///     The name of the asset
-        /// </summary>
-        public string AssetName { get; set; }
 
         /// <summary>
         ///     The delivery address used when returning the completed service order. <para>
@@ -147,17 +138,20 @@ namespace HardwareServiceOrderServices.Models
         /// <summary>
         ///     The foreign key value recorded for the <see cref="ServiceType"/> navigation property.
         /// </summary>
-        //public int ServiceTypeId { get; set; }
+        [ForeignKey(nameof(ServiceType))]
+        public int ServiceTypeId { get; set; }
 
         /// <summary>
         ///     The foreign key value recorded for the <see cref="Status"/> navigation property.
         /// </summary>
-        //public int StatusId { get; set; }
+        [ForeignKey(nameof(Status))]
+        public int StatusId { get; set; }
 
         /// <summary>
         ///     The foreign key value recorded for the <see cref="ServiceProvider"/> navigation property.
         /// </summary>
-        //public int ServiceProviderId { get; init; }
+        [ForeignKey(nameof(ServiceProvider))]
+        public int ServiceProviderId { get; init; }
 
 
         /*
@@ -180,9 +174,9 @@ namespace HardwareServiceOrderServices.Models
         public virtual ServiceProvider ServiceProvider { get; set; }
 
         /// <summary>
-        ///     The user who placed the order
+        ///     The user who owns/handles the service order.
         /// </summary>
-        public virtual User OrderedBy { get; set; }
+        public virtual ContactDetails Owner { get; set; }
 
         /// <summary>
         /// To ensure whether an email is already sent for returning loan device
@@ -190,12 +184,12 @@ namespace HardwareServiceOrderServices.Models
         public bool IsReturnLoanDeviceEmailSent { get; set; }
 
         /// <summary>
-        /// To ensure whether an email is already sent for discardig order
+        /// To ensure whether an email is already sent for discarding order
         /// </summary>
         public bool IsOrderDiscardedEmailSent { get; set; }
 
         /// <summary>
-        /// To ensure whether an email is already sent for cancelled order
+        /// To ensure whether an email is already sent for canceled order
         /// </summary>
         public bool IsOrderCancellationEmailSent { get; set; }
     }

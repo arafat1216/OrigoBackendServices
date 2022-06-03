@@ -25,7 +25,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                 v => v
             );
 
-            builder.ToTable("CustomerSettings");
+            builder.ToTable("CustomerSettings", table => table.IsTemporal());
 
             /*
              * Properties
