@@ -468,4 +468,21 @@ public class AssetLifecycle : Entity, IAggregateRoot
         UpdateAssetStatus(AssetLifecycleStatus.Repair, callerId);
         AddDomainEvent(new AssetSentToRepairDomainEvent(this, _assetLifecycleStatus, callerId));
     }
+    public void RepairCompleted(Guid callerId, bool discarded)
+    {
+        if (_assetLifecycleStatus == AssetLifecycleStatus.Repair)
+        {
+            if (discarded)UpdateAssetStatus(AssetLifecycleStatus.Discarded, callerId);
+            else UpdateAssetStatus(AssetLifecycleStatus.InUse, callerId);
+
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
+            AddDomainEvent(new AssetRepairCompletedDomainEvent(this, callerId, _assetLifecycleStatus));
+
+        }
+        else
+        {
+            throw new InvalidOperationException();
+        }
+    }
 }

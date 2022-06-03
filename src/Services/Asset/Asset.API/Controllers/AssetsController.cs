@@ -529,6 +529,39 @@ namespace Asset.API.Controllers
                 return BadRequest();
             }
         }
+        [Route("{assetLifecycleId:Guid}/repair-completed")]
+        [HttpPut]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> RepairCompleted(Guid assetLifecycleId, AssetLifeCycleRepairCompleted assetLifeCycle)
+        {
+            try
+            {
+                if (assetLifecycleId == Guid.Empty)
+                {
+                    return BadRequest("AssetLifeCycleRepairCompleted assetLifecycleId is a empty Guid");
+                }
+
+                await _assetServices.AssetLifeCycleRepairCompleted(assetLifecycleId, assetLifeCycle);
+
+                return Ok();
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger?.LogError("AssetLifeCycleRepairCompleted returns ResourceNotFoundException", ex.Message);
+                return BadRequest($"AssetLifeCycleRepairCompleted returns ResourceNotFoundException with assetLifecycleId {assetLifecycleId}");
+            }
+            catch (InvalidAssetDataException ex)
+            {
+                _logger?.LogError("AssetLifeCycleRepairCompleted returns InvalidAssetDataException", ex.Message);
+                return BadRequest($"AssetLifeCycleRepairCompleted returns InvalidAssetDataException with assetLifecycleId {assetLifecycleId} with message: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("AssetLifeCycleRepairCompleted returns ResourceNotFoundException", ex.Message);
+                return BadRequest($"AssetLifeCycleRepairCompleted returns ResourceNotFoundException with assetLifecycleId {assetLifecycleId}");
+            }
+        }
         [Route("{assetLifecycleId:Guid}/send-to-repair")]
         [HttpPatch]
         [ProducesResponseType((int)HttpStatusCode.OK)]

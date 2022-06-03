@@ -32,9 +32,12 @@ public class AssetWebApplicationFactory<TProgram> : WebApplicationFactory<TProgr
     public Guid ASSETLIFECYCLE_TWO_ID => AssetTestDataSeedingForDatabase.ASSETLIFECYCLE_TWO_ID;
     public Guid ASSETLIFECYCLE_THREE_ID => AssetTestDataSeedingForDatabase.ASSETLIFECYCLE_THREE_ID;
     public Guid ASSETLIFECYCLE_FIVE_ID => AssetTestDataSeedingForDatabase.ASSETLIFECYCLE_FIVE_ID;
+    public Guid ASSETLIFECYCLE_EIGHT_ID => AssetTestDataSeedingForDatabase.ASSETLIFECYCLE_EIGHT_ID;
     public Guid DEPARTMENT_ID => AssetTestDataSeedingForDatabase.DEPARTMENT_ID;
     public Guid DEPARTMENT_TWO_ID => AssetTestDataSeedingForDatabase.DEPARTMENT_TWO_ID;
     public Guid COMPANY_ID => AssetTestDataSeedingForDatabase.COMPANY_ID;
+    public Guid COMPANY_ID_TWO => AssetTestDataSeedingForDatabase.COMPANY_ID_TWO;
+
     public Guid ASSETHOLDER_ONE_ID => AssetTestDataSeedingForDatabase.ASSETHOLDER_ONE_ID;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

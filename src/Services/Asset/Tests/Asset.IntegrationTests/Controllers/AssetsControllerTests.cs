@@ -31,6 +31,7 @@ namespace Asset.IntegrationTests.Controllers
         private readonly Guid _callerId = Guid.Parse("1d64e718-97cb-11ec-ad86-00155d64bd3d");
         private readonly Guid _organizationId;
         private readonly Guid _customerId;
+        private readonly Guid _customerIdTwo;
         private readonly Guid _departmentId;
         private readonly Guid _departmentIdTwo;
         private readonly Guid _user;
@@ -38,6 +39,8 @@ namespace Asset.IntegrationTests.Controllers
         private readonly Guid _assetTwo;
         private readonly Guid _assetThree;
         private readonly Guid _assetFive;
+        private readonly Guid _assetEight;
+
 
         private readonly AssetWebApplicationFactory<Startup> _factory;
 
@@ -53,7 +56,9 @@ namespace Asset.IntegrationTests.Controllers
             _assetOne = factory.ASSETLIFECYCLE_ONE_ID;
             _assetTwo = factory.ASSETLIFECYCLE_TWO_ID;
             _assetThree = factory.ASSETLIFECYCLE_THREE_ID;
+            _assetEight = factory.ASSETLIFECYCLE_EIGHT_ID;
             _assetFive = factory.ASSETLIFECYCLE_FIVE_ID;
+            _customerIdTwo = factory.COMPANY_ID_TWO;
             _factory = factory;
         }
 
@@ -946,5 +951,231 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             Assert.Equal($"AssetLifeCycleChangeStatusToRepair returns ResourceNotFoundException with assetLifecycleId {NOT_VALID_GUID}", response.Content.ReadAsStringAsync().Result);
         }
+        [Fact]
+        public async Task AssetLifeCycleRepairCompleted_NewAssetShouldBeMade()
+        {
+            //Retrive AssetLifeCycle to check if that a new asset w guid is made
+            var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetEight}/customers/{_customerIdTwo}";
+            var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+            var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.NotNull(assetLifeCycle);
+            Assert.Equal(_assetEight, assetLifeCycle?.Id);
+            Assert.NotNull(assetLifeCycle?.Imei);
+            Assert.NotNull(assetLifeCycle?.SerialNumber);
+            Assert.NotNull(assetLifeCycle?.MacAddress);
+            Assert.Equal(AssetLifecycleStatus.Repair, assetLifeCycle?.AssetStatus);
+
+
+
+            var assetLifeCycleRepairCompleted = new AssetServices.ServiceModel.AssetLifeCycleRepairCompleted
+             { 
+                Discarded = false, 
+                CallerId = _callerId,
+                NewSerialNumber = "12345678975212",
+                NewImei = new List<string> { "516768095487517" }
+            };
+            var requestUri = $"/api/v1/Assets/{_assetEight}/repair-completed";
+            var response = await _httpClient.PutAsJsonAsync(requestUri, assetLifeCycleRepairCompleted);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            //After
+            var responseGetAssetLifeCycleAfter = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+            var assetLifeCycleAfter = await responseGetAssetLifeCycleAfter.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.NotNull(assetLifeCycleAfter);
+            Assert.Equal(_assetEight, assetLifeCycleAfter?.Id);
+            Assert.NotEqual(assetLifeCycle?.Imei, assetLifeCycleAfter?.Imei);
+            Assert.NotEqual(assetLifeCycle?.SerialNumber, assetLifeCycleAfter?.SerialNumber);
+            Assert.Equal(assetLifeCycle?.MacAddress, assetLifeCycleAfter?.MacAddress);
+            Assert.Equal(assetLifeCycle?.Brand, assetLifeCycleAfter?.Brand);
+            Assert.Equal(assetLifeCycle?.ProductName, assetLifeCycleAfter?.ProductName);
+            Assert.Equal(AssetLifecycleStatus.InUse, assetLifeCycleAfter?.AssetStatus);
+
+        }
+
+        [Fact]
+        public async Task AssetLifeCycleRepairCompleted_NewAssetShouldBeMade_OnlyWithNewSerialNumber()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+            //Retrive AssetLifeCycle to check if that a new asset w guid is made
+            var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetEight}/customers/{_customerIdTwo}";
+            var responseGetAssetLifeCycle = await httpClient.GetAsync(requestGetAssetLifeCycle);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+            var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.NotNull(assetLifeCycle);
+            Assert.Equal(_assetEight, assetLifeCycle?.Id);
+
+            Assert.NotNull(assetLifeCycle?.Imei);
+            Assert.NotNull(assetLifeCycle?.SerialNumber);
+            Assert.NotNull(assetLifeCycle?.MacAddress);
+            Assert.Equal(AssetLifecycleStatus.Repair, assetLifeCycle?.AssetStatus);
+
+
+            var assetLifeCycleRepairCompleted = new AssetServices.ServiceModel.AssetLifeCycleRepairCompleted
+            {
+                Discarded = false,
+                CallerId = _callerId,
+                NewSerialNumber = "12345678975212"
+            };
+            var requestUri = $"/api/v1/Assets/{_assetEight}/repair-completed";
+            var response = await httpClient.PutAsJsonAsync(requestUri, assetLifeCycleRepairCompleted);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            //After
+            var responseGetAssetLifeCycleAfter = await httpClient.GetAsync(requestGetAssetLifeCycle);
+            var assetLifeCycleAfter = await responseGetAssetLifeCycleAfter.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.NotNull(assetLifeCycleAfter);
+            Assert.Equal(_assetEight, assetLifeCycleAfter?.Id);
+            Assert.Equal(assetLifeCycle?.Imei, assetLifeCycleAfter?.Imei);
+            Assert.NotEqual(assetLifeCycle?.SerialNumber, assetLifeCycleAfter?.SerialNumber);
+            Assert.Equal(assetLifeCycle?.MacAddress, assetLifeCycleAfter?.MacAddress);
+            Assert.Equal(assetLifeCycle?.Brand, assetLifeCycleAfter?.Brand);
+            Assert.Equal(assetLifeCycle?.ProductName, assetLifeCycleAfter?.ProductName);
+            Assert.Equal(AssetLifecycleStatus.InUse, assetLifeCycleAfter?.AssetStatus);
+
+        }
+        [Fact]
+        public async Task AssetLifeCycleRepairCompleted_NewAssetShouldBeMade_OnlyWithImei()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+            //Retrive AssetLifeCycle to check if that a new asset w guid is made
+            var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetEight}/customers/{_customerIdTwo}";
+            var responseGetAssetLifeCycle = await httpClient.GetAsync(requestGetAssetLifeCycle);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+            var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.NotNull(assetLifeCycle);
+            Assert.Equal(_assetEight, assetLifeCycle?.Id);
+
+            Assert.NotNull(assetLifeCycle?.Imei);
+            Assert.NotNull(assetLifeCycle?.SerialNumber);
+            Assert.NotNull(assetLifeCycle?.MacAddress);
+            Assert.Equal(AssetLifecycleStatus.Repair, assetLifeCycle?.AssetStatus);
+
+
+            var assetLifeCycleRepairCompleted = new AssetServices.ServiceModel.AssetLifeCycleRepairCompleted
+            {
+                Discarded = false,
+                CallerId = _callerId,
+                NewImei = new List<string> { "516768095487517", "524715417699766" }
+            };
+            var requestUri = $"/api/v1/Assets/{_assetEight}/repair-completed";
+            var response = await httpClient.PutAsJsonAsync(requestUri, assetLifeCycleRepairCompleted);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            //After
+            var responseGetAssetLifeCycleAfter = await httpClient.GetAsync(requestGetAssetLifeCycle);
+            var assetLifeCycleAfter = await responseGetAssetLifeCycleAfter.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.NotNull(assetLifeCycleAfter);
+            Assert.Equal(_assetEight, assetLifeCycleAfter?.Id);
+            Assert.NotEqual(assetLifeCycle?.Imei, assetLifeCycleAfter?.Imei);
+            Assert.Equal(2, assetLifeCycleAfter?.Imei.Count());
+            Assert.Equal(assetLifeCycle?.SerialNumber, assetLifeCycleAfter?.SerialNumber);
+            Assert.Equal(assetLifeCycle?.MacAddress, assetLifeCycleAfter?.MacAddress);
+            Assert.Equal(assetLifeCycle?.Brand, assetLifeCycleAfter?.Brand);
+            Assert.Equal(assetLifeCycle?.ProductName, assetLifeCycleAfter?.ProductName);
+            Assert.Equal(AssetLifecycleStatus.InUse, assetLifeCycleAfter?.AssetStatus);
+
+        }
+
+        [Fact]
+        public async Task AssetLifeCycleRepairCompleted_Discarded_NoNewAssetMade()
+        {
+
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+            //Retrive AssetLifeCycle to check if that a new asset w guid is made
+            var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetEight}/customers/{_customerIdTwo}";
+            var responseGetAssetLifeCycle = await httpClient.GetAsync(requestGetAssetLifeCycle);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+            var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.NotNull(assetLifeCycle);
+            Assert.Equal(_assetEight, assetLifeCycle?.Id);
+            Assert.NotNull(assetLifeCycle?.Imei);
+            Assert.NotNull(assetLifeCycle?.SerialNumber);
+            Assert.NotNull(assetLifeCycle?.MacAddress);
+            Assert.Equal(AssetLifecycleStatus.Repair, assetLifeCycle?.AssetStatus);
+
+
+
+            var assetLifeCycleRepairCompleted = new AssetServices.ServiceModel.AssetLifeCycleRepairCompleted
+            {
+                Discarded = true,
+                CallerId = _callerId
+            };
+            var requestUri = $"/api/v1/Assets/{_assetEight}/repair-completed";
+            var response = await httpClient.PutAsJsonAsync(requestUri, assetLifeCycleRepairCompleted);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            //After
+            var responseGetAssetLifeCycleAfter = await httpClient.GetAsync(requestGetAssetLifeCycle);
+            var assetLifeCycleAfter = await responseGetAssetLifeCycleAfter.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.NotNull(assetLifeCycleAfter);
+            Assert.Equal(_assetEight, assetLifeCycleAfter?.Id);
+            Assert.Equal(assetLifeCycle?.Imei, assetLifeCycleAfter?.Imei);
+            Assert.Equal(assetLifeCycle?.SerialNumber, assetLifeCycleAfter?.SerialNumber);
+            Assert.Equal(assetLifeCycle?.MacAddress, assetLifeCycleAfter?.MacAddress);
+            Assert.Equal(assetLifeCycle?.Brand, assetLifeCycleAfter?.Brand);
+            Assert.Equal(assetLifeCycle?.ProductName, assetLifeCycleAfter?.ProductName);
+            Assert.Equal(AssetLifecycleStatus.Discarded, assetLifeCycleAfter?.AssetStatus);
+
+        }
+        
+        [Fact]
+        public async Task AssetLifeCycleRepairCompleted_NewAssetShouldBeMade_InvalidImeiBadRequest()
+        {
+            var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetEight}/customers/{_customerIdTwo}";
+            var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+            var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.NotNull(assetLifeCycle);
+            Assert.Equal(_assetEight, assetLifeCycle?.Id);
+
+            Assert.NotNull(assetLifeCycle?.Imei);
+            Assert.NotNull(assetLifeCycle?.SerialNumber);
+            Assert.NotNull(assetLifeCycle?.MacAddress);
+            Assert.Equal(AssetLifecycleStatus.Repair, assetLifeCycle?.AssetStatus);
+
+            var INVALID_IMEI = "022002044";
+            var assetLifeCycleRepairCompleted = new AssetServices.ServiceModel.AssetLifeCycleRepairCompleted
+            {
+                Discarded = false,
+                CallerId = _callerId,
+                NewImei = new List<string> { INVALID_IMEI }
+            };
+            var requestUri = $"/api/v1/Assets/{_assetEight}/repair-completed";
+            var response = await _httpClient.PutAsJsonAsync(requestUri, assetLifeCycleRepairCompleted);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal($"AssetLifeCycleRepairCompleted returns InvalidAssetDataException with assetLifecycleId {_assetEight} with message: Invalid imei: {INVALID_IMEI}", response.Content.ReadAsStringAsync().Result);
+        }
+        [Fact]
+        public async Task AssetLifeCycleRepairCompleted_NewAssetShouldBeMade_InvalidStatusBadRequest()
+        {
+            var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetTwo}/customers/{_customerId}";
+            var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+            var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.NotNull(assetLifeCycle);
+            Assert.Equal(_assetTwo, assetLifeCycle?.Id);
+            Assert.Equal(AssetLifecycleStatus.Available, assetLifeCycle?.AssetStatus);
+
+            var assetLifeCycleRepairCompleted = new AssetServices.ServiceModel.AssetLifeCycleRepairCompleted
+            {
+                Discarded = false,
+                CallerId = _callerId,
+            };
+            var requestUri = $"/api/v1/Assets/{_assetTwo}/repair-completed";
+            var response = await _httpClient.PutAsJsonAsync(requestUri, assetLifeCycleRepairCompleted);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal($"AssetLifeCycleRepairCompleted returns InvalidAssetDataException with assetLifecycleId {_assetTwo} with message: Asset life cycle has status Available", response.Content.ReadAsStringAsync().Result);
+        }
+
     }
 }

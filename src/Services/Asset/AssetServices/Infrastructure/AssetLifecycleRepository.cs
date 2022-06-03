@@ -326,6 +326,16 @@ namespace AssetServices.Infrastructure
         {
             return await _functionalEventLogService.RetrieveEventLogsAsync(assetId);
         }
+        public async Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid assetLifeCycleId)
+        {
+            var assetLifecycle = await _assetContext.AssetLifeCycles
+                .Include(al => al.Asset)
+                .ThenInclude(hw => (hw as MobilePhone).Imeis)
+                .Where(a => a.ExternalId == assetLifeCycleId)
+                .FirstOrDefaultAsync();
+
+            return assetLifecycle;
+        }
 
         #region LifeCycleSetting
         public async Task<LifeCycleSetting> AddLifeCycleSettingAsync(LifeCycleSetting lifeCycleSetting)
@@ -340,11 +350,6 @@ namespace AssetServices.Infrastructure
         public async Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomerAsync(Guid customerId)
         {
             return await _assetContext.LifeCycleSettings.Where(u => u.CustomerId == customerId).ToListAsync();
-        }
-
-        public async Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid assetLifeCycleId)
-        {
-            return await _assetContext.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == assetLifeCycleId);
         }
 
         #endregion

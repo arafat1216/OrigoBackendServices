@@ -680,6 +680,67 @@ namespace AssetServices
             return dynamicObject.GetType().GetProperty(name) != null;
         }
 
+        public async Task AssetLifeCycleRepairCompleted(Guid assetLifecycleId, AssetLifeCycleRepairCompleted assetLifeCycleRepairCompleted)
+        {
+            var assetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(assetLifecycleId);
+            if (assetLifeCycle == null)
+            {
+                throw new ResourceNotFoundException($"Asset lifecycle with id {assetLifecycleId} not found", _logger);
+            }
+
+            //Change status
+            try
+            {
+                assetLifeCycle.RepairCompleted(assetLifeCycleRepairCompleted.CallerId, assetLifeCycleRepairCompleted.Discarded);
+            }
+            catch (InvalidOperationException)
+            {
+                throw new InvalidAssetDataException($"Asset life cycle has status {assetLifeCycle.AssetLifecycleStatus}");
+            }
+
+            //Add new asset if new values are added 
+            long imei = 0;
+            List<AssetImei>? imeiList = new List<AssetImei>();
+
+            if (assetLifeCycleRepairCompleted.NewImei.Any())
+            {
+                foreach (var asset in assetLifeCycleRepairCompleted.NewImei)
+                {
+                    if (asset != null && long.TryParse(asset, out imei))
+                    {
+                        if (AssetValidatorUtility.ValidateImei(asset))
+                        {
+                            imeiList.Add(new AssetImei(imei));
+
+                        }
+                        else throw new InvalidAssetDataException($"Invalid imei: {asset}");
+                    }
+                    else throw new InvalidAssetDataException($"No asset imei");
+
+                }
+            }
+
+            if (imeiList.Any() || !string.IsNullOrWhiteSpace(assetLifeCycleRepairCompleted.NewSerialNumber))
+            {
+                if (assetLifeCycle.Asset != null)
+                {
+
+
+                    if (!imeiList.Any()) imeiList = (assetLifeCycle.Asset as HardwareAsset).Imeis.ToList();
+
+                    Asset newAsset = assetLifeCycle.AssetCategoryId == 1
+                                      ? new MobilePhone(Guid.NewGuid(), assetLifeCycleRepairCompleted.CallerId, assetLifeCycleRepairCompleted.NewSerialNumber ?? (assetLifeCycle.Asset as HardwareAsset).SerialNumber, assetLifeCycle.Asset.Brand, assetLifeCycle.Asset.ProductName,
+                                          imeiList, (assetLifeCycle.Asset as HardwareAsset).MacAddress)
+                                      : new Tablet(Guid.NewGuid(), assetLifeCycleRepairCompleted.CallerId, assetLifeCycleRepairCompleted.NewSerialNumber ?? (assetLifeCycle.Asset as HardwareAsset).SerialNumber, assetLifeCycle.Asset.Brand, assetLifeCycle.Asset.ProductName,
+                                          imeiList, (assetLifeCycle.Asset as HardwareAsset).MacAddress);
+
+                    assetLifeCycle.AssignAsset(newAsset, assetLifeCycleRepairCompleted.CallerId);
+                }
+            }
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+        }
+
         public async Task AssetLifeCycleSendToRepair(Guid assetLifecycleId, Guid callerId)
         {
             var assetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(assetLifecycleId);
