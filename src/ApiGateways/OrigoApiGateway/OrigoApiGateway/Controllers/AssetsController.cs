@@ -14,6 +14,7 @@ using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
@@ -534,6 +535,46 @@ namespace OrigoApiGateway.Controllers
                 _logger.LogError("{0}", ex.Message);
                 return StatusCode((int)HttpStatusCode.InternalServerError, "Unable to make the asset available");
             }
+        }
+
+
+        [Route("{assetId:Guid}/customers/{organizationId:guid}/return")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
+        public async Task<ActionResult> ReturnAsset(Guid organizationId, Guid assetId)
+        {
+            dynamic mock = new ExpandoObject();
+            mock.id = assetId;
+            mock.organizationId = organizationId;
+            mock.assetStatusName = "PendingReturn";
+            mock.alias = "string";
+            mock.note = "string";
+            mock.description = "string";
+            mock.paidByCompany = 0;
+            mock.bookValue = 0;
+            mock.buyoutPrice = 0;
+            mock.assetTag = "string";
+            mock.assetCategoryId = 0;
+            mock.assetCategoryName = "string";
+            mock.brand = "string";
+            mock.productName = "string";
+            mock.lifecycleType = 0;
+            mock.lifecycleName = "PendingReturn";
+            mock.purchaseDate = "2022-06-04T06:40:45.251Z";
+            mock.createdDate = "2022-06-04T06:40:45.251Z";
+            mock.managedByDepartmentId = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+            mock.departmentName = "string";
+            mock.assetHolderId = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+            mock.assetHolderName = "string";
+            mock.assetStatus = 0;
+            mock.assetStatusName = "string";
+            mock.labels = null;
+            mock.isPersonal = true;
+            mock.source = "string";
+
+            return Ok(mock);
         }
 
         [Route("{assetId:Guid}/customers/{organizationId:guid}/re-assignment-personal")]
