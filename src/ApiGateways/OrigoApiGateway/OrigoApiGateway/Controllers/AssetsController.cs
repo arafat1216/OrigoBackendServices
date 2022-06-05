@@ -538,15 +538,15 @@ namespace OrigoApiGateway.Controllers
         }
 
 
-        [Route("{assetId:Guid}/customers/{organizationId:guid}/return")]
+        [Route("customers/{organizationId:guid}/return")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> ReturnAsset(Guid organizationId, Guid assetId)
+        public async Task<ActionResult> ReturnAsset(Guid organizationId, [FromBody] ReturnAsset asset)
         {
             dynamic mock = new ExpandoObject();
-            mock.id = assetId;
+            mock.id = asset.AssetId;
             mock.organizationId = organizationId;
             mock.assetStatusName = "PendingReturn";
             mock.alias = "string";
