@@ -299,16 +299,7 @@ namespace HardwareServiceOrderServices.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ServiceProviders");
-                    b.ToTable(tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb
-                            .HasPeriodStart("PeriodStart")
-                            .HasColumnName("PeriodStart");
-                        ttb
-                            .HasPeriodEnd("PeriodEnd")
-                            .HasColumnName("PeriodEnd");
-                    }
-                    ));
+                    
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
                         {
