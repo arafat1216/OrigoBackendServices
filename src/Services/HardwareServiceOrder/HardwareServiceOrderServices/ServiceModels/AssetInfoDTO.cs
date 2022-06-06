@@ -126,7 +126,7 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// <param name="purchaseDate"> The original purchase-date. </param>
         /// <param name="accessories"> An optional list of accessories that is/will be sent in along with the asset. </param>
         /// <exception cref="ArgumentException"> Thrown if both <paramref name="imei"/> and <paramref name="serialNumber"/> is missing. </exception>
-        public AssetInfoDTO(string assetName, string brand, string model, int? assetCategoryId, string? imei, string? serialNumber, DateOnly purchaseDate, IEnumerable<string>? accessories = null)
+        public AssetInfoDTO(string assetName, string brand, string model, int? assetCategoryId, string? imei, string? serialNumber, DateOnly? purchaseDate, IEnumerable<string>? accessories = null)
         {
             if (string.IsNullOrEmpty(imei) && string.IsNullOrEmpty(serialNumber))
                 throw new ArgumentException("Missing both IMEI and serial-number. Please provide at least one of the values.");

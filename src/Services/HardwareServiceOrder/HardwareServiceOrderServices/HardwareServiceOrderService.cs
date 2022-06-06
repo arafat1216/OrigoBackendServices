@@ -62,52 +62,59 @@ namespace HardwareServiceOrderServices
                     serviceOrderDTO.AssetInfo, serviceOrderDTO.ErrorDescription);
 
             //Creating Conmodo order
-            var externalOrderResponseDTO =
-                _repairProvider.CreateRepairOrderAsync(newExternalOrder,(int)ServiceTypeEnum.SUR, "23767").Result;
+            try
+            {
+                IRepairProvider repairProvider = _providerFactory.GetRepairProviderAsync(1, "conmodo").Result;
 
-            var deliveryAddress = new DeliveryAddress(serviceOrderDTO.DeliveryAddress.Recipient, "", serviceOrderDTO.DeliveryAddress.Address1,
-                serviceOrderDTO.DeliveryAddress.Address2, serviceOrderDTO.DeliveryAddress.PostalCode, serviceOrderDTO.DeliveryAddress.City,
-                serviceOrderDTO.DeliveryAddress.Country);
+                var externalOrderResponseDTO =
+                repairProvider.CreateRepairOrderAsync(newExternalOrder, (int)ServiceTypeEnum.SUR, "23767").Result;
 
-            var fullName = serviceOrderDTO.FirstName + " " + serviceOrderDTO.LastName;
-            var user = new User(new Guid(),fullName,serviceOrderDTO.Email);
+                var deliveryAddress = new DeliveryAddress(serviceOrderDTO.DeliveryAddress.Recipient, "", serviceOrderDTO.DeliveryAddress.Address1,
+                    serviceOrderDTO.DeliveryAddress.Address2, serviceOrderDTO.DeliveryAddress.PostalCode, serviceOrderDTO.DeliveryAddress.City,
+                    serviceOrderDTO.DeliveryAddress.Country);
 
-            var serviceOrder = new HardwareServiceOrder(customerId, user, serviceOrderDTO.AssetInfo.AssetLifecycleId
-                , serviceOrderDTO.AssetInfo.AssetName, deliveryAddress, serviceOrderDTO.UserDescription, serviceOrderDTO.ServiceProvider, "", "", serviceOrderDTO.ExternalProviderLink, serviceOrderDTO.ServiceType, serviceOrderDTO.ServiceStatus
-               );
+                var fullName = serviceOrderDTO.FirstName + " " + serviceOrderDTO.LastName;
+                var user = new User(new Guid(), fullName, serviceOrderDTO.Email);
 
-            //Creating order at Origo
-            var a = await _hardwareServiceOrderRepository.CreateHardwareServiceOrder(serviceOrder);
+                var serviceOrder = new HardwareServiceOrder(customerId, user, serviceOrderDTO.AssetInfo.AssetLifecycleId
+                    , serviceOrderDTO.AssetInfo.AssetName, deliveryAddress, serviceOrderDTO.UserDescription, serviceOrderDTO.ServiceProvider, "", "", serviceOrderDTO.ExternalProviderLink, serviceOrderDTO.ServiceType, serviceOrderDTO.ServiceStatus
+                   );
+
+                //Creating order at Origo
+                var a = await _hardwareServiceOrderRepository.CreateHardwareServiceOrder(serviceOrder);
+
+                if (a != null)
+                {
+                    
+                        var orderConfirmationMail = new OrderConfirmationEmail
+                        {
+                            AssetId = serviceOrderDTO.AssetId.ToString(),
+                            AssetName = serviceOrderDTO.AssetInfo.AssetName,
+                            FirstName = serviceOrderDTO.FirstName,
+                            OrderDate = a.CreatedDate.UtcDateTime,
+                            OrderLink = serviceOrderDTO.ExternalProviderLink,
+                            Recipient = serviceOrderDTO.DeliveryAddress.Recipient,
+                            FaultCategory = serviceOrderDTO.FaultType,
+                            LoanDeviceContact = customerSettingDto.LoanDevicePhoneNumber,
+                            Subject = serviceOrderDTO.Email,
+                            RepairType = serviceOrderDTO.FaultType
+                        };
+                        var emailResponse = _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMail, "en");
+                   
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            
 
 
             //Sending Confirmation Email
 
-            if(a != null)
-            {
-                try
-                {
-                    
-                    var orderConfirmationMail = new OrderConfirmationEmail
-                    {
-                        AssetId = serviceOrderDTO.AssetId.ToString(),
-                        AssetName = serviceOrderDTO.AssetInfo.AssetName,
-                        FirstName = serviceOrderDTO.FirstName,
-                        OrderDate = a.CreatedDate.UtcDateTime,
-                        OrderLink = serviceOrderDTO.ExternalProviderLink,
-                        Recipient = serviceOrderDTO.DeliveryAddress.Recipient,
-                        FaultCategory = serviceOrderDTO.FaultType,
-                        LoanDeviceContact = customerSettingDto.LoanDevicePhoneNumber,
-                        Subject = serviceOrderDTO.Email,
-                        RepairType = serviceOrderDTO.FaultType
-                    };
-                    var emailResponse = _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMail, "en");
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                }
-
-            }
+            
 
             //var orderDTO = _mapper.Map<Task<HardwareServiceOrderDTO>>(serviceOrderDTO);
             return serviceOrderDTO;

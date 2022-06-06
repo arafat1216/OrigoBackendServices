@@ -31,6 +31,7 @@ namespace HardwareServiceOrder.UnitTests
         private readonly HardwareServiceOrderContext _dbContext;
         private readonly IEmailService _emailService;
         private readonly OrigoConfiguration _origoConfiguration;
+        private readonly ProviderFactory _providerFactory;
         public HardwareServiceOrderServiceTests() : base(new DbContextOptionsBuilder<HardwareServiceOrderContext>()
 
         .UseSqlite("Data Source=sqlitehardwareserviceorderservicetests.db").Options)
@@ -114,8 +115,22 @@ namespace HardwareServiceOrder.UnitTests
 
             _emailService = new EmailService(emailOptions, flatDictionary, resourceManger, _mailmapper, origoOptions, _dbContext);
 
+            //_providerFactory = new ProviderFactory(Options.Create(new ServiceProviderConfiguration
+            //{
+            //    Providers = new Dictionary<string, ProviderConfiguration>
+            //    {
+            //        {"ConmodoNO",new ProviderConfiguration{ ApiBaseUrl ="",ApiPassword="",ApiUsername=""} }
+            //    }
+            //}));
+            var providerFactory = new Mock<ProviderFactory>(Options.Create(new ServiceProviderConfiguration
+            {
+                Providers = new Dictionary<string, ProviderConfiguration>
+                {
+                    {"ConmodoNO",new ProviderConfiguration{ApiBaseUrl ="",ApiPassword="",ApiUsername=""} }
+                }
+            }));
 
-            _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository, _mapper,repairPro.Object,_emailService);
+            _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository,mapper, _emailService, providerFactory.Object);
             
         }
 
