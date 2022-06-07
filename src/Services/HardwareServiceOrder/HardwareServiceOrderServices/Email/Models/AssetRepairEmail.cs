@@ -34,7 +34,7 @@
         /// Subject of the email
         /// </summary>
         public string Subject { get; set; }
-        public const string TemplateName = "AssetRepairEmail";
-        public const string SubjectName = "AssetRepairEmail_Subject";
+        public const string TemplateKeyName = "AssetRepairEmail";
+        public const string SubjectKeyName = "AssetRepairEmail_Subject";
     }
 }

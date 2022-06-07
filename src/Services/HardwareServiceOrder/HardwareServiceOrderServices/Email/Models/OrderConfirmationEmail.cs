@@ -46,7 +46,7 @@
         /// Subject of the email
         /// </summary>
         public string Subject { get; set; }
-        public const string TemplateName = "OrderConfirmationEmail";
-        public const string SubjectName = "OrderConfirmationEmail_Subject";
+        public const string TemplateKeyName = "OrderConfirmationEmail";
+        public const string SubjectKeyName = "OrderConfirmationEmail_Subject";
     }
 }

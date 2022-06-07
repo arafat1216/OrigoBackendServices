@@ -52,7 +52,7 @@ namespace HardwareServiceOrderServices.Email.Models
         /// Origo order link
         /// </summary>
         public string OrderLink { get; set; }
-        public const string TemplateName = "OrderCancellationEmail";
-        public const string SubjectName = "OrderCancellationEmail_Subject";
+        public const string TemplateKeyName = "OrderCancellationEmail";
+        public const string SubjectKeyName = "OrderCancellationEmail_Subject";
     }
 }

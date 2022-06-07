@@ -11,7 +11,7 @@
         /// Subject of the email
         /// </summary>
         public string Subject { get; set; }
-        public const string TemplateName = "AssetDiscardedEmail";
-        public const string SubjectName = "AssetDiscardedEmail_Subject";
+        public const string TemplateKeyName = "AssetDiscardedEmail";
+        public const string SubjectKeyName = "AssetDiscardedEmail_Subject";
     }
 }

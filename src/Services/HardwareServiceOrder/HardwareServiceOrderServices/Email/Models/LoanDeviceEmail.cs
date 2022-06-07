@@ -11,7 +11,7 @@
         /// Subject of the email
         /// </summary>
         public string Subject { get; set; }
-        public const string TemplateName = "LoanDeviceEmail";
-        public const string SubjectName = "LoanDeviceEmail_Subject";
+        public const string TemplateKeyName = "LoanDeviceEmail";
+        public const string SubjectKeyName = "LoanDeviceEmail_Subject";
     }
 }
