@@ -6,7 +6,7 @@ namespace HardwareServiceOrderServices
     /// <summary>
     ///     A factory used for accessing service-providers based on their IDs.
     /// </summary>
-    public class ProviderFactory
+    public class ProviderFactory : IProviderFactory
     {
         private readonly ServiceProviderConfiguration _providerConfiguration;
 
@@ -38,6 +38,7 @@ namespace HardwareServiceOrderServices
         }
 
 
+        /// <inheritdoc/>
         public async Task<IAftermarketProvider> GetAftermarketProviderAsync(int providerId, string? apiUsername = null, string? apiPassword = null)
         {
             throw new NotImplementedException("Aftermarket services is currently not supported by the solution.");
