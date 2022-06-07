@@ -675,6 +675,41 @@ namespace AssetServices
 
         #endregion
 
+        #region DisposeSetting
+        public async Task<DisposeSettingDTO> AddDisposeSettingForCustomerAsync(Guid customerId, DisposeSettingDTO disposeSettingDTO, Guid CallerId)
+        {
+            var disposeSetting = new DisposeSetting(customerId, disposeSettingDTO.PayrollContactEmail, CallerId);
+
+            var addedSetting = await _assetLifecycleRepository.AddDisposeSettingAsync(disposeSetting);
+            return _mapper.Map<DisposeSettingDTO>(addedSetting);
+        }
+
+        public async Task<DisposeSettingDTO> UpdateDisposeSettingForCustomerAsync(Guid customerId, DisposeSettingDTO disposeSettingDTO, Guid CallerId)
+        {
+            var existingSettings = await _assetLifecycleRepository.GetDisposeSettingByCustomerAsync(customerId);
+
+            if (existingSettings == null)
+            {
+                throw new ResourceNotFoundException("No DisposeSetting were found using the given Customer. Did you enter the correct customer Id?", _logger);
+            }
+
+            if (existingSettings.PayrollContactEmail != disposeSettingDTO.PayrollContactEmail)
+            {
+                existingSettings.SetPayrollContactEmail(disposeSettingDTO.PayrollContactEmail, CallerId);
+            }
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<DisposeSettingDTO>(existingSettings);
+        }
+        public async Task<DisposeSettingDTO> GetDisposeSettingByCustomer(Guid customerId)
+        {
+            var existingSettings = await _assetLifecycleRepository.GetDisposeSettingByCustomerAsync(customerId);
+            return _mapper.Map<DisposeSettingDTO>(existingSettings);
+        }
+
+        #endregion
+
+
         // From https://stackoverflow.com/a/9956981
         private static bool PropertyExist(dynamic dynamicObject, string name)
         {

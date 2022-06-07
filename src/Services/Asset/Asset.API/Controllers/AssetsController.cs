@@ -315,6 +315,64 @@ namespace Asset.API.Controllers
             }
         }
 
+        [Route("customers/{customerId:guid}/dispose-setting")]
+        [HttpGet]
+        [ProducesResponseType(typeof(DisposeSetting), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> GetDisposeSetting(Guid customerId)
+        {
+            try
+            {
+                var setting = await _assetServices.GetDisposeSettingByCustomer(customerId);
+                if (setting == null)
+                    return Ok(null);
+                return Ok(_mapper.Map<DisposeSetting>(setting));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("customers/{customerId:guid}/dispose-setting")]
+        [HttpPost]
+        [ProducesResponseType(typeof(DisposeSetting), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> CreateDisposeSetting(Guid customerId, [FromBody] NewDisposeSetting setting)
+        {
+            try
+            {
+                var newSettingDTO = _mapper.Map<DisposeSettingDTO>(setting);
+                var createdSetting = await _assetServices.AddDisposeSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
+                return CreatedAtAction(nameof(CreateDisposeSetting), new { id = createdSetting.ExternalId }, _mapper.Map<DisposeSetting>(createdSetting));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("customers/{customerId:guid}/dispose-setting")]
+        [HttpPut]
+        [ProducesResponseType(typeof(DisposeSetting), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> UpdateDisposeSetting(Guid customerId, [FromBody] NewDisposeSetting setting)
+        {
+            try
+            {
+                var newSettingDTO = _mapper.Map<DisposeSettingDTO>(setting);
+                var updatedSetting = await _assetServices.UpdateDisposeSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
+                return Ok(_mapper.Map<DisposeSetting>(updatedSetting));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
         [Route("customers/{customerId:guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.Created)]

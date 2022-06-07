@@ -21,6 +21,7 @@ using static System.StringComparison;
 using AssetLifecycleType = Asset.API.ViewModels.AssetLifecycleType;
 using Label = Asset.API.ViewModels.Label;
 using LifeCycleSetting = Asset.API.ViewModels.LifeCycleSetting;
+using DisposeSetting = Asset.API.ViewModels.DisposeSetting;
 
 namespace Asset.IntegrationTests.Controllers
 {
@@ -1193,6 +1194,68 @@ namespace Asset.IntegrationTests.Controllers
             var assignedAsset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
             Assert.NotNull(assignedAsset);
             Assert.Equal(assignedAsset?.AssetHolderId, NEW_ASSETHOLDER_ID);
+        }
+
+        [Fact]
+        public async Task GetDisposeSetting()
+        {
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/dispose-setting";
+            _testOutputHelper.WriteLine(requestUri);
+            var setting = await _httpClient.GetFromJsonAsync<DisposeSetting>(requestUri);
+            Assert.Equal(setting!.CustomerId, _customerId);
+        }
+
+        [Fact]
+        public async Task CreateDisposeSetting()
+        {
+            var newSettings =
+                new NewDisposeSetting { PayrollContactEmail = "example@techstep.no", CallerId = _callerId };
+            var customerId = Guid.NewGuid();
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
+            var requestUri = $"/api/v1/Assets/customers/{customerId}/dispose-setting";
+            _testOutputHelper.WriteLine(requestUri);
+            var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newSettings);
+
+            var setting =
+                await _httpClient.GetFromJsonAsync<DisposeSetting>(
+                    $"/api/v1/Assets/customers/{customerId}/dispose-setting");
+
+            Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            Assert.Equal(setting!.CustomerId, customerId);
+            Assert.True(setting!.PayrollContactEmail ==
+                        newSettings.PayrollContactEmail);
+        }
+
+        [Fact]
+        public async Task CreateDisposeSetting_InvalidPayrollEmail()
+        {
+            var newSettings =
+                new NewDisposeSetting { PayrollContactEmail = "exampleError@techtep", CallerId = _callerId };
+            var customerId = Guid.NewGuid();
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
+            var requestUri = $"/api/v1/Assets/customers/{customerId}/dispose-setting";
+            _testOutputHelper.WriteLine(requestUri);
+            var response = await _httpClient.PostAsync(requestUri, JsonContent.Create(newSettings));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+
+        [Fact]
+        public async Task UpdateDiposeSetting()
+        {
+            var newSettings =
+                new NewDisposeSetting { PayrollContactEmail = "example2@techstep.no", CallerId = _callerId };
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/dispose-setting";
+            _testOutputHelper.WriteLine(requestUri);
+            await _httpClient.PutAsJsonAsync(requestUri, newSettings);
+            var setting =
+                await _httpClient.GetFromJsonAsync<DisposeSetting>(
+                    $"/api/v1/Assets/customers/{_customerId}/dispose-setting");
+
+            Assert.Equal(setting!.CustomerId, _customerId);
+            Assert.True(setting!.PayrollContactEmail ==
+                        newSettings.PayrollContactEmail);
         }
     }
 }

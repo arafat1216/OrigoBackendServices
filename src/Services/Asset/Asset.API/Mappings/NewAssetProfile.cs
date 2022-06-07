@@ -20,5 +20,6 @@ public class NewAssetProfile : Profile
             .ForMember(destination => destination.Description, opt => opt.MapFrom(src => src.Description ?? string.Empty))
             .ForMember(destination => destination.Source, opt => opt.MapFrom(src => src.Source ?? string.Empty));
         CreateMap<NewLifeCycleSetting, LifeCycleSettingDTO>();
+        CreateMap<NewDisposeSetting, DisposeSettingDTO>();
     }
 }

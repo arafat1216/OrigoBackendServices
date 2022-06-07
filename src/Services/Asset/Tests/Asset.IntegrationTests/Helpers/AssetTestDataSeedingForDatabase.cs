@@ -135,6 +135,7 @@ internal static class AssetTestDataSeedingForDatabase
         };
         assetLifecycleEight.AssignAsset(assetTwo, CALLER_ID);
 
+        var disposeSetting = new DisposeSetting(COMPANY_ID, "example@techstep.no", Guid.Empty);
 
         var lifeCycleSettingOne = new LifeCycleSetting(COMPANY_ID, 1, true, 700M, 24, Guid.Empty);
         var lifeCycleSettingTwo = new LifeCycleSetting(ORGANIZATION_ID, 1, true, 700M, 24, Guid.Empty);
@@ -144,6 +145,7 @@ internal static class AssetTestDataSeedingForDatabase
         dbContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree,
             assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleEight);
         dbContext.LifeCycleSettings.AddRange(lifeCycleSettingOne, lifeCycleSettingTwo);
+        dbContext.DisposeSettings.AddRange(disposeSetting);
 
         var label = new CustomerLabel(COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
 

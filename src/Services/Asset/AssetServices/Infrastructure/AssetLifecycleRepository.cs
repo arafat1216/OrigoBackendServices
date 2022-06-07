@@ -359,5 +359,24 @@ namespace AssetServices.Infrastructure
 
         #endregion
 
+        #region DisposeSetting
+        public async Task<DisposeSetting> AddDisposeSettingAsync(DisposeSetting disposeSetting)
+        {
+            _assetContext.DisposeSettings.Add(disposeSetting);
+            await SaveEntitiesAsync();
+            var savedDisposeSettings = await _assetContext.DisposeSettings
+                .Where(a => a.ExternalId == disposeSetting.ExternalId).ToListAsync();
+            return savedDisposeSettings.FirstOrDefault() ?? throw new InvalidOperationException();
+        }
+
+        public async Task<DisposeSetting> GetDisposeSettingByCustomerAsync(Guid customerId)
+        {
+            return await _assetContext.DisposeSettings.FirstOrDefaultAsync(u => u.CustomerId == customerId);
+        }
+
+        #endregion
+
+
+
     }
 }

@@ -275,6 +275,63 @@ namespace OrigoApiGateway.Services
             }
         }
 
+        public async Task<DisposeSetting> GetDisposeSettingByCustomer(Guid customerId)
+        {
+            try
+            {
+                var settings = await HttpClient.GetFromJsonAsync<DisposeSetting>($"{_options.ApiPath}/customers/{customerId}/dispose-setting");
+
+                if (settings == null)
+                    return null;
+
+                return settings;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetDisposeSettingByCustomer failed with HttpRequestException.");
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetDisposeSettingByCustomer failed with content type is not valid.");
+            }
+            catch (JsonException exception)
+            {
+                _logger.LogError(exception, "GetDisposeSettingByCustomer failed with invalid JSON.");
+            }
+
+            return null;
+        }
+
+        public async Task<DisposeSetting> SetDisposeSettingForCustomerAsync(Guid customerId, NewDisposeSetting setting, Guid callerId)
+        {
+            try
+            {
+                var existingSetting = await GetDisposeSettingByCustomer(customerId);
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/dispose-setting";
+                var response = new HttpResponseMessage();
+                var newSettingtDTO = _mapper.Map<NewDisposeSettingDTO>(setting);
+                newSettingtDTO.CallerId = callerId;
+                if (existingSetting == null)
+                    response = await HttpClient.PostAsJsonAsync(requestUri, newSettingtDTO);
+                else
+                    response = await HttpClient.PutAsJsonAsync(requestUri, newSettingtDTO);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDescription = await response.Content.ReadAsStringAsync();
+                    var exception = new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                    throw exception;
+                }
+                var newSetting = await response.Content.ReadFromJsonAsync<DisposeSetting>();
+                return newSetting;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to set DisposeSetting.");
+                throw;
+            }
+        }
+
         public async Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId)
         {
             try

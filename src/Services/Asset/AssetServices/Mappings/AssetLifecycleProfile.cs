@@ -23,6 +23,7 @@ public class AssetLifecycleProfile : Profile
             .ForMember(dest => dest.Text, opts => opts.MapFrom(src => src.Label.Text))
             .ForMember(dest => dest.Color, opts => opts.MapFrom(src => src.Label.Color));
         CreateMap<LifeCycleSetting, LifeCycleSettingDTO>();
+        CreateMap<DisposeSetting, DisposeSettingDTO>();
         CreateMap<AssetLifecycle, AssetLifecycleDTO>()
             .ForMember(dest => dest.ContractHolderUserId,
             opts => opts.MapFrom(src => src.ContractHolderUser!.ExternalId))

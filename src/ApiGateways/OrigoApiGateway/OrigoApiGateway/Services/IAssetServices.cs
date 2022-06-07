@@ -41,5 +41,7 @@ namespace OrigoApiGateway.Services
         string GetCurrencyByCountry(string? country = null);
         Task<OrigoAsset> ReAssignAssetToDepartment(Guid customerId, Guid assetId, ReassignedToDepartmentDTO data);
         Task<OrigoAsset> ReAssignAssetToUser(Guid customerId, Guid assetId, ReassignedToUserDTO data);
+        Task<DisposeSetting> GetDisposeSettingByCustomer(Guid customerId);
+        Task<DisposeSetting> SetDisposeSettingForCustomerAsync(Guid customerId, NewDisposeSetting setting, Guid callerId);
     }
 }

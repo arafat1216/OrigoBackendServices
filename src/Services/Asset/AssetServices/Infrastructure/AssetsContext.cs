@@ -27,6 +27,7 @@ public class AssetsContext : DbContext
     public DbSet<CustomerLabel> CustomerLabels => Set<CustomerLabel>();
     public DbSet<User> Users => Set<User>();
     public DbSet<LifeCycleSetting> LifeCycleSettings => Set<LifeCycleSetting>();
+    public DbSet<DisposeSetting> DisposeSettings => Set<DisposeSetting>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,5 +35,6 @@ public class AssetsContext : DbContext
         modelBuilder.ApplyConfiguration(new AssetLifecycleConfiguration(IsSQLite));
         modelBuilder.ApplyConfiguration(new SalaryDeductionTransactionConfiguration(IsSQLite));
         modelBuilder.ApplyConfiguration(new LifeCycleSettingConfiguration(IsSQLite));
+        modelBuilder.ApplyConfiguration(new DisposeSettingConfiguration(IsSQLite));
     }
 }

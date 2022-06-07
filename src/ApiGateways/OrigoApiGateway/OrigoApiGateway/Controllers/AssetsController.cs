@@ -312,7 +312,98 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("customers/{organizationId:guid}/dispose-setting")]
+        [HttpGet]
+        [ProducesResponseType(typeof(DisposeSetting), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult> GetDisposeSettingByCustomer(Guid organizationId)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to see all assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+                var settings = await _assetServices.GetDisposeSettingByCustomer(organizationId);
+                if (settings == null)
+                {
+                    return NotFound();
+                }
 
+                return Ok(settings);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/dispose-setting")]
+        [HttpPost]
+        [ProducesResponseType(typeof(DisposeSetting), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult> SetDisposeSetting(Guid organizationId, [FromBody] NewDisposeSetting setting)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to manage assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+                var createdSetting = await _assetServices.SetDisposeSettingForCustomerAsync(organizationId, setting, callerId);
+
+                if (createdSetting != null)
+                {
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                        WriteIndented = true
+                    };
+                    return CreatedAtAction(nameof(SetDisposeSetting), new { id = createdSetting.Id }, JsonSerializer.Serialize<object>(createdSetting, options));
+                }
+                return BadRequest();
+            }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
 
         [Route("{assetId:guid}/customers/{organizationId:guid}")]
         [HttpGet]

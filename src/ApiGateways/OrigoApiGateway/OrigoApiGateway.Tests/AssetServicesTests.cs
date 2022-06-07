@@ -913,5 +913,194 @@ namespace OrigoApiGateway.Tests
             Assert.Equal("Green", labelsResult[2].ColorName);
         }
 
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task GetDisposeSettingByCustomer()
+        {
+            // Arrange
+            const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
+
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        {
+                            ""id"": ""978ffca7-73c0-4494-ad4b-6c092733f634"",
+                            ""customerId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                            ""payrollContactEmail"": ""example@techstep.no"",
+                            ""createdDate"": ""2022-04-29T14:46:42.421138""
+                        }
+                    ")
+                });
+
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new AssetConfiguration() { ApiPath = @"/assets" };
+            var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+
+
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+
+            // Act
+            var assetings = await assetService.GetDisposeSettingByCustomer(new Guid(CUSTOMER_ID));
+
+            // Assert
+            Assert.Equal(CUSTOMER_ID, assetings!.CustomerId.ToString().ToLower());
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task SetDisposeSetting_CustomerExist()
+        {
+            // Arrange
+            const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
+
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                    x.RequestUri != null && x.RequestUri.ToString().Contains("/dispose-setting") && x.Method == HttpMethod.Get
+                    ),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        {
+                            ""id"": ""978ffca7-73c0-4494-ad4b-6c092733f634"",
+                            ""customerId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                            ""payrollContactEmail"": ""example@techstep.no"",
+                            ""createdDate"": ""2022-04-29T14:46:42.421138""
+                        }
+                    ")
+                });
+
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                    x.RequestUri != null && x.RequestUri.ToString().Contains("/dispose-setting") && x.Method == HttpMethod.Put
+                    ),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        {
+                            ""id"": ""978ffca7-73c0-4494-ad4b-6c092733f634"",
+                            ""customerId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                            ""payrollContactEmail"": ""example2@techstep.no"",
+                            ""createdDate"": ""2022-04-29T14:46:42.421138""                   
+                        }")
+                });
+
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new AssetConfiguration() { ApiPath = @"/assets" };
+            var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+
+
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+
+            var newSettings = new NewDisposeSetting()
+            {
+                PayrollContactEmail = "example2@techstep.no"
+            };
+
+            // Act
+            var disposeSetting = await assetService.SetDisposeSettingForCustomerAsync(new Guid(CUSTOMER_ID), newSettings, Guid.Empty);
+
+            // Assert
+            Assert.Equal(CUSTOMER_ID, disposeSetting.CustomerId.ToString().ToLower());
+            Assert.Equal(newSettings.PayrollContactEmail, disposeSetting.PayrollContactEmail);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task SetDisposeSetting_CustomerDoesNotExist()
+        {
+            // Arrange
+            const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
+
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                    x.RequestUri != null && x.RequestUri.ToString().Contains("/dispose-setting") && x.Method == HttpMethod.Get
+                    ),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(string.Empty)
+                });
+
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                    x.RequestUri != null && x.RequestUri.ToString().Contains("/dispose-setting") && x.Method == HttpMethod.Post
+                    ),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        {
+                            ""id"": ""978ffca7-73c0-4494-ad4b-6c092733f634"",
+                            ""customerId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                            ""payrollContactEmail"": ""example2@techstep.no"",
+                            ""createdDate"": ""2022-04-29T14:46:42.421138""   
+                        }
+                    ")
+                });
+
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new AssetConfiguration() { ApiPath = @"/assets" };
+            var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+
+
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, _mapper, departmentService);
+
+            var newSettings = new NewDisposeSetting()
+            {
+                PayrollContactEmail = "example2@techstep.no"
+            };
+
+            // Act
+            var assetings = await assetService.SetDisposeSettingForCustomerAsync(new Guid(CUSTOMER_ID), newSettings, Guid.Empty);
+
+            // Assert
+            Assert.Equal(CUSTOMER_ID, assetings.CustomerId.ToString().ToLower());
+            Assert.Equal(newSettings.PayrollContactEmail, assetings.PayrollContactEmail);
+        }
+
     }
 }

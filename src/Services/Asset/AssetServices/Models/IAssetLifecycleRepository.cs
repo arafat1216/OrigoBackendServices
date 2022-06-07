@@ -34,6 +34,8 @@ namespace AssetServices.Models
         Task<LifeCycleSetting> AddLifeCycleSettingAsync(LifeCycleSetting lifeCycleSetting);
         Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomerAsync(Guid customerId);
         Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid assetLifeCycleId);
+        Task<DisposeSetting> AddDisposeSettingAsync(DisposeSetting disposeSetting);
+        Task<DisposeSetting> GetDisposeSettingByCustomerAsync(Guid customerId);
 
         Task<LifeCycleSetting> GetCustomerLifeCycleSettingAssetCategory(Guid customerId, int assetCategoryId);
     }

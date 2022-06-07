@@ -47,6 +47,8 @@ namespace AssetServices
         Task<AssetLifecycleDTO> AssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, AssignAssetDTO assignAssetDTO);
         Task AssetLifeCycleSendToRepair(Guid assetLifecycleId, Guid callerId);
         Task AssetLifeCycleRepairCompleted(Guid assetLifecycleId, AssetLifeCycleRepairCompleted assetLifeCycleRepairCompleted);
-
+        Task<DisposeSettingDTO> AddDisposeSettingForCustomerAsync(Guid customerId, DisposeSettingDTO disposeSettingDTO, Guid CallerId);
+        Task<DisposeSettingDTO> UpdateDisposeSettingForCustomerAsync(Guid customerId, DisposeSettingDTO disposeSettingDTO, Guid CallerId);
+        Task<DisposeSettingDTO> GetDisposeSettingByCustomer(Guid customerId);
     }
 }

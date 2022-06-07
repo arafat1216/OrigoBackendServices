@@ -37,5 +37,8 @@ public class PagedAssetProfile : Profile
 
         CreateMap<LifeCycleSettingDTO, LifeCycleSetting>()
             .ForMember(dest => dest.Id, opts => opts.MapFrom(src => src.ExternalId));
+        CreateMap<DisposeSettingDTO, DisposeSetting>()
+            .ForMember(dest => dest.Id, opts => opts.MapFrom(src => src.ExternalId));
+
     }
 }
