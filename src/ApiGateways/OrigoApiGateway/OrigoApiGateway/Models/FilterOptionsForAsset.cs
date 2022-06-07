@@ -7,13 +7,13 @@ namespace OrigoApiGateway.Models
 {
     public class FilterOptionsForAsset
     {
-        [FromQuery(Name = "department")]
+        [FromQuery(Name = "managedByDepartmentId")]
         public IList<Guid?>? Department { get; set; }
-        [FromQuery(Name = "status")]
+        [FromQuery(Name = "assetStatus")]
         public IList<AssetLifecycleStatus>? Status { get; set; }
-        [FromQuery(Name = "category")]
+        [FromQuery(Name = "assetCategoryId")]
         public int[]? Category { get; set; }
-        [FromQuery(Name = "label")]
+        [FromQuery(Name = "labels")]
         public Guid[]? Label { get; set; }
     }
 }
