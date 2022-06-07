@@ -628,21 +628,27 @@ namespace AssetServices
         #region LifeCycleSetting
         public async Task<LifeCycleSettingDTO> AddLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId)
         {
-            var lifeCycleSetting = new LifeCycleSetting(customerId, lifeCycleSettingDTO.AssetCategoryId, lifeCycleSettingDTO.BuyoutAllowed, lifeCycleSettingDTO.MinBuyoutPrice, lifeCycleSettingDTO.Runtime, CallerId);
-
-            var addedSetting = await _assetLifecycleRepository.AddLifeCycleSettingAsync(lifeCycleSetting);
-            return _mapper.Map<LifeCycleSettingDTO>(addedSetting);
+            var lifeCycleSetting = new LifeCycleSetting(lifeCycleSettingDTO.AssetCategoryId, lifeCycleSettingDTO.BuyoutAllowed, lifeCycleSettingDTO.MinBuyoutPrice, lifeCycleSettingDTO.Runtime, CallerId);
+            var setting = await _assetLifecycleRepository.GetLifeCycleSettingByCustomerAsync(customerId);
+            if (setting == null)
+            {
+                setting = new CustomerSettings(customerId, CallerId);
+                await _assetLifecycleRepository.AddCustomerSettingAsync(setting, customerId);
+            }
+            setting.AddLifeCycleSetting(lifeCycleSetting);
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<LifeCycleSettingDTO>(lifeCycleSetting);
         }
 
         public async Task<LifeCycleSettingDTO> UpdateLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId)
         {
             var existingSettings = await _assetLifecycleRepository.GetLifeCycleSettingByCustomerAsync(customerId);
 
-            if (existingSettings == null || existingSettings.Count < 1)
+            if (existingSettings == null || existingSettings.LifeCycleSettings.Count < 1)
             {
                 throw new ResourceNotFoundException("No LifeCycletSetting were found using the given Customer. Did you enter the correct customer Id?", _logger);
             }
-            var lifeCycleSetting = existingSettings.FirstOrDefault(x=>x.AssetCategoryId == lifeCycleSettingDTO.AssetCategoryId);
+            var lifeCycleSetting = existingSettings.LifeCycleSettings.FirstOrDefault(x=>x.AssetCategoryId == lifeCycleSettingDTO.AssetCategoryId);
             
             if (lifeCycleSetting == null)
             {
@@ -670,7 +676,7 @@ namespace AssetServices
         public async Task<IList<LifeCycleSettingDTO>> GetLifeCycleSettingByCustomer(Guid customerId)
         {
             var existingSetting = await _assetLifecycleRepository.GetLifeCycleSettingByCustomerAsync(customerId);
-            return _mapper.Map<IList<LifeCycleSettingDTO>>(existingSetting);
+            return _mapper.Map<IList<LifeCycleSettingDTO>>(existingSetting.LifeCycleSettings);
         }
 
         #endregion
@@ -678,33 +684,41 @@ namespace AssetServices
         #region DisposeSetting
         public async Task<DisposeSettingDTO> AddDisposeSettingForCustomerAsync(Guid customerId, DisposeSettingDTO disposeSettingDTO, Guid CallerId)
         {
-            var disposeSetting = new DisposeSetting(customerId, disposeSettingDTO.PayrollContactEmail, CallerId);
-
-            var addedSetting = await _assetLifecycleRepository.AddDisposeSettingAsync(disposeSetting);
-            return _mapper.Map<DisposeSettingDTO>(addedSetting);
+            var disposeSetting = new DisposeSetting(disposeSettingDTO.PayrollContactEmail, CallerId);
+            var customerSetting = await _assetLifecycleRepository.GetDisposeSettingByCustomerAsync(customerId);
+            if(customerSetting == null)
+            {
+                customerSetting = new CustomerSettings(customerId, CallerId);
+                await _assetLifecycleRepository.AddCustomerSettingAsync(customerSetting, customerId);
+            }
+            if(customerSetting.DisposeSetting != null) throw new InvalidOperationException();
+            customerSetting.AddDisposeSetting(disposeSetting);
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<DisposeSettingDTO>(disposeSetting);
         }
 
         public async Task<DisposeSettingDTO> UpdateDisposeSettingForCustomerAsync(Guid customerId, DisposeSettingDTO disposeSettingDTO, Guid CallerId)
         {
-            var existingSettings = await _assetLifecycleRepository.GetDisposeSettingByCustomerAsync(customerId);
+            var disposeSetting = new DisposeSetting(disposeSettingDTO.PayrollContactEmail, CallerId);
+            var customerSetting = await _assetLifecycleRepository.GetDisposeSettingByCustomerAsync(customerId);
 
-            if (existingSettings == null)
+            if (customerSetting == null || customerSetting.DisposeSetting == null)
             {
                 throw new ResourceNotFoundException("No DisposeSetting were found using the given Customer. Did you enter the correct customer Id?", _logger);
             }
 
-            if (existingSettings.PayrollContactEmail != disposeSettingDTO.PayrollContactEmail)
+            if (customerSetting.DisposeSetting.PayrollContactEmail != disposeSettingDTO.PayrollContactEmail)
             {
-                existingSettings.SetPayrollContactEmail(disposeSettingDTO.PayrollContactEmail, CallerId);
+                customerSetting.DisposeSetting.SetPayrollContactEmail(disposeSettingDTO.PayrollContactEmail, CallerId);
             }
 
             await _assetLifecycleRepository.SaveEntitiesAsync();
-            return _mapper.Map<DisposeSettingDTO>(existingSettings);
+            return _mapper.Map<DisposeSettingDTO>(customerSetting.DisposeSetting);
         }
         public async Task<DisposeSettingDTO> GetDisposeSettingByCustomer(Guid customerId)
         {
             var existingSettings = await _assetLifecycleRepository.GetDisposeSettingByCustomerAsync(customerId);
-            return _mapper.Map<DisposeSettingDTO>(existingSettings);
+            return _mapper.Map<DisposeSettingDTO>(existingSettings.DisposeSetting);
         }
 
         #endregion

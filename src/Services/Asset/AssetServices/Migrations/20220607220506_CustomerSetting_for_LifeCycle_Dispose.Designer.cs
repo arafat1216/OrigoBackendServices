@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AssetServices.Migrations
 {
     [DbContext(typeof(AssetsContext))]
-    [Migration("20220606210649_Asset_Dispose_Setting_Table")]
-    partial class Asset_Dispose_Setting_Table
+    [Migration("20220607220506_CustomerSetting_for_LifeCycle_Dispose")]
+    partial class CustomerSetting_for_LifeCycle_Dispose
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -259,6 +259,45 @@ namespace AssetServices.Migrations
                     b.ToTable("CustomerLabels");
                 });
 
+            modelBuilder.Entity("AssetServices.Models.CustomerSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("DisposeSettingId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DisposeSettingId");
+
+                    b.ToTable("CustomerSettings");
+                });
+
             modelBuilder.Entity("AssetServices.Models.DisposeSetting", b =>
                 {
                     b.Property<int>("Id")
@@ -274,9 +313,6 @@ namespace AssetServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
-
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -301,7 +337,7 @@ namespace AssetServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DisposeSettings");
+                    b.ToTable("DisposeSetting");
                 });
 
             modelBuilder.Entity("AssetServices.Models.LifeCycleSetting", b =>
@@ -326,8 +362,8 @@ namespace AssetServices.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("CustomerSettingsId")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -354,7 +390,9 @@ namespace AssetServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LifeCycleSettings");
+                    b.HasIndex("CustomerSettingsId");
+
+                    b.ToTable("LifeCycleSetting");
                 });
 
             modelBuilder.Entity("AssetServices.Models.SalaryDeductionTransaction", b =>
@@ -547,6 +585,22 @@ namespace AssetServices.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("AssetServices.Models.CustomerSettings", b =>
+                {
+                    b.HasOne("AssetServices.Models.DisposeSetting", "DisposeSetting")
+                        .WithMany()
+                        .HasForeignKey("DisposeSettingId");
+
+                    b.Navigation("DisposeSetting");
+                });
+
+            modelBuilder.Entity("AssetServices.Models.LifeCycleSetting", b =>
+                {
+                    b.HasOne("AssetServices.Models.CustomerSettings", null)
+                        .WithMany("LifeCycleSettings")
+                        .HasForeignKey("CustomerSettingsId");
+                });
+
             modelBuilder.Entity("AssetServices.Models.SalaryDeductionTransaction", b =>
                 {
                     b.HasOne("AssetServices.Models.AssetLifecycle", null)
@@ -559,6 +613,11 @@ namespace AssetServices.Migrations
                     b.Navigation("Labels");
 
                     b.Navigation("SalaryDeductionTransactionList");
+                });
+
+            modelBuilder.Entity("AssetServices.Models.CustomerSettings", b =>
+                {
+                    b.Navigation("LifeCycleSettings");
                 });
 
             modelBuilder.Entity("AssetServices.Models.MobilePhone", b =>

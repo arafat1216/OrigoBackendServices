@@ -6,20 +6,18 @@ namespace AssetServices.DomainEvents
 {
     public class SetBuyoutPriceDomainEvent: BaseEvent
     {
-        public SetBuyoutPriceDomainEvent(LifeCycleSetting lifeCycleSetting, Guid customerId, Guid callerId) : base()
+        public SetBuyoutPriceDomainEvent(LifeCycleSetting lifeCycleSetting, Guid callerId) : base(lifeCycleSetting.ExternalId)
         {
             LifeCycleSetting = lifeCycleSetting;
             CallerId = callerId;
-            CustomerId = customerId;
         }
 
         public LifeCycleSetting LifeCycleSetting { get; protected set; }
         public Guid CallerId { get; protected set; }
-        public Guid CustomerId { get; protected set; }
 
         public override string EventMessage()
         {
-            return $"Min Buyout Price has been set for Id: AssetCategory: {LifeCycleSetting.Id}; AssetCategory: {LifeCycleSetting.AssetCategoryName} ; Amount: {LifeCycleSetting.MinBuyoutPrice}";
+            return $"Min Buyout Price has been set for SettingId: {LifeCycleSetting.ExternalId}; AssetCategory: {LifeCycleSetting.AssetCategoryName} ; Amount: {LifeCycleSetting.MinBuyoutPrice}";
         }
     }
 }

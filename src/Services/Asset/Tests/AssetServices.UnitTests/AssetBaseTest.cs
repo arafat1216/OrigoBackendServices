@@ -113,14 +113,14 @@ namespace AssetServices.UnitTests
             assetLifecycleEight.IsSentToRepair(CALLER_ID);
 
 
-            var lifeCycleSetting = new LifeCycleSetting(COMPANY_ID,1, true, 500M, 24, Guid.Empty);
-            lifeCycleSetting.SetMinBuyoutPrice(700M, Guid.Empty);
+            var lifeCycleSetting = new LifeCycleSetting(1, true, 500M, 24, Guid.Empty);
+            var customerSetting = new CustomerSettings(COMPANY_ID, new List<LifeCycleSetting>() { lifeCycleSetting });
 
             context.Users.AddRange(userOne, userTwo);
             context.Assets.AddRange(assetOne, assetTwo, assetThree, assetFour, assetFive, assetSix, assetOther);
             context.CustomerLabels.AddRange(labelOne, labelTwo);
             context.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree, assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleOther);
-            context.LifeCycleSettings.AddRange(lifeCycleSetting);
+            context.CustomerSettings.AddRange(customerSetting);
             context.SaveChanges();
         }
     }

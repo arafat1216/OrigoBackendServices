@@ -31,12 +31,10 @@ namespace AssetServices.Models
         Task<decimal> GetCustomerTotalBookValue(Guid customerId);
         Task<AssetLifecycle?> MakeAssetAvailableAsync(Guid customerId, Guid callerId, Guid assetLifeCycleId);
         Task<IList<AssetLifecycle>> GetAssetForUser(Guid userId);
-        Task<LifeCycleSetting> AddLifeCycleSettingAsync(LifeCycleSetting lifeCycleSetting);
-        Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomerAsync(Guid customerId);
+        Task<CustomerSettings> GetLifeCycleSettingByCustomerAsync(Guid customerId);
         Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid assetLifeCycleId);
-        Task<DisposeSetting> AddDisposeSettingAsync(DisposeSetting disposeSetting);
-        Task<DisposeSetting> GetDisposeSettingByCustomerAsync(Guid customerId);
-
+        Task<CustomerSettings> GetDisposeSettingByCustomerAsync(Guid customerId);
+        Task<CustomerSettings> AddCustomerSettingAsync(CustomerSettings customerSettings, Guid customerId);
         Task<LifeCycleSetting> GetCustomerLifeCycleSettingAssetCategory(Guid customerId, int assetCategoryId);
     }
 }

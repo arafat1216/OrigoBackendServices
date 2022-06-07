@@ -4,11 +4,10 @@ using Common.Seedwork;
 
 namespace AssetServices.Models;
 
-public class LifeCycleSetting : Entity, IAggregateRoot
+public class LifeCycleSetting : Entity
 {
-    public LifeCycleSetting(Guid customerId, int assetCategoryId, bool buyoutAllowed, decimal minBuyoutPrice, int runtime, Guid callerId)
+    public LifeCycleSetting(int assetCategoryId, bool buyoutAllowed, decimal minBuyoutPrice, int runtime, Guid callerId)
     {
-        CustomerId = customerId;
         BuyoutAllowed = buyoutAllowed;
         MinBuyoutPrice = minBuyoutPrice;
         AssetCategoryId = assetCategoryId;
@@ -24,12 +23,6 @@ public class LifeCycleSetting : Entity, IAggregateRoot
     ///     The external uniquely identifying id across systems.
     /// </summary>
     public Guid ExternalId { get; private set; } = Guid.NewGuid();
-
-    /// <summary>
-    ///     The customer for this lifecycle Setting.
-    /// </summary>
-    public Guid CustomerId { get; init; }
-
     /// <summary>
     ///     Is buyout feature on or off for this customer.
     /// </summary>
@@ -91,7 +84,7 @@ public class LifeCycleSetting : Entity, IAggregateRoot
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         MinBuyoutPrice = buyoutPrice;
-        AddDomainEvent(new SetBuyoutPriceDomainEvent(this, CustomerId, callerId));
+        AddDomainEvent(new SetBuyoutPriceDomainEvent(this, callerId));
     }
 
     /// <summary>
@@ -105,6 +98,6 @@ public class LifeCycleSetting : Entity, IAggregateRoot
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         Runtime = runtime;
-        AddDomainEvent(new SetRuntimeDomainEvent(this, CustomerId, callerId, previousRuntime));
+        AddDomainEvent(new SetRuntimeDomainEvent(this, callerId, previousRuntime));
     }
 }

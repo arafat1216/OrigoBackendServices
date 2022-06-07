@@ -4,11 +4,10 @@ using Common.Seedwork;
 
 namespace AssetServices.Models
 {
-    public class DisposeSetting :Entity, IAggregateRoot
+    public class DisposeSetting :Entity
     {
-        public DisposeSetting(Guid customerId, string payrollContactEmail, Guid callerId)
+        public DisposeSetting(string payrollContactEmail, Guid callerId)
         {
-            CustomerId = customerId;
             CreatedBy = callerId;
             PayrollContactEmail = payrollContactEmail;
         }
@@ -22,10 +21,6 @@ namespace AssetServices.Models
         /// </summary>
         public Guid ExternalId { get; private set; } = Guid.NewGuid();
 
-        /// <summary>
-        ///     The customer for this Dispose Setting.
-        /// </summary>
-        public Guid CustomerId { get; init; }
 
         /// <summary>
         ///     Email where notification will ben sent for payroll information.

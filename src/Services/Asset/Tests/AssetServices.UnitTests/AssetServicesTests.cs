@@ -1000,7 +1000,6 @@ public class AssetServicesTests : AssetBaseTest
 
         // Assert
         Assert.True(updatedSetting.FirstOrDefault(x=>x.AssetCategoryId == lifeCycleSetting.AssetCategoryId)!.BuyoutAllowed == lifeCycleSetting.BuyoutAllowed);
-        Assert.True(updatedSetting.FirstOrDefault(x => x.AssetCategoryId == lifeCycleSetting.AssetCategoryId)!.CustomerId == lifeCycleSetting.CustomerId);
     }
 
 
@@ -1025,7 +1024,6 @@ public class AssetServicesTests : AssetBaseTest
 
         // Assert
         Assert.Equal(lifeCycleSetting.BuyoutAllowed, addedSetting.BuyoutAllowed);
-        Assert.Equal(lifeCycleSetting.CustomerId, addedSetting.CustomerId);
         Assert.Equal(DateTime.UtcNow.Date, addedSetting.CreatedDate.Date);
         Assert.Equal(lifeCycleSetting.Runtime, addedSetting.Runtime);
     }

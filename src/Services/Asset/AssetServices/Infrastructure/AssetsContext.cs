@@ -26,9 +26,7 @@ public class AssetsContext : DbContext
     public DbSet<AssetLifecycle> AssetLifeCycles => Set<AssetLifecycle>();
     public DbSet<CustomerLabel> CustomerLabels => Set<CustomerLabel>();
     public DbSet<User> Users => Set<User>();
-    public DbSet<LifeCycleSetting> LifeCycleSettings => Set<LifeCycleSetting>();
-    public DbSet<DisposeSetting> DisposeSettings => Set<DisposeSetting>();
-
+    public DbSet<CustomerSettings> CustomerSettings => Set<CustomerSettings>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new AssetConfiguration(IsSQLite));

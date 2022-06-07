@@ -429,7 +429,6 @@ namespace Asset.IntegrationTests.Controllers
             var requestUri = $"/api/v1/Assets/customers/{_customerId}/lifecycle-setting";
             _testOutputHelper.WriteLine(requestUri);
             var setting = await _httpClient.GetFromJsonAsync<IList<LifeCycleSetting>>(requestUri);
-            Assert.Equal(setting!.FirstOrDefault()!.CustomerId, _customerId);
             Assert.Equal(1, setting!.Count);
         }
 
@@ -449,7 +448,6 @@ namespace Asset.IntegrationTests.Controllers
                     $"/api/v1/Assets/customers/{customerId}/lifecycle-setting");
 
             Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
-            Assert.Equal(setting!.FirstOrDefault()!.CustomerId, customerId);
             Assert.True(setting!.FirstOrDefault(x => x.AssetCategoryId == newSettings.AssetCategoryId)!.BuyoutAllowed ==
                         newSettings.BuyoutAllowed);
             Assert.True(setting!.FirstOrDefault(x => x.AssetCategoryId == newSettings.AssetCategoryId)!.Runtime ==
@@ -607,7 +605,6 @@ namespace Asset.IntegrationTests.Controllers
                 await _httpClient.GetFromJsonAsync<IList<LifeCycleSetting>>(
                     $"/api/v1/Assets/customers/{_customerId}/lifecycle-setting");
 
-            Assert.Equal(setting!.FirstOrDefault()!.CustomerId, _customerId);
             Assert.True(setting!.FirstOrDefault(x => x.AssetCategoryId == newSettings.AssetCategoryId)!.BuyoutAllowed ==
                         newSettings.BuyoutAllowed);
         }
@@ -1202,7 +1199,8 @@ namespace Asset.IntegrationTests.Controllers
             var requestUri = $"/api/v1/Assets/customers/{_customerId}/dispose-setting";
             _testOutputHelper.WriteLine(requestUri);
             var setting = await _httpClient.GetFromJsonAsync<DisposeSetting>(requestUri);
-            Assert.Equal(setting!.CustomerId, _customerId);
+            Assert.True(setting!= null);
+            Assert.True(!string.IsNullOrEmpty(setting!.PayrollContactEmail));
         }
 
         [Fact]
@@ -1221,7 +1219,6 @@ namespace Asset.IntegrationTests.Controllers
                     $"/api/v1/Assets/customers/{customerId}/dispose-setting");
 
             Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
-            Assert.Equal(setting!.CustomerId, customerId);
             Assert.True(setting!.PayrollContactEmail ==
                         newSettings.PayrollContactEmail);
         }
@@ -1253,7 +1250,6 @@ namespace Asset.IntegrationTests.Controllers
                 await _httpClient.GetFromJsonAsync<DisposeSetting>(
                     $"/api/v1/Assets/customers/{_customerId}/dispose-setting");
 
-            Assert.Equal(setting!.CustomerId, _customerId);
             Assert.True(setting!.PayrollContactEmail ==
                         newSettings.PayrollContactEmail);
         }

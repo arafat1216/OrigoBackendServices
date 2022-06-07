@@ -338,40 +338,35 @@ namespace AssetServices.Infrastructure
         }
 
         #region LifeCycleSetting
-        public async Task<LifeCycleSetting> AddLifeCycleSettingAsync(LifeCycleSetting lifeCycleSetting)
+        public async Task<CustomerSettings> AddCustomerSettingAsync(CustomerSettings customerSettings, Guid customerId)
         {
-            _assetContext.LifeCycleSettings.Add(lifeCycleSetting);
+            var setting = await _assetContext.CustomerSettings.FirstOrDefaultAsync(x=>x.CustomerId == customerId);
+            if(setting != null) throw new InvalidOperationException();
+            await _assetContext.CustomerSettings.AddAsync(customerSettings);
             await SaveEntitiesAsync();
-            var savedLifeCycleSettings = await _assetContext.LifeCycleSettings
-                .Where(a => a.ExternalId == lifeCycleSetting.ExternalId).ToListAsync();
-            return savedLifeCycleSettings.FirstOrDefault() ?? throw new InvalidOperationException();
+            return customerSettings;
         }
 
-        public async Task<IList<LifeCycleSetting>> GetLifeCycleSettingByCustomerAsync(Guid customerId)
+        public async Task<CustomerSettings> GetLifeCycleSettingByCustomerAsync(Guid customerId)
         {
-            return await _assetContext.LifeCycleSettings.Where(u => u.CustomerId == customerId).ToListAsync();
+            var setting = await _assetContext.CustomerSettings.Include(x => x.LifeCycleSettings).FirstOrDefaultAsync(x => x.CustomerId == customerId);
+            return setting;
         }
         public async Task<LifeCycleSetting> GetCustomerLifeCycleSettingAssetCategory(Guid customerId, int assetCategoryId)
         {
-            return await _assetContext.LifeCycleSettings.FirstOrDefaultAsync(u => u.CustomerId == customerId && u.AssetCategoryId == assetCategoryId);
+            var setting = await _assetContext.CustomerSettings.Include(x => x.LifeCycleSettings).FirstOrDefaultAsync(x => x.CustomerId == customerId);
+            return setting!.LifeCycleSettings.FirstOrDefault(x=>x.AssetCategoryId == assetCategoryId);
         }
 
 
         #endregion
 
         #region DisposeSetting
-        public async Task<DisposeSetting> AddDisposeSettingAsync(DisposeSetting disposeSetting)
-        {
-            _assetContext.DisposeSettings.Add(disposeSetting);
-            await SaveEntitiesAsync();
-            var savedDisposeSettings = await _assetContext.DisposeSettings
-                .Where(a => a.ExternalId == disposeSetting.ExternalId).ToListAsync();
-            return savedDisposeSettings.FirstOrDefault() ?? throw new InvalidOperationException();
-        }
 
-        public async Task<DisposeSetting> GetDisposeSettingByCustomerAsync(Guid customerId)
+        public async Task<CustomerSettings> GetDisposeSettingByCustomerAsync(Guid customerId)
         {
-            return await _assetContext.DisposeSettings.FirstOrDefaultAsync(u => u.CustomerId == customerId);
+            var setting = await _assetContext.CustomerSettings.Include(x => x.DisposeSetting).FirstOrDefaultAsync(u => u.CustomerId == customerId);
+            return setting;
         }
 
         #endregion

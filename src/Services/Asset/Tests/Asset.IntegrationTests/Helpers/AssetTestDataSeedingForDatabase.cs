@@ -135,17 +135,20 @@ internal static class AssetTestDataSeedingForDatabase
         };
         assetLifecycleEight.AssignAsset(assetTwo, CALLER_ID);
 
-        var disposeSetting = new DisposeSetting(COMPANY_ID, "example@techstep.no", Guid.Empty);
 
-        var lifeCycleSettingOne = new LifeCycleSetting(COMPANY_ID, 1, true, 700M, 24, Guid.Empty);
-        var lifeCycleSettingTwo = new LifeCycleSetting(ORGANIZATION_ID, 1, true, 700M, 24, Guid.Empty);
+        var disposeSetting = new DisposeSetting("example@techstep.no", Guid.Empty);
+        var lifeCycleSettingOne = new LifeCycleSetting(1, true, 700M, 24, Guid.Empty);
+        var customerSettingOne = new CustomerSettings(COMPANY_ID, new List<LifeCycleSetting>() { lifeCycleSettingOne }, disposeSetting);
+
+        var lifeCycleSettingTwo = new LifeCycleSetting(1, true, 700M, 24, Guid.Empty);
+        var customerSettingTwo = new CustomerSettings(ORGANIZATION_ID, new List<LifeCycleSetting>() { lifeCycleSettingTwo });
+
 
         dbContext.Users.AddRange(userOne);
         dbContext.Assets.AddRange(assetOne, assetTwo, assetThree,assetFour ,assetFive);
         dbContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree,
             assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleEight);
-        dbContext.LifeCycleSettings.AddRange(lifeCycleSettingOne, lifeCycleSettingTwo);
-        dbContext.DisposeSettings.AddRange(disposeSetting);
+        dbContext.CustomerSettings.AddRange(customerSettingOne, customerSettingTwo);
 
         var label = new CustomerLabel(COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
 
@@ -156,14 +159,14 @@ internal static class AssetTestDataSeedingForDatabase
 
     public static void ResetDbForTests(AssetsContext dbContext)
     {
-        var lifeCycleSettings = dbContext.LifeCycleSettings.ToArray();
+        var customerSettings = dbContext.CustomerSettings.ToArray();
         var assets = dbContext.Assets.ToArray();
         var mobilePhones = dbContext.MobilePhones.ToArray();
         var assetLifeCycles = dbContext.AssetLifeCycles.ToArray();
         var users = dbContext.Users.ToArray();
         var labels = dbContext.CustomerLabels.ToArray();
 
-        dbContext.LifeCycleSettings.RemoveRange(lifeCycleSettings);
+        dbContext.CustomerSettings.RemoveRange(customerSettings);
         dbContext.AssetLifeCycles.RemoveRange(assetLifeCycles);
         dbContext.MobilePhones.RemoveRange(mobilePhones);
         dbContext.Assets.RemoveRange(assets);
