@@ -225,15 +225,15 @@ The following order has received unknown status from the service provider. Pleas
     <value>Repair Reminder</value>
   </data>
   <data name="LoanDeviceEmail_Subject" xml:space="preserve">
-    <value>Hello</value>
+    <value>Return Loan Device</value>
   </data>
   <data name="AssetDiscardedEmail_Subject" xml:space="preserve">
-    <value>Hello</value>
+    <value>Replace Discarded Asset</value>
   </data>
   <data name="OrderCancellationEmail_Subject" xml:space="preserve">
-    <value>Hello</value>
+    <value>Canceled Repair Order</value>
   </data>
   <data name="OrderConfirmationEmail_Subject" xml:space="preserve">
-    <value>hello</value>
+    <value>Order Confirmation</value>
   </data>
 </root>

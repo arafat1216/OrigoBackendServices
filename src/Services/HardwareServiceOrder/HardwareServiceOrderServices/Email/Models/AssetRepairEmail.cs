@@ -33,7 +33,7 @@
         /// <summary>
         /// Subject of the email
         /// </summary>
-        public string Subject { get; set; } = "Repair Reminder";
+        public string Subject { get; set; }
         public const string TemplateName = "AssetRepairEmail";
         public const string SubjectName = "AssetRepairEmail_Subject";
     }

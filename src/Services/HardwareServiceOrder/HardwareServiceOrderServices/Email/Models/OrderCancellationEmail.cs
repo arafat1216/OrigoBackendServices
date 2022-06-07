@@ -47,7 +47,7 @@ namespace HardwareServiceOrderServices.Email.Models
         /// <summary>
         /// Subject of the email
         /// </summary>
-        public string Subject { get; set; } = "Canceled Repair Order";
+        public string Subject { get; set; }
         /// <summary>
         /// Origo order link
         /// </summary>

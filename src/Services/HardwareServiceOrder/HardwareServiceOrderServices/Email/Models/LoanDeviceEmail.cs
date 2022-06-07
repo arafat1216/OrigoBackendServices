@@ -10,7 +10,7 @@
         /// <summary>
         /// Subject of the email
         /// </summary>
-        public string Subject { get; set; } = "Return Loan Device";
+        public string Subject { get; set; }
         public const string TemplateName = "LoanDeviceEmail";
         public const string SubjectName = "LoanDeviceEmail_Subject";
     }

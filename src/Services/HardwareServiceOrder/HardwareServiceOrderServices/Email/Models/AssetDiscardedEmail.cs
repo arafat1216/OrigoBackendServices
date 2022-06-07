@@ -10,7 +10,7 @@
         /// <summary>
         /// Subject of the email
         /// </summary>
-        public string Subject { get; set; } = "Replace Discarded Asset";
+        public string Subject { get; set; }
         public const string TemplateName = "AssetDiscardedEmail";
         public const string SubjectName = "AssetDiscardedEmail_Subject";
     }

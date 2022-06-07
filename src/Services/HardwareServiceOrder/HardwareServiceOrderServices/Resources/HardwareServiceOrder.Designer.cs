@@ -72,7 +72,7 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello.
+        ///   Looks up a localized string similar to Replace Discarded Asset.
         /// </summary>
         internal static string AssetDiscardedEmail_Subject {
             get {
@@ -124,7 +124,7 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello.
+        ///   Looks up a localized string similar to Return Loan Device.
         /// </summary>
         internal static string LoanDeviceEmail_Subject {
             get {
@@ -172,7 +172,7 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello.
+        ///   Looks up a localized string similar to Canceled Repair Order.
         /// </summary>
         internal static string OrderCancellationEmail_Subject {
             get {
@@ -210,7 +210,7 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to hello.
+        ///   Looks up a localized string similar to Order Confirmation.
         /// </summary>
         internal static string OrderConfirmationEmail_Subject {
             get {
