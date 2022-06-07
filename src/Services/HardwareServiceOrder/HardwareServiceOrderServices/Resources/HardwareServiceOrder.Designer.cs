@@ -95,6 +95,15 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Repair Reminder.
+        /// </summary>
+        internal static string AssetRepairEmail_Subject {
+            get {
+                return ResourceManager.GetString("AssetRepairEmail_Subject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
         ///
         ///I connection to a recent repair order we would like to remind you to return any loan device..

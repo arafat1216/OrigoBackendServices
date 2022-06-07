@@ -221,4 +221,7 @@ The following order has received unknown status from the service provider. Pleas
 
 {{Order}}</value>
   </data>
+  <data name="AssetRepairEmail_Subject" xml:space="preserve">
+    <value>Repair Reminder</value>
+  </data>
 </root>

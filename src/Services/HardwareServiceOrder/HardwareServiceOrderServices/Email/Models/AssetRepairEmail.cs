@@ -35,5 +35,6 @@
         /// </summary>
         public string Subject { get; set; } = "Repair Reminder";
         public const string TemplateName = "AssetRepairEmail";
+        public const string SubjectName = "AssetRepairEmail_Subject";
     }
 }

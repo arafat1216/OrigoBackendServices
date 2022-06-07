@@ -100,7 +100,8 @@ namespace HardwareServiceOrderServices.Email
             {
                 email.OrderLink = string.Format($"{_origoConfiguration.BaseUrl}/{_origoConfiguration.OrderPath}", email.CustomerId, email.OrderId);
                 var template = _resourceManager.GetString(AssetRepairEmail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
-                await SendAsync(email.Subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
+                var subject = _resourceManager.GetString(AssetRepairEmail.SubjectName, CultureInfo.CreateSpecificCulture(languageCode));
+                await SendAsync(subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
             });
 
             return emails;
