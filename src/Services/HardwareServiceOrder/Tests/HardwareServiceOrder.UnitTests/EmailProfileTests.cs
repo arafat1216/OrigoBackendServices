@@ -72,6 +72,7 @@ namespace HardwareServiceOrder.UnitTests
 
 
             var assetRepairEmail = _mapper.Map<LoanDeviceEmail>(order);
+            Assert.NotNull(assetRepairEmail);
             Assert.Equal(order.Owner.FirstName, assetRepairEmail.FirstName);
             Assert.Equal(order.Owner.Email, assetRepairEmail.Recipient);
         }
