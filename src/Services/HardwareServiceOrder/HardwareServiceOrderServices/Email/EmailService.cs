@@ -79,6 +79,7 @@ namespace HardwareServiceOrderServices.Email
         public async Task SendOrderConfirmationEmailAsync(OrderConfirmationEmail data, string languageCode)
         {
             var template = _resourceManager.GetString(OrderConfirmationEmail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            data.Subject = _resourceManager.GetString(OrderConfirmationEmail.SubjectName, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(data);
             await SendAsync(data.Subject, template, data.Recipient, variables);
         }
@@ -119,7 +120,8 @@ namespace HardwareServiceOrderServices.Email
             emails.ForEach(async email =>
             {
                 var template = _resourceManager.GetString(LoanDeviceEmail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
-                await SendAsync(email.Subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
+                var subject = _resourceManager.GetString(LoanDeviceEmail.SubjectName, CultureInfo.CreateSpecificCulture(languageCode));
+                await SendAsync(subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
             });
 
             orders.ForEach(order =>
@@ -146,7 +148,8 @@ namespace HardwareServiceOrderServices.Email
             emails.ForEach(async email =>
             {
                 var template = _resourceManager.GetString(AssetDiscardedEmail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
-                await SendAsync(email.Subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
+                var subject = _resourceManager.GetString(AssetDiscardedEmail.SubjectName, CultureInfo.CreateSpecificCulture(languageCode));
+                await SendAsync(subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
             });
 
             orders.ForEach(order =>
@@ -175,7 +178,8 @@ namespace HardwareServiceOrderServices.Email
             {
                 email.OrderLink = string.Format($"{_origoConfiguration.BaseUrl}/{_origoConfiguration.OrderPath}", email.CustomerId, email.OrderId);
                 var template = _resourceManager.GetString(OrderCancellationEmail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
-                await SendAsync(email.Subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
+                var subject = _resourceManager.GetString(OrderCancellationEmail.SubjectName, CultureInfo.CreateSpecificCulture(languageCode));
+                await SendAsync(subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
             });
 
             return emails;

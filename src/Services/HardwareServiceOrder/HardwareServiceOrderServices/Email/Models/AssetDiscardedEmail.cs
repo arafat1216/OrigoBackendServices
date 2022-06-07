@@ -12,5 +12,6 @@
         /// </summary>
         public string Subject { get; set; } = "Replace Discarded Asset";
         public const string TemplateName = "AssetDiscardedEmail";
+        public const string SubjectName = "AssetDiscardedEmail_Subject";
     }
 }

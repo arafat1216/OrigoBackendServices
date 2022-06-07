@@ -72,6 +72,15 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Hello.
+        /// </summary>
+        internal static string AssetDiscardedEmail_Subject {
+            get {
+                return ResourceManager.GetString("AssetDiscardedEmail_Subject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
         ///
         ///You registered a [repair order]({{OrderLink}}) [{{OrderDate}}], but we cannot see having received the asset. Please follow the instructions below so we can help you fix it!
@@ -115,6 +124,15 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Hello.
+        /// </summary>
+        internal static string LoanDeviceEmail_Subject {
+            get {
+                return ResourceManager.GetString("LoanDeviceEmail_Subject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
         internal static string OngoingUserActionNeeded_Body {
@@ -154,6 +172,15 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Hello.
+        /// </summary>
+        internal static string OrderCancellationEmail_Subject {
+            get {
+                return ResourceManager.GetString("OrderCancellationEmail_Subject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
         ///
         ///### **Order details:**
@@ -179,6 +206,15 @@ namespace HardwareServiceOrderServices.Resources {
         internal static string OrderConfirmationEmail {
             get {
                 return ResourceManager.GetString("OrderConfirmationEmail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to hello.
+        /// </summary>
+        internal static string OrderConfirmationEmail_Subject {
+            get {
+                return ResourceManager.GetString("OrderConfirmationEmail_Subject", resourceCulture);
             }
         }
         

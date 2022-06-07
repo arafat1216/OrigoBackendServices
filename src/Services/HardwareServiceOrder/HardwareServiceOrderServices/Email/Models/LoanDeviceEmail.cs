@@ -12,5 +12,6 @@
         /// </summary>
         public string Subject { get; set; } = "Return Loan Device";
         public const string TemplateName = "LoanDeviceEmail";
+        public const string SubjectName = "LoanDeviceEmail_Subject";
     }
 }

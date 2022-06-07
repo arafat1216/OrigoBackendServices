@@ -224,4 +224,16 @@ The following order has received unknown status from the service provider. Pleas
   <data name="AssetRepairEmail_Subject" xml:space="preserve">
     <value>Repair Reminder</value>
   </data>
+  <data name="LoanDeviceEmail_Subject" xml:space="preserve">
+    <value>Hello</value>
+  </data>
+  <data name="AssetDiscardedEmail_Subject" xml:space="preserve">
+    <value>Hello</value>
+  </data>
+  <data name="OrderCancellationEmail_Subject" xml:space="preserve">
+    <value>Hello</value>
+  </data>
+  <data name="OrderConfirmationEmail_Subject" xml:space="preserve">
+    <value>hello</value>
+  </data>
 </root>

@@ -53,5 +53,6 @@ namespace HardwareServiceOrderServices.Email.Models
         /// </summary>
         public string OrderLink { get; set; }
         public const string TemplateName = "OrderCancellationEmail";
+        public const string SubjectName = "OrderCancellationEmail_Subject";
     }
 }

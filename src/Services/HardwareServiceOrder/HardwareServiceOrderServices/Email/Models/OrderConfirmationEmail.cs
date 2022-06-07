@@ -47,5 +47,6 @@
         /// </summary>
         public string Subject { get; set; } = "Order Confirmation";
         public const string TemplateName = "OrderConfirmationEmail";
+        public const string SubjectName = "OrderConfirmationEmail_Subject";
     }
 }
