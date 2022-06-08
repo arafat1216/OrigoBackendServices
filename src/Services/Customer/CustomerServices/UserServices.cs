@@ -46,29 +46,7 @@ namespace CustomerServices
                 
                 var list = new List<UserDTO>();
 
-                if (role != null)
-                {
-                    role = role.Select(s => s.ToLowerInvariant()).ToArray();
-                    foreach (var user in allUsers)
-                    {
-                        var userDTO = _mapper.Map<UserDTO>(user);
-                        userDTO.Role = await GetRoleNameForUser(user.Email);
-
-                        if (role.Contains(userDTO.Role.ToLower()))
-                        {
-                            if (user.Department != null)
-                            {
-                                var department = await _organizationRepository.GetDepartmentAsync(user.Customer.OrganizationId, user.Department.ExternalDepartmentId);
-                                userDTO.DepartmentName = department.Name;
-                            }
-                            list.Add(userDTO);
-                        }
-
-                    }
-                }
-                else
-                {
-                    foreach (var user in allUsers)
+                foreach (var user in allUsers.Items)
                     {
                         var userDTO = _mapper.Map<UserDTO>(user);
                         userDTO.Role = await GetRoleNameForUser(user.Email);
@@ -81,19 +59,15 @@ namespace CustomerServices
                         list.Add(userDTO);
 
                     }
-                }
 
-                var pagedModel = list.OrderBy(a => a.FirstName).PaginateAsync(page, limit);
-
-                return pagedModel;
-                //return new PagedModel<UserDTO>
-                //{
-                //    Items = list,
-                //    CurrentPage = allUsers.CurrentPage,
-                //    PageSize = allUsers.PageSize,
-                //    TotalItems = allUsers.TotalItems,
-                //    TotalPages = allUsers.TotalPages
-                //};
+                return new PagedModel<UserDTO>
+                {
+                    Items = list,
+                    CurrentPage = allUsers.CurrentPage,
+                    PageSize = allUsers.PageSize,
+                    TotalItems = allUsers.TotalItems,
+                    TotalPages = allUsers.TotalPages
+                };
             }
             catch (Exception)
             {

@@ -240,16 +240,14 @@ namespace CustomerServices.Infrastructure
                 .CountAsync();
         }
 
-        public async Task<List<User>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
+        public async Task<PagedModel<User>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
         {
-            
             var users = _customerContext.Users
                     .Include(u => u.Customer)
                     .Include(u => u.UserPreference)
                     .Include(u => u.Department)
                     .Include(u => u.ManagesDepartments)
                     .Where(u => u.Customer.OrganizationId == customerId && !u.IsDeleted);
-                    
 
             if (!string.IsNullOrEmpty(search))
                 users = users.Where(u => u.FirstName.ToLower().Contains(search.ToLower()) ||
@@ -265,11 +263,18 @@ namespace CustomerServices.Infrastructure
             {
                 users = users.Where(al => assignedToDepartment.Contains(al.Department.ExternalDepartmentId));
             }
+            if (role != null)
+            {
+                users = from us in users
+                        join up in _customerContext.UserPermissions
+                        on us.Id equals up.User.Id
+                        where role.Contains(up.Role.Name)
+                        select us;
+                //users = users.Join(_customerContext.UserPermissions,u => u.Id, up => up.User.Id,(u,up)=> new { User= u,UserPermission = up}).
+                //    Where(a => role.Contains(a.UserPermission.Role.Name)).Select(z => z.User);
+            }
 
-            
-
-            return await users.ToListAsync();
-            //return await users.OrderBy(u => u.FirstName).PaginateAsync(page, limit, cancellationToken);
+            return await users.OrderBy(u => u.FirstName).PaginateAsync(page, limit, cancellationToken);
         }
 
         public async Task<User?> GetUserAsync(Guid customerId, Guid userId)
