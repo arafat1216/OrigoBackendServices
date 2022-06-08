@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
+using HardwareServiceOrderServices.Services;
 
 namespace HardwareServiceOrderServices
 {
@@ -8,10 +9,18 @@ namespace HardwareServiceOrderServices
     {
         private readonly IHardwareServiceOrderRepository _hardwareServiceOrderRepository;
         private readonly IMapper _mapper;
-        public HardwareServiceOrderService(IHardwareServiceOrderRepository hardwareServiceOrderRepository, IMapper mapper)
+        private readonly IProviderFactory _providerFactory;
+        private readonly Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> _serviceOrderStatusHandlers;
+        public HardwareServiceOrderService(
+            IHardwareServiceOrderRepository hardwareServiceOrderRepository,
+            IMapper mapper,
+            IProviderFactory providerFactory,
+            Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> serviceOrderStatusHandlers)
         {
             _hardwareServiceOrderRepository = hardwareServiceOrderRepository;
             _mapper = mapper;
+            _providerFactory = providerFactory;
+            _serviceOrderStatusHandlers = serviceOrderStatusHandlers;
         }
 
         /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureLoanPhoneAsync(Guid, string, string, Guid)"/>
@@ -67,6 +76,44 @@ namespace HardwareServiceOrderServices
 
             dto.ApiUserName = await _hardwareServiceOrderRepository.GetServiceIdAsync(customerId);
             return dto;
+        }
+
+        /// <inheritdoc cref="IHardwareServiceOrderService.UpdateOrderStatusAsync"/>
+        public async Task UpdateOrderStatusAsync()
+        {
+            var customerProviders = await _hardwareServiceOrderRepository.GetAllCustomerProvidersAsync();
+
+            foreach (var customerProvider in customerProviders)
+            {
+                var provider = await _providerFactory.GetRepairProviderAsync(customerProvider.ServiceProviderId, customerProvider.ApiUserName, customerProvider.ApiPassword);
+
+                var updateStarted = DateTime.UtcNow;
+
+                var updatedOrders = await provider.GetUpdatedRepairOrdersAsync(customerProvider.LastUpdateFetched);
+
+                foreach (var order in updatedOrders)
+                {
+                    if (!order.ExternalServiceEvents.Any())
+                        continue;
+
+                    var lastOrderStatus = order.ExternalServiceEvents.OrderBy(m => m.Timestamp).FirstOrDefault()?.ServiceStatusId;
+
+                    var origoOrder = await _hardwareServiceOrderRepository.GetOrderByServiceProviderOrderIdAsync(order.ServiceProviderOrderId1);
+
+                    if (origoOrder == null || origoOrder.StatusId == lastOrderStatus)
+                        continue;
+
+                    var lastOrderStatusEnum = (ServiceStatusEnum)lastOrderStatus;
+
+                    var statusHandler = _serviceOrderStatusHandlers.ContainsKey(lastOrderStatusEnum) ? _serviceOrderStatusHandlers[lastOrderStatusEnum] : _serviceOrderStatusHandlers[ServiceStatusEnum.Unknown];
+
+                    await statusHandler.UpdateServiceOrderStatusAsync(origoOrder.ExternalId, lastOrderStatusEnum);
+
+                    //Add events in the log
+                }
+
+                await _hardwareServiceOrderRepository.UpdateCustomerProviderLastUpdateFetchedAsync(customerProvider, updateStarted);
+            }
         }
 
         public Task<HardwareServiceOrderDTO> UpdateHardwareServiceOrderAsync(Guid customerId, Guid orderId, HardwareServiceOrderDTO model)

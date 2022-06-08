@@ -51,5 +51,25 @@
         /// <param name="newStatus">New status <see cref="ServiceStatusEnum"/></param>
         /// <returns></returns>
         Task<HardwareServiceOrder> UpdateOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus);
+        /// <summary>
+        /// Get all customers' providers
+        /// </summary>
+        /// <returns></returns>
+        Task<List<CustomerServiceProvider>> GetAllCustomerProvidersAsync();
+
+        /// <summary>
+        /// Get order by service provider's order ID
+        /// </summary>
+        /// <param name="serviceProviderOrderId">The identifier that was provided by the service-provider. <see cref="HardwareServiceOrder.ServiceProviderOrderId1"/></param>
+        /// <returns></returns>
+        Task<HardwareServiceOrder?> GetOrderByServiceProviderOrderIdAsync(string serviceProviderOrderId);
+
+        /// <summary>
+        /// Update Customer Provider's LastUpdateFetched
+        /// </summary>
+        /// <param name="customerServiceProvider"></param>
+        /// <param name="lastUpdateFetched"></param>
+        /// <returns></returns>
+        Task UpdateCustomerProviderLastUpdateFetchedAsync(CustomerServiceProvider customerServiceProvider, DateTimeOffset lastUpdateFetched);
     }
 }

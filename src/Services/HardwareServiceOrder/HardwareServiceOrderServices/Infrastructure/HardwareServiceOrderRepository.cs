@@ -169,5 +169,26 @@ namespace HardwareServiceOrderServices.Infrastructure
 
             return entity?.ApiUserName;
         }
+
+        public async Task<List<CustomerServiceProvider>> GetAllCustomerProvidersAsync()
+        {
+            return await _hardwareServiceOrderContext.CustomerServiceProviders.ToListAsync();
+        }
+
+        /// <inheritdoc cref="IHardwareServiceOrderRepository.GetOrderByServiceProviderOrderIdAsync(string)"/>
+        public async Task<HardwareServiceOrder?> GetOrderByServiceProviderOrderIdAsync(string serviceProviderOrderId)
+        {
+            return await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ServiceProviderOrderId1 == serviceProviderOrderId);
+        }
+
+        /// <inheritdoc cref="IHardwareServiceOrderRepository.UpdateCustomerProviderLastUpdateFetchedAsync(CustomerServiceProvider, DateTimeOffset)"/>
+        public async Task UpdateCustomerProviderLastUpdateFetchedAsync(CustomerServiceProvider customerServiceProvider, DateTimeOffset lastUpdateFetched)
+        {
+            customerServiceProvider.LastUpdateFetched = lastUpdateFetched;
+
+            _hardwareServiceOrderContext.Entry(customerServiceProvider).State = EntityState.Modified;
+
+            await _hardwareServiceOrderContext.SaveChangesAsync();
+        }
     }
 }

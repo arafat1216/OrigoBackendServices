@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Infrastructure;
+using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
+using HardwareServiceOrderServices.Services;
 using Microsoft.EntityFrameworkCore;
+using Moq;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
@@ -29,7 +33,12 @@ namespace HardwareServiceOrder.UnitTests
 
             _dbContext = new HardwareServiceOrderContext(ContextOptions);
             var hardwareServiceRepository = new HardwareServiceOrderRepository(_dbContext);
-            _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository, _mapper);
+            var statusHandlers = new Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService>
+            {
+
+            };
+
+            _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository, _mapper, new Mock<IProviderFactory>().Object, statusHandlers);
 
         }
 
