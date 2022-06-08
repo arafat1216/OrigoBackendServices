@@ -5,6 +5,7 @@ using Common.Seedwork;
 using Common.Utilities;
 using CustomerServices.Infrastructure.Context;
 using CustomerServices.Models;
+using CustomerServices.ServiceModels;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -239,21 +240,36 @@ namespace CustomerServices.Infrastructure
                 .CountAsync();
         }
 
-        public async Task<PagedModel<User>> GetAllUsersAsync(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
+        public async Task<List<User>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
         {
+            
             var users = _customerContext.Users
                     .Include(u => u.Customer)
                     .Include(u => u.UserPreference)
                     .Include(u => u.Department)
                     .Include(u => u.ManagesDepartments)
                     .Where(u => u.Customer.OrganizationId == customerId && !u.IsDeleted);
+                    
 
             if (!string.IsNullOrEmpty(search))
                 users = users.Where(u => u.FirstName.ToLower().Contains(search.ToLower()) ||
                 u.LastName.ToLower().Contains(search.ToLower()) ||
                 u.Email.ToLower().Contains(search.ToLower()));
 
-            return await users.OrderBy(u => u.FirstName).PaginateAsync(page, limit, cancellationToken);
+
+            if (userStatus != null)
+            {
+                users = users.Where(al => userStatus.Contains((int)al.UserStatus));
+            }
+            if (assignedToDepartment != null)
+            {
+                users = users.Where(al => assignedToDepartment.Contains(al.Department.ExternalDepartmentId));
+            }
+
+            
+
+            return await users.ToListAsync();
+            //return await users.OrderBy(u => u.FirstName).PaginateAsync(page, limit, cancellationToken);
         }
 
         public async Task<User?> GetUserAsync(Guid customerId, Guid userId)

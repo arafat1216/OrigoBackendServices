@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Common.Enums;
 using Common.Interfaces;
+using Common.Extensions;
 using CustomerServices.Exceptions;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
@@ -37,33 +38,68 @@ namespace CustomerServices
             return _organizationRepository.GetUsersCount(customerId);
         }
 
-        public async Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
+        public async Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
         {
-            var allUsers = await _organizationRepository.GetAllUsersAsync(customerId, cancellationToken, search, page, limit);
-            var list = new List<UserDTO>();
-            foreach (var user in allUsers.Items)
+            try
             {
+                var allUsers = await _organizationRepository.GetAllUsersAsync(customerId, role, assignedToDepartment, userStatus, cancellationToken, search, page, limit);
                 
-                var userDTO = _mapper.Map<UserDTO>(user);
-                userDTO.Role = await GetRoleNameForUser(user.Email);
+                var list = new List<UserDTO>();
 
-                if (user.Department != null)
+                if (role != null)
                 {
-                    var department = await _organizationRepository.GetDepartmentAsync(user.Customer.OrganizationId, user.Department.ExternalDepartmentId);
-                    userDTO.DepartmentName = department.Name;
+                    role = role.Select(s => s.ToLowerInvariant()).ToArray();
+                    foreach (var user in allUsers)
+                    {
+                        var userDTO = _mapper.Map<UserDTO>(user);
+                        userDTO.Role = await GetRoleNameForUser(user.Email);
+
+                        if (role.Contains(userDTO.Role.ToLower()))
+                        {
+                            if (user.Department != null)
+                            {
+                                var department = await _organizationRepository.GetDepartmentAsync(user.Customer.OrganizationId, user.Department.ExternalDepartmentId);
+                                userDTO.DepartmentName = department.Name;
+                            }
+                            list.Add(userDTO);
+                        }
+
+                    }
+                }
+                else
+                {
+                    foreach (var user in allUsers)
+                    {
+                        var userDTO = _mapper.Map<UserDTO>(user);
+                        userDTO.Role = await GetRoleNameForUser(user.Email);
+
+                        if (user.Department != null)
+                        {
+                            var department = await _organizationRepository.GetDepartmentAsync(user.Customer.OrganizationId, user.Department.ExternalDepartmentId);
+                            userDTO.DepartmentName = department.Name;
+                        }
+                        list.Add(userDTO);
+
+                    }
                 }
 
-                list.Add(userDTO);
-            }
+                var pagedModel = list.OrderBy(a => a.FirstName).PaginateAsync(page, limit);
 
-            return new PagedModel<UserDTO>
+                return pagedModel;
+                //return new PagedModel<UserDTO>
+                //{
+                //    Items = list,
+                //    CurrentPage = allUsers.CurrentPage,
+                //    PageSize = allUsers.PageSize,
+                //    TotalItems = allUsers.TotalItems,
+                //    TotalPages = allUsers.TotalPages
+                //};
+            }
+            catch (Exception)
             {
-                Items = list,
-                CurrentPage = allUsers.CurrentPage,
-                PageSize = allUsers.PageSize,
-                TotalItems = allUsers.TotalItems,
-                TotalPages = allUsers.TotalPages
-            };
+
+                throw;
+            }        
         }
 
         private async Task<string> GetRoleNameForUser(string userEmail)

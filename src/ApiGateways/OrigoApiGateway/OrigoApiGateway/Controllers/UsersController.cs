@@ -69,7 +69,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(List<OrigoUser>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
-        public async Task<ActionResult<PagedModel<OrigoUser>>> GetAllUsers(Guid organizationId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
+        public async Task<ActionResult<PagedModel<OrigoUser>>> GetAllUsers(Guid organizationId, [FromQuery] FilterOptionsForUser filterOptions, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
@@ -87,7 +87,7 @@ namespace OrigoApiGateway.Controllers
                 }
             }
 
-            var users = await _userServices.GetAllUsersAsync(organizationId, cancellationToken, search, page, limit);
+            var users = await _userServices.GetAllUsersAsync(organizationId,filterOptions, cancellationToken, search, page, limit);
             return Ok(users);
         }
 

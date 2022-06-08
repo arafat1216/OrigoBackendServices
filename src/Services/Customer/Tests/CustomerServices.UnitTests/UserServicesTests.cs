@@ -15,6 +15,7 @@ using CustomerServices.ServiceModels;
 using Xunit;
 using CustomerServices.Infrastructure.Context;
 using Common.Interfaces;
+using Common.Enums;
 
 namespace CustomerServices.UnitTests
 {
@@ -272,14 +273,18 @@ namespace CustomerServices.UnitTests
 
             // Act
             var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "TEST", "TEST", "hello@mail.com", "+479898989", "hhhh", new UserPreference("EN", EMPTY_CALLER_ID), EMPTY_CALLER_ID,"Role");
-            var user = await userServices.GetAllUsersAsync(CUSTOMER_ONE_ID, new System.Threading.CancellationToken());
+            IList<int>? status = new List<int>{(int)UserStatus.Activated };
+            string[]? role = new string[] {"admin"};
+            Guid[]? assignedToDepartment = new Guid[]{ DEPARTMENT_ONE_ID};
 
-            Assert.Equal(3, user.Items.Count);
-            Assert.Contains("TEST", user.Items[2].FirstName);
-            Assert.Contains("TEST", user.Items[2].LastName);
-            Assert.Contains("hello@mail.com", user.Items[2].Email);
-            Assert.Contains("+479898989", user.Items[2].MobileNumber);
-            Assert.Contains("hhhh", user.Items[2].EmployeeId);
+            var user = await userServices.GetAllUsersAsync(CUSTOMER_ONE_ID,null, null,status, new System.Threading.CancellationToken());
+
+            Assert.Equal(1, user.Items.Count);
+            Assert.Contains("Gordon", user.Items[0].FirstName);
+            Assert.Contains("Freeman", user.Items[0].LastName);
+            Assert.Contains("gordon@freeman.com", user.Items[0].Email);
+            Assert.Contains("+4755555555", user.Items[0].MobileNumber);
+            Assert.Contains("DH-101", user.Items[0].EmployeeId);
             Assert.IsType<PagedModel<UserDTO>>(user);
 
         }

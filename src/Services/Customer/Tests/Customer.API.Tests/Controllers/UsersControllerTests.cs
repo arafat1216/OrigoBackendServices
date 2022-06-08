@@ -1,4 +1,5 @@
-﻿using Common.Interfaces;
+﻿using Common.Enums;
+using Common.Interfaces;
 using Customer.API.IntegrationTests.Helpers;
 using Customer.API.Tests;
 using Customer.API.ViewModels;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -58,13 +60,17 @@ namespace Customer.API.IntegrationTests.Controllers
             var search = "";
             var page = 1;
             var limit = 1000;
-            var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}";
+
+            FilterOptionsForUser filterOptions = new FilterOptionsForUser {UserStatus = new List<int>{1}};
+            string json = JsonSerializer.Serialize(filterOptions);
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}&filterOptions={json}";
 
             var response = await httpClient.GetAsync(requestUri);
             var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(4, read?.TotalItems);
+            Assert.Equal(3, read?.TotalItems);
 
         }
 
@@ -86,7 +92,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var search = "";
             var page = 1;
             var limit = 1000;
-            var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}";
+            var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}&filterOptions={"{}"}";
 
             var response = await httpClient.GetAsync(requestUri);
             var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
@@ -206,7 +212,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(_userTwoId, deletedUser!.Id);
 
             // Get Users
-            var requestUri = $"/api/v1/organizations/{_customerId}/users";
+            var requestUri = $"/api/v1/organizations/{_customerId}/users?filterOptions={"{}"}";
 
             var getResponse = await httpClient.GetAsync(requestUri);
             var read = await getResponse.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
@@ -601,7 +607,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var search = "";
             var page = 1;
             var limit = 1000;
-            var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}";
+            var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}&filterOptions={"{}"}";
 
             var response = await httpClient.GetAsync(requestUri);
             var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();

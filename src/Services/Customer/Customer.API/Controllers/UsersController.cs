@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -48,9 +49,10 @@ namespace Customer.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(List<User>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<PagedModel<User>>> GetAllUsers(Guid customerId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
+        public async Task<ActionResult<PagedModel<User>>> GetAllUsers(Guid customerId, [FromQuery(Name = "filterOptions")] string json, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
-            var users = await _userServices.GetAllUsersAsync(customerId, cancellationToken, search, page, limit);
+            var filterOptions = JsonSerializer.Deserialize<FilterOptionsForUser>(json);
+            var users = await _userServices.GetAllUsersAsync(customerId,filterOptions.Role,filterOptions.AssignedToDepartment,filterOptions.UserStatus, cancellationToken, search, page, limit);
 
             var response = new PagedModel<User>()
             {

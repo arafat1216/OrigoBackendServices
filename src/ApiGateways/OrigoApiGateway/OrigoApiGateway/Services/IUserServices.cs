@@ -13,7 +13,7 @@ namespace OrigoApiGateway.Services
         Task<int> GetUsersCountAsync(Guid customerId);
         Task<OrigoUser> GetUserAsync(Guid customerId, Guid userId);
         Task<OrigoUser> GetUserAsync(Guid userId);
-        Task<PagedModel<OrigoUser>> GetAllUsersAsync(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 1000);
+        Task<PagedModel<OrigoUser>> GetAllUsersAsync(Guid customerId, FilterOptionsForUser filterOptions, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 1000);
         Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser, Guid callerId);
         Task<OrigoUser> PutUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser, Guid callerId);
         Task<OrigoUser> PatchUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser, Guid callerId);

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -105,11 +106,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<PagedModel<OrigoUser>> GetAllUsersAsync(Guid customerId, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 1000)
+        public async Task<PagedModel<OrigoUser>> GetAllUsersAsync(Guid customerId, FilterOptionsForUser filterOptions, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 1000)
         {
             try
             {
-                var users = await HttpClient.GetFromJsonAsync<PagedModel<UserDTO>>($"{_options.ApiPath}/{customerId}/users?q={search}&page={page}&limit={limit}");
+                string json = JsonSerializer.Serialize(filterOptions);
+                var users = await HttpClient.GetFromJsonAsync<PagedModel<UserDTO>>($"{_options.ApiPath}/{customerId}/users?q={search}&page={page}&limit={limit}&filterOptions={json}");
 
                 //return _mapper.Map<List<OrigoUser>>(users);
                 return new PagedModel<OrigoUser>
