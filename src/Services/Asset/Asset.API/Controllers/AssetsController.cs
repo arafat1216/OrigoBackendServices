@@ -20,6 +20,8 @@ using Common.Exceptions;
 using Dapr;
 using Microsoft.FeatureManagement;
 using Asset.API.Filters;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Asset.API.Controllers
 {
@@ -241,6 +243,8 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<PagedAssetList>> Get(Guid customerId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string? search, int page = 1, int limit = 1000, [FromQuery(Name = "filterOptions")] string json = null)
         {
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+
             var filterOptions = JsonSerializer.Deserialize<FilterOptionsForAsset>(json);
             var pagedAssetResult = await _assetServices.GetAssetLifecyclesForCustomerAsync(customerId, filterOptions.Status, filterOptions.Department, filterOptions.Category, filterOptions.Label, search ?? string.Empty, page, limit, cancellationToken);
             var pagedAssetList = _mapper.Map<PagedAssetList>(pagedAssetResult);
