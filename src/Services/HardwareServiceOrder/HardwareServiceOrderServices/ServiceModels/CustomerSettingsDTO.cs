@@ -2,6 +2,7 @@
 
 namespace HardwareServiceOrderServices.ServiceModels
 {
+    //TODO: CustomerServiceProvider related properties should be moved to a separate class
     /// <inheritdoc cref="Models.CustomerSettings"/>
     public class CustomerSettingsDTO
     {

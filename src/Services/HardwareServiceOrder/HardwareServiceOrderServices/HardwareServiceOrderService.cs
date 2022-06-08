@@ -26,6 +26,7 @@ namespace HardwareServiceOrderServices
             return dto;
         }
 
+        //TODO: It should be split up so the CustomerSettings and CustomerServiceProvider settings are not done together
         /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureServiceIdAsync(Guid, CustomerSettingsDTO, Guid)"/>
         public async Task<CustomerSettingsDTO> ConfigureServiceIdAsync(Guid customerId, CustomerSettingsDTO customerSettings, Guid callerId)
         {
