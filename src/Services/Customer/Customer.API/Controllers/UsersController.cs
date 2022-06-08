@@ -52,7 +52,7 @@ namespace Customer.API.Controllers
         public async Task<ActionResult<PagedModel<User>>> GetAllUsers(Guid customerId, [FromQuery(Name = "filterOptions")] string json, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
             var filterOptions = JsonSerializer.Deserialize<FilterOptionsForUser>(json);
-            var users = await _userServices.GetAllUsersAsync(customerId,filterOptions.Role,filterOptions.AssignedToDepartment,filterOptions.UserStatus, cancellationToken, search, page, limit);
+            var users = await _userServices.GetAllUsersAsync(customerId,filterOptions.Roles,filterOptions.AssignedToDepartments,filterOptions.UserStatuses, cancellationToken, search, page, limit);
 
             var response = new PagedModel<User>()
             {

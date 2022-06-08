@@ -61,7 +61,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var page = 1;
             var limit = 1000;
 
-            FilterOptionsForUser filterOptions = new FilterOptionsForUser {UserStatus = new List<int>{1}};
+            FilterOptionsForUser filterOptions = new FilterOptionsForUser {UserStatuses = new List<int>{1}};
             string json = JsonSerializer.Serialize(filterOptions);
 
             var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}&filterOptions={json}";
