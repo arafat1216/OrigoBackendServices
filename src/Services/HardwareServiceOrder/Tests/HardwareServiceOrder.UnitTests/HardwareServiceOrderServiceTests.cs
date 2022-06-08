@@ -38,12 +38,12 @@ namespace HardwareServiceOrder.UnitTests
         {
             var dto = new CustomerSettingsDTO
             {
-                ServiceId = "[ServiceId]",
+                ApiUserName = "[ServiceId]",
                 AssetCategoryIds = new System.Collections.Generic.List<int> { 1, 2 },
                 ProviderId = 1
             };
             var settings = await _hardwareServiceOrderService.ConfigureServiceIdAsync(CUSTOMER_ONE_ID, dto, CALLER_ONE_ID);
-            Assert.Equal(dto.ServiceId, settings.ServiceId);
+            Assert.Equal(dto.ApiUserName, settings.ApiUserName);
         }
 
         [Fact]

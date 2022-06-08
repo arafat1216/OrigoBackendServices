@@ -5,8 +5,15 @@ namespace HardwareServiceOrderServices.ServiceModels
     /// <inheritdoc cref="Models.CustomerSettings"/>
     public class CustomerSettingsDTO
     {
-        /// <inheritdoc cref="Models.CustomerSettings.ServiceId"/>
-        public string? ServiceId { get; set; }
+        /// <summary>
+        /// Username for calling service provider's API
+        /// </summary>
+        public string? ApiUserName { get; set; }
+
+        /// <summary>
+        /// Password for call service provider's API
+        /// </summary>
+        public string? ApiPassword { get; set; }
 
         /// <inheritdoc cref="Models.CustomerSettings.LoanDevicePhoneNumber"/>
         [Phone]

@@ -36,7 +36,7 @@ namespace HardwareServiceOrder.IntegrationTests
 
             var dto = _mapper.Map<CustomerSettingsDTO>(customerSettings1);
 
-            Assert.Equal(customerSettings1.ServiceId, dto.ServiceId);
+            Assert.Equal(customerSettings1.ServiceId, dto.ApiUserName);
             Assert.Equal(customerSettings1.AssetCategoryIds, dto.AssetCategoryIds);
             Assert.Equal(customerSettings1.CustomerId, dto.CustomerId);
             Assert.Equal(customerSettings1.ProviderId, dto.ProviderId);
@@ -57,7 +57,7 @@ namespace HardwareServiceOrder.IntegrationTests
 
             var dto = _mapper.Map<CustomerSettingsDTO>(customerSettings1);
 
-            Assert.Equal(customerSettings1.ServiceId, dto.ServiceId);
+            Assert.Equal(customerSettings1.ServiceId, dto.ApiUserName);
             Assert.Equal(customerSettings1.AssetCategoryIds, dto.AssetCategoryIds);
             Assert.Equal(customerSettings1.CustomerId, dto.CustomerId);
             Assert.Equal(customerSettings1.ProviderId, dto.ProviderId);

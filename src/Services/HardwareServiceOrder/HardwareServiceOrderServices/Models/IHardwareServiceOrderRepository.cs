@@ -9,6 +9,7 @@
         /// <param name="assetCategoryIds">List of asset categories supported by the service provider</param>
         /// <param name="providerId">Provider identifer</param>
         /// <param name="apiUsername">Username for calling provider's API</param>
+        /// <param name="apiPassowrd">Password for calling provider's API</param>
         /// <param name="loanPhoneNumber">The phone-number in <c>E.164</c> format.</param>
         /// <param name="loanPhoneEmail"></param>
         /// <param name="callerId"></param>
@@ -17,10 +18,11 @@
             Guid customerId,
             List<int> assetCategoryIds,
             int providerId,
-            string apiUsername,
             string loanPhoneNumber,
             string loanPhoneEmail,
-            Guid callerId);
+            Guid callerId,
+            string? apiUsername = null,
+            string? apiPassowrd = null );
 
         /// <summary>
         /// Configure Loan Phone

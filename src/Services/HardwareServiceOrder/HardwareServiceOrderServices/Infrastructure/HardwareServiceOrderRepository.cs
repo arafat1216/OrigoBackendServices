@@ -40,7 +40,7 @@ namespace HardwareServiceOrderServices.Infrastructure
             return settings;
         }
 
-        private async Task ConfigureCustomerServiceProviderAsync(List<int> assetCategoryIds, int providerId, Guid customerId, string apiUsername)
+        private async Task ConfigureCustomerServiceProviderAsync(List<int> assetCategoryIds, int providerId, Guid customerId, string? apiUsername, string? apiPassword)
         {
             var serviceProvider = await _hardwareServiceOrderContext.ServiceProviders.FirstOrDefaultAsync(m => m.Id == providerId);
 
@@ -54,6 +54,7 @@ namespace HardwareServiceOrderServices.Infrastructure
                 if (existing != null)
                 {
                     existing.ApiUserName = apiUsername;
+                    existing.ApiPassword = apiPassword;
                     _hardwareServiceOrderContext.Entry(existing).State = EntityState.Modified;
                 }
                 else
@@ -63,22 +64,24 @@ namespace HardwareServiceOrderServices.Infrastructure
                         AssetCategoryId = assetCategoryId,
                         ServiceProviderId = providerId,
                         CustomerId = customerId,
-                        ApiUserName = apiUsername
+                        ApiUserName = apiUsername,
+                        ApiPassword = apiPassword
                     });
                 }
                 await _hardwareServiceOrderContext.SaveChangesAsync();
             }
         }
 
-        /// <inheritdoc cref="IHardwareServiceOrderRepository.ConfigureServiceIdAsync(Guid, List{int}, int, string, string, string, Guid)"/>
+        /// <inheritdoc cref="IHardwareServiceOrderRepository.ConfigureServiceIdAsync(Guid, List{int}, int, string, string, Guid, string,string,)"/>
         public async Task<CustomerSettings> ConfigureServiceIdAsync(
             Guid customerId,
             List<int> assetCategoryIds,
             int providerId,
-            string apiUsername,
             string loanPhoneNumber,
             string loanPhoneEmail,
-            Guid callerId)
+            Guid callerId,
+            string? apiUsername = null,
+            string? apiPassowrd = null)
         {
             var settings = await GetSettingsAsync(customerId);
 
@@ -89,7 +92,7 @@ namespace HardwareServiceOrderServices.Infrastructure
                 await _hardwareServiceOrderContext.SaveChangesAsync();
             }
 
-            await ConfigureCustomerServiceProviderAsync(assetCategoryIds, providerId, customerId, apiUsername);
+            await ConfigureCustomerServiceProviderAsync(assetCategoryIds, providerId, customerId, apiUsername, apiPassowrd);
 
             return settings;
         }

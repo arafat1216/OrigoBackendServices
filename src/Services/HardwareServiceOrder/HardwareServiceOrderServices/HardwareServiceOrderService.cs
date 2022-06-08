@@ -21,7 +21,7 @@ namespace HardwareServiceOrderServices
 
             var dto = _mapper.Map<CustomerSettingsDTO>(entity);
 
-            dto.ServiceId = await _hardwareServiceOrderRepository.GetServiceIdAsync(customerId);
+            dto.ApiUserName = await _hardwareServiceOrderRepository.GetServiceIdAsync(customerId);
 
             return dto;
         }
@@ -29,11 +29,11 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureServiceIdAsync(Guid, CustomerSettingsDTO, Guid)"/>
         public async Task<CustomerSettingsDTO> ConfigureServiceIdAsync(Guid customerId, CustomerSettingsDTO customerSettings, Guid callerId)
         {
-            var entity = await _hardwareServiceOrderRepository.ConfigureServiceIdAsync(customerId, customerSettings.AssetCategoryIds, customerSettings.ProviderId, customerSettings.ServiceId, customerSettings.LoanDevicePhoneNumber, customerSettings.LoanDeviceEmail, callerId);
+            var entity = await _hardwareServiceOrderRepository.ConfigureServiceIdAsync(customerId, customerSettings.AssetCategoryIds, customerSettings.ProviderId, customerSettings.LoanDevicePhoneNumber, customerSettings.LoanDeviceEmail, callerId, customerSettings.ApiUserName, customerSettings.ApiPassword);
 
             var dto = _mapper.Map<CustomerSettingsDTO>(entity);
 
-            dto.ServiceId = customerSettings.ServiceId;
+            dto.ApiUserName = customerSettings.ApiUserName;
 
             return dto;
         }
@@ -62,9 +62,9 @@ namespace HardwareServiceOrderServices
         {
             var entity = await _hardwareServiceOrderRepository.GetSettingsAsync(customerId);
 
-            var dto = _mapper.Map<CustomerSettingsDTO>(entity) ?? new CustomerSettingsDTO {CustomerId = customerId };
+            var dto = _mapper.Map<CustomerSettingsDTO>(entity) ?? new CustomerSettingsDTO { CustomerId = customerId };
 
-            dto.ServiceId = await _hardwareServiceOrderRepository.GetServiceIdAsync(customerId);
+            dto.ApiUserName = await _hardwareServiceOrderRepository.GetServiceIdAsync(customerId);
             return dto;
         }
 
