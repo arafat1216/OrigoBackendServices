@@ -43,6 +43,7 @@
         Task<HardwareServiceOrder> GetOrderByIdAsync(Guid orderId);
 
         Task<List<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId);
+
         /// <summary>
         /// Update the status of a service order
         /// </summary>

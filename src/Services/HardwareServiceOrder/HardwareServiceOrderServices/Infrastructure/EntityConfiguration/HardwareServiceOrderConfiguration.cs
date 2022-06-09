@@ -22,10 +22,16 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                (l, r) => string.Equals(l, r, StringComparison.OrdinalIgnoreCase),
                v => v.ToUpperInvariant().GetHashCode(),
                v => v
-           );
+            );
+
+            /*
+             * Keys, constraints & indexing
+             */
 
             builder.HasAlternateKey(e => e.ExternalId);
+
             builder.HasIndex(e => e.AssetLifecycleId);
+            builder.HasIndex(e => e.CustomerId);
 
             /*
              * Properties
@@ -77,6 +83,18 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             builder.OwnsOne(o => o.Owner, builder =>
             {
                 // Configure here as needed...
+            });
+
+
+            builder.OwnsMany(e => e.ServiceEvents, builder =>
+            {
+
+                /*
+                 * Properties
+                 */
+
+                builder.Property(e => e.Timestamp)
+                       .HasComment("When this event was recorded in the external service-provider's system");
             });
         }
     }
