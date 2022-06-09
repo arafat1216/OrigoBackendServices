@@ -64,6 +64,28 @@ namespace Asset.IntegrationTests.Controllers
         }
 
         [Fact]
+        public async Task GetAssetsForCustomerFilterByUserId()
+        {
+            
+            var filterOptions = new FilterOptionsForAsset();
+
+            var json = JsonSerializer.Serialize(filterOptions);
+
+            string userId = "6d16a4cb-4733-44de-b23b-0eb9e8ae6590";
+
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}?filterOptions={json}&userId={userId}";
+
+            // Act
+            var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+
+            // Assert
+            Assert.Equal(2, pagedAssetList!.Items.Count);
+            Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[0]!.CreatedDate.Date);
+            Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[1]!.CreatedDate.Date);
+        }
+
+        [Fact]
         public async Task GetAssetsForCustomer()
         {
             int[] category = new int[] { 1,2 };

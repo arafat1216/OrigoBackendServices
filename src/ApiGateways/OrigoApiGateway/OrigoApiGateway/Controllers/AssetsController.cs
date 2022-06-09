@@ -178,10 +178,14 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult> Get(Guid organizationId,[FromQuery] FilterOptionsForAsset filterOptions, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
+        public async Task<ActionResult> Get(Guid organizationId,[FromQuery] FilterOptionsForAsset filterOptions,string userId = null, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
             try
             {
+                string user = null;
+                if(userId == "me")
+                 user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+
                 // Only admin or manager roles are allowed to see all assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
@@ -197,7 +201,7 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId, filterOptions, search, page, limit);
+                var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId,user, filterOptions, search, page, limit);
                 if (assets == null)
                 {
                     return NotFound();

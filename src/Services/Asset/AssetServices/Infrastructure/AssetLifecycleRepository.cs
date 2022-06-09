@@ -100,7 +100,7 @@ namespace AssetServices.Infrastructure
             return assets.Sum(x => x.BookValue);
         }
 
-        public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
+        public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
            Guid[]? label, string search, int page, int limit, CancellationToken cancellationToken)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
@@ -153,6 +153,11 @@ namespace AssetServices.Infrastructure
             if (label != null)
             {
                 query = query.Where(al => al.Labels.Any(e => label.Contains(e.ExternalId)) );
+            }
+
+            if(userId != null)
+            {
+                query = query.Where(al => al.ContractHolderUser.ExternalId == new Guid(userId));
             }
 
             query = query.AsSplitQuery().AsNoTracking();
