@@ -7,15 +7,6 @@ namespace HardwareServiceOrderServices.Models
     /// </summary>
     public class ServiceEvent
     {
-        /*
-        public int Id { get; set; }
-
-        public HardwareServiceOrder ServiceOrder { get; set; }
-
-        [ForeignKey(nameof(ServiceOrder))]
-        public int HardwareServiceOrderId { get; set; }
-        */
-
         /// <summary>
         ///     The <see cref="ServiceStatus.Id"/> that is associated with the service-event.
         /// </summary>
