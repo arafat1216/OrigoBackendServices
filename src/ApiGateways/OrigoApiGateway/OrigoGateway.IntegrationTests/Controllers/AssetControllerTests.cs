@@ -116,7 +116,7 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                 };
 
                 var assetService = new Mock<IAssetServices>();
-                assetService.Setup(_ => _.GetAssetsForCustomerAsync(Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee"), It.IsAny<FilterOptionsForAsset>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>())).Returns(Task.FromResult(customersAssets));
+                assetService.Setup(_ => _.GetAssetsForCustomerAsync(Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee"),null, It.IsAny<FilterOptionsForAsset>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>())).Returns(Task.FromResult(customersAssets));
                 services.AddSingleton(assetService.Object);
             });
         }).CreateClient();
