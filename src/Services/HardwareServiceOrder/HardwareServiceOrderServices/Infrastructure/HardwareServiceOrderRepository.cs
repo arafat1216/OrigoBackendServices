@@ -6,16 +6,18 @@ namespace HardwareServiceOrderServices.Infrastructure
     public class HardwareServiceOrderRepository : IHardwareServiceOrderRepository
     {
         private readonly HardwareServiceOrderContext _hardwareServiceOrderContext;
-
-
-
         public HardwareServiceOrderRepository(HardwareServiceOrderContext hardwareServiceOrderContext)
         {
             _hardwareServiceOrderContext = hardwareServiceOrderContext;
         }
 
-
-        public async Task<CustomerSettings> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, Guid callerId)
+        /// <inheritdoc cref="IHardwareServiceOrderRepository.ConfigureLoanPhoneAsync(Guid, string, string, Guid)"/>
+        public async Task<CustomerSettings> ConfigureLoanPhoneAsync(
+            Guid customerId,
+            string loanPhoneNumber,
+            string loanPhoneEmail,
+            Guid callerId
+            )
         {
             var settings = await GetSettingsAsync(customerId);
 
@@ -122,17 +124,13 @@ namespace HardwareServiceOrderServices.Infrastructure
         /// <inheritdoc cref="GetOrderByIdAsync(Guid)"/>
         public async Task<HardwareServiceOrder> GetOrderByIdAsync(Guid orderId)
         {
-            var order = await _hardwareServiceOrderContext.HardwareServiceOrders
-                                                          .FirstOrDefaultAsync(m => m.ExternalId == orderId);
-
+            var order = await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == orderId);
             return order;
         }
 
-
         public async Task<CustomerSettings> GetSettingsAsync(Guid customerId)
         {
-            return await _hardwareServiceOrderContext.CustomerSettings
-                                                     .FirstOrDefaultAsync(m => m.CustomerId == customerId);
+            return await _hardwareServiceOrderContext.CustomerSettings.FirstOrDefaultAsync(m => m.CustomerId == customerId);
         }
 
         /// <summary>
@@ -178,7 +176,10 @@ namespace HardwareServiceOrderServices.Infrastructure
         /// <inheritdoc cref="IHardwareServiceOrderRepository.GetOrderByServiceProviderOrderIdAsync(string)"/>
         public async Task<HardwareServiceOrder?> GetOrderByServiceProviderOrderIdAsync(string serviceProviderOrderId)
         {
-            return await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ServiceProviderOrderId1 == serviceProviderOrderId);
+            return await _hardwareServiceOrderContext
+                .HardwareServiceOrders
+                .Include(m => m.ServiceEvents)
+                .FirstOrDefaultAsync(m => m.ServiceProviderOrderId1 == serviceProviderOrderId);
         }
 
         /// <inheritdoc cref="IHardwareServiceOrderRepository.UpdateCustomerProviderLastUpdateFetchedAsync(CustomerServiceProvider, DateTimeOffset)"/>
@@ -189,6 +190,19 @@ namespace HardwareServiceOrderServices.Infrastructure
             _hardwareServiceOrderContext.Entry(customerServiceProvider).State = EntityState.Modified;
 
             await _hardwareServiceOrderContext.SaveChangesAsync();
+        }
+
+        /// <inheritdoc cref="IHardwareServiceOrderRepository.UpdateServiceEventsAsync(HardwareServiceOrder, IEnumerable{ServiceEvent})"/>
+        public async Task UpdateServiceEventsAsync(HardwareServiceOrder order, IEnumerable<ServiceEvent> events)
+        {
+            foreach (var serviceEvent in events)
+            {
+                if (!order.ServiceEvents.Any(m => m.ServiceStatusId == serviceEvent.ServiceStatusId && m.Timestamp == serviceEvent.Timestamp))
+                {
+                    order.AddServiceEvent(serviceEvent);
+                    await _hardwareServiceOrderContext.SaveChangesAsync();
+                }
+            }
         }
     }
 }

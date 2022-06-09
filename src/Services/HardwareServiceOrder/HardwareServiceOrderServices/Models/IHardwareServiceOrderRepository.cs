@@ -22,7 +22,7 @@
             string loanPhoneEmail,
             Guid callerId,
             string? apiUsername = null,
-            string? apiPassowrd = null );
+            string? apiPassowrd = null);
 
         /// <summary>
         /// Configure Loan Phone
@@ -43,7 +43,6 @@
         Task<HardwareServiceOrder> GetOrderByIdAsync(Guid orderId);
 
         Task<List<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId);
-
         /// <summary>
         /// Update the status of a service order
         /// </summary>
@@ -71,5 +70,13 @@
         /// <param name="lastUpdateFetched"></param>
         /// <returns></returns>
         Task UpdateCustomerProviderLastUpdateFetchedAsync(CustomerServiceProvider customerServiceProvider, DateTimeOffset lastUpdateFetched);
+        
+        /// <summary>
+        /// Update service order's events
+        /// </summary>
+        /// <param name="order">Order to be updated</param>
+        /// <param name="events">List of events</param>
+        /// <returns></returns>
+        Task UpdateServiceEventsAsync(HardwareServiceOrder order, IEnumerable<ServiceEvent> events);
     }
 }

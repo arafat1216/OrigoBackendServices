@@ -128,7 +128,7 @@ builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection(
 builder.Services.AddSingleton(s=> new ResourceManager("HardwareServiceOrderServices.Resources.HardwareServiceOrder", Assembly.GetAssembly(typeof(EmailService))));
 builder.Services.AddScoped<IHardwareServiceOrderService, HardwareServiceOrderService>();
 builder.Services.AddScoped<IHardwareServiceOrderRepository, HardwareServiceOrderRepository>();
-builder.Services.AddScoped<ProviderFactory>();
+builder.Services.AddScoped<IProviderFactory, ProviderFactory>();
 builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("Email"));
 builder.Services.Configure<OrigoConfiguration>(builder.Configuration.GetSection("Origo"));
 builder.Services.AddScoped<IEmailService, EmailService>();
