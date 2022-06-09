@@ -182,9 +182,6 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                string user = null;
-                if(userId == "me")
-                 user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
 
                 // Only admin or manager roles are allowed to see all assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -200,6 +197,11 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
+
+
+                string user = null;
+                if (userId == "me")
+                    user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
 
                 var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId,user, filterOptions, search, page, limit);
                 if (assets == null)
