@@ -69,15 +69,15 @@ namespace HardwareServiceOrderServices
                 var externalOrderResponseDTO =
                 repairProvider.CreateRepairOrderAsync(newExternalOrder, (int)ServiceTypeEnum.SUR, "23767").Result;
 
-                var deliveryAddress = new DeliveryAddress(serviceOrderDTO.DeliveryAddress.Recipient, "", serviceOrderDTO.DeliveryAddress.Address1,
+                var deliveryAddress = new DeliveryAddress(RecipientTypeEnum.Personal,serviceOrderDTO.DeliveryAddress.Recipient, serviceOrderDTO.DeliveryAddress.Address1,
                     serviceOrderDTO.DeliveryAddress.Address2, serviceOrderDTO.DeliveryAddress.PostalCode, serviceOrderDTO.DeliveryAddress.City,
                     serviceOrderDTO.DeliveryAddress.Country);
 
                 var fullName = serviceOrderDTO.FirstName + " " + serviceOrderDTO.LastName;
-                var user = new User(new Guid(), fullName, serviceOrderDTO.Email);
+                var owner = new ContactDetails(new Guid(), fullName, serviceOrderDTO.Email);
 
-                var serviceOrder = new HardwareServiceOrder(customerId, user, serviceOrderDTO.AssetInfo.AssetLifecycleId
-                    , serviceOrderDTO.AssetInfo.AssetName, deliveryAddress, serviceOrderDTO.UserDescription, serviceOrderDTO.ServiceProvider, "", "", serviceOrderDTO.ExternalProviderLink, serviceOrderDTO.ServiceType, serviceOrderDTO.ServiceStatus
+                var serviceOrder = new HardwareServiceOrder(customerId, owner, serviceOrderDTO.AssetInfo.AssetLifecycleId
+                    , deliveryAddress, serviceOrderDTO.UserDescription, serviceOrderDTO.ServiceProvider, "", "", serviceOrderDTO.ExternalProviderLink, serviceOrderDTO.ServiceType, serviceOrderDTO.ServiceStatus
                    );
 
                 //Creating order at Origo

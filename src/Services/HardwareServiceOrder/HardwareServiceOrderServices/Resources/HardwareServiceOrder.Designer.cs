@@ -210,15 +210,6 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Order Confirmation.
-        /// </summary>
-        internal static string OrderConfirmationEmail_Subject {
-            get {
-                return ResourceManager.GetString("OrderConfirmationEmail_Subject", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
         internal static string RegisteredUserActionNeeded_Body {
@@ -257,15 +248,6 @@ namespace HardwareServiceOrderServices.Resources {
         internal static string Unknown_Subject {
             get {
                 return ResourceManager.GetString("Unknown_Subject", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Hello {{FirstName}}!.
-        /// </summary>
-        internal static string OrderConfirmationEmail_Subject {
-            get {
-                return ResourceManager.GetString("OrderConfirmationEmail_Subject", resourceCulture);
             }
         }
     }
