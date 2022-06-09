@@ -9,7 +9,7 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder
         public string? Brand { get; set; }
 
         public string? Model { get; set; }
-
+        public string? AssetName { get; set; }
         public int? AssetCategoryId { get; set; }
 
         public string? Imei { get; set; }

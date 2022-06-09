@@ -28,7 +28,6 @@ namespace HardwareServiceOrderServices.Mappings
                 .ForMember(m => m.FaultCategory, opts => opts.MapFrom(m => m.UserDescription))
                 .ForMember(m => m.RepairType, opts => opts.MapFrom(m => $"{(ServiceTypeEnum)m.ServiceType.Id}"));
 
-
             CreateMap<HardwareServiceOrder, LoanDeviceEmail>()
                 .ForMember(m => m.FirstName, opts => opts.MapFrom(m => m.Owner.FirstName))
                 .ForMember(m => m.Recipient, opts => opts.MapFrom(m => m.Owner.Email))

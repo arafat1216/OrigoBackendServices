@@ -226,5 +226,24 @@ namespace HardwareServiceOrderServices.Infrastructure
                 }
             }
         }
+
+        /// <inheritdoc cref="IHardwareServiceOrderRepository.GetCustomerServiceProviderAsync(Guid, int)"/>
+        public async Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid customerId, int assetCategoryId)
+        {
+            return await _hardwareServiceOrderContext
+                .CustomerServiceProviders
+                .Include(m => m.ServiceProvider)
+                .FirstOrDefaultAsync(m => m.CustomerId == customerId && m.AssetCategoryId == assetCategoryId);
+        }
+
+        public async Task<ServiceType> GetServiceTypeAsync(int id)
+        {
+            return await _hardwareServiceOrderContext.ServiceTypes.FirstOrDefaultAsync(m => m.Id == id);
+        }
+
+        public async Task<ServiceStatus> GetServiceStatusAsync(int id)
+        {
+            return await _hardwareServiceOrderContext.ServiceStatuses.FirstOrDefaultAsync(m => m.Id == id);
+        }
     }
 }

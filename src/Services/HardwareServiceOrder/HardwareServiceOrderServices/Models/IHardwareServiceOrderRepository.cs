@@ -79,5 +79,15 @@
         /// <returns></returns>
         Task UpdateServiceEventsAsync(HardwareServiceOrder order, IEnumerable<ServiceEvent> events);
         Task<HardwareServiceOrder> CreateHardwareServiceOrder(HardwareServiceOrder serviceOrder);
+        /// <summary>
+        /// Get customer's service provider
+        /// </summary>
+        /// <param name="customerId">Customer Identifier</param>
+        /// <param name="assetCategoryId">Asset category identifier</param>
+        /// <returns></returns>
+        Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid customerId, int assetCategoryId);
+
+        Task<ServiceType> GetServiceTypeAsync(int id);
+        Task<ServiceStatus> GetServiceStatusAsync(int id);
     }
 }

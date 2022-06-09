@@ -15,7 +15,6 @@ namespace HardwareServiceOrder.API.Controllers
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
         private readonly ILogger<HardwareRepairController> _logger;
         private readonly IMapper _mapper;
-        private readonly IMapper _mapperForHwDto;
 
         public HardwareRepairController(
             IHardwareServiceOrderService hardwareServiceOrderService,
@@ -25,28 +24,6 @@ namespace HardwareServiceOrder.API.Controllers
             _hardwareServiceOrderService = hardwareServiceOrderService;
             _logger = logger;
             _mapper = mapper;
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<Location, DeliveryAddressDTO>();
-                cfg.CreateMap<AssetInfo, AssetInfoDTO>();
-
-                cfg.CreateMap<ViewModels.HardwareServiceOrder, HardwareServiceOrderDTO>()
-                    .ForMember(dest => dest.DeliveryAddress, opt => opt.MapFrom(src => src.DeliveryAddress))
-                    .ForMember(m => m.AssetInfo, opts => opts.MapFrom(s => s.AssetInfo))
-                .ForMember(m => m.FirstName, opts => opts.MapFrom(m => m.OrderedBy.FistName))
-                .ForMember(m => m.LastName, opts => opts.MapFrom(m => m.OrderedBy.LastName))
-                .ForMember(m => m.PartnerName, opts => opts.MapFrom(m => m.OrderedBy.PartnerName))
-                .ForMember(m => m.PartnerId, opts => opts.MapFrom(m => m.OrderedBy.PartnerId))
-                .ForMember(m => m.PartnerOrganizationNumber, opts => opts.MapFrom(m => m.OrderedBy.PartnerOrganizationNumber))
-                .ForMember(m => m.OrganizationId, opts => opts.MapFrom(m => m.OrderedBy.OrganizationId))
-                .ForMember(m => m.OrganizationName, opts => opts.MapFrom(m => m.OrderedBy.OrganizationName))
-                .ForMember(m => m.OrganizationNumber, opts => opts.MapFrom(m => m.OrderedBy.OrganizationNumber))
-                .ForMember(m => m.PhoneNumber, opts => opts.MapFrom(m => m.OrderedBy.PhoneNumber))
-                .ForMember(m => m.Id, opts => opts.MapFrom(m => m.OrderedBy.Id))
-                .ForMember(m => m.Email, opts => opts.MapFrom(m => m.OrderedBy.Email));
-            });
-
-            _mapperForHwDto = config.CreateMapper();
         }
 
         [Route("{customerId:Guid}/config/sur")]
@@ -83,44 +60,44 @@ namespace HardwareServiceOrder.API.Controllers
 
         [Route("{customerId:Guid}/orders")]
         [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.HardwareServiceOrder), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ViewModels.NewHardwareServiceOrder), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
-        public async Task<IActionResult> CreateHardwareServiceOrder(Guid customerId, [FromBody] ViewModels.HardwareServiceOrder model)
+        public async Task<IActionResult> CreateHardwareServiceOrder(Guid customerId, [FromBody] ViewModels.NewHardwareServiceOrder model)
         {
-            var dto = _mapperForHwDto.Map<HardwareServiceOrderDTO>(model);
-            var vm = _mapper.Map<ViewModels.HardwareServiceOrder>(await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, dto));
+            var dto = _mapper.Map<HardwareServiceOrderDTO>(model);
+            var vm = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, dto);
             return Ok(vm);
         }
 
         [Route("{customerId:Guid}/orders/{orderId:Guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(ViewModels.HardwareServiceOrder), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ViewModels.NewHardwareServiceOrder), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> GetHardwareServiceOrder(Guid customerId, Guid orderId)
         {
             var dto = await _hardwareServiceOrderService.GetHardwareServiceOrderAsync(customerId, orderId);
-            return Ok(_mapper.Map<ViewModels.HardwareServiceOrder>(dto));
+            return Ok(_mapper.Map<ViewModels.NewHardwareServiceOrder>(dto));
         }
 
         [Route("{customerId:Guid}/orders/{orderId:Guid}")]
         [HttpPatch]
-        [ProducesResponseType(typeof(ViewModels.HardwareServiceOrder), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ViewModels.NewHardwareServiceOrder), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
-        public async Task<IActionResult> UpdateHardwareServiceOrder(Guid customerId, Guid orderId, ViewModels.HardwareServiceOrder model)
+        public async Task<IActionResult> UpdateHardwareServiceOrder(Guid customerId, Guid orderId, ViewModels.NewHardwareServiceOrder model)
         {
             var dto = _mapper.Map<HardwareServiceOrderDTO>(model);
-            var vm = _mapper.Map<ViewModels.HardwareServiceOrder>(await _hardwareServiceOrderService.UpdateHardwareServiceOrderAsync(customerId, orderId, dto));
+            var vm = _mapper.Map<ViewModels.NewHardwareServiceOrder>(await _hardwareServiceOrderService.UpdateHardwareServiceOrderAsync(customerId, orderId, dto));
             return Ok(vm);
         }
 
         [Route("{customerId:Guid}/orders")]
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<ViewModels.HardwareServiceOrder>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<ViewModels.NewHardwareServiceOrder>), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId)
         {
             var dto = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(customerId);
-            return Ok(_mapper.Map<List<ViewModels.HardwareServiceOrder>>(dto));
+            return Ok(_mapper.Map<List<ViewModels.NewHardwareServiceOrder>>(dto));
         }
 
         /// <summary>

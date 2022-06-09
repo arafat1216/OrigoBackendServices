@@ -165,7 +165,7 @@ namespace OrigoApiGateway.Services
                 dto.OrderedBy = new OrderedByUserDTO
                 {
                     Email = userInfo.Email,
-                    FistName = userInfo.FirstName,
+                    FirstName = userInfo.FirstName,
                     LastName = userInfo.LastName,
                     Id = userId,
                     PhoneNumber = userInfo.MobileNumber,

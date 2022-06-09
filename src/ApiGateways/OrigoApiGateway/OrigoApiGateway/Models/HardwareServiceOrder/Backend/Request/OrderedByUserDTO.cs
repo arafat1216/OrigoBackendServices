@@ -4,7 +4,7 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request
 {
     public class OrderedByUserDTO
     {
-        public string FistName { get; set; }
+        public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
         public Guid Id { get; set; }

@@ -1,7 +1,10 @@
-﻿namespace HardwareServiceOrder.API.ViewModels
+﻿using HardwareServiceOrderServices.Models;
+
+namespace HardwareServiceOrder.API.ViewModels
 {
-    public class Location
+    public class DeliveryAddress
     {
+        public RecipientTypeEnum RecipientType { get; set; }
         public string Recipient { get; set; }
         public string Address1 { get; set; }
         public string? Address2 { get; set; }

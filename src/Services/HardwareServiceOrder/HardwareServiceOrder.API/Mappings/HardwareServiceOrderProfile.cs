@@ -16,9 +16,19 @@ namespace HardwareServiceOrder.API.Mappings
                 .ForMember(d => d.ApiUserName, opts => opts.MapFrom(s => s.ServiceId))
                 .ForMember(d => d.ApiPassword, opts => opts.Ignore());
 
-            CreateMap<HardwareServiceOrderDTO, ViewModels.HardwareServiceOrder>();
-            CreateMap<DeliveryAddressDTO, Location>();
-            CreateMap<ViewModels.HardwareServiceOrder, HardwareServiceOrderDTO>()
+            //DTO to ViewModel
+            CreateMap<HardwareServiceOrderDTO, ViewModels.NewHardwareServiceOrder>();
+            CreateMap<DeliveryAddressDTO, DeliveryAddress>();
+
+            //ViewModels to DTO
+            CreateMap<ViewModels.DeliveryAddress, DeliveryAddressDTO>();
+
+            CreateMap<ViewModels.AssetInfo, AssetInfoDTO>()
+                .ForMember(d => d.PurchaseDate, opts => opts.MapFrom(s => DateOnly.FromDateTime(s.PurchaseDate.GetValueOrDefault())));
+
+            CreateMap<ViewModels.ContactDetails, ContactDetailsDTO>();
+
+            CreateMap<ViewModels.NewHardwareServiceOrder, HardwareServiceOrderDTO>()
                 .ForMember(dest => dest.DeliveryAddress, opt => opt.MapFrom(src => src.DeliveryAddress));
 
         }

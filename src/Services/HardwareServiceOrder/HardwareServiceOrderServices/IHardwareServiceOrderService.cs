@@ -10,7 +10,7 @@ namespace HardwareServiceOrderServices
         Task<CustomerSettingsDTO> GetSettingsAsync(Guid customerId);
 
         // Order
-        Task<HardwareServiceOrderDTO> CreateHardwareServiceOrderAsync(Guid customerId, HardwareServiceOrderDTO model);
+        Task<HardwareServiceOrderResponseDTO> CreateHardwareServiceOrderAsync(Guid customerId, HardwareServiceOrderDTO model);
         Task<HardwareServiceOrderDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId);
         Task<List<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId);
         Task<List<HardwareServiceOrderLogDTO>> GetHardwareServiceOrderLogsAsync(Guid customerId, Guid orderId);

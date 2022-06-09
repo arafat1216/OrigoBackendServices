@@ -14,7 +14,7 @@
 
         public string? SerialNumber { get; set; }
 
-        public DateOnly? PurchaseDate { get; set; }
+        public DateTime? PurchaseDate { get; set; }
 
         public IEnumerable<string>? Accessories { get; set; }
     }
