@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapr.Client;
 
 namespace CustomerServices
 {
@@ -351,8 +352,14 @@ namespace CustomerServices
                 await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
             }
 
+            // Publish event
+            var source = new CancellationTokenSource();
+            var cancellationToken = source.Token;
+            using var client = new DaprClientBuilder().Build();
+            await client.PublishEventAsync("customer-pub-sub", "user-deleted", new {CustomerId = customerId, UserId = userId, CreatedDate = DateTime.UtcNow}, cancellationToken);
+
             //Get the users role and assign it to the users DTO
-            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            var userDTO = _mapper.Map<UserDTO>(user);
             userDTO.Role = await GetRoleNameForUser(user.Email);
             return userDTO;
         }

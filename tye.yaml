@@ -8,6 +8,7 @@ name: origodomainservices
 
 extensions:
   - name: dapr
+    enable-profiling: true
     log-level: debug
   - name: zipkin
 
@@ -36,3 +37,9 @@ services:
     project: src/Services/HardwareServiceOrder/HardwareServiceOrder.API/HardwareServiceOrder.API.csproj
     bindings:
     - port: 58893
+  - name: rabbit
+    image: rabbitmq:3-management
+    bindings:
+    - name: amqp
+      protocol: amqp
+      port: 5672
