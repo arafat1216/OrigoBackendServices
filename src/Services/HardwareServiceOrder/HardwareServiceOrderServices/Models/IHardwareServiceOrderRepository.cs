@@ -66,11 +66,11 @@
         /// <summary>
         /// Update Customer Provider's LastUpdateFetched
         /// </summary>
-        /// <param name="customerServiceProvider"></param>
-        /// <param name="lastUpdateFetched"></param>
+        /// <param name="customerServiceProvider">Existing Customer Service Provider <see cref="Models.CustomerServiceProvider"/></param>
+        /// <param name="lastUpdateFetched">Last DateTime when the updates were fetched from the service provider</param>
         /// <returns></returns>
         Task UpdateCustomerProviderLastUpdateFetchedAsync(CustomerServiceProvider customerServiceProvider, DateTimeOffset lastUpdateFetched);
-        
+
         /// <summary>
         /// Update service order's events
         /// </summary>

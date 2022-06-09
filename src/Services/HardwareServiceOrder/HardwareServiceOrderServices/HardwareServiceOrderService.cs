@@ -96,7 +96,7 @@ namespace HardwareServiceOrderServices
                     if (!order.ExternalServiceEvents.Any())
                         continue;
 
-                    var lastOrderStatus = order.ExternalServiceEvents.OrderBy(m => m.Timestamp).FirstOrDefault()?.ServiceStatusId;
+                    var lastOrderStatus = order.ExternalServiceEvents.OrderByDescending(m => m.Timestamp).FirstOrDefault()?.ServiceStatusId;
 
                     var origoOrder = await _hardwareServiceOrderRepository.GetOrderByServiceProviderOrderIdAsync(order.ServiceProviderOrderId1);
 
