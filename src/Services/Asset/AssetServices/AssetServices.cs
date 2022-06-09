@@ -309,7 +309,10 @@ namespace AssetServices
             var newAssetLifecycle = _mapper.Map<CreateAssetLifecycleDTO>(newAssetDTO);
             newAssetLifecycle.Source = sourceConverted;
             newAssetLifecycle.CustomerId = customerId;
-            newAssetLifecycle.Runtime = lifeCycleSetting!.Runtime;
+            if (newAssetDTO.LifecycleType == LifecycleType.Transactional)
+            {
+                newAssetLifecycle.Runtime = lifeCycleSetting!.Runtime;
+            }
             var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(newAssetLifecycle);
 
             Asset asset = newAssetDTO.AssetCategoryId == 1

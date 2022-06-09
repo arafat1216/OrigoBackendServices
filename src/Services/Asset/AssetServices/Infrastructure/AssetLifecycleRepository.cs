@@ -352,10 +352,10 @@ namespace AssetServices.Infrastructure
             var setting = await _assetContext.CustomerSettings.Include(x => x.LifeCycleSettings).FirstOrDefaultAsync(x => x.CustomerId == customerId);
             return setting;
         }
-        public async Task<LifeCycleSetting> GetCustomerLifeCycleSettingAssetCategory(Guid customerId, int assetCategoryId)
+        public async Task<LifeCycleSetting?> GetCustomerLifeCycleSettingAssetCategory(Guid customerId, int assetCategoryId)
         {
             var setting = await _assetContext.CustomerSettings.Include(x => x.LifeCycleSettings).FirstOrDefaultAsync(x => x.CustomerId == customerId);
-            return setting!.LifeCycleSettings.FirstOrDefault(x=>x.AssetCategoryId == assetCategoryId);
+            return setting?.LifeCycleSettings.FirstOrDefault(x => x.AssetCategoryId == assetCategoryId);
         }
 
 

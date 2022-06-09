@@ -257,6 +257,41 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
+    public async Task SaveAssetForCustomer_WithNoLifecycleSet()
+    {
+        // Arrange
+        var companyWithoutCustomerSettingId = new Guid("5af684aa-e7e5-11ec-b531-00155d3daa66");
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+        var newAssetDTO = new NewAssetDTO
+        {
+            CallerId = Guid.Empty,
+            Alias = "alias",
+            SerialNumber = "4543534535344",
+            AssetCategoryId = ASSET_CATEGORY_ID,
+            Brand = "iPhone",
+            ProductName = "iPhone X",
+            LifecycleType = LifecycleType.NoLifecycle,
+            PurchaseDate = new DateTime(2020, 1, 1),
+            AssetHolderId = ASSETHOLDER_ONE_ID,
+            Imei = new List<long> { 458718920164666 },
+            MacAddress = "5e:c4:33:df:61:70",
+            ManagedByDepartmentId = Guid.NewGuid(),
+            Note = "Test note",
+            Description = "description"
+        };
+
+        // Act
+        var newAsset = await assetService.AddAssetLifecycleForCustomerAsync(companyWithoutCustomerSettingId, newAssetDTO);
+        var newAssetRead = await assetService.GetAssetLifecycleForCustomerAsync(companyWithoutCustomerSettingId, newAsset.ExternalId);
+
+        // Assert
+        Assert.NotNull(newAssetRead);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
     public async Task SaveAssetForCustomer_WithoutAssetHolderAndDepartmentAssigned()
     {
         // Arrange
