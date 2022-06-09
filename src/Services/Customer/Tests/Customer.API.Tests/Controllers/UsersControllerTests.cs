@@ -220,6 +220,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
             Assert.Equal(3, read?.TotalItems);
         }
+
         [Fact]
         public async Task AssignManagerToDepartment_ShouldReturnOk()
         {
