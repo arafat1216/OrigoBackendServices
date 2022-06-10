@@ -66,15 +66,18 @@ namespace Asset.IntegrationTests.Controllers
         [Fact]
         public async Task GetAssetsForCustomerFilterByUserId()
         {
-            
-            var filterOptions = new FilterOptionsForAsset();
+
+            string userId = "6d16a4cb-4733-44de-b23b-0eb9e8ae6590";
+            var filterOptions = new FilterOptionsForAsset
+            {
+                UserId = userId
+            };
 
             var json = JsonSerializer.Serialize(filterOptions);
 
-            string userId = "6d16a4cb-4733-44de-b23b-0eb9e8ae6590";
 
             var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
-            var requestUri = $"/api/v1/Assets/customers/{_customerId}?filterOptions={json}&userId={userId}";
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}?filterOptions={json}";
 
             // Act
             var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);

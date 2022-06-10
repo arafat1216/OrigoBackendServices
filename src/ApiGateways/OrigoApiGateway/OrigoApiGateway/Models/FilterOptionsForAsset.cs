@@ -15,5 +15,7 @@ namespace OrigoApiGateway.Models
         public int[]? Category { get; set; }
         [FromQuery(Name = "labels")]
         public Guid[]? Label { get; set; }
+        [FromQuery(Name = "userId")]
+        public string UserId { get; set; }
     }
 }

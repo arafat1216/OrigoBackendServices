@@ -15,5 +15,7 @@ namespace Asset.API.ViewModels
         public int[]? Category { get; set; }
         [FromQuery(Name = "label")]
         public Guid[]? Label { get; set; }
+        [FromQuery(Name = "userId")]
+        public string? UserId { get; set; }
     }
 }

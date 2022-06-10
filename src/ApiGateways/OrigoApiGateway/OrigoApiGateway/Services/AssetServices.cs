@@ -155,12 +155,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId,string userId, FilterOptionsForAsset filterOptions, string search = "", int page = 1, int limit = 1000)
+        public async Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId, FilterOptionsForAsset filterOptions, string search = "", int page = 1, int limit = 1000)
         {
             try
             {
                 string json = JsonSerializer.Serialize(filterOptions);
-                var assets = await HttpClient.GetFromJsonAsync<PagedModel<HardwareSuperType>>($"{_options.ApiPath}/customers/{customerId}?q={search}&page={page}&limit={limit}&filterOptions={json}&userId={userId}");
+                var assets = await HttpClient.GetFromJsonAsync<PagedModel<HardwareSuperType>>($"{_options.ApiPath}/customers/{customerId}?q={search}&page={page}&limit={limit}&filterOptions={json}");
 
                 if (assets == null)
                     return null;
