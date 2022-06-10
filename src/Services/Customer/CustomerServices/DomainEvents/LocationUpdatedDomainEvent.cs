@@ -5,7 +5,7 @@ namespace CustomerServices.DomainEvents
 {
     class LocationUpdatedDomainEvent : BaseEvent
     {
-        public LocationUpdatedDomainEvent(Location location) : base(location.LocationId)
+        public LocationUpdatedDomainEvent(Location location) : base(location.ExternalId)
         {
             Location = location;
         }
@@ -14,7 +14,7 @@ namespace CustomerServices.DomainEvents
 
         public override string EventMessage()
         {
-            return $"Location with location id {Location.LocationId} was updated.";
+            return $"Location with location id {Location.ExternalId} was updated.";
         }
     }
 }

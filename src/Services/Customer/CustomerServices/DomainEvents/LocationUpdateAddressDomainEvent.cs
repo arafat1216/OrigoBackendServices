@@ -5,7 +5,7 @@ namespace CustomerServices.DomainEvents
 {
     class LocationUpdateAddressDomainEvent : BaseEvent
     {
-        public LocationUpdateAddressDomainEvent(Location location, int number, string oldAddress) : base(location.LocationId)
+        public LocationUpdateAddressDomainEvent(Location location, int number, string oldAddress) : base(location.ExternalId)
         {
             Location = location;
             Number = number;

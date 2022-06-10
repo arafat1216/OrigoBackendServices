@@ -5,7 +5,7 @@ namespace CustomerServices.DomainEvents
 {
     class LocationDeletedDomainEvent : BaseEvent
     {
-        public LocationDeletedDomainEvent(Location location) : base(location.LocationId)
+        public LocationDeletedDomainEvent(Location location) : base(location.ExternalId)
         {
             Location = location;
         }
@@ -14,7 +14,7 @@ namespace CustomerServices.DomainEvents
 
         public override string EventMessage()
         {
-            return $"Location with location id {Location.LocationId} was deleted.";
+            return $"Location with location id {Location.ExternalId} was deleted.";
         }
     }
 }

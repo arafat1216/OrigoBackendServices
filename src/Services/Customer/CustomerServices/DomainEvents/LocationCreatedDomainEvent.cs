@@ -6,14 +6,14 @@ namespace CustomerServices.DomainEvents
     class LocationCreatedDomainEvent : BaseEvent
     {
 
-        public LocationCreatedDomainEvent(Location location) : base(location.LocationId)
+        public LocationCreatedDomainEvent(Location location) : base(location.ExternalId)
         {
             Location = location;
         }
         public Location Location { get; protected set; }
         public override string EventMessage()
         {
-            return $"Location created {Location.LocationId}.";
+            return $"Location created {Location.ExternalId}.";
         }
        
     }

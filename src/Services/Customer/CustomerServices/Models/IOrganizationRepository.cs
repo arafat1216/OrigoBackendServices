@@ -82,7 +82,8 @@ namespace CustomerServices.Models
                                                  bool excludeDeleted = true,
                                                  bool includeDepartments = false,
                                                  bool includeAddress = false,
-                                                 bool includePartner = true);
+                                                 bool includePartner = true,
+                                                 bool includeLocations = false);
 
         /// <summary>
         ///     Finds an entity with the given primary key.
@@ -93,6 +94,7 @@ namespace CustomerServices.Models
         Task<Organization?> GetOrganizationByOrganizationNumber(string organizationNumber);
         Task<OrganizationPreferences?> GetOrganizationPreferencesAsync(Guid organizationId);
         Task<Location?> GetOrganizationLocationAsync(Guid locationId);
+        Task<IList<Location>> GetOrganizationAllLocationAsync(Guid organizationId);
         Task<Location> DeleteOrganizationLocationAsync(Location organizationLocation);
         Task<Organization> DeleteOrganizationAsync(Organization organization);
 

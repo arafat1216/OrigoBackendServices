@@ -45,7 +45,6 @@ namespace CustomerServices.SeedData
                     defaultDepartmentClassification: 0
                    ),
                 organizationLocation: new Location(
-                    locationId: new Guid("90A72B84-01FA-4B9B-A22A-B455FC54948A"), // LocationId
                     callerId: new Guid("00000000-0000-0000-0000-000000000000"), // callerId
                     name: "Bellwether", // name
                     description: "Blume headquarters", // description
@@ -88,7 +87,6 @@ namespace CustomerServices.SeedData
                     defaultDepartmentClassification: 0
                    ),
                 organizationLocation: new Location(
-                    locationId: new Guid("39C3933E-40CC-4DA2-89D6-514105C3F34A"),
                     callerId: new Guid("00000000-0000-0000-0000-000000000000"),
                     name: "Sonarus",
                     description: "Umeni main location",

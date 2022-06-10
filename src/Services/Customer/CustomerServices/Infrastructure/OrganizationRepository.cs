@@ -48,6 +48,7 @@ namespace CustomerServices.Infrastructure
 
         public async Task<Location> AddOrganizationLocationAsync(Location location)
         {
+            location.SetFieldsToEmptyIfNull();
             _customerContext.Locations.Add(location);
             await SaveEntitiesAsync();
             return location;
@@ -110,7 +111,8 @@ namespace CustomerServices.Infrastructure
                                                               bool excludeDeleted = true,
                                                               bool includeDepartments = false,
                                                               bool includeAddress = false,
-                                                              bool includePartner = true)
+                                                              bool includePartner = true,
+                                                              bool includeLocations = false)
         {
             IQueryable<Organization> query = _customerContext.Set<Organization>();
 
@@ -134,6 +136,9 @@ namespace CustomerServices.Infrastructure
             if (includePartner)
                 query = query.Include(e => e.Partner);
 
+            if (includeLocations)
+                query = query.Include(x => x.Locations);
+
             return await query.FirstOrDefaultAsync(e => e.OrganizationId == organizationId);
         }
 
@@ -152,7 +157,14 @@ namespace CustomerServices.Infrastructure
         public async Task<Location?> GetOrganizationLocationAsync(Guid locationId)
         {
             return await _customerContext.Locations
-                .FirstOrDefaultAsync(c => c.LocationId == locationId);
+                .FirstOrDefaultAsync(c => c.ExternalId == locationId);
+        }
+        public async Task<IList<Location>> GetOrganizationAllLocationAsync(Guid organizationId)
+        {
+            var org = await _customerContext.Organizations.Include(x => x.Locations).FirstOrDefaultAsync(
+                x => x.OrganizationId == organizationId);
+            if(org == null || !org.Locations.Any()) return null;
+            return org.Locations.ToList();
         }
 
         public async Task<OrganizationPreferences> DeleteOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences)

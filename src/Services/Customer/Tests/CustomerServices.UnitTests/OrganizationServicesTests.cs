@@ -57,7 +57,7 @@ namespace CustomerServices.UnitTests
             Assert.Equal("Mytos", organization.Name);
             Assert.Equal("", organization.OrganizationNumber);
             Assert.Null(organization.ParentId);
-            Assert.Equal(Guid.Empty, organization.PrimaryLocation);
+            Assert.True(organization.PrimaryLocation!.IsNull());
             Assert.Equal(Guid.Empty, organization.UpdatedBy);
             Assert.Equal("", organization.Address.Street);
             Assert.Equal("", organization.Address.PostCode);
@@ -85,7 +85,7 @@ namespace CustomerServices.UnitTests
             Assert.Equal("name", organization.Name);
             Assert.Equal("", organization.OrganizationNumber);
             Assert.Null(organization.ParentId);
-            Assert.Equal(Guid.Empty, organization.PrimaryLocation);
+            Assert.True(organization.PrimaryLocation!.IsNull());
             Assert.Equal(Guid.Empty, organization.UpdatedBy);
             Assert.Equal("street", organization.Address.Street);
             Assert.Equal("", organization.Address.PostCode);
@@ -113,7 +113,7 @@ namespace CustomerServices.UnitTests
             Assert.Equal("COMPANY ONE", organization.Name);
             Assert.Equal("999888777", organization.OrganizationNumber);
             Assert.Null(organization.ParentId);
-            Assert.Equal(LOCATION_ONE_ID, organization.PrimaryLocation);
+            Assert.NotNull(organization.PrimaryLocation);
             Assert.Equal(Guid.Empty, organization.UpdatedBy);
             Assert.Equal("My Way 1", organization.Address.Street);
             Assert.Equal("1111", organization.Address.PostCode);
@@ -141,7 +141,7 @@ namespace CustomerServices.UnitTests
             Assert.Equal("name", organization.Name);
             Assert.Equal("999888777", organization.OrganizationNumber);
             Assert.Null(organization.ParentId);
-            Assert.Equal(LOCATION_ONE_ID, organization.PrimaryLocation);
+            Assert.NotNull(organization.PrimaryLocation);
             Assert.Equal(Guid.Empty, organization.UpdatedBy);
             Assert.Equal("street", organization.Address.Street);
             Assert.Equal("1111", organization.Address.PostCode);

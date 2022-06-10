@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 #nullable enable
 
@@ -43,9 +44,13 @@ namespace CustomerServices.Models
         /// </summary>
         [JsonIgnore]
         public Partner? Partner { get; protected set; }
-
-        public Guid? PrimaryLocation { get; protected set; }
-
+        public Location? PrimaryLocation
+        {
+            get
+            {
+                return Locations.FirstOrDefault() ?? null;
+            }
+        }
         /// <summary>
         ///     The name of the organization.
         /// </summary>
@@ -83,10 +88,11 @@ namespace CustomerServices.Models
         public virtual OrganizationPreferences Preferences { get; set; }
 
         /// <summary>
-        ///     The organization's primary location/address.
+        ///     The organization's office locations/addresses.
         /// </summary>
-        [NotMapped]
-        public virtual Location Location { get; set; }
+        [JsonIgnore]
+        public ICollection<Location> Locations { get; protected set; } = new List<Location>();
+
 
         [JsonIgnore]
         public IList<User> Users
@@ -128,15 +134,13 @@ namespace CustomerServices.Models
             ContactPerson = organizationContactPerson;
             OrganizationId = organizationId;
             Preferences = organizationPreferences;
-            Location = organizationLocation;
-            PrimaryLocation = (organizationLocation == null) ? Guid.Empty : organizationLocation.LocationId;
             Partner = partner;
             IsCustomer = isCustomer;
             CreatedBy = callerId;
             UpdatedBy = callerId;
             IsDeleted = false;
             AddUsersToOkta = addUsersToOkta;
-
+            Locations.Add(organizationLocation);
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
 
@@ -152,10 +156,10 @@ namespace CustomerServices.Models
                 isUpdated = true;
             }
 
-            if (PrimaryLocation != organization.PrimaryLocation)
+            if (organization.PrimaryLocation != null && PrimaryLocation != null)
             {
-                var previousPrimaryLocation = PrimaryLocation.ToString();
-                PrimaryLocation = (organization.PrimaryLocation == null) ? Guid.Empty : organization.PrimaryLocation;
+                var previousPrimaryLocation = PrimaryLocation!.Name;
+                Locations.FirstOrDefault()!.UpdateLocation(organization.PrimaryLocation);
                 AddDomainEvent(new CustomerPrimaryLocationChangedDomainEvent(this, previousPrimaryLocation));
                 isUpdated = true;
             }
@@ -200,7 +204,7 @@ namespace CustomerServices.Models
 
 
             Preferences = organization.Preferences; // preferences cannot be changed here
-            Location = organization.Location; // Is either a new empty location object, or an existing one. Not modified.
+            //Location = organization.Location; // Is either a new empty location object, or an existing one. Not modified.
 
             if (isUpdated)
             {
@@ -220,14 +224,13 @@ namespace CustomerServices.Models
                 isUpdated = true;
             }
 
-            if (PrimaryLocation != organization.PrimaryLocation && organization.PrimaryLocation != null)
+            if (organization.PrimaryLocation != null && PrimaryLocation != null)
             {
-                var previousPrimaryLocation = PrimaryLocation.ToString();
-                PrimaryLocation = organization.PrimaryLocation;
+                var previousPrimaryLocation = PrimaryLocation!.Name;
+                Locations.FirstOrDefault()!.UpdateLocation(organization.PrimaryLocation);
                 AddDomainEvent(new CustomerPrimaryLocationChangedDomainEvent(this, previousPrimaryLocation));
                 isUpdated = true;
             }
-
             if (Name != organization.Name && organization.Name != null)
             {
                 var oldName = Name;

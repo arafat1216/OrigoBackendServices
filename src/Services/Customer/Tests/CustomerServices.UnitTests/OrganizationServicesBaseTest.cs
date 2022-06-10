@@ -44,35 +44,35 @@ namespace CustomerServices.UnitTests
                 new Address("My Way 1", "1111", "My City", "NO"),
                 new ContactPerson("JOHN", "DOE", "john.doe@example.com", "99999999"),
                 new OrganizationPreferences(CUSTOMER_ONE_ID, USER_ONE_ID, "webPage 1", "logoUrl 1", "organizationNotes 1", true, "nb", 0),
-                new Location(LOCATION_ONE_ID, USER_ONE_ID, "COMPANY ONE", "Location of COMPANY ONE", "My Way 1A", "My Way 1B", "0585", "Oslo", "NO"),
+                new Location(USER_ONE_ID, "COMPANY ONE", "Location of COMPANY ONE", "My Way 1A", "My Way 1B", "0585", "Oslo", "NO"),
                 null, true);
 
             var customerTwo = new Organization(CUSTOMER_TWO_ID, USER_ONE_ID, null, "COMPANY TWO", "999777666",
                 new Address("My Way 2", "1111", "My City", "NO"),
                 new ContactPerson("Ola", "Nordmann", "ola.nordmann@example.com", "99999998"),
                 new OrganizationPreferences(CUSTOMER_TWO_ID, USER_ONE_ID, "webPage 2", "logoUrl 2", "organizationNotes 2", true, "nb", 0),
-                new Location(LOCATION_TWO_ID, USER_ONE_ID, "name", "description", "My Way 2A", "My Way 2B", "0585", "Oslo", "NO"),
+                new Location(USER_ONE_ID, "name", "description", "My Way 2A", "My Way 2B", "0585", "Oslo", "NO"),
                 null, true, true);
 
             var customerThree = new Organization(CUSTOMER_THREE_ID, USER_ONE_ID, CUSTOMER_ONE_ID, "COMPANY THREE", "999666555",
                 new Address("My Way 3", "1111", "My Other City", "NO"),
                 new ContactPerson("Kari", "Nordmann", "kari.nordmann@example.com", "99999997"),
                 new OrganizationPreferences(CUSTOMER_THREE_ID, USER_ONE_ID, "webPage 3", "logoUrl 3", "organizationNotes 3", true, "nb", 0),
-                new Location(LOCATION_THREE_ID, USER_ONE_ID, "name", "description", "My Way 3A", "My Way 3B", "0585", "Oslo", "NO"),
+                new Location(USER_ONE_ID, "name", "description", "My Way 3A", "My Way 3B", "0585", "Oslo", "NO"),
                 null, true);
 
             var customerFour = new Organization(CUSTOMER_FOUR_ID, USER_ONE_ID, null, "COMPANY FOUR", "999555444",
                 new Address("My Way 4", "1111", "My City", "NO"),
                 new ContactPerson("Petter", "Smart", "petter.smart@example.com", "99999996"),
                 new OrganizationPreferences(CUSTOMER_FOUR_ID, USER_ONE_ID, "webPage 4", "logoUrl 4", "organizationNotes 4", true, "nb", 0),
-                new Location(LOCATION_FOUR_ID, USER_ONE_ID, "name", "description", "My Way 4A", "My Way 4B", "0585", "Oslo", "NO"),
+                new Location(USER_ONE_ID, "name", "description", "My Way 4A", "My Way 4B", "0585", "Oslo", "NO"),
                 null, true);
 
             context.AddRange(customerOne, customerTwo, customerThree);
 
             context.AddRange(customerOne, customerTwo, customerThree, customerFour);
             context.OrganizationPreferences.AddRange(customerOne.Preferences, customerTwo.Preferences, customerThree.Preferences, customerFour.Preferences);
-            context.Locations.AddRange(customerOne.Location, customerTwo.Location, customerThree.Location, customerFour.Location);
+            context.Locations.AddRange(customerOne.PrimaryLocation!, customerTwo.PrimaryLocation!, customerThree.PrimaryLocation!, customerFour.PrimaryLocation!);
             //var department = new Department("Department1","456","Desc", customerFour, DEPARTMENT_ONE_ID, Guid.Empty, null);
             var departmentOneForCustomerOne = new Department("Cust1Dept1", "1123", "Department one for customer one", customerOne, DEPARTMENT_ONE_ID, Guid.Empty);
             //context.Add(department);

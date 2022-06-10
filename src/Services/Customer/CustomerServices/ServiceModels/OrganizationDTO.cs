@@ -18,7 +18,7 @@ namespace CustomerServices.ServiceModels
             OrganizationNumber = organization.OrganizationNumber;
             Address = new AddressDTO(organization.Address);
             ContactPerson = new ContactPersonDTO(organization.ContactPerson);
-            Location = new LocationDTO(organization.Location);
+            Location = new LocationDTO(organization.PrimaryLocation!);
             Preferences = new OrganizationPreferencesDTO(organization.Preferences);
             PartnerId = organization.Partner?.ExternalId;
             ParentId = organization.ParentId;

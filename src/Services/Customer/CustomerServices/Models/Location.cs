@@ -1,6 +1,8 @@
-﻿using Common.Seedwork;
+﻿using Common.Enums;
+using Common.Seedwork;
 using CustomerServices.DomainEvents;
 using System;
+using System.Text.Json.Serialization;
 
 #nullable enable
 
@@ -8,26 +10,32 @@ namespace CustomerServices.Models
 {
     public class Location : Entity
     {
-        public Guid LocationId { get; protected set; }
-        public string Name { get; protected set; }
-        public string? Description { get; protected set; }
-        public string? Address1 { get; protected set; }
-        public string? Address2 { get; protected set; }
-        public string? PostalCode { get; protected set; }
-        public string? City { get; protected set; }
-        public string? Country { get; protected set; }
+        /// <summary>
+        ///     The external uniquely identifying id across systems.
+        /// </summary>
+        public Guid ExternalId { get; private set; } = Guid.NewGuid();
+        public string Name { get; protected set; } = string.Empty;
+        public string Description { get; protected set; } = string.Empty;
+        /// <summary>
+        ///     A discriminator that tells us what kind of address this is. This is needed to the system can forward/register the correct kind if data.
+        /// </summary>
+        public RecipientType RecipientType { get; protected set; }
+
+        public string Address1 { get; protected set; } = string.Empty;
+        public string Address2 { get; protected set; } = string.Empty;
+        public string PostalCode { get; protected set; } = string.Empty;
+        public string City { get; protected set; } = string.Empty;
+        public string Country { get; protected set; } = string.Empty;
+
 
         /// <summary>
         /// Added to prevent Entity framework No suitable constructor found exception.
         /// </summary>
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected Location()
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         { }
 
-        public Location(Guid locationId, Guid callerId, string name, string description, string address1, string address2, string postalCode, string city, string country)
+        public Location(Guid callerId, string name, string description, string address1, string address2, string postalCode, string city, string country, RecipientType recipientType = RecipientType.Organization)
         {
-            LocationId = locationId;
             Name = name;
             Description = description;
             Address1 = address1;
@@ -37,6 +45,7 @@ namespace CustomerServices.Models
             Country = country;
             CreatedBy = callerId;
             UpdatedBy = callerId;
+            RecipientType = recipientType;
             AddDomainEvent(new LocationCreatedDomainEvent(this));
         }
 
@@ -133,6 +142,14 @@ namespace CustomerServices.Models
             LastUpdatedDate = DateTime.UtcNow;
             DeletedBy = callerId;
             AddDomainEvent(new LocationDeletedDomainEvent(this));
+        }
+
+        public bool IsNull()
+        {
+            if (string.IsNullOrEmpty(Name) && string.IsNullOrEmpty(Description) && string.IsNullOrEmpty(Address1) && string.IsNullOrEmpty(Address2)
+                && string.IsNullOrEmpty(PostalCode) && string.IsNullOrEmpty(City) && string.IsNullOrEmpty(Country))
+                return true;
+            return false;
         }
     }
 }

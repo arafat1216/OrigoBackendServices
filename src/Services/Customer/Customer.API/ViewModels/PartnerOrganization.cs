@@ -41,8 +41,8 @@ namespace Customer.API.ViewModels
             if (organization.ContactPerson is not null)
                 ContactPerson = new ContactPersonDTO(organization.ContactPerson);
 
-            if (organization.Location is not null)
-                Location = new LocationDTO(organization.Location);
+            if (organization.PrimaryLocation is not null)
+                Location = new LocationDTO(organization.PrimaryLocation);
         }
     }
 }

@@ -39,6 +39,7 @@ namespace CustomerServices
         Task<OrganizationPreferences> UpdateOrganizationPreferencesAsync(OrganizationPreferences preferences, bool usingPatch = false);
         Task<Location?> GetLocationAsync(Guid locationId);
         Task<Location> UpdateOrganizationLocationAsync(Location updateLocation, bool usingPatch = false);
+        Task<IList<LocationDTO>> DeleteOrganizationAllLocationAsync(Guid organizationId, Guid callerId, bool hardDelete = false);
         Task<LocationDTO> DeleteOrganizationLocationAsync(Guid locationId, Guid callerId, bool hardDelete = false);
         Task<OrganizationDTO> AddOrganizationAsync(NewOrganizationDTO newOrganization);
         Task<Location> AddOrganizationLocationAsync(Location location);

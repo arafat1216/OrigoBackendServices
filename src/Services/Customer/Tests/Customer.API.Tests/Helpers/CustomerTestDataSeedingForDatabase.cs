@@ -43,8 +43,7 @@ namespace Customer.API.IntegrationTests.Helpers
                                                                         1);
             customerContext.OrganizationPreferences.Add(organizationPreferences);
 
-            var location = new Location(LOCATION_ID,
-                                        CALLER_ID,
+            var location = new Location(CALLER_ID,
                                         "Location1",
                                         "Description",
                                         "Billingstadsletta",

@@ -1,4 +1,5 @@
-﻿using Common.Exceptions;
+﻿using Common.Enums;
+using Common.Exceptions;
 using Customer.API.WriteModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
@@ -54,7 +55,7 @@ namespace Customer.API.Controllers
                     Address = new AddressDTO(organization.Address),
                     ContactPerson = new ContactPersonDTO(organization.ContactPerson),
                     Preferences = (organization.Preferences == null) ? null : new OrganizationPreferencesDTO(organization.Preferences),
-                    Location = (organization.Location == null) ? null : new LocationDTO(organization.Location),
+                    Location = (organization.PrimaryLocation == null) ? null : new LocationDTO(organization.PrimaryLocation),
                     PartnerId = organization.Partner?.ExternalId
                 };
 
@@ -100,7 +101,7 @@ namespace Customer.API.Controllers
                         Address = new AddressDTO(org.Address),
                         ContactPerson = new ContactPersonDTO(org.ContactPerson),
                         Preferences = (org.Preferences == null) ? null : new OrganizationPreferencesDTO(org.Preferences),
-                        Location = (org.Location == null) ? null : new LocationDTO(org.Location),
+                        Location = (org.PrimaryLocation == null) ? null : new LocationDTO(org.PrimaryLocation),
                         ChildOrganizations = new List<OrganizationDTO>(),
                         PartnerId = org.Partner?.ExternalId
                     };
@@ -117,7 +118,7 @@ namespace Customer.API.Controllers
                                 Address = new AddressDTO(childOrg.Address),
                                 ContactPerson = new ContactPersonDTO(childOrg.ContactPerson),
                                 Preferences = (childOrg.Preferences == null) ? null : new OrganizationPreferencesDTO(childOrg.Preferences),
-                                Location = (childOrg.Location == null) ? null : new LocationDTO(childOrg.Location)
+                                Location = (childOrg.PrimaryLocation == null) ? null : new LocationDTO(childOrg.PrimaryLocation)
                             };
                             organizationView.ChildOrganizations.Add(childOrgView);
                         }
@@ -220,7 +221,7 @@ namespace Customer.API.Controllers
                     Address = new AddressDTO(updatedOrganization.Address),
                     ContactPerson = new ContactPersonDTO(updatedOrganization.ContactPerson),
                     Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(updatedOrganization.Preferences),
-                    Location = (updatedOrganization.Location == null) ? null : new LocationDTO(updatedOrganization.Location),
+                    Location = (updatedOrganization.PrimaryLocation == null) ? null : new LocationDTO(updatedOrganization.PrimaryLocation),
                     PartnerId = updatedOrganization.Partner?.ExternalId
                 };
 
@@ -293,7 +294,7 @@ namespace Customer.API.Controllers
                     Address = new AddressDTO(updatedOrganization.Address),
                     ContactPerson = new ContactPersonDTO(updatedOrganization.ContactPerson),
                     Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(updatedOrganization.Preferences),
-                    Location = (updatedOrganization.Location == null) ? null : new LocationDTO(updatedOrganization.Location),
+                    Location = (updatedOrganization.PrimaryLocation == null) ? null : new LocationDTO(updatedOrganization.PrimaryLocation),
                     PartnerId = updatedOrganization.Partner?.ExternalId
                 };
 
@@ -354,7 +355,7 @@ namespace Customer.API.Controllers
                     Address = new AddressDTO(removedOrganization.Address),
                     ContactPerson = new ContactPersonDTO(removedOrganization.ContactPerson),
                     Preferences = (removedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(removedOrganization.Preferences),
-                    Location = (removedOrganization.Location == null) ? null : new LocationDTO(removedOrganization.Location),
+                    Location = (removedOrganization.PrimaryLocation == null) ? null : new LocationDTO(removedOrganization.PrimaryLocation),
                     PartnerId = removedOrganization.Partner?.ExternalId
                 };
                 return Ok(removedOrganizationView);
@@ -474,8 +475,7 @@ namespace Customer.API.Controllers
                 if (location.LocationId == Guid.Empty)
                     return BadRequest("Location id cannot be empty.");
 
-                var newLocation = new CustomerServices.Models.Location(location.LocationId,
-                                                                       location.CallerId,
+                var newLocation = new CustomerServices.Models.Location(location.CallerId,
                                                                        location.Name,
                                                                        location.Description,
                                                                        location.Address1,
