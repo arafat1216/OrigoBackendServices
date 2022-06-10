@@ -655,7 +655,39 @@ namespace Asset.API.Controllers
                 return BadRequest($"AssetLifeCycleChangeStatusToRepair returns Exception with assetLifecycleId {assetLifecycleId}");
             }
         }
+        
+        [Route("customers/{customerId:guid}/assets-counter")]
+        [HttpGet]
+        [ProducesResponseType(typeof(CustomerAssetsCounter), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<CustomerAssetsCounter>> GetAssetLifecycleCounters(Guid customerId, [FromQuery(Name = "filter")] string? json = null)
+        {
+            var filterOptions = new FilterOptionsForAsset();
 
+
+            try
+            {
+                if (json != null) filterOptions = JsonSerializer.Deserialize<FilterOptionsForAsset>(json);
+            }
+            catch (JsonException ex)
+            {
+                _logger?.LogError("GetCustomerAssetsCount returns JsonException", ex.Path);
+                return BadRequest($"GetCustomerAssetsCount returns JsonException with message {ex.Path}");
+            }
+            try {
+
+            Guid.TryParse(filterOptions?.UserId, out Guid userId);
+
+            var assetCounter = await _assetServices.GetAssetLifecycleCountersAsync(customerId, filterOptions?.Status, filterOptions?.Department, userId);
+
+            return Ok(assetCounter);
+
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return BadRequest($"GetCustomerAssetsCount returns ResourceNotFoundException with message: {ex.Message}");
+            }
+        }
 
     }
 }

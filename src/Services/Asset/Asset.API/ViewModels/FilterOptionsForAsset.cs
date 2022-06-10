@@ -16,6 +16,6 @@ namespace Asset.API.ViewModels
         [FromQuery(Name = "label")]
         public Guid[]? Label { get; set; }
         [FromQuery(Name = "userId")]
-        public string? UserId { get; set; }
+        public string UserId { get; set; }
     }
 }

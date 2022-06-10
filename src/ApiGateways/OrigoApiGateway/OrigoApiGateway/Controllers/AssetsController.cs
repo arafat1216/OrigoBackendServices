@@ -1477,5 +1477,56 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest("Exception: Could not retrieve files due to unknown exception: " + ex.Message);
             }
         }
+
+        [Route("customers/{organizationId:guid}/assets-counter")]
+        [HttpGet]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult<OrigoCustomerAssetsCounter>> GetAssetLifecycleCounters(Guid organizationId, [FromQuery] FilterOptionsForAsset filter)
+        {
+            try
+            {
+                bool manager = false;
+
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    filter.UserId = "me";
+                }
+                if (role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString() && filter.UserId != "me")
+                {
+                    manager = true;
+                    //need the userId for retriving the users managerOf list
+                    filter.UserId = "me";
+                }
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+
+                }
+
+                if (filter.UserId == "me")
+                    filter.UserId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                else filter.UserId = null;
+
+                
+                var assetCount = await _assetServices.GetAssetLifecycleCountersAsync(organizationId, filter, manager);
+
+
+                return Ok(assetCount);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
     }
 }

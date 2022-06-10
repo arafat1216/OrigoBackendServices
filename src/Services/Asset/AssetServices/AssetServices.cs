@@ -810,5 +810,36 @@ namespace AssetServices
 
             await _assetLifecycleRepository.SaveEntitiesAsync();
         }
+
+        public async Task<CustomerAssetsCounterDTO> GetAssetLifecycleCountersAsync(Guid customerId, IList<AssetLifecycleStatus>? filterStatus, IList<Guid?>? departments, Guid? userId)
+        {
+            if (userId != Guid.Empty)
+            {
+                CustomerAssetsCounterDTO endUser = new CustomerAssetsCounterDTO();
+                endUser.UsersPersonalAssets = await _assetLifecycleRepository.GetAssetLifecycleCountForUserAsync(customerId, userId);
+                endUser.OrganizationId = customerId;
+                return endUser;
+
+            }
+            if (filterStatus == null || !filterStatus.Any())
+            {
+                filterStatus = new List<AssetLifecycleStatus>() { AssetLifecycleStatus.Active, AssetLifecycleStatus.Available, AssetLifecycleStatus.InUse, AssetLifecycleStatus.InputRequired };
+            }
+           
+            if (!filterStatus.Select(x => x).All(x => Enum.IsDefined(typeof(AssetLifecycleStatus), x)))
+            {
+                throw new ResourceNotFoundException("Not valid a valid asset status", _logger);
+            }
+
+            if (departments != null && departments.Any(d => d == Guid.Empty)) departments = departments.Where(x => x != Guid.Empty).ToList();
+
+            if (departments != null && departments.Any())
+            {
+                return await _assetLifecycleRepository.GetAssetCountForDepartmentAsync(customerId,userId, filterStatus, departments);
+            }
+
+
+            return await _assetLifecycleRepository.GetAssetLifecycleCountForCustomerAsync(customerId, userId, filterStatus);
+        }
     }
 }

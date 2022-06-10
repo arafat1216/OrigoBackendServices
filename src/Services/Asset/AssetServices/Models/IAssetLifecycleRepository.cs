@@ -33,8 +33,12 @@ namespace AssetServices.Models
         Task<IList<AssetLifecycle>> GetAssetForUser(Guid userId);
         Task<CustomerSettings> GetLifeCycleSettingByCustomerAsync(Guid customerId);
         Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid assetLifeCycleId);
+
+        Task<LifeCycleSetting> GetCustomerLifeCycleSettingAssetCategory(Guid customerId, int assetCategoryId);
+        Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetLifecycleCountForCustomerAsync(Guid customerId, Guid? userId, IList<AssetLifecycleStatus> statuses);
+        Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetCountForDepartmentAsync(Guid customerId, Guid? userId, IList<AssetLifecycleStatus> status, IList<Guid?> department);
+        Task<int> GetAssetLifecycleCountForUserAsync(Guid customerId, Guid? userId);
         Task<CustomerSettings> GetDisposeSettingByCustomerAsync(Guid customerId);
         Task<CustomerSettings> AddCustomerSettingAsync(CustomerSettings customerSettings, Guid customerId);
-        Task<LifeCycleSetting?> GetCustomerLifeCycleSettingAssetCategory(Guid customerId, int assetCategoryId);
     }
 }

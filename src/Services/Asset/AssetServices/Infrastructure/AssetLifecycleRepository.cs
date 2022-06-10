@@ -125,7 +125,7 @@ namespace AssetServices.Infrastructure
                 );
             }
 
-            
+
 
             if (status != null)
             {
@@ -139,10 +139,10 @@ namespace AssetServices.Infrastructure
             if (category != null && category.Length == 1)
             {
                 if(category[0] == 1)
-                 query = query.Where(al => al.Asset is MobilePhone);
+                    query = query.Where(al => al.Asset is MobilePhone);
                 else if(category[0] == 2)
-                 query = query.Where(al => al.Asset is Tablet);
-                
+                    query = query.Where(al => al.Asset is Tablet);
+
                 //query = query.Where(al => category.Contains(al.AssetCategoryId));
             }
             else if(category != null && category.Length == 2)
@@ -163,6 +163,134 @@ namespace AssetServices.Infrastructure
             query = query.AsSplitQuery().AsNoTracking();
             return await query.PaginateAsync(page, limit, cancellationToken);
         }
+        public async Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetLifecycleCountForCustomerAsync(Guid customerId,Guid? userId, IList<AssetLifecycleStatus> statuses)
+        {
+            ServiceModel.CustomerAssetsCounterDTO customerAssetsCounter = new ServiceModel.CustomerAssetsCounterDTO();
+            ServiceModel.AssetCounter personal = new ServiceModel.AssetCounter();
+            ServiceModel.AssetCounter nonPersonal = new ServiceModel.AssetCounter();
+
+            var groups = await _assetContext.AssetLifeCycles.Where(a => a.CustomerId == customerId).GroupBy(c => new
+            {
+                c.AssetLifecycleStatus,
+                c.IsPersonal
+            }) .Select(group => new
+                   {
+                       AssetLifecycle = group.Key.AssetLifecycleStatus,
+                       value = group.Count(),
+                       isPersonal = group.Key.IsPersonal
+                   })
+                   .ToListAsync();
+
+            foreach (var g in groups) {
+
+
+                if (statuses == null || (statuses.Contains(g.AssetLifecycle)))
+                {
+                    switch (g.AssetLifecycle)
+                    {
+                        case AssetLifecycleStatus.InUse:
+                            if (g.isPersonal) personal.InUse = g.value;
+                            else nonPersonal.InUse = g.value;
+                            break;
+
+                        case AssetLifecycleStatus.InputRequired:
+                            if (g.isPersonal) personal.InputRequired = g.value;
+                            else nonPersonal.InputRequired = g.value;
+                            break;
+
+                        case AssetLifecycleStatus.Active:
+                            if (g.isPersonal) personal.Active = g.value;
+                            else nonPersonal.Active = g.value;
+                            break;
+
+                        case AssetLifecycleStatus.Available:
+                            if (g.isPersonal) personal.Available = g.value;
+                            else nonPersonal.Available = g.value;
+                            break;
+
+                        default:
+                            break;
+
+                    }
+                }
+            }
+
+            customerAssetsCounter.NonPersonal = nonPersonal;
+            customerAssetsCounter.Personal = personal;
+
+            customerAssetsCounter.OrganizationId = customerId;
+
+            return customerAssetsCounter;
+        }
+        public async Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetCountForDepartmentAsync(Guid customerId, Guid? userId, IList<AssetLifecycleStatus> statuses, IList<Guid?> departments)
+        {
+            ServiceModel.CustomerAssetsCounterDTO baseAssetCounter = new ServiceModel.CustomerAssetsCounterDTO();
+            List<ServiceModel.AssetCounterDepartment> assetCounterDepartmentList = new List<ServiceModel.AssetCounterDepartment>();
+
+
+            foreach (var department in departments)
+            {
+                var departmentCounter = new ServiceModel.AssetCounterDepartment();
+
+                var groups = await _assetContext.AssetLifeCycles.Where(a => a.CustomerId == customerId && a.ManagedByDepartmentId == department).GroupBy(c => new
+                {
+                    c.AssetLifecycleStatus,
+                    c.IsPersonal
+                }).Select(group => new
+                {
+                    AssetLifecycle = group.Key.AssetLifecycleStatus,
+                    value = group.Count(),
+                    isPersonal = group.Key.IsPersonal
+                })
+                  .ToListAsync();
+
+                foreach (var g in groups)
+                {
+                    if (statuses == null || (statuses.Contains(g.AssetLifecycle)))
+                    {
+                        switch (g.AssetLifecycle)
+                        {
+                            case AssetLifecycleStatus.InUse:
+                                if (g.isPersonal) departmentCounter.Personal.InUse = g.value;
+                                else departmentCounter.NonPersonal.InUse = g.value;
+                                break;
+
+                            case AssetLifecycleStatus.InputRequired:
+                                if (g.isPersonal) departmentCounter.Personal.InputRequired = g.value;
+                                else departmentCounter.NonPersonal.InputRequired = g.value;
+                                break;
+
+                            case AssetLifecycleStatus.Active:
+                                if (g.isPersonal) departmentCounter.Personal.Active = g.value;
+                                else departmentCounter.NonPersonal.Active = g.value;
+                                break;
+
+                            case AssetLifecycleStatus.Available:
+                                if (g.isPersonal) departmentCounter.Personal.Available = g.value;
+                                else departmentCounter.NonPersonal.Available = g.value;
+                                break;
+
+                            default:
+                                break;
+
+                        }
+                    }
+                }
+                departmentCounter.DepartmentId = department;
+                assetCounterDepartmentList.Add(departmentCounter);
+
+            }
+
+            baseAssetCounter.Departments = assetCounterDepartmentList;
+
+
+            return baseAssetCounter;
+        }
+        public async Task<int> GetAssetLifecycleCountForUserAsync(Guid customerId, Guid? userId)
+        {
+            return await _assetContext.AssetLifeCycles.Where(a => a.CustomerId == customerId && a.ContractHolderUser.ExternalId == userId).CountAsync();
+        }
+
 
         public async Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList)
         {

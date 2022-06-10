@@ -1278,5 +1278,218 @@ namespace Asset.IntegrationTests.Controllers
             Assert.True(setting!.PayrollContactEmail ==
                         newSettings.PayrollContactEmail);
         }
+        [Fact]
+        public async Task GetCustomerAssetsCount()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+            FilterOptionsForAsset options = new FilterOptionsForAsset();
+            string json = JsonSerializer.Serialize(options);
+
+            var requestGet = $"/api/v1/Assets/customers/{_customerId}/assets-counter/?filter={json}";
+            var responseGet = await httpClient.GetAsync(requestGet);
+            Assert.Equal(HttpStatusCode.OK, responseGet.StatusCode);
+
+
+            var assetsCounter = await responseGet.Content.ReadFromJsonAsync<CustomerAssetsCounter>();
+
+            Assert.NotNull(assetsCounter);
+            Assert.Equal(_customerId, assetsCounter?.OrganizationId);
+            Assert.Equal(2, assetsCounter?.NonPersonal?.InUse);
+            Assert.Equal(1, assetsCounter?.NonPersonal?.Active);
+            Assert.Equal(0, assetsCounter?.NonPersonal?.InputRequired);
+            Assert.Equal(1, assetsCounter?.NonPersonal?.Available);
+            Assert.Equal(2, assetsCounter?.Personal?.InUse);
+            Assert.Equal(0, assetsCounter?.Personal?.Active);
+            Assert.Equal(0, assetsCounter?.Personal?.InputRequired);
+            Assert.Equal(0, assetsCounter?.Personal?.Available);
+            Assert.Equal(0, assetsCounter?.UsersPersonalAssets);
+
+            Assert.Empty(assetsCounter?.Departments);
+        }
+
+        [Fact]
+        public async Task GetCustomerAssetsCount_WithFilters()
+        {
+
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+            IList<Guid?> deprartments = new List<Guid?> { _departmentId };
+            IList<AssetLifecycleStatus> status = new List<AssetLifecycleStatus>{AssetLifecycleStatus.Active,
+            AssetLifecycleStatus.Available};
+
+            var filterOptions = new FilterOptionsForAsset
+            {
+                Status = status,
+                Department = deprartments
+            };
+            string json = JsonSerializer.Serialize(filterOptions);
+
+            var requestGet = $"/api/v1/Assets/customers/{_customerId}/assets-counter/?filter={json}";
+            var responseGet = await httpClient.GetAsync(requestGet);
+            Assert.Equal(HttpStatusCode.OK, responseGet.StatusCode);
+
+
+            var assetsCounter = await responseGet.Content.ReadFromJsonAsync<CustomerAssetsCounter>();
+
+            Assert.NotNull(assetsCounter);
+
+            Assert.NotNull(assetsCounter?.Departments);
+            Assert.Equal(1, assetsCounter?.Departments?.Count);
+            Assert.Equal(_departmentId, assetsCounter?.Departments[0]?.DepartmentId);
+            Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Active);
+            Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Available);
+            Assert.Equal(1, assetsCounter?.Departments[0]?.NonPersonal?.Active);
+            Assert.Equal(0, assetsCounter?.Departments[0]?.NonPersonal?.Available);
+
+        }
+        [Fact]
+        public async Task GetCustomerAssetsCount_NotValidGuidForDepartment()
+        {
+            var json = "{\"Department\":[\"6244c47b-fcb3-4ea1-21-0\"],\"Status\":[0,3],\"Category\":null,\"Label\":null}";
+
+            var request = $"/api/v1/Assets/customers/{_customerId}/assets-counter/?filter={json}";
+            var response = await _httpClient.GetAsync(request);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal($"GetCustomerAssetsCount returns JsonException with message $.Department[0]",
+                response.Content.ReadAsStringAsync().Result);
+
+        }
+        [Fact]
+        public async Task GetCustomerAssetsCount_EmptyGuidForDepartment()
+        {
+            var json = "{\"Department\":[\"00000000-0000-0000-0000-000000000000\"],\"Status\":[0,3],\"Category\":null,\"Label\":null}";
+
+            var request = $"/api/v1/Assets/customers/{_customerId}/assets-counter/?filter={json}";
+            var response = await _httpClient.GetAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assetsCounter = await response.Content.ReadFromJsonAsync<CustomerAssetsCounter>();
+
+            Assert.NotNull(assetsCounter);
+            Assert.Equal(_customerId, assetsCounter?.OrganizationId);
+            Assert.Equal(0, assetsCounter?.NonPersonal?.InUse);
+            Assert.Equal(1, assetsCounter?.NonPersonal?.Active);
+            Assert.Equal(0, assetsCounter?.NonPersonal?.InputRequired);
+            Assert.Equal(1, assetsCounter?.NonPersonal?.Available);
+            Assert.Equal(0, assetsCounter?.Personal?.InUse);
+            Assert.Equal(0, assetsCounter?.Personal?.Active);
+            Assert.Equal(0, assetsCounter?.Personal?.InputRequired);
+            Assert.Equal(0, assetsCounter?.Personal?.Available);
+            Assert.Equal(0, assetsCounter?.UsersPersonalAssets);
+
+
+            Assert.NotNull(assetsCounter?.Departments);
+            Assert.Equal(0, assetsCounter?.Departments?.Count);
+
+        }
+        [Fact]
+        public async Task GetCustomerAssetsCount_EmptyGuidAndNot_Department()
+        {
+            var json = "{\"Department\":[\"00000000-0000-0000-0000-000000000000\",\"6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72\"],\"Status\":[0,3],\"Category\":null,\"Label\":null}";
+
+            var request = $"/api/v1/Assets/customers/{_customerId}/assets-counter/?filter={json}";
+            var response = await _httpClient.GetAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assetsCounter = await response.Content.ReadFromJsonAsync<CustomerAssetsCounter>();
+
+            Assert.NotNull(assetsCounter);
+
+            Assert.NotNull(assetsCounter?.Departments);
+            Assert.Equal(1, assetsCounter?.Departments?.Count);
+            Assert.Equal(_departmentId, assetsCounter?.Departments[0]?.DepartmentId);
+            Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Active);
+            Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Available);
+            Assert.Equal(1, assetsCounter?.Departments[0]?.NonPersonal?.Active);
+            Assert.Equal(0, assetsCounter?.Departments[0]?.NonPersonal?.Available);
+        }
+        [Fact]
+        public async Task GetCustomerAssetsCount_NotValidStatus()
+        {
+            var json = "{\"Department\":[\"4fb46e5b-d29e-4de5-83a2-3d93bcd7a5cd\"],\"Status\":[15,20],\"Category\":null,\"Label\":null}";
+
+            var request = $"/api/v1/Assets/customers/{_customerId}/assets-counter/?filter={json}";
+            var response = await _httpClient.GetAsync(request);
+
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal($"GetCustomerAssetsCount returns ResourceNotFoundException with message: Not valid a valid asset status",
+                response.Content.ReadAsStringAsync().Result);
+
+        }
+
+        [Fact]
+        public async Task GetCustomerAssetsCount_EmptyList()
+        {
+            var json = "{\"Department\":[],\"Status\":[],\"Category\":null,\"Label\":null}";
+
+            var request = $"/api/v1/Assets/customers/{_customerId}/assets-counter/?filter={json}";
+            var response = await _httpClient.GetAsync(request);
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assetsCounter = await response.Content.ReadFromJsonAsync<CustomerAssetsCounter>();
+
+            Assert.NotNull(assetsCounter);
+            Assert.Equal(_customerId, assetsCounter?.OrganizationId);
+            Assert.Equal(2, assetsCounter?.NonPersonal?.InUse);
+            Assert.Equal(1, assetsCounter?.NonPersonal?.Active);
+            Assert.Equal(0, assetsCounter?.NonPersonal?.InputRequired);
+            Assert.Equal(1, assetsCounter?.NonPersonal?.Available);
+            Assert.Equal(2, assetsCounter?.Personal?.InUse);
+            Assert.Equal(0, assetsCounter?.Personal?.Active);
+            Assert.Equal(0, assetsCounter?.Personal?.InputRequired);
+            Assert.Equal(0, assetsCounter?.Personal?.Available);
+            Assert.Equal(0, assetsCounter?.UsersPersonalAssets);
+            Assert.Empty(assetsCounter?.Departments);
+        }
+
+        [Fact]
+        public async Task GetCustomerAssetsCount_WithUserId()
+        {
+            var json = "{\"Department\":null,\"Status\":null,\"Category\":null,\"Label\":null,\"UserId\":\"6d16a4cb-4733-44de-b23b-0eb9e8ae6590\"}";
+
+            var request = $"/api/v1/Assets/customers/{_customerId}/assets-counter/?filter={json}";
+            var response = await _httpClient.GetAsync(request);
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assetsCounter = await response.Content.ReadFromJsonAsync<CustomerAssetsCounter>();
+            Assert.NotNull(assetsCounter);
+            Assert.Equal(_customerId, assetsCounter?.OrganizationId);
+            Assert.Equal(2, assetsCounter?.UsersPersonalAssets);
+
+        }
+        [Fact]
+        public async Task GetCustomerAssetsCount_WithNoUserId()
+        {
+            var json = "{\"Department\":null,\"Status\":null,\"Category\":null,\"Label\":null,\"UserId\":null}";
+
+            var request = $"/api/v1/Assets/customers/{_customerId}/assets-counter/?filter={json}";
+            var response = await _httpClient.GetAsync(request);
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assetsCounter = await response.Content.ReadFromJsonAsync<CustomerAssetsCounter>();
+            Assert.NotNull(assetsCounter);
+            Assert.Equal(_customerId, assetsCounter?.OrganizationId);
+            Assert.Equal(0, assetsCounter?.UsersPersonalAssets);
+
+        }
+        [Fact]
+        public async Task GetCustomerAssetsCount_EmptyGuid()
+        {
+
+            var json = "{\"Department\":null,\"Status\":null,\"Category\":null,\"Label\":null,\"UserId\":\"00000000-0000-0000-0000-000000000000\"}";
+
+            var request = $"/api/v1/Assets/customers/{_customerId}/assets-counter/?filter={json}";
+            var response = await _httpClient.GetAsync(request);
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assetsCounter = await response.Content.ReadFromJsonAsync<CustomerAssetsCounter>();
+            Assert.NotNull(assetsCounter);
+            Assert.Equal(_customerId, assetsCounter?.OrganizationId);
+            Assert.Equal(0, assetsCounter?.UsersPersonalAssets);
+
+        }
     }
 }

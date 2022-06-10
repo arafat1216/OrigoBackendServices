@@ -943,7 +943,7 @@ namespace OrigoApiGateway.Services
                 {
                     try
                     {
-                        var user = _userServices.GetUserAsync(customerId, assignedAsset.UserId).Result;
+                        var user = await _userServices.GetUserAsync(customerId, assignedAsset.UserId);
                         if (user == null)
                             throw new BadHttpRequestException("Unable to assign asset. User not found");
                     }
@@ -958,7 +958,7 @@ namespace OrigoApiGateway.Services
                 {
                     try
                     {
-                        var department = _departmentsServices.GetDepartment(customerId, assignedAsset.DepartmentId).Result;
+                        var department = await _departmentsServices.GetDepartment(customerId, assignedAsset.DepartmentId);
                         if (department == null)
                             throw new BadHttpRequestException("Unable to assign asset. Department not found");
                     }
@@ -1140,6 +1140,98 @@ namespace OrigoApiGateway.Services
                 _logger.LogError(exception, "CreateOrganizationSeedData unknown error.");
                 throw;
             }
+        }
+
+        public async Task<OrigoCustomerAssetsCounter> GetAssetLifecycleCountersAsync(Guid customerId, FilterOptionsForAsset filter, bool manager)
+        {
+
+            try
+            {
+                List<Guid> managerOfDepartments = null;
+                
+                if (Guid.TryParse(filter.UserId, out Guid userId))
+                {
+                    try
+                    {
+
+                        var user = await _userServices.GetUserAsync(customerId, userId);
+                        if (user == null)
+                            throw new BadHttpRequestException("User not found");
+
+                        if (manager)
+                        {
+                            managerOfDepartments = user.ManagerOf.Select(a => a.DepartmentId).ToList();
+                            if (!managerOfDepartments.Any()) return null;
+                        }
+
+                    }
+                    catch
+                    {
+                        var exception = new BadHttpRequestException("User not found");
+                        _logger.LogError(exception, exception.Message);
+                        throw exception;
+                    }
+                }
+
+                try
+                {
+                    if(managerOfDepartments != null && managerOfDepartments.Any())
+                    {
+                        if (filter.Department != null && filter.Department.Any())
+                        {
+                            //Make department list based on manager accsess to and only the one's that is in filter    
+                            var guids = filter.Department.OfType<Guid>().ToList();
+                            managerOfDepartments = managerOfDepartments.Intersect(guids).ToList();
+                        }
+
+                        foreach (var department in managerOfDepartments)
+                        {
+                            try
+                            {
+                                var isDepartment = await _departmentsServices.GetDepartment(customerId, department);
+                                if (isDepartment != null)
+                                {
+                                    if(filter.Department == null) filter.Department = new List<Guid?>();
+                                    filter.Department.Add(department);
+                                }
+                            }
+                            catch
+                            {
+                                //only catch and do nothing
+                            }
+                        }
+
+                    }
+                }
+                catch
+                {
+                    var exception = new BadHttpRequestException("Department ids dont match what user have accsess to");
+                    _logger.LogError(exception, exception.Message);
+                    throw exception;
+                }
+
+                string json = JsonSerializer.Serialize(filter);
+              
+
+                return await HttpClient.GetFromJsonAsync<OrigoCustomerAssetsCounter>($"{_options.ApiPath}/customers/{customerId}/assets-counter/?filter={json}");
+
+
+            }
+            catch (InvalidUserValueException exception)
+            {
+                throw;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAssetsCount failed with HttpRequestException.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetAssetsCount failed with Exception.");
+                throw;
+            }
+
         }
     }
 }
