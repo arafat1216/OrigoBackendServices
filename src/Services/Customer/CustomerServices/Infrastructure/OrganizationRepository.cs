@@ -240,20 +240,40 @@ namespace CustomerServices.Infrastructure
                 .CountAsync();
         }
 
-        public async Task<PagedModel<User>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
+        public async Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
         {
             var users = _customerContext.Users
-                    .Include(u => u.Customer)
+                .Include(u => u.Customer)
                     .Include(u => u.UserPreference)
                     .Include(u => u.Department)
                     .Include(u => u.ManagesDepartments)
-                    .Where(u => u.Customer.OrganizationId == customerId && !u.IsDeleted);
+                    .Where(u => u.Customer.OrganizationId == customerId && !u.IsDeleted)
+                    .SelectMany(
+                         u => _customerContext.UserPermissions
+                        .Where(up => u.Id == up.User.Id).DefaultIfEmpty(),
+                        (u, up) => new UserDTO
+                        {
+                            FirstName = u.FirstName,
+                            LastName = u.LastName,
+                            AssignedToDepartment = u.Department == null ? Guid.Empty : u.Department.ExternalDepartmentId,
+                            DepartmentName = u.Department == null ? null : u.Department.Name,
+                            Email = u.Email,
+                            OrganizationName = u.Customer.Name,
+                            EmployeeId = u.EmployeeId,
+                            MobileNumber = u.MobileNumber,
+                            Role = up.Role.Name,
+                            UserPreference = u.UserPreference == null ? null : new UserPreferenceDTO { Language = u.UserPreference.Language },
+                            Id = u.UserId,
+                            UserStatus = (int)u.UserStatus,
+                            UserStatusName = u.UserStatus.ToString(),
+                            ManagerOf = u.ManagesDepartments.Select(a => new ManagerOfDTO { DepartmentId = a.ExternalDepartmentId, DepartmentName = a.Name }).ToList()
+                        });
+
 
             if (!string.IsNullOrEmpty(search))
                 users = users.Where(u => u.FirstName.ToLower().Contains(search.ToLower()) ||
                 u.LastName.ToLower().Contains(search.ToLower()) ||
                 u.Email.ToLower().Contains(search.ToLower()));
-
 
             if (userStatus != null)
             {
@@ -261,17 +281,11 @@ namespace CustomerServices.Infrastructure
             }
             if (assignedToDepartment != null)
             {
-                users = users.Where(al => assignedToDepartment.Contains(al.Department.ExternalDepartmentId));
+                users = users.Where(al => assignedToDepartment.Contains(al.AssignedToDepartment));
             }
             if (role != null)
             {
-                users = from us in users
-                        join up in _customerContext.UserPermissions
-                        on us.Id equals up.User.Id
-                        where role.Contains(up.Role.Name)
-                        select us;
-                //users = users.Join(_customerContext.UserPermissions,u => u.Id, up => up.User.Id,(u,up)=> new { User= u,UserPermission = up}).
-                //    Where(a => role.Contains(a.UserPermission.Role.Name)).Select(z => z.User);
+                users = users.Where(a => role.Contains(a.Role));
             }
 
             return await users.OrderBy(u => u.FirstName).PaginateAsync(page, limit, cancellationToken);

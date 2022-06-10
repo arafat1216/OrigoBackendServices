@@ -43,31 +43,8 @@ namespace CustomerServices
             try
             {
                 var allUsers = await _organizationRepository.GetAllUsersAsync(customerId, role, assignedToDepartment, userStatus, cancellationToken, search, page, limit);
-                
-                var list = new List<UserDTO>();
 
-                foreach (var user in allUsers.Items)
-                    {
-                        var userDTO = _mapper.Map<UserDTO>(user);
-                        userDTO.Role = await GetRoleNameForUser(user.Email);
-
-                        if (user.Department != null)
-                        {
-                            var department = await _organizationRepository.GetDepartmentAsync(user.Customer.OrganizationId, user.Department.ExternalDepartmentId);
-                            userDTO.DepartmentName = department.Name;
-                        }
-                        list.Add(userDTO);
-
-                    }
-
-                return new PagedModel<UserDTO>
-                {
-                    Items = list,
-                    CurrentPage = allUsers.CurrentPage,
-                    PageSize = allUsers.PageSize,
-                    TotalItems = allUsers.TotalItems,
-                    TotalPages = allUsers.TotalPages
-                };
+                return allUsers;
             }
             catch (Exception)
             {
