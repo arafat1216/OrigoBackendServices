@@ -9,6 +9,13 @@ namespace CustomerServices.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("UPDATE dbo.Locations SET Description='' WHERE Description IS NULL");
+            migrationBuilder.Sql("UPDATE dbo.Locations SET Address1='' WHERE Address1 IS NULL");
+            migrationBuilder.Sql("UPDATE dbo.Locations SET Address2='' WHERE Address2 IS NULL");
+            migrationBuilder.Sql("UPDATE dbo.Locations SET PostalCode='' WHERE PostalCode IS NULL");
+            migrationBuilder.Sql("UPDATE dbo.Locations SET City='' WHERE City IS NULL");
+            migrationBuilder.Sql("UPDATE dbo.Locations SET Country='' WHERE Country IS NULL");
+
             migrationBuilder.DropColumn(
                 name: "PrimaryLocation",
                 table: "Organization");
