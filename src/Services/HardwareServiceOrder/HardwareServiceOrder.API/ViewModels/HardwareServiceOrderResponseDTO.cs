@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
+﻿namespace HardwareServiceOrder.API.ViewModels
 {
-    public class OrigoHardwareServiceOrder
+    public class HardwareServiceOrderResponseDTO
     {
         public Guid Id { get; set; }
         public DateTimeOffset Created { get; set; }

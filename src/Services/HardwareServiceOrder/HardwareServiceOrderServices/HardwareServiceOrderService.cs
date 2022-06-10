@@ -135,9 +135,10 @@ namespace HardwareServiceOrderServices
                     Id = origoOrder.ExternalId,
                     Events = new List<ExternalServiceEventDTO> { },
                     Owner = origoOrder.Owner.UserId,
-                    ServiceProvider = origoOrder.ServiceProviderId,
+                    ServiceProvider = (ServiceProviderEnum) origoOrder.ServiceProviderId,
                     Status = (ServiceStatusEnum)origoOrder.StatusId,
-                    Type = (ServiceTypeEnum)origoOrder.ServiceTypeId
+                    Type = (ServiceTypeEnum)origoOrder.ServiceTypeId,
+                    AssetLifecycleId = origoOrder.AssetLifecycleId
                 };
 
                 return responseDto;

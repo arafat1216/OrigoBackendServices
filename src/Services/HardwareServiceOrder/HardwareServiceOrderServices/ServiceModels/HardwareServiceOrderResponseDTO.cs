@@ -10,7 +10,8 @@ namespace HardwareServiceOrderServices.ServiceModels
         public ServiceStatusEnum Status { get; set; }
         public ServiceTypeEnum Type { get; set; }
         public Guid Owner { get; set; }
-        public int ServiceProvider { get; set; }
+        public ServiceProviderEnum ServiceProvider { get; set; }
         public IEnumerable<ExternalServiceEventDTO> Events { get; set; }
+        public Guid AssetLifecycleId { get; set; }
     }
 }

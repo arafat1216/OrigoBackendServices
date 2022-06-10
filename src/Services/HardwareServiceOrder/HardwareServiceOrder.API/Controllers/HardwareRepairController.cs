@@ -60,13 +60,13 @@ namespace HardwareServiceOrder.API.Controllers
 
         [Route("{customerId:Guid}/orders")]
         [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.NewHardwareServiceOrder), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ViewModels.HardwareServiceOrderResponseDTO), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> CreateHardwareServiceOrder(Guid customerId, [FromBody] ViewModels.NewHardwareServiceOrder model)
         {
             var dto = _mapper.Map<HardwareServiceOrderDTO>(model);
             var vm = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, dto);
-            return Ok(vm);
+            return Ok(_mapper.Map<ViewModels.HardwareServiceOrderResponseDTO>(vm));
         }
 
         [Route("{customerId:Guid}/orders/{orderId:Guid}")]

@@ -49,7 +49,9 @@ builder.Services.AddDbContext<HardwareServiceOrderContext>(options => options.Us
         sqlOption.MigrationsAssembly(typeof(HardwareServiceOrderContext).GetTypeInfo().Assembly.GetName().Name);
     }));
 
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(HardwareServiceOrderServices.Mappings.CustomerSettingsProfile)));
+builder.Services.AddAutoMapper(
+    Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(HardwareServiceOrderServices.Mappings.CustomerSettingsProfile)),
+    Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(HardwareServiceOrder.API.Mappings.HardwareServiceOrderProfile)));
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 

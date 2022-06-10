@@ -77,7 +77,7 @@ namespace HardwareServiceOrder.UnitTests
 
             _emailService = new EmailService(emailOptions, flatDictionary, resourceManger, _mailmapper, origoOptions, _dbContext);
 
-            
+
 
             var repairProviderMock = new Mock<IRepairProvider>();
             repairProviderMock.Setup(m => m.CreateRepairOrderAsync(It.IsAny<NewExternalRepairOrderDTO>(), It.IsAny<int>(), It.IsAny<string>()))
@@ -86,9 +86,9 @@ namespace HardwareServiceOrder.UnitTests
 
             providerFactoryMock.Setup(m => m.GetRepairProviderAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(repairProviderMock.Object);
-            
-            _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository,mapper, _emailService, providerFactoryMock.Object);
-            
+
+            _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository, mapper, _emailService, providerFactoryMock.Object);
+
         }
 
         [Fact]
@@ -153,21 +153,21 @@ namespace HardwareServiceOrder.UnitTests
                     AssetCategoryId = 3,
                     Model = "wwe",
                     Brand = "wewe",
-                    PurchaseDate = DateTime.Now,
-                        SerialNumber = "wewew"
-                    },
-                    DeliveryAddress = new API.ViewModels.DeliveryAddress
-                    {
-                        Recipient = "fs",
-                        Address1 = "f",
-                        Address2 = "f",
-                        City = "f",
-                        Country = "FS",
-                        PostalCode = "erg"
-                    }
-                };
+                    PurchaseDate = new DateOnly(),
+                    SerialNumber = "wewew"
+                },
+                DeliveryAddress = new API.ViewModels.DeliveryAddress
+                {
+                    Recipient = "fs",
+                    Address1 = "f",
+                    Address2 = "f",
+                    City = "f",
+                    Country = "FS",
+                    PostalCode = "erg"
+                }
+            };
 
-            
+
             var serviceOrderDTO = mapper.Map<API.ViewModels.NewHardwareServiceOrder, HardwareServiceOrderDTO>(serviceOrder);
 
 
@@ -225,7 +225,7 @@ namespace HardwareServiceOrder.UnitTests
             //    {
             //            "sdsd"
             //    }),
-                
+
             //    DeliveryAddress = new DeliveryAddressDTO
             //    {
             //        Recipient = "fs",
@@ -251,8 +251,8 @@ namespace HardwareServiceOrder.UnitTests
 
             //var customerSettingDto = _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(CUSTOMER_ONE_ID,serviceOrderDTO).Result;
 
-            
-          //  Assert.NotNull(customerSettingDto);
+
+            //  Assert.NotNull(customerSettingDto);
 
             //Assert.Equal(newExternalRepairOrderDTO.AssetInfo.Imei, serviceOrderDTO.AssetInfo.Imei);
             //Assert.Equal(newExternalRepairOrderDTO.AssetInfo.Model, serviceOrderDTO.AssetInfo.Model);
@@ -260,7 +260,7 @@ namespace HardwareServiceOrder.UnitTests
             //Assert.Equal(newExternalRepairOrderDTO.AssetInfo.Brand, serviceOrderDTO.AssetInfo.Brand);
             //Assert.Equal(newExternalRepairOrderDTO.AssetInfo.Accessories, serviceOrderDTO.AssetInfo.Accessories);
             //Assert.Equal(newExternalRepairOrderDTO.AssetInfo.AssetCategoryId, serviceOrderDTO.AssetInfo.AssetCategoryId);
-            
+
         }
 
         [Fact]

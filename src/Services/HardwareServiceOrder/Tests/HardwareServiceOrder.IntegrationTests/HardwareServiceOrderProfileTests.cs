@@ -2,6 +2,7 @@
 using HardwareServiceOrder.API.Mappings;
 using HardwareServiceOrder.API.ViewModels;
 using HardwareServiceOrderServices.ServiceModels;
+using System;
 using Xunit;
 
 namespace HardwareServiceOrder.IntegrationTests
@@ -63,6 +64,21 @@ namespace HardwareServiceOrder.IntegrationTests
             Assert.Equal(customerSettings1.ProviderId, dto.ProviderId);
             Assert.Null(dto.LoanDevicePhoneNumber);
             Assert.Null(dto.LoanDeviceEmail);
+        }
+
+        [Fact]
+        public void AssetInfoToAssetInfoDTO()
+        {
+            var asset = new AssetInfo
+            {
+                PurchaseDate = new DateOnly(),
+                Imei = "123456789",
+                SerialNumber = "1234567889"
+            };
+
+            var dto = _mapper.Map<AssetInfoDTO>(asset);
+
+            Assert.True(dto.PurchaseDate.HasValue);
         }
     }
 }

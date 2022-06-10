@@ -138,6 +138,9 @@ namespace OrigoApiGateway.Services
                 //Verify whether the asset can be sent to repair
                 var asset = await _assetServices.GetAssetForCustomerAsync(customerId, model.AssetInfo.AssetLifecycleId);
 
+                if(asset == null)
+                    throw new ArgumentException($"Asset does not exist with ID {model.AssetInfo.AssetLifecycleId}", nameof(model.AssetInfo.AssetLifecycleId));
+
                 if (asset.AssetStatus != AssetLifecycleStatus.InUse)
                 {
                     throw new ArgumentException("This asset cannot be sent to repair.");
