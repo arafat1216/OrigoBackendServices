@@ -187,7 +187,7 @@ namespace OrigoApiGateway.Controllers
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
-                    return Forbid();
+                    filterOptions.UserId = "me";
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
