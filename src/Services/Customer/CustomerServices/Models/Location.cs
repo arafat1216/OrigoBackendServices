@@ -26,6 +26,7 @@ namespace CustomerServices.Models
         public string PostalCode { get; protected set; } = string.Empty;
         public string City { get; protected set; } = string.Empty;
         public string Country { get; protected set; } = string.Empty;
+        public bool IsPrimary { get; protected set; } = false;
 
 
         /// <summary>
@@ -150,6 +151,13 @@ namespace CustomerServices.Models
                 && string.IsNullOrEmpty(PostalCode) && string.IsNullOrEmpty(City) && string.IsNullOrEmpty(Country))
                 return true;
             return false;
+        }
+        public void SetPrimaryLocation(Guid callerId)
+        {
+            IsPrimary = true;
+            LastUpdatedDate = DateTime.UtcNow;
+            UpdatedBy = callerId;
+            AddDomainEvent(new SetPrimaryLocationDomainEvent(this));
         }
     }
 }

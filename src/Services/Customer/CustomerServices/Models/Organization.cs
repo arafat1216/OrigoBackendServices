@@ -48,7 +48,7 @@ namespace CustomerServices.Models
         {
             get
             {
-                return Locations.FirstOrDefault() ?? null;
+                return Locations.FirstOrDefault(x => x.IsPrimary) ?? null;
             }
         }
         /// <summary>
@@ -140,6 +140,7 @@ namespace CustomerServices.Models
             UpdatedBy = callerId;
             IsDeleted = false;
             AddUsersToOkta = addUsersToOkta;
+            organizationLocation.SetPrimaryLocation(callerId);
             Locations.Add(organizationLocation);
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
