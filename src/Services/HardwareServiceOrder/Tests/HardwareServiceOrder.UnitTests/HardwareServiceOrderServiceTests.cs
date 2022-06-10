@@ -13,6 +13,7 @@ using HardwareServiceOrderServices.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Moq;
+using System;
 using System.Collections.Generic;
 using System.Collections.Generic;
 using System.Reflection;
@@ -52,8 +53,6 @@ namespace HardwareServiceOrder.UnitTests
 
             };
 
-            _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository, _mapper, new Mock<IProviderFactory>().Object, statusHandlers);
-
             var repairPro = new Mock<IRepairProvider>();
 
             var resourceManger = new ResourceManager("HardwareServiceOrderServices.Resources.HardwareServiceOrder", Assembly.GetAssembly(typeof(EmailService)));
@@ -87,7 +86,7 @@ namespace HardwareServiceOrder.UnitTests
             providerFactoryMock.Setup(m => m.GetRepairProviderAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(repairProviderMock.Object);
 
-            _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository, mapper, _emailService, providerFactoryMock.Object);
+            _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository, _mapper, providerFactoryMock.Object, statusHandlers, _emailService);
 
         }
 

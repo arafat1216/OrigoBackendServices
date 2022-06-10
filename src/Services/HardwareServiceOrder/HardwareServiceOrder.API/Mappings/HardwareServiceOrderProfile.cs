@@ -25,7 +25,7 @@ namespace HardwareServiceOrder.API.Mappings
                 .ForMember(d => d.Type, opts => opts.MapFrom(s => $"{s.Type}"))
                 .ForMember(d => d.ServiceProvider, opts => opts.MapFrom(s => $"{s.ServiceProvider}"));
 
-            CreateMap<ExternalServiceEventDTO, ServiceEvent>()
+            CreateMap<ExternalServiceEventDTO, ViewModels.ServiceEvent>()
                 .ForMember(d => d.Status, opts => opts.MapFrom(s => $"{(ServiceStatusEnum)s.ServiceStatusId}"));
 
             //ViewModels to DTO
