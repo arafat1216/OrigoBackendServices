@@ -158,7 +158,7 @@ namespace HardwareServiceOrderServices.Models
             ServiceProviderOrderId2 = serviceProviderOrderId2;
             ServiceType = serviceType;
             Status = status;
-            CreatedDate = createdDate;
+            DateCreated = createdDate;
         }
 
         /// <summary>

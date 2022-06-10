@@ -16,7 +16,7 @@ namespace HardwareServiceOrderServices.Infrastructure
                                                    .AddUserSecrets<HardwareServiceOrderContext>(optional: true)
                                                    .Build();
 
-            var optionsBuilder = new DbContextOptionsBuilder<HardwareServiceOrderContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<HardwareServiceOrderContext>().AddInterceptors(new SaveContextChangesInterceptor());
             string connectionString = config.GetConnectionString("HardwareServiceOrderConnectionString");
 
             optionsBuilder.UseSqlServer(connectionString);

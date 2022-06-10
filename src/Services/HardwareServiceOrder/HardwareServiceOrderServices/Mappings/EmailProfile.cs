@@ -9,7 +9,7 @@ namespace HardwareServiceOrderServices.Mappings
         public EmailProfile()
         {
             CreateMap<HardwareServiceOrder, AssetRepairEmail>()
-                .ForMember(m => m.OrderDate, opts => opts.MapFrom(s => s.CreatedDate))
+                .ForMember(m => m.OrderDate, opts => opts.MapFrom(s => s.DateCreated))
                 .ForMember(m => m.PackageSlipLink, opts => opts.MapFrom(m => m.ExternalServiceManagementLink))
                 .ForMember(m => m.FirstName, opts => opts.MapFrom(m => m.Owner.FirstName))
                 .ForMember(m => m.Recipient, opts => opts.MapFrom(m => m.Owner.Email))
@@ -18,7 +18,7 @@ namespace HardwareServiceOrderServices.Mappings
                 .ForMember(m => m.OrderId, opts => opts.MapFrom(m => m.ExternalId));
 
             CreateMap<HardwareServiceOrder, OrderCancellationEmail>()
-                .ForMember(m => m.OrderDate, opts => opts.MapFrom(s => s.CreatedDate))
+                .ForMember(m => m.OrderDate, opts => opts.MapFrom(s => s.DateCreated))
                 .ForMember(m => m.FirstName, opts => opts.MapFrom(m => m.Owner.FirstName))
                 .ForMember(m => m.Recipient, opts => opts.MapFrom(m => m.Owner.Email))
                 .ForMember(m => m.Subject, opts => opts.Ignore())

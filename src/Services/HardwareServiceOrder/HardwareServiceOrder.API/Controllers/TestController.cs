@@ -126,32 +126,6 @@ namespace HardwareServiceOrder.API.Controllers
                 "NO"
             );
 
-            /*
-            var serviceProvider = new HardwareServiceOrderServices.Models.ServiceProvider { OrganizationId = Guid.Parse("2b4179ce-699f-405b-88fb-1b1a088f6514") };
-            await _context.ServiceProviders.AddAsync(serviceProvider);
-            await _context.SaveChangesAsync();
-            */
-
-            /*
-            var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.SUR };
-            var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Ongoing };
-
-            var serviceProvider = new HardwareServiceOrderServices.Models.ServiceProvider { Id = 1 };
-
-            var order1 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
-                CUSTOMER_ONE_ID,
-                new ContactDetails(Guid.NewGuid(), "Firstname", "test@test.com"),
-                Guid.NewGuid(),
-                deliveryAddress,
-                "UserDescription",
-                serviceProvider,
-                Guid.NewGuid().ToString(),
-                null,
-                "externalLink",
-                serviceType,
-                serviceStatus
-            );
-            */
 
             var order2 = new HardwareServiceOrderServices.Models.HardwareServiceOrder()
             {
@@ -196,8 +170,23 @@ namespace HardwareServiceOrder.API.Controllers
             return Ok(result);
         }
 
-    }
 
+
+        [HttpGet("updateInsertTest")]
+        public async Task<ActionResult> TestValueAssignment()
+        {
+            ServiceStatus status = new()
+            {
+
+            };
+
+            var result = await _context.ServiceStatuses.AddAsync(status);
+            await _context.SaveChangesAsync();
+            return Ok(result.Entity);
+        }
+
+
+    }
 }
 
 #endif

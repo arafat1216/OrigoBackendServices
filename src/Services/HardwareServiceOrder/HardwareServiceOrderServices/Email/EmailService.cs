@@ -90,7 +90,7 @@ namespace HardwareServiceOrderServices.Email
             var orders = _hardwareServiceOrderContext.HardwareServiceOrders.Include(m => m.Status).AsQueryable();
 
             if (olderThan != null)
-                orders = orders.Where(m => m.CreatedDate <= olderThan);
+                orders = orders.Where(m => m.DateCreated <= olderThan);
 
             if (statusId != null)
                 orders = orders.Where(m => m.Status.Id == statusId);

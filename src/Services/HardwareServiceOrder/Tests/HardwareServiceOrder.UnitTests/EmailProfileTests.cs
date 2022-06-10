@@ -33,7 +33,7 @@ namespace HardwareServiceOrder.UnitTests
             Assert.Equal(order.Owner.FirstName, assetRepairEmail.FirstName);
             Assert.Equal(order.Owner.Email, assetRepairEmail.Recipient);
             Assert.Equal(order.ExternalServiceManagementLink, assetRepairEmail.PackageSlipLink);
-            Assert.Equal(order.CreatedDate, assetRepairEmail.OrderDate);
+            Assert.Equal(order.DateCreated, assetRepairEmail.OrderDate);
             Assert.Equal(order.ExternalId, assetRepairEmail.OrderId);
             Assert.Equal(order.CustomerId, assetRepairEmail.CustomerId);
             Assert.Null(assetRepairEmail.OrderLink);
@@ -52,7 +52,7 @@ namespace HardwareServiceOrder.UnitTests
             Assert.NotNull(assetRepairEmail);
             Assert.Equal(order.Owner.FirstName, assetRepairEmail.FirstName);
             Assert.Equal(order.Owner.Email, assetRepairEmail.Recipient);
-            Assert.Equal(order.CreatedDate, assetRepairEmail.OrderDate);
+            Assert.Equal(order.DateCreated, assetRepairEmail.OrderDate);
             Assert.Equal(order.ExternalId, assetRepairEmail.OrderId);
             Assert.Equal(order.CustomerId, assetRepairEmail.CustomerId);
             Assert.Equal(order.AssetLifecycleId, assetRepairEmail.AssetId);

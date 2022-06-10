@@ -111,7 +111,7 @@ namespace HardwareServiceOrderServices.Infrastructure
             var orders = _hardwareServiceOrderContext.HardwareServiceOrders.Include(m => m.Status).AsQueryable();
 
             if (olderThan != null)
-                orders = orders.Where(m => m.CreatedDate <= olderThan);
+                orders = orders.Where(m => m.DateCreated <= olderThan);
 
             if (statusIds != null)
                 orders = orders.Where(m => statusIds.Contains(m.Status.Id));

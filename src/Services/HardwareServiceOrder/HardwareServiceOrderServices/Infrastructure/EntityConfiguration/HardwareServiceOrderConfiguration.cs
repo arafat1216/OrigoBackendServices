@@ -39,13 +39,13 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 
             if (_isSqlLite)
             {
-                builder.Property(e => e.CreatedDate)
+                builder.Property(e => e.DateCreated)
                        .HasConversion(new DateTimeOffsetToBinaryConverter())
                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
                        .ValueGeneratedOnAdd().Metadata
                        .SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
-                builder.Property(e => e.LastUpdatedDate)
+                builder.Property(e => e.DateUpdated)
                        .HasConversion(new DateTimeOffsetToBinaryConverter())
                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
                        .ValueGeneratedOnAddOrUpdate().Metadata
@@ -53,12 +53,12 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             }
             else
             {
-                builder.Property(e => e.CreatedDate)
+                builder.Property(e => e.DateCreated)
                        .HasDefaultValueSql("SYSUTCDATETIME()")
                        .ValueGeneratedOnAdd().Metadata
                        .SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
-                builder.Property(e => e.LastUpdatedDate)
+                builder.Property(e => e.DateUpdated)
                        .HasDefaultValueSql("SYSUTCDATETIME()")
                        .ValueGeneratedOnAddOrUpdate().Metadata
                        .SetAfterSaveBehavior(PropertySaveBehavior.Ignore);

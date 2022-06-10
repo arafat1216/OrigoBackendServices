@@ -47,7 +47,7 @@ builder.Services.AddDbContext<HardwareServiceOrderContext>(options => options.Us
     {
         sqlOption.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
         sqlOption.MigrationsAssembly(typeof(HardwareServiceOrderContext).GetTypeInfo().Assembly.GetName().Name);
-    }));
+    }), ServiceLifetime.Scoped);
 
 builder.Services.AddAutoMapper(
     Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(HardwareServiceOrderServices.Mappings.CustomerSettingsProfile)),
