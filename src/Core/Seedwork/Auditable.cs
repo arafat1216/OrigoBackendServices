@@ -11,26 +11,43 @@ namespace Common.Seedwork
     ///     This is a generic model that Entity Framework relies on to auto-assign various settings,
     ///     and should not be tied to any specific design, e.g. event/domain-driven design.
     /// </remarks>
+    /// <see cref="EntityFramework.SaveContextChangesInterceptor"/>
     public abstract class Auditable
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Auditable"/> class that is intended for use by Entity Framework, 
-        ///     JSON (de-)serializers, and/or testing-frameworks. This should NOT be used in production-code.
+        ///     Initializes a new instance of the <see cref="Auditable"/> class. This is intended to be used with
+        ///     the <see cref="EntityFramework.SaveContextChangesInterceptor"/> for automatically applying values 
+        ///     to the private setters.
         /// </summary>
-        [Obsolete("This is a reserved constructor that should only be used by Entity Framework, JSON (de-)serializers, and/or testing-frameworks.")]
         protected Auditable()
-        {   
+        {
         }
 
+
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Auditable"/> class.
+        ///     Initializes a new instance of the <see cref="Auditable"/> class, intended for use with unit-testing frameworks.
         /// </summary>
-        /// <param name="callerId">The caller's identifier.</param>
-        protected Auditable(Guid callerId)
+        /// <param name="createdBy"> The user-id for person that first created the entity. </param>
+        /// <param name="dateCreated"> A timestamp of when the entity was first created. </param>
+        /// <param name="updatedBy"> The user-id for last user that updated the entity. 
+        ///     If the entity have never been updated, then the value is <see langword="null"/>. </param>
+        /// <param name="dateUpdated"> A timestamp of the last time the entity was updated. 
+        ///     If the entity have never been updated, then the value is <see langword="null"/>. </param>
+        /// <param name="deletedBy"> The user-id for the person that deleted the entity.
+        ///     If the entity is not deleted, then the value is <see langword="null"/>. </param>
+        /// <param name="dateDeleted"> A timestamp stating when the entity was deleted.
+        ///     If the entity is not deleted, then the value is <see langword="null"/>. </param>
+        /// <param name="isDeleted"> A <see cref="bool"/> indicating whether or not the entity is soft-deleted. </param>
+        [Obsolete("This is a reserved constructor that should only be used for unit-testing.")]
+        protected Auditable(Guid createdBy, DateTimeOffset dateCreated, Guid? updatedBy, DateTimeOffset? dateUpdated, Guid? deletedBy = null, DateTimeOffset? dateDeleted = null, bool isDeleted = false)
         {
-            CreatedBy = callerId;
-            DateCreated = DateTimeOffset.UtcNow;
-            IsDeleted = false;
+            CreatedBy = createdBy;
+            DateCreated = dateCreated;
+            UpdatedBy = updatedBy;
+            DateUpdated = dateUpdated;
+            DeletedBy = deletedBy;
+            DateDeleted = dateDeleted;
+            IsDeleted = isDeleted;
         }
 
 
@@ -38,19 +55,19 @@ namespace Common.Seedwork
         ///     A timestamp for when the database-entity was first created.
         /// </summary>
         [JsonInclude]
-        public DateTimeOffset DateCreated { get; set; }
+        public DateTimeOffset DateCreated { get; private set; }
 
         /// <summary>
         ///     A timestamp for when the database-entity was last updated.
         /// </summary>
         [JsonInclude]
-        public DateTimeOffset? DateUpdated { get; set; }
+        public DateTimeOffset? DateUpdated { get; private set; }
 
         /// <summary>
         ///     A timestamp for when the database-entity was deleted.
         /// </summary>
         [JsonInclude]
-        public DateTimeOffset? DateDeleted { get; set; }
+        public DateTimeOffset? DateDeleted { get; private set; }
 
         /// <summary>
         ///     The external ID of the user that originally created this entity.
@@ -63,7 +80,7 @@ namespace Common.Seedwork
         ///     </list>
         /// </summary>
         [JsonInclude]
-        public Guid CreatedBy { get; set; }
+        public Guid CreatedBy { get; private set; }
 
         /// <summary>
         ///     The external ID of the user that performed the last update on this entity.
@@ -76,7 +93,7 @@ namespace Common.Seedwork
         ///     </list>
         /// </summary>
         [JsonInclude]
-        public Guid? UpdatedBy { get; set; }
+        public Guid? UpdatedBy { get; private set; }
 
         /// <summary>
         ///     The external ID of the user that deleted this entity.
@@ -91,52 +108,13 @@ namespace Common.Seedwork
         ///     </list>
         /// </summary>
         [JsonInclude]
-        public Guid? DeletedBy { get; set; }
+        public Guid? DeletedBy { get; private set; }
 
         /// <summary>
         ///     When <see langword="true"/> the item has been soft deleted. Externally, all soft deleted entries should generally be excluded from results and
         ///     treated as non-existent.
         /// </summary>
         [JsonInclude]
-        public bool IsDeleted { get; set; }
-
-
-        /// <summary>
-        ///     Marks the entity as updated. 
-        ///     This will update the values in <see cref="UpdatedBy">UpdatedBy</see> and <see cref="DateUpdated">DateUpdated</see>.
-        /// </summary>
-        /// <param name="callerId"> The caller's identifier. </param>
-        public void SetUpdated(Guid callerId)
-        {
-            this.UpdatedBy = callerId;
-            this.DateUpdated = DateTimeOffset.UtcNow;
-        }
-
-
-        /// <summary>
-        ///     Marks the entity as (soft) deleted. This will set <see cref="IsDeleted">IsDeleted</see> to <see langword="true"/>,
-        ///     and update the values in <see cref="DeletedBy">DeletedBy</see> and <see cref="DateDeleted">DateDeleted</see>.
-        /// </summary>
-        /// <param name="callerId"> The caller's identifier. </param>
-        public void SetDeleted(Guid callerId)
-        {
-            this.IsDeleted = true;
-            this.DeletedBy = callerId;
-            this.DateDeleted = DateTimeOffset.UtcNow;
-        }
-
-
-        // Note: This is not used at the moment, so it's set to private to hide it from view.
-
-        /// <summary>
-        ///     Undelete the item.
-        /// </summary>
-        /// <param name="callerId"> The caller's identifier. </param>
-        private void UnsetDeleted(Guid callerId)
-        {
-            this.IsDeleted = false;
-            this.DeletedBy = null;
-            this.DateDeleted = null;
-        }
+        public bool IsDeleted { get; private set; } = false;
     }
 }

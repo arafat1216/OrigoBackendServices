@@ -32,19 +32,20 @@ namespace Common.Seedwork
 
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Auditable"/> class that is intended for use by Entity Framework, 
-        ///     JSON (de-)serializers, and/or testing-frameworks. This should NOT be used in production-code.
+        ///     Initializes a new instance of the <see cref="Auditable"/> class.
         /// </summary>
-        [Obsolete("This is a reserved constructor that should only be used by Entity Framework, JSON (de-)serializers, and/or testing-frameworks.")]
+        /// <inheritdoc/>
         protected EntityV2() : base()
         {
         }
 
+
         /// <summary>
-        ///     Initializes a new instance of the <see cref="EntityV2"/> class.
+        ///     Initializes a new instance of the <see cref="Auditable"/> class that is intended for unit-testing.
         /// </summary>
         /// <inheritdoc/>
-        protected EntityV2(Guid callerId) : base(callerId)
+        [Obsolete("This is a reserved constructor that should only be used for unit-testing.")]
+        protected EntityV2(Guid createdBy, DateTimeOffset dateCreated, Guid? updatedBy, DateTimeOffset? dateUpdated, Guid? deletedBy = null, DateTimeOffset? dateDeleted = null, bool isDeleted = false) : base(createdBy, dateCreated, updatedBy, dateUpdated, deletedBy, dateDeleted, isDeleted)
         {
         }
 
