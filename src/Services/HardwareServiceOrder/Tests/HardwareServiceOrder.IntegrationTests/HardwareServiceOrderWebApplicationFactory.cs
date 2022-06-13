@@ -29,7 +29,6 @@ namespace HardwareServiceOrder.IntegrationTests
                 using var hardwareServiceOrderContext = scope.ServiceProvider.GetRequiredService<HardwareServiceOrderContext>();
                 hardwareServiceOrderContext.Database.EnsureCreated();
 
-                //var serviceType = hardwareServiceOrderContext.ServiceTypes.FirstOrDefault(m => m.Id == 3);
                 var hwServiceOrder = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
                     Guid.NewGuid(),
                     CUSTOMER_ONE_ID,
@@ -38,8 +37,6 @@ namespace HardwareServiceOrder.IntegrationTests
                     new HardwareServiceOrderServices.Models.ContactDetails(Guid.NewGuid(), "FirstName", "Email"),
                     new HardwareServiceOrderServices.Models.DeliveryAddress(HardwareServiceOrderServices.Models.RecipientTypeEnum.Personal, "recipient", "address1", "address2", "postal-code", "NO", "NO"),
                     3, 3, 1, "", "", "", new List<ServiceEvent> { });
-
-               // hwServiceOrder.AddServiceEvent(new ServiceEvent { ServiceStatusId = 3, Timestamp = DateTime.Now });
 
                 hardwareServiceOrderContext.Add(hwServiceOrder);
                 hardwareServiceOrderContext.SaveChanges();
