@@ -1,8 +1,10 @@
-﻿using OrigoApiGateway.Models.HardwareServiceOrder;
+﻿using Common.Interfaces;
+using OrigoApiGateway.Models.HardwareServiceOrder;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
@@ -17,7 +19,7 @@ namespace OrigoApiGateway.Services
         //Hardware Service Order
         Task<OrigoHardwareServiceOrder> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, NewHardwareServiceOrder model);
         Task<OrigoHardwareServiceOrder> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId);
-        Task<List<OrigoHardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId);
+        Task<PagedModel<OrigoHardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId, int page = 1, int limit = 500);
         Task<OrigoHardwareServiceOrder> UpdateHardwareServiceOrderAsync(Guid customerId, Guid orderId, NewHardwareServiceOrder model);
         Task<List<HardwareServiceOrderLog>> GetHardwareServiceOrderLogsAsync(Guid customerId, Guid orderId);
     }

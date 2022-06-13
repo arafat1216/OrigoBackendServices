@@ -1,4 +1,5 @@
 ﻿using Common.Enums;
+using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models.HardwareServiceOrder;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
@@ -225,11 +227,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<List<OrigoHardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId)
+        public async Task<PagedModel<OrigoHardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId, int page = 1, int limit = 500)
         {
             try
             {
-                var response = await HttpClient.GetFromJsonAsync<List<OrigoHardwareServiceOrder>>($"{_options.ApiPath}/{customerId}/orders");
+                var response = await HttpClient.GetFromJsonAsync<PagedModel<OrigoHardwareServiceOrder>>($"{_options.ApiPath}/{customerId}/orders?page={page}&limit={limit}");
                 return response;
             }
             catch (HttpRequestException exception)

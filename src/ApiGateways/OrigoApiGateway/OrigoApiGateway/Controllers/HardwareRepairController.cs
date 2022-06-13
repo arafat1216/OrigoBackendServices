@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Controllers
@@ -173,8 +174,9 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
             }
+            var order = await _hardwareRepairService.GetHardwareServiceOrderAsync(customerId, orderId);
 
-            return Ok();
+            return Ok(order);
         }
 
         /// <summary>
@@ -211,12 +213,14 @@ namespace OrigoApiGateway.Controllers
         /// Gets list of hardware service orders for a customer
         /// </summary>
         /// <param name="customerId">Customer Identifier</param>
+        /// <param name="page">Page number</param>
+        /// <param name="limit">Number of items to be returned</param>
         /// <returns>List of hardware service orders</returns>
         [Route("{customerId:Guid}/orders")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<OrigoHardwareServiceOrder>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId)
-        {
+        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, int page = 1, int limit = 500)
+         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
             if (role != PredefinedRole.SystemAdmin.ToString())
@@ -228,7 +232,9 @@ namespace OrigoApiGateway.Controllers
                 }
             }
 
-            return Ok();
+            var orders = await _hardwareRepairService.GetHardwareServiceOrdersAsync(customerId, page, limit);
+
+            return Ok(orders);
         }
 
         /// <summary>
