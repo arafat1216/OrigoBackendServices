@@ -175,6 +175,30 @@ namespace OrigoApiGateway.Services
             }
 
         }
+        public async Task<IList<UserAdminDTO>> GetAllCustomerAdminsAsync(Guid customerId)
+        {
+            try
+            {
+                var allAdmins = await _httpClient.GetFromJsonAsync<IList<UserAdminDTO>>($"{_options.ApiPath}/{customerId}/customer-admins");
+                return allAdmins?.ToList();
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAllCustomerAdminsAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetAllCustomerAdminsAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetAllCustomerAdminsAsync unknown error.");
+                throw;
+            }
+
+        }
 
         public async Task<OrigoUsersPermissions> AddUsersPermissionsForUsersAsync(NewUsersPermissionsDTO userPermission)
         {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
 using AssetServices.DomainEvents.AssetLifecycleEvents;
+using AssetServices.DomainEvents.EndOfLifeCycleEvents;
 using AssetServices.ServiceModel;
 using Common.Enums;
 using Common.Seedwork;
@@ -317,6 +318,32 @@ public class AssetLifecycle : Entity, IAggregateRoot
         if(_labels.Any())
             _labels.Clear();
         _assetLifecycleStatus = AssetLifecycleStatus.Available;
+    }
+
+    /// <summary>
+    /// Making this asset's return request for managers to Confirm. 
+    /// </summary>
+    /// <param name="callerId">The userid making this assignment</param>
+    public void MakeReturnRequest(Guid callerId)
+    {
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        var previousLifecycleStatus = _assetLifecycleStatus;
+        AddDomainEvent(new MakeReturnRequestDomainEvent(this, callerId, previousLifecycleStatus));
+        _assetLifecycleStatus = AssetLifecycleStatus.PendingReturn;
+    }
+
+    /// <summary>
+    /// Confirm thi asset as Retrned Device. 
+    /// </summary>
+    /// <param name="callerId">The userid making this assignment</param>
+    public void ConfirmReturnDevice(Guid callerId)
+    {
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        var previousLifecycleStatus = _assetLifecycleStatus;
+        AddDomainEvent(new ConfirmReturnDeviceDomainEvent(this, callerId, previousLifecycleStatus));
+        _assetLifecycleStatus = AssetLifecycleStatus.Returned;
     }
 
     /// <summary>

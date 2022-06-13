@@ -635,43 +635,48 @@ namespace OrigoApiGateway.Controllers
         }
 
 
-        [Route("customers/{organizationId:guid}/return")]
+        [Route("customers/{organizationId:guid}/return-device")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> ReturnAsset(Guid organizationId, [FromBody] ReturnAsset asset)
+        public async Task<ActionResult> ReturnAssetAsync(Guid organizationId, [FromBody] ReturnAsset data)
         {
-            dynamic mock = new ExpandoObject();
-            mock.id = asset.AssetId;
-            mock.organizationId = organizationId;
-            mock.assetStatusName = "PendingReturn";
-            mock.alias = "string";
-            mock.note = "string";
-            mock.description = "string";
-            mock.paidByCompany = 0;
-            mock.bookValue = 0;
-            mock.buyoutPrice = 0;
-            mock.assetTag = "string";
-            mock.assetCategoryId = 0;
-            mock.assetCategoryName = "string";
-            mock.brand = "string";
-            mock.productName = "string";
-            mock.lifecycleType = 0;
-            mock.lifecycleName = "PendingReturn";
-            mock.purchaseDate = "2022-06-04T06:40:45.251Z";
-            mock.createdDate = "2022-06-04T06:40:45.251Z";
-            mock.managedByDepartmentId = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
-            mock.departmentName = "string";
-            mock.assetHolderId = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
-            mock.assetHolderName = "string";
-            mock.assetStatus = 0;
-            mock.assetStatusName = "string";
-            mock.labels = null;
-            mock.isPersonal = true;
-            mock.source = "string";
+            try
+            {
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                Guid.TryParse(actor, out Guid callerId);
+                if (data.AssetId == Guid.Empty)
+                    return BadRequest("No asset selected.");
 
-            return Ok(mock);
+                var updatedAssets = await _assetServices.ReturnDeviceAsync(organizationId, data.AssetId, role, callerId);
+                if (updatedAssets == null)
+                {
+                    return NotFound();
+                }
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
+            }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, $"Unable to process 'Return Device' for this Asset Id:{data.AssetId}");
+            }
         }
 
         [Route("{assetId:Guid}/customers/{organizationId:guid}/re-assignment-personal")]

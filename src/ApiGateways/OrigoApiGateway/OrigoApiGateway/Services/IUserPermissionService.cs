@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
@@ -23,5 +24,6 @@ namespace OrigoApiGateway.Services
         Task<OrigoUserPermissions> RemoveUserPermissionsForUserAsync(string userName, NewUserPermissionsDTO userPermission);
         Task<IList<string>> GetAllRolesAsync();
         Task<IList<UserAdminDTO>> GetAllUserAdminsAsync();
+        Task<IList<UserAdminDTO>> GetAllCustomerAdminsAsync(Guid customerId);
     }
 }

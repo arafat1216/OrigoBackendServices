@@ -71,7 +71,13 @@ namespace CustomerServices
                         up.Role.Name == PredefinedRole.PartnerAdmin.ToString() ||
                         up.Role.Name == PredefinedRole.PartnerReadOnlyAdmin.ToString()).ToListAsync();
         }
-
+        public async Task<IList<UserPermissions>> GetCustomerAdminsAsync(Guid customerId)
+        {
+            return await _customerContext.UserPermissions
+                .Include(up => up.Role).ThenInclude(r => r.GrantedPermissions).ThenInclude(p => p.Permissions)
+                .Include(up => up.User)
+                .Where(up => up.Role.Name == PredefinedRole.CustomerAdmin.ToString() && up.AccessList.Contains(customerId)).ToListAsync();
+        }
         private async Task<Role> GetRole(PredefinedRole predefinedRole)
         {
             var role = await _customerContext.Roles

@@ -124,6 +124,12 @@ namespace OrigoApiGateway
                     x.GetRequiredService<IOptions<UserConfiguration>>(),
                     x.GetRequiredService<IMapper>()
                 ),
+                new UserPermissionService(
+                    x.GetRequiredService<ILogger<UserPermissionService>>(),
+                    DaprClient.CreateInvokeHttpClient("customerservices"),
+                    x.GetRequiredService<IOptions<UserPermissionsConfigurations>>(),
+                    x.GetRequiredService<IMapper>()
+                ),
                 x.GetRequiredService<IMapper>(),
                 new DepartmentsServices(
                     x.GetRequiredService<ILogger<DepartmentsServices>>(),
@@ -155,6 +161,12 @@ namespace OrigoApiGateway
                             DaprClient.CreateInvokeHttpClient("customerservices"),
                             x.GetRequiredService<IOptions<UserConfiguration>>(),
                             x.GetRequiredService<IMapper>()
+                    ),
+                    new UserPermissionService(
+                    x.GetRequiredService<ILogger<UserPermissionService>>(),
+                    DaprClient.CreateInvokeHttpClient("customerservices"),
+                    x.GetRequiredService<IOptions<UserPermissionsConfigurations>>(),
+                    x.GetRequiredService<IMapper>()
                     ),
                     x.GetRequiredService<IMapper>(),
                     new DepartmentsServices(
@@ -236,6 +248,12 @@ namespace OrigoApiGateway
                             x.GetRequiredService<IOptions<UserConfiguration>>(),
                             x.GetRequiredService<IMapper>()
                         ),
+                        new UserPermissionService(
+                            x.GetRequiredService<ILogger<UserPermissionService>>(),
+                            DaprClient.CreateInvokeHttpClient("customerservices"),
+                            x.GetRequiredService<IOptions<UserPermissionsConfigurations>>(),
+                            x.GetRequiredService<IMapper>()
+                        ),
                         x.GetRequiredService<IMapper>(),
                         new DepartmentsServices(
                             x.GetRequiredService<ILogger<DepartmentsServices>>(),
@@ -256,6 +274,12 @@ namespace OrigoApiGateway
                                     x.GetRequiredService<ILogger<UserServices>>(),
                                     DaprClient.CreateInvokeHttpClient("customerservices"),
                                     x.GetRequiredService<IOptions<UserConfiguration>>(),
+                                    x.GetRequiredService<IMapper>()
+                                ),
+                                new UserPermissionService(
+                                    x.GetRequiredService<ILogger<UserPermissionService>>(),
+                                    DaprClient.CreateInvokeHttpClient("customerservices"),
+                                    x.GetRequiredService<IOptions<UserPermissionsConfigurations>>(),
                                     x.GetRequiredService<IMapper>()
                                 ),
                                 x.GetRequiredService<IMapper>(),

@@ -16,5 +16,6 @@ namespace CustomerServices
         Task<IList<string>> GetAllRolesAsync();
         Task<IList<UserPermissions>> GetUserAdminsAsync();
         Task UpdatePermission(UserPermissions userPermission);
+        Task<IList<UserPermissions>> GetCustomerAdminsAsync(Guid customerId);
     }
 }

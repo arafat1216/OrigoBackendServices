@@ -429,6 +429,16 @@ namespace Asset.API.Controllers
             return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
         }
 
+        [Route("customers/{customerId:guid}/return-device")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> ReturnDeviceAsync(Guid customerId, [FromBody] ReturnDevice data)
+        {
+            var dataDTO = _mapper.Map<ReturnDeviceDTO>(data);
+            var updatedAssets = await _assetServices.ReturnDeviceAsync(customerId, dataDTO);
+            return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
+        }
         [Route("{assetId:Guid}/customers/{customerId:guid}/re-assignment")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]

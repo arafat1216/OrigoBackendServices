@@ -73,7 +73,23 @@ namespace Customer.API.Controllers
             }
             return Ok(returnedUser);
         }
-
+        [HttpGet]
+        [Route("/api/v{version:apiVersion}/organizations/{organizationId:guid}/customer-admins")]
+        [ProducesResponseType(typeof(List<UserAdmin>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<List<UserAdmin>>> GetCustomerAdmins(Guid organizationId)
+        {
+            var userPermissions = await _userPermissionServices.GetCustomerAdminsAsync(organizationId);
+            if (userPermissions == null) return NotFound();
+            var returnedUser = new List<UserAdmin>();
+            foreach (var userPermission in userPermissions)
+            {
+                returnedUser.Add(new UserAdmin(userPermission.User.UserId,
+                    userPermission.User.FirstName, userPermission.User.LastName, userPermission.User.Email,
+                    userPermission.User.MobileNumber, userPermission.Role.Name, null));
+            }
+            return Ok(returnedUser);
+        }
         [HttpGet]
         [Route("/api/v{version:apiVersion}/organizations/roles")]
         [ProducesResponseType(typeof(List<UserPermissions>), (int)HttpStatusCode.OK)]

@@ -23,7 +23,7 @@ namespace OrigoApiGateway.Services
 {
     public class AssetServices : IAssetServices
     {
-        public AssetServices(ILogger<AssetServices> logger, HttpClient httpClient, IOptions<AssetConfiguration> options, IUserServices userServices, IMapper mapper, IDepartmentsServices departmentsServices)
+        public AssetServices(ILogger<AssetServices> logger, HttpClient httpClient, IOptions<AssetConfiguration> options, IUserServices userServices, IUserPermissionService userPermissionService, IMapper mapper, IDepartmentsServices departmentsServices)
         {
             _logger = logger;
             _daprClient = new DaprClientBuilder().Build();
@@ -32,8 +32,10 @@ namespace OrigoApiGateway.Services
             _userServices = userServices;
             _departmentsServices = departmentsServices;
             _mapper = mapper;
+            _userPermissionService = userPermissionService;
         }
         private readonly IUserServices _userServices;
+        private readonly IUserPermissionService _userPermissionService;
         private readonly IDepartmentsServices _departmentsServices;
         private readonly ILogger<AssetServices> _logger;
         private readonly IMapper _mapper;
@@ -493,6 +495,105 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+        public async Task<OrigoAsset> ReturnDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, Guid callerId)
+        {
+            try
+            {
+                var existingAsset = await GetAssetForCustomerAsync(customerId, assetLifeCycleId);
+                if (existingAsset != null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
+
+                var returnDTO = new ReturnDeviceDTO()
+                {
+                    AssetLifeCycleId = assetLifeCycleId,
+                    CallerId = callerId
+                };
+                if (existingAsset.IsPersonal && existingAsset.AssetStatus == AssetLifecycleStatus.PendingReturn)
+                {
+                    if(role == PredefinedRole.EndUser.ToString()) throw new Exception("Return Request Already Pending!!!");
+                    if(existingAsset.AssetHolderId != null)
+                    {
+                        var user = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
+                        returnDTO.ContractHolder = new EmailPersonAttributeDTO()
+                        {
+                            Email = user.Email,
+                            Name = user.FirstName,
+                            PreferedLanguage = user.UserPreference.Language
+                        };
+                    }                
+                }
+                else if(existingAsset.IsPersonal && existingAsset.AssetStatus != AssetLifecycleStatus.PendingReturn)
+                {
+                    if(existingAsset.AssetHolderId != callerId && role == PredefinedRole.EndUser.ToString()) throw new Exception("Only ContractHolderUser can make Return Request!!!");
+                    if(existingAsset.ManagedByDepartmentId != null)
+                    {
+                        var department = await _departmentsServices.GetDepartmentAsync(customerId, existingAsset.ManagedByDepartmentId.Value);
+                        var managers = new List<EmailPersonAttributeDTO>();
+                        foreach (var deptManager in department.ManagedBy)
+                        {
+                            var manager = await _userServices.GetUserAsync(customerId, deptManager.UserId);
+                            managers.Add(new EmailPersonAttributeDTO()
+                            {
+                                Name = manager.FirstName,
+                                Email = manager.Email,
+                                PreferedLanguage = manager.UserPreference!.Language
+                            });
+                        }
+                        returnDTO.Managers = managers;
+                    }
+                }
+                else if (!existingAsset.IsPersonal)
+                {
+                    if (role == PredefinedRole.EndUser.ToString()) throw new Exception("Only Admin can make return request for non-personal asset!!!");
+
+                    var customerAdmin = await _userPermissionService.GetAllCustomerAdminsAsync(customerId);
+                    var admins = new List<EmailPersonAttributeDTO>();
+                    foreach (var admin in customerAdmin)
+                    {
+                        admins.Add(new EmailPersonAttributeDTO()
+                        {
+                            Name = admin.FirstName,
+                            Email = admin.Email
+                        });
+                    }
+                    returnDTO.CustomerAdmins = admins;
+                }
+                else
+                {
+                    throw new Exception("Asset not allowed to Return!!!");
+                }
+
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/return-device";
+
+                var response = await HttpClient.PostAsJsonAsync(requestUri, returnDTO);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                OrigoAsset result = null;
+                if (asset != null)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        result = _mapper.Map<OrigoMobilePhone>(asset);
+                    else
+                        result = _mapper.Map<OrigoTablet>(asset);
+                }
+                return result;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to set status for assets.");
+                throw;
+            }
+        }
+
 
         public async Task<OrigoAsset> ReAssignAssetToDepartment(Guid customerId, Guid assetId, ReassignedToDepartmentDTO data)
         {

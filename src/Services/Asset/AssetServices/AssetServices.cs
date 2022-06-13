@@ -409,6 +409,42 @@ namespace AssetServices
                 
             return _mapper.Map<AssetLifecycleDTO>(updatedAssetLifeCycle);
         }
+        public async Task<AssetLifecycleDTO> ReturnDeviceAsync(Guid customerId, ReturnDeviceDTO data)
+        {
+            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId);
+            if (assetLifecycle == null)
+                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
+
+            if (!AssetLifecycle.IsActiveState(assetLifecycle.AssetLifecycleStatus))
+            {
+                throw new ReturnDeviceRequestException($"Only Active devices can make return request!!! asset Id: {data.AssetLifeCycleId}", _logger);
+            }
+
+            if(assetLifecycle.IsPersonal && assetLifecycle.AssetLifecycleStatus != AssetLifecycleStatus.PendingReturn)
+            {
+                // Pending Return
+                assetLifecycle.MakeReturnRequest(data.CallerId);
+
+                // TODO: Email to Managers (Task is in another US)
+            }
+            else if(assetLifecycle.IsPersonal && assetLifecycle.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn)
+            {
+                // Confirm Return
+                assetLifecycle.ConfirmReturnDevice(data.CallerId);
+
+                // TODO: Email to user(personal) (Task is in another US)
+            }
+            else if (!assetLifecycle.IsPersonal)
+            {
+                // Confirm Return
+                assetLifecycle.ConfirmReturnDevice(data.CallerId);
+
+                // TODO: Email to CustomerAdmin(non-personal) (Task is in another US)
+            }
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
+        }
 
 
         public async Task<AssetLifecycleDTO> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string? alias, string? serialNumber, string? brand, string? model, DateTime? purchaseDate, string? note, string? tag, string? description, IList<long>? imei)

@@ -508,6 +508,54 @@ namespace Asset.IntegrationTests.Controllers
             Assert.True(updatedAsset.AssetHolderId == null || updatedAsset.AssetHolderId == Guid.Empty);
             Assert.True(updatedAsset.Labels == null || !updatedAsset.Labels.Any());
         }
+        [Fact]
+        public async Task ReturnDeviceAsync_PersonalPendingReturn()
+        {
+            var postData = new ReturnDevice { AssetLifeCycleId = _assetOne, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-device";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+            var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+            Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.PendingReturn);
+        }
+        [Fact]
+        public async Task ReturnDeviceAsync_NonPersonalConfirmReturn()
+        {
+            var postData = new ReturnDevice { AssetLifeCycleId = _assetThree, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-device";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+            var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+            Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.Returned);
+        }
+        [Fact]
+        public async Task ReturnDeviceAsync_AssetNotFound()
+        {
+            var postData = new ReturnDevice { AssetLifeCycleId = _assetEight, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-device";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+            Assert.Equal(HttpStatusCode.InternalServerError, responsePost.StatusCode);
+        }
+        [Fact]
+        public async Task ReturnDeviceAsync_PersonalConfirmReturn()
+        {
+            var postData = new ReturnDevice { AssetLifeCycleId = _assetOne, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-device";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+            var confirmPost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+            var updatedAsset = await confirmPost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, confirmPost.StatusCode);
+            Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.Returned);
+        }
 
         [Theory]
         [InlineData("00000000-0000-0000-0000-000000000000", "40ca1747-5dd3-41f1-9301-d7eafa4ee09b")]
