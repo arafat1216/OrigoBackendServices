@@ -332,6 +332,39 @@ namespace OrigoApiGateway.Services
             }
         }
 
+        public async Task<HardwareSuperType> GetAssetAsync(Guid customerId, Guid assetId)
+        {
+            try
+            {
+                var asset = await HttpClient.GetFromJsonAsync<AssetDTO>($"{_options.ApiPath}/{assetId}/customers/{customerId}");
+
+                HardwareSuperType result = null;
+                if (asset != null)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        result = _mapper.Map<OrigoMobilePhone>(asset);
+                    else
+                        result = _mapper.Map<OrigoTablet>(asset);
+                }
+                return result;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAssetForCustomerAsync failed with HttpRequestException.");
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetAssetForCustomerAsync failed with content type is not valid.");
+            }
+
+            catch (JsonException exception)
+            {
+                _logger.LogError(exception, "GetAssetForCustomerAsync failed with invalid JSON.");
+            }
+
+            return null;
+        }
+
         public async Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId)
         {
             try

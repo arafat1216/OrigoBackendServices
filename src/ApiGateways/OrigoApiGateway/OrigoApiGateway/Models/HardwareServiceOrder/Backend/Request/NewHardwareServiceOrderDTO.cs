@@ -14,7 +14,6 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request
         {
             DeliveryAddress = order.DeliveryAddress;
             ErrorDescription = order.ErrorDescription;
-            AssetInfo = order.AssetInfo;
         }
     }
 }

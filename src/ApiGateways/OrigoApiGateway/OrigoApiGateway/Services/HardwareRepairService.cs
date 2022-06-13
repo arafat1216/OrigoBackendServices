@@ -8,6 +8,7 @@ using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
@@ -138,15 +139,26 @@ namespace OrigoApiGateway.Services
                 var dto = new NewHardwareServiceOrderDTO(model);
 
                 //Verify whether the asset can be sent to repair
-                var asset = await _assetServices.GetAssetForCustomerAsync(customerId, model.AssetInfo.AssetLifecycleId);
+                var asset = await _assetServices.GetAssetAsync(customerId, model.AssetId);
 
-                if(asset == null)
-                    throw new ArgumentException($"Asset does not exist with ID {model.AssetInfo.AssetLifecycleId}", nameof(model.AssetInfo.AssetLifecycleId));
+                if (asset == null)
+                    throw new ArgumentException($"Asset does not exist with ID {model.AssetId}", nameof(model.AssetId));
 
                 if (asset.AssetStatus != AssetLifecycleStatus.InUse)
                 {
                     throw new ArgumentException("This asset cannot be sent to repair.");
                 }
+
+                dto.AssetInfo = new AssetInfo
+                {
+                    AssetCategoryId = asset.AssetCategoryId,
+                    AssetLifecycleId = asset.Id,
+                    Brand = asset.Brand,
+                    Model = asset.ProductName,
+                    PurchaseDate = DateOnly.FromDateTime(asset.PurchaseDate),
+                    Imei = $"{asset.Imei.FirstOrDefault()}",
+                    SerialNumber = asset.SerialNumber
+                };
 
                 //Get owner information
                 userId = asset.AssetHolderId ?? userId;

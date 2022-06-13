@@ -35,7 +35,7 @@ namespace HardwareServiceOrder.API.Mappings
 
             CreateMap<ViewModels.ContactDetails, ContactDetailsDTO>();
 
-            CreateMap<ViewModels.NewHardwareServiceOrder, HardwareServiceOrderDTO>()
+            CreateMap<NewHardwareServiceOrder, HardwareServiceOrderDTO>()
                 .ForMember(dest => dest.DeliveryAddress, opt => opt.MapFrom(src => src.DeliveryAddress));
 
         }

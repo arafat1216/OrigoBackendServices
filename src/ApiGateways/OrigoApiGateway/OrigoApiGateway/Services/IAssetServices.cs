@@ -12,6 +12,7 @@ namespace OrigoApiGateway.Services
 {
     public interface IAssetServices
     {
+        Task<HardwareSuperType> GetAssetAsync(Guid customerId, Guid assetId);
         Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync();
         Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus);
         Task<IList<object>> GetAssetsForUserAsync(Guid customerId, Guid userId);
