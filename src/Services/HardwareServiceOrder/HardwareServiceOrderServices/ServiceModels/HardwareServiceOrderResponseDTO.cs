@@ -6,7 +6,7 @@ namespace HardwareServiceOrderServices.ServiceModels
     {
         public Guid Id { get; set; }
         public DateTimeOffset Created { get; set; }
-        public DateTimeOffset Updated { get; set; }
+        public DateTimeOffset? Updated { get; set; }
         public ServiceStatusEnum Status { get; set; }
         public ServiceTypeEnum Type { get; set; }
         public Guid Owner { get; set; }

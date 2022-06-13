@@ -123,7 +123,7 @@ namespace HardwareServiceOrderServices.Infrastructure
         {
             var orders = _hardwareServiceOrderContext.HardwareServiceOrders
                 .Where(m => m.CustomerId == customerId)
-                .OrderByDescending(m => m.CreatedDate);
+                .OrderByDescending(m => m.DateCreated);
 
             return await orders.PaginateAsync(page, limit, cancellationToken);
         }

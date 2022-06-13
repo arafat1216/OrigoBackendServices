@@ -7,7 +7,7 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
     {
         public Guid Id { get; set; }
         public DateTimeOffset Created { get; set; }
-        public DateTimeOffset Updated { get; set; }
+        public DateTimeOffset? Updated { get; set; }
         public string Status { get; set; }
         public string Type { get; set; }
         public Guid Owner { get; set; }

@@ -2,6 +2,9 @@
 
 namespace HardwareServiceOrderServices.Infrastructure
 {
+    /// <summary>
+    ///     The dependency-injected implementation of <see cref="IApiRequesterService"/>.
+    /// </summary>
     public class ApiRequesterService : IApiRequesterService
     {
         /// <inheritdoc/>
@@ -27,12 +30,18 @@ namespace HardwareServiceOrderServices.Infrastructure
                 }
                 else
                 {
-                    throw new Exception("The header 'X-Authenticated-User' is missing.");
+                    // TODO: This should eventually be added back in, but first we need to add the to the API gateway calls.
+                    //throw new Exception("The header 'X-Authenticated-User' is missing.");
                 }
             }
         }
 
 
+        /// <summary>
+        ///     Parses a provided header string-value, and sets the <see cref="AuthenticatedUserId"/>.
+        /// </summary>
+        /// <param name="userId"> The ID that should be parsed and set as the <see cref="AuthenticatedUserId"/>. </param>
+        /// <exception cref="Exception"> Thrown when the <paramref name="userId"/> fails to be parsed (invalid value). </exception>
         private void SetAuthenticatedUser(string userId)
         {
             bool callerIdParsed = Guid.TryParse(userId, out Guid result);

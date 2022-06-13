@@ -119,7 +119,7 @@ namespace HardwareServiceOrderServices
                     AssetId = $"{serviceOrderDTO.AssetInfo.AssetLifecycleId}",
                     AssetName = serviceOrderDTO.AssetInfo.AssetName,
                     FirstName = serviceOrderDTO.OrderedBy.FirstName,
-                    OrderDate = origoOrder.CreatedDate.UtcDateTime,
+                    OrderDate = origoOrder.DateCreated.UtcDateTime,
                     OrderLink = externalOrderResponseDTO.ExternalServiceManagementLink,
                     Recipient = serviceOrderDTO.OrderedBy.Email,
                     LoanDeviceContact = customerSetting.LoanDevicePhoneNumber,
@@ -131,8 +131,8 @@ namespace HardwareServiceOrderServices
 
                 var responseDto = new HardwareServiceOrderResponseDTO
                 {
-                    Created = origoOrder.CreatedDate,
-                    Updated = origoOrder.LastUpdatedDate,
+                    Created = origoOrder.DateCreated,
+                    Updated = origoOrder.DateUpdated,
                     Id = origoOrder.ExternalId,
                     Events = new List<ExternalServiceEventDTO> { },
                     Owner = origoOrder.Owner.UserId,
