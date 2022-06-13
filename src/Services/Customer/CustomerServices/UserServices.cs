@@ -352,7 +352,7 @@ namespace CustomerServices
                 await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
             }
 
-            await PublishEvent(customerId, userId);
+            await PublishEvent(customerId, userId, user.Department?.ExternalDepartmentId);
 
             //Get the users role and assign it to the users DTO
             var userDTO = _mapper.Map<UserDTO>(user);
@@ -360,7 +360,7 @@ namespace CustomerServices
             return userDTO;
         }
 
-        private async Task PublishEvent(Guid customerId, Guid userId)
+        private async Task PublishEvent(Guid customerId, Guid userId, Guid? departmentId)
         {
             // Publish event
             try
@@ -369,11 +369,11 @@ namespace CustomerServices
                 var cancellationToken = source.Token;
                 using var client = new DaprClientBuilder().Build();
                 await client.PublishEventAsync("customer-pub-sub", "user-deleted",
-                    new { CustomerId = customerId, UserId = userId, CreatedDate = DateTime.UtcNow }, cancellationToken);
+                    new { CustomerId = customerId, UserId = userId, DepartmentId = departmentId, CreatedDate = DateTime.UtcNow }, cancellationToken);
             }
             catch (Exception exception)
             {
-                _logger.LogError($"Unable to publish event for deleted user {userId}.", exception);
+                _logger.LogError("Unable to publish event for deleted user. {exception.Message}", exception);
             }
         }
 

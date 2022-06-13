@@ -239,8 +239,6 @@ namespace AssetServices.Infrastructure
 
             foreach (var assetLifecycle in assetLifecyclesForUser)
             {
-                //assetLifecycle.UnAssignContractHolder(callerId);
-
                 if (assetLifecycle.ManagedByDepartmentId == null)
                     assetLifecycle.AssignAssetLifecycleHolder(null, departmentId, callerId);
 

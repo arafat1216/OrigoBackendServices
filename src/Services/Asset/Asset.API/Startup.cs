@@ -99,6 +99,7 @@ namespace Asset.API
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
+            app.UseCloudEvents();
             app.UseHealthChecks("/healthz");
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint($"/swagger/v{_apiVersion.MajorVersion}/swagger.json",

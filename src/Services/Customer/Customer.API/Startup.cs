@@ -111,6 +111,7 @@ namespace Customer.API
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
+            app.UseCloudEvents();
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint($"/swagger/v{_apiVersion.MajorVersion}/swagger.json",
                 $"CustomerServices v{_apiVersion.MajorVersion}"));

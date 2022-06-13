@@ -1,16 +1,26 @@
 ﻿using System;
 using Dapr;
 using Microsoft.AspNetCore.Mvc;
+using AssetServices;
+using Common.Extensions;
 
 namespace Asset.API.Controllers;
 
+[Route("api/v{version:apiVersion}/assets")]
 public class UserController : Controller
 {
+    private IAssetServices _assetServices;
+
+    public UserController(IAssetServices assetServices)
+    {
+        _assetServices = assetServices;
+    }
+
     [Topic("customer-pub-sub", "user-deleted")]
-    [HttpPost("checkout")]
+    [HttpPost("user-deleted")]
     public void UserDeleted([FromBody] UserDeletedEvent userDeletedEvent)
     {
-        Console.WriteLine("Delete user event received : " + userDeletedEvent.UserId);
+        _assetServices.UnAssignAssetLifecyclesForUserAsync(userDeletedEvent.CustomerId, userDeletedEvent.UserId, userDeletedEvent.DepartmentId, Guid.Empty.SystemUserId());
     }
 }
 
@@ -18,5 +28,6 @@ public record UserDeletedEvent
 {
     public Guid CustomerId { get; set; }
     public Guid UserId { get; set; }
+    public Guid DepartmentId { get; set; }
     public DateTime CreatedDate { get; set; }
 }
