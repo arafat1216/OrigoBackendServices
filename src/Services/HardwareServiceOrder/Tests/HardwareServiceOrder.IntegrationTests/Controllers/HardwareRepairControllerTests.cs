@@ -1,4 +1,5 @@
-﻿using HardwareServiceOrder.API.Controllers;
+﻿using Common.Interfaces;
+using HardwareServiceOrder.API.Controllers;
 using HardwareServiceOrder.API.ViewModels;
 using System;
 using System.Net;
@@ -89,6 +90,17 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             Assert.Null(settings!.ServiceId);
             Assert.Null(settings!.LoanDevice.PhoneNumber);
             Assert.Null(settings!.LoanDevice.Email);
+        }
+
+        [Fact]
+        public async Task GetOrder()
+        {
+            var url = $"/api/v1/hardware-repair/{_customerId}/orders?page=1&limit=10";
+            _testOutputHelper.WriteLine(url);
+            var request = await _httpClient.GetAsync(url);
+            var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponseDTO>>();
+            Assert.NotNull(orders);
+            Assert.Equal(1, orders.Items.Count);
         }
     }
 }

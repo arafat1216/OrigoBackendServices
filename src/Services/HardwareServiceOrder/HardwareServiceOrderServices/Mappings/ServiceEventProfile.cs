@@ -14,6 +14,7 @@ namespace HardwareServiceOrderServices.Mappings
         public ServiceEventProfile()
         {
             CreateMap<ExternalServiceEventDTO, ServiceEvent>();
+            CreateMap<ServiceEvent, ExternalServiceEventDTO>();
         }
     }
 }

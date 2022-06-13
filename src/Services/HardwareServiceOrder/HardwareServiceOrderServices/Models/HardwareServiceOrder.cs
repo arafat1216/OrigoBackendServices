@@ -55,7 +55,21 @@ namespace HardwareServiceOrderServices.Models
 
         /// <inheritdoc cref="HardwareServiceOrder.HardwareServiceOrder(Guid, Guid, Guid, string, ContactDetails, DeliveryAddress?, int, int, int, string, string?, string?, IEnumerable{ServiceEvent})"/>
         /// <param name="externalId"> The external ID that uniquely identifies this service-request. </param>
-        public HardwareServiceOrder(Guid callerId, Guid externalId, Guid customerId, Guid assetLifecycleId, string userDescription, ContactDetails owner, DeliveryAddress? deliveryAddress, int serviceTypeId, int statusId, int serviceProviderId, string serviceProviderOrderId1, string? serviceProviderOrderId2, string? externalServiceManagementLink, IEnumerable<ServiceEvent> serviceEvents) : base()
+        public HardwareServiceOrder(
+            Guid callerId, 
+            Guid externalId, 
+            Guid customerId, 
+            Guid assetLifecycleId, 
+            string userDescription, 
+            ContactDetails owner, 
+            DeliveryAddress? deliveryAddress, 
+            int serviceTypeId, 
+            int statusId, 
+            int serviceProviderId, 
+            string serviceProviderOrderId1, 
+            string? serviceProviderOrderId2, 
+            string? externalServiceManagementLink, 
+            IEnumerable<ServiceEvent> serviceEvents) : base()
         {
             base.CreatedBy = callerId;
 
