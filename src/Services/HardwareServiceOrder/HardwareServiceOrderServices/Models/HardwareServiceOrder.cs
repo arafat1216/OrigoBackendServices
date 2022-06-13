@@ -36,7 +36,7 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="serviceEvents"> The service-events that was received from the service-provider. </param>
         public HardwareServiceOrder(Guid callerId, Guid customerId, Guid assetLifecycleId, string userDescription, ContactDetails owner, DeliveryAddress? deliveryAddress, int serviceTypeId, int statusId, int serviceProviderId, string serviceProviderOrderId1, string? serviceProviderOrderId2, string? externalServiceManagementLink, IEnumerable<ServiceEvent> serviceEvents) : base()
         {
-            base.CreatedBy = callerId;
+            //base.CreatedBy = callerId;
 
             CustomerId = customerId;
             AssetLifecycleId = assetLifecycleId;
@@ -71,7 +71,7 @@ namespace HardwareServiceOrderServices.Models
             string? externalServiceManagementLink, 
             IEnumerable<ServiceEvent> serviceEvents) : base()
         {
-            base.CreatedBy = callerId;
+            //base.CreatedBy = callerId;
 
             ExternalId = externalId;
             CustomerId = customerId;
@@ -145,7 +145,8 @@ namespace HardwareServiceOrderServices.Models
             string? externalServiceManagementLink,
             ServiceType serviceType,
             ServiceStatus status,
-            DateTimeOffset createdDate)
+            DateTimeOffset createdDate
+        ) : base(Guid.Empty, createdDate, null, null)
         {
             CustomerId = customerId;
             Owner = owner;
@@ -158,7 +159,6 @@ namespace HardwareServiceOrderServices.Models
             ServiceProviderOrderId2 = serviceProviderOrderId2;
             ServiceType = serviceType;
             Status = status;
-            DateCreated = createdDate;
         }
 
         /// <summary>

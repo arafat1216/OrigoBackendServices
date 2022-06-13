@@ -1,4 +1,5 @@
-﻿using HardwareServiceOrder.API.Controllers;
+﻿using Common.Extensions;
+using HardwareServiceOrder.API.Controllers;
 using HardwareServiceOrderServices.Email.Models;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,8 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             _testOutputHelper = testOutputHelper;
             _httpClient = factory.CreateDefaultClient();
             _customerId = factory.CUSTOMER_ONE_ID;
+
+            _httpClient.DefaultRequestHeaders.Add("X-Authenticated-User", Guid.Empty.SystemUserId().ToString());
         }
 
         [Fact]

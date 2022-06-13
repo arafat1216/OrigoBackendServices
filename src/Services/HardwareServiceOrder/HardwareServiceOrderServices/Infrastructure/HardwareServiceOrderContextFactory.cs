@@ -6,6 +6,7 @@ namespace HardwareServiceOrderServices.Infrastructure
 {
     public class HardwareServiceOrderContextFactory : IDesignTimeDbContextFactory<HardwareServiceOrderContext>
     {
+        /// <inheritdoc/>
         public HardwareServiceOrderContext CreateDbContext(string[] args)
         {
             var config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
@@ -16,7 +17,7 @@ namespace HardwareServiceOrderServices.Infrastructure
                                                    .AddUserSecrets<HardwareServiceOrderContext>(optional: true)
                                                    .Build();
 
-            var optionsBuilder = new DbContextOptionsBuilder<HardwareServiceOrderContext>().AddInterceptors(new SaveContextChangesInterceptor());
+            var optionsBuilder = new DbContextOptionsBuilder<HardwareServiceOrderContext>();
             string connectionString = config.GetConnectionString("HardwareServiceOrderConnectionString");
 
             optionsBuilder.UseSqlServer(connectionString);

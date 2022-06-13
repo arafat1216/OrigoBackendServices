@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Common.Configuration;
+using Common.Extensions;
 using Common.Utilities;
 using HardwareServiceOrderServices.Email.Models;
 using HardwareServiceOrderServices.Infrastructure;

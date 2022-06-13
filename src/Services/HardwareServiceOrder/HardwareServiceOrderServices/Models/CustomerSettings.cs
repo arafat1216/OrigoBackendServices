@@ -11,7 +11,7 @@ namespace HardwareServiceOrderServices.Models
         public CustomerSettings(Guid customerId, Guid callerId)
         {
             CustomerId = customerId;
-            CreatedBy = callerId;
+            //CreatedBy = callerId;
         }
 
         public CustomerSettings()
@@ -24,7 +24,7 @@ namespace HardwareServiceOrderServices.Models
             CustomerId = customerId;
             LoanDeviceEmail = loanPhoneEmail;
             LoanDevicePhoneNumber = loanPhoneNumber;
-            CreatedBy = callerId;
+            //CreatedBy = callerId;
         }
 
         /// <summary>

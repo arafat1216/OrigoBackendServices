@@ -1,4 +1,5 @@
-﻿using HardwareServiceOrderServices.Infrastructure.EntityConfiguration;
+﻿using Common.EntityFramework;
+using HardwareServiceOrderServices.Infrastructure.EntityConfiguration;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.SeedData;
 using Microsoft.EntityFrameworkCore;
@@ -8,16 +9,7 @@ namespace HardwareServiceOrderServices.Infrastructure
     public class HardwareServiceOrderContext : DbContext
     {
         private readonly bool _isSQLite;
-
-        public HardwareServiceOrderContext(DbContextOptions<HardwareServiceOrderContext> options) : base(options)
-        {
-            foreach (var extension in options.Extensions)
-            {
-                if (!extension.GetType().ToString().Contains("Sqlite")) continue;
-                _isSQLite = true;
-                break;
-            }
-        }
+        private readonly IApiRequesterService? apiRequesterService;
 
         public bool IsSQLite => _isSQLite;
 
@@ -29,6 +21,22 @@ namespace HardwareServiceOrderServices.Infrastructure
         public DbSet<CustomerServiceProvider> CustomerServiceProviders { get; set; }
 
 
+        public HardwareServiceOrderContext(DbContextOptions<HardwareServiceOrderContext> options, IApiRequesterService? apiRequesterService = null) : base(options)
+        {
+            this.apiRequesterService = apiRequesterService;
+
+            foreach (var extension in options.Extensions)
+            {
+                if (!extension.GetType().ToString().Contains("Sqlite"))
+                    continue;
+
+                _isSQLite = true;
+                break;
+            }
+        }
+
+
+        /// <inheritdoc/>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new CustomerSettingsConfiguration(_isSQLite));
@@ -41,5 +49,14 @@ namespace HardwareServiceOrderServices.Infrastructure
             modelBuilder.SeedServiceType();
             modelBuilder.SeedServiceProvider();
         }
+
+
+        /// <inheritdoc/>
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (_isSQLite is false)
+                optionsBuilder.AddInterceptors(new SaveContextChangesInterceptor(apiRequesterService?.AuthenticatedUserId));
+        }
+
     }
 }

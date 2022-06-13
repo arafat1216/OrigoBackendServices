@@ -9,6 +9,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using Common.Extensions;
 
 namespace HardwareServiceOrder.IntegrationTests.Controllers
 {
@@ -26,6 +27,8 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             _testOutputHelper = testOutputHelper;
             _httpClient = factory.CreateDefaultClient();
             _customerId = factory.CUSTOMER_ONE_ID;
+
+            _httpClient.DefaultRequestHeaders.Add("X-Authenticated-User", Guid.Empty.SystemUserId().ToString());
         }
 
         [Fact]

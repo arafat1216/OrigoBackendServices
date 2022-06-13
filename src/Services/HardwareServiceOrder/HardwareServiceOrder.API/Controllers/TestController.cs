@@ -1,16 +1,12 @@
 ﻿#if DEBUG
 
-using Common.Converters;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Infrastructure;
 using HardwareServiceOrderServices.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http.Json;
-using System.Text.Json.Serialization;
 
 namespace HardwareServiceOrder.API.Controllers
 {
-
     /// <summary>
     ///     A temporary controller used for testing during development.
     /// </summary>
@@ -20,18 +16,15 @@ namespace HardwareServiceOrder.API.Controllers
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Minor Code Smell", "S2737:\"catch\" clauses should do more than rethrow", Justification = "<Pending>")]
     public class TestController : ControllerBase
     {
-
+        // Dependency injections
         private readonly ProviderFactory _providerFactory;
-
         private readonly HardwareServiceOrderContext _context;
-        private readonly HardwareServiceOrderRepository _repo;
 
-        public TestController(ProviderFactory providerFactory)
+
+        public TestController(ProviderFactory providerFactory, HardwareServiceOrderContext dbContext)
         {
             _providerFactory = providerFactory;
-
-            _context = new HardwareServiceOrderContextFactory().CreateDbContext(Array.Empty<string>());
-            _repo = new HardwareServiceOrderRepository(_context);
+            _context = dbContext;
         }
 
 
@@ -173,7 +166,7 @@ namespace HardwareServiceOrder.API.Controllers
 
 
         [HttpGet("updateInsertTest")]
-        public async Task<ActionResult> TestValueAssignment()
+        public async Task<ActionResult> TestValueAssignment([FromHeader(Name = "X-Authenticated-User")] Guid userId)
         {
             ServiceStatus status = new()
             {
