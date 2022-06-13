@@ -1495,7 +1495,7 @@ namespace OrigoApiGateway.Controllers
                 {
                     filter.UserId = "me";
                 }
-                if (role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString() && filter.UserId != "me")
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && filter.UserId != "me")
                 {
                     manager = true;
                     //need the userId for retriving the users managerOf list

@@ -1161,7 +1161,7 @@ namespace OrigoApiGateway.Services
                         if (manager)
                         {
                             managerOfDepartments = user.ManagerOf.Select(a => a.DepartmentId).ToList();
-                            if (!managerOfDepartments.Any()) return null;
+                            if (!managerOfDepartments.Any()) return new OrigoCustomerAssetsCounter();
                         }
 
                     }
