@@ -9,6 +9,9 @@ namespace OrigoApiGateway.Mappings
         public LocationProfile()
         {
             CreateMap<LocationDTO, NewLocation>();
+            CreateMap<LocationDTO, Location>();
+            CreateMap<OfficeLocation, OfficeLocationDTO>();
+
         }
     }
 }

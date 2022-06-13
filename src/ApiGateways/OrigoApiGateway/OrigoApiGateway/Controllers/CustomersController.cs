@@ -301,6 +301,64 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
+        [Route("{organizationId:Guid}/location")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<Location>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<IList<Location>>> GetOrganizationLocations(Guid organizationId)
+        {
+            try
+            {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+
+                    // Only SystemAdmin has access to all organization user counts
+                    return Forbid();
+                }
+
+                var locations = await CustomerServices.GetAllCustomerLocations(organizationId);
+                return locations != null ? Ok(locations) : NotFound();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{organizationId:Guid}/location")]
+        [HttpPost]
+        [ProducesResponseType(typeof(Location), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Conflict)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
+        public async Task<ActionResult<Location>> CreateLocation([FromBody] OfficeLocation newLocation, Guid organizationId)
+        {
+            try
+            {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString() && role != PredefinedRole.PartnerAdmin.ToString())
+                {
+                    return Forbid();
+                }
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid.TryParse(actor, out Guid callerId);
+
+                var createdLocation = await CustomerServices.CreateLocationAsync(newLocation, organizationId, callerId);
+                if (createdLocation == null)
+                {
+                    return BadRequest();
+                }
+
+                return CreatedAtAction(nameof(CreateLocation), createdLocation);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
 
         [Route("webshopUrl")]
         [HttpGet]

@@ -22,5 +22,7 @@ namespace OrigoApiGateway.Services
         Task<bool> CheckAndProvisionWebShopUser(string email, string orgnumber);
         Task<Organization> CreatePartnerOrganization(NewOrganization newCustomer, Guid callerId);
         Task<string> GetCurrencyByCustomer(Guid customerId);
+        Task<IList<Location>> GetAllCustomerLocations(Guid customerId);
+        Task<Location> CreateLocationAsync(OfficeLocation officeLocation, Guid customerId, Guid callerId);
     }
 }

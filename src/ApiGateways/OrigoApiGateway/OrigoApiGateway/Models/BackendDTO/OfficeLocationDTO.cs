@@ -1,11 +1,9 @@
-﻿using Common.Enums;
-using System;
+﻿using System;
 
 namespace OrigoApiGateway.Models.BackendDTO
 {
-    public class LocationDTO
+    public class OfficeLocationDTO
     {
-        public Guid Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string Address1 { get; set; }
@@ -13,7 +11,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         public string PostalCode { get; set; }
         public string City { get; set; }
         public string Country { get; set; }
-        public RecipientType RecipientType { get; set; }
-
+        public bool IsPrimary { get; set; } = false;
+        public Guid CallerId { get; set; } = Guid.Empty;
     }
 }

@@ -140,7 +140,7 @@ namespace CustomerServices.Models
             UpdatedBy = callerId;
             IsDeleted = false;
             AddUsersToOkta = addUsersToOkta;
-            organizationLocation.SetPrimaryLocation(callerId);
+            organizationLocation.SetPrimaryLocation(true, callerId);
             Locations.Add(organizationLocation);
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
@@ -300,6 +300,21 @@ namespace CustomerServices.Models
             department.SetDeletedBy(callerId);
             AddDomainEvent(new DepartmentRemovedDomainEvent(department));
             Departments.Remove(department);
+        }
+        public void AddLocation(Location location, Guid customerId, Guid callerId)
+        {
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
+            AddDomainEvent(new LocationAddedToCustomerDomainEvent(location, customerId));
+            Locations.Add(location);
+        }
+
+        public void RemoveLocation(Location location, Guid callerId)
+        {
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
+            AddDomainEvent(new LocationRemovedToCustomerDomainEvent(location));
+            Locations.Remove(location);
         }
 
         public void ChangeDepartmentName(Department department, string name, Guid callerId)

@@ -1,9 +1,9 @@
 ﻿using Common.Enums;
 using System;
 
-namespace OrigoApiGateway.Models.BackendDTO
+namespace OrigoApiGateway.Models
 {
-    public class LocationDTO
+    public class Location
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -14,6 +14,5 @@ namespace OrigoApiGateway.Models.BackendDTO
         public string City { get; set; }
         public string Country { get; set; }
         public RecipientType RecipientType { get; set; }
-
     }
 }

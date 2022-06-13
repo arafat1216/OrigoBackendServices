@@ -45,5 +45,7 @@ namespace CustomerServices
         Task<Location> AddOrganizationLocationAsync(Location location);
         Task<bool> ParentOrganizationIsValid(Guid? parentId, Guid organizationId);
         Task<Organization?> GetOrganizationByOrganizationNumberAsync(string organizationNumber);
+        Task<LocationDTO> AddLocationInOrganization(NewLocationDTO location, Guid customerId, Guid callerId);
+        Task<IList<LocationDTO>> GetAllLocationInOrganization(Guid customerId);
     }
 }

@@ -1,17 +1,21 @@
-﻿using Common.Logging;
+﻿using AutoMapper;
+using Common.Logging;
 using CustomerServices.Infrastructure;
 using CustomerServices.Infrastructure.Context;
+using CustomerServices.ServiceModels;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
+using System.Reflection;
 using Xunit;
 
 namespace CustomerServices.UnitTests
 {
     public class OrganizationServicesTests : OrganizationServicesBaseTest
     {
+        private static IMapper _mapper;
         public OrganizationServicesTests()
             : base(
                 new DbContextOptionsBuilder<CustomerContext>()
@@ -19,7 +23,13 @@ namespace CustomerServices.UnitTests
                     .UseSqlite("Data Source=sqlitecustomerunittests.db")
                     .Options
             )
-        {}
+        {
+            if (_mapper == null)
+            {
+                var mappingConfig = new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(LocationDTO))); });
+                _mapper = mappingConfig.CreateMapper();
+            }
+        }
 
         [Fact]
         [Trait("Category", "UnitTest")]
@@ -28,7 +38,7 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository);
+            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
 
             // Act
             var organization = await organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
@@ -48,7 +58,7 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository);
+            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
 
             // Act
             var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "Mytos", null, null, null, null, null, null, null, null, null);
@@ -76,7 +86,7 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository);
+            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
 
             // Act
             var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null);
@@ -104,7 +114,7 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository);
+            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
 
             // Act
             var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, null, null, null, null, null, null, null, null, null, null);
@@ -132,7 +142,7 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository);
+            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
 
             // Act
             var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, null, "Paavola", null, null);

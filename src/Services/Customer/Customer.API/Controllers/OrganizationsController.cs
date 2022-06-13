@@ -1,4 +1,5 @@
-﻿using Common.Enums;
+﻿using AutoMapper;
+using Common.Enums;
 using Common.Exceptions;
 using Customer.API.WriteModels;
 using CustomerServices;
@@ -27,12 +28,15 @@ namespace Customer.API.Controllers
         private readonly IOrganizationServices _organizationServices;
         private readonly IPartnerServices _partnerServices;
         private readonly ILogger<OrganizationsController> _logger;
+        private readonly IMapper _mapper;
 
-        public OrganizationsController(ILogger<OrganizationsController> logger, IOrganizationServices customerServices, IPartnerServices partnerServices)
+
+        public OrganizationsController(ILogger<OrganizationsController> logger, IOrganizationServices customerServices, IPartnerServices partnerServices, IMapper mapper)
         {
             _logger = logger;
             _organizationServices = customerServices;
             _partnerServices = partnerServices;
+            _mapper = mapper;
         }
 
         [Route("{organizationId:Guid}/{customerOnly:Bool}")]
@@ -499,6 +503,30 @@ namespace Customer.API.Controllers
             }
         }
 
+        [Route("{organizationId:Guid}/location")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<LocationDTO>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<IList<LocationDTO>>> GetAllLocationInOrganization(Guid organizationId)
+        {
+            var locations = await _organizationServices.GetAllLocationInOrganization(organizationId);
+            return Ok(locations);
+        }
+
+        [Route("{organizationId:Guid}/location")]
+        [HttpPost]
+        [ProducesResponseType(typeof(LocationDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> CreateLocationInOrganization([FromBody] NewLocation location, Guid organizationId)
+        {
+            if (location == null)
+                return NotFound();
+
+            var newLocation = _mapper.Map<NewLocationDTO>(location);
+            var addedLocation = await _organizationServices.AddLocationInOrganization(newLocation, organizationId, location.CallerId);
+
+            return CreatedAtAction(nameof(CreateLocationInOrganization), addedLocation);
+        }
         [Route("{locationId:Guid}/location")]
         [HttpDelete]
         [ProducesResponseType(typeof(LocationDTO), (int)HttpStatusCode.OK)]

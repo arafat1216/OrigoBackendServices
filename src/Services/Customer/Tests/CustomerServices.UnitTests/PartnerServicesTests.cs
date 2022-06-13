@@ -10,6 +10,9 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
 using CustomerServices.Exceptions;
+using AutoMapper;
+using System.Reflection;
+using CustomerServices.ServiceModels;
 
 namespace CustomerServices.Tests
 {
@@ -18,14 +21,20 @@ namespace CustomerServices.Tests
         private readonly CustomerContext _context;
         private readonly OrganizationServices _organizationServices;
         private readonly PartnerServices _partnerServices;
+        private static IMapper _mapper;
 
         private Guid CallerId { get; init; }
 
         public PartnerServicesTests() : base(new DbContextOptionsBuilder<CustomerContext>().UseSqlite("Data Source=sqlitepartnerunittests.db").Options)
         {
+            if (_mapper == null)
+            {
+                var mappingConfig = new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(LocationDTO))); });
+                _mapper = mappingConfig.CreateMapper();
+            }
             _context = new CustomerContext(ContextOptions);
             var _organizationRepository = new OrganizationRepository(_context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            _organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), _organizationRepository);
+            _organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), _organizationRepository, _mapper);
             _partnerServices = new PartnerServices(Mock.Of<ILogger<PartnerServices>>(), _organizationRepository);
 
             CallerId = Guid.NewGuid();

@@ -121,7 +121,72 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+        public async Task<IList<Location>> GetAllCustomerLocations(Guid customerId)
+        {
+            try
+            {
+                var locations = await HttpClient.GetFromJsonAsync<IList<LocationDTO>>($"{_options.ApiPath}/{customerId}/location");
+                return locations == null ? null : _mapper.Map<IList<Location>>(locations);
+            }
+            catch (HttpRequestException exception)
+            {
+                // Not found
+                if ((int)exception.StatusCode == 404)
+                {
+                    return null;
+                }
 
+                _logger.LogError(exception, "GetAllCustomerLocations failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetAllCustomerLocations failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetAllCustomerLocations unknown error.");
+                throw;
+            }
+        }
+        public async Task<Location> CreateLocationAsync(OfficeLocation officeLocation, Guid customerId, Guid callerId)
+        {
+            try
+            {
+                var newLocation = _mapper.Map<OfficeLocationDTO>(officeLocation);
+                newLocation.CallerId = callerId;
+
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/location", newLocation);
+
+                if (!response.IsSuccessStatusCode)
+                    throw new BadHttpRequestException($"Unable to save Location: {await response.Content.ReadAsStringAsync()}", (int)response.StatusCode);
+
+                var location = await response.Content.ReadFromJsonAsync<LocationDTO>();
+                return location == null ? null : _mapper.Map<Location>(location);
+            }
+            catch (HttpRequestException exception)
+            {
+                // Not found
+                if ((int)exception.StatusCode == 404)
+                {
+                    return null;
+                }
+
+                _logger.LogError(exception, "CreateLocationAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "CreateLocationAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "CreateLocationAsync unknown error.");
+                throw;
+            }
+        }
         public async Task<Organization> CreateCustomerAsync(NewOrganization newCustomer, Guid callerId)
         {
             try

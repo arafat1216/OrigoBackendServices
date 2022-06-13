@@ -13,7 +13,7 @@ namespace OrigoApiGateway.Models
         public Address Address { get; init; }
         public OrigoContactPerson ContactPerson { get; init; }
         public NewOrganizationPreferences Preferences { get; init; }
-        public NewLocation Location { get; init; }
+        public Location Location { get; init; }
         public Guid? PartnerId { get; set; }
     }
 }

@@ -1,20 +1,52 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Customer.API.WriteModels
 {
+    /// <summary>
+    ///     Location model to Create location
+    /// </summary>
     public class NewLocation
     {
-        public string Name { get; set; }
+        /// <summary>
+        ///     The Name of the Location.
+        /// </summary>
+        public string Name { get; set; } = string.Empty;
 
-        public string? Description { get; set; }
+        /// <summary>
+        ///     A detailed Description abouht the Location.
+        /// </summary>
+        public string Description { get; set; } = string.Empty;
 
-        public string Address1 { get; set; }
+        /// <summary>
+        ///     Address line 1 for the location
+        /// </summary>
+        public string Address1 { get; set; } = string.Empty;
 
-        public string? Address2 { get; set; }
+        /// <summary>
+        ///     Address line 2 for the location
+        /// </summary>
+        public string Address2 { get; set; } = string.Empty;
 
-        public string PostalCode { get; set; }
+        /// <summary>
+        ///     Area Postal Code of the location
+        /// </summary>
+        public string PostalCode { get; set; } = string.Empty;
 
-        public string City { get; set; }
+        /// <summary>
+        ///     City name of the location
+        /// </summary>
+        public string City { get; set; } = string.Empty;
+
+        /// <summary>
+        ///     Set to make Primary location for the Organization
+        /// </summary>
+        public bool IsPrimary { get; set; } = false;
+
+        /// <summary>
+        ///     Guid ID of the caller
+        /// </summary>
+        public Guid CallerId { get; set; } = Guid.Empty;
 
         /// <summary>
         ///     Internal backing field for <see cref="Country"/>.

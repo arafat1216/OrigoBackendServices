@@ -8,6 +8,10 @@ using System.Text.Json;
 using CustomerServices.ServiceModels;
 using System.Threading.Tasks;
 using System.Net;
+using System.Collections.Generic;
+using Customer.API.WriteModels;
+using System.Linq;
+using Customer.API.IntegrationTests.Helpers;
 //Customer.API.IntegrationTests.Controllers
 namespace Customer.API.IntegrationTests.Controllers
 {
@@ -15,6 +19,7 @@ namespace Customer.API.IntegrationTests.Controllers
     {
         private readonly ITestOutputHelper _testOutputHelper;
         private readonly HttpClient _httpClient;
+        private readonly Guid _organizationId;
 
         private readonly CustomerWebApplicationFactory<Startup> _factory;
 
@@ -23,6 +28,7 @@ namespace Customer.API.IntegrationTests.Controllers
             _testOutputHelper = testOutputHelper;
             _httpClient = factory.CreateDefaultClient();
             _factory = factory;
+            _organizationId = factory.ORGANIZATION_ID;
         }
 
 
@@ -76,6 +82,100 @@ namespace Customer.API.IntegrationTests.Controllers
 
             // Check asserts
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetAllLocationInOrganization()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_organizationId}/location";
+            _testOutputHelper.WriteLine(requestUri);
+            var locations = await httpClient.GetFromJsonAsync<IList<LocationDTO>>(requestUri);
+            Assert.Equal(1, locations!.Count);
+        }
+
+        [Fact]
+        public async Task CreateLocationInOrganization_IsNULL()
+        {
+            // Arrange
+            var newLocation = new NewLocation();
+
+            // Act
+            var requestUri = $"/api/v1/organizations/{_organizationId}/location";
+            _testOutputHelper.WriteLine(requestUri);
+            var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newLocation);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, createResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task CreateLocationInOrganization_IsNotPrimary()
+        {
+            // Arrange
+            var newLocation = new NewLocation()
+            {
+                Name = "Test",
+                Description = "test",
+                PostalCode = "0000",
+                City = "Oslo",
+                Country = "NO"
+            };
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            // Act
+            var requestUri = $"/api/v1/organizations/{_organizationId}/location";
+            _testOutputHelper.WriteLine(requestUri);
+            var createResponse = await httpClient.PostAsJsonAsync(requestUri, newLocation);
+            var returnedLocation = await createResponse.Content.ReadFromJsonAsync<LocationDTO>();
+            var getRequestUri = $"/api/v1/organizations/{_organizationId}/false";
+            _testOutputHelper.WriteLine(getRequestUri);
+            var Org = await httpClient.GetFromJsonAsync<OrganizationDTO>(getRequestUri);
+            var locationRequestUri = $"/api/v1/organizations/{_organizationId}/location";
+            _testOutputHelper.WriteLine(locationRequestUri);
+            var locations = await httpClient.GetFromJsonAsync<IList<LocationDTO>>(locationRequestUri);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            Assert.True(Org!.Location.Name != newLocation.Name);
+            Assert.True(locations!.Count == 2);
+            Assert.True(!returnedLocation!.IsPrimary);
+            Assert.True(returnedLocation!.Id != Org!.Location.Id);
+        }
+
+        [Fact]
+        public async Task CreateLocationInOrganization_IsPrimary()
+        {
+            // Arrange
+            var newLocation = new NewLocation()
+            {
+                Name = "Test",
+                Description = "test",
+                PostalCode = "0000",
+                City = "Oslo",
+                Country = "NO",
+                IsPrimary = true
+            };
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            // Act
+            var requestUri = $"/api/v1/organizations/{_organizationId}/location";
+            _testOutputHelper.WriteLine(requestUri);
+            var createResponse = await httpClient.PostAsJsonAsync(requestUri, newLocation);
+            var returnedLocation = await createResponse.Content.ReadFromJsonAsync<LocationDTO>();
+            var getRequestUri = $"/api/v1/organizations/{_organizationId}/false";
+            _testOutputHelper.WriteLine(getRequestUri);
+            var Org = await httpClient.GetFromJsonAsync<OrganizationDTO>(getRequestUri);
+            var locationRequestUri = $"/api/v1/organizations/{_organizationId}/location";
+            _testOutputHelper.WriteLine(locationRequestUri);
+            var locations = await httpClient.GetFromJsonAsync<IList<LocationDTO>>(locationRequestUri);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            Assert.True(Org!.Location.Name == newLocation.Name);
+            Assert.True(locations!.Count == 2);
+            Assert.True(returnedLocation!.IsPrimary);
+            Assert.True(returnedLocation!.Id == Org!.Location.Id);
         }
     }
 }

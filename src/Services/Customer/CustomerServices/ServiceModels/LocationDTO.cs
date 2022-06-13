@@ -1,4 +1,6 @@
-﻿using CustomerServices.Models;
+﻿using Common.Enums;
+using CustomerServices.Models;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 #nullable enable
@@ -11,6 +13,7 @@ namespace CustomerServices.ServiceModels
 
         public LocationDTO(Location organizationLocation)
         {
+            Id = organizationLocation.ExternalId;
             Name = organizationLocation.Name;
             Description = organizationLocation.Description;
             Address1 = organizationLocation.Address1;
@@ -18,8 +21,11 @@ namespace CustomerServices.ServiceModels
             PostalCode = organizationLocation.PostalCode;
             City = organizationLocation.City;
             Country = organizationLocation.Country;
+            RecipientType = organizationLocation.RecipientType;
+            IsPrimary = organizationLocation.IsPrimary;
         }
 
+        public Guid Id { get; set; }
         public string Name { get; set; }
 
         public string? Description { get; set; }
@@ -31,6 +37,9 @@ namespace CustomerServices.ServiceModels
         public string PostalCode { get; set; }
 
         public string City { get; set; }
+        public bool IsPrimary { get; set; } = false;
+        public RecipientType RecipientType { get; set; }
+
 
         /// <summary>
         ///     Internal backing field for <see cref="Country"/>.

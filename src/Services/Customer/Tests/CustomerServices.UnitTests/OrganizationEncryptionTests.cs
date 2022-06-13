@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using AutoMapper;
 using Common.Cryptography;
 using Common.Logging;
 using CustomerServices.Infrastructure;
 using CustomerServices.Infrastructure.Context;
+using CustomerServices.ServiceModels;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -15,6 +18,8 @@ namespace CustomerServices.UnitTests
 {
     public class OrganizationEncryptionTests : OrganizationServicesBaseTest
     {
+        private static IMapper _mapper;
+
         public OrganizationEncryptionTests() : base(
         new DbContextOptionsBuilder<CustomerContext>()
         // ReSharper disable once StringLiteralTypo
@@ -22,6 +27,11 @@ namespace CustomerServices.UnitTests
             .Options
         )
         {
+            if (_mapper == null)
+            {
+                var mappingConfig = new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(LocationDTO))); });
+                _mapper = mappingConfig.CreateMapper();
+            }
         }
 
         [Fact]
@@ -31,7 +41,7 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository);
+            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository, _mapper);
 
             byte[] iv, key;
             var message = "Super secret data";

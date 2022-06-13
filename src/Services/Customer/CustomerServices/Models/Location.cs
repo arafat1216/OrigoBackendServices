@@ -152,9 +152,9 @@ namespace CustomerServices.Models
                 return true;
             return false;
         }
-        public void SetPrimaryLocation(Guid callerId)
+        public void SetPrimaryLocation(bool primary, Guid callerId)
         {
-            IsPrimary = true;
+            IsPrimary = primary;
             LastUpdatedDate = DateTime.UtcNow;
             UpdatedBy = callerId;
             AddDomainEvent(new SetPrimaryLocationDomainEvent(this));

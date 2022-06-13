@@ -1,4 +1,5 @@
-﻿using Common.Cryptography;
+﻿using AutoMapper;
+using Common.Cryptography;
 using Common.Enums;
 using Common.Exceptions;
 using CustomerServices.Exceptions;
@@ -17,11 +18,14 @@ namespace CustomerServices
     {
         private readonly ILogger<OrganizationServices> _logger;
         private readonly IOrganizationRepository _organizationRepository;
+        private readonly IMapper _mapper;
 
-        public OrganizationServices(ILogger<OrganizationServices> logger, IOrganizationRepository customerRepository)
+
+        public OrganizationServices(ILogger<OrganizationServices> logger, IOrganizationRepository customerRepository, IMapper mapper)
         {
             _logger = logger;
             _organizationRepository = customerRepository;
+            _mapper = mapper;
         }
 
         public async Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false, Guid? partnerId = null)
@@ -689,6 +693,52 @@ namespace CustomerServices
             }
         }
 
+        public async Task<LocationDTO> AddLocationInOrganization(NewLocationDTO location, Guid customerId, Guid callerId)
+        {
+            try
+            {
+                var organization = await _organizationRepository.GetOrganizationAsync(customerId, includeLocations: true);
+
+                if (organization is null) throw new CustomerNotFoundException();
+
+                var newLocation = new Location(callerId, location.Name, location.Description,
+                    location.Address1, location.Address2, location.PostalCode, location.City,
+                    location.Country);
+
+                if (newLocation.IsNull()) throw new ArgumentException($"Location have all field Empty");
+
+                if (location.IsPrimary)
+                {
+                    var existingPrimaryLocation = organization.PrimaryLocation;
+                    if (existingPrimaryLocation is not null)
+                        existingPrimaryLocation.SetPrimaryLocation(false, callerId);
+                    newLocation.SetPrimaryLocation(true, callerId);
+                }
+                organization.AddLocation(newLocation, customerId, callerId);
+
+                var addedLocation = await _organizationRepository.AddOrganizationLocationAsync(newLocation);
+
+                return new LocationDTO(addedLocation);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("OrganizationServices - AddLocationInOrganization failed to Add Location: " + ex.Message);
+                throw;
+            }
+        }
+        public async Task<IList<LocationDTO>> GetAllLocationInOrganization(Guid customerId)
+        {
+            try
+            {
+                var locations = await _organizationRepository.GetOrganizationAllLocationAsync(customerId);
+                return _mapper.Map<IList<LocationDTO>>(locations);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("OrganizationServices - GetAllLocationInOrganization failed to Get Locations: " + ex.Message);
+                throw;
+            }
+        }
 
         public async Task<string> EncryptDataForCustomer(Guid customerId, string message, byte[] secretKey, byte[] iv)
         {
