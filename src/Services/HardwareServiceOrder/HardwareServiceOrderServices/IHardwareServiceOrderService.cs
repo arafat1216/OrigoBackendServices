@@ -1,4 +1,5 @@
-﻿using HardwareServiceOrderServices.ServiceModels;
+﻿using Common.Interfaces;
+using HardwareServiceOrderServices.ServiceModels;
 
 namespace HardwareServiceOrderServices
 {
@@ -11,8 +12,8 @@ namespace HardwareServiceOrderServices
 
         // Order
         Task<HardwareServiceOrderResponseDTO> CreateHardwareServiceOrderAsync(Guid customerId, HardwareServiceOrderDTO model);
-        Task<HardwareServiceOrderDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId);
-        Task<List<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId);
+        Task<HardwareServiceOrderResponseDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId);
+        Task<PagedModel<HardwareServiceOrderResponseDTO>> GetHardwareServiceOrdersAsync(Guid customerId, CancellationToken cancellationToken, int page = 1, int limit = 500);
         Task<List<HardwareServiceOrderLogDTO>> GetHardwareServiceOrderLogsAsync(Guid customerId, Guid orderId);
         /// <summary>
         /// Update all order status since last updated datetime

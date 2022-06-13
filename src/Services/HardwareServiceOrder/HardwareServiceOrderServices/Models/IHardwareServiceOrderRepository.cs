@@ -1,4 +1,6 @@
-﻿namespace HardwareServiceOrderServices.Models
+﻿using Common.Interfaces;
+
+namespace HardwareServiceOrderServices.Models
 {
     public interface IHardwareServiceOrderRepository
     {
@@ -40,9 +42,22 @@
 
         Task<IEnumerable<HardwareServiceOrder>> GetAllOrdersAsync(DateTime? olderThan = null, List<int>? statusIds = null);
 
-        Task<HardwareServiceOrder> GetOrderByIdAsync(Guid orderId);
+        /// <summary>
+        /// Get order
+        /// </summary>
+        /// <param name="orderId">Order identifier</param>
+        /// <returns></returns>
+        Task<HardwareServiceOrder> GetOrderAsync(Guid orderId);
 
-        Task<List<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId);
+        /// <summary>
+        /// Get order
+        /// </summary>
+        /// <param name="customerId">Customer Identifier</param>
+        /// <param name="orderId">Order identifier</param>
+        /// <returns></returns>
+        Task<HardwareServiceOrder> GetOrderAsync(Guid customerId, Guid orderId);
+
+        Task<PagedModel<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId, int page, int limit, CancellationToken cancellationToken);
         /// <summary>
         /// Update the status of a service order
         /// </summary>

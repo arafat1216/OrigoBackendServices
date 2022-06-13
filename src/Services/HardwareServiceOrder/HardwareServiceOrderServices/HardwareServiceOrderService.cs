@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.Interfaces;
 using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Email.Models;
 using HardwareServiceOrderServices.Models;
@@ -127,7 +128,7 @@ namespace HardwareServiceOrderServices
                 };
 
                 await _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMail, "en");
-                
+
                 var responseDto = new HardwareServiceOrderResponseDTO
                 {
                     Created = origoOrder.CreatedDate,
@@ -135,7 +136,7 @@ namespace HardwareServiceOrderServices
                     Id = origoOrder.ExternalId,
                     Events = new List<ExternalServiceEventDTO> { },
                     Owner = origoOrder.Owner.UserId,
-                    ServiceProvider = (ServiceProviderEnum) origoOrder.ServiceProviderId,
+                    ServiceProvider = (ServiceProviderEnum)origoOrder.ServiceProviderId,
                     Status = (ServiceStatusEnum)origoOrder.StatusId,
                     Type = (ServiceTypeEnum)origoOrder.ServiceTypeId,
                     AssetLifecycleId = origoOrder.AssetLifecycleId
@@ -150,9 +151,12 @@ namespace HardwareServiceOrderServices
             }
         }
 
-        public Task<HardwareServiceOrderDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
+        /// <inheritdoc cref="IHardwareServiceOrderService.GetHardwareServiceOrderAsync(Guid, Guid)"/>
+        public async Task<HardwareServiceOrderResponseDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
         {
-            throw new NotImplementedException();
+            var orderEntity = await _hardwareServiceOrderRepository.GetOrderAsync(orderId);
+
+            return _mapper.Map<HardwareServiceOrderResponseDTO>(orderEntity);
         }
 
         public Task<List<HardwareServiceOrderLogDTO>> GetHardwareServiceOrderLogsAsync(Guid customerId, Guid orderId)
@@ -160,9 +164,18 @@ namespace HardwareServiceOrderServices
             throw new NotImplementedException();
         }
 
-        public Task<List<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId)
+        public async Task<PagedModel<HardwareServiceOrderResponseDTO>> GetHardwareServiceOrdersAsync(Guid customerId, CancellationToken cancellationToken, int page = 1, int limit = 500)
         {
-            throw new NotImplementedException();
+            var orderEntities = await _hardwareServiceOrderRepository.GetAllOrdersAsync(customerId, page, limit, cancellationToken);
+
+            return new PagedModel<HardwareServiceOrderResponseDTO>
+            {
+                CurrentPage = orderEntities.CurrentPage,
+                Items = _mapper.Map<List<HardwareServiceOrderResponseDTO>>(orderEntities.Items),
+                PageSize = orderEntities.PageSize,
+                TotalItems = orderEntities.TotalItems,
+                TotalPages = orderEntities.TotalPages
+            };
         }
 
         public async Task<CustomerSettingsDTO> GetSettingsAsync(Guid customerId)

@@ -1,4 +1,6 @@
-﻿using HardwareServiceOrderServices.Models;
+﻿using Common.Extensions;
+using Common.Interfaces;
+using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
 using Microsoft.EntityFrameworkCore;
 
@@ -117,13 +119,17 @@ namespace HardwareServiceOrderServices.Infrastructure
             return await orders.ToListAsync();
         }
 
-        public Task<List<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId)
+        public async Task<PagedModel<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId, int page, int limit, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var orders = _hardwareServiceOrderContext.HardwareServiceOrders
+                .Where(m => m.CustomerId == customerId)
+                .OrderByDescending(m => m.CreatedDate);
+
+            return await orders.PaginateAsync(page, limit, cancellationToken);
         }
 
-        /// <inheritdoc cref="GetOrderByIdAsync(Guid)"/>
-        public async Task<HardwareServiceOrder> GetOrderByIdAsync(Guid orderId)
+        /// <inheritdoc cref="GetOrderAsync(Guid)"/>
+        public async Task<HardwareServiceOrder> GetOrderAsync(Guid orderId)
         {
             var order = await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == orderId);
             return order;
@@ -136,7 +142,7 @@ namespace HardwareServiceOrderServices.Infrastructure
 
         public async Task<HardwareServiceOrder> CreateHardwareServiceOrder(HardwareServiceOrder serviceOrder)
         {
-            if (serviceOrder.ServiceProvider == null || serviceOrder.ServiceType == null 
+            if (serviceOrder.ServiceProvider == null || serviceOrder.ServiceType == null
                 || serviceOrder.Status == null)
             {
                 throw new Exception();
@@ -244,6 +250,12 @@ namespace HardwareServiceOrderServices.Infrastructure
         public async Task<ServiceStatus> GetServiceStatusAsync(int id)
         {
             return await _hardwareServiceOrderContext.ServiceStatuses.FirstOrDefaultAsync(m => m.Id == id);
+        }
+
+        /// <inheritdoc cref="IHardwareServiceOrderRepository.GetOrderAsync(Guid, Guid)"/>
+        public async Task<HardwareServiceOrder> GetOrderAsync(Guid customerId, Guid orderId)
+        {
+            return await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == orderId && m.CustomerId == customerId);
         }
     }
 }
