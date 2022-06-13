@@ -415,6 +415,16 @@ namespace AssetServices
             if (assetLifecycle == null)
                 throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
 
+            if(assetLifecycle.AssetLifecycleType != LifecycleType.Transactional)
+            {
+                throw new ReturnDeviceRequestException($"Only Assets that have Transactionl Life cycle type can make return request!!! asset Id: {data.AssetLifeCycleId}", _logger);
+            }
+            if(assetLifecycle.EndPeriod != null)
+            {
+                if(assetLifecycle.EndPeriod.Value.Month != DateTime.UtcNow.Month || assetLifecycle.EndPeriod.Value.Year != DateTime.UtcNow.Year)
+                    throw new ReturnDeviceRequestException($"Asset's life cycle needs to be on last month to make return request!!! asset Id: {data.AssetLifeCycleId}", _logger);
+            }
+
             if (!AssetLifecycle.IsActiveState(assetLifecycle.AssetLifecycleStatus))
             {
                 throw new ReturnDeviceRequestException($"Only Active devices can make return request!!! asset Id: {data.AssetLifeCycleId}", _logger);
