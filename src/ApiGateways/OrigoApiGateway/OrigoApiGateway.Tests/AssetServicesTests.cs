@@ -199,7 +199,7 @@ namespace OrigoApiGateway.Tests
 
             var mockDepartment = new Mock<OrigoDepartment>();
             var mockDepartmentService = new Mock<IDepartmentsServices>();
-            mockDepartmentService.Setup(p => p.GetDepartment(Guid.Empty, Guid.Empty).Result).Returns(mockDepartment.Object);
+            mockDepartmentService.Setup(p => p.GetDepartmentAsync(Guid.Empty, Guid.Empty).Result).Returns(mockDepartment.Object);
 
             var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, mockUserService.Object, _mapper, mockDepartmentService.Object);
 

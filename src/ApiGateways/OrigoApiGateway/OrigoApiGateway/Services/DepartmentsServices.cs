@@ -29,7 +29,7 @@ namespace OrigoApiGateway.Services
             _mapper = mapper;
         }
 
-        public async Task<OrigoDepartment> GetDepartment(Guid customerId, Guid departmentId)
+        public async Task<OrigoDepartment> GetDepartmentAsync(Guid customerId, Guid departmentId)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<OrigoDepartment>> GetDepartments(Guid customerId)
+        public async Task<IList<OrigoDepartment>> GetDepartmentsAsync(Guid customerId)
         {
             try
             {

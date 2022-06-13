@@ -171,7 +171,7 @@ namespace OrigoApiGateway.Services
                     {
                         if (asset.ManagedByDepartmentId != null)
                         {
-                            var department = await _departmentsServices.GetDepartment(asset.OrganizationId, asset.ManagedByDepartmentId ?? throw new ArgumentNullException("DepartmentId"));
+                            var department = await _departmentsServices.GetDepartmentAsync(asset.OrganizationId, asset.ManagedByDepartmentId ?? throw new ArgumentNullException("DepartmentId"));
                             if (department != null) asset.DepartmentName = department.Name;
                         }
                         if (asset.AssetHolderId != null)
@@ -499,7 +499,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 var existingAsset = await GetAssetForCustomerAsync(customerId, assetId);
-                var department = await _departmentsServices.GetDepartment(customerId, existingAsset.ManagedByDepartmentId.Value);
+                var department = await _departmentsServices.GetDepartmentAsync(customerId, existingAsset.ManagedByDepartmentId.Value);
                 var oldManagers = new List<EmailPersonAttributeDTO>();
                 foreach (var manager in department.ManagedBy)
                 {
@@ -559,7 +559,7 @@ namespace OrigoApiGateway.Services
                         PreferedLanguage = previousUser.UserPreference!.Language
                     };
                 }
-                var department = await _departmentsServices.GetDepartment(customerId, existingAsset.ManagedByDepartmentId.Value);
+                var department = await _departmentsServices.GetDepartmentAsync(customerId, existingAsset.ManagedByDepartmentId.Value);
                 var oldManagers = new List<EmailPersonAttributeDTO>();
                 foreach(var manager in department.ManagedBy)
                 {
@@ -958,7 +958,7 @@ namespace OrigoApiGateway.Services
                 {
                     try
                     {
-                        var department = await _departmentsServices.GetDepartment(customerId, assignedAsset.DepartmentId);
+                        var department = await _departmentsServices.GetDepartmentAsync(customerId, assignedAsset.DepartmentId);
                         if (department == null)
                             throw new BadHttpRequestException("Unable to assign asset. Department not found");
                     }
@@ -1188,7 +1188,7 @@ namespace OrigoApiGateway.Services
                         {
                             try
                             {
-                                var isDepartment = await _departmentsServices.GetDepartment(customerId, department);
+                                var isDepartment = await _departmentsServices.GetDepartmentAsync(customerId, department);
                                 if (isDepartment != null)
                                 {
                                     if(filter.Department == null) filter.Department = new List<Guid?>();

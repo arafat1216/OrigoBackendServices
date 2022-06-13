@@ -56,7 +56,7 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var department = await _departmentServices.GetDepartment(organizationId, departmentId);
+                var department = await _departmentServices.GetDepartmentAsync(organizationId, departmentId);
 
                 return Ok(department);
             }
@@ -86,7 +86,7 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var departments = await _departmentServices.GetDepartments(organizationId);
+                var departments = await _departmentServices.GetDepartmentsAsync(organizationId);
 
                 return Ok(departments);
             }
