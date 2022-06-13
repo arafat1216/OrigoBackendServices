@@ -1,6 +1,7 @@
 using Common.Configuration;
 using Common.Utilities;
 using Dapr.Client;
+using Google.Api;
 using HardwareServiceOrder.API;
 using HardwareServiceOrder.API.Extensions;
 using HardwareServiceOrderServices;
@@ -41,13 +42,16 @@ builder.Services.AddHealthChecks();
 builder.Services.AddControllers()
                 .AddDapr();
 
+// Register the two DI items used by EF to retrieve/assign the API's callerID
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<IApiRequesterService, ApiRequesterService>();
 
 builder.Services.AddDbContext<HardwareServiceOrderContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("HardwareServiceOrderConnectionString"), sqlOption =>
     {
         sqlOption.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
         sqlOption.MigrationsAssembly(typeof(HardwareServiceOrderContext).GetTypeInfo().Assembly.GetName().Name);
-    }), ServiceLifetime.Scoped);
+    }));
 
 builder.Services.AddAutoMapper(
     Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(HardwareServiceOrderServices.Mappings.CustomerSettingsProfile)),
@@ -127,7 +131,7 @@ builder.Services.AddApplicationInsightsTelemetry();
 
 builder.Services.Configure<ServiceProviderConfiguration>(builder.Configuration.GetSection("ServiceProviderConfiguration"));
 builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("Email"));
-builder.Services.AddSingleton(s=> new ResourceManager("HardwareServiceOrderServices.Resources.HardwareServiceOrder", Assembly.GetAssembly(typeof(EmailService))));
+builder.Services.AddSingleton(s => new ResourceManager("HardwareServiceOrderServices.Resources.HardwareServiceOrder", Assembly.GetAssembly(typeof(EmailService))));
 builder.Services.AddScoped<IHardwareServiceOrderService, HardwareServiceOrderService>();
 builder.Services.AddScoped<IHardwareServiceOrderRepository, HardwareServiceOrderRepository>();
 builder.Services.AddScoped<IProviderFactory, ProviderFactory>();
