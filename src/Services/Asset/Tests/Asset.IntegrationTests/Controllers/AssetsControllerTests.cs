@@ -22,6 +22,7 @@ using AssetLifecycleType = Asset.API.ViewModels.AssetLifecycleType;
 using Label = Asset.API.ViewModels.Label;
 using LifeCycleSetting = Asset.API.ViewModels.LifeCycleSetting;
 using DisposeSetting = Asset.API.ViewModels.DisposeSetting;
+using AssetServices.ServiceModel;
 
 namespace Asset.IntegrationTests.Controllers
 {
@@ -39,7 +40,9 @@ namespace Asset.IntegrationTests.Controllers
         private readonly Guid _assetOne;
         private readonly Guid _assetTwo;
         private readonly Guid _assetThree;
+        private readonly Guid _assetFour;
         private readonly Guid _assetFive;
+        private readonly Guid _assetSeven;
         private readonly Guid _assetEight;
 
 
@@ -57,8 +60,10 @@ namespace Asset.IntegrationTests.Controllers
             _assetOne = factory.ASSETLIFECYCLE_ONE_ID;
             _assetTwo = factory.ASSETLIFECYCLE_TWO_ID;
             _assetThree = factory.ASSETLIFECYCLE_THREE_ID;
+            _assetFour = factory.ASSETLIFECYCLE_FOUR_ID;
             _assetEight = factory.ASSETLIFECYCLE_EIGHT_ID;
             _assetFive = factory.ASSETLIFECYCLE_FIVE_ID;
+            _assetSeven = factory.ASSETLIFECYCLE_SEVEN_ID;
             _customerIdTwo = factory.COMPANY_ID_TWO;
             _factory = factory;
         }
@@ -628,7 +633,7 @@ namespace Asset.IntegrationTests.Controllers
             _testOutputHelper.WriteLine(requestUri);
             var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
 
-            Assert.Equal(HttpStatusCode.InternalServerError, responsePost.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
         }
         [Fact]
         public async Task ReturnDeviceAsync_PersonalConfirmReturn()
@@ -643,6 +648,49 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
             Assert.Equal(HttpStatusCode.OK, confirmPost.StatusCode);
             Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.Returned);
+        }
+        [Fact]
+        public async Task BuyoutDeviceAsync()
+        {
+            var postData = new BuyoutDeviceDTO { AssetLifeCycleId = _ = _assetOne, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/buyout-device";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+            var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+            Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.BoughtByUser);
+        }
+
+        [Fact]
+        public async Task BuyoutDeviceAsync_IsNonPersonal()
+        {
+            var postData = new BuyoutDeviceDTO { AssetLifeCycleId = _assetFive, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/buyout-device";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+            Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
+        }
+
+        [Fact]
+        public async Task BuyoutDeviceAsync_IsInactive()
+        {
+            var postData = new BuyoutDeviceDTO { AssetLifeCycleId = _assetSeven, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/buyout-device";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+            Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
+        }
+
+        [Fact]
+        public async Task BuyoutDeviceAsync_PayrollEmailNotExist()
+        {
+            var postData = new BuyoutDeviceDTO { AssetLifeCycleId = _assetEight, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/customers/{_customerIdTwo}/buyout-device";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+            Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
         }
 
         [Theory]
@@ -1555,10 +1603,12 @@ namespace Asset.IntegrationTests.Controllers
         [Fact]
         public async Task GetCustomerAssetsCount_EmptyList()
         {
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
             var json = "{\"Department\":[],\"Status\":[],\"Category\":null,\"Label\":null}";
 
             var request = $"/api/v1/Assets/customers/{_customerId}/assets-counter/?filter={json}";
-            var response = await _httpClient.GetAsync(request);
+            var response = await httpClient.GetAsync(request);
 
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);

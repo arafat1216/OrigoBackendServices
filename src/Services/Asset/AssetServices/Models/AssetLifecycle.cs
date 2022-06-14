@@ -345,6 +345,19 @@ public class AssetLifecycle : Entity, IAggregateRoot
         AddDomainEvent(new ConfirmReturnDeviceDomainEvent(this, callerId, previousLifecycleStatus));
         _assetLifecycleStatus = AssetLifecycleStatus.Returned;
     }
+    
+    /// <summary>
+    /// User has buought out this asset.. 
+    /// </summary>
+    /// <param name="callerId">The userid making this assignment</param>
+    public void BuyoutDevice(Guid callerId)
+    {
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        var previousLifecycleStatus = _assetLifecycleStatus;
+        AddDomainEvent(new BuyoutDeviceDomainEvent(this, callerId, previousLifecycleStatus));
+        _assetLifecycleStatus = AssetLifecycleStatus.BoughtByUser;
+    }
 
     /// <summary>
     /// Assign a customer label for this asset lifecycle.

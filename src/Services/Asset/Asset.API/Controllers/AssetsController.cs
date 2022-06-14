@@ -435,10 +435,47 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> ReturnDeviceAsync(Guid customerId, [FromBody] ReturnDevice data)
         {
-            var dataDTO = _mapper.Map<ReturnDeviceDTO>(data);
-            var updatedAssets = await _assetServices.ReturnDeviceAsync(customerId, dataDTO);
-            return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
+            try
+            {
+                var dataDTO = _mapper.Map<ReturnDeviceDTO>(data);
+                var updatedAssets = await _assetServices.ReturnDeviceAsync(customerId, dataDTO);
+                return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger?.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (ReturnDeviceRequestException ex)
+            {
+                _logger?.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
         }
+
+        [Route("customers/{customerId:guid}/buyout-device")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> BuyoutDeviceAsync(Guid customerId, [FromBody] BuyoutDeviceDTO data)
+        {
+            try
+            {
+                var updatedAssets = await _assetServices.BuyoutDeviceAsync(customerId, data);
+                return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger?.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (BuyoutDeviceRequestException ex)
+            {
+                _logger?.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
         [Route("{assetId:Guid}/customers/{customerId:guid}/re-assignment")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]

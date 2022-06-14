@@ -641,8 +641,52 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+        public async Task<OrigoAsset> BuyoutDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, Guid callerId)
+        {
+            try
+            {
+                var existingAsset = await GetAssetForCustomerAsync(customerId, assetLifeCycleId);
+                if (existingAsset != null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
 
+                if (existingAsset.AssetHolderId != callerId && role == PredefinedRole.EndUser.ToString()) throw new Exception("Only ContractHolderUser can do buyout!!!");
 
+                var buyoutDTO = new BuyoutDeviceDTO()
+                {
+                    AssetLifeCycleId = assetLifeCycleId,
+                    CallerId = callerId
+                };
+
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/buyout-device";
+
+                var response = await HttpClient.PostAsJsonAsync(requestUri, buyoutDTO);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                OrigoAsset result = null;
+                if (asset != null)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        result = _mapper.Map<OrigoMobilePhone>(asset);
+                    else
+                        result = _mapper.Map<OrigoTablet>(asset);
+                }
+                return result;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to set status for assets.");
+                throw;
+            }
+        }
         public async Task<OrigoAsset> ReAssignAssetToDepartment(Guid customerId, Guid assetId, ReassignedToDepartmentDTO data)
         {
             try

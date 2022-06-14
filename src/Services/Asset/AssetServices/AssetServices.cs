@@ -456,7 +456,46 @@ namespace AssetServices
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
 
+        public async Task<AssetLifecycleDTO> BuyoutDeviceAsync(Guid customerId, BuyoutDeviceDTO data)
+        {
+            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId);
+            if (assetLifecycle == null)
+                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
 
+            var customerSetting = await _assetLifecycleRepository.GetDisposeSettingByCustomerAsync(customerId);
+
+            if (customerSetting is null || customerSetting.DisposeSetting is null || string.IsNullOrEmpty(customerSetting.DisposeSetting.PayrollContactEmail))
+            {
+                throw new BuyoutDeviceRequestException($"Payroll responsible email need to set first to do buyout for CustomerId: {customerId}", _logger);
+            }
+
+            if (!AssetLifecycle.IsActiveState(assetLifecycle.AssetLifecycleStatus))
+            {
+                throw new BuyoutDeviceRequestException($"Only Active devices can do buyout!!! asset Id: {data.AssetLifeCycleId}", _logger);
+            }
+
+            if (!assetLifecycle.IsPersonal)
+            {
+                throw new BuyoutDeviceRequestException($"Only Personal Assets can be bought out!!! asset Id: {data.AssetLifeCycleId}", _logger);
+            }
+
+            if (assetLifecycle.AssetLifecycleType != LifecycleType.Transactional)
+            {
+                throw new BuyoutDeviceRequestException($"Only Assets that have Transactionl Life cycle type can be bought out!!! asset Id: {data.AssetLifeCycleId}", _logger);
+            }
+
+            if (assetLifecycle.EndPeriod != null)
+            {
+                if (assetLifecycle.EndPeriod.Value.Month != DateTime.UtcNow.Month || assetLifecycle.EndPeriod.Value.Year != DateTime.UtcNow.Year)
+                    throw new BuyoutDeviceRequestException($"Asset's life cycle needs to be on last month to do buyout!!! asset Id: {data.AssetLifeCycleId}", _logger);
+            }
+
+            assetLifecycle.BuyoutDevice(data.CallerId);
+            // TODO: Email to Pay-roll responsible contact (Task is in another US)
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
+        }
         public async Task<AssetLifecycleDTO> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string? alias, string? serialNumber, string? brand, string? model, DateTime? purchaseDate, string? note, string? tag, string? description, IList<long>? imei)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
