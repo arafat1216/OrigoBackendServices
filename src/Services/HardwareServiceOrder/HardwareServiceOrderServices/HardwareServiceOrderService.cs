@@ -197,7 +197,7 @@ namespace HardwareServiceOrderServices
             {
                 var provider = await _providerFactory.GetRepairProviderAsync(customerProvider.ServiceProviderId, customerProvider.ApiUserName, customerProvider.ApiPassword);
 
-                var updateStarted = DateTime.UtcNow;
+                var updateStarted = DateTimeOffset.UtcNow;
 
                 var updatedOrders = await provider.GetUpdatedRepairOrdersAsync(customerProvider.LastUpdateFetched);
 
