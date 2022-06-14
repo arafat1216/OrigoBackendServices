@@ -47,7 +47,7 @@ namespace HardwareServiceOrder.UnitTests
             hwRepositoryMock.Setup(m => m.UpdateOrderStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>()))
                             .ReturnsAsync(order);
 
-            var serviceOrderUnKnownStatusHandlerService = new ServiceOrderUnKnownStatusHandlerService(options: _options, emailService: emailMock.Object, hardwareServiceOrderRepository: hwRepositoryMock.Object);
+            var serviceOrderUnKnownStatusHandlerService = new ServiceOrderUnknownStatusHandlerService(options: _options, emailService: emailMock.Object, hardwareServiceOrderRepository: hwRepositoryMock.Object);
 
 
             await serviceOrderUnKnownStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.Unknown);

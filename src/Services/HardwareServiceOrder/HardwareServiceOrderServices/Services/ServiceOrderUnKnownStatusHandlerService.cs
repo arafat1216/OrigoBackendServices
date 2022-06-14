@@ -8,13 +8,13 @@ namespace HardwareServiceOrderServices.Services
     /// <summary>
     /// Handles Unknown status
     /// </summary>
-    public class ServiceOrderUnKnownStatusHandlerService : ServiceOrderStatusHandlerService
+    public class ServiceOrderUnknownStatusHandlerService : ServiceOrderStatusHandlerService
     {
         private readonly OrigoConfiguration _origoConfiguration;
         private readonly IEmailService _emailService;
         private readonly IHardwareServiceOrderRepository _hardwareServiceOrderRepository;
 
-        public ServiceOrderUnKnownStatusHandlerService(IOptions<OrigoConfiguration> options,
+        public ServiceOrderUnknownStatusHandlerService(IOptions<OrigoConfiguration> options,
             IEmailService emailService,
             IHardwareServiceOrderRepository hardwareServiceOrderRepository)
             : base(hardwareServiceOrderRepository)

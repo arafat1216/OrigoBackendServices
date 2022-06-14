@@ -144,7 +144,7 @@ builder.Services.AddScoped<ServiceOrderCanceledStatusHandlerService>();
 builder.Services.AddScoped<ServiceOrderCompletedStatusHandlerService>();
 builder.Services.AddScoped<ServiceOrderOngoingStatusHandlerService>();
 builder.Services.AddScoped<ServiceOrderRegisteredStatusHandlerService>();
-builder.Services.AddScoped<ServiceOrderUnKnownStatusHandlerService>();
+builder.Services.AddScoped<ServiceOrderUnknownStatusHandlerService>();
 
 builder.Services.AddScoped(s => new Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService>
 {
@@ -167,7 +167,7 @@ builder.Services.AddScoped(s => new Dictionary<ServiceStatusEnum, ServiceOrderSt
     {ServiceStatusEnum.RegisteredInTransit, s.GetRequiredService<ServiceOrderRegisteredStatusHandlerService>() },
     {ServiceStatusEnum.RegisteredUserActionNeeded, s.GetRequiredService<ServiceOrderRegisteredStatusHandlerService>() },
     //Unknown
-    { ServiceStatusEnum.Unknown, s.GetRequiredService<ServiceOrderUnKnownStatusHandlerService>() }
+    { ServiceStatusEnum.Unknown, s.GetRequiredService<ServiceOrderUnknownStatusHandlerService>() }
 });
 
 builder.Services.Configure<AssetConfiguration>(builder.Configuration.GetSection("Asset"));
