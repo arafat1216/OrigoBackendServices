@@ -422,7 +422,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     {
         var assetLifecycleStatus = assetLifecycleDTO.LifecycleType == LifecycleType.Transactional ? AssetLifecycleStatus.InputRequired : AssetLifecycleStatus.Active;
         var salaryDeductionTransactions = CreateSalaryDeductionTransactions(assetLifecycleDTO.PurchaseDate,
-            assetLifecycleDTO.MonthlySalaryDeductionRuntime, assetLifecycleDTO.MonthlySalaryDeduction, assetLifecycleDTO.LifecycleType, assetLifecycleDTO.CallerId);
+            assetLifecycleDTO.MonthlySalaryDeductionRuntime, assetLifecycleDTO.MonthlySalaryDeduction, assetLifecycleDTO.LifecycleType);
         return new AssetLifecycle
         {
             CustomerId = assetLifecycleDTO.CustomerId,
@@ -441,12 +441,12 @@ public class AssetLifecycle : Entity, IAggregateRoot
             InvoiceNumber = assetLifecycleDTO.InvoiceNumber ?? string.Empty,
             TransactionId = assetLifecycleDTO.TransactionId ?? string.Empty,
             Source = assetLifecycleDTO.Source,
-            IsPersonal = assetLifecycleDTO.IsPersonal
+            IsPersonal = assetLifecycleDTO.IsPersonal ?? assetLifecycleDTO.LifecycleType == LifecycleType.Transactional // Default is true only for transactional assets
         };
     }
 
     private static List<SalaryDeductionTransaction> CreateSalaryDeductionTransactions(DateTime purchaseDate,
-        int? monthlySalaryDeductionRuntime, decimal? monthlySalaryDeduction, LifecycleType lifecycleType, Guid callerId)
+        int? monthlySalaryDeductionRuntime, decimal? monthlySalaryDeduction, LifecycleType lifecycleType)
     {
         var startDate = GetStartPeriodFromPurchaseDate(purchaseDate, lifecycleType);
         if (lifecycleType == LifecycleType.NoLifecycle || !monthlySalaryDeductionRuntime.HasValue || !monthlySalaryDeduction.HasValue || startDate == null)

@@ -316,9 +316,9 @@ namespace AssetServices
             var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(newAssetLifecycle);
 
             Asset asset = newAssetDTO.AssetCategoryId == 1
-                ? new MobilePhone(Guid.NewGuid(), newAssetDTO.CallerId, newAssetDTO.SerialNumber, newAssetDTO.Brand, newAssetDTO.ProductName,
-                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), newAssetDTO.MacAddress)
-                : new Tablet(Guid.NewGuid(), newAssetDTO.CallerId, newAssetDTO.SerialNumber, newAssetDTO.Brand, newAssetDTO.ProductName,
+                ? new MobilePhone(Guid.NewGuid(), newAssetDTO.CallerId, newAssetDTO.SerialNumber ?? string.Empty, newAssetDTO.Brand ?? string.Empty, newAssetDTO.ProductName ?? string.Empty,
+                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), newAssetDTO.MacAddress ?? string.Empty)
+                : new Tablet(Guid.NewGuid(), newAssetDTO.CallerId, newAssetDTO.SerialNumber ?? string.Empty, newAssetDTO.Brand ?? string.Empty, newAssetDTO.ProductName,
                     uniqueImeiList.Select(i => new AssetImei(i)).ToList(), newAssetDTO.MacAddress);
             assetLifecycle.AssignAsset(asset, newAssetDTO.CallerId);
 

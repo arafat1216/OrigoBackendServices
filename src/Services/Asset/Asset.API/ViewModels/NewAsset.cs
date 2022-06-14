@@ -141,7 +141,7 @@ public record NewAsset
     /// <summary>
     /// Is a personal or non-personal asset.
     /// </summary>
-    public bool? IsPersonal { get; set; } = true;
+    public bool? IsPersonal { get; set; }
 
     /// <summary>
     /// The source for the imported asset lifecycle.

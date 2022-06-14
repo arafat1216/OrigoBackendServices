@@ -373,6 +373,85 @@ namespace Asset.IntegrationTests.Controllers
         }
 
         [Fact]
+        public async Task CreateNoLifecycleAssetWithoutOwner_ShouldBeNonPersonal()
+        {
+            var newAsset = new NewAsset
+            {
+                Alias = "Just another name",
+                AssetCategoryId = 1,
+                Note = "A long note",
+                Brand = "iPhone",
+                ProductName = "12 Pro Max",
+                LifecycleType = LifecycleType.NoLifecycle,
+                PurchaseDate = new DateTime(2022, 2, 2),
+                Imei = new List<long> { 356728115537645 },
+                CallerId = _callerId,
+                Source = "WEBSHOP"
+            };
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(newAsset));
+            var requestUri = $"/api/v1/Assets/customers/{_organizationId}";
+            _testOutputHelper.WriteLine(requestUri);
+            var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newAsset);
+            _testOutputHelper.WriteLine(await createResponse.Content.ReadAsStringAsync());
+            var assetReturned = await createResponse.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            Assert.False(assetReturned!.IsPersonal);
+        }
+
+        [Fact]
+        public async Task CreateNoLifecycleAssetWithOwner_ShouldBePersonal()
+        {
+            var newAsset = new NewAsset
+            {
+                Alias = "Just another name",
+                AssetCategoryId = 1,
+                Note = "A long note",
+                Brand = "iPhone",
+                ProductName = "12 Pro Max",
+                LifecycleType = LifecycleType.NoLifecycle,
+                PurchaseDate = new DateTime(2022, 2, 2),
+                AssetHolderId = Guid.NewGuid(),
+                Imei = new List<long> { 356728115537645 },
+                CallerId = _callerId,
+                Source = "WEBSHOP"
+            };
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(newAsset));
+            var requestUri = $"/api/v1/Assets/customers/{_organizationId}";
+            _testOutputHelper.WriteLine(requestUri);
+            var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newAsset);
+            _testOutputHelper.WriteLine(await createResponse.Content.ReadAsStringAsync());
+            var assetReturned = await createResponse.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            Assert.True(assetReturned!.IsPersonal);
+        }
+
+        [Fact]
+        public async Task CreateBYODAssetWithoutOwner_ShouldBeNonPersonal()
+        {
+            var newAsset = new NewAsset
+            {
+                Alias = "Just another name",
+                AssetCategoryId = 1,
+                Note = "A long note",
+                Brand = "iPhone",
+                ProductName = "12 Pro Max",
+                LifecycleType = LifecycleType.BYOD,
+                PurchaseDate = new DateTime(2022, 2, 2),
+                Imei = new List<long> { 356728115537645 },
+                CallerId = _callerId,
+                Source = "WEBSHOP"
+            };
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(newAsset));
+            var requestUri = $"/api/v1/Assets/customers/{_organizationId}";
+            _testOutputHelper.WriteLine(requestUri);
+            var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newAsset);
+            _testOutputHelper.WriteLine(await createResponse.Content.ReadAsStringAsync());
+            var assetReturned = await createResponse.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            Assert.False(assetReturned!.IsPersonal);
+        }
+
+        [Fact]
         public async Task CreateAssetWithEmptyNote()
         {
             var newAsset = new NewAsset

@@ -105,7 +105,7 @@ public class CreateAssetLifecycleDTO
     /// <summary>
     /// Is a personal or non-personal asset.
     /// </summary>
-    public bool IsPersonal { get; set; }
+    public bool? IsPersonal { get; set; }
 
     public AssetLifeCycleSource Source { get; set; }
 }
