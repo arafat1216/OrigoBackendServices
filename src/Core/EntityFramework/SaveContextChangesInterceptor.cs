@@ -125,14 +125,22 @@ namespace Common.EntityFramework
         }
 
 
-        private void SetPrivateProperty<TEntity, TDatatype>(TEntity member, string propName, TDatatype newValue)
+        /// <summary>
+        ///     Uses reflections to access and set a value in a private-property.
+        /// </summary>
+        /// <typeparam name="TEntity"> The class that is used in <paramref name="entity"/>. </typeparam>
+        /// <typeparam name="TDatatype"> The datatype that is used in <paramref name="propertyName"/>. </typeparam>
+        /// <param name="entity"> The entity we are using reflections on. </param>
+        /// <param name="propertyName"> The '<c>nameof()</c>' for the private property that is accessed. </param>
+        /// <param name="newValue"> The new value that will be set. </param>
+        private void SetPrivateProperty<TEntity, TDatatype>(TEntity entity, string propertyName, TDatatype newValue)
         {
-            PropertyInfo propertyInfo = typeof(TEntity).GetProperty(propName);
+            PropertyInfo? propertyInfo = typeof(TEntity).GetProperty(propertyName);
 
             if (propertyInfo == null)
                 return;
 
-            propertyInfo.SetValue(member, newValue);
+            propertyInfo.SetValue(entity, newValue);
         }
     }
 }

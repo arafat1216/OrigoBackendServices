@@ -14,6 +14,14 @@ namespace Common.Seedwork
     /// <see cref="EntityFramework.SaveContextChangesInterceptor"/>
     public abstract class Auditable
     {
+        /*
+         * Important Remarks:
+         * 
+         * None of the setters in this class should be settable or accessible outside for this abstract class. The values are intended 
+         * to be automatically assigned/updated by the DBContext's "SaveContextChangesInterceptor"-class, using reflections to allow access
+         * to the private setters. This is done to prevent any accidental assignment/override on the values.
+         */
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="Auditable"/> class. This is intended to be used with
         ///     the <see cref="EntityFramework.SaveContextChangesInterceptor"/> for automatically applying values 
