@@ -170,5 +170,10 @@ public record Asset
     /// </summary>
     public bool IsPersonal { get; set; }
 
+    /// <summary>
+    /// Is an asset Active state or Inactive state.
+    /// </summary>
+    public bool IsActiveState { get; set; }
+
     public string Source { get; set; }
 }

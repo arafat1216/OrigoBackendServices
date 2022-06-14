@@ -139,6 +139,11 @@ namespace OrigoApiGateway.Models
         public bool IsPersonal { get; set; }
 
         /// <summary>
+        /// Is an asset Active state or Inactive state.
+        /// </summary>
+        public bool IsActiveState { get; set; }
+
+        /// <summary>
         /// Which source was this fetched from.
         /// </summary>
         public string? Source { get; set; }
