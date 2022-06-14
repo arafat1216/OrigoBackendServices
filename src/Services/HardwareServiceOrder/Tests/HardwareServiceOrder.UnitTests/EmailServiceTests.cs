@@ -5,7 +5,6 @@ using HardwareServiceOrderServices.Email;
 using System.Globalization;
 using Microsoft.Extensions.Options;
 using Common.Configuration;
-using HardwareServiceOrderServices;
 using Common.Utilities;
 using Microsoft.EntityFrameworkCore;
 using HardwareServiceOrderServices.Infrastructure;
@@ -14,6 +13,7 @@ using HardwareServiceOrderServices.Mappings;
 using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using HardwareServiceOrderServices.Configuration;
 
 namespace HardwareServiceOrder.UnitTests
 {

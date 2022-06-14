@@ -1,4 +1,5 @@
-﻿using HardwareServiceOrderServices.Email;
+﻿using HardwareServiceOrderServices.Configuration;
+using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Models;
 using Microsoft.Extensions.Options;
 using System.Text.Json;

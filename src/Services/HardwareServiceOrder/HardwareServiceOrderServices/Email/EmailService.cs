@@ -2,6 +2,7 @@
 using Common.Configuration;
 using Common.Extensions;
 using Common.Utilities;
+using HardwareServiceOrderServices.Configuration;
 using HardwareServiceOrderServices.Email.Models;
 using HardwareServiceOrderServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;

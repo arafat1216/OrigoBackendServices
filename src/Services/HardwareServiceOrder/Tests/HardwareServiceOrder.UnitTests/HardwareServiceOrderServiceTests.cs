@@ -4,6 +4,7 @@ using Common.Utilities;
 using HardwareServiceOrder.API.Mappings;
 using HardwareServiceOrder.API.ViewModels;
 using HardwareServiceOrderServices;
+using HardwareServiceOrderServices.Configuration;
 using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Infrastructure;
 using HardwareServiceOrderServices.Mappings;
