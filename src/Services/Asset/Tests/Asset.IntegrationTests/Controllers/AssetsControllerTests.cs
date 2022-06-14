@@ -458,6 +458,15 @@ namespace Asset.IntegrationTests.Controllers
         }
 
         [Fact]
+        public async Task LifeCycleSetting_ShouldReturnEmpty_IfNotExists()
+        {
+            var requestUri = $"/api/v1/Assets/customers/{_customerIdTwo}/lifecycle-setting";
+            _testOutputHelper.WriteLine(requestUri);
+            var setting = await _httpClient.GetFromJsonAsync<IList<LifeCycleSetting>>(requestUri);
+            Assert.Equal(0, setting!.Count);
+        }
+
+        [Fact]
         public async Task CreateLifeCycleSetting()
         {
             var newSettings =

@@ -678,7 +678,7 @@ namespace AssetServices
         public async Task<LifeCycleSettingDTO> AddLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId)
         {
             var lifeCycleSetting = new LifeCycleSetting(lifeCycleSettingDTO.AssetCategoryId, lifeCycleSettingDTO.BuyoutAllowed, lifeCycleSettingDTO.MinBuyoutPrice, lifeCycleSettingDTO.Runtime, CallerId);
-            var setting = await _assetLifecycleRepository.GetLifeCycleSettingByCustomerAsync(customerId);
+            var setting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
             if (setting == null)
             {
                 setting = new CustomerSettings(customerId, CallerId);
@@ -691,7 +691,7 @@ namespace AssetServices
 
         public async Task<LifeCycleSettingDTO> UpdateLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId)
         {
-            var existingSettings = await _assetLifecycleRepository.GetLifeCycleSettingByCustomerAsync(customerId);
+            var existingSettings = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
 
             if (existingSettings == null || existingSettings.LifeCycleSettings.Count < 1)
             {
@@ -724,7 +724,11 @@ namespace AssetServices
         }
         public async Task<IList<LifeCycleSettingDTO>> GetLifeCycleSettingByCustomer(Guid customerId)
         {
-            var existingSetting = await _assetLifecycleRepository.GetLifeCycleSettingByCustomerAsync(customerId);
+            var existingSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
+            if (existingSetting == null)
+            {
+                existingSetting = await _assetLifecycleRepository.AddCustomerSettingAsync(new CustomerSettings(), customerId);
+            }
             return _mapper.Map<IList<LifeCycleSettingDTO>>(existingSetting.LifeCycleSettings);
         }
 
