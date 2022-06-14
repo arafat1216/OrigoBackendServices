@@ -347,6 +347,30 @@ namespace OrigoApiGateway.Services
                         result = _mapper.Map<OrigoMobilePhone>(asset);
                     else
                         result = _mapper.Map<OrigoTablet>(asset);
+
+                    try
+                    {
+                        if (asset.ManagedByDepartmentId != null)
+                        {
+                            var department = await _departmentsServices.GetDepartmentAsync(asset.OrganizationId, asset.ManagedByDepartmentId ?? throw new ArgumentNullException("DepartmentId"));
+                            if (department != null) result.DepartmentName = department.Name;
+                        }
+                        if (asset.AssetHolderId != null)
+                        {
+                            var user = await _userServices.GetUserAsync(asset.AssetHolderId ?? throw new ArgumentNullException("UserId"));
+                            if (user != null) result.AssetHolderName = user.DisplayName;
+                        }
+                    }
+                    catch (HttpRequestException ex)
+                    {
+                        _logger.LogError(ex, "Department or User fetch in GetAssetsForCustomerAsync failed with HttpRequestException.");
+
+                    }
+                    catch (ArgumentNullException ex)
+                    {
+                        _logger.LogError($"{ex.Message} was null in GetAssetsForCustomerAsync failed with HttpRequestException.");
+
+                    }
                 }
                 return result;
             }
@@ -388,6 +412,30 @@ namespace OrigoApiGateway.Services
                         result = _mapper.Map<OrigoMobilePhone>(asset);
                     else
                         result = _mapper.Map<OrigoTablet>(asset);
+
+                    try
+                    {
+                        if (asset.ManagedByDepartmentId != null)
+                        {
+                            var department = await _departmentsServices.GetDepartmentAsync(asset.OrganizationId, asset.ManagedByDepartmentId ?? throw new ArgumentNullException("DepartmentId"));
+                            if (department != null) result.DepartmentName = department.Name;
+                        }
+                        if (asset.AssetHolderId != null)
+                        {
+                            var user = await _userServices.GetUserAsync(asset.AssetHolderId ?? throw new ArgumentNullException("UserId"));
+                            if (user != null) result.AssetHolderName = user.DisplayName;
+                        }
+                    }
+                    catch (HttpRequestException ex)
+                    {
+                        _logger.LogError(ex, "Department or User fetch in GetAssetsForCustomerAsync failed with HttpRequestException.");
+
+                    }
+                    catch (ArgumentNullException ex)
+                    {
+                        _logger.LogError($"{ex.Message} was null in GetAssetsForCustomerAsync failed with HttpRequestException.");
+
+                    }
                 }
 
                 return result;

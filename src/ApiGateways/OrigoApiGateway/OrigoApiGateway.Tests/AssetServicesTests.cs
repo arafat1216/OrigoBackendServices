@@ -418,6 +418,10 @@ namespace OrigoApiGateway.Tests
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            
+
+
+
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
             var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
 
@@ -450,6 +454,7 @@ namespace OrigoApiGateway.Tests
         {
             // Arrange
             const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
+            
 
             var mockFactory = new Mock<IHttpClientFactory>();
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -571,7 +576,7 @@ namespace OrigoApiGateway.Tests
                     Content = new StringContent(
                         @"
                         {
-                          ""id"": ""a12c5f56-aee9-47e0-9f5f-a726818323a9"",
+                          ""id"": ""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
                           ""firstName"": ""Kari"",
                           ""lastName"": ""Normann"",
                           ""email"": ""kari@normann.no"",
@@ -601,19 +606,36 @@ namespace OrigoApiGateway.Tests
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
             userOptionsMock.Setup(o => o.Value).Returns(new UserConfiguration() { ApiPath = @"/organizations" });
 
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userId = Guid.Parse("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
+
+            var userService = new Mock<IUserServices>();
+            var user = new OrigoUser
+            {
+                Id = userId,
+                Email = "kari@normann.no",
+                FirstName = "Kari",
+                UserPreference = new UserPreference() { Language = "en"},
+                
+            };
+            userService.Setup(o => o.GetUserAsync(userId))
+                .ReturnsAsync(user);
+  
+
+
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
             var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService.Object, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             var postData = new MakeAssetAvailable()
             {
                 AssetLifeCycleId = Guid.Parse("80665d26-90b4-4a3a-a20d-686b64466f32")
+
             };
 
             // Act
+            
             var asset = await assetService.MakeAssetAvailableAsync(new Guid(CUSTOMER_ID), postData, Guid.Empty);
 
             // Assert
