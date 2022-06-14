@@ -21,7 +21,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 
         public void Configure(EntityTypeBuilder<CustomerServiceProvider> builder)
         {
-            builder.ToTable("CustomerServiceProvider", table => table.IsTemporal());
+            builder.ToTable("CustomerServiceProvider");
 
             builder.HasKey(x => new { x.CustomerId, x.Id, x.AssetCategoryId, x.ServiceProviderId });
 

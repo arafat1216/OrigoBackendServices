@@ -16,8 +16,6 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 
         public void Configure(EntityTypeBuilder<ServiceType> builder)
         {
-            //builder.ToTable(table => table.IsTemporal());
-
             /*
              * Properties
              */
