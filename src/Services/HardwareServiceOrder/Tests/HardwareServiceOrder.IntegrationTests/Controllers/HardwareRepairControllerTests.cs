@@ -2,6 +2,7 @@
 using HardwareServiceOrder.API.Controllers;
 using HardwareServiceOrder.API.ViewModels;
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -93,14 +94,15 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         }
 
         [Fact]
-        public async Task GetOrder()
+        public async Task GetOrders()
         {
             var url = $"/api/v1/hardware-repair/{_customerId}/orders?page=1&limit=10";
             _testOutputHelper.WriteLine(url);
             var request = await _httpClient.GetAsync(url);
             var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponseDTO>>();
             Assert.NotNull(orders);
-            Assert.Equal(1, orders.Items.Count);
+            Assert.Single(orders.Items);
+            Assert.Single(orders.Items[0].Events);
         }
     }
 }

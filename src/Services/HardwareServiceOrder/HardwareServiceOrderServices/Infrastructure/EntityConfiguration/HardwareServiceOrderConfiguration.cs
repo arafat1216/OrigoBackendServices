@@ -92,6 +92,11 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                 /*
                  * Properties
                  */
+                if (_isSqlLite)
+                {
+                    //Needed for unit testing using sqlite https://stackoverflow.com/questions/69819523/ef-core-owned-entity-shadow-pk-causes-null-constraint-violation-with-sqlite
+                    builder.HasKey("Id"); 
+                }
 
                 builder.Property(e => e.Timestamp)
                        .HasComment("When this event was recorded in the external service-provider's system");

@@ -34,9 +34,9 @@ namespace HardwareServiceOrder.IntegrationTests
                     CUSTOMER_ONE_ID,
                     Guid.NewGuid(),
                     "[UserDescription]",
-                    new HardwareServiceOrderServices.Models.ContactDetails(Guid.NewGuid(), "FirstName", "Email"),
-                    new HardwareServiceOrderServices.Models.DeliveryAddress(HardwareServiceOrderServices.Models.RecipientTypeEnum.Personal, "recipient", "address1", "address2", "postal-code", "NO", "NO"),
-                    3, 3, 1, "", "", "", new List<ServiceEvent> { });
+                    new ContactDetails(Guid.NewGuid(), "FirstName", "Email"),
+                    new DeliveryAddress(RecipientTypeEnum.Personal, "recipient", "address1", "address2", "postal-code", "NO", "NO"),
+                    3, 3, 1, "OrderID1", "OrderID2", "OrderExternalLink", new List<ServiceEvent> { new ServiceEvent { ServiceStatusId = 3, Timestamp = DateTime.UtcNow } });
 
                 hardwareServiceOrderContext.Add(hwServiceOrder);
                 hardwareServiceOrderContext.SaveChanges();
