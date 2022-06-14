@@ -9,10 +9,7 @@ namespace HardwareServiceOrderServices.Mappings
         public CustomerSettingsProfile()
         {
             //TODO: nullable properties should be handled later
-            CreateMap<CustomerSettings, CustomerSettingsDTO>()
-                .ForMember(d => d.ProviderId, opts => opts.Ignore())
-                .ForMember(d => d.ApiUserName, opts => opts.Ignore())
-                .ForMember(d => d.AssetCategoryIds, opts => opts.Ignore());
+            CreateMap<CustomerSettings, CustomerSettingsDTO>();
         }
     }
 }

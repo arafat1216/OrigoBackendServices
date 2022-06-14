@@ -43,7 +43,9 @@ namespace HardwareServiceOrderServices.Infrastructure
             return settings;
         }
 
-        private async Task ConfigureCustomerServiceProviderAsync(List<int> assetCategoryIds, int providerId, Guid customerId, string? apiUsername, string? apiPassword)
+
+        /// <inheritdoc cref="IHardwareServiceOrderRepository.ConfigureCustomerServiceProviderAsync(List{int}, int, Guid, string?, string?)"/>
+        public async Task<string?> ConfigureCustomerServiceProviderAsync(List<int> assetCategoryIds, int providerId, Guid customerId, string? apiUsername, string? apiPassword)
         {
             var serviceProvider = await _hardwareServiceOrderContext.ServiceProviders.FirstOrDefaultAsync(m => m.Id == providerId);
 
@@ -73,18 +75,12 @@ namespace HardwareServiceOrderServices.Infrastructure
                 }
                 await _hardwareServiceOrderContext.SaveChangesAsync();
             }
+
+            return apiUsername;
         }
 
-        /// <inheritdoc cref="IHardwareServiceOrderRepository.ConfigureServiceIdAsync(Guid, List{int}, int, string, string, Guid, string,string,)"/>
-        public async Task<CustomerSettings> ConfigureServiceIdAsync(
-            Guid customerId,
-            List<int> assetCategoryIds,
-            int providerId,
-            string loanPhoneNumber,
-            string loanPhoneEmail,
-            Guid callerId,
-            string? apiUsername = null,
-            string? apiPassowrd = null)
+        /// <inheritdoc cref="IHardwareServiceOrderRepository.ConfigureCustomerSettingsAsync(Guid, Guid)"/>
+        public async Task<CustomerSettings> ConfigureCustomerSettingsAsync(Guid customerId, Guid callerId)
         {
             var settings = await GetSettingsAsync(customerId);
 
@@ -94,8 +90,6 @@ namespace HardwareServiceOrderServices.Infrastructure
                 _hardwareServiceOrderContext.Add(settings);
                 await _hardwareServiceOrderContext.SaveChangesAsync();
             }
-
-            await ConfigureCustomerServiceProviderAsync(assetCategoryIds, providerId, customerId, apiUsername, apiPassowrd);
 
             return settings;
         }
@@ -259,6 +253,12 @@ namespace HardwareServiceOrderServices.Infrastructure
         public async Task<HardwareServiceOrder> GetOrderAsync(Guid customerId, Guid orderId)
         {
             return await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == orderId && m.CustomerId == customerId);
+        }
+
+        /// <inheritdoc cref="IHardwareServiceOrderRepository.GetCustomerServiceProviderByProviderIdAsync(Guid, int)"/>
+        public async Task<CustomerServiceProvider?> GetCustomerServiceProviderByProviderIdAsync(Guid customerId, int providerId)
+        {
+            return await _hardwareServiceOrderContext.CustomerServiceProviders.FirstOrDefaultAsync(m => m.CustomerId == customerId && m.ServiceProviderId == providerId);
         }
     }
 }

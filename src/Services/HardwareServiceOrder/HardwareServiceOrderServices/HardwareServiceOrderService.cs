@@ -36,20 +36,16 @@ namespace HardwareServiceOrderServices
 
             var dto = _mapper.Map<CustomerSettingsDTO>(entity);
 
-            dto.ApiUserName = await _hardwareServiceOrderRepository.GetServiceIdAsync(customerId);
-
             return dto;
         }
 
         //TODO: It should be split up so the CustomerSettings and CustomerServiceProvider settings are not done together
-        /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureServiceIdAsync(Guid, CustomerSettingsDTO, Guid)"/>
-        public async Task<CustomerSettingsDTO> ConfigureServiceIdAsync(Guid customerId, CustomerSettingsDTO customerSettings, Guid callerId)
+        /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureCustomerSettingsAsync(Guid, CustomerSettingsDTO, Guid)"/>
+        public async Task<CustomerSettingsDTO> ConfigureCustomerSettingsAsync(Guid customerId, CustomerSettingsDTO customerSettings, Guid callerId)
         {
-            var entity = await _hardwareServiceOrderRepository.ConfigureServiceIdAsync(customerId, customerSettings.AssetCategoryIds, customerSettings.ProviderId, customerSettings.LoanDevicePhoneNumber, customerSettings.LoanDeviceEmail, callerId, customerSettings.ApiUserName, customerSettings.ApiPassword);
+            var entity = await _hardwareServiceOrderRepository.ConfigureCustomerSettingsAsync(customerId, callerId);
 
             var dto = _mapper.Map<CustomerSettingsDTO>(entity);
-
-            dto.ApiUserName = customerSettings.ApiUserName;
 
             return dto;
         }
@@ -184,7 +180,6 @@ namespace HardwareServiceOrderServices
 
             var dto = _mapper.Map<CustomerSettingsDTO>(entity) ?? new CustomerSettingsDTO { CustomerId = customerId };
 
-            dto.ApiUserName = await _hardwareServiceOrderRepository.GetServiceIdAsync(customerId);
             return dto;
         }
 
@@ -233,6 +228,20 @@ namespace HardwareServiceOrderServices
         public Task<HardwareServiceOrderDTO> UpdateHardwareServiceOrderAsync(Guid customerId, Guid orderId, HardwareServiceOrderDTO model)
         {
             throw new NotImplementedException();
+        }
+
+        /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureCustomerServiceProviderAsync(List{int}, int, Guid, string?, string?)"/>
+        public async Task<string?> ConfigureCustomerServiceProviderAsync(List<int> assetCategoryIds, int providerId, Guid customerId, string? apiUsername, string? apiPassword)
+        {
+            return await _hardwareServiceOrderRepository.ConfigureCustomerServiceProviderAsync(assetCategoryIds, providerId, customerId, apiUsername, apiPassword);
+        }
+
+        /// <inheritdoc cref="IHardwareServiceOrderService.GetServicerProvidersUsernameAsync(Guid, int)"/>
+        public async Task<string?> GetServicerProvidersUsernameAsync(Guid customerId, int providerId)
+        {
+            var serviceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderByProviderIdAsync(customerId, providerId);
+
+            return serviceProvider?.ApiUserName;
         }
     }
 }

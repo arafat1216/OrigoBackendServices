@@ -2,6 +2,7 @@
 using Common.Interfaces;
 using HardwareServiceOrder.API.ViewModels;
 using HardwareServiceOrderServices;
+using HardwareServiceOrderServices.Models;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
@@ -30,13 +31,20 @@ namespace HardwareServiceOrder.API.Controllers
         [Route("{customerId:Guid}/config/sur")]
         [HttpPatch]
         [SwaggerOperation(Tags = new[] { "Configuration" })]
-        public async Task<IActionResult> ConfigureSur(Guid customerId, [FromBody] CustomerSettings customerSettings, Guid callerId)
+        public async Task<IActionResult> ConfigureSur(Guid customerId, [FromBody] SURRequestDTO model, Guid callerId)
         {
-            var dto = _mapper.Map<CustomerSettingsDTO>(customerSettings);
+            var dto = _mapper.Map<CustomerSettingsDTO>(model.CustomerSettings);
 
-            var settings = await _hardwareServiceOrderService.ConfigureServiceIdAsync(customerId, dto, callerId);
+            var settings = await _hardwareServiceOrderService.ConfigureCustomerSettingsAsync(customerId, dto, callerId);
 
-            return Ok(_mapper.Map<CustomerSettings>(settings));
+            var serviceId = await _hardwareServiceOrderService.ConfigureCustomerServiceProviderAsync(model.CustomerServiceProvider.AssetCategoryIds, model.CustomerServiceProvider.ProviderId, customerId, model.CustomerServiceProvider.ApiUserName, model.CustomerServiceProvider.ApiPassword);
+
+            var response = new CustomerSettingsResponseDTO(_mapper.Map<ViewModels.CustomerSettings>(settings))
+            {
+                ServiceId = serviceId
+            };
+
+            return Ok(response);
         }
 
         [Route("{customerId:Guid}/config/loan-device")]
@@ -45,18 +53,29 @@ namespace HardwareServiceOrder.API.Controllers
         public async Task<IActionResult> ConfigureLoanDevice(Guid customerId, [FromBody] LoanDevice loanDevice, Guid callerId)
         {
             var settings = await _hardwareServiceOrderService.ConfigureLoanPhoneAsync(customerId, loanDevice.PhoneNumber, loanDevice.Email, callerId);
-            return Ok(_mapper.Map<CustomerSettings>(settings));
+
+            var response = new CustomerSettingsResponseDTO(_mapper.Map<ViewModels.CustomerSettings>(settings))
+            {
+                ServiceId = await _hardwareServiceOrderService.GetServicerProvidersUsernameAsync(customerId, (int)ServiceProviderEnum.ConmodoNo)
+            };
+
+            return Ok(response);
         }
 
         [Route("{customerId:Guid}/config")]
         [HttpGet]
-        [ProducesResponseType(typeof(CustomerSettings), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ViewModels.CustomerSettings), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Configuration" })]
         public async Task<IActionResult> GetConfiguration(Guid customerId)
         {
             var settings = await _hardwareServiceOrderService.GetSettingsAsync(customerId);
-            var dto = _mapper.Map<CustomerSettings>(settings) ?? new CustomerSettings { CustomerId = customerId };
-            return Ok(dto);
+
+            var dto = _mapper.Map<ViewModels.CustomerSettings>(settings) ?? new ViewModels.CustomerSettings { CustomerId = customerId };
+
+            return Ok(new CustomerSettingsResponseDTO(dto)
+            {
+                ServiceId = await _hardwareServiceOrderService.GetServicerProvidersUsernameAsync(customerId, (int)ServiceProviderEnum.ConmodoNo)
+            });
         }
 
         [Route("{customerId:Guid}/orders")]

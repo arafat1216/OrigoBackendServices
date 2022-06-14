@@ -5,26 +5,23 @@ namespace HardwareServiceOrderServices.Models
     public interface IHardwareServiceOrderRepository
     {
         /// <summary>
+        /// Configure customer service provider
+        /// </summary>
+        /// <param name="assetCategoryIds">List of asset category id</param>
+        /// <param name="providerId">Provider identifier</param>
+        /// <param name="customerId">Customer identifier</param>
+        /// <param name="apiUsername">Username for calling provider's API</param>
+        /// <param name="apiPassword">Password for calling provider's API</param>
+        /// <returns></returns>
+        Task<string?> ConfigureCustomerServiceProviderAsync(List<int> assetCategoryIds, int providerId, Guid customerId, string? apiUsername, string? apiPassword);
+        
+        /// <summary>
         /// Configure customer settings
         /// </summary>
         /// <param name="customerId">Customer identifier</param>
-        /// <param name="assetCategoryIds">List of asset categories supported by the service provider</param>
-        /// <param name="providerId">Provider identifer</param>
-        /// <param name="apiUsername">Username for calling provider's API</param>
-        /// <param name="apiPassowrd">Password for calling provider's API</param>
-        /// <param name="loanPhoneNumber">The phone-number in <c>E.164</c> format.</param>
-        /// <param name="loanPhoneEmail"></param>
         /// <param name="callerId"></param>
         /// <returns></returns>
-        Task<CustomerSettings> ConfigureServiceIdAsync(
-            Guid customerId,
-            List<int> assetCategoryIds,
-            int providerId,
-            string loanPhoneNumber,
-            string loanPhoneEmail,
-            Guid callerId,
-            string? apiUsername = null,
-            string? apiPassowrd = null);
+        Task<CustomerSettings> ConfigureCustomerSettingsAsync(Guid customerId, Guid callerId);
 
         /// <summary>
         /// Configure Loan Phone
@@ -101,6 +98,14 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="assetCategoryId">Asset category identifier</param>
         /// <returns></returns>
         Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid customerId, int assetCategoryId);
+
+        /// <summary>
+        /// Get customer's service provider
+        /// </summary>
+        /// <param name="customerId">Customer Identifier</param>
+        /// <param name="providerId">Provider Identifier</param>
+        /// <returns>the provider</returns>
+        Task<CustomerServiceProvider?> GetCustomerServiceProviderByProviderIdAsync(Guid customerId, int providerId);
 
         Task<ServiceType> GetServiceTypeAsync(int id);
         Task<ServiceStatus> GetServiceStatusAsync(int id);
