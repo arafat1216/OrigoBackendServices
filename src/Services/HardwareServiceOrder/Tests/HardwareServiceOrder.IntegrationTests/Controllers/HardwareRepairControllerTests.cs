@@ -107,5 +107,19 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             Assert.Single(orders.Items);
             Assert.Single(orders.Items[0].Events);
         }
+
+        [Fact]
+        public async Task GetMyOrders()
+        {
+            Guid? userId = new Guid("3286ba71-fdde-4496-94fa-36de7aa0b41e");
+            var url = $"/api/v1/hardware-repair/{_customerId}/orders?userId={userId}&page=1&limit=10";
+            _testOutputHelper.WriteLine(url);
+            var request = await _httpClient.GetAsync(url);
+            var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponseDTO>>();
+            Assert.NotNull(orders);
+            Assert.Equal(1, orders.Items.Count);
+        }
+
+
     }
 }

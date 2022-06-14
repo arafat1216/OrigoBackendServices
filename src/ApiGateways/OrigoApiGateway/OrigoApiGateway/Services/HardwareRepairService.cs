@@ -247,11 +247,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<PagedModel<OrigoHardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId, int page = 1, int limit = 500)
+        public async Task<PagedModel<OrigoHardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, int page = 1, int limit = 500)
         {
             try
             {
-                var response = await HttpClient.GetFromJsonAsync<PagedModel<OrigoHardwareServiceOrder>>($"{_options.ApiPath}/{customerId}/orders?page={page}&limit={limit}");
+                var response = await HttpClient.GetFromJsonAsync<PagedModel<OrigoHardwareServiceOrder>>($"{_options.ApiPath}/{customerId}/orders?userId={userId}&page={page}&limit={limit}");
                 return response;
             }
             catch (HttpRequestException exception)

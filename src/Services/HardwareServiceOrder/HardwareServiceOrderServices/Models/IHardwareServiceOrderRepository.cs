@@ -57,7 +57,7 @@ namespace HardwareServiceOrderServices.Models
         /// <returns></returns>
         Task<HardwareServiceOrder> GetOrderAsync(Guid customerId, Guid orderId);
 
-        Task<PagedModel<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId, int page, int limit, CancellationToken cancellationToken);
+        Task<PagedModel<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId, Guid? userId, int page, int limit, CancellationToken cancellationToken);
         /// <summary>
         /// Update the status of a service order
         /// </summary>

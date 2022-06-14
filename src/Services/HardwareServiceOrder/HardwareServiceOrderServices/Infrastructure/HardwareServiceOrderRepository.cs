@@ -119,13 +119,16 @@ namespace HardwareServiceOrderServices.Infrastructure
             return await orders.ToListAsync();
         }
 
-        public async Task<PagedModel<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId, int page, int limit, CancellationToken cancellationToken)
+        public async Task<PagedModel<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId,Guid? userId, int page, int limit, CancellationToken cancellationToken)
         {
             var orders = _hardwareServiceOrderContext.HardwareServiceOrders
-                .Where(m => m.CustomerId == customerId)
-                .OrderByDescending(m => m.DateCreated);
+                .Where(m => m.CustomerId == customerId);
 
-            return await orders.PaginateAsync(page, limit, cancellationToken);
+            if (userId != null)
+                orders = orders.Where(m => m.Owner.UserId == userId);
+
+            return await orders.OrderByDescending(m => m.DateCreated).PaginateAsync(page, limit, cancellationToken);
+
         }
 
         /// <inheritdoc cref="GetOrderAsync(Guid)"/>

@@ -275,5 +275,14 @@ namespace HardwareServiceOrder.UnitTests
             };
         }
 
+        [Fact]
+        public async Task Get_My_Orders_By_UserId()
+        {
+            Guid? userId = CUSTOMER_ONE_ID;
+            var order = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(CUSTOMER_ONE_ID, userId, new System.Threading.CancellationToken());
+            Assert.NotNull(order);
+            Assert.Equal(1, order.Items.Count);
+        }
+
     }
 }

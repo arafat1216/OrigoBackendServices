@@ -164,9 +164,9 @@ namespace HardwareServiceOrderServices
             throw new NotImplementedException();
         }
 
-        public async Task<PagedModel<HardwareServiceOrderResponseDTO>> GetHardwareServiceOrdersAsync(Guid customerId, CancellationToken cancellationToken, int page = 1, int limit = 500)
+        public async Task<PagedModel<HardwareServiceOrderResponseDTO>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, CancellationToken cancellationToken, int page = 1, int limit = 500)
         {
-            var orderEntities = await _hardwareServiceOrderRepository.GetAllOrdersAsync(customerId, page, limit, cancellationToken);
+            var orderEntities = await _hardwareServiceOrderRepository.GetAllOrdersAsync(customerId,userId, page, limit, cancellationToken);
 
             return new PagedModel<HardwareServiceOrderResponseDTO>
             {

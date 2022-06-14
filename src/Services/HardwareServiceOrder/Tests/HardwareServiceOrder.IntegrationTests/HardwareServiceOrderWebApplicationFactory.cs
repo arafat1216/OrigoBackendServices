@@ -18,6 +18,7 @@ namespace HardwareServiceOrder.IntegrationTests
     {
         private readonly DbConnection _dbConnection = new SqliteConnection("Data Source=:memory:");
         public readonly Guid CUSTOMER_ONE_ID = Guid.Parse("7adbd9fa-97d1-11ec-8500-00155d64bd3d");
+        public readonly Guid USER_ID = Guid.Parse("3286ba71-fdde-4496-94fa-36de7aa0b41e");
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -34,7 +35,7 @@ namespace HardwareServiceOrder.IntegrationTests
                     CUSTOMER_ONE_ID,
                     Guid.NewGuid(),
                     "[UserDescription]",
-                    new ContactDetails(Guid.NewGuid(), "FirstName", "Email"),
+                    new ContactDetails(USER_ID, "FirstName", "Email"),
                     new DeliveryAddress(RecipientTypeEnum.Personal, "recipient", "address1", "address2", "postal-code", "NO", "NO"),
                     3, 3, 1, "OrderID1", "OrderID2", "OrderExternalLink", new List<ServiceEvent> { new ServiceEvent { ServiceStatusId = 3, Timestamp = DateTime.UtcNow } });
 
