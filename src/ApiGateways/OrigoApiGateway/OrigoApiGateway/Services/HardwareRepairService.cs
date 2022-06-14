@@ -2,6 +2,7 @@
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.HardwareServiceOrder;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
@@ -139,7 +140,7 @@ namespace OrigoApiGateway.Services
                 var dto = new NewHardwareServiceOrderDTO(model);
 
                 //Verify whether the asset can be sent to repair
-                var asset = await _assetServices.GetAssetAsync(customerId, model.AssetId);
+                var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(customerId, model.AssetId);
 
                 if (asset == null)
                     throw new ArgumentException($"Asset does not exist with ID {model.AssetId}", nameof(model.AssetId));
@@ -215,12 +216,19 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoHardwareServiceOrder> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
+        public async Task<OrigoHardwareServiceOrderDetail> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
         {
             try
             {
-                var response = await HttpClient.GetFromJsonAsync<OrigoHardwareServiceOrder>($"{_options.ApiPath}/{customerId}/orders/{orderId}");
-                return response;
+                var order = await HttpClient.GetFromJsonAsync<OrigoHardwareServiceOrderDetail>($"{_options.ApiPath}/{customerId}/orders/{orderId}");
+
+                if (order != null)
+                {
+                    var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(customerId, order.AssetLifecycleId);
+                    order.AssetInfo = asset;
+                }
+
+                return order;
             }
             catch (HttpRequestException exception)
             {
