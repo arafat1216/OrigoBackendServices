@@ -131,25 +131,24 @@ builder.Services.AddApplicationInsightsTelemetry();
 
 builder.Services.Configure<ServiceProviderConfiguration>(builder.Configuration.GetSection("ServiceProviderConfiguration"));
 builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("Email"));
-builder.Services.AddSingleton(s => new ResourceManager("HardwareServiceOrderServices.Resources.HardwareServiceOrder", Assembly.GetAssembly(typeof(EmailService))));
+builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("Email"));
+builder.Services.Configure<OrigoConfiguration>(builder.Configuration.GetSection("Origo"));
+builder.Services.Configure<AssetConfiguration>(builder.Configuration.GetSection("Asset"));
+
 builder.Services.AddScoped<IHardwareServiceOrderService, HardwareServiceOrderService>();
 builder.Services.AddScoped<IHardwareServiceOrderRepository, HardwareServiceOrderRepository>();
 builder.Services.AddScoped<IProviderFactory, ProviderFactory>();
-builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("Email"));
-builder.Services.Configure<OrigoConfiguration>(builder.Configuration.GetSection("Origo"));
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IFlatDictionaryProvider, FlatDictionary>();
-
 builder.Services.AddScoped<ServiceOrderCanceledStatusHandlerService>();
 builder.Services.AddScoped<ServiceOrderCompletedStatusHandlerService>();
 builder.Services.AddScoped<ServiceOrderOngoingStatusHandlerService>();
 builder.Services.AddScoped<ServiceOrderRegisteredStatusHandlerService>();
 builder.Services.AddScoped<ServiceOrderUnknownStatusHandlerService>();
-
 builder.Services.AddScoped(s => new Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService>
 {
     {ServiceStatusEnum.Canceled, s.GetRequiredService<ServiceOrderCanceledStatusHandlerService>() },
-    //Completed
+    // Completed
     {ServiceStatusEnum.CompletedNotRepaired, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
     {ServiceStatusEnum.CompletedRepaired, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
     {ServiceStatusEnum.CompletedRepairedOnWarranty, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
@@ -157,20 +156,20 @@ builder.Services.AddScoped(s => new Dictionary<ServiceStatusEnum, ServiceOrderSt
     {ServiceStatusEnum.CompletedReplacedOnWarranty, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
     {ServiceStatusEnum.CompletedCredited, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
     {ServiceStatusEnum.CompletedDiscarded, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
-    //Ongoing
+    // Ongoing
     {ServiceStatusEnum.Ongoing, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
     {ServiceStatusEnum.OngoingUserActionNeeded, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
     {ServiceStatusEnum.OngoingInTransit, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
     {ServiceStatusEnum.OngoingReadyForPickup, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
-    //Registered
+    // Registered
     {ServiceStatusEnum.Registered, s.GetRequiredService<ServiceOrderRegisteredStatusHandlerService>() },
     {ServiceStatusEnum.RegisteredInTransit, s.GetRequiredService<ServiceOrderRegisteredStatusHandlerService>() },
     {ServiceStatusEnum.RegisteredUserActionNeeded, s.GetRequiredService<ServiceOrderRegisteredStatusHandlerService>() },
-    //Unknown
+    // Unknown
     { ServiceStatusEnum.Unknown, s.GetRequiredService<ServiceOrderUnknownStatusHandlerService>() }
 });
 
-builder.Services.Configure<AssetConfiguration>(builder.Configuration.GetSection("Asset"));
+builder.Services.AddSingleton(s => new ResourceManager("HardwareServiceOrderServices.Resources.HardwareServiceOrder", Assembly.GetAssembly(typeof(EmailService))));
 builder.Services.AddSingleton<IAssetService>(s => new AssetService(s.GetRequiredService<IOptions<AssetConfiguration>>(), DaprClient.CreateInvokeHttpClient("assetservices")));
 #endregion Builder
 

@@ -3,6 +3,7 @@
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Infrastructure;
 using HardwareServiceOrderServices.Models;
+using HardwareServiceOrderServices.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HardwareServiceOrder.API.Controllers
@@ -17,14 +18,16 @@ namespace HardwareServiceOrder.API.Controllers
     public class TestController : ControllerBase
     {
         // Dependency injections
-        private readonly ProviderFactory _providerFactory;
+        private readonly IProviderFactory _providerFactory;
         private readonly HardwareServiceOrderContext _context;
+        private readonly Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> _serviceOrderStatusHandlers;
 
 
-        public TestController(ProviderFactory providerFactory, HardwareServiceOrderContext dbContext)
+        public TestController(IProviderFactory providerFactory, HardwareServiceOrderContext dbContext, Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> serviceOrderStatusHandlers)
         {
             _providerFactory = providerFactory;
             _context = dbContext;
+            _serviceOrderStatusHandlers = serviceOrderStatusHandlers;
         }
 
 
@@ -164,7 +167,6 @@ namespace HardwareServiceOrder.API.Controllers
         }
 
 
-
         [HttpGet("updateInsertTest")]
         public async Task<ActionResult> TestValueAssignment([FromHeader(Name = "X-Authenticated-User")] Guid userId)
         {
@@ -178,6 +180,15 @@ namespace HardwareServiceOrder.API.Controllers
             return Ok(result.Entity);
         }
 
+
+        [HttpPost("trigger-service-update/1")]
+        public async Task<ActionResult> TriggerServiceUpdate([FromQuery] Guid serviceOrderId, [FromQuery] ServiceStatusEnum newServiceStatus, [FromQuery] List<string>? newImeis = null, [FromQuery] string? newSerial = null)
+        {
+            var statusHandler = _serviceOrderStatusHandlers.ContainsKey(newServiceStatus) ? _serviceOrderStatusHandlers[newServiceStatus] : _serviceOrderStatusHandlers[ServiceStatusEnum.Unknown];
+             await statusHandler.UpdateServiceOrderStatusAsync(serviceOrderId, newServiceStatus, newImeis, newSerial);
+
+            return Ok();
+        }
 
     }
 }

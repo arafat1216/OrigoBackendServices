@@ -25,18 +25,19 @@ namespace HardwareServiceOrderServices.Services
             _hardwareServiceOrderRepository = hardwareServiceOrderRepository;
         }
 
-        /// <inheritdoc cref="UpdateServiceOrderStatusAsync(Guid, ServiceStatusEnum)"/>
-        public override async Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus)
+        /// <inheritdoc/>
+        public override async Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus, IEnumerable<string>? newImeis, string? newSerialNumber)
         {
             if (newStatus != ServiceStatusEnum.Unknown)
-                throw new ArgumentException("This handler connot handle this status");
+                throw new ArgumentException("This handler can't handle this status");
 
             var order = await _hardwareServiceOrderRepository.UpdateOrderStatusAsync(orderId, ServiceStatusEnum.Unknown);
 
+            // Handle email sending
             var parameters = new Dictionary<string, string>
             {
                 { "Order", JsonSerializer.Serialize(order) },
-                {"OrderLink", string.Format($"{_origoConfiguration.BaseUrl}/{_origoConfiguration.OrderPath}", order.CustomerId, order.ExternalId)}
+                { "OrderLink", string.Format($"{_origoConfiguration.BaseUrl}/{_origoConfiguration.OrderPath}", order.CustomerId, order.ExternalId) }
             };
 
             await _emailService.SendEmailAsync(_origoConfiguration.DeveloperEmail, $"{ServiceStatusEnum.Unknown}_Subject", $"{ServiceStatusEnum.Unknown}_Body", parameters);

@@ -31,12 +31,32 @@ namespace HardwareServiceOrder.UnitTests
         public async Task HandleUnknownStatus()
         {
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
-                    customerId: Guid.NewGuid(), new ContactDetails(userId: Guid.NewGuid(), firstName: "[Name]", email: "[Email]"),
-                    assetLifecycleId: Guid.NewGuid(),
-                    deliveryAddress: new DeliveryAddress(RecipientTypeEnum.Personal, recipient: "[Recipient]", address1: "[Address1]", address2: "[Address2]", postalCode: "[PostalCode]", city: "[City]", country: "[Country]"),
-                    userDescription: "[UserDescription]", serviceProvider: new ServiceProvider(), serviceProviderOrderId1: "[serviceProviderOrderId1]", serviceProviderOrderId2: "[serviceProviderOrderId2]",
-                    externalServiceManagementLink: "[externalServiceManagementLink]", new ServiceType(),
-                    new ServiceStatus { Id = (int)ServiceStatusEnum.Unknown });
+                callerId: Guid.NewGuid(),
+                externalId: Guid.NewGuid(),
+                customerId: Guid.NewGuid(),
+                assetLifecycleId: Guid.NewGuid(),
+                userDescription: "[UserDescription]",
+                owner: new ContactDetails(
+                    userId: Guid.NewGuid(),
+                    firstName: "[Name]",
+                    email: "[Email]"
+                ),
+                deliveryAddress: new DeliveryAddress(
+                    recipientType: RecipientTypeEnum.Personal,
+                    recipient: "[Recipient]",
+                    address1: "[Address1]",
+                    address2: "[Address2]",
+                    postalCode: "[PostalCode]",
+                    city: "[City]",
+                    country: "[Country]"),
+                serviceTypeId: (int)ServiceTypeEnum.SUR,
+                statusId: (int)ServiceStatusEnum.Unknown,
+                serviceProviderId: 1,
+                serviceProviderOrderId1: "[ServiceProviderOrderId1]",
+                serviceProviderOrderId2: "[ServiceProviderOrderId2]",
+                externalServiceManagementLink: "[ExternalServiceManagementLink]",
+                serviceEvents: new List<ServiceEvent>()
+            );
 
             var emailMock = new Mock<IEmailService>();
             emailMock.Setup(m => m.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Dictionary<string, string>>(), It.IsAny<string>()));
@@ -48,7 +68,7 @@ namespace HardwareServiceOrder.UnitTests
             var serviceOrderUnKnownStatusHandlerService = new ServiceOrderUnknownStatusHandlerService(options: _options, emailService: emailMock.Object, hardwareServiceOrderRepository: hwRepositoryMock.Object);
 
 
-            await serviceOrderUnKnownStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.Unknown);
+            await serviceOrderUnKnownStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.Unknown, null, null);
 
             // Verify
             var parameters = new Dictionary<string, string>
@@ -64,15 +84,35 @@ namespace HardwareServiceOrder.UnitTests
         public async Task HandleCanceledStatus()
         {
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
-                    customerId: Guid.NewGuid(), new ContactDetails(userId: Guid.NewGuid(), firstName: "[Name]", email: "[Email]"),
-                    assetLifecycleId: Guid.NewGuid(),
-                    deliveryAddress: new DeliveryAddress(RecipientTypeEnum.Personal, recipient: "[Recipient]", address1: "[Address1]", address2: "[Address2]", postalCode: "[PostalCode]", city: "[City]", country: "[Country]"),
-                    userDescription: "[UserDescription]", serviceProvider: new ServiceProvider(), serviceProviderOrderId1: "[serviceProviderOrderId1]", serviceProviderOrderId2: "[serviceProviderOrderId2]",
-                    externalServiceManagementLink: "[externalServiceManagementLink]", new ServiceType(),
-                    new ServiceStatus { Id = (int)ServiceStatusEnum.Canceled });
+                callerId: Guid.NewGuid(),
+                externalId: Guid.NewGuid(),
+                customerId: Guid.NewGuid(),
+                assetLifecycleId: Guid.NewGuid(),
+                userDescription: "[UserDescription]",
+                owner: new ContactDetails(
+                    userId: Guid.NewGuid(),
+                    firstName: "[Name]",
+                    email: "[Email]"
+                ),
+                deliveryAddress: new DeliveryAddress(
+                    recipientType: RecipientTypeEnum.Personal,
+                    recipient: "[Recipient]",
+                    address1: "[Address1]",
+                    address2: "[Address2]",
+                    postalCode: "[PostalCode]",
+                    city: "[City]",
+                    country: "[Country]"),
+                serviceTypeId: (int)ServiceTypeEnum.SUR,
+                statusId: (int)ServiceStatusEnum.Canceled,
+                serviceProviderId: 1,
+                serviceProviderOrderId1: "[ServiceProviderOrderId1]",
+                serviceProviderOrderId2: "[ServiceProviderOrderId2]",
+                externalServiceManagementLink: "[ExternalServiceManagementLink]",
+                serviceEvents: new List<ServiceEvent>()
+            );
 
             var assetMock = new Mock<IAssetService>();
-            assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<AssetLifecycleStatus>()));
+            assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<IEnumerable<string>?>(), It.IsAny<string?>()));
 
             var hwRepositoryMock = new Mock<IHardwareServiceOrderRepository>();
             hwRepositoryMock.Setup(m => m.UpdateOrderStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>()))
@@ -81,25 +121,45 @@ namespace HardwareServiceOrder.UnitTests
             var serviceOrderCancelledStatusHandlerService = new ServiceOrderCanceledStatusHandlerService(hwRepositoryMock.Object, assetMock.Object);
 
 
-            await serviceOrderCancelledStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.Canceled);
+            await serviceOrderCancelledStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.Canceled, null, null);
 
             // Verify
-            assetMock.Verify(m => m.UpdateAssetLifeCycleStatusAsync(order.CustomerId, order.AssetLifecycleId, Common.Enums.AssetLifecycleStatus.InUse), Times.Once());
+            assetMock.Verify(m => m.UpdateAssetLifeCycleStatusAsync(order.AssetLifecycleId, ServiceStatusEnum.Canceled, null, null), Times.Once());
         }
 
         [Fact]
         public async Task HandleOngoingStatus()
         {
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
-                    customerId: Guid.NewGuid(), new ContactDetails(userId: Guid.NewGuid(), firstName: "[Name]", email: "[Email]"),
-                    assetLifecycleId: Guid.NewGuid(),
-                    deliveryAddress: new DeliveryAddress(RecipientTypeEnum.Personal, recipient: "[Recipient]", address1: "[Address1]", address2: "[Address2]", postalCode: "[PostalCode]", city: "[City]", country: "[Country]"),
-                    userDescription: "[UserDescription]", serviceProvider: new ServiceProvider(), serviceProviderOrderId1: "[serviceProviderOrderId1]", serviceProviderOrderId2: "[serviceProviderOrderId2]",
-                    externalServiceManagementLink: "[externalServiceManagementLink]", new ServiceType(),
-                    new ServiceStatus { Id = (int)ServiceStatusEnum.Canceled });
+                callerId: Guid.NewGuid(),
+                externalId: Guid.NewGuid(),
+                customerId: Guid.NewGuid(),
+                assetLifecycleId: Guid.NewGuid(),
+                userDescription: "[UserDescription]",
+                owner: new ContactDetails(
+                userId: Guid.NewGuid(),
+                firstName: "[Name]",
+                email: "[Email]"
+                ),
+                deliveryAddress: new DeliveryAddress(
+                    recipientType: RecipientTypeEnum.Personal,
+                    recipient: "[Recipient]",
+                    address1: "[Address1]",
+                    address2: "[Address2]",
+                    postalCode: "[PostalCode]",
+                    city: "[City]",
+                    country: "[Country]"),
+                serviceTypeId: (int)ServiceTypeEnum.SUR,
+                statusId: (int)ServiceStatusEnum.Canceled,
+                serviceProviderId: 1,
+                serviceProviderOrderId1: "[ServiceProviderOrderId1]",
+                serviceProviderOrderId2: "[ServiceProviderOrderId2]",
+                externalServiceManagementLink: "[ExternalServiceManagementLink]",
+                serviceEvents: new List<ServiceEvent>()
+            );
 
             var assetMock = new Mock<IAssetService>();
-            assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<AssetLifecycleStatus>()));
+            assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<IEnumerable<string>?>(), It.IsAny<string?>()));
 
             var hwRepositoryMock = new Mock<IHardwareServiceOrderRepository>();
             hwRepositoryMock.Setup(m => m.UpdateOrderStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>()))
@@ -108,10 +168,10 @@ namespace HardwareServiceOrder.UnitTests
             var serviceOrderOngoingStatusHandlerService = new ServiceOrderOngoingStatusHandlerService(hwRepositoryMock.Object, assetMock.Object);
 
 
-            await serviceOrderOngoingStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.Ongoing);
+            await serviceOrderOngoingStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.Ongoing, null, null);
 
             // Verify
-            assetMock.Verify(m => m.UpdateAssetLifeCycleStatusAsync(order.CustomerId, order.AssetLifecycleId, Common.Enums.AssetLifecycleStatus.Repair), Times.Once());
+            assetMock.Verify(m => m.UpdateAssetLifeCycleStatusAsync(order.AssetLifecycleId, ServiceStatusEnum.Ongoing, null, null), Times.Once());
         }
 
         [Fact]
@@ -135,7 +195,7 @@ namespace HardwareServiceOrder.UnitTests
             var serviceOrderCompletedStatusHandlerService = new ServiceOrderCompletedStatusHandlerService(hwRepositoryMock.Object, assetMock.Object);
 
 
-            await serviceOrderCompletedStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.CompletedRepaired);
+            await serviceOrderCompletedStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.CompletedRepaired, null, null);
 
             // Verify
             assetMock.Verify(m => m.UpdateAssetLifeCycleStatusAsync(order.CustomerId, order.AssetLifecycleId, Common.Enums.AssetLifecycleStatus.InUse), Times.Once());
@@ -162,7 +222,7 @@ namespace HardwareServiceOrder.UnitTests
             var serviceOrderCompletedStatusHandlerService = new ServiceOrderCompletedStatusHandlerService(hwRepositoryMock.Object, assetMock.Object);
 
 
-            await serviceOrderCompletedStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.CompletedDiscarded);
+            await serviceOrderCompletedStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.CompletedDiscarded, null, null);
 
             // Verify
             assetMock.Verify(m => m.UpdateAssetLifeCycleStatusAsync(order.CustomerId, order.AssetLifecycleId, Common.Enums.AssetLifecycleStatus.Discarded), Times.Once());
@@ -188,7 +248,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var serviceOrderRegisteredStatusHandlerService = new ServiceOrderRegisteredStatusHandlerService(hwRepositoryMock.Object, assetMock.Object);
 
-            await serviceOrderRegisteredStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.Registered);
+            await serviceOrderRegisteredStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.Registered, null, null);
 
             // Verify
             assetMock.Verify(m => m.UpdateAssetLifeCycleStatusAsync(order.CustomerId, order.AssetLifecycleId, Common.Enums.AssetLifecycleStatus.Repair), Times.Once());

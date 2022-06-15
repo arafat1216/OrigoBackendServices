@@ -24,9 +24,8 @@ namespace HardwareServiceOrderServices.Services
         /// <summary>
         /// Constructor when child does not need <see cref="_hardwareServiceOrderRepository"/>
         /// </summary>
-        public ServiceOrderStatusHandlerService()
+        protected ServiceOrderStatusHandlerService()
         {
-
         }
 
         /// <summary>
@@ -34,19 +33,9 @@ namespace HardwareServiceOrderServices.Services
         /// </summary>
         /// <param name="orderId">Order Identifier</param>
         /// <param name="newStatus">New status <see cref="ServiceStatusEnum"/></param>
-        /// <returns></returns>
-        public abstract Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus);
-
-        /// <summary>
-        /// Update the status of asset life-cyle
-        /// </summary>
-        /// <param name="assetLifeCycleId">Asset life-cycle identifier</param>
-        /// <param name="newStatus">New status <see cref="ServiceStatusEnum"/></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        protected async Task UpdateAssetLifeCycleStatusAsync(Guid assetLifeCycleId, ServiceStatusEnum newStatus)
-        {
-            throw new NotImplementedException();
-        }
+        /// <param name="newImeis"> If the device is replaced, a list containing the new asset's IMEI numbers. </param>
+        /// <param name="newSerialNumber"> If the device is replaced, the asset's new serial-number. </param>
+        /// <returns> The awaitiable task. </returns>
+        public abstract Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus, IEnumerable<string>? newImeis, string? newSerialNumber);
     }
 }

@@ -217,7 +217,8 @@ namespace HardwareServiceOrderServices
 
                     var statusHandler = _serviceOrderStatusHandlers.ContainsKey(lastOrderStatusEnum) ? _serviceOrderStatusHandlers[lastOrderStatusEnum] : _serviceOrderStatusHandlers[ServiceStatusEnum.Unknown];
 
-                    await statusHandler.UpdateServiceOrderStatusAsync(origoOrder.ExternalId, lastOrderStatusEnum);
+                    // TODO: Fix the new imei list in the DTO
+                    await statusHandler.UpdateServiceOrderStatusAsync(origoOrder.ExternalId, lastOrderStatusEnum, new List<string>() { order.ReturnedAsset?.Imei }, order.ReturnedAsset.SerialNumber);
 
                     //Add events in the log
                     var serviceEvents = _mapper.Map<IEnumerable<ServiceEvent>>(order.ExternalServiceEvents);

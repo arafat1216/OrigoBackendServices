@@ -8,6 +8,7 @@ namespace HardwareServiceOrderServices.Services
     public class ServiceOrderCanceledStatusHandlerService : ServiceOrderStatusHandlerService
     {
         private readonly IAssetService _assetService;
+
         public ServiceOrderCanceledStatusHandlerService(
             IHardwareServiceOrderRepository hardwareServiceOrderRepository,
             IAssetService assetService)
@@ -16,16 +17,16 @@ namespace HardwareServiceOrderServices.Services
             _assetService = assetService;
         }
 
-        /// <inheritdoc cref="ServiceOrderStatusHandlerService.UpdateServiceOrderStatusAsync(Guid, ServiceStatusEnum)"/>
-        public override async Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus)
+        /// <inheritdoc/>
+        public override async Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus, IEnumerable<string>? newImeis, string? newSerialNumber)
         {
             if (newStatus != ServiceStatusEnum.Canceled)
-                throw new ArgumentException("This handler connot handle this status");
+                throw new ArgumentException("This handler can't handle this status");
 
             var order = await _hardwareServiceOrderRepository.UpdateOrderStatusAsync(orderId, newStatus);
 
-            //Update asset
-            await _assetService.UpdateAssetLifeCycleStatusAsync(order.CustomerId, order.AssetLifecycleId, Common.Enums.AssetLifecycleStatus.InUse);
+            // Update the asset-miroservice
+            await _assetService.UpdateAssetLifeCycleStatusAsync(order.AssetLifecycleId, newStatus, newImeis, newSerialNumber);
         }
     }
 }

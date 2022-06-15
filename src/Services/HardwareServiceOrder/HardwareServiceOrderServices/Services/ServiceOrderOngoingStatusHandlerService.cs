@@ -26,15 +26,13 @@ namespace HardwareServiceOrderServices.Services
             _assetService = assetService;
         }
 
-        /// <inheritdoc cref="ServiceOrderStatusHandlerService.UpdateServiceOrderStatusAsync(Guid, ServiceStatusEnum)"/>
-        public override async Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus)
+        /// <inheritdoc/>
+        public override async Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus, IEnumerable<string>? newImeis, string? newSerialNumber)
         {
             if (!_statues.Any(m => m == newStatus))
-                throw new ArgumentException("This handler connot handle this status");
+                throw new ArgumentException("This handler can't handle this status");
 
             var order = await _hardwareServiceOrderRepository.UpdateOrderStatusAsync(orderId, newStatus);
-
-            await _assetService.UpdateAssetLifeCycleStatusAsync(order.CustomerId, order.AssetLifecycleId, Common.Enums.AssetLifecycleStatus.Repair);
         }
     }
 }

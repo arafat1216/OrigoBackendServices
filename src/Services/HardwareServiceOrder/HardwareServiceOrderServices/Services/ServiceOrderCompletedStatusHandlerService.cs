@@ -28,14 +28,13 @@ namespace HardwareServiceOrderServices.Services
             _assetService = assetService;
         }
 
-        /// <inheritdoc cref="ServiceOrderStatusHandlerService.UpdateServiceOrderStatusAsync(Guid, ServiceStatusEnum)"/>
-        public override async Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus)
+        /// <inheritdoc/>
+        public override async Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus, IEnumerable<string>? newImeis, string? newSerialNumber)
         {
             var order = await _hardwareServiceOrderRepository.UpdateOrderStatusAsync(orderId, newStatus);
-
-            var assetLifeCycleStatus = newStatus == ServiceStatusEnum.CompletedDiscarded ? Common.Enums.AssetLifecycleStatus.Discarded : Common.Enums.AssetLifecycleStatus.InUse;
-
-            await _assetService.UpdateAssetLifeCycleStatusAsync(order.CustomerId, order.AssetLifecycleId, assetLifeCycleStatus);
+            
+            // Update the asset-miroservice
+            await _assetService.UpdateAssetLifeCycleStatusAsync(order.AssetLifecycleId, newStatus, newImeis, newSerialNumber);
         }
     }
 }
