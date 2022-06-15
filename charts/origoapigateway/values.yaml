@@ -103,8 +103,9 @@ tolerations:
 affinity:
   nodeAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
+      - weight: 1
+        preference:
+          matchExpressions:
           - key: "kubernetes.azure.com/scalesetpriority"
             operator: In
             values:
