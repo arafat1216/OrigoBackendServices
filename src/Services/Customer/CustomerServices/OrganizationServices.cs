@@ -105,6 +105,15 @@ namespace CustomerServices
                 {
                     organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(customerId);
                 }
+                if(organization.PrimaryLocation is null && organization.Address != null)
+                {
+                    var newLocation = new Location(Guid.Empty, string.Empty , string.Empty,
+                    organization.Address.Street, string.Empty, organization.Address.PostCode, organization.Address.City,
+                    organization.Address.Country);
+                    newLocation.SetPrimaryLocation(true, Guid.Empty);
+                    organization.AddLocation(newLocation, customerId, Guid.Empty);
+                    await _organizationRepository.AddOrganizationLocationAsync(newLocation);
+                }
             }
 
             return organization;
