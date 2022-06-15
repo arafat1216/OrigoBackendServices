@@ -693,6 +693,68 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
         }
 
+        [Fact]
+        public async Task ReportDeviceAsync_IsInactive()
+        {
+            var postData = new BuyoutDeviceDTO { AssetLifeCycleId = _assetSeven, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/customers/{_customerIdTwo}/report-device";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+            Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
+        }
+
+        [Fact]
+        public async Task ReportDeviceAsync_Lost()
+        {
+            var postData = new ReportDevice()
+            {
+                AssetLifeCycleId = _assetThree,
+                ReportCategory = ReportCategory.Lost,
+                Description = "description",
+                TimePeriodFrom = Convert.ToDateTime("02-02-20"),
+                TimePeriodTo = Convert.ToDateTime("04-02-20"),
+                Country = "NO",
+                Address = "Address",
+                PostalCode = "0456",
+                City = "Oslo",
+                CallerId = _callerId
+            };
+
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/report-device";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+            var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+            Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.Lost);
+        }
+        [Fact]
+        public async Task ReportDeviceAsync_Stolen()
+        {
+            var postData = new ReportDevice()
+            {
+                AssetLifeCycleId = _assetThree,
+                ReportCategory = ReportCategory.Stolen,
+                Description = "description",
+                TimePeriodFrom = Convert.ToDateTime("02-02-20"),
+                TimePeriodTo = Convert.ToDateTime("04-02-20"),
+                Country = "NO",
+                Address = "Address",
+                PostalCode = "0456",
+                City = "Oslo",
+                CallerId = _callerId
+            };
+
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/report-device";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+            var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+            Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.Stolen);
+        }
+
         [Theory]
         [InlineData("00000000-0000-0000-0000-000000000000", "40ca1747-5dd3-41f1-9301-d7eafa4ee09b")]
         [InlineData("40ca1747-5dd3-41f1-9301-d7eafa4ee09b", "00000000-0000-0000-0000-000000000000")]

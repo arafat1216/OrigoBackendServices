@@ -360,6 +360,22 @@ public class AssetLifecycle : Entity, IAggregateRoot
     }
 
     /// <summary>
+    /// User has Reported this asset.. 
+    /// </summary>
+    /// <param name="callerId">The userid making this assignment</param>
+    public void ReportDevice(ReportCategory reportCategory, Guid callerId)
+    {
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        var previousLifecycleStatus = _assetLifecycleStatus;
+        AddDomainEvent(new ReportDeviceDomainEvent(this, reportCategory, callerId, previousLifecycleStatus));
+        if(reportCategory == ReportCategory.Stolen)
+            _assetLifecycleStatus = AssetLifecycleStatus.Stolen;
+        if (reportCategory == ReportCategory.Lost)
+            _assetLifecycleStatus = AssetLifecycleStatus.Lost;
+    }
+
+    /// <summary>
     /// Assign a customer label for this asset lifecycle.
     /// </summary>
     /// <param name="customerLabel">The label to assign to the asset lifecycle</param>

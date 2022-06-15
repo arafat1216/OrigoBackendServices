@@ -496,6 +496,26 @@ namespace AssetServices
             await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
+        public async Task<AssetLifecycleDTO> ReportDeviceAsync(Guid customerId, ReportDeviceDTO data)
+        {
+            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId);
+            if (assetLifecycle == null)
+                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
+
+
+            if (!AssetLifecycle.IsActiveState(assetLifecycle.AssetLifecycleStatus))
+            {
+                throw new InactiveDeviceRequestException($"Only Active devices can be reported!!! asset Id: {data.AssetLifeCycleId}", _logger);
+            }
+
+            assetLifecycle.ReportDevice(data.ReportCategory, data.CallerId);
+
+            // TODO: Email to User & manager(s)(personal), Email to manager(s)(non-personal)
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
+        }
+
         public async Task<AssetLifecycleDTO> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string? alias, string? serialNumber, string? brand, string? model, DateTime? purchaseDate, string? note, string? tag, string? description, IList<long>? imei)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);

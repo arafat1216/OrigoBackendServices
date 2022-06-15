@@ -539,7 +539,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to set status for assets.");
+                _logger.LogError(exception, "Unable to make the asset available.");
                 throw;
             }
         }
@@ -637,7 +637,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to set status for assets.");
+                _logger.LogError(exception, "Unable to return the assets.");
                 throw;
             }
         }
@@ -683,10 +683,99 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to set status for assets.");
+                _logger.LogError(exception, "Unable to buyout assets.");
                 throw;
             }
         }
+        public async Task<OrigoAsset> ReportDeviceAsync(Guid customerId, ReportDevice data, string role, Guid callerId)
+        {
+            try
+            {
+                var existingAsset = await GetAssetForCustomerAsync(customerId, data.AssetId);
+                if (existingAsset != null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
+
+                if (existingAsset.IsPersonal)
+                {
+                    if (existingAsset.AssetHolderId != callerId && role == PredefinedRole.EndUser.ToString())
+                    {
+                        throw new Exception("Only ContractHolderUser can Report!!!");
+                    }
+                }
+
+                var reportDTO = new ReportDeviceDTO()
+                {
+                    AssetLifeCycleId = data.AssetId,
+                    CallerId = callerId,
+                    ReportCategory = data.ReportCategory,
+                    Description = data.Description,
+                    TimePeriodFrom = data.TimePeriodFrom,
+                    TimePeriodTo = data.TimePeriodTo,
+                    City = data.City,
+                    Country = data.Country,
+                    Address =data.Address,
+                    PostalCode = data.PostalCode
+                };
+
+                if (existingAsset.AssetHolderId != null)
+                {
+                    var user = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
+                    reportDTO.ContractHolderUser = new EmailPersonAttributeDTO()
+                    {
+                        Email = user.Email,
+                        Name = user.FirstName,
+                        PreferedLanguage = user.UserPreference.Language
+                    };
+                }
+
+                if (existingAsset.ManagedByDepartmentId != null)
+                {
+                    var department = await _departmentsServices.GetDepartmentAsync(customerId, existingAsset.ManagedByDepartmentId.Value);
+                    var managers = new List<EmailPersonAttributeDTO>();
+                    foreach (var deptManager in department.ManagedBy)
+                    {
+                        var manager = await _userServices.GetUserAsync(customerId, deptManager.UserId);
+                        managers.Add(new EmailPersonAttributeDTO()
+                        {
+                            Name = manager.FirstName,
+                            Email = manager.Email,
+                            PreferedLanguage = manager.UserPreference!.Language
+                        });
+                    }
+                    reportDTO.Managers = managers;
+                }
+
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/report-device";
+
+                var response = await HttpClient.PostAsJsonAsync(requestUri, reportDTO);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                OrigoAsset result = null;
+                if (asset != null)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        result = _mapper.Map<OrigoMobilePhone>(asset);
+                    else
+                        result = _mapper.Map<OrigoTablet>(asset);
+                }
+                return result;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to Report the asset.");
+                throw;
+            }
+        }
+
         public async Task<OrigoAsset> ReAssignAssetToDepartment(Guid customerId, Guid assetId, ReassignedToDepartmentDTO data)
         {
             try

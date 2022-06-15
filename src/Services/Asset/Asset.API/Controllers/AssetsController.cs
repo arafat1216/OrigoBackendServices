@@ -476,6 +476,30 @@ namespace Asset.API.Controllers
             }
         }
 
+        [Route("customers/{customerId:guid}/report-device")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> ReportDeviceAsync(Guid customerId, [FromBody] ReportDevice data)
+        {
+            try
+            {
+                var dataDTO = _mapper.Map<ReportDeviceDTO>(data);
+                var updatedAssets = await _assetServices.ReportDeviceAsync(customerId, dataDTO);
+                return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger?.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (InactiveDeviceRequestException ex)
+            {
+                _logger?.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
         [Route("{assetId:Guid}/customers/{customerId:guid}/re-assignment")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
