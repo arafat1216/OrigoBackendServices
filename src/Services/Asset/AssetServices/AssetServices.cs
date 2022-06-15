@@ -950,5 +950,39 @@ namespace AssetServices
 
             return await _assetLifecycleRepository.GetAssetLifecycleCountForCustomerAsync(customerId, userId, filterStatus);
         }
+
+        public async Task<IList<AssetLifecycleDTO>> ActivateAssetLifecycleStatus(Guid customerId, ChangeAssetStatus assetLifecyclesId)
+        {
+            var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetLifecyclesId.AssetLifecycleId);
+            if (assetLifecycles.Count == 0)
+            {
+                return new List<AssetLifecycleDTO>();
+            }
+
+            foreach (var assetLifecycle in assetLifecycles)
+            {
+                assetLifecycle.SetActiveStatus(assetLifecyclesId.CallerId);
+            }
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecycles);
+        }
+
+        public async Task<IList<AssetLifecycleDTO>> DeactivateAssetLifecycleStatus(Guid customerId, ChangeAssetStatus assetLifecyclesId)
+        {
+            var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetLifecyclesId.AssetLifecycleId);
+            if (assetLifecycles.Count == 0)
+            {
+                return new List<AssetLifecycleDTO>();
+            }
+
+            foreach (var assetLifecycle in assetLifecycles)
+            {
+                assetLifecycle.SetInactiveStatus(assetLifecyclesId.CallerId);
+            }
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecycles);
+        }
     }
 }

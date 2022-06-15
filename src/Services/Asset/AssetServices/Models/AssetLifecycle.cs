@@ -541,4 +541,18 @@ public class AssetLifecycle : Entity, IAggregateRoot
             throw new InvalidOperationException();
         }
     }
+    public void SetActiveStatus(Guid callerId)
+    {
+        if (_assetLifecycleType == LifecycleType.NoLifecycle || _assetLifecycleType == LifecycleType.BYOD)
+        {
+            UpdateAssetStatus(AssetLifecycleStatus.Active, callerId);
+        }
+    }
+    public void SetInactiveStatus(Guid callerId)
+    {
+        if (_assetLifecycleType == LifecycleType.NoLifecycle || _assetLifecycleType == LifecycleType.BYOD)
+        {
+            UpdateAssetStatus(AssetLifecycleStatus.Inactive, callerId);
+        }
+    }
 }

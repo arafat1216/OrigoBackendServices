@@ -48,5 +48,8 @@ namespace OrigoApiGateway.Services
 
         Task<DisposeSetting> GetDisposeSettingByCustomer(Guid customerId);
         Task<DisposeSetting> SetDisposeSettingForCustomerAsync(Guid customerId, NewDisposeSetting setting, Guid callerId);
+        Task<IList<OrigoAsset>> ActivateAssetStatusOnAssetLifecycle(Guid customerId, ChangeAssetStatusDTO changedAssetStatus);
+        Task<IList<OrigoAsset>> DeactivateAssetStatusOnAssetLifecycle(Guid customerId, ChangeAssetStatusDTO changedAssetStatus);
+
     }
 }

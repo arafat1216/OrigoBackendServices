@@ -24,6 +24,9 @@ internal static class AssetTestDataSeedingForDatabase
     public static readonly Guid ASSETLIFECYCLE_SIX_ID = new("a066d864-e0c4-11ec-a601-00155dd40b8e");
     public static readonly Guid ASSETLIFECYCLE_SEVEN_ID = new("b3c62ea0-e0c4-11ec-a915-00155dd40b8e");
     public static readonly Guid ASSETLIFECYCLE_EIGHT_ID = new("5e1b365a-0012-4fd1-a451-8a9f4b1de812");
+    public static readonly Guid ASSETLIFECYCLE_NINE_ID = new("b1378497-87f5-4204-bd8a-ab1be0b3536c");
+
+
 
     public static readonly Guid DEPARTMENT_ID = new("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72");
     public static readonly Guid DEPARTMENT_TWO_ID = new("fe625c35-91d0-448e-a803-0dcbbd97f1d5");
@@ -135,6 +138,14 @@ internal static class AssetTestDataSeedingForDatabase
         };
         assetLifecycleEight.AssignAsset(assetTwo, CALLER_ID);
 
+        var assetLifecycleNine = new AssetLifecycle(ASSETLIFECYCLE_NINE_ID)
+        {
+            CustomerId = COMPANY_ID,
+            Alias = "alias_8",
+            AssetLifecycleStatus = AssetLifecycleStatus.InputRequired,
+            AssetLifecycleType = LifecycleType.BYOD
+        };
+        assetLifecycleNine.AssignAsset(assetTwo, CALLER_ID);
 
         var disposeSetting = new DisposeSetting("example@techstep.no", Guid.Empty);
         var lifeCycleSettingOne = new LifeCycleSetting(1, true, 700M, 24, Guid.Empty);
@@ -147,7 +158,7 @@ internal static class AssetTestDataSeedingForDatabase
         dbContext.Users.AddRange(userOne);
         dbContext.Assets.AddRange(assetOne, assetTwo, assetThree,assetFour ,assetFive);
         dbContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree,
-            assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleEight);
+            assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleEight, assetLifecycleNine);
         dbContext.CustomerSettings.AddRange(customerSettingOne, customerSettingTwo);
 
         var label = new CustomerLabel(COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));

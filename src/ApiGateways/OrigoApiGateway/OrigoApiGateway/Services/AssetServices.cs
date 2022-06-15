@@ -1515,5 +1515,87 @@ namespace OrigoApiGateway.Services
             }
 
         }
+
+        public async Task<IList<OrigoAsset>> ActivateAssetStatusOnAssetLifecycle(Guid customerId, ChangeAssetStatusDTO changedAssetStatus)
+        {
+            try
+            {
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/customers/{customerId}/activate", changedAssetStatus);
+                
+                
+                var assetLifecycles = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
+                if (assetLifecycles == null)
+                {
+                    return null;
+                }
+                
+                IList<OrigoAsset> assets = new List<OrigoAsset>();
+                OrigoAsset result = null;
+                foreach (var assetLifecycle in assetLifecycles) 
+                { 
+                if (assetLifecycle != null)
+                {
+                    if (assetLifecycle.AssetCategoryId == 1)
+                        result = _mapper.Map<OrigoMobilePhone>(assetLifecycle);
+                    else
+                        result = _mapper.Map<OrigoTablet>(assetLifecycle);
+                        assets.Add(result);
+                }
+            }
+
+                    return assets;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "ActivateAssetStatusOnAssetLifecycle failed with HttpRequestException.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "ActivateAssetStatusOnAssetLifecycle failed with unknown exception");
+                throw;
+            }
+        }
+
+        public async Task<IList<OrigoAsset>> DeactivateAssetStatusOnAssetLifecycle(Guid customerId, ChangeAssetStatusDTO changedAssetStatus)
+        {
+            try
+            {
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/customers/{customerId}/deactivate", changedAssetStatus);
+
+
+                var assetLifecycles = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
+                if (assetLifecycles == null)
+                {
+                    return null;
+                }
+
+                IList<OrigoAsset> assets = new List<OrigoAsset>();
+                OrigoAsset result = null;
+                foreach (var assetLifecycle in assetLifecycles)
+                {
+                    if (assetLifecycle != null)
+                    {
+                        if (assetLifecycle.AssetCategoryId == 1)
+                            result = _mapper.Map<OrigoMobilePhone>(assetLifecycle);
+                        else
+                            result = _mapper.Map<OrigoTablet>(assetLifecycle);
+                        assets.Add(result);
+                    }
+                }
+
+                return assets;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "DeactivateAssetStatusOnAssetLifecycle failed with HttpRequestException.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "DeactivateAssetStatusOnAssetLifecycle failed with unknown exception");
+                throw;
+            }
+        }
     }
 }

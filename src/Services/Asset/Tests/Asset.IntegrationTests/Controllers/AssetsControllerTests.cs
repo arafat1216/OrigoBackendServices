@@ -44,6 +44,8 @@ namespace Asset.IntegrationTests.Controllers
         private readonly Guid _assetFive;
         private readonly Guid _assetSeven;
         private readonly Guid _assetEight;
+        private readonly Guid _assetNine;
+
 
 
         private readonly AssetWebApplicationFactory<Startup> _factory;
@@ -64,6 +66,7 @@ namespace Asset.IntegrationTests.Controllers
             _assetEight = factory.ASSETLIFECYCLE_EIGHT_ID;
             _assetFive = factory.ASSETLIFECYCLE_FIVE_ID;
             _assetSeven = factory.ASSETLIFECYCLE_SEVEN_ID;
+            _assetNine = factory.ASSETLIFECYCLE_NINE_ID;
             _customerIdTwo = factory.COMPANY_ID_TWO;
             _factory = factory;
         }
@@ -132,7 +135,7 @@ namespace Asset.IntegrationTests.Controllers
             var requestUri = $"/api/v1/Assets/customers/{_customerId}/count";
             _testOutputHelper.WriteLine(requestUri);
             var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
-            Assert.Equal(6, count);
+            Assert.Equal(7, count);
         }
 
         [Fact]
@@ -527,8 +530,16 @@ namespace Asset.IntegrationTests.Controllers
                 await httpClient.GetFromJsonAsync<PagedAssetList>($"/api/v1/Assets/customers/{customerId}?filterOptions={json}");
 
             Assert.NotNull(pagedAssetList);
-            Assert.Equal(7, pagedAssetList!.TotalItems);
-            Assert.All(pagedAssetList.Items, m => Assert.Equal(data.DepartmentId, m.ManagedByDepartmentId));
+            Assert.Equal(8, pagedAssetList!.TotalItems);
+            Assert.Collection(pagedAssetList.Items,
+              item => Assert.Null(item.ManagedByDepartmentId),
+              item => Assert.Equal(data.DepartmentId, item.ManagedByDepartmentId),
+              item => Assert.Equal(data.DepartmentId, item.ManagedByDepartmentId),
+              item => Assert.Equal(data.DepartmentId, item.ManagedByDepartmentId),
+              item => Assert.Equal(data.DepartmentId, item.ManagedByDepartmentId),
+              item => Assert.Equal(data.DepartmentId, item.ManagedByDepartmentId),
+              item => Assert.Equal(data.DepartmentId, item.ManagedByDepartmentId),
+              item => Assert.Equal(data.DepartmentId, item.ManagedByDepartmentId));
             Assert.All(pagedAssetList.Items, m => Assert.Null(m.AssetHolderId));
         }
 
@@ -581,8 +592,8 @@ namespace Asset.IntegrationTests.Controllers
             _testOutputHelper.WriteLine(requestUri);
             var pagedAsset = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
 
-            Assert.True(pagedAsset!.TotalItems == 7);
-            Assert.True(pagedAsset.Items.Count == 7);
+            Assert.True(pagedAsset!.TotalItems == 8);
+            Assert.True(pagedAsset.Items.Count == 8);
             Assert.True(pagedAsset.Items.Count(x => x.AssetStatus == AssetLifecycleStatus.InUse) == 4);
         }
 
@@ -978,7 +989,7 @@ namespace Asset.IntegrationTests.Controllers
             var filterOptions = JsonSerializer.Serialize(asset1);
             var requestAllAssets = $"/api/v1/Assets/customers/{_customerId}?filterOptions={filterOptions}";
             var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestAllAssets);
-            Assert.Equal(7, pagedAssetList!.Items.Count);
+            Assert.Equal(8, pagedAssetList!.Items.Count);
             var assetOneFromResponse = pagedAssetList.Items.FirstOrDefault(i => i.Id == _assetOne);
             Assert.Equal(_assetOne, assetOneFromResponse!.Id);
             Assert.Equal(2, assetOneFromResponse.Labels.Count);
@@ -1543,7 +1554,7 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal(_customerId, assetsCounter?.OrganizationId);
             Assert.Equal(2, assetsCounter?.NonPersonal?.InUse);
             Assert.Equal(1, assetsCounter?.NonPersonal?.Active);
-            Assert.Equal(0, assetsCounter?.NonPersonal?.InputRequired);
+            Assert.Equal(1, assetsCounter?.NonPersonal?.InputRequired);
             Assert.Equal(1, assetsCounter?.NonPersonal?.Available);
             Assert.Equal(2, assetsCounter?.Personal?.InUse);
             Assert.Equal(0, assetsCounter?.Personal?.Active);
@@ -1680,7 +1691,7 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal(_customerId, assetsCounter?.OrganizationId);
             Assert.Equal(2, assetsCounter?.NonPersonal?.InUse);
             Assert.Equal(1, assetsCounter?.NonPersonal?.Active);
-            Assert.Equal(0, assetsCounter?.NonPersonal?.InputRequired);
+            Assert.Equal(1, assetsCounter?.NonPersonal?.InputRequired);
             Assert.Equal(1, assetsCounter?.NonPersonal?.Available);
             Assert.Equal(2, assetsCounter?.Personal?.InUse);
             Assert.Equal(0, assetsCounter?.Personal?.Active);
@@ -1737,6 +1748,172 @@ namespace Asset.IntegrationTests.Controllers
             Assert.NotNull(assetsCounter);
             Assert.Equal(_customerId, assetsCounter?.OrganizationId);
             Assert.Equal(0, assetsCounter?.UsersPersonalAssets);
+
+        }
+        [Fact]
+        public async Task DeactivateAssetLifecycleStatus_ChangeStatus_NoLifecycle_LifecycleState()
+        {
+            var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetSeven}/customers/{_customerId}";
+            var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+            var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.NotNull(assetLifeCycle);
+            Assert.Equal(_assetSeven, assetLifeCycle?.Id);
+
+
+            Assert.Equal(AssetLifecycleStatus.Recycled, assetLifeCycle?.AssetStatus);
+            var request = $"/api/v1/Assets/customers/{_customerId}/deactivate";
+            var body = new AssetServices.ServiceModel.ChangeAssetStatus
+            {
+                AssetLifecycleId = new List<Guid> { _assetSeven },
+                CallerId = _callerId
+            };
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assetsCounter = await response.Content.ReadFromJsonAsync<IList<API.ViewModels.Asset>>();
+            Assert.NotNull(assetsCounter);
+            Assert.Equal(AssetLifecycleStatus.Inactive,assetsCounter?[0].AssetStatus);
+        }
+
+
+        [Fact]
+        public async Task ActivateAssetLifecycleStatus_ChangeStatus_NoLifecycle_LifecycleState()
+        {
+            var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetSeven}/customers/{_customerId}";
+            var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+            var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.NotNull(assetLifeCycle);
+            Assert.Equal(_assetSeven, assetLifeCycle?.Id);
+
+
+            Assert.Equal(AssetLifecycleStatus.Recycled, assetLifeCycle?.AssetStatus);
+            var request = $"/api/v1/Assets/customers/{_customerId}/activate";
+            var body = new AssetServices.ServiceModel.ChangeAssetStatus
+            {
+                AssetLifecycleId = new List<Guid> { _assetSeven },
+                CallerId = _callerId
+            };
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assetsCounter = await response.Content.ReadFromJsonAsync<IList<API.ViewModels.Asset>>();
+            Assert.NotNull(assetsCounter);
+            Assert.Equal(AssetLifecycleStatus.Active, assetsCounter?[0].AssetStatus);
+        }
+        [Fact]
+        public async Task ActivateAssetLifecycleStatus_ChangeStatus_BOYD_LifecycleState()
+        {
+            var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetNine}/customers/{_customerId}";
+            var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+            var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.NotNull(assetLifeCycle);
+            Assert.Equal(_assetNine, assetLifeCycle?.Id);
+
+
+            Assert.Equal(AssetLifecycleStatus.InputRequired, assetLifeCycle?.AssetStatus);
+            var request = $"/api/v1/Assets/customers/{_customerId}/activate";
+            var body = new AssetServices.ServiceModel.ChangeAssetStatus
+            {
+                AssetLifecycleId = new List<Guid> { _assetNine },
+                CallerId = _callerId
+            };
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assetsCounter = await response.Content.ReadFromJsonAsync<IList<API.ViewModels.Asset>>();
+            Assert.NotNull(assetsCounter);
+            Assert.Equal(AssetLifecycleStatus.Active, assetsCounter?[0].AssetStatus);
+        }
+
+
+        [Fact]
+        public async Task DeactivateAssetLifecycleStatus_ChangeStatus_BOYD_LifecycleState()
+        {
+            var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetNine}/customers/{_customerId}";
+            var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+            var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.NotNull(assetLifeCycle);
+            Assert.Equal(_assetNine, assetLifeCycle?.Id);
+
+
+            Assert.Equal(AssetLifecycleStatus.InputRequired, assetLifeCycle?.AssetStatus);
+            var request = $"/api/v1/Assets/customers/{_customerId}/deactivate";
+            var body = new AssetServices.ServiceModel.ChangeAssetStatus
+            {
+                AssetLifecycleId = new List<Guid> { _assetNine },
+                CallerId = _callerId
+            };
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assetsCounter = await response.Content.ReadFromJsonAsync<IList<API.ViewModels.Asset>>();
+            Assert.NotNull(assetsCounter);
+            Assert.Equal(AssetLifecycleStatus.Inactive, assetsCounter?[0].AssetStatus);
+        }
+
+
+        [Fact]
+        public async Task ActivateAssetLifecycleStatus_NotNoLifecycleOrBOYD_NoChangeOnStatus()
+        {
+
+            var request = $"/api/v1/Assets/customers/{_customerId}/activate";
+            var body = new AssetServices.ServiceModel.ChangeAssetStatus
+            {
+                AssetLifecycleId = new List<Guid> {_assetEight, _assetFive,_assetTwo,_assetThree},
+                CallerId = _callerId
+            };
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assetsCounter = await response.Content.ReadFromJsonAsync<IList<API.ViewModels.Asset>>();
+            Assert.All(assetsCounter, m => Assert.NotEqual(AssetLifecycleStatus.Active, m.AssetStatus));
+
+        }
+        [Fact]
+        public async Task DeactivateAssetLifecycleStatus_NotNoLifecycleOrBOYD_NoChangeOnStatus()
+        {
+            var request = $"/api/v1/Assets/customers/{_customerId}/deactivate";
+            var body = new AssetServices.ServiceModel.ChangeAssetStatus
+            {
+                AssetLifecycleId = new List<Guid> { _assetEight, _assetFive, _assetTwo, _assetThree },
+                CallerId = _callerId
+            };
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assetsCounter = await response.Content.ReadFromJsonAsync<IList<API.ViewModels.Asset>>();
+            Assert.All(assetsCounter, m => Assert.NotEqual(AssetLifecycleStatus.Inactive, m.AssetStatus));
+
+        }
+        [Fact]
+        public async Task ActivateAssetLifecycleStatus_EmptyGuidList()
+        {
+            var request = $"/api/v1/Assets/customers/{_customerId}/activate";
+            var body = new AssetServices.ServiceModel.ChangeAssetStatus
+            {
+                AssetLifecycleId = new List<Guid>() ,
+                CallerId = _callerId
+            };
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assetsCounter = await response.Content.ReadFromJsonAsync<IList<API.ViewModels.Asset>>();
+            Assert.Equal(0, assetsCounter?.Count);
 
         }
     }

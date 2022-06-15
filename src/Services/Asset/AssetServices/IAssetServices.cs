@@ -52,6 +52,11 @@ namespace AssetServices
         Task<DisposeSettingDTO> GetDisposeSettingByCustomer(Guid customerId);
         Task<CustomerAssetsCounterDTO> GetAssetLifecycleCountersAsync(Guid customerId, IList<AssetLifecycleStatus>? filterStatus, IList<Guid?>? departmentId, Guid? userId);
         Task<AssetLifecycleDTO> ReturnDeviceAsync(Guid customerId, ReturnDeviceDTO data);
+        Task<IList<AssetLifecycleDTO>> ActivateAssetLifecycleStatus(Guid customerId, ChangeAssetStatus assetLifecycles);
+        Task<IList<AssetLifecycleDTO>> DeactivateAssetLifecycleStatus(Guid customerId, ChangeAssetStatus assetLifecycles);
+
+
+
         Task<AssetLifecycleDTO> BuyoutDeviceAsync(Guid customerId, BuyoutDeviceDTO data);
         Task<AssetLifecycleDTO> ReportDeviceAsync(Guid customerId, ReportDeviceDTO data);
     }

@@ -759,6 +759,24 @@ namespace Asset.API.Controllers
                 return BadRequest($"GetCustomerAssetsCount returns ResourceNotFoundException with message: {ex.Message}");
             }
         }
+        [Route("customers/{customerId:guid}/activate")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<CustomerAssetsCounter>> ActivateAssetStatusOnAssetLifecycle(Guid customerId, [FromBody] ChangeAssetStatus assetLifecycle)
+        {
+            var activateAssets = await _assetServices.ActivateAssetLifecycleStatus(customerId, assetLifecycle);
+            return Ok(_mapper.Map<IList<ViewModels.Asset>>(activateAssets));
+        }
+        [Route("customers/{customerId:guid}/deactivate")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<CustomerAssetsCounter>> DeactivateAssetStatusOnAssetLifecycle(Guid customerId, [FromBody] ChangeAssetStatus assetLifecycle)
+        {
+            var activateAssets = await _assetServices.DeactivateAssetLifecycleStatus(customerId, assetLifecycle);
+            return Ok(_mapper.Map<IList<ViewModels.Asset>>(activateAssets));
+        }
 
     }
 }

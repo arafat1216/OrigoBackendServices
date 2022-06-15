@@ -1621,5 +1621,100 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
+
+        [Route("customers/{organizationId:guid}/activate")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
+        public async Task<ActionResult> ActivateAssetStatusOnAssetLifecycle(Guid organizationId, [FromBody] ChangeAssetStatus assetLifecycles)
+        {
+            try
+            {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid.TryParse(actor, out Guid callerId);
+                if (!assetLifecycles.AssetLifecycleId.Any())
+                    return BadRequest("No assets selected.");
+
+                var changedAssetStatusDTO = _mapper.Map<ChangeAssetStatusDTO>(assetLifecycles);
+                changedAssetStatusDTO.CallerId = callerId;
+
+                var activatedAsset = await _assetServices.ActivateAssetStatusOnAssetLifecycle(organizationId, changedAssetStatusDTO);
+               
+                return Ok(activatedAsset);
+            }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, "Unable to change status on assets");
+            }
+        }
+        [Route("customers/{organizationId:guid}/deactivate")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
+        public async Task<ActionResult> DeactivateAssetStatusOnAssetLifecycle(Guid organizationId, [FromBody] ChangeAssetStatus assetLifecycles)
+        {
+            try
+            {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid.TryParse(actor, out Guid callerId);
+                if (!assetLifecycles.AssetLifecycleId.Any())
+                    return BadRequest("No assets selected.");
+
+                var changedAssetStatusDTO = _mapper.Map<ChangeAssetStatusDTO>(assetLifecycles);
+                changedAssetStatusDTO.CallerId = callerId;
+
+                var deactivatedAsset = await _assetServices.DeactivateAssetStatusOnAssetLifecycle(organizationId, changedAssetStatusDTO);
+
+                return Ok(deactivatedAsset);
+            }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, "Unable to change status on assets");
+            }
+        }
     }
 }
