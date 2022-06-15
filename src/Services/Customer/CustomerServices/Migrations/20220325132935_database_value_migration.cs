@@ -23,11 +23,12 @@ namespace CustomerServices.Migrations
             ");
 
             // Changes the old non-nullable default value to the new nullable default value.
-            migrationBuilder.Sql(@"
-                UPDATE Organization
-                SET PrimaryLocation = null
-                WHERE PrimaryLocation = '00000000-0000-0000-0000-000000000000';
-            ");
+            migrationBuilder.UpdateData(
+            table: "Organization",
+            keyColumn: "PrimaryLocation",
+            keyValue: "00000000-0000-0000-0000-000000000000",
+            column: "PrimaryLocation",
+            value: null);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
