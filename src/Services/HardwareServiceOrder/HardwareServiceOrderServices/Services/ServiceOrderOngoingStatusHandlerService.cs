@@ -33,6 +33,9 @@ namespace HardwareServiceOrderServices.Services
                 throw new ArgumentException("This handler can't handle this status");
 
             var order = await _hardwareServiceOrderRepository.UpdateOrderStatusAsync(orderId, newStatus);
+
+            // Update the asset-miroservice
+            await _assetService.UpdateAssetLifeCycleStatusAsync(order.AssetLifecycleId, newStatus, newImeis, newSerialNumber);
         }
     }
 }
