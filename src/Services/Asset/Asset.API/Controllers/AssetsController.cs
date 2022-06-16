@@ -378,6 +378,76 @@ namespace Asset.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [Route("customers/{customerId:guid}/return-location")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> GetReturnLocations(Guid customerId)
+        {
+            try
+            {
+                var locations = await _assetServices.GetReturnLocationsByCustomer(customerId);
+                return Ok(_mapper.Map<IList<ReturnLocation>>(locations));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+        [Route("customers/{customerId:guid}/return-location")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> AddReturnLocation(Guid customerId, [FromBody] NewReturnLocation data)
+        {
+            try
+            {
+                var newLocationDTO = _mapper.Map<ReturnLocationDTO>(data);
+                var addedLocations = await _assetServices.AddReturnLocationsByCustomer(customerId, newLocationDTO, data.CallerId);
+                return Ok(_mapper.Map<IList<ReturnLocation>>(addedLocations));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+        [Route("customers/{customerId:guid}/return-location/{returnLocationId:guid}")]
+        [HttpPut]
+        [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> UpdateReturnLocation(Guid customerId, Guid returnLocationId, [FromBody] NewReturnLocation data)
+        {
+            try
+            {
+                var newLocationDTO = _mapper.Map<ReturnLocationDTO>(data);
+                var updatedLocations = await _assetServices.UpdateReturnLocationsByCustomer(customerId, returnLocationId, newLocationDTO, data.CallerId);
+                return Ok(_mapper.Map<IList<ReturnLocation>>(updatedLocations));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+        [Route("customers/{customerId:guid}/return-location/{returnLocationId:guid}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> RemoveReturnLocation(Guid customerId, Guid returnLocationId)
+        {
+            try
+            {
+                var updatedLocations = await _assetServices.RemoveReturnLocationsByCustomer(customerId, returnLocationId, Guid.Empty);
+                return Ok(_mapper.Map<IList<ReturnLocation>>(updatedLocations));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
 
         [Route("customers/{customerId:guid}")]
         [HttpPost]

@@ -1536,6 +1536,82 @@ namespace Asset.IntegrationTests.Controllers
                         newSettings.PayrollContactEmail);
         }
         [Fact]
+        public async Task AddReturnLocation_CustomerSettingNotExist()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+            var newSettings =
+                new NewReturnLocation { Name = "Name", ReturnDescription = "Description", LocationId = Guid.NewGuid(), CallerId = _callerId };
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
+            var requestUri = $"/api/v1/Assets/customers/{_customerIdTwo}/return-location";
+            _testOutputHelper.WriteLine(requestUri);
+            await httpClient.PostAsJsonAsync(requestUri, newSettings);
+            var disposeSetting =
+                await httpClient.GetFromJsonAsync<DisposeSetting>(
+                    $"/api/v1/Assets/customers/{_customerIdTwo}/dispose-setting");
+
+            Assert.True(disposeSetting!.ReturnLocations.Count == 1);
+            Assert.True(disposeSetting!.ReturnLocations.FirstOrDefault()!.LocationId == newSettings.LocationId);
+        }
+
+        [Fact]
+        public async Task AddReturnLocation()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+            var newSettings =
+                new NewReturnLocation { Name = "Name", ReturnDescription = "Description", LocationId = Guid.NewGuid(), CallerId = _callerId };
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-location";
+            _testOutputHelper.WriteLine(requestUri);
+            await httpClient.PostAsJsonAsync(requestUri, newSettings);
+            var disposeSetting =
+                await httpClient.GetFromJsonAsync<DisposeSetting>(
+                    $"/api/v1/Assets/customers/{_customerId}/dispose-setting");
+
+            Assert.True(disposeSetting!.ReturnLocations.Count == 1);
+            Assert.True(disposeSetting!.ReturnLocations.FirstOrDefault()!.LocationId == newSettings.LocationId);
+        }
+
+        [Fact]
+        public async Task UpdateReturnLocation()
+        {
+            var updatedLocationId = Guid.Parse("d67e9568-f9c5-4180-8de1-341179748fe6");
+            var newSettings =
+                new NewReturnLocation { Name = "Name", ReturnDescription = "Description", LocationId = Guid.NewGuid(), CallerId = _callerId };
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-location";
+            _testOutputHelper.WriteLine(requestUri);
+            var added = await _httpClient.PostAsJsonAsync(requestUri, newSettings);
+            var setting = await added.Content.ReadFromJsonAsync<IList<API.ViewModels.ReturnLocation>>();
+            var response =
+                await _httpClient.PutAsJsonAsync(
+                    $"/api/v1/Assets/customers/{_customerId}/return-location/{setting!.FirstOrDefault()!.Id}", new NewReturnLocation { Name = "Name", ReturnDescription = "Description", LocationId = updatedLocationId });
+
+            var updatedSetting = await response.Content.ReadFromJsonAsync<IList<API.ViewModels.ReturnLocation>>();
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.True(updatedSetting!.Count == 1);
+            Assert.True(updatedSetting!.FirstOrDefault()!.LocationId == updatedLocationId);
+        }
+        [Fact]
+        public async Task RemoveReturnLocation()
+        {
+            var newSettings =
+                new NewReturnLocation { Name = "Name", ReturnDescription = "Description", LocationId = Guid.NewGuid(), CallerId = _callerId };
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-location";
+            _testOutputHelper.WriteLine(requestUri);
+            var added = await _httpClient.PostAsJsonAsync(requestUri, newSettings);
+            var addedLocations = await added.Content.ReadFromJsonAsync<IList<API.ViewModels.ReturnLocation>>();
+
+            var response =
+                await _httpClient.DeleteAsync(
+                    $"/api/v1/Assets/customers/{_customerId}/return-location/{addedLocations!.FirstOrDefault()!.Id}");
+
+            var updatedSetting = await response.Content.ReadFromJsonAsync<IList<API.ViewModels.ReturnLocation>>();
+
+            Assert.True(updatedSetting!.Count == 0);
+        }
+
+        [Fact]
         public async Task GetCustomerAssetsCount()
         {
             var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);

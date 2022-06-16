@@ -491,17 +491,5 @@ namespace AssetServices.Infrastructure
 
         #endregion
 
-        #region DisposeSetting
-
-        public async Task<CustomerSettings> GetDisposeSettingByCustomerAsync(Guid customerId)
-        {
-            var setting = await _assetContext.CustomerSettings.Include(x => x.DisposeSetting).FirstOrDefaultAsync(u => u.CustomerId == customerId);
-            return setting;
-        }
-
-        #endregion
-
-
-
     }
 }

@@ -41,12 +41,16 @@ namespace AssetServices.Models
 
         public DisposeSetting? DisposeSetting { get; private set; }
 
-        public void AddLifeCycleSetting(LifeCycleSetting lifeCycleSetting)
+        public void AddLifeCycleSetting(LifeCycleSetting lifeCycleSetting, Guid callerId)
         {
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
             _lifeCycleSettings.Add(lifeCycleSetting);
         }
-        public void AddDisposeSetting(DisposeSetting disposeSetting)
+        public void AddDisposeSetting(DisposeSetting disposeSetting, Guid callerId)
         {
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
             DisposeSetting = disposeSetting;
         }
 

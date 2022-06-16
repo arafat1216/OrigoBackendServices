@@ -4,6 +4,7 @@ using AssetServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AssetServices.Migrations
 {
     [DbContext(typeof(AssetsContext))]
-    partial class AssetsContextModelSnapshot : ModelSnapshot
+    [Migration("20220616170913_ReturnLocation_in_DisposeSetting")]
+    partial class ReturnLocation_in_DisposeSetting
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -554,6 +556,9 @@ namespace AssetServices.Migrations
                                 .HasColumnType("datetime2");
 
                             b1.Property<Guid?>("DeletedBy")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<Guid>("ExternalId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<int>("Id")

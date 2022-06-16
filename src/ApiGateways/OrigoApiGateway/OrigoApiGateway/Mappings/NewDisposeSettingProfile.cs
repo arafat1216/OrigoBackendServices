@@ -9,6 +9,7 @@ namespace OrigoApiGateway.Mappings
         public NewDisposeSettingProfile()
         {
             CreateMap<NewDisposeSetting, NewDisposeSettingDTO>();
+            CreateMap<NewReturnLocation, NewReturnLocationDTO>();
         }
     }
 }

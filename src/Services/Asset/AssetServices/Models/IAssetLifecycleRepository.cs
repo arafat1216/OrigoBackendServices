@@ -38,7 +38,6 @@ namespace AssetServices.Models
         Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetLifecycleCountForCustomerAsync(Guid customerId, Guid? userId, IList<AssetLifecycleStatus> statuses);
         Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetCountForDepartmentAsync(Guid customerId, Guid? userId, IList<AssetLifecycleStatus> status, IList<Guid?> department);
         Task<int> GetAssetLifecycleCountForUserAsync(Guid customerId, Guid? userId);
-        Task<CustomerSettings> GetDisposeSettingByCustomerAsync(Guid customerId);
         Task<CustomerSettings> AddCustomerSettingAsync(CustomerSettings customerSettings, Guid customerId);
     }
 }

@@ -24,6 +24,7 @@ public class AssetLifecycleProfile : Profile
             .ForMember(dest => dest.Color, opts => opts.MapFrom(src => src.Label.Color));
         CreateMap<LifeCycleSetting, LifeCycleSettingDTO>();
         CreateMap<DisposeSetting, DisposeSettingDTO>();
+        CreateMap<ReturnLocation, ReturnLocationDTO>();
         CreateMap<AssetLifecycle, AssetLifecycleDTO>()
             .ForMember(dest => dest.ContractHolderUserId,
             opts => opts.MapFrom(src => src.ContractHolderUser!.ExternalId))

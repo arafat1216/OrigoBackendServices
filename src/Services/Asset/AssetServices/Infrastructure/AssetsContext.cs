@@ -33,6 +33,6 @@ public class AssetsContext : DbContext
         modelBuilder.ApplyConfiguration(new AssetLifecycleConfiguration(IsSQLite));
         modelBuilder.ApplyConfiguration(new SalaryDeductionTransactionConfiguration(IsSQLite));
         modelBuilder.ApplyConfiguration(new LifeCycleSettingConfiguration(IsSQLite));
-        modelBuilder.ApplyConfiguration(new DisposeSettingConfiguration(IsSQLite));
+        modelBuilder.ApplyConfiguration(new CustomerSettingConfiguration(IsSQLite));
     }
 }

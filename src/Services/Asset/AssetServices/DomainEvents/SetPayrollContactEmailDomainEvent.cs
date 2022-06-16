@@ -7,7 +7,7 @@ namespace AssetServices.DomainEvents
     public class SetPayrollContactEmailDomainEvent : BaseEvent
     {
         public SetPayrollContactEmailDomainEvent(DisposeSetting disposeSetting, Guid callerId, string previousEmail) : base(
-        disposeSetting.ExternalId)
+        callerId)
         {
             DisposeSetting = disposeSetting;
             CallerId = callerId;
@@ -21,8 +21,8 @@ namespace AssetServices.DomainEvents
         public override string EventMessage()
         {
             return string.IsNullOrEmpty(PreviousEmail)?
-                $"Dispose Setting for id {DisposeSetting.ExternalId}; Set 'Payroll Contact Email' to {DisposeSetting.PayrollContactEmail}."
-                : $"Dispose Setting for id {DisposeSetting.ExternalId}; Changing 'Payroll Contact Email' from {PreviousEmail} to {DisposeSetting.PayrollContactEmail}.";
+                $"Dispose Setting is Set 'Payroll Contact Email' to {DisposeSetting.PayrollContactEmail}."
+                : $"Dispose Setting is Changing 'Payroll Contact Email' from {PreviousEmail} to {DisposeSetting.PayrollContactEmail}.";
         }
     }
 }

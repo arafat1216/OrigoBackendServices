@@ -411,6 +411,202 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("customers/{organizationId:guid}/return-location")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult> GetReturnLocationsByCustomer(Guid organizationId)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to see all assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+                var locations = await _assetServices.GetReturnLocationsByCustomer(organizationId);
+                if (locations == null)
+                {
+                    return NotFound();
+                }
+                var allOfficeLocations = await _customerServices.GetAllCustomerLocations(organizationId);
+                foreach (var location in locations)
+                {
+                    location.Location = allOfficeLocations.FirstOrDefault(x => x.Id == location.LocationId);
+                }
+
+                return Ok(locations);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/return-location")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult> AddReturnLocationsByCustomer(Guid organizationId, [FromBody] NewReturnLocation data)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to see all assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+                var allOfficeLocations = await _customerServices.GetAllCustomerLocations(organizationId);
+                
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+
+                var locations = await _assetServices.AddReturnLocationsByCustomer(organizationId, data, allOfficeLocations, callerId);
+                if (locations == null)
+                {
+                    return NotFound();
+                }
+                foreach (var location in locations)
+                {
+                    location.Location = allOfficeLocations.FirstOrDefault(x => x.Id == location.LocationId);
+                }
+
+                return Ok(locations);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+        
+        [Route("customers/{organizationId:guid}/return-location/{returnLocationId:guid}")]
+        [HttpPut]
+        [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult> UpdateReturnLocationsByCustomer(Guid organizationId, Guid returnLocationId, [FromBody] NewReturnLocation data)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to see all assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+                var allOfficeLocations = await _customerServices.GetAllCustomerLocations(organizationId);
+                if (!allOfficeLocations.Select(x => x.Id).Contains(data.LocationId))
+                {
+                    return BadRequest();
+                }
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid callerId;
+                Guid.TryParse(actor, out callerId);
+
+                var locations = await _assetServices.UpdateReturnLocationsByCustomer(organizationId, returnLocationId, data, callerId);
+                if (locations == null)
+                {
+                    return NotFound();
+                }
+                foreach (var location in locations)
+                {
+                    location.Location = allOfficeLocations.FirstOrDefault(x => x.Id == location.LocationId);
+                }
+
+                return Ok(locations);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
+        [Route("customers/{organizationId:guid}/return-location/{returnLocationId:guid}")]
+        [HttpDelete]
+        [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult> RemoveReturnLocationsByCustomer(Guid organizationId, Guid returnLocationId)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to see all assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var locations = await _assetServices.DeleteReturnLocationsByCustomer(organizationId, returnLocationId);
+                if (locations == null)
+                {
+                    return NotFound();
+                }
+                var allOfficeLocations = await _customerServices.GetAllCustomerLocations(organizationId);
+
+                foreach (var location in locations)
+                {
+                    location.Location = allOfficeLocations.FirstOrDefault(x => x.Id == location.LocationId);
+                }
+
+                return Ok(locations);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
         [Route("{assetId:guid}/customers/{organizationId:guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]

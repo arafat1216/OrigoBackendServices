@@ -39,6 +39,7 @@ public class PagedAssetProfile : Profile
             .ForMember(dest => dest.Id, opts => opts.MapFrom(src => src.ExternalId));
         CreateMap<DisposeSettingDTO, DisposeSetting>()
             .ForMember(dest => dest.Id, opts => opts.MapFrom(src => src.ExternalId));
-
+        CreateMap<ReturnLocationDTO, ReturnLocation>()
+            .ForMember(dest => dest.Id, opts => opts.MapFrom(src => src.ExternalId));
     }
 }

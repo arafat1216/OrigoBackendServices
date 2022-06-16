@@ -459,7 +459,7 @@ namespace AssetServices
             if (assetLifecycle == null)
                 throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
 
-            var customerSetting = await _assetLifecycleRepository.GetDisposeSettingByCustomerAsync(customerId);
+            var customerSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
 
             if (customerSetting is null || customerSetting.DisposeSetting is null || string.IsNullOrEmpty(customerSetting.DisposeSetting.PayrollContactEmail))
             {
@@ -749,7 +749,7 @@ namespace AssetServices
                 setting = new CustomerSettings(customerId, CallerId);
                 await _assetLifecycleRepository.AddCustomerSettingAsync(setting, customerId);
             }
-            setting.AddLifeCycleSetting(lifeCycleSetting);
+            setting.AddLifeCycleSetting(lifeCycleSetting, CallerId);
             await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<LifeCycleSettingDTO>(lifeCycleSetting);
         }
@@ -792,7 +792,7 @@ namespace AssetServices
             var existingSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
             if (existingSetting == null)
             {
-                existingSetting = await _assetLifecycleRepository.AddCustomerSettingAsync(new CustomerSettings(), customerId);
+                existingSetting = await _assetLifecycleRepository.AddCustomerSettingAsync(new CustomerSettings(customerId, Guid.Empty), customerId);
             }
             return _mapper.Map<IList<LifeCycleSettingDTO>>(existingSetting.LifeCycleSettings);
         }
@@ -803,22 +803,21 @@ namespace AssetServices
         public async Task<DisposeSettingDTO> AddDisposeSettingForCustomerAsync(Guid customerId, DisposeSettingDTO disposeSettingDTO, Guid CallerId)
         {
             var disposeSetting = new DisposeSetting(disposeSettingDTO.PayrollContactEmail, CallerId);
-            var customerSetting = await _assetLifecycleRepository.GetDisposeSettingByCustomerAsync(customerId);
+            var customerSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
             if(customerSetting == null)
             {
                 customerSetting = new CustomerSettings(customerId, CallerId);
                 await _assetLifecycleRepository.AddCustomerSettingAsync(customerSetting, customerId);
             }
             if(customerSetting.DisposeSetting != null) throw new InvalidOperationException();
-            customerSetting.AddDisposeSetting(disposeSetting);
+            customerSetting.AddDisposeSetting(disposeSetting, CallerId);
             await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<DisposeSettingDTO>(disposeSetting);
         }
 
         public async Task<DisposeSettingDTO> UpdateDisposeSettingForCustomerAsync(Guid customerId, DisposeSettingDTO disposeSettingDTO, Guid CallerId)
         {
-            var disposeSetting = new DisposeSetting(disposeSettingDTO.PayrollContactEmail, CallerId);
-            var customerSetting = await _assetLifecycleRepository.GetDisposeSettingByCustomerAsync(customerId);
+            var customerSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
 
             if (customerSetting == null || customerSetting.DisposeSetting == null)
             {
@@ -835,8 +834,74 @@ namespace AssetServices
         }
         public async Task<DisposeSettingDTO> GetDisposeSettingByCustomer(Guid customerId)
         {
-            var existingSettings = await _assetLifecycleRepository.GetDisposeSettingByCustomerAsync(customerId);
-            return _mapper.Map<DisposeSettingDTO>(existingSettings.DisposeSetting);
+            var existingSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
+            if (existingSetting == null)
+            {
+                existingSetting = await _assetLifecycleRepository.AddCustomerSettingAsync(new CustomerSettings(customerId, Guid.Empty), customerId);
+            }
+            return _mapper.Map<DisposeSettingDTO>(existingSetting.DisposeSetting);
+        }
+        public async Task<IList<ReturnLocationDTO>> AddReturnLocationsByCustomer(Guid customerId, ReturnLocationDTO returnLocationDTO, Guid callerId)
+        {
+            var customerSettings = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
+            if (customerSettings == null)
+            {
+                customerSettings = await _assetLifecycleRepository.AddCustomerSettingAsync(new CustomerSettings(customerId, Guid.Empty), customerId);
+            }
+            var returnLocation = new ReturnLocation(returnLocationDTO.Name, returnLocationDTO.ReturnDescription, returnLocationDTO.LocationId);
+            if(customerSettings.DisposeSetting == null)
+            {
+                customerSettings.AddDisposeSetting(new DisposeSetting(),callerId);
+            }
+            customerSettings.DisposeSetting!.AddReturnLocation(returnLocation, callerId, customerId);
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<IList<ReturnLocationDTO>>(customerSettings.DisposeSetting.ReturnLocations);
+        }
+        public async Task<IList<ReturnLocationDTO>> GetReturnLocationsByCustomer(Guid customerId)
+        {
+            var customerSettings = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
+            if (customerSettings is null || customerSettings.DisposeSetting is null || !customerSettings.DisposeSetting.ReturnLocations.Any())
+            {
+                return new List<ReturnLocationDTO>();
+            }
+            return _mapper.Map<IList<ReturnLocationDTO>>(customerSettings.DisposeSetting.ReturnLocations);
+        }
+
+        public async Task<IList<ReturnLocationDTO>> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, ReturnLocationDTO returnLocationDTO, Guid callerId)
+        {
+            var customerSettings = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
+            if(customerSettings is null || customerSettings.DisposeSetting is null || !customerSettings.DisposeSetting.ReturnLocations.Any())
+            {
+                throw new ResourceNotFoundException("No DisposeSetting were found using the given Customer. Did you enter the correct customer Id?", _logger);
+            }
+            var returnLocation = customerSettings.DisposeSetting.ReturnLocations.FirstOrDefault(x => x.ExternalId == returnLocationId);
+            if (returnLocation == null)
+            {
+                throw new ResourceNotFoundException("No Return Location were found using the given Location. Did you enter the correct Return Location Id?", _logger);
+            }
+            var updatedReturnLocatio = new ReturnLocation(returnLocationDTO.Name, returnLocationDTO.ReturnDescription, returnLocationDTO.LocationId);
+            customerSettings.DisposeSetting.UpdateReturnLocation(callerId, returnLocationId, updatedReturnLocatio);
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<IList<ReturnLocationDTO>>(customerSettings.DisposeSetting.ReturnLocations);
+        }
+        public async Task<IList<ReturnLocationDTO>> RemoveReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, Guid callerId)
+        {
+            var customerSettings = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
+            if (customerSettings is null || customerSettings.DisposeSetting is null || !customerSettings.DisposeSetting.ReturnLocations.Any())
+            {
+                throw new ResourceNotFoundException("No DisposeSetting were found using the given Customer. Did you enter the correct customer Id?", _logger);
+            }
+            var returnLocation = customerSettings.DisposeSetting.ReturnLocations.FirstOrDefault(x => x.ExternalId == returnLocationId);
+            if (returnLocation == null)
+            {
+                throw new ResourceNotFoundException("No Return Location were found using the given Location. Did you enter the correct Return Location Id?", _logger);
+            }
+            customerSettings!.DisposeSetting.RemoveReturnLocation(returnLocation, callerId, customerId);
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<IList<ReturnLocationDTO>>(customerSettings.DisposeSetting.ReturnLocations);
         }
 
         #endregion

@@ -333,6 +333,112 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+        public async Task<IList<ReturnLocation>> GetReturnLocationsByCustomer(Guid customerId)
+        {
+            try
+            {
+                var settings = await HttpClient.GetFromJsonAsync<IList<ReturnLocation>>($"{_options.ApiPath}/customers/{customerId}/return-location");
+
+                if (settings == null)
+                    return null;
+
+                return settings;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetReturnLocationsByCustomer failed with HttpRequestException.");
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetReturnLocationsByCustomer failed with content type is not valid.");
+            }
+            catch (JsonException exception)
+            {
+                _logger.LogError(exception, "GetReturnLocationsByCustomer failed with invalid JSON.");
+            }
+
+            return null;
+        }
+        public async Task<IList<ReturnLocation>> AddReturnLocationsByCustomer(Guid customerId, NewReturnLocation data, IList<Location> officeLocation, Guid callerId)
+        {
+            try
+            {
+                if (!officeLocation.Select(x => x.Id).Contains(data.LocationId))
+                {
+                    throw new ResourceNotFoundException($"LocationId not found for this customer id: {customerId}", _logger);
+                }
+
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/return-location";
+                var newDTO = _mapper.Map<NewReturnLocationDTO>(data);
+                newDTO.CallerId = callerId;
+                var response = new HttpResponseMessage();
+                response = await HttpClient.PostAsJsonAsync(requestUri, newDTO);
+
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDescription = await response.Content.ReadAsStringAsync();
+                    var exception = new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                    throw exception;
+                }
+                var newReturnLocations = await response.Content.ReadFromJsonAsync<IList<ReturnLocation>>();
+                return newReturnLocations;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to add ReturnLocation.");
+                throw;
+            }
+        }
+        public async Task<IList<ReturnLocation>> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, NewReturnLocation data, Guid callerId)
+        {
+            try
+            {
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/return-location/{returnLocationId}";
+                var newDTO = _mapper.Map<NewReturnLocationDTO>(data);
+                newDTO.CallerId = callerId;
+                var response = new HttpResponseMessage();
+                response = await HttpClient.PutAsJsonAsync(requestUri, newDTO);
+
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDescription = await response.Content.ReadAsStringAsync();
+                    var exception = new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                    throw exception;
+                }
+                var newReturnLocations = await response.Content.ReadFromJsonAsync<IList<ReturnLocation>>();
+                return newReturnLocations;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to update ReturnLocation.");
+                throw;
+            }
+        }
+        public async Task<IList<ReturnLocation>> DeleteReturnLocationsByCustomer(Guid customerId, Guid returnLocationId)
+        {
+            try
+            {
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/return-location/{returnLocationId}";
+                var response = new HttpResponseMessage();
+                response = await HttpClient.DeleteAsync(requestUri);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDescription = await response.Content.ReadAsStringAsync();
+                    var exception = new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                    throw exception;
+                }
+                var newReturnLocations = await response.Content.ReadFromJsonAsync<IList<ReturnLocation>>();
+                return newReturnLocations;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to Delete ReturnLocation.");
+                throw;
+            }
+        }
 
         public async Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId)
         {
