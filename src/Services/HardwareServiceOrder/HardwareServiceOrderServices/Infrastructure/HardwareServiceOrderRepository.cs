@@ -52,17 +52,31 @@ namespace HardwareServiceOrderServices.Infrastructure
             if (serviceProvider == null)
                 throw new ArgumentException($"No service provider exists with ID {providerId}", nameof(providerId));
 
-            _hardwareServiceOrderContext.CustomerServiceProviders.Add(new CustomerServiceProvider
-            {
-                ServiceProviderId = providerId,
-                CustomerId = customerId,
-                ApiUserName = apiUsername,
-                ApiPassword = apiPassword
-            });
+            var existing = await GetCustomerServiceProviderAsync(customerId, providerId);
 
+            if (existing == null)
+            {
+                _hardwareServiceOrderContext.CustomerServiceProviders.Add(new CustomerServiceProvider
+                {
+                    ServiceProviderId = providerId,
+                    CustomerId = customerId,
+                    ApiUserName = apiUsername,
+                    ApiPassword = apiPassword
+                });
+
+                await _hardwareServiceOrderContext.SaveChangesAsync();
+
+                return apiUsername;
+            }
+
+            existing.ApiUserName = apiUsername;
+            existing.ApiPassword = apiPassword;
+
+            _hardwareServiceOrderContext.Entry(existing).State = EntityState.Modified;
+            
             await _hardwareServiceOrderContext.SaveChangesAsync();
 
-            return apiUsername;
+            return existing.ApiUserName;
         }
 
         /// <inheritdoc cref="IHardwareServiceOrderRepository.ConfigureCustomerSettingsAsync(Guid, Guid)"/>

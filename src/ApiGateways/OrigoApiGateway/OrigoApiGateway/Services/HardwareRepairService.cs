@@ -75,17 +75,10 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                //TODO: Hardcoded values should be replaced in later PR
-                var dto = new NewCustomerSettingsDTO
+                var dto = new CustomerServiceProviderDTO
                 {
-                    CustomerId = customerId,
-                    ServiceId = serviceId,
-                    ProviderId = 1, //Provider identifier for conmodo
-                    AssetCategoryIds = new List<int>
-                    {
-                        1, // MobilePhone
-                        2 // Tablet
-                    }
+                    ProviderId = 1, //ConmodoNo
+                    ApiUserName = serviceId
                 };
 
                 var request = await HttpClient.PatchAsync($"{_options.ApiPath}/{customerId}/config/sur", JsonContent.Create(dto));

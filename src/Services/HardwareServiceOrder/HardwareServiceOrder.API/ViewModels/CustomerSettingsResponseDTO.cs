@@ -1,4 +1,6 @@
-﻿namespace HardwareServiceOrder.API.ViewModels
+﻿using System.Text.Json.Serialization;
+
+namespace HardwareServiceOrder.API.ViewModels
 {
     public class CustomerSettingsResponseDTO : CustomerSettings
     {
@@ -13,6 +15,7 @@
             LoanDevice = customerSettings.LoanDevice;
         }
 
+        [JsonPropertyName("serviceId")]
         public string? ApiUsername { get; set; }
     }
 }
