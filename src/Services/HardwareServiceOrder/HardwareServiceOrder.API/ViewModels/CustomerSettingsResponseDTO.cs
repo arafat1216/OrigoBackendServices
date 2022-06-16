@@ -13,6 +13,6 @@
             LoanDevice = customerSettings.LoanDevice;
         }
 
-        public string? ServiceId { get; set; }
+        public string? ApiUsername { get; set; }
     }
 }

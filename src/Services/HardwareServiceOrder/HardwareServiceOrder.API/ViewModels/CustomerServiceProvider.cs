@@ -1,4 +1,6 @@
-﻿namespace HardwareServiceOrder.API.ViewModels
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace HardwareServiceOrder.API.ViewModels
 {
     public class CustomerServiceProvider
     {
@@ -6,11 +8,6 @@
         /// Provider identifier
         /// </summary>
         public int ProviderId { get; set; }
-
-        /// <summary>
-        /// List of asset categories supported by the provider
-        /// </summary>
-        public List<int> AssetCategoryIds { get; set; }
 
         /// <summary>
         /// Username for calling service provider's API

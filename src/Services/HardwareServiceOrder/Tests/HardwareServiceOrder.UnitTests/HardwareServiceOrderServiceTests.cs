@@ -92,16 +92,10 @@ namespace HardwareServiceOrder.UnitTests
         }
 
         [Fact]
-        public async Task ConfigureServiceId()
+        public async Task ConfigureCustomerSettings()
         {
-            var dto = new CustomerSettingsDTO
-            {
-                ApiUserName = "[ServiceId]",
-                AssetCategoryIds = new System.Collections.Generic.List<int> { 1, 2 },
-                ProviderId = 1
-            };
-            var settings = await _hardwareServiceOrderService.ConfigureServiceIdAsync(CUSTOMER_ONE_ID, dto, CALLER_ONE_ID);
-            Assert.Equal(dto.ApiUserName, settings.ApiUserName);
+            var settings = await _hardwareServiceOrderService.ConfigureCustomerSettingsAsync(CUSTOMER_ONE_ID, CALLER_ONE_ID);
+            Assert.NotNull(settings);
         }
 
         [Fact]

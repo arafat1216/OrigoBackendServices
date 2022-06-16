@@ -39,9 +39,8 @@ namespace HardwareServiceOrderServices
             return dto;
         }
 
-        //TODO: It should be split up so the CustomerSettings and CustomerServiceProvider settings are not done together
-        /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureCustomerSettingsAsync(Guid, CustomerSettingsDTO, Guid)"/>
-        public async Task<CustomerSettingsDTO> ConfigureCustomerSettingsAsync(Guid customerId, CustomerSettingsDTO customerSettings, Guid callerId)
+        /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureCustomerSettingsAsync(Guid, Guid)"/>
+        public async Task<CustomerSettingsDTO> ConfigureCustomerSettingsAsync(Guid customerId, Guid callerId)
         {
             var entity = await _hardwareServiceOrderRepository.ConfigureCustomerSettingsAsync(customerId, callerId);
 
@@ -73,7 +72,7 @@ namespace HardwareServiceOrderServices
                                     serviceOrderDTO.AssetInfo,
                                     serviceOrderDTO.ErrorDescription);
 
-            var customerProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, serviceOrderDTO.AssetInfo.AssetCategoryId.GetValueOrDefault());
+            var customerProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, (int)ServiceProviderEnum.ConmodoNo);
 
             if (customerProvider == null)
                 throw new ArgumentException($"Service provider is not configured for customer {customerId}", nameof(customerId));
@@ -162,7 +161,7 @@ namespace HardwareServiceOrderServices
 
         public async Task<PagedModel<HardwareServiceOrderResponseDTO>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, CancellationToken cancellationToken, int page = 1, int limit = 500)
         {
-            var orderEntities = await _hardwareServiceOrderRepository.GetAllOrdersAsync(customerId,userId, page, limit, cancellationToken);
+            var orderEntities = await _hardwareServiceOrderRepository.GetAllOrdersAsync(customerId, userId, page, limit, cancellationToken);
 
             return new PagedModel<HardwareServiceOrderResponseDTO>
             {
@@ -230,16 +229,16 @@ namespace HardwareServiceOrderServices
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureCustomerServiceProviderAsync(List{int}, int, Guid, string?, string?)"/>
-        public async Task<string?> ConfigureCustomerServiceProviderAsync(List<int> assetCategoryIds, int providerId, Guid customerId, string? apiUsername, string? apiPassword)
+        /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureCustomerServiceProviderAsync(int, Guid, string?, string?)"/>
+        public async Task<string?> ConfigureCustomerServiceProviderAsync(int providerId, Guid customerId, string? apiUsername, string? apiPassword)
         {
-            return await _hardwareServiceOrderRepository.ConfigureCustomerServiceProviderAsync(assetCategoryIds, providerId, customerId, apiUsername, apiPassword);
+            return await _hardwareServiceOrderRepository.ConfigureCustomerServiceProviderAsync(providerId, customerId, apiUsername, apiPassword);
         }
 
         /// <inheritdoc cref="IHardwareServiceOrderService.GetServicerProvidersUsernameAsync(Guid, int)"/>
         public async Task<string?> GetServicerProvidersUsernameAsync(Guid customerId, int providerId)
         {
-            var serviceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderByProviderIdAsync(customerId, providerId);
+            var serviceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, providerId);
 
             return serviceProvider?.ApiUserName;
         }

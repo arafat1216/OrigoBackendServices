@@ -16,23 +16,21 @@ namespace HardwareServiceOrderServices
         /// <summary>
         /// Configure customer service provider
         /// </summary>
-        /// <param name="assetCategoryIds">List of asset category id</param>
         /// <param name="providerId">Provider identifier</param>
         /// <param name="customerId">Customer identifier</param>
         /// <param name="apiUsername">Username for calling provider's API</param>
         /// <param name="apiPassword">Password for calling provider's API</param>
         /// <returns>Provider's apiUsername</returns>
-        Task<string?> ConfigureCustomerServiceProviderAsync(List<int> assetCategoryIds, int providerId, Guid customerId, string? apiUsername, string? apiPassword);
+        Task<string?> ConfigureCustomerServiceProviderAsync(int providerId, Guid customerId, string? apiUsername, string? apiPassword);
 
         // Configuration
         /// <summary>
         /// Configure service id
         /// </summary>
         /// <param name="customerId">Customer identifier</param>
-        /// <param name="customerSettings">Details of customer</param>
         /// <param name="callerId"></param>
         /// <returns></returns>
-        Task<CustomerSettingsDTO> ConfigureCustomerSettingsAsync(Guid customerId, CustomerSettingsDTO customerSettings, Guid callerId);
+        Task<CustomerSettingsDTO> ConfigureCustomerSettingsAsync(Guid customerId,  Guid callerId);
         Task<CustomerSettingsDTO> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, Guid callerId);
         Task<CustomerSettingsDTO> GetSettingsAsync(Guid customerId);
 

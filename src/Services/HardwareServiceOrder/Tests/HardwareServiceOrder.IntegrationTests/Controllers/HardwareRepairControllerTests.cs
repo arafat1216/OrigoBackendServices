@@ -2,7 +2,6 @@
 using HardwareServiceOrder.API.Controllers;
 using HardwareServiceOrder.API.ViewModels;
 using System;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -39,9 +38,9 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var loanDevice = new LoanDevice("+8801724592272", "test@test.com");
             loanDevice.CallerId = _callerId;
             var request = await _httpClient.PatchAsync(url, JsonContent.Create(loanDevice));
-            var settings = await request.Content.ReadFromJsonAsync<CustomerSettings>();
+            var settings = await request.Content.ReadFromJsonAsync<CustomerSettingsResponseDTO>();
             Assert.NotNull(settings);
-            Assert.Null(settings!.ServiceId);
+            Assert.Null(settings!.ApiUsername);
             Assert.NotNull(settings!.LoanDevice.Email);
             Assert.NotNull(settings!.LoanDevice.PhoneNumber);
         }
@@ -49,19 +48,18 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         [Fact]
         public async Task ConfigureSur()
         {
+            var customerServiceProvider = new CustomerServiceProvider
+            {
+                ApiPassword = "****",
+                ApiUserName = "12345",
+                ProviderId = 1
+            };
             var url = $"/api/v1/hardware-repair/{_customerId}/config/sur?callerId={_callerId}";
             _testOutputHelper.WriteLine(url);
-            var dto = new CustomerSettings
-            {
-                ServiceId = "ServiceId",
-                AssetCategoryIds = new System.Collections.Generic.List<int> { 1, 2 },
-                ProviderId = 1,
-                CustomerId = _customerId,
-            };
-            var request = await _httpClient.PatchAsync(url, JsonContent.Create(dto));
-            var settings = await request.Content.ReadFromJsonAsync<CustomerSettings>();
+            var request = await _httpClient.PatchAsync(url, JsonContent.Create(customerServiceProvider));
+            var settings = await request.Content.ReadFromJsonAsync<CustomerSettingsResponseDTO>();
             Assert.NotNull(settings);
-            Assert.NotNull(settings!.ServiceId);
+            Assert.NotNull(settings!.ApiUsername);
             Assert.NotNull(settings!.LoanDevice.Email);
             Assert.NotNull(settings!.LoanDevice.PhoneNumber);
         }
@@ -72,9 +70,9 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var url = $"/api/v1/hardware-repair/{_customerId}/config";
             _testOutputHelper.WriteLine(url);
             var request = await _httpClient.GetAsync(url);
-            var settings = await request.Content.ReadFromJsonAsync<CustomerSettings>();
+            var settings = await request.Content.ReadFromJsonAsync<CustomerSettingsResponseDTO>();
             Assert.NotNull(settings);
-            Assert.NotNull(settings!.ServiceId);
+            Assert.NotNull(settings!.ApiUsername);
             Assert.NotNull(settings!.LoanDevice.Email);
             Assert.NotNull(settings!.LoanDevice.PhoneNumber);
         }
@@ -87,11 +85,11 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var url = $"/api/v1/hardware-repair/{customerId}/config";
             _testOutputHelper.WriteLine(url);
             var request = await _httpClient.GetAsync(url);
-            var settings = await request.Content.ReadFromJsonAsync<CustomerSettings>();
+            var settings = await request.Content.ReadFromJsonAsync<CustomerSettingsResponseDTO>();
             Assert.NotNull(settings);
             Assert.Equal(HttpStatusCode.OK, request.StatusCode);
             Assert.Equal(settings!.CustomerId, customerId);
-            Assert.Null(settings!.ServiceId);
+            Assert.Null(settings!.ApiUsername);
             Assert.Null(settings!.LoanDevice.PhoneNumber);
             Assert.Null(settings!.LoanDevice.Email);
         }
@@ -119,7 +117,5 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             Assert.NotNull(orders);
             Assert.Equal(1, orders.Items.Count);
         }
-
-
     }
 }

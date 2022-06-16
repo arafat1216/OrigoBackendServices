@@ -7,13 +7,12 @@ namespace HardwareServiceOrderServices.Models
         /// <summary>
         /// Configure customer service provider
         /// </summary>
-        /// <param name="assetCategoryIds">List of asset category id</param>
         /// <param name="providerId">Provider identifier</param>
         /// <param name="customerId">Customer identifier</param>
         /// <param name="apiUsername">Username for calling provider's API</param>
         /// <param name="apiPassword">Password for calling provider's API</param>
         /// <returns></returns>
-        Task<string?> ConfigureCustomerServiceProviderAsync(List<int> assetCategoryIds, int providerId, Guid customerId, string? apiUsername, string? apiPassword);
+        Task<string?> ConfigureCustomerServiceProviderAsync(int providerId, Guid customerId, string? apiUsername, string? apiPassword);
         
         /// <summary>
         /// Configure customer settings
@@ -91,21 +90,14 @@ namespace HardwareServiceOrderServices.Models
         /// <returns></returns>
         Task UpdateServiceEventsAsync(HardwareServiceOrder order, IEnumerable<ServiceEvent> events);
         Task<HardwareServiceOrder> CreateHardwareServiceOrder(HardwareServiceOrder serviceOrder);
-        /// <summary>
-        /// Get customer's service provider
-        /// </summary>
-        /// <param name="customerId">Customer Identifier</param>
-        /// <param name="assetCategoryId">Asset category identifier</param>
-        /// <returns></returns>
-        Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid customerId, int assetCategoryId);
-
+        
         /// <summary>
         /// Get customer's service provider
         /// </summary>
         /// <param name="customerId">Customer Identifier</param>
         /// <param name="providerId">Provider Identifier</param>
         /// <returns>the provider</returns>
-        Task<CustomerServiceProvider?> GetCustomerServiceProviderByProviderIdAsync(Guid customerId, int providerId);
+        Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid customerId, int providerId);
 
         Task<ServiceType> GetServiceTypeAsync(int id);
         Task<ServiceStatus> GetServiceStatusAsync(int id);

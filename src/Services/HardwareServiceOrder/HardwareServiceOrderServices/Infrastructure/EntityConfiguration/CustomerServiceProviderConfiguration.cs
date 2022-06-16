@@ -23,7 +23,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
         {
             builder.ToTable("CustomerServiceProvider");
 
-            builder.HasKey(x => new { x.CustomerId, x.Id, x.AssetCategoryId, x.ServiceProviderId });
+            builder.HasKey(x => new { x.CustomerId, x.Id, x.ServiceProviderId });
 
             /*
              * Properties

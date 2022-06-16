@@ -31,17 +31,15 @@ namespace HardwareServiceOrder.API.Controllers
         [Route("{customerId:Guid}/config/sur")]
         [HttpPatch]
         [SwaggerOperation(Tags = new[] { "Configuration" })]
-        public async Task<IActionResult> ConfigureSur(Guid customerId, [FromBody] SURRequestDTO model, Guid callerId)
+        public async Task<IActionResult> ConfigureSur(Guid customerId, [FromBody] ViewModels.CustomerServiceProvider customerServiceProvider, Guid callerId)
         {
-            var dto = _mapper.Map<CustomerSettingsDTO>(model.CustomerSettings);
+            var settings = await _hardwareServiceOrderService.ConfigureCustomerSettingsAsync(customerId, callerId);
 
-            var settings = await _hardwareServiceOrderService.ConfigureCustomerSettingsAsync(customerId, dto, callerId);
-
-            var serviceId = await _hardwareServiceOrderService.ConfigureCustomerServiceProviderAsync(model.CustomerServiceProvider.AssetCategoryIds, model.CustomerServiceProvider.ProviderId, customerId, model.CustomerServiceProvider.ApiUserName, model.CustomerServiceProvider.ApiPassword);
+            var serviceId = await _hardwareServiceOrderService.ConfigureCustomerServiceProviderAsync(customerServiceProvider.ProviderId, customerId, customerServiceProvider.ApiUserName, customerServiceProvider.ApiPassword);
 
             var response = new CustomerSettingsResponseDTO(_mapper.Map<ViewModels.CustomerSettings>(settings))
             {
-                ServiceId = serviceId
+                ApiUsername = serviceId
             };
 
             return Ok(response);
@@ -56,7 +54,7 @@ namespace HardwareServiceOrder.API.Controllers
 
             var response = new CustomerSettingsResponseDTO(_mapper.Map<ViewModels.CustomerSettings>(settings))
             {
-                ServiceId = await _hardwareServiceOrderService.GetServicerProvidersUsernameAsync(customerId, (int)ServiceProviderEnum.ConmodoNo)
+                ApiUsername = await _hardwareServiceOrderService.GetServicerProvidersUsernameAsync(customerId, (int)ServiceProviderEnum.ConmodoNo)
             };
 
             return Ok(response);
@@ -74,7 +72,7 @@ namespace HardwareServiceOrder.API.Controllers
 
             return Ok(new CustomerSettingsResponseDTO(dto)
             {
-                ServiceId = await _hardwareServiceOrderService.GetServicerProvidersUsernameAsync(customerId, (int)ServiceProviderEnum.ConmodoNo)
+                ApiUsername = await _hardwareServiceOrderService.GetServicerProvidersUsernameAsync(customerId, (int)ServiceProviderEnum.ConmodoNo)
             });
         }
 
@@ -116,7 +114,7 @@ namespace HardwareServiceOrder.API.Controllers
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, Guid? userId, CancellationToken cancellationToken, int page = 1, int limit = 500)
         {
-            var dto = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(customerId,userId, cancellationToken, page, limit);
+            var dto = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(customerId, userId, cancellationToken, page, limit);
             var response = new PagedModel<ViewModels.HardwareServiceOrderResponseDTO>
             {
                 TotalPages = dto.TotalPages,

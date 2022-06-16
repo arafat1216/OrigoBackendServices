@@ -23,11 +23,6 @@ namespace HardwareServiceOrderServices.Models
         public ServiceProvider ServiceProvider { get; set; }
 
         /// <summary>
-        /// Supported asset category by the provider
-        /// </summary>
-        public int AssetCategoryId { get; set; }
-
-        /// <summary>
         /// Username for accessing providers APIs
         /// </summary>
         public string? ApiUserName { get; set; }
