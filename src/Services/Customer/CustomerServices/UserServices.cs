@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿#nullable enable
+using AutoMapper;
 using Common.Enums;
 using Common.Interfaces;
 using Common.Extensions;
@@ -41,17 +42,7 @@ namespace CustomerServices
 
         public async Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
         {
-            try
-            {
-                var allUsers = await _organizationRepository.GetAllUsersAsync(customerId, role, assignedToDepartment, userStatus, cancellationToken, search, page, limit);
-
-                return allUsers;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }        
+            return await _organizationRepository.GetAllUsersAsync(customerId, role, assignedToDepartment, userStatus, cancellationToken, search, page, limit);
         }
 
         private async Task<string> GetRoleNameForUser(string userEmail)

@@ -101,7 +101,7 @@ namespace CustomerServices.Models
         Task<User?> GetUserByUserName(string emailAddress);
         Task<User?> GetUserByMobileNumber(string mobileNumber);
         Task<int> GetUsersCount(Guid customerId);
-        Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? UserStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100);
+        Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100);
         Task<User?> GetUserAsync(Guid customerId, Guid userId);
         Task<User?> GetUserAsync(Guid userId);
         Task<User> AddUserAsync(User newUser);

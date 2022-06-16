@@ -289,7 +289,7 @@ namespace CustomerServices.Infrastructure
 
             if (userStatus != null)
             {
-                users = users.Where(al => userStatus.Contains((int)al.UserStatus));
+                users = users.Where(al => userStatus.Contains(al.UserStatus));
             }
             if (assignedToDepartment != null)
             {

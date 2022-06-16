@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿#nullable enable
+using AutoMapper;
 using Common.Interfaces;
 using Customer.API.ViewModels;
 using Customer.API.WriteModels;
@@ -14,360 +15,388 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Customer.API.Controllers
+namespace Customer.API.Controllers;
+
+/// <summary>
+/// User management endpoints
+/// </summary>
+[ApiController]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/organizations/{customerId:Guid}/[controller]")]
+[SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
+[SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
+public class UsersController : ControllerBase
 {
-    [ApiController]
-    [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/organizations/{customerId:Guid}/[controller]")]
-    [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
-    [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
-    public class UsersController : ControllerBase
+
+    private readonly IUserServices _userServices;
+    private readonly ILogger<UsersController> _logger;
+    private readonly IMapper _mapper;
+
+    /// <summary>
+    /// The controller needs access to the logger service, the user service and the automapper.
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="userServices"></param>
+    /// <param name="mapper"></param>
+    public UsersController(ILogger<UsersController> logger, IUserServices userServices, IMapper mapper)
     {
+        _logger = logger;
+        _userServices = userServices;
+        _mapper = mapper;
+    }
 
-        private readonly IUserServices _userServices;
-        private readonly ILogger<UsersController> _logger;
-        private readonly IMapper _mapper;
+    /// <summary>
+    /// Count the number of users for this customer
+    /// </summary>
+    /// <param name="customerId"></param>
+    /// <returns></returns>
+    [Route("count")]
+    [HttpGet]
+    [ProducesResponseType(typeof(List<User>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<int>> GetUsersCount(Guid customerId)
+    {
+        var count = await _userServices.GetUsersCountAsync(customerId);
 
-        public UsersController(ILogger<UsersController> logger, IUserServices userServices, IMapper mapper)
+        return Ok(count);
+    }
+
+    /// <summary>
+    /// Get all users for a customer with the options to search or filter on different parameters.
+    /// </summary>
+    /// <param name="customerId"></param>
+    /// <param name="filterOptionsAsJsonString"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="search"></param>
+    /// <param name="page"></param>
+    /// <param name="limit"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(List<User>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<PagedModel<User>>> GetAllUsers(Guid customerId, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString, CancellationToken cancellationToken, [FromQuery(Name = "q")] string? search, int page = 1, int limit = 1000)
+    {
+        FilterOptionsForUser? filterOptions = null;
+        if (!string.IsNullOrEmpty(filterOptionsAsJsonString))
         {
-            _logger = logger;
-            _userServices = userServices;
-            _mapper = mapper;
+            filterOptions = JsonSerializer.Deserialize<FilterOptionsForUser>(filterOptionsAsJsonString);
         }
+            
+        var users = await _userServices.GetAllUsersAsync(customerId, filterOptions?.Roles, filterOptions?.AssignedToDepartments, filterOptions?.UserStatuses, cancellationToken, search ?? string.Empty, page, limit);
 
-        [Route("count")]
-        [HttpGet]
-        [ProducesResponseType(typeof(List<User>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<int>> GetUsersCount(Guid customerId)
+        var response = new PagedModel<User>()
         {
-            var count = await _userServices.GetUsersCountAsync(customerId);
+            Items = _mapper.Map<IList<User>>(users.Items),
+            CurrentPage = users.CurrentPage,
+            PageSize = users.PageSize,
+            TotalItems = users.TotalItems,
+            TotalPages = users.TotalPages
+        };
+        return Ok(response);
+    }
 
-            return Ok(count);
+    [Route("{userId:Guid}")]
+    [HttpGet]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<User>> GetUser(Guid customerId, Guid userId)
+    {
+        var user = await _userServices.GetUserWithRoleAsync(customerId, userId);
+        if (user == null) return NotFound();
+        return Ok(_mapper.Map<User>(user));
+    }
+
+    [Route("/api/v{version:apiVersion}/organizations/[controller]/{userId:Guid}")]
+    [HttpGet]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<User>> GetUser(Guid userId)
+    {
+        var user = await _userServices.GetUserWithRoleAsync(userId);
+        if (user == null) return NotFound();
+        return Ok(_mapper.Map<User>(user));
+    }
+
+    [HttpPost]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    public async Task<ActionResult<User>> CreateUserForCustomer(Guid customerId, [FromBody] NewUser newUser)
+    {
+        try
+        {
+            var updatedUser = await _userServices.AddUserForCustomerAsync(customerId, newUser.FirstName,
+                newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId, new CustomerServices.Models.UserPreference(newUser.UserPreference?.Language, newUser.CallerId), newUser.CallerId, newUser.Role);
+            var updatedUserView = _mapper.Map<User>(updatedUser);
+
+            return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUserView.Id }, updatedUserView);
         }
-
-        [HttpGet]
-        [ProducesResponseType(typeof(List<User>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<PagedModel<User>>> GetAllUsers(Guid customerId, [FromQuery(Name = "filterOptions")] string json, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
+        catch (CustomerNotFoundException)
         {
-            var filterOptions = JsonSerializer.Deserialize<FilterOptionsForUser>(json);
-            var users = await _userServices.GetAllUsersAsync(customerId,filterOptions.Roles,filterOptions.AssignedToDepartments,filterOptions.UserStatuses, cancellationToken, search, page, limit);
-
-            var response = new PagedModel<User>()
-            {
-                Items = _mapper.Map<IList<User>>(users.Items),
-                CurrentPage = users.CurrentPage,
-                PageSize = users.PageSize,
-                TotalItems = users.TotalItems,
-                TotalPages = users.TotalPages
-            };
-            return Ok(response);
+            return BadRequest("Customer not found");
         }
-
-        [Route("{userId:Guid}")]
-        [HttpGet]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<User>> GetUser(Guid customerId, Guid userId)
+        catch (OktaException)
         {
-            var user = await _userServices.GetUserWithRoleAsync(customerId, userId);
-            if (user == null) return NotFound();
+            return BadRequest("Okta failed to activate user.");
+        }
+        catch (UserNotFoundException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidPhoneNumberException ex)
+        {
+            return Conflict(ex.Message);
+        }
+        catch (UserNameIsInUseException ex)
+        {
+            return Conflict(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("{0}", ex);
+            return BadRequest("Unable to save user");
+        }
+    }
+
+    [Route("{userId:Guid}")]
+    [HttpPut]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    public async Task<ActionResult<User>> UpdateUserPut(Guid customerId, Guid userId, [FromBody] UpdateUser updateUser)
+    {
+        try
+        {
+            var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language, updateUser.CallerId);
+            var updatedUser = await _userServices.UpdateUserPutAsync(customerId, userId, updateUser.FirstName,
+                updateUser.LastName, updateUser.Email, updateUser.EmployeeId, updateUser.MobileNumber, userPreference, updateUser.CallerId);
+            if (updatedUser == null)
+                return NotFound();
+
+            var updatedUserView = _mapper.Map<User>(updatedUser);
+            return Ok(updatedUserView);
+        }
+        catch (CustomerNotFoundException)
+        {
+            return BadRequest("Customer not found");
+        }
+        catch (InvalidPhoneNumberException ex)
+        {
+            return Conflict(ex.Message);
+        }
+        catch (UserNameIsInUseException ex)
+        {
+            return Conflict(ex.Message);
+        }
+        catch
+        {
+            return BadRequest("Unable to save user");
+        }
+    }
+
+    [Route("{userId:Guid}")]
+    [HttpPost]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    public async Task<ActionResult<User>> UpdateUserPatch(Guid customerId, Guid userId, [FromBody] UpdateUser updateUser)
+    {
+        try
+        {
+            var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language, updateUser.CallerId);
+            var updatedUser = await _userServices.UpdateUserPatchAsync(customerId, userId, updateUser.FirstName,
+                updateUser.LastName, updateUser.Email, updateUser.EmployeeId, updateUser.MobileNumber, userPreference, updateUser.CallerId);
+            if (updatedUser == null)
+                return NotFound();
+
+            return Ok(_mapper.Map<User>(updatedUser));
+        }
+        catch (CustomerNotFoundException)
+        {
+            return BadRequest("Customer not found");
+        }
+        catch (InvalidPhoneNumberException ex)
+        {
+            return Conflict(ex.Message);
+        }
+        catch (UserNameIsInUseException ex)
+        {
+            return Conflict(ex.Message);
+        }
+        catch
+        {
+            return BadRequest("Unable to save user");
+        }
+    }
+
+    /// <summary>
+    /// If this is true then the entity will only be soft-deleted (isDeleted or any equivalent value). This is the default handling that is used by all user-initiated calls.
+    /// When it is false, the entry is permanently deleted from the system.This should only be run under very specific circumstances by the automated cleanup tools, and only on assets that is already soft-deleted.
+    /// Default value : true
+    /// </summary>
+    /// <param name="customerId"></param>
+    /// <param name="userId"></param>
+    /// <param name="callerId"></param>
+    /// <param name="softDelete"></param>
+    /// <returns cref="HttpStatusCode.NoContent"></returns>
+    /// <returns cref="HttpStatusCode.BadRequest"></returns>
+    /// <returns cref="HttpStatusCode.NotFound"></returns>
+    [Route("{userId:Guid}")]
+    [HttpDelete]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    public async Task<ActionResult> DeleteUser(Guid customerId, Guid userId, [FromBody] Guid callerId, bool softDelete = true)
+    {
+        try
+        {
+            var deletedUser = await _userServices.DeleteUserAsync(customerId, userId, callerId, softDelete);
+            if (deletedUser == null)
+                return NotFound("The requested resource don't exist.");
+            // TODO: Ask about this status code 302. Does this make sense??
+            // The resource was deleted successfully.
+            return Ok(_mapper.Map<User>(deletedUser));
+        }
+        catch (CustomerNotFoundException)
+        {
+            return BadRequest("Customer not found");
+        }
+        catch (UserDeletedException)
+        {
+            // TODO: 410 result?
+            return NotFound("The requested resource have already been deleted (soft-delete).");
+        }
+        catch
+        {
+            return BadRequest("Unable to delete user");
+        }
+    }
+
+    [Route("{userId:Guid}/activate/{isActive:bool}")]
+    [HttpPost]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive, [FromBody] Guid callerId)
+    {
+        try
+        {
+            var user = await _userServices.SetUserActiveStatus(customerId, userId, isActive, callerId);
+            if (user == null)
+                return NotFound();
             return Ok(_mapper.Map<User>(user));
         }
-
-        [Route("/api/v{version:apiVersion}/organizations/[controller]/{userId:Guid}")]
-        [HttpGet]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<User>> GetUser(Guid userId)
+        catch (UserNotFoundException exception)
         {
-            var user = await _userServices.GetUserWithRoleAsync(userId);
-            if (user == null) return NotFound();
-            return Ok(_mapper.Map<User>(user));
+            return BadRequest(exception.Message);
         }
-
-        [HttpPost]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<User>> CreateUserForCustomer(Guid customerId, [FromBody] NewUser newUser)
+        catch (Exception)
         {
-            try
-            {
-                var updatedUser = await _userServices.AddUserForCustomerAsync(customerId, newUser.FirstName,
-                    newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId, new CustomerServices.Models.UserPreference(newUser.UserPreference?.Language, newUser.CallerId), newUser.CallerId, newUser.Role);
-                var updatedUserView = _mapper.Map<User>(updatedUser);
-
-                return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUserView.Id }, updatedUserView);
-            }
-            catch (CustomerNotFoundException)
-            {
-                return BadRequest("Customer not found");
-            }
-            catch (OktaException)
-            {
-                return BadRequest("Okta failed to activate user.");
-            }
-            catch (UserNotFoundException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (InvalidPhoneNumberException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch (UserNameIsInUseException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex);
-                return BadRequest("Unable to save user");
-            }
+            return BadRequest("Unable to deactivate user");
         }
+    }
 
-        [Route("{userId:Guid}")]
-        [HttpPut]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<User>> UpdateUserPut(Guid customerId, Guid userId, [FromBody] UpdateUser updateUser)
+    [Route("{userId:Guid}/department/{departmentId:Guid}")]
+    [HttpPost]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<User>> AssignDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
+    {
+        var user = await _userServices.AssignDepartment(customerId, userId, departmentId, callerId);
+        if (user == null) return NotFound();
+        return Ok(_mapper.Map<User>(user));
+    }
+
+    [Route("{userId:Guid}/department/{departmentId:Guid}/manager")]
+    [HttpPost]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult> AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
+    {
+        try
         {
-            try
-            {
-                var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language, updateUser.CallerId);
-                var updatedUser = await _userServices.UpdateUserPutAsync(customerId, userId, updateUser.FirstName,
-                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId, updateUser.MobileNumber, userPreference, updateUser.CallerId);
-                if (updatedUser == null)
-                    return NotFound();
-
-                var updatedUserView = _mapper.Map<User>(updatedUser);
-                return Ok(updatedUserView);
-            }
-            catch (CustomerNotFoundException)
-            {
-                return BadRequest("Customer not found");
-            }
-            catch (InvalidPhoneNumberException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch (UserNameIsInUseException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch
-            {
-                return BadRequest("Unable to save user");
-            }
+            await _userServices.AssignManagerToDepartment(customerId, userId, departmentId, callerId);
+            return Ok();
         }
-
-        [Route("{userId:Guid}")]
-        [HttpPost]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<User>> UpdateUserPatch(Guid customerId, Guid userId, [FromBody] UpdateUser updateUser)
+        catch (DepartmentNotFoundException exception)
         {
-            try
-            {
-                var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language, updateUser.CallerId);
-                var updatedUser = await _userServices.UpdateUserPatchAsync(customerId, userId, updateUser.FirstName,
-                    updateUser.LastName, updateUser.Email, updateUser.EmployeeId, updateUser.MobileNumber, userPreference, updateUser.CallerId);
-                if (updatedUser == null)
-                    return NotFound();
 
-                return Ok(_mapper.Map<User>(updatedUser));
-            }
-            catch (CustomerNotFoundException)
-            {
-                return BadRequest("Customer not found");
-            }
-            catch (InvalidPhoneNumberException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch (UserNameIsInUseException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch
-            {
-                return BadRequest("Unable to save user");
-            }
+            return BadRequest(exception.Message);
         }
-
-        /// <summary>
-        /// If this is true then the entity will only be soft-deleted (isDeleted or any equivalent value). This is the default handling that is used by all user-initiated calls.
-        /// When it is false, the entry is permanently deleted from the system.This should only be run under very specific circumstances by the automated cleanup tools, and only on assets that is already soft-deleted.
-        /// Default value : true
-        /// </summary>
-        /// <param name="customerId"></param>
-        /// <param name="userId"></param>
-        /// <param name="callerId"></param>
-        /// <param name="softDelete"></param>
-        /// <returns cref="HttpStatusCode.NoContent"></returns>
-        /// <returns cref="HttpStatusCode.BadRequest"></returns>
-        /// <returns cref="HttpStatusCode.NotFound"></returns>
-        [Route("{userId:Guid}")]
-        [HttpDelete]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> DeleteUser(Guid customerId, Guid userId, [FromBody] Guid callerId, bool softDelete = true)
+        catch (UserNotFoundException exception)
         {
-            try
-            {
-                var deletedUser = await _userServices.DeleteUserAsync(customerId, userId, callerId, softDelete);
-                if (deletedUser == null)
-                    return NotFound("The requested resource don't exist.");
-                // TODO: Ask about this status code 302. Does this make sense??
-                // The resource was deleted successfully.
-                return Ok(_mapper.Map<User>(deletedUser));
-            }
-            catch (CustomerNotFoundException)
-            {
-                return BadRequest("Customer not found");
-            }
-            catch (UserDeletedException)
-            {
-                // TODO: 410 result?
-                return NotFound("The requested resource have already been deleted (soft-delete).");
-            }
-            catch
-            {
-                return BadRequest("Unable to delete user");
-            }
-        }
 
-        [Route("{userId:Guid}/activate/{isActive:bool}")]
-        [HttpPost]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive, [FromBody] Guid callerId)
+            return BadRequest(exception.Message);
+        }
+        catch (Exception)
         {
-            try
-            {
-                var user = await _userServices.SetUserActiveStatus(customerId, userId, isActive, callerId);
-                if (user == null)
-                    return NotFound();
-                return Ok(_mapper.Map<User>(user));
-            }
-            catch (UserNotFoundException exception)
-            {
-                return BadRequest(exception.Message);
-            }
-            catch (Exception)
-            {
-                return BadRequest("Unable to deactivate user");
-            }
+            return BadRequest();
         }
+    }
 
-        [Route("{userId:Guid}/department/{departmentId:Guid}")]
-        [HttpPost]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<User>> AssignDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
+    [Route("{userId:Guid}/department/{departmentId:Guid}/manager")]
+    [HttpDelete]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult> UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
+    {
+        try
         {
-            var user = await _userServices.AssignDepartment(customerId, userId, departmentId, callerId);
-            if (user == null) return NotFound();
-            return Ok(_mapper.Map<User>(user));
+            await _userServices.UnassignManagerFromDepartment(customerId, userId, departmentId, callerId);
+            return Ok();
         }
-
-        [Route("{userId:Guid}/department/{departmentId:Guid}/manager")]
-        [HttpPost]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
+        catch (DepartmentNotFoundException exception)
         {
-            try
-            {
-                await _userServices.AssignManagerToDepartment(customerId, userId, departmentId, callerId);
-                return Ok();
-            }
-            catch (DepartmentNotFoundException exception)
-            {
 
-                return BadRequest(exception.Message);
-            }
-            catch (UserNotFoundException exception)
-            {
-
-                return BadRequest(exception.Message);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
+            return BadRequest(exception.Message);
         }
-
-        [Route("{userId:Guid}/department/{departmentId:Guid}/manager")]
-        [HttpDelete]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
+        catch (UserNotFoundException exception)
         {
-            try
-            {
-                await _userServices.UnassignManagerFromDepartment(customerId, userId, departmentId, callerId);
-                return Ok();
-            }
-            catch (DepartmentNotFoundException exception)
-            {
 
-                return BadRequest(exception.Message);
-            }
-            catch (UserNotFoundException exception)
-            {
+            return BadRequest(exception.Message);
+        }
+        catch (Exception)
+        {
+            return BadRequest();
+        }
+    }
 
-                return BadRequest(exception.Message);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
-        [Route("{userId:Guid}/department/{departmentId:Guid}")]
-        [HttpDelete]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<User>> RemoveAssignedDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
-        {
-            var user = await _userServices.UnassignDepartment(customerId, userId, departmentId, callerId);
-            if (user == null) return NotFound();
-            return Ok(_mapper.Map<User>(user));
-        }
-        /// <summary>
-        /// Only used by userpermission gateway to get info about user to be made a claim for
-        /// Either userName or userId
-        /// </summary>
-        /// <param name="userName">Null or a vaue</param>
-        /// <returns></returns>
-        [Obsolete("Will be removed when controller for adding one user permission at a time gets removed")]
-        [Route("/api/v{version:apiVersion}/organizations/{userName}/users-info")]
-        [HttpGet]
-        [ProducesResponseType(typeof(UserInfo), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<UserInfo>> GetUserFromUserName(string userName)
-        {
-            var user = await _userServices.GetUserInfoFromUserName(userName);
-            if (user == null) return NotFound();
-            return Ok(_mapper.Map<UserInfo>(user));
-        }
-        /// <summary>
-        /// Only used by userpermission gateway to get info about user to be made a claim for
-        /// </summary>
-        /// <param name="userId">Empty Guid or a value</param>
-        /// <returns></returns>
-        [Route("/api/v{version:apiVersion}/organizations/{userId:Guid}/users-info")]
-        [HttpGet]
-        [ProducesResponseType(typeof(UserInfo), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<UserInfo>> GetUserFromUserId(Guid userId)
-        {
-            var user = await _userServices.GetUserInfoFromUserId(userId);
-            if (user == null) return NotFound();
-            return Ok(_mapper.Map<UserInfo>(user));
-        }
+    [Route("{userId:Guid}/department/{departmentId:Guid}")]
+    [HttpDelete]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<User>> RemoveAssignedDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
+    {
+        var user = await _userServices.UnassignDepartment(customerId, userId, departmentId, callerId);
+        if (user == null) return NotFound();
+        return Ok(_mapper.Map<User>(user));
+    }
+    /// <summary>
+    /// Only used by userpermission gateway to get info about user to be made a claim for
+    /// Either userName or userId
+    /// </summary>
+    /// <param name="userName">Null or a vaue</param>
+    /// <returns></returns>
+    [Obsolete("Will be removed when controller for adding one user permission at a time gets removed")]
+    [Route("/api/v{version:apiVersion}/organizations/{userName}/users-info")]
+    [HttpGet]
+    [ProducesResponseType(typeof(UserInfo), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<UserInfo>> GetUserFromUserName(string userName)
+    {
+        var user = await _userServices.GetUserInfoFromUserName(userName);
+        if (user == null) return NotFound();
+        return Ok(_mapper.Map<UserInfo>(user));
+    }
+    /// <summary>
+    /// Only used by userpermission gateway to get info about user to be made a claim for
+    /// </summary>
+    /// <param name="userId">Empty Guid or a value</param>
+    /// <returns></returns>
+    [Route("/api/v{version:apiVersion}/organizations/{userId:Guid}/users-info")]
+    [HttpGet]
+    [ProducesResponseType(typeof(UserInfo), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<UserInfo>> GetUserFromUserId(Guid userId)
+    {
+        var user = await _userServices.GetUserInfoFromUserId(userId);
+        if (user == null) return NotFound();
+        return Ok(_mapper.Map<UserInfo>(user));
     }
 }

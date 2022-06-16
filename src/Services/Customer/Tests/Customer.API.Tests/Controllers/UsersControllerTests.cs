@@ -67,11 +67,27 @@ namespace Customer.API.IntegrationTests.Controllers
             var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}&filterOptions={json}";
 
             var response = await httpClient.GetAsync(requestUri);
-            var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
+            var users = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(3, read?.TotalItems);
+            Assert.Equal(3, users?.TotalItems);
+        }
 
+        [Fact]
+        public async Task GetUserByEmail()
+        {
+            // Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_customerId}/users?q={_userOneEmail}";
+
+            // Act
+            var response = await httpClient.GetAsync(requestUri);
+            var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(1, read?.TotalItems);
+            Assert.Equal(_userOneEmail, read.Items[0].Email);
         }
 
         [Fact]

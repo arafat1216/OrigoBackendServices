@@ -1,4 +1,5 @@
-﻿using Common.Interfaces;
+﻿#nullable enable
+using Common.Interfaces;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
 using System;
