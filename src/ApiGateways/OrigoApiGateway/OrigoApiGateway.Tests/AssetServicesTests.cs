@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
+using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Mappings;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
@@ -1124,6 +1125,139 @@ namespace OrigoApiGateway.Tests
 
             // Assert
             Assert.Equal(newSettings.PayrollContactEmail, assetings.PayrollContactEmail);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task ReturnDeviceAsync_AssetDoesNotExist()
+        {
+            // Arrange
+            const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
+            const string ASSET_ID = "c0c7cdba-3217-4da3-9537-cb34b6b8b765";
+
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                    x.RequestUri != null && x.RequestUri.ToString().Contains($"{ASSET_ID}/customers") && x.Method == HttpMethod.Get
+                    ),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(string.Empty)
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new AssetConfiguration() { ApiPath = @"/assets" };
+            var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+
+
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+
+            // Act and assert
+            await Assert.ThrowsAsync<ResourceNotFoundException>(() =>
+                assetService.ReturnDeviceAsync(new Guid(CUSTOMER_ID), new Guid(ASSET_ID), PredefinedRole.EndUser.ToString(), Guid.Empty));
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task ReportDeviceAsync_AssetDoesNotExist()
+        {
+            // Arrange
+            const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
+            const string ASSET_ID = "c0c7cdba-3217-4da3-9537-cb34b6b8b765";
+
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                    x.RequestUri != null && x.RequestUri.ToString().Contains($"{ASSET_ID}/customers") && x.Method == HttpMethod.Get
+                    ),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(string.Empty)
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new AssetConfiguration() { ApiPath = @"/assets" };
+            var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+
+
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+
+            var reportData = new ReportDevice()
+            {
+                AssetId = new Guid(ASSET_ID),
+                ReportCategory = ReportCategory.Lost,
+                Description = "test",
+                TimePeriodFrom = DateTime.UtcNow.AddDays(-2),
+                TimePeriodTo = DateTime.UtcNow,
+                Country = "NO",
+                Address = "test",
+                PostalCode = "1245",
+                City = "Test"
+            };
+
+            // Act and assert
+            await Assert.ThrowsAsync<ResourceNotFoundException>(() =>
+                assetService.ReportDeviceAsync(new Guid(CUSTOMER_ID), reportData, PredefinedRole.EndUser.ToString(), Guid.Empty));
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task BuyoutDeviceAsync_AssetDoesNotExist()
+        {
+            // Arrange
+            const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
+            const string ASSET_ID = "c0c7cdba-3217-4da3-9537-cb34b6b8b765";
+
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                    x.RequestUri != null && x.RequestUri.ToString().Contains($"{ASSET_ID}/customers") && x.Method == HttpMethod.Get
+                    ),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(string.Empty)
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new AssetConfiguration() { ApiPath = @"/assets" };
+            var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+
+
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+
+            // Act and assert
+            await Assert.ThrowsAsync<ResourceNotFoundException>(() =>
+                assetService.BuyoutDeviceAsync(new Guid(CUSTOMER_ID), new Guid(ASSET_ID), PredefinedRole.EndUser.ToString(), Guid.Empty));
         }
 
     }
