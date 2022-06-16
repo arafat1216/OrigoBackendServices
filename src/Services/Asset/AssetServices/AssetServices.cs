@@ -925,35 +925,29 @@ namespace AssetServices
             }
 
             //Change status
-            try
-            {
-                assetLifeCycle.RepairCompleted(assetLifeCycleRepairCompleted.CallerId, assetLifeCycleRepairCompleted.Discarded);
-            }
-            catch (InvalidOperationException)
-            {
-                throw new InvalidAssetDataException($"Asset life cycle has status {assetLifeCycle.AssetLifecycleStatus}");
-            }
-
+            assetLifeCycle.RepairCompleted(assetLifeCycleRepairCompleted.CallerId, assetLifeCycleRepairCompleted.Discarded);
+           
+            
             //Add new asset if new values are added 
             long imei = 0;
             List<AssetImei>? imeiList = new List<AssetImei>();
 
             if (assetLifeCycleRepairCompleted.NewImei.Any())
             {
-                foreach (var asset in assetLifeCycleRepairCompleted.NewImei)
-                {
-                    if (asset != null && long.TryParse(asset, out imei))
+                    foreach (var asset in assetLifeCycleRepairCompleted.NewImei)
                     {
-                        if (AssetValidatorUtility.ValidateImei(asset))
+                        if (asset != null && long.TryParse(asset, out imei))
                         {
-                            imeiList.Add(new AssetImei(imei));
+                            if (AssetValidatorUtility.ValidateImei(asset))
+                            {
+                                imeiList.Add(new AssetImei(imei));
 
+                            }
+                            else throw new InvalidAssetDataException($"Invalid imei: {asset}");
                         }
-                        else throw new InvalidAssetDataException($"Invalid imei: {asset}");
-                    }
-                    else throw new InvalidAssetDataException($"No asset imei");
+                        else throw new InvalidAssetDataException($"No asset imei");
 
-                }
+                    }
             }
 
             if (imeiList.Any() || !string.IsNullOrWhiteSpace(assetLifeCycleRepairCompleted.NewSerialNumber))

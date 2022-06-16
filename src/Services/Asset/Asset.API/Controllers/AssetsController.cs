@@ -763,7 +763,7 @@ namespace Asset.API.Controllers
             catch (InvalidAssetDataException ex)
             {
                 _logger?.LogError("AssetLifeCycleRepairCompleted returns InvalidAssetDataException", ex.Message);
-                return BadRequest($"AssetLifeCycleRepairCompleted returns InvalidAssetDataException with assetLifecycleId {assetLifecycleId} with message: {ex.Message}");
+                return BadRequest($"{ex.Message}");
             }
             catch (Exception ex)
             {
@@ -793,6 +793,11 @@ namespace Asset.API.Controllers
             {
                 _logger?.LogError("AssetLifeCycleChangeStatusToRepair returns ResourceNotFoundException", ex.Message);
                 return BadRequest($"AssetLifeCycleChangeStatusToRepair returns ResourceNotFoundException with assetLifecycleId {assetLifecycleId}");
+            }
+            catch (InvalidAssetDataException ex)
+            {
+                _logger?.LogError("AssetLifeCycleChangeStatusToRepair returns InvalidAssetDataException", ex.Message);
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {

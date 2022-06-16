@@ -4,6 +4,7 @@ using System.Data.SqlTypes;
 using System.Linq;
 using AssetServices.DomainEvents.AssetLifecycleEvents;
 using AssetServices.DomainEvents.EndOfLifeCycleEvents;
+using AssetServices.Exceptions;
 using AssetServices.ServiceModel;
 using Common.Enums;
 using Common.Seedwork;
@@ -524,6 +525,14 @@ public class AssetLifecycle : Entity, IAggregateRoot
 
     public void IsSentToRepair(Guid callerId)
     {
+        if (_assetLifecycleStatus == AssetLifecycleStatus.Lost ||
+      _assetLifecycleStatus == AssetLifecycleStatus.Stolen ||
+      _assetLifecycleStatus == AssetLifecycleStatus.Recycled ||
+      _assetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
+      _assetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
+      _assetLifecycleStatus == AssetLifecycleStatus.Returned ||
+      _assetLifecycleStatus == AssetLifecycleStatus.Discarded) throw new InvalidAssetDataException($"Invalid asset lifecycle status: {_assetLifecycleStatus} for sending asset lifecycle on repair.");
+
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         UpdateAssetStatus(AssetLifecycleStatus.Repair, callerId);
@@ -531,19 +540,21 @@ public class AssetLifecycle : Entity, IAggregateRoot
     }
     public void RepairCompleted(Guid callerId, bool discarded)
     {
+        if (_assetLifecycleStatus == AssetLifecycleStatus.Lost ||
+            _assetLifecycleStatus == AssetLifecycleStatus.Stolen ||
+            _assetLifecycleStatus == AssetLifecycleStatus.Recycled ||
+            _assetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
+            _assetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
+            _assetLifecycleStatus == AssetLifecycleStatus.Returned) throw new InvalidAssetDataException($"Invalid asset lifecycle status: {_assetLifecycleStatus} for completing return.");
+;
         if (_assetLifecycleStatus == AssetLifecycleStatus.Repair)
         {
-            if (discarded)UpdateAssetStatus(AssetLifecycleStatus.Discarded, callerId);
+            if (discarded) UpdateAssetStatus(AssetLifecycleStatus.Discarded, callerId);
             else UpdateAssetStatus(AssetLifecycleStatus.InUse, callerId);
 
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
             AddDomainEvent(new AssetRepairCompletedDomainEvent(this, callerId, _assetLifecycleStatus));
-
-        }
-        else
-        {
-            throw new InvalidOperationException();
         }
     }
     public void SetActiveStatus(Guid callerId)

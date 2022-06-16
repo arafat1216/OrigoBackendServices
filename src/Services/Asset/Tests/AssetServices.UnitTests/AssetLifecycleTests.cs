@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AssetServices.DomainEvents.AssetLifecycleEvents;
+using AssetServices.Exceptions;
 using AssetServices.Models;
 using AssetServices.ServiceModel;
 using Common.Enums;
@@ -206,5 +208,98 @@ public class AssetLifecycleTests
         // Assert
         Assert.Equal(AssetLifecycleStatus.InputRequired, assetLifecycle.AssetLifecycleStatus);
         Assert.True(assetLifecycle.IsActiveState);
+    }
+    [Fact]
+    public void RepairCompleted_ChangeStatusAndCheckDomainEventsCreated()
+    {
+        // Arrange
+        Guid callerId = Guid.NewGuid();
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        //Act
+        assetLifecycle.IsSentToRepair(callerId);
+        assetLifecycle.RepairCompleted(callerId, false);
+
+        //Assert
+        Assert.Equal(AssetLifecycleStatus.InUse, assetLifecycle.AssetLifecycleStatus);
+        Assert.Equal(4, assetLifecycle.DomainEvents.Count);
+        Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(UpdateAssetLifecycleStatusDomainEvent));
+        Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(AssetSentToRepairDomainEvent));
+        Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(AssetRepairCompletedDomainEvent));
+
+    }
+
+    [Fact]
+    public void RepairCompleted_ShouldBeAllowedButNotChange_AlsoWhenStatusIsNotRepair()
+    {
+        // Arrange
+        Guid callerId = Guid.NewGuid();
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+        Asset asset = new MobilePhone(Guid.NewGuid(), callerId, "123Serial", "Apple", "IPhone X",
+                    new List<AssetImei>() { new AssetImei(332226834371155) }, "01:56:23:98:45:AB");
+        assetLifecycle.AssignAsset(asset, callerId);
+        assetLifecycle.AssignAssetLifecycleHolder(null, Guid.NewGuid(), callerId);
+
+        bool discarded = false;
+
+        Assert.Equal(AssetLifecycleStatus.InUse, assetLifecycle.AssetLifecycleStatus);
+
+        //Act
+        assetLifecycle.RepairCompleted(callerId, discarded);
+
+        //Assert
+        Assert.Equal(AssetLifecycleStatus.InUse, assetLifecycle.AssetLifecycleStatus);
+        Assert.Equal(3, assetLifecycle.DomainEvents.Count);
+        Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(UpdateAssetLifecycleStatusDomainEvent));
+        Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(AssignAssetToAssetLifeCycleDomainEvent));
+        Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(AssignDepartmentAssetLifecycleDomainEvent));
+    }
+    [Fact]
+    public void RepairCompleted_ThrowInvalidAssetDataException_WhenStatusIsNotValid()
+    {
+        // Arrange
+        Guid callerId = Guid.NewGuid();
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        //Act
+        assetLifecycle.HasBeenStolen(callerId);
+
+        //Assert
+        var exception = Assert.Throws<InvalidAssetDataException>(
+            () => assetLifecycle.RepairCompleted(callerId, false));
+
+        Assert.Equal("Invalid asset lifecycle status: Stolen for completing return.", exception.Message);
+    }
+    [Fact]
+    public void IsSentToRepair_ThrowInvalidAssetDataException_WhenStatusIsNotValid()
+    {
+        // Arrange
+        Guid callerId = Guid.NewGuid();
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        //Act
+        assetLifecycle.HasBeenStolen(callerId);
+
+        //Assert
+        var exception = Assert.Throws<InvalidAssetDataException>(
+            () => assetLifecycle.IsSentToRepair(callerId));
+
+        Assert.Equal("Invalid asset lifecycle status: Stolen for sending asset lifecycle on repair.", exception.Message);
     }
 }
