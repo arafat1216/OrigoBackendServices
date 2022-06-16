@@ -548,7 +548,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 var existingAsset = await GetAssetForCustomerAsync(customerId, assetLifeCycleId);
-                if (existingAsset != null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
+                if (existingAsset == null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
 
                 var returnDTO = new ReturnDeviceDTO()
                 {
@@ -646,7 +646,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 var existingAsset = await GetAssetForCustomerAsync(customerId, assetLifeCycleId);
-                if (existingAsset != null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
+                if (existingAsset == null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
 
                 if (existingAsset.AssetHolderId != callerId && role == PredefinedRole.EndUser.ToString()) throw new Exception("Only ContractHolderUser can do buyout!!!");
 
@@ -692,7 +692,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 var existingAsset = await GetAssetForCustomerAsync(customerId, data.AssetId);
-                if (existingAsset != null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
+                if (existingAsset == null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
 
                 if (existingAsset.IsPersonal)
                 {
