@@ -241,10 +241,14 @@ namespace Asset.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(PagedAssetList), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<PagedAssetList>> Get(Guid customerId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string? search, int page = 1, int limit = 1000, [FromQuery(Name = "filterOptions")] string json = null)
+        public async Task<ActionResult<PagedAssetList>> Get(Guid customerId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string? search, int page = 1, int limit = 1000, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString = null)
         {
-            var filterOptions = JsonSerializer.Deserialize<FilterOptionsForAsset>(json);
-            var pagedAssetResult = await _assetServices.GetAssetLifecyclesForCustomerAsync(customerId,filterOptions.UserId, filterOptions.Status, filterOptions.Department, filterOptions.Category, filterOptions.Label, search ?? string.Empty, page, limit, cancellationToken);
+            FilterOptionsForAsset? filterOptions = null;
+            if (!string.IsNullOrEmpty(filterOptionsAsJsonString))
+            {
+                filterOptions = JsonSerializer.Deserialize<FilterOptionsForAsset>(filterOptionsAsJsonString);
+            }
+            var pagedAssetResult = await _assetServices.GetAssetLifecyclesForCustomerAsync(customerId, filterOptions?.UserId, filterOptions?.Status, filterOptions?.Department, filterOptions?.Category, filterOptions?.Label, search ?? string.Empty, page, limit, cancellationToken);
             var pagedAssetList = _mapper.Map<PagedAssetList>(pagedAssetResult);
             return Ok(pagedAssetList);
         }

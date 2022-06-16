@@ -100,7 +100,7 @@ namespace AssetServices.Infrastructure
             return assets.Sum(x => x.BookValue);
         }
 
-        public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
+        public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
            Guid[]? label, string search, int page, int limit, CancellationToken cancellationToken)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
@@ -136,7 +136,7 @@ namespace AssetServices.Infrastructure
                 query = query.Where(al => department.Contains(al.ManagedByDepartmentId));
             }
 
-            if (category != null && category.Length == 1)
+            if (category is { Length: 1 })
             {
                 if(category[0] == 1)
                     query = query.Where(al => al.Asset is MobilePhone);
@@ -145,7 +145,7 @@ namespace AssetServices.Infrastructure
 
                 //query = query.Where(al => category.Contains(al.AssetCategoryId));
             }
-            else if(category != null && category.Length == 2)
+            else if(category is { Length: 2 })
             {
                 query = query.Where(al => al.Asset is MobilePhone || al.Asset is Tablet);
             }
