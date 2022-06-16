@@ -50,5 +50,11 @@ namespace AssetServices.Models
             AddDomainEvent(new IMEIChangedDomainEvent<MobilePhone>(this, imeiList));
             base.SetImei(imeiList,callerId);
         }
+        public override void SetMacAddress(string macAddress, Guid callerId)
+        {
+            base.SetMacAddress(macAddress, callerId);
+            AddDomainEvent(new MacAddressChangedDomainEvent<MobilePhone>(this, macAddress, callerId));
+
+        }
     }
 }

@@ -516,7 +516,7 @@ namespace AssetServices
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
 
-        public async Task<AssetLifecycleDTO> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string? alias, string? serialNumber, string? brand, string? model, DateTime? purchaseDate, string? note, string? tag, string? description, IList<long>? imei)
+        public async Task<AssetLifecycleDTO> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string? alias, string? serialNumber, string? brand, string? model, DateTime? purchaseDate, string? note, string? tag, string? description, IList<long>? imei, string? macAddress)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
             if (assetLifecycle == null)
@@ -541,7 +541,7 @@ namespace AssetServices
             {
                 assetLifecycle.UpdateAlias(alias.Trim(), callerId);
             }
-
+ 
             if (purchaseDate != null && assetLifecycle.PurchaseDate != purchaseDate)
             {
                 assetLifecycle.UpdatePurchaseDate(purchaseDate.Value, callerId);
@@ -564,13 +564,13 @@ namespace AssetServices
                 throw new InvalidAssetDataException(exceptionMsg.ToString());
             }
 
-            UpdateDerivedAssetType(asset, serialNumber, imei, callerId);
+            UpdateDerivedAssetType(asset, serialNumber, imei, macAddress, callerId);
 
             await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
 
-        private void UpdateDerivedAssetType(Asset asset, string? serialNumber, IList<long>? imei, Guid callerId)
+        private void UpdateDerivedAssetType(Asset asset, string? serialNumber, IList<long>? imei, string? macAddress,Guid callerId)
         {
             var phone = asset as MobilePhone;
             if (phone != null)
@@ -587,6 +587,10 @@ namespace AssetServices
                     {
                         phone.SetImei(uniqueListOfImeis, callerId);
                     }
+                }
+                if (!string.IsNullOrWhiteSpace(macAddress) && phone.MacAddress != macAddress)
+                {
+                        phone.SetMacAddress(macAddress, callerId);
                 }
             }
 
@@ -608,6 +612,11 @@ namespace AssetServices
                 {
                     tablet.SetImei(uniqueListOfImeis, callerId);
                 }
+            }
+
+            if (!string.IsNullOrWhiteSpace(macAddress) && tablet.MacAddress != macAddress)
+            {
+                    tablet.SetMacAddress(macAddress, callerId);   
             }
         }
 

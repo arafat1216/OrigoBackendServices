@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace AssetServices.Models
 {
@@ -84,9 +85,28 @@ namespace AssetServices.Models
         /// Sets the macaddress of the asset
         /// </summary>
         /// <param name="macAddress"></param>
-        public void SetMacAddress(string macAddress)
+        public virtual void SetMacAddress(string macAddress, Guid callerId)
         {
-            MacAddress = macAddress;
+            if (ValidateMacAddress(macAddress))
+            {
+                MacAddress = macAddress;
+                UpdatedBy = callerId;
+                LastUpdatedDate = DateTime.UtcNow;
+            }
+            else
+            {
+                throw new InvalidAssetDataException($"Mac address {macAddress} is invalid");
+            }
+        }
+        protected bool ValidateMacAddress(string? macAddress)
+        {
+            if (macAddress == null || string.IsNullOrEmpty(macAddress)) throw new InvalidAssetDataException($"Mac address is empty");
+            
+
+            var regex = "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})|([0-9a-fA-F]{4}\\.[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4})$";
+
+            return Regex.IsMatch(macAddress, regex);
+           
         }
 
         protected override bool ValidateAsset()
@@ -112,6 +132,7 @@ namespace AssetServices.Models
                 ErrorMsgList.Add("Imeis or SerialNumber - An asset must have at least one identifying attribute");
                 validAsset = false;
             }
+            
 
             return validAsset;
         }

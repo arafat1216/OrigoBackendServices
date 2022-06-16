@@ -36,9 +36,13 @@ namespace Asset.API.ViewModels
         public string? AssetTag { get; set; }
 
         /// <summary>
-        /// Imei assigned to this asset
+        /// Imei assigned to this asset.
         /// </summary>
         public IList<long>? Imei { get; set; }
+        /// <summary>
+        /// Mac address to this asset.
+        /// </summary>
+        public string? MacAddress { get; set; }
 
         /// <summary>
         /// The unique serial number for the asset. For mobile phones and other devices

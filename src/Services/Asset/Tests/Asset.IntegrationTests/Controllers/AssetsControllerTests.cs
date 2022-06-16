@@ -1916,5 +1916,85 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal(0, assetsCounter?.Count);
 
         }
+        [Fact]
+        public async Task UpdateAsset_MacAddress()
+        {
+            string macAddress = "01-23-45-67-89-AB";
+
+            var request = $"/api/v1/Assets/{_assetFive}/customers/{_customerId}/update";
+
+            var body = new UpdateAsset
+            {
+                MacAddress = macAddress
+            };
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var asset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.Equal(macAddress, asset?.MacAddress);
+
+
+            var url = $"/api/v1/Assets/{_assetFive}/customers/{_customerId}";
+            var getAsset = await _httpClient.GetFromJsonAsync<API.ViewModels.Asset>(url);
+            Assert.Equal(macAddress, getAsset?.MacAddress);
+        }
+    
+        [Fact]
+        public async Task UpdateAsset_MacAddress_notValid()
+        {
+            string macAddress = "0123456789ab";
+
+            var request = $"/api/v1/Assets/{_assetFive}/customers/{_customerId}/update";
+
+            var body = new UpdateAsset
+            {
+            MacAddress = macAddress
+            };
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var error = await response.Content.ReadAsStringAsync();
+            Assert.Equal($"Mac address {macAddress} is invalid", error);
+        }
+
+        [Theory]
+        [InlineData("01-23-45-67-89-AB", "01-23-45-67-89-AB")]   //true
+        [InlineData("01:23:45:67:89:AB", "01:23:45:67:89:AB")]   //true
+        [InlineData("0123.4567.89AB", "0123.4567.89AB")]         //true
+        [InlineData(" ", "01:23:00:67:89:AB")]
+        public async Task UpdateAsset_ValidateMacAddress(string macAddress, string excpected)
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+            var request = $"/api/v1/Assets/{_assetFive}/customers/{_customerId}/update";
+
+            var body = new UpdateAsset
+            {
+                MacAddress = macAddress
+            };
+            var response = await httpClient.PostAsJsonAsync(request, body);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var asset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.Equal(excpected, asset?.MacAddress);
+        }
+        
+        [Theory]
+        [InlineData("01-23-45-67-89-AØ")]   //false
+        [InlineData("01-23-45-AB")]         //false
+        [InlineData("0123456789ab")]        //false - missing separators (hyphen (-), colon(:) or dot (.)
+        public async Task UpdateAsset_InValidateMacAddress(string macAddress)
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+            var request = $"/api/v1/Assets/{_assetFive}/customers/{_customerId}/update";
+
+            var body = new UpdateAsset
+            {
+                MacAddress = macAddress
+            };
+            var response = await httpClient.PostAsJsonAsync(request, body);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        }
     }
 }

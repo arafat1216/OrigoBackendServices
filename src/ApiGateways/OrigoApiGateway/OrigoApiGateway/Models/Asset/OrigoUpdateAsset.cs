@@ -49,6 +49,10 @@ namespace OrigoApiGateway.Models.Asset
         /// where an IMEI number also exists, the IMEI will be used here.
         /// </summary>
         public string? SerialNumber { get; set; }
+        /// <summary>
+        /// The mac address of the asset
+        /// </summary>
+        public string? MacAddress { get; set; }
 
         /// <summary>
         /// Alias for the asset.

@@ -38,19 +38,19 @@ internal static class AssetTestDataSeedingForDatabase
     {
         dbContext.Database.EnsureCreated();
         var assetOne = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012345", "Samsung", "Samsung Galaxy S20",
-            new List<AssetImei> { new(500119468586675) }, "B26EDC46046B");
+            new List<AssetImei> { new(500119468586675) }, "01-23-45-67-89-AB");
 
         var assetTwo = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012364", "Apple", "Apple iPhone 8",
-            new List<AssetImei> { new(546366434558702) }, "487027C99FA1");
+            new List<AssetImei> { new(546366434558702) }, "01:23:45:67:89:AB");
 
         var assetThree = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012399", "Samsung", "Samsung Galaxy S21",
-            new List<AssetImei> { new(512217111821626) }, "840F1D0C06AD");
+            new List<AssetImei> { new(512217111821626) }, "0123.4567.89AB");
 
         var assetFour = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012397", "Apple", "iPhone 11 Pro",
-            new List<AssetImei> { new(512217111821624) }, "840F1D0C06AB");
+            new List<AssetImei> { new(512217111821624) }, "01:23:00:67:89:AB");
 
         var assetFive = new Tablet(Guid.NewGuid(), CALLER_ID, "123456789012397", "Apple", "iPhone 11 Pro",
-            new List<AssetImei> { new(512217111821624) }, "840F1D0C06AB");
+            new List<AssetImei> { new(512217111821624) }, "0123.4567.89AB");
 
         var labelOne = new CustomerLabel(COMPANY_ID, COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
         var labelTwo = new CustomerLabel(COMPANY_ID_TWO, COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
