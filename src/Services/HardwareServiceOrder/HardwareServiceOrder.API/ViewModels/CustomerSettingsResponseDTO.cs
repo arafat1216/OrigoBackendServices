@@ -14,7 +14,7 @@ namespace HardwareServiceOrder.API.ViewModels
             CustomerId = customerSettings.CustomerId;
             LoanDevice = customerSettings.LoanDevice;
         }
-
+        /// TODO: Now it's required to support frontend. [JsonPropertyName("serviceId")] should be removed in later PR
         [JsonPropertyName("serviceId")]
         public string? ApiUsername { get; set; }
     }
