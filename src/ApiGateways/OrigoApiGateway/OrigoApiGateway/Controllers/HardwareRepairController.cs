@@ -219,7 +219,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{customerId:Guid}/orders")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<OrigoHardwareServiceOrder>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId,Guid? userId, int page = 1, int limit = 500)
+        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId,Guid? userId, bool activeOnly = false, int page = 1, int limit = 500)
          {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
@@ -232,7 +232,7 @@ namespace OrigoApiGateway.Controllers
                 }
             }
 
-            var orders = await _hardwareRepairService.GetHardwareServiceOrdersAsync(customerId,userId, page, limit);
+            var orders = await _hardwareRepairService.GetHardwareServiceOrdersAsync(customerId,userId, activeOnly, page, limit);
 
             return Ok(orders);
         }

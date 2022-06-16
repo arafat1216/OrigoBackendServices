@@ -25,7 +25,7 @@ namespace HardwareServiceOrder.UnitTests
         public async Task GetAllOrders()
         {
             var orders = await _repository.GetAllOrdersAsync();
-            Assert.Equal(3, orders.Count());
+            Assert.Equal(4, orders.Count());
         }
 
         [Fact]

@@ -113,13 +113,19 @@ namespace HardwareServiceOrderServices.Infrastructure
             return await orders.ToListAsync();
         }
 
-        public async Task<PagedModel<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId, Guid? userId, int page, int limit, CancellationToken cancellationToken)
+        public async Task<PagedModel<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page, int limit, CancellationToken cancellationToken)
         {
             var orders = _hardwareServiceOrderContext.HardwareServiceOrders
                 .Where(m => m.CustomerId == customerId);
 
             if (userId != null)
                 orders = orders.Where(m => m.Owner.UserId == userId);
+
+            if (activeOnly)
+                orders = orders.Where(m => m.StatusId == (int)ServiceStatusEnum.Registered || m.StatusId == (int)ServiceStatusEnum.RegisteredInTransit ||
+                m.StatusId == (int)ServiceStatusEnum.RegisteredUserActionNeeded || m.StatusId == (int)ServiceStatusEnum.Ongoing ||
+                m.StatusId == (int)ServiceStatusEnum.OngoingInTransit || m.StatusId == (int)ServiceStatusEnum.OngoingReadyForPickup ||
+                m.StatusId == (int)ServiceStatusEnum.OngoingUserActionNeeded || m.StatusId == (int)ServiceStatusEnum.Unknown);
 
             return await orders.OrderByDescending(m => m.DateCreated).PaginateAsync(page, limit, cancellationToken);
 
