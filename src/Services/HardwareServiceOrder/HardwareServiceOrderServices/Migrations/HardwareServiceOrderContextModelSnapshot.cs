@@ -30,6 +30,9 @@ namespace HardwareServiceOrderServices.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
+                    b.Property<int>("AssetCategoryId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ServiceProviderId")
                         .HasColumnType("int");
 
@@ -67,7 +70,7 @@ namespace HardwareServiceOrderServices.Migrations
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("CustomerId", "Id", "ServiceProviderId");
+                    b.HasKey("CustomerId", "Id", "AssetCategoryId", "ServiceProviderId");
 
                     b.HasIndex("ServiceProviderId");
 
@@ -213,7 +216,7 @@ namespace HardwareServiceOrderServices.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("HardwareServiceOrders");
+                    b.ToTable("HardwareServiceOrders", (string)null);
                 });
 
             modelBuilder.Entity("HardwareServiceOrderServices.Models.ServiceProvider", b =>
@@ -254,7 +257,7 @@ namespace HardwareServiceOrderServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServiceProviders");
+                    b.ToTable("ServiceProviders", (string)null);
 
                     b.HasData(
                         new
@@ -310,7 +313,7 @@ namespace HardwareServiceOrderServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServiceStatuses");
+                    b.ToTable("ServiceStatuses", (string)null);
 
                     b.HasData(
                         new
@@ -462,7 +465,7 @@ namespace HardwareServiceOrderServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServiceTypes");
+                    b.ToTable("ServiceTypes", (string)null);
 
                     b.HasData(
                         new
@@ -526,32 +529,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("HardwareServiceOrderServices.Models.ContactDetails", "Owner", b1 =>
-                        {
-                            b1.Property<int>("HardwareServiceOrderId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("Email")
-                                .IsRequired()
-                                .HasMaxLength(320)
-                                .HasColumnType("nvarchar(320)");
-
-                            b1.Property<string>("FirstName")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<Guid>("UserId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.HasKey("HardwareServiceOrderId");
-
-                            b1.ToTable("HardwareServiceOrders");
-
-                            b1.WithOwner()
-                                .HasForeignKey("HardwareServiceOrderId");
-                        });
-
-                    b.OwnsOne("HardwareServiceOrderServices.Models.DeliveryAddress", "DeliveryAddress", b1 =>
+                    b.OwnsOne("HardwareServiceOrderServices.Models.HardwareServiceOrder.DeliveryAddress#HardwareServiceOrderServices.Models.DeliveryAddress", "DeliveryAddress", b1 =>
                         {
                             b1.Property<int>("HardwareServiceOrderId")
                                 .HasColumnType("int");
@@ -590,13 +568,38 @@ namespace HardwareServiceOrderServices.Migrations
 
                             b1.HasKey("HardwareServiceOrderId");
 
-                            b1.ToTable("HardwareServiceOrders");
+                            b1.ToTable("HardwareServiceOrders", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("HardwareServiceOrderId");
                         });
 
-                    b.OwnsMany("HardwareServiceOrderServices.Models.ServiceEvent", "ServiceEvents", b1 =>
+                    b.OwnsOne("HardwareServiceOrderServices.Models.HardwareServiceOrder.Owner#HardwareServiceOrderServices.Models.ContactDetails", "Owner", b1 =>
+                        {
+                            b1.Property<int>("HardwareServiceOrderId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Email")
+                                .IsRequired()
+                                .HasMaxLength(320)
+                                .HasColumnType("nvarchar(320)");
+
+                            b1.Property<string>("FirstName")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.HasKey("HardwareServiceOrderId");
+
+                            b1.ToTable("HardwareServiceOrders", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("HardwareServiceOrderId");
+                        });
+
+                    b.OwnsMany("HardwareServiceOrderServices.Models.HardwareServiceOrder.ServiceEvents#HardwareServiceOrderServices.Models.ServiceEvent", "ServiceEvents", b1 =>
                         {
                             b1.Property<int>("HardwareServiceOrderId")
                                 .HasColumnType("int");
@@ -616,7 +619,7 @@ namespace HardwareServiceOrderServices.Migrations
 
                             b1.HasKey("HardwareServiceOrderId", "Id");
 
-                            b1.ToTable("ServiceEvent");
+                            b1.ToTable("ServiceEvent", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("HardwareServiceOrderId");
