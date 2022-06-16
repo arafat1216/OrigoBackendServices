@@ -112,7 +112,7 @@ namespace HardwareServiceOrder.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ViewModels.HardwareServiceOrderResponseDTO>), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
-        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, Guid? userId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 500)
+        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, Guid? userId, [FromQuery] bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 500)
         {
             var dto = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(customerId, userId,activeOnly, cancellationToken, page, limit);
             var response = new PagedModel<ViewModels.HardwareServiceOrderResponseDTO>

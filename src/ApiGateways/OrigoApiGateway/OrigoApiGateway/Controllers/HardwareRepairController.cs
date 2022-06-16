@@ -140,12 +140,12 @@ namespace OrigoApiGateway.Controllers
             }
 
             var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-            
+
             if (!Guid.TryParse(userId, out Guid userIdGuid))
                 return BadRequest();
 
             var newOrder = await _hardwareRepairService.CreateHardwareServiceOrderAsync(customerId, userIdGuid, model);
-            
+
             return Ok(newOrder);
         }
 
@@ -219,7 +219,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{customerId:Guid}/orders")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<OrigoHardwareServiceOrder>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId,Guid? userId , bool activeOnly = false, int page = 1, int limit = 500)
+        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, Guid? userId, [FromQuery] bool activeOnly = false, int page = 1, int limit = 500)
          {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
