@@ -71,7 +71,7 @@ namespace AssetServices.Infrastructure
                     .ToListAsync();
                 return assetLifecycleStatus.HasValue
                     ? countStatus.FirstOrDefault(c => c.StatusId == assetLifecycleStatus)?.Count ?? 0
-                    : countStatus.Sum(c => AssetLifecycle.IsActiveState(c.StatusId) ? c.Count : 0);
+                    : countStatus.Sum(c => AssetLifecycle.HasActiveState(c.StatusId) ? c.Count : 0);
             }
             else
             {
@@ -83,7 +83,7 @@ namespace AssetServices.Infrastructure
 
                 return assetLifecycleStatus.HasValue
                     ? countStatus.FirstOrDefault(c => c.StatusId == assetLifecycleStatus)?.Count ?? 0
-                    : countStatus.Sum(c => AssetLifecycle.IsActiveState(c.StatusId) ? c.Count : 0);
+                    : countStatus.Sum(c => AssetLifecycle.HasActiveState(c.StatusId) ? c.Count : 0);
             }
         }
 

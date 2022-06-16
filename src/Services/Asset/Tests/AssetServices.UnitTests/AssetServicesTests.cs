@@ -268,6 +268,40 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
+    public async Task AddAssetForCustomer_WithNoRuntimeSetForTransactional_IsSaved()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepositoryMock = new Mock<IAssetLifecycleRepository>();
+        assetRepositoryMock.Setup(r => r.GetCustomerSettingsAsync(COMPANY_ID))
+            .ReturnsAsync(new CustomerSettings(COMPANY_ID));
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepositoryMock.Object, _mapper, new Mock<IEmailService>().Object);
+        var newAssetDTO = new NewAssetDTO
+        {
+            CallerId = Guid.Empty,
+            Alias = "alias",
+            SerialNumber = "4543534535344",
+            AssetCategoryId = ASSET_CATEGORY_ID,
+            Brand = "iPhone",
+            ProductName = "iPhone X",
+            LifecycleType = LifecycleType.Transactional,
+            PurchaseDate = new DateTime(2020, 1, 1),
+            AssetHolderId = ASSETHOLDER_ONE_ID,
+            Imei = new List<long> { 458718920164666 },
+            MacAddress = "5e:c4:33:df:61:70",
+            Note = "Test note",
+            Description = "description"
+        };
+
+        // Act
+        _ = await assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, newAssetDTO);
+
+        // Assert
+        assetRepositoryMock.Verify(r => r.AddAsync(It.IsAny<AssetLifecycle>()));
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
     public async Task SaveAssetForCustomer_WithNoLifecycleSet()
     {
         // Arrange

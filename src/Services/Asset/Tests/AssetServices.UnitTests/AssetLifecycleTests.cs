@@ -171,4 +171,40 @@ public class AssetLifecycleTests
         Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(UpdateAssetLifecycleStatusDomainEvent));
         Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(AssetHasBeenStolenDomainEvent));
     }
+
+    [Fact]
+    public void CreateAsset_HasBeenStolen_CheckStateAndStatus()
+    {
+        // Arrange
+        Guid callerId = Guid.NewGuid();
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        // Act
+        assetLifecycle.HasBeenStolen(callerId);
+
+        // Assert
+        Assert.Equal(AssetLifecycleStatus.Stolen, assetLifecycle.AssetLifecycleStatus);
+        Assert.False(assetLifecycle.IsActiveState);
+    }
+
+    [Fact]
+    public void CreateAsset_Transactional_CheckStateAndStatus()
+    {
+        // Arrange
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional,
+        };
+
+        // Act
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        // Assert
+        Assert.Equal(AssetLifecycleStatus.InputRequired, assetLifecycle.AssetLifecycleStatus);
+        Assert.True(assetLifecycle.IsActiveState);
+    }
 }

@@ -171,12 +171,17 @@ public class AssetLifecycle : Entity, IAggregateRoot
     }
     private AssetLifecycleStatus _assetLifecycleStatus;
 
-    public static bool IsActiveState(AssetLifecycleStatus assetLifecycleStatus)
+    public static bool HasActiveState(AssetLifecycleStatus assetLifecycleStatus)
     {
         return assetLifecycleStatus is AssetLifecycleStatus.InputRequired or AssetLifecycleStatus.InUse
             or AssetLifecycleStatus.Repair or AssetLifecycleStatus.PendingReturn
             or AssetLifecycleStatus.Available or AssetLifecycleStatus.Active;
     }
+
+    /// <summary>
+    /// Returns the state of the AssetLifecycle.
+    /// </summary>
+    public bool IsActiveState => HasActiveState(AssetLifecycleStatus);
 
     /// <summary>
     /// The asset lifecycle type this asset lifecycle is setup with.

@@ -277,9 +277,6 @@ namespace AssetServices
         public async Task<AssetLifecycleDTO> AddAssetLifecycleForCustomerAsync(Guid customerId, NewAssetDTO newAssetDTO)
         {
             var lifeCycleSetting = await _assetLifecycleRepository.GetCustomerLifeCycleSettingAssetCategory(customerId, newAssetDTO.AssetCategoryId);
-            if (lifeCycleSetting == null && newAssetDTO.LifecycleType == LifecycleType.Transactional)
-                throw new AssetLifeCycleSettingNotFoundException();
-
             if (!string.IsNullOrEmpty(newAssetDTO.AssetTag) && (newAssetDTO.AssetTag.Contains("A4010") ||  //Non personal with leasing/as a service
                                                                  newAssetDTO.AssetTag.Contains("A4020")))   //Non personal purchased transactional
             {
@@ -288,7 +285,7 @@ namespace AssetServices
             
             var uniqueImeiList = new List<long>();
             //Validate list of IMEI and making sure that they are not duplicated for both MOBILE AND TABLET 
-            if (newAssetDTO.Imei.Any())
+            if (newAssetDTO.Imei != null && newAssetDTO.Imei.Any())
             {
                 uniqueImeiList = AssetValidatorUtility.MakeUniqueIMEIList(newAssetDTO.Imei);
                 foreach (var i in uniqueImeiList)
@@ -311,15 +308,15 @@ namespace AssetServices
             newAssetLifecycle.CustomerId = customerId;
             if (newAssetDTO.LifecycleType == LifecycleType.Transactional)
             {
-                newAssetLifecycle.Runtime = lifeCycleSetting!.Runtime;
+                newAssetLifecycle.Runtime = lifeCycleSetting != null ? lifeCycleSetting!.Runtime : 0;
             }
             var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(newAssetLifecycle);
 
             Asset asset = newAssetDTO.AssetCategoryId == 1
                 ? new MobilePhone(Guid.NewGuid(), newAssetDTO.CallerId, newAssetDTO.SerialNumber ?? string.Empty, newAssetDTO.Brand ?? string.Empty, newAssetDTO.ProductName ?? string.Empty,
                     uniqueImeiList.Select(i => new AssetImei(i)).ToList(), newAssetDTO.MacAddress ?? string.Empty)
-                : new Tablet(Guid.NewGuid(), newAssetDTO.CallerId, newAssetDTO.SerialNumber ?? string.Empty, newAssetDTO.Brand ?? string.Empty, newAssetDTO.ProductName,
-                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), newAssetDTO.MacAddress);
+                : new Tablet(Guid.NewGuid(), newAssetDTO.CallerId, newAssetDTO.SerialNumber ?? string.Empty, newAssetDTO.Brand ?? string.Empty, newAssetDTO.ProductName ?? string.Empty,
+                    uniqueImeiList.Select(i => new AssetImei(i)).ToList(), newAssetDTO.MacAddress ?? string.Empty);
             assetLifecycle.AssignAsset(asset, newAssetDTO.CallerId);
 
 
@@ -425,7 +422,7 @@ namespace AssetServices
                     throw new ReturnDeviceRequestException($"Asset's life cycle needs to be on last month to make return request!!! asset Id: {data.AssetLifeCycleId}", _logger);
             }
 
-            if (!AssetLifecycle.IsActiveState(assetLifecycle.AssetLifecycleStatus))
+            if (!assetLifecycle.IsActiveState)
             {
                 throw new ReturnDeviceRequestException($"Only Active devices can make return request!!! asset Id: {data.AssetLifeCycleId}", _logger);
             }
@@ -469,7 +466,7 @@ namespace AssetServices
                 throw new BuyoutDeviceRequestException($"Payroll responsible email need to set first to do buyout for CustomerId: {customerId}", _logger);
             }
 
-            if (!AssetLifecycle.IsActiveState(assetLifecycle.AssetLifecycleStatus))
+            if (!assetLifecycle.IsActiveState)
             {
                 throw new BuyoutDeviceRequestException($"Only Active devices can do buyout!!! asset Id: {data.AssetLifeCycleId}", _logger);
             }
@@ -503,7 +500,7 @@ namespace AssetServices
                 throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
 
 
-            if (!AssetLifecycle.IsActiveState(assetLifecycle.AssetLifecycleStatus))
+            if (!assetLifecycle.IsActiveState)
             {
                 throw new InactiveDeviceRequestException($"Only Active devices can be reported!!! asset Id: {data.AssetLifeCycleId}", _logger);
             }
