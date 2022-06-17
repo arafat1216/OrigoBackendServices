@@ -214,12 +214,13 @@ namespace OrigoApiGateway.Controllers
         /// </summary>
         /// <param name="customerId">Customer Identifier</param>
         /// <param name="page">Page number</param>
+        /// <param name="userId">me for userId</param>
         /// <param name="limit">Number of items to be returned</param>
         /// <returns>List of hardware service orders</returns>
         [Route("{customerId:Guid}/orders")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<OrigoHardwareServiceOrder>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, Guid? userId, [FromQuery] bool activeOnly = false, int page = 1, int limit = 500)
+        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, string userId, [FromQuery] bool activeOnly = false, int page = 1, int limit = 500)
          {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
@@ -231,8 +232,16 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
             }
+            if (role == PredefinedRole.EndUser.ToString())
+            {
+                userId = "me";
+            }
 
-            var orders = await _hardwareRepairService.GetHardwareServiceOrdersAsync(customerId,userId, activeOnly, page, limit);
+            Guid? userIdGuid = null;
+            if (userId == "me")
+                userIdGuid = new Guid(HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value);
+
+            var orders = await _hardwareRepairService.GetHardwareServiceOrdersAsync(customerId,userIdGuid, activeOnly, page, limit);
 
             return Ok(orders);
         }
