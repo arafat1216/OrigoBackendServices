@@ -21,6 +21,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         private readonly HttpClient _httpClient;
         private readonly Guid _callerId = Guid.Parse("1d64e718-97cb-11ec-ad86-00155d64bd3d");
         private readonly Guid _customerId;
+        private readonly Guid _userId;
         public HardwareRepairControllerTests(
             HardwareServiceOrderWebApplicationFactory<HardwareRepairController> factory,
             ITestOutputHelper testOutputHelper)
@@ -28,7 +29,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             _testOutputHelper = testOutputHelper;
             _httpClient = factory.CreateDefaultClient();
             _customerId = factory.CUSTOMER_ONE_ID;
-
+            _userId = factory.USER_ID;
             _httpClient.DefaultRequestHeaders.Add("X-Authenticated-User", Guid.Empty.SystemUserId().ToString());
         }
 
