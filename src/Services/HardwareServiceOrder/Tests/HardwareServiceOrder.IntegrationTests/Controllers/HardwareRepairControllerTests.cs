@@ -104,6 +104,9 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             Assert.NotNull(orders);
             Assert.Single(orders.Items);
             Assert.Single(orders.Items[0].Events);
+            Assert.NotNull(orders.Items[0].ExternalServiceManagementLink);
+            Assert.NotNull(orders.Items[0].ErrorDescription);
+            Assert.NotNull(orders.Items[0].DeliveryAddress);
         }
 
         [Fact]
@@ -116,6 +119,9 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponseDTO>>();
             Assert.NotNull(orders);
             Assert.Equal(1, orders.Items.Count);
+            Assert.NotNull(orders.Items[0].ExternalServiceManagementLink);
+            Assert.NotNull(orders.Items[0].ErrorDescription);
+            Assert.NotNull(orders.Items[0].DeliveryAddress);
         }
 
         [Fact]
@@ -128,6 +134,9 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponseDTO>>();
             Assert.NotNull(orders);
             Assert.Equal(1, orders.Items.Count);
+            Assert.NotNull(orders.Items[0].ExternalServiceManagementLink);
+            Assert.NotNull(orders.Items[0].ErrorDescription);
+            Assert.NotNull(orders.Items[0].DeliveryAddress);
         }
     }
 }
