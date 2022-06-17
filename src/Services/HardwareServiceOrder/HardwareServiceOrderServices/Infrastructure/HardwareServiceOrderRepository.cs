@@ -145,8 +145,12 @@ namespace HardwareServiceOrderServices.Infrastructure
 
         public async Task<HardwareServiceOrder> CreateHardwareServiceOrder(HardwareServiceOrder serviceOrder)
         {
-            if (serviceOrder.ServiceProvider == null || serviceOrder.ServiceType == null
-                || serviceOrder.Status == null)
+            var serviceType = await GetServiceTypeAsync((int)ServiceTypeEnum.SUR) ?? new ServiceType { Id = (int)ServiceTypeEnum.SUR };
+            var serviceStatus = await GetServiceStatusAsync((int)ServiceStatusEnum.Registered);
+            var serviceProvider = await GetCustomerServiceProviderAsync(serviceOrder.CustomerId, (int)ServiceProviderEnum.ConmodoNo);
+
+            if (serviceProvider == null || serviceType == null
+                || serviceStatus == null)
             {
                 throw new Exception();
             }

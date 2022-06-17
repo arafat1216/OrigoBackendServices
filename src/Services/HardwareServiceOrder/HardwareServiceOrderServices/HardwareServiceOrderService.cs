@@ -89,22 +89,22 @@ namespace HardwareServiceOrderServices
                 var deliveryAddress = _mapper.Map<DeliveryAddress>(serviceOrderDTO.DeliveryAddress);
 
                 var owner = new ContactDetails(serviceOrderDTO.OrderedBy.Id, serviceOrderDTO.OrderedBy.FirstName, serviceOrderDTO.OrderedBy.Email);
-                var serviceType = await _hardwareServiceOrderRepository.GetServiceTypeAsync((int)ServiceTypeEnum.SUR) ?? new ServiceType { Id = (int)ServiceTypeEnum.SUR };
-                var serviceStatus = await _hardwareServiceOrderRepository.GetServiceStatusAsync((int)ServiceStatusEnum.Registered);
-
+                
                 var serviceOrder = new HardwareServiceOrder(
+                    owner.UserId,
                     customerId,
-                    owner,
                     serviceOrderDTO.AssetInfo.AssetLifecycleId,
-                    deliveryAddress,
                     serviceOrderDTO.ErrorDescription,
-                    customerProvider.ServiceProvider,
+                    owner,
+                    deliveryAddress,
+                    (int)ServiceTypeEnum.SUR,
+                    (int)ServiceStatusEnum.Registered,
+                    (int)ServiceProviderEnum.ConmodoNo,
                     externalOrderResponseDTO.ServiceProviderOrderId1,
                     externalOrderResponseDTO.ServiceProviderOrderId2,
                     externalOrderResponseDTO.ExternalServiceManagementLink,
-                    serviceType,
-                    serviceStatus
-                   );
+                    new List<ServiceEvent> { }
+                    );
 
                 //Creating order at Origo
                 var origoOrder = await _hardwareServiceOrderRepository.CreateHardwareServiceOrder(serviceOrder);
@@ -134,7 +134,10 @@ namespace HardwareServiceOrderServices
                     ServiceProvider = (ServiceProviderEnum)origoOrder.ServiceProviderId,
                     Status = (ServiceStatusEnum)origoOrder.StatusId,
                     Type = (ServiceTypeEnum)origoOrder.ServiceTypeId,
-                    AssetLifecycleId = origoOrder.AssetLifecycleId
+                    AssetLifecycleId = origoOrder.AssetLifecycleId,
+                    ErrorDescription = origoOrder.UserDescription,
+                    ExternalServiceManagementLink = origoOrder.ExternalServiceManagementLink,
+                    DeliveryAddress = _mapper.Map<DeliveryAddressDTO>(origoOrder.DeliveryAddress)
                 };
 
                 return responseDto;

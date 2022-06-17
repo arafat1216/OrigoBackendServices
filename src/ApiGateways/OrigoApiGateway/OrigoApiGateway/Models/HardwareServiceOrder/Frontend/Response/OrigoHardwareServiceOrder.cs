@@ -14,5 +14,8 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
         public string ServiceProvider { get; set; }
         public IEnumerable<ServiceEvent> Events { get; set; }
         public Guid AssetLifecycleId { get; set; }
+        public DeliveryAddress DeliveryAddress { get; set; }
+        public string ErrorDescription { get; set; }
+        public string ExternalServiceManagementLink { get; set; }
     }
 }
