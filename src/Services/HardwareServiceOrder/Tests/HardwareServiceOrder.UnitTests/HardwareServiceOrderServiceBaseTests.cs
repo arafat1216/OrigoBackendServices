@@ -32,15 +32,33 @@ namespace HardwareServiceOrder.UnitTests
             var serviceType = new ServiceType() { Id = 400 };
             var serviceProvider = new ServiceProvider { OrganizationId = CUSTOMER_ONE_ID };
 
-            var order1 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_ONE_ID, new ContactDetails(CUSTOMER_ONE_ID, "test@test.com", "UserName"), Guid.NewGuid(), deliveryAddress, "UserDescription", serviceProvider, Guid.NewGuid().ToString(), null, "externalLink", serviceType, new ServiceStatus { Id = 100 });
-            var order2 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_TWO_ID, new ContactDetails(Guid.NewGuid(), "test@test.com", "UserName"), Guid.NewGuid(), deliveryAddress, "UserDescription", serviceProvider, Guid.NewGuid().ToString(), null, "externalLink", serviceType, new ServiceStatus { Id = 200 }, DateTime.Today.AddDays(-7));
-            var order3 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_THREE_ID, new ContactDetails(Guid.NewGuid(), "test@test.com", "UserName"), Guid.NewGuid(), deliveryAddress, "UserDescription", serviceProvider, Guid.NewGuid().ToString(), null, "externalLink", serviceType, new ServiceStatus { Id = 300 }, DateTime.Today.AddDays(-8));
+            var order1 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_ONE_ID, new ContactDetails(CUSTOMER_ONE_ID, "test@test.com", "UserName"), Guid.NewGuid(), deliveryAddress, "UserDescription", serviceProvider, "serviceProviderOrderId1", null, "externalLink", serviceType, new ServiceStatus { Id = 100 });
+            var order2 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_TWO_ID, new ContactDetails(Guid.NewGuid(), "test@test.com", "UserName"), Guid.NewGuid(), deliveryAddress, "UserDescription", serviceProvider, "serviceProviderOrderId1", null, "externalLink", serviceType, new ServiceStatus { Id = 200 }, DateTime.Today.AddDays(-7));
+            var order3 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_THREE_ID, new ContactDetails(Guid.NewGuid(), "test@test.com", "UserName"), Guid.NewGuid(), deliveryAddress, "UserDescription", serviceProvider, "serviceProviderOrderId1", null, "externalLink", serviceType, new ServiceStatus { Id = 300 }, DateTime.Today.AddDays(-8));
             var order4 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CALLER_ONE_ID, CUSTOMER_FOUR_ID, new Guid(), "", new ContactDetails(CUSTOMER_ONE_ID, "test@test.com", "UserName"), deliveryAddress, 1, 1, 1, "serviceProviderId1", "serviceProviderId2", "externalLink", new List<ServiceEvent>());
+
+            var cmServiceProvider1 = new CustomerServiceProvider
+            {
+                CustomerId = CUSTOMER_ONE_ID,
+                ApiPassword = "",
+                ApiUserName = "",
+                ServiceProviderId = 1,
+                LastUpdateFetched = DateTime.Today,
+            };
+            var cmServiceProvider2 = new CustomerServiceProvider
+            {
+                CustomerId = CUSTOMER_TWO_ID,
+                ApiPassword = "",
+                ApiUserName = "",
+                ServiceProviderId = 1,
+                LastUpdateFetched = DateTime.Today.AddDays(-1),
+            };
 
             context.Add(order1);
             context.Add(order2);
             context.Add(order3);
             context.Add(order4);
+            context.AddRange(cmServiceProvider1, cmServiceProvider2);
 
             context.SaveChanges();
         }

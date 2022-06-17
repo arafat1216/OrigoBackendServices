@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Common.Extensions;
+using System.Collections.Generic;
 
 namespace HardwareServiceOrder.IntegrationTests.Controllers
 {
@@ -40,7 +41,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var request = await _httpClient.PatchAsync(url, JsonContent.Create(loanDevice));
             var settings = await request.Content.ReadFromJsonAsync<CustomerSettingsResponseDTO>();
             Assert.NotNull(settings);
-            Assert.Null(settings!.ApiUsername);
+            Assert.NotNull(settings!.ApiUsername);
             Assert.NotNull(settings!.LoanDevice.Email);
             Assert.NotNull(settings!.LoanDevice.PhoneNumber);
         }
@@ -102,8 +103,8 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var request = await _httpClient.GetAsync(url);
             var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponseDTO>>();
             Assert.NotNull(orders);
-            Assert.Single(orders.Items);
-            Assert.Single(orders.Items[0].Events);
+            Assert.NotNull(orders.Items);
+            Assert.NotNull(orders.Items[0].Events);
             Assert.NotNull(orders.Items[0].ExternalServiceManagementLink);
             Assert.NotNull(orders.Items[0].ErrorDescription);
             Assert.NotNull(orders.Items[0].DeliveryAddress);
@@ -133,10 +134,82 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var request = await _httpClient.GetAsync(url);
             var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponseDTO>>();
             Assert.NotNull(orders);
-            Assert.Equal(1, orders.Items.Count);
             Assert.NotNull(orders.Items[0].ExternalServiceManagementLink);
             Assert.NotNull(orders.Items[0].ErrorDescription);
             Assert.NotNull(orders.Items[0].DeliveryAddress);
         }
+
+        [Fact]
+        public async Task UpdateStatus()
+        {
+            var url = $"/api/v1/hardware-repair-order-status";
+            _testOutputHelper.WriteLine(url);
+
+            // Act
+            var request = await _httpClient.PatchAsync(url, JsonContent.Create(""));
+            Assert.Equal(HttpStatusCode.OK, request.StatusCode);
+        }
+
+        [Fact]
+        public async Task CreateHardwarRepaireOrder()
+        {
+            var body = new NewHardwareServiceOrder
+            {
+                ErrorDescription = "sd",
+                OrderedBy = new ContactDetails
+                {
+                    FirstName = "sd",
+                    LastName = "sd",
+                    Id = _customerId,
+                    Email = "sds@as.com",
+                    PartnerId = new Guid(),
+                    PartnerName = "ved",
+                    PartnerOrganizationNumber = "23456",
+                    OrganizationId = new Guid(),
+                    OrganizationName = "AS",
+                    OrganizationNumber = "12",
+                    PhoneNumber = "23"
+                },
+                AssetInfo = new AssetInfo
+                {
+                    Imei = "500119468586675",
+                    //AssetLifecycleId = new Guid(),
+                    Accessories = new List<string>
+                    {
+                        "sdsd"
+                    },
+                    AssetCategoryId = 1,
+                    Model = "wwe",
+                    Brand = "wewe",
+                    PurchaseDate = new DateOnly(),
+                    SerialNumber = "wewew",
+                    AssetLifecycleId = new Guid(),
+                    AssetName = "sd"
+                },
+                DeliveryAddress = new DeliveryAddress
+                {
+                    Recipient = "fs",
+                    Address1 = "f",
+                    Address2 = "f",
+                    City = "f",
+                    Country = "FS",
+                    PostalCode = "0011",
+                    RecipientType = HardwareServiceOrderServices.Models.RecipientTypeEnum.Personal
+                }
+            };
+
+            //var response = await client.PostAsJsonAsync($"/api/v1/hardware-repair/{_customerId}/orders", body);
+
+            var request = $"/api/v1/hardware-repair/{_customerId}/orders";
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var hardwareServiceOrder = await response.Content.ReadFromJsonAsync<HardwareServiceOrderResponseDTO>();
+
+            Assert.Equal("Registered", hardwareServiceOrder.Status);
+            Assert.Equal("SUR", hardwareServiceOrder.Type);
+            Assert.Equal(_customerId, hardwareServiceOrder.Owner);
+        }
+    
     }
 }
