@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
-
-namespace HardwareServiceOrderServices.ServiceModels
+﻿namespace HardwareServiceOrderServices.ServiceModels
 {
     /// <summary>
     ///     Contains the information required for registering a new repair-order with an external service-provider.

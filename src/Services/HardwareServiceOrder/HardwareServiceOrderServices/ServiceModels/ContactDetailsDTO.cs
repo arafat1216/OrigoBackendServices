@@ -1,17 +1,77 @@
 ﻿namespace HardwareServiceOrderServices.ServiceModels
 {
+    /// <summary>
+    ///     Represents the contact information for a single user or service-order owner.
+    /// </summary>
     public class ContactDetailsDTO
     {
+        /// <summary>
+        ///     The persons user-ID.
+        /// </summary>
+        /// <example> 00000000-0000-0000-0000-000000000000 </example>
+        [Required]
+        public Guid UserId { get; set; }
+
+        /// <summary>
+        ///     The persons first name.
+        /// </summary>
+        /// <example> John </example>
+        [Required]
         public string FirstName { get; set; }
+
+        /// <summary>
+        ///     The persons last name.
+        /// </summary>
+        /// <example> Doe </example>
+        [Required]
         public string LastName { get; set; }
+
+        /// <summary>
+        ///     The persons email.
+        /// </summary>
+        /// <example> demo@user.com </example>
+        [Required]
+        [MaxLength(320)]
         public string Email { get; set; }
-        public Guid Id { get; set; }
+
+        /// <summary>
+        ///     The persons phone-number in <c>E.164</c> format.
+        /// </summary>
+        /// <example> +4790090900 </example>
+        [Phone]
+        [RegularExpression("^\\+[1-9]\\d{1,14}$")]
+        [StringLength(maximumLength: 15)] // The longest possible length for a valid E.164 phone-number
         public string? PhoneNumber { get; set; }
-        public Guid OrganizationId { get; set; }
-        public string OrganizationName { get; set; }
-        public string? OrganizationNumber { get; set; }
-        public Guid PartnerId { get; set; }
-        public string PartnerName { get; set; }
-        public string PartnerOrganizationNumber { get; set; }
+
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ContactDetailsDTO"/> intended for use with JSON (de-)serializers, AutoMapper, unit-testing
+        ///     and other automated tools.
+        /// </summary>
+        [Obsolete("Reserved for use by JSON (de-)serializers, AutoMapper, unit-testing and other automated tools.")]
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public ContactDetailsDTO()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+
+        }
+
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ContactDetailsDTO"/>-class.
+        /// </summary>
+        /// <param name="userId"> The persons ID. </param>
+        /// <param name="firstName"> The persons first-name. </param>
+        /// <param name="lastName"> The persons last-name. </param>
+        /// <param name="email"> The persons e-mail. </param>
+        /// <param name="phoneNumber"> The persons phone-number in E.164 format. </param>
+        public ContactDetailsDTO(Guid userId, string firstName, string lastName, string email, string? phoneNumber)
+        {
+            UserId = userId;
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            PhoneNumber = phoneNumber;
+        }
     }
 }

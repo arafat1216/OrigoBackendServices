@@ -57,7 +57,7 @@ namespace HardwareServiceOrderServices
                 throw new ArgumentException("Customer settings does not exist");
 
             var newExternalOrder = new NewExternalRepairOrderDTO(
-                                    serviceOrderDTO.OrderedBy.Id,
+                                    serviceOrderDTO.OrderedBy.UserId,
                                     serviceOrderDTO.OrderedBy.FirstName,
                                     serviceOrderDTO.OrderedBy.LastName,
                                     serviceOrderDTO.OrderedBy.PhoneNumber,
@@ -88,7 +88,7 @@ namespace HardwareServiceOrderServices
 
                 var deliveryAddress = _mapper.Map<DeliveryAddress>(serviceOrderDTO.DeliveryAddress);
 
-                var owner = new ContactDetails(serviceOrderDTO.OrderedBy.Id, serviceOrderDTO.OrderedBy.FirstName, serviceOrderDTO.OrderedBy.LastName, serviceOrderDTO.OrderedBy.Email, serviceOrderDTO.OrderedBy.PhoneNumber);
+                var owner = new ContactDetails(serviceOrderDTO.OrderedBy.UserId, serviceOrderDTO.OrderedBy.FirstName, serviceOrderDTO.OrderedBy.LastName, serviceOrderDTO.OrderedBy.Email, serviceOrderDTO.OrderedBy.PhoneNumber);
                 
                 var serviceOrder = new HardwareServiceOrder(
                     owner.UserId,

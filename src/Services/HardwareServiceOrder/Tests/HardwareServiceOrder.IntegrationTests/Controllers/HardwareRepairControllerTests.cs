@@ -155,50 +155,47 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         {
             var body = new NewHardwareServiceOrder
             {
-                ErrorDescription = "sd",
-                OrderedBy = new ContactDetails
+                ErrorDescription = "Something is not working! Fix plz!",
+                OrderedBy = new ContactDetailsExtended
                 {
-                    FirstName = "sd",
-                    LastName = "sd",
-                    Id = _customerId,
-                    Email = "sds@as.com",
-                    PartnerId = new Guid(),
-                    PartnerName = "ved",
-                    PartnerOrganizationNumber = "23456",
-                    OrganizationId = new Guid(),
-                    OrganizationName = "AS",
-                    OrganizationNumber = "12",
-                    PhoneNumber = "23"
+                    FirstName = "John",
+                    LastName = "Doe",
+                    UserId = _customerId,
+                    Email = "user@domain.com",
+                    PartnerId = Guid.NewGuid(),
+                    PartnerName = "Partner AS",
+                    PartnerOrganizationNumber = "123456789",
+                    OrganizationId = Guid.NewGuid(),
+                    OrganizationName = "Customer AS",
+                    OrganizationNumber = "987654321",
+                    PhoneNumber = "+4790000000"
                 },
                 AssetInfo = new AssetInfo
                 {
                     Imei = "500119468586675",
-                    //AssetLifecycleId = new Guid(),
+                    AssetCategoryId = 1,
+                    Model = "Model",
+                    Brand = "Brand",
+                    PurchaseDate = DateOnly.Parse("2020-01-01"),
+                    SerialNumber = "S/N-123456",
+                    AssetLifecycleId = Guid.NewGuid(),
+                    AssetName = "AssetName",
                     Accessories = new List<string>
                     {
-                        "sdsd"
-                    },
-                    AssetCategoryId = 1,
-                    Model = "wwe",
-                    Brand = "wewe",
-                    PurchaseDate = new DateOnly(),
-                    SerialNumber = "wewew",
-                    AssetLifecycleId = new Guid(),
-                    AssetName = "sd"
+                        "Charger"
+                    }
                 },
                 DeliveryAddress = new DeliveryAddress
                 {
-                    Recipient = "fs",
-                    Address1 = "f",
-                    Address2 = "f",
-                    City = "f",
-                    Country = "FS",
-                    PostalCode = "0011",
-                    RecipientType = HardwareServiceOrderServices.Models.RecipientTypeEnum.Personal
+                    RecipientType = HardwareServiceOrderServices.Models.RecipientTypeEnum.Personal,
+                    Recipient = "Recipient",
+                    Address1 = "Address1",
+                    Address2 = "Address2",
+                    PostalCode = "0275",
+                    City = "City",
+                    Country = "NO"
                 }
             };
-
-            //var response = await client.PostAsJsonAsync($"/api/v1/hardware-repair/{_customerId}/orders", body);
 
             var request = $"/api/v1/hardware-repair/{_customerId}/orders";
             var response = await _httpClient.PostAsJsonAsync(request, body);

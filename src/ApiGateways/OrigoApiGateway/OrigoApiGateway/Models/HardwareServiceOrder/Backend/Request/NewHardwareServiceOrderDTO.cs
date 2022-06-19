@@ -9,7 +9,7 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request
     {
         public DeliveryAddress DeliveryAddress { get; set; }
         public string ErrorDescription { get; set; }
-        public OrderedByUserDTO OrderedBy { get; set; }
+        public ContactDetailsExtended OrderedBy { get; set; }
         public AssetInfo AssetInfo { get; set; }
 
         public NewHardwareServiceOrderDTO(NewHardwareServiceOrder order)

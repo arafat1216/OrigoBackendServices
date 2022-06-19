@@ -149,11 +149,11 @@ namespace HardwareServiceOrder.UnitTests
             var serviceOrder = new API.ViewModels.NewHardwareServiceOrder
             {
                 ErrorDescription = "sd",
-                OrderedBy = new API.ViewModels.ContactDetails
+                OrderedBy = new API.ViewModels.ContactDetailsExtended
                 {
                     FirstName = "sd",
                     LastName = "sd",
-                    Id = new Guid(),
+                    UserId = new Guid(),
                     Email = "sds@as.com",
                     PartnerId = new Guid(),
                     PartnerName = "ved",
@@ -228,11 +228,11 @@ namespace HardwareServiceOrder.UnitTests
             var serviceOrderDTO = new HardwareServiceOrderDTO
             {
                 ErrorDescription = "sd",
-                OrderedBy = new ContactDetailsDTO
+                OrderedBy = new ContactDetailsExtendedDTO
                 {
                     FirstName = "sd",
                     LastName = "sd",
-                    Id = CUSTOMER_ONE_ID,
+                    UserId = CUSTOMER_ONE_ID,
                     Email = "sds@as.com",
                     PartnerId = new Guid(),
                     PartnerName = "ved",

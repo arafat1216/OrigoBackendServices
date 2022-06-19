@@ -6,7 +6,7 @@ namespace HardwareServiceOrderServices.ServiceModels
     {
         public DeliveryAddressDTO DeliveryAddress { get; set; }
         public string ErrorDescription { get; set; }
-        public ContactDetailsDTO OrderedBy { get; set; }
+        public ContactDetailsExtendedDTO OrderedBy { get; set; }
         public AssetInfoDTO AssetInfo { get; set; }
     }
 }

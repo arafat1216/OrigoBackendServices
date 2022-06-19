@@ -165,20 +165,19 @@ namespace OrigoApiGateway.Services
                 if (partner == null)
                     throw new ArgumentException($"No partner is for customerId {customerId}", nameof(customerId));
 
-                dto.OrderedBy = new OrderedByUserDTO
-                {
-                    Email = userInfo.Email,
-                    FirstName = userInfo.FirstName,
-                    LastName = userInfo.LastName,
-                    Id = userId,
-                    PhoneNumber = userInfo.MobileNumber,
-                    OrganizationId = organization.OrganizationId,
-                    OrganizationName = organization.Name,
-                    OrganizationNumber = organization.OrganizationNumber,
-                    PartnerId = partner.Id,
-                    PartnerName = partner.Name,
-                    PartnerOrganizationNumber = partner.OrganizationNumber
-                };
+                dto.OrderedBy = new ContactDetailsExtended(
+                    userId,
+                    userInfo.FirstName,
+                    userInfo.LastName,
+                    userInfo.Email,
+                    userInfo.MobileNumber,
+                    organization.OrganizationId,
+                    organization.Name,
+                    organization.OrganizationNumber,
+                    partner.Id,
+                    partner.Name,
+                    partner.OrganizationNumber
+                );
 
                 var request = await HttpClient.PostAsync($"{_options.ApiPath}/{customerId}/orders", JsonContent.Create(dto));
                 request.EnsureSuccessStatusCode();
