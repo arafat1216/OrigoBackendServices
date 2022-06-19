@@ -95,6 +95,9 @@ builder.Services.AddSwaggerGen(options =>
     // Add a custom operation filter which sets default values
     options.OperationFilter<SwaggerDefaultValues>();
 
+    // Register global header parameters in the API
+    options.OperationFilter<SwaggerHeaderParameters>();
+
     options.EnableAnnotations();
 
     // Retrieve all assemblies containing XML comments
