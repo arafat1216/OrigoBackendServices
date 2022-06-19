@@ -31,7 +31,6 @@ namespace HardwareServiceOrder.UnitTests
         public async Task HandleUnknownStatus()
         {
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
-                callerId: Guid.NewGuid(),
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),
@@ -86,7 +85,6 @@ namespace HardwareServiceOrder.UnitTests
         public async Task HandleCanceledStatus()
         {
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
-                callerId: Guid.NewGuid(),
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),
@@ -135,7 +133,6 @@ namespace HardwareServiceOrder.UnitTests
         public async Task HandleOngoingStatus()
         {
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
-                callerId: Guid.NewGuid(),
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),
@@ -184,7 +181,6 @@ namespace HardwareServiceOrder.UnitTests
         public async Task HandleCompletedStatus_CompletedRepaired()
         {
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
-                callerId: Guid.NewGuid(),
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),
@@ -233,7 +229,6 @@ namespace HardwareServiceOrder.UnitTests
         public async Task HandleCompletedStatus_CompletedDiscarded()
         {
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
-                          callerId: Guid.NewGuid(),
                           externalId: Guid.NewGuid(),
                           customerId: Guid.NewGuid(),
                           assetLifecycleId: Guid.NewGuid(),
@@ -282,7 +277,6 @@ namespace HardwareServiceOrder.UnitTests
         public async Task HandleRegisteredStatus()
         {
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
-                callerId: Guid.NewGuid(),
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),

@@ -3,6 +3,7 @@ using HardwareServiceOrderServices.Email.Models;
 using HardwareServiceOrderServices.Mappings;
 using HardwareServiceOrderServices.Models;
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace HardwareServiceOrder.UnitTests
@@ -23,29 +24,27 @@ namespace HardwareServiceOrder.UnitTests
         public void HardwareServiceOrderToAssetRepairEmail()
         {
             var deliveryAddress = new DeliveryAddress(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
-            var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.Recycle };
-            var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Registered };
-            var serviceProvider = new ServiceProvider { OrganizationId = Guid.NewGuid() };
+            var contactDetails = new ContactDetails(Guid.NewGuid(), "FirstName", "LastName", "test@test.com", "PhoneNumber");
+
+#pragma warning disable CS0618 // Type or member is obsolete
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
                 Guid.NewGuid(),
-                new ContactDetails(
-                    Guid.NewGuid(),
-                    "FirstName",
-                    "LastName",
-                    "test@test.com",
-                    "PhoneNumber"
-                ),
                 Guid.NewGuid(),
-                deliveryAddress,
+                Guid.NewGuid(),
                 "UserDescription",
-                serviceProvider,
+                contactDetails,
+                deliveryAddress,
+                (int)ServiceTypeEnum.Recycle,
+                (int)ServiceStatusEnum.Registered,
+                (int)ServiceProviderEnum.ConmodoNo,
                 Guid.NewGuid().ToString(),
                 null,
                 "externalLink",
-                serviceType,
-                serviceStatus,
+                new List<ServiceEvent>(),
+                Guid.NewGuid(),
                 DateTime.Today.AddDays(-7)
             );
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var assetRepairEmail = _mapper.Map<AssetRepairEmail>(order);
             Assert.NotNull(assetRepairEmail);
@@ -62,19 +61,19 @@ namespace HardwareServiceOrder.UnitTests
         public void HardwareServiceOrderToOrderCancellationEmail()
         {
             var deliveryAddress = new DeliveryAddress(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
+            var contactDetails = new ContactDetails(Guid.NewGuid(), "FirstName", "LastName", "test@test.com", "PhoneNumber");
+
             var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.Remarketing };
             var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Registered };
             var serviceProvider = new ServiceProvider { OrganizationId = Guid.NewGuid() };
+
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
                 Guid.NewGuid(),
-                new ContactDetails(
-                    Guid.NewGuid(),
-                    "FirstName",
-                    "LastName",
-                    "test@test.com",
-                    "PhoneNumber"),
-                Guid.NewGuid(), deliveryAddress,
-                "UserDescription", serviceProvider,
+                contactDetails,
+                Guid.NewGuid(),
+                deliveryAddress,
+                "UserDescription",
+                serviceProvider,
                 Guid.NewGuid().ToString(),
                 null,
                 "externalLink",
@@ -100,17 +99,14 @@ namespace HardwareServiceOrder.UnitTests
         public void HardwareServiceOrderToLoanDevice()
         {
             var deliveryAddress = new DeliveryAddress(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
+            var contactDetails = new ContactDetails(Guid.NewGuid(), "FirstName", "LastName", "test@test.com", "PhoneNumber");
+
             var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.Recycle };
             var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Registered };
             var serviceProvider = new ServiceProvider { OrganizationId = Guid.NewGuid() };
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
                 Guid.NewGuid(),
-                new ContactDetails(
-                    Guid.NewGuid(),
-                    "FirstName",
-                    "LastName",
-                    "test@test.com",
-                    "PhoneNumber"),
+                contactDetails,
                 Guid.NewGuid(),
                 deliveryAddress,
                 "UserDescription",
@@ -133,18 +129,14 @@ namespace HardwareServiceOrder.UnitTests
         public void HardwareServiceOrderToAssetDiscardedEmail()
         {
             var deliveryAddress = new DeliveryAddress(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
+            var contactDetails = new ContactDetails(Guid.NewGuid(), "FirstName", "LastName", "test@test.com", "PhoneNumber");
+
             var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.Recycle };
             var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Registered };
             var serviceProvider = new ServiceProvider { OrganizationId = Guid.NewGuid() };
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
                 Guid.NewGuid(),
-                new ContactDetails(
-                    Guid.NewGuid(),
-                    "FirstName",
-                    "LastName",
-                    "test@test.com",
-                    "PhoneNumber"
-                ),
+                contactDetails,
                 Guid.NewGuid(),
                 deliveryAddress,
                 "UserDescription",
