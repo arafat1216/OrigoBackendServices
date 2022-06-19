@@ -38,8 +38,10 @@ namespace HardwareServiceOrder.UnitTests
                 userDescription: "[UserDescription]",
                 owner: new ContactDetails(
                     userId: Guid.NewGuid(),
-                    firstName: "[Name]",
-                    email: "[Email]"
+                    firstName: "[FirstName]",
+                    lastName: "[LastName]",
+                    email: "[Email]",
+                    phoneNumber: "[PhoneNumber]"
                 ),
                 deliveryAddress: new DeliveryAddress(
                     recipientType: RecipientTypeEnum.Personal,
@@ -91,8 +93,10 @@ namespace HardwareServiceOrder.UnitTests
                 userDescription: "[UserDescription]",
                 owner: new ContactDetails(
                     userId: Guid.NewGuid(),
-                    firstName: "[Name]",
-                    email: "[Email]"
+                    firstName: "[FirstName]",
+                    lastName: "[LastName]",
+                    email: "[Email]",
+                    phoneNumber: "[PhoneNumber]"
                 ),
                 deliveryAddress: new DeliveryAddress(
                     recipientType: RecipientTypeEnum.Personal,
@@ -138,8 +142,10 @@ namespace HardwareServiceOrder.UnitTests
                 userDescription: "[UserDescription]",
                 owner: new ContactDetails(
                 userId: Guid.NewGuid(),
-                firstName: "[Name]",
-                email: "[Email]"
+                firstName: "[FirstName]",
+                lastName: "[LastName]",
+                email: "[Email]",
+                phoneNumber: "[PhoneNumber]"
                 ),
                 deliveryAddress: new DeliveryAddress(
                     recipientType: RecipientTypeEnum.Personal,
@@ -185,8 +191,10 @@ namespace HardwareServiceOrder.UnitTests
                 userDescription: "[UserDescription]",
                 owner: new ContactDetails(
                 userId: Guid.NewGuid(),
-                firstName: "[Name]",
-                email: "[Email]"
+                firstName: "[FirstName]",
+                lastName: "[LastName]",
+                email: "[Email]",
+                phoneNumber: "[PhoneNumber]"
                 ),
                 deliveryAddress: new DeliveryAddress(
                     recipientType: RecipientTypeEnum.Personal,
@@ -231,9 +239,11 @@ namespace HardwareServiceOrder.UnitTests
                           assetLifecycleId: Guid.NewGuid(),
                           userDescription: "[UserDescription]",
                           owner: new ContactDetails(
-                          userId: Guid.NewGuid(),
-                          firstName: "[Name]",
-                          email: "[Email]"
+                            userId: Guid.NewGuid(),
+                            firstName: "[FirstName]",
+                            lastName: "[LastName]",
+                            email: "[Email]",
+                            phoneNumber: "[PhoneNumber]"
                           ),
                           deliveryAddress: new DeliveryAddress(
                               recipientType: RecipientTypeEnum.Personal,
@@ -245,7 +255,7 @@ namespace HardwareServiceOrder.UnitTests
                               country: "[Country]"),
                           serviceTypeId: (int)ServiceTypeEnum.SUR,
                           statusId: (int)ServiceStatusEnum.CompletedDiscarded,
-                          serviceProviderId: 1,
+                          serviceProviderId: (int)ServiceProviderEnum.ConmodoNo,
                           serviceProviderOrderId1: "[ServiceProviderOrderId1]",
                           serviceProviderOrderId2: "[ServiceProviderOrderId2]",
                           externalServiceManagementLink: "[ExternalServiceManagementLink]",
@@ -278,9 +288,11 @@ namespace HardwareServiceOrder.UnitTests
                 assetLifecycleId: Guid.NewGuid(),
                 userDescription: "[UserDescription]",
                 owner: new ContactDetails(
-                userId: Guid.NewGuid(),
-                firstName: "[Name]",
-                email: "[Email]"
+                    userId: Guid.NewGuid(),
+                    firstName: "[FirstName]",
+                    lastName: "[LastName]",
+                    email: "[Email]",
+                    phoneNumber: "[PhoneNumber]"
                 ),
                 deliveryAddress: new DeliveryAddress(
                     recipientType: RecipientTypeEnum.Personal,
@@ -292,7 +304,7 @@ namespace HardwareServiceOrder.UnitTests
                     country: "[Country]"),
                 serviceTypeId: (int)ServiceTypeEnum.SUR,
                 statusId: (int)ServiceStatusEnum.Registered,
-                serviceProviderId: 1,
+                serviceProviderId: (int)ServiceProviderEnum.ConmodoNo,
                 serviceProviderOrderId1: "[ServiceProviderOrderId1]",
                 serviceProviderOrderId2: "[ServiceProviderOrderId2]",
                 externalServiceManagementLink: "[ExternalServiceManagementLink]",

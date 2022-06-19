@@ -41,11 +41,30 @@ namespace HardwareServiceOrder.IntegrationTests
                     CUSTOMER_ONE_ID,
                     Guid.NewGuid(),
                     "[UserDescription]",
-                    new ContactDetails(USER_ID, "FirstName", "Email"),
-                    new DeliveryAddress(RecipientTypeEnum.Personal, "recipient", "address1", "address2", "postal-code", "NO", "NO"),
-                    3, 3, 1, "serviceProviderOrderId1", "OrderID2", "OrderExternalLink", new List<ServiceEvent> { new ServiceEvent { ServiceStatusId = 3, Timestamp = DateTime.UtcNow } });
-                var serviceType = new ServiceType() { Id = 400 };
-                var serviceProvider1 = new HardwareServiceOrderServices.Models.ServiceProvider { OrganizationId = CUSTOMER_ONE_ID };
+                    new ContactDetails(
+                        USER_ID, 
+                        "FirstName",
+                        "LastName",
+                        "Email",
+                        "PhoneNumber"
+                    ),
+                    new DeliveryAddress(
+                        RecipientTypeEnum.Personal, 
+                        "recipient", 
+                        "address1", 
+                        "address2", 
+                        "postal-code", 
+                        "city", 
+                        "NO"
+                    ),
+                    3, 
+                    3, 
+                    1, 
+                    "serviceProviderOrderId1", 
+                    "OrderID2", 
+                    "OrderExternalLink", 
+                    new List<ServiceEvent> { new ServiceEvent { ServiceStatusId = 3, Timestamp = DateTime.UtcNow } }
+                );
 
                 var cmServiceProvider1 = new CustomerServiceProvider
                 {

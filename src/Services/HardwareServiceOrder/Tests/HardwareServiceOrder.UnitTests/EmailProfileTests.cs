@@ -26,7 +26,26 @@ namespace HardwareServiceOrder.UnitTests
             var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.Recycle };
             var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Registered };
             var serviceProvider = new ServiceProvider { OrganizationId = Guid.NewGuid() };
-            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(Guid.NewGuid(), new ContactDetails(Guid.NewGuid(), "test@test.com", "UserName"), Guid.NewGuid(), deliveryAddress, "UserDescription", serviceProvider, Guid.NewGuid().ToString(), null, "externalLink", serviceType, serviceStatus, DateTime.Today.AddDays(-7));
+            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
+                Guid.NewGuid(),
+                new ContactDetails(
+                    Guid.NewGuid(),
+                    "FirstName",
+                    "LastName",
+                    "test@test.com",
+                    "PhoneNumber"
+                ),
+                Guid.NewGuid(),
+                deliveryAddress,
+                "UserDescription",
+                serviceProvider,
+                Guid.NewGuid().ToString(),
+                null,
+                "externalLink",
+                serviceType,
+                serviceStatus,
+                DateTime.Today.AddDays(-7)
+            );
 
             var assetRepairEmail = _mapper.Map<AssetRepairEmail>(order);
             Assert.NotNull(assetRepairEmail);
@@ -46,7 +65,23 @@ namespace HardwareServiceOrder.UnitTests
             var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.Remarketing };
             var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Registered };
             var serviceProvider = new ServiceProvider { OrganizationId = Guid.NewGuid() };
-            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(Guid.NewGuid(), new ContactDetails(Guid.NewGuid(), "test@test.com", "UserName"), Guid.NewGuid(), deliveryAddress, "UserDescription", serviceProvider, Guid.NewGuid().ToString(), null, "externalLink", serviceType, serviceStatus, DateTime.Today.AddDays(-7));
+            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
+                Guid.NewGuid(),
+                new ContactDetails(
+                    Guid.NewGuid(),
+                    "FirstName",
+                    "LastName",
+                    "test@test.com",
+                    "PhoneNumber"),
+                Guid.NewGuid(), deliveryAddress,
+                "UserDescription", serviceProvider,
+                Guid.NewGuid().ToString(),
+                null,
+                "externalLink",
+                serviceType,
+                serviceStatus,
+                DateTime.Today.AddDays(-7)
+            );
 
             var assetRepairEmail = _mapper.Map<OrderCancellationEmail>(order);
             Assert.NotNull(assetRepairEmail);
@@ -68,8 +103,25 @@ namespace HardwareServiceOrder.UnitTests
             var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.Recycle };
             var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Registered };
             var serviceProvider = new ServiceProvider { OrganizationId = Guid.NewGuid() };
-            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(Guid.NewGuid(), new ContactDetails(Guid.NewGuid(), "test@test.com", "UserName"), Guid.NewGuid(), deliveryAddress, "UserDescription", serviceProvider, Guid.NewGuid().ToString(), null, "externalLink", serviceType, serviceStatus, DateTime.Today.AddDays(-7));
-
+            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
+                Guid.NewGuid(),
+                new ContactDetails(
+                    Guid.NewGuid(),
+                    "FirstName",
+                    "LastName",
+                    "test@test.com",
+                    "PhoneNumber"),
+                Guid.NewGuid(),
+                deliveryAddress,
+                "UserDescription",
+                serviceProvider,
+                Guid.NewGuid().ToString(),
+                null,
+                "externalLink",
+                serviceType,
+                serviceStatus,
+                DateTime.Today.AddDays(-7)
+            );
 
             var assetRepairEmail = _mapper.Map<LoanDeviceEmail>(order);
             Assert.NotNull(assetRepairEmail);
@@ -84,7 +136,26 @@ namespace HardwareServiceOrder.UnitTests
             var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.Recycle };
             var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Registered };
             var serviceProvider = new ServiceProvider { OrganizationId = Guid.NewGuid() };
-            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(Guid.NewGuid(), new ContactDetails(Guid.NewGuid(), "test@test.com", "UserName"), Guid.NewGuid(), deliveryAddress, "UserDescription", serviceProvider, Guid.NewGuid().ToString(), null, "externalLink", serviceType, serviceStatus, DateTime.Today.AddDays(-7));
+            var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
+                Guid.NewGuid(),
+                new ContactDetails(
+                    Guid.NewGuid(),
+                    "FirstName",
+                    "LastName",
+                    "test@test.com",
+                    "PhoneNumber"
+                ),
+                Guid.NewGuid(),
+                deliveryAddress,
+                "UserDescription",
+                serviceProvider,
+                Guid.NewGuid().ToString(),
+                null,
+                "externalLink",
+                serviceType,
+                serviceStatus,
+                DateTime.Today.AddDays(-7)
+            );
 
             var assetRepairEmail = _mapper.Map<AssetDiscardedEmail>(order);
             Assert.NotNull(assetRepairEmail);

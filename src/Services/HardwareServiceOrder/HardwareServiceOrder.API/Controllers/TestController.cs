@@ -126,7 +126,7 @@ namespace HardwareServiceOrder.API.Controllers
             var order2 = new HardwareServiceOrderServices.Models.HardwareServiceOrder()
             {
                 CustomerId = CUSTOMER_ONE_ID,
-                Owner = new ContactDetails(Guid.NewGuid(), "Firstname", "test@test.com"),
+                Owner = new ContactDetails(Guid.NewGuid(), "FirstName", "LastName", "test@test.com", "+4790000000"),
                 AssetLifecycleId = Guid.NewGuid(),
                 DeliveryAddress = deliveryAddress,
                 ServiceProviderId = 3,
@@ -185,7 +185,7 @@ namespace HardwareServiceOrder.API.Controllers
         public async Task<ActionResult> TriggerServiceUpdate([FromQuery] Guid serviceOrderId, [FromQuery] ServiceStatusEnum newServiceStatus, [FromQuery] List<string>? newImeis = null, [FromQuery] string? newSerial = null)
         {
             var statusHandler = _serviceOrderStatusHandlers.ContainsKey(newServiceStatus) ? _serviceOrderStatusHandlers[newServiceStatus] : _serviceOrderStatusHandlers[ServiceStatusEnum.Unknown];
-             await statusHandler.UpdateServiceOrderStatusAsync(serviceOrderId, newServiceStatus, newImeis, newSerial);
+            await statusHandler.UpdateServiceOrderStatusAsync(serviceOrderId, newServiceStatus, newImeis, newSerial);
 
             return Ok();
         }
