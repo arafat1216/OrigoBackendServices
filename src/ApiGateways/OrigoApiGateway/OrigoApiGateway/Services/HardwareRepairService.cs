@@ -200,18 +200,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoHardwareServiceOrderDetail> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
+        public async Task<HardwareServiceOrder> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
         {
             try
             {
-                var order = await HttpClient.GetFromJsonAsync<OrigoHardwareServiceOrderDetail>($"{_options.ApiPath}/{customerId}/orders/{orderId}");
-
-                if (order != null)
-                {
-                    var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(customerId, order.AssetLifecycleId);
-                    order.AssetInfo = asset;
-                }
-
+                var order = await HttpClient.GetFromJsonAsync<HardwareServiceOrder>($"{_options.ApiPath}/{customerId}/orders/{orderId}");
                 return order;
             }
             catch (HttpRequestException exception)
