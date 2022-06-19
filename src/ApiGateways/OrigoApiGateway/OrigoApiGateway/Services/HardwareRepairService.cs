@@ -1,19 +1,11 @@
 ﻿using Common.Enums;
 using Common.Interfaces;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.HardwareServiceOrder;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {
@@ -240,7 +232,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<PagedModel<OrigoHardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page = 1, int limit = 500)
+        public async Task<PagedModel<OrigoHardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page = 1, int limit = 25)
         {
             try
             {

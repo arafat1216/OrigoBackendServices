@@ -191,7 +191,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{customerId:Guid}/orders")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<OrigoHardwareServiceOrder>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, string userId, [FromQuery] bool activeOnly = false, int page = 1, int limit = 500)
+        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, string userId, [FromQuery] bool activeOnly = false, int page = 1, int limit = 25)
          {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
