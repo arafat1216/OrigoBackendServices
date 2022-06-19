@@ -17,6 +17,9 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// <inheritdoc cref="HardwareServiceOrder.AssetLifecycleId"/>
         public Guid AssetLifecycleId { get; set; }
 
+
+        public int AssetLifecycleCategoryId { get; set; }
+
         /// <inheritdoc cref="HardwareServiceOrder.AssetInfo"/>
         public AssetInfoDTO AssetInfo { get; set; }
 

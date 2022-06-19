@@ -40,6 +40,7 @@ namespace HardwareServiceOrder.IntegrationTests
                     Guid.NewGuid(),
                     CUSTOMER_ONE_ID,
                     Guid.NewGuid(),
+                    1,
                     new(
                         "Brand",
                         "Model",

@@ -7,40 +7,31 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
 {
     public class HardwareServiceOrder
     {
-        /// <inheritdoc cref="HardwareServiceOrderDTO.ExternalId"/>
-        /// <example> 00000000-0000-0000-0000-000000000000 </example>
         [Required]
         [SwaggerSchema(ReadOnly = true)]
         public Guid Id { get; set; }
 
-        /// <inheritdoc cref="HardwareServiceOrderDTO.CustomerId"/>
-        /// <example> 00000000-0000-0000-0000-000000000000 </example>
         [Required]
         public Guid CustomerId { get; set; }
 
-        /// <inheritdoc cref="HardwareServiceOrderDTO.AssetLifecycleId"/>
-        /// <example> 00000000-0000-0000-0000-000000000000 </example>
         [Required]
         public Guid AssetLifecycleId { get; set; }
 
-        /// <inheritdoc cref="HardwareServiceOrderDTO.AssetInfo"/>
+        [Required]
+        public int AssetLifecycleCategoryId { get; set; }
+
         [Required]
         public AssetInfo AssetInfo { get; set; }
 
-        /// <inheritdoc cref="HardwareServiceOrderDTO.ReturnedAssetInfo"/>
         [SwaggerSchema(ReadOnly = true)]
         public AssetInfo? ReturnedAssetInfo { get; set; }
 
-        /// <inheritdoc cref="HardwareServiceOrderDTO.UserDescription"/>
-        /// <example> I dropped the device, and now the screen needs to be replaced. </example>
         [Required]
         public string UserDescription { get; set; }
 
-        /// <inheritdoc cref="HardwareServiceOrderDTO.Owner"/>
         [Required]
         public ContactDetails Owner { get; set; }
 
-        /// <inheritdoc cref="HardwareServiceOrderDTO.DeliveryAddress"/>
         [Required]
         public DeliveryAddress? DeliveryAddress { get; set; }
 
@@ -63,12 +54,9 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
         [Required]
         public int ServiceProviderId { get; set; }
 
-        /// <inheritdoc cref="HardwareServiceOrderDTO.ExternalServiceManagementLink"/>
-        /// <example> https://www.my-service-provider.com/order/123456?username=1234&password=1234 </example>
         [SwaggerSchema(ReadOnly = true)]
         public string? ExternalServiceManagementLink { get; set; }
 
-        /// <inheritdoc cref="HardwareServiceOrderDTO.ServiceEvents"/>
         [Required]
         [SwaggerSchema(ReadOnly = true)]
         public IEnumerable<ServiceEvent> ServiceEvents { get; set; }

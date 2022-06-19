@@ -11,6 +11,8 @@ namespace HardwareServiceOrder.API.ViewModels
         public string?  AssetName { get; set; }
         [Required]
         public string? Model { get; set; }
+        
+        // TODO: This should be moved out to the ServiceOrder to better reflect the EF entities.
         [Required]
         public int? AssetCategoryId { get; set; }
         [RegularExpression("^[0-9]{14,15}$")]

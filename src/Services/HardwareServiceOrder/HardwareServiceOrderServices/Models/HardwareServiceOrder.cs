@@ -24,6 +24,7 @@ namespace HardwareServiceOrderServices.Models
         /// </summary>
         /// <param name="customerId"> The ID for the customer's organization. </param>
         /// <param name="assetLifecycleId"> The items 'asset life-cycle ID'. </param>
+        /// <param name="assetLifecycleCategoryId"> The asset-category that is associated with the <paramref name="assetLifecycleCategoryId"/>. </param>
         /// <param name="assetInfo"> Information about the asset that was sent to the service-provider. </param>
         /// <param name="userDescription"> The users description. This is typically a fault-description stating whats wrong, and what needs to be done. </param>
         /// <param name="owner"> The user that owns and handles the service-order. </param>
@@ -35,10 +36,11 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="serviceProviderOrderId2">  </param>
         /// <param name="externalServiceManagementLink">  </param>
         /// <param name="serviceEvents"> The service-events that was received from the service-provider. </param>
-        public HardwareServiceOrder(Guid customerId, Guid assetLifecycleId, AssetInfo assetInfo, string userDescription, ContactDetails owner, DeliveryAddress? deliveryAddress, int serviceTypeId, int statusId, int serviceProviderId, string serviceProviderOrderId1, string? serviceProviderOrderId2, string? externalServiceManagementLink, IEnumerable<ServiceEvent> serviceEvents) : base()
+        public HardwareServiceOrder(Guid customerId, Guid assetLifecycleId, int assetLifecycleCategoryId, AssetInfo assetInfo, string userDescription, ContactDetails owner, DeliveryAddress? deliveryAddress, int serviceTypeId, int statusId, int serviceProviderId, string serviceProviderOrderId1, string? serviceProviderOrderId2, string? externalServiceManagementLink, IEnumerable<ServiceEvent> serviceEvents) : base()
         {
             CustomerId = customerId;
             AssetLifecycleId = assetLifecycleId;
+            AssetLifecycleCategoryId = assetLifecycleCategoryId;
             AssetInfo = assetInfo;
             UserDescription = userDescription;
             Owner = owner;
@@ -59,6 +61,7 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="externalId"> The service-order's external ID that uniquely identifies this service-request in our solution. </param>
         /// <param name="customerId"> The ID for the customer's organization. </param>
         /// <param name="assetLifecycleId"> The items 'asset life-cycle ID'. </param>
+        /// <param name="assetLifecycleCategoryId"> The asset-category that is associated with the <paramref name="assetLifecycleCategoryId"/>. </param>
         /// <param name="assetInfo"> Information about the asset that was sent to the service-provider. </param>
         /// <param name="userDescription"> The users description. This is typically a fault-description stating whats wrong, and what needs to be done. </param>
         /// <param name="owner"> The user that owns and handles the service-order. </param>
@@ -74,6 +77,7 @@ namespace HardwareServiceOrderServices.Models
             Guid externalId,
             Guid customerId,
             Guid assetLifecycleId,
+            int assetLifecycleCategoryId,
             AssetInfo assetInfo,
             string userDescription,
             ContactDetails owner,
@@ -90,6 +94,7 @@ namespace HardwareServiceOrderServices.Models
             ExternalId = externalId;
             CustomerId = customerId;
             AssetLifecycleId = assetLifecycleId;
+            AssetLifecycleCategoryId = assetLifecycleCategoryId;
             AssetInfo = assetInfo;
             UserDescription = userDescription;
             Owner = owner;
@@ -113,6 +118,7 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="externalId"> The service-order's external ID that uniquely identifies this service-request in our solution. </param>
         /// <param name="customerId"> The ID for the customer's organization. </param>
         /// <param name="assetLifecycleId"> The items 'asset life-cycle ID'. </param>
+        /// <param name="assetLifecycleCategoryId"> The asset-category that is associated with the <paramref name="assetLifecycleCategoryId"/>. </param>
         /// <param name="assetInfo"> Information about the asset that was sent to the service-provider. </param>
         /// <param name="userDescription"> The users description. This is typically a fault-description stating whats wrong, and what needs to be done. </param>
         /// <param name="owner"> The user that owns and handles the service-order. </param>
@@ -136,6 +142,7 @@ namespace HardwareServiceOrderServices.Models
             Guid externalId,
             Guid customerId,
             Guid assetLifecycleId,
+            int assetLifecycleCategoryId,
             AssetInfo assetInfo,
             string userDescription,
             ContactDetails owner,
@@ -159,6 +166,7 @@ namespace HardwareServiceOrderServices.Models
             ExternalId = externalId;
             CustomerId = customerId;
             AssetLifecycleId = assetLifecycleId;
+            AssetLifecycleCategoryId = assetLifecycleCategoryId;
             AssetInfo = assetInfo;
             UserDescription = userDescription;
             Owner = owner;
@@ -231,6 +239,11 @@ namespace HardwareServiceOrderServices.Models
         ///     The identifier for the asset life-cycle attached to the service order.
         /// </summary>
         public Guid AssetLifecycleId { get; set; }
+
+        /// <summary>
+        ///     The asset-category that is associated with the <see cref="AssetLifecycleId"/>.
+        /// </summary>
+        public int AssetLifecycleCategoryId { get; set; }
 
         /// <summary>
         ///     A user provided description explaining the problem or reason for the service order.

@@ -2,6 +2,9 @@
 
 namespace HardwareServiceOrder.API.ViewModels
 {
+    /// <summary>
+    ///     A read/GET model for <see cref="HardwareServiceOrderDTO"/>.
+    /// </summary>
     public class HardwareServiceOrderResponse
     {
         /// <inheritdoc cref="HardwareServiceOrderDTO.ExternalId"/>
@@ -19,6 +22,10 @@ namespace HardwareServiceOrder.API.ViewModels
         /// <example> 00000000-0000-0000-0000-000000000000 </example>
         [Required]
         public Guid AssetLifecycleId { get; set; }
+
+        /// <inheritdoc cref="HardwareServiceOrderDTO.AssetLifecycleCategoryId"/>
+        [Required]
+        public int AssetLifecycleCategoryId { get; set; }
 
         /// <inheritdoc cref="HardwareServiceOrderDTO.AssetInfo"/>
         [Required]

@@ -32,6 +32,7 @@ namespace HardwareServiceOrder.UnitTests
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 Guid.NewGuid(),
+                1,
                 assetInfo,
                 "UserDescription",
                 contactDetails,

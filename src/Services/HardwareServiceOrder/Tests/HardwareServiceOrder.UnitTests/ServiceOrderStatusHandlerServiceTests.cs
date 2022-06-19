@@ -34,6 +34,7 @@ namespace HardwareServiceOrder.UnitTests
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),
+                1,
                 new(
                     "[AssetBrand]",
                     "[AssetModel]",
@@ -96,6 +97,7 @@ namespace HardwareServiceOrder.UnitTests
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),
+                1,
                 new(
                     "[AssetBrand]",
                     "[AssetModel]",
@@ -152,6 +154,7 @@ namespace HardwareServiceOrder.UnitTests
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),
+                1,
                 new(
                     "[AssetBrand]",
                     "[AssetModel]",
@@ -208,6 +211,7 @@ namespace HardwareServiceOrder.UnitTests
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),
+                1,
                 new(
                     "[AssetBrand]",
                     "[AssetModel]",
@@ -264,6 +268,7 @@ namespace HardwareServiceOrder.UnitTests
                             externalId: Guid.NewGuid(),
                             customerId: Guid.NewGuid(),
                             assetLifecycleId: Guid.NewGuid(),
+                            1,
                             new(
                                 "[AssetBrand]",
                                 "[AssetModel]",
@@ -320,6 +325,7 @@ namespace HardwareServiceOrder.UnitTests
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),
+                1,
                 new(
                     "[AssetBrand]",
                     "[AssetModel]",

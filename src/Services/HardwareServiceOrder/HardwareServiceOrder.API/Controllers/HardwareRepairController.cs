@@ -78,7 +78,8 @@ namespace HardwareServiceOrder.API.Controllers
 
         [Route("{customerId:Guid}/orders")]
         [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.HardwareServiceOrderResponse), (int)HttpStatusCode.OK)]
+        //[ProducesResponseType(typeof(ViewModels.HardwareServiceOrderResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(HardwareServiceOrderDTO), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> CreateHardwareServiceOrder(Guid customerId, [FromBody] ViewModels.NewHardwareServiceOrder model)
         {
@@ -91,10 +92,12 @@ namespace HardwareServiceOrder.API.Controllers
 
         [Route("{customerId:Guid}/orders/{orderId:Guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(ViewModels.HardwareServiceOrderResponse), (int)HttpStatusCode.OK)]
+        //[ProducesResponseType(typeof(ViewModels.HardwareServiceOrderResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(HardwareServiceOrderDTO), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> GetHardwareServiceOrder(Guid customerId, Guid orderId)
         {
+            // TODO: Fix this so it don't create a new object when the result is null!
             var dto = await _hardwareServiceOrderService.GetHardwareServiceOrderAsync(customerId, orderId) ?? new HardwareServiceOrderServices.ServiceModels.HardwareServiceOrderDTO();
 
             //return Ok(_mapper.Map<ViewModels.HardwareServiceOrderResponse>(dto));
@@ -104,7 +107,8 @@ namespace HardwareServiceOrder.API.Controllers
 
         [Route("{customerId:Guid}/orders")]
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<ViewModels.HardwareServiceOrderResponse>), (int)HttpStatusCode.OK)]
+        //[ProducesResponseType(typeof(IEnumerable<ViewModels.HardwareServiceOrderResponse>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<HardwareServiceOrderDTO>), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, Guid? userId, [FromQuery] bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {

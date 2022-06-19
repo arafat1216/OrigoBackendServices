@@ -94,6 +94,8 @@ namespace HardwareServiceOrderServices
                     owner.UserId,
                     customerId,
                     serviceOrderDTO.AssetInfo.AssetLifecycleId,
+                    // TODO: Fix this as we should not have the category id in the child object..
+                    (serviceOrderDTO.AssetInfo.AssetCategoryId.HasValue) ? serviceOrderDTO.AssetInfo.AssetCategoryId.Value : 0,
                     new(
                         serviceOrderDTO.AssetInfo.Brand,
                         serviceOrderDTO.AssetInfo.Model,
