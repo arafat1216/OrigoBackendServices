@@ -61,7 +61,7 @@ namespace Common.EntityFramework
             if (eventData.Context is null)
                 throw new InvalidOperationException("DbContext is null!");
 
-            DateTimeOffset timestamp = DateTimeOffset.Now;
+            DateTimeOffset timestamp = DateTimeOffset.UtcNow;
 
             foreach (var entry in eventData.Context.ChangeTracker.Entries())
             {
