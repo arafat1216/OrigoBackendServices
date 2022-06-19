@@ -264,31 +264,6 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoHardwareServiceOrder> UpdateHardwareServiceOrderAsync(Guid customerId, Guid orderId, NewHardwareServiceOrder model)
-        {
-            try
-            {
-                var request = await HttpClient.PatchAsync($"{_options.ApiPath}/{customerId}/orders", JsonContent.Create(model));
-                request.EnsureSuccessStatusCode();
-                return await request.Content.ReadFromJsonAsync<OrigoHardwareServiceOrder>();
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "UpdateHardwareServiceOrderAsync failed with HttpRequestException.");
-                throw;
-            }
-            catch (NotSupportedException exception)
-            {
-                _logger.LogError(exception, "UpdateHardwareServiceOrderAsync failed with content type is not valid.");
-                throw;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "UpdateHardwareServiceOrderAsync unknown error.");
-                throw;
-            }
-        }
-
         public async Task<List<HardwareServiceOrderLog>> GetHardwareServiceOrderLogsAsync(Guid customerId, Guid orderId)
         {
             try

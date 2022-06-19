@@ -97,16 +97,6 @@ namespace HardwareServiceOrder.API.Controllers
             return Ok(_mapper.Map<ViewModels.HardwareServiceOrderResponseDTO>(dto));
         }
 
-        [Route("{customerId:Guid}/orders/{orderId:Guid}")]
-        [HttpPatch]
-        [ProducesResponseType(typeof(ViewModels.NewHardwareServiceOrder), (int)HttpStatusCode.OK)]
-        [SwaggerOperation(Tags = new[] { "Orders" })]
-        public async Task<IActionResult> UpdateHardwareServiceOrder(Guid customerId, Guid orderId, ViewModels.NewHardwareServiceOrder model)
-        {
-            var dto = _mapper.Map<HardwareServiceOrderDTO>(model);
-            var vm = _mapper.Map<ViewModels.NewHardwareServiceOrder>(await _hardwareServiceOrderService.UpdateHardwareServiceOrderAsync(customerId, orderId, dto));
-            return Ok(vm);
-        }
 
         [Route("{customerId:Guid}/orders")]
         [HttpGet]

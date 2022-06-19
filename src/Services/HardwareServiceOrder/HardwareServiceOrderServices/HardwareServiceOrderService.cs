@@ -227,10 +227,6 @@ namespace HardwareServiceOrderServices
             }
         }
 
-        public Task<HardwareServiceOrderDTO> UpdateHardwareServiceOrderAsync(Guid customerId, Guid orderId, HardwareServiceOrderDTO model)
-        {
-            throw new NotImplementedException();
-        }
 
         /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureCustomerServiceProviderAsync(int, Guid, string?, string?)"/>
         public async Task<string?> ConfigureCustomerServiceProviderAsync(int providerId, Guid customerId, string? apiUsername, string? apiPassword)

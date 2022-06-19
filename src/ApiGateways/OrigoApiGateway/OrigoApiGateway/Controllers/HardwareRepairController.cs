@@ -179,35 +179,6 @@ namespace OrigoApiGateway.Controllers
             return Ok(order);
         }
 
-        /// <summary>
-        /// Updates an existing hardware service order
-        /// </summary>
-        /// <param name="customerId">Customer Identifier</param>
-        /// <param name="orderId">Order Identifier</param>
-        /// <param name="model">Updated order</param>
-        /// <returns>Updated hardware service order</returns>
-        [Route("{customerId:Guid}/orders/{orderId:Guid}")]
-        [HttpPatch]
-        [ProducesResponseType(typeof(OrigoHardwareServiceOrder), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> UpdateHardwareServiceOrder(Guid customerId, Guid orderId, NewHardwareServiceOrder model)
-        {
-            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
-            {
-                return Forbid();
-            }
-
-            if (role != PredefinedRole.SystemAdmin.ToString())
-            {
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
-                {
-                    return Forbid();
-                }
-            }
-
-            return Ok();
-        }
 
         /// <summary>
         /// Gets list of hardware service orders for a customer
