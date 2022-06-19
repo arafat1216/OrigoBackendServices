@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HardwareServiceOrderServices.Models
+﻿namespace HardwareServiceOrderServices.Models
 {
+    /// <summary>
+    ///     A fixed, pre-populated list of <see cref="ServiceProvider"/> IDs.
+    /// </summary>
     public enum ServiceProviderEnum
     {
         /// <summary>
-        /// Id of conmodo service provider of Norway
+        /// The <see cref="ServiceProvider"/> ID for Conmodo Norway.
         /// </summary>
         ConmodoNo = 1
     }

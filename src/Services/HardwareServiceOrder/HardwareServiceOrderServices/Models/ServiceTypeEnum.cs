@@ -1,5 +1,8 @@
 ﻿namespace HardwareServiceOrderServices.Models
 {
+    /// <summary>
+    ///     A fixed, pre-populated list of <see cref="ServiceType"/> IDs.
+    /// </summary>
     public enum ServiceTypeEnum
     {
         /// <summary>
@@ -11,11 +14,13 @@
         /// <summary>
         ///     Not yet implemented.
         /// </summary>
+        [Obsolete("Currently not implemented / out of scope")]
         Recycle = 1,
 
         /// <summary>
         ///     Not yet implemented.
         /// </summary>
+        [Obsolete("Currently not implemented / out of scope")]
         Remarketing = 2,
 
         /// <summary>
@@ -23,7 +28,7 @@
         /// </summary>
         SUR = 3,
 
-
+        [Obsolete("Currently not implemented / out of scope")]
         SWAP = 4,
     }
 }

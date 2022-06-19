@@ -1,5 +1,8 @@
 ﻿namespace HardwareServiceOrderServices.Models
 {
+    /// <summary>
+    ///     A fixed, pre-populated list of <see cref="ServiceStatus"/> IDs.
+    /// </summary>
     public enum ServiceStatusEnum
     {
         /// <summary>
