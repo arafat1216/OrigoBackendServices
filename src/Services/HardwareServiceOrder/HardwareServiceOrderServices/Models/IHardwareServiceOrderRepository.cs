@@ -32,7 +32,7 @@ namespace HardwareServiceOrderServices.Models
         /// <returns></returns>
         Task<CustomerSettings> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, Guid callerId);
 
-        Task<CustomerSettings> GetSettingsAsync(Guid customerId);
+        Task<CustomerSettings?> GetSettingsAsync(Guid customerId);
 
         Task<string?> GetServiceIdAsync(Guid customerId);
 
@@ -43,7 +43,7 @@ namespace HardwareServiceOrderServices.Models
         /// </summary>
         /// <param name="orderId">Order identifier</param>
         /// <returns></returns>
-        Task<HardwareServiceOrder> GetOrderAsync(Guid orderId);
+        Task<HardwareServiceOrder?> GetOrderAsync(Guid orderId);
 
         /// <summary>
         /// Get order
@@ -51,7 +51,7 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="customerId">Customer Identifier</param>
         /// <param name="orderId">Order identifier</param>
         /// <returns></returns>
-        Task<HardwareServiceOrder> GetOrderAsync(Guid customerId, Guid orderId);
+        Task<HardwareServiceOrder?> GetOrderAsync(Guid customerId, Guid orderId);
 
         Task<PagedModel<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page, int limit, CancellationToken cancellationToken);
         /// <summary>
@@ -99,7 +99,7 @@ namespace HardwareServiceOrderServices.Models
         /// <returns>the provider</returns>
         Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid customerId, int providerId);
 
-        Task<ServiceType> GetServiceTypeAsync(int id);
-        Task<ServiceStatus> GetServiceStatusAsync(int id);
+        Task<ServiceType?> GetServiceTypeAsync(int id);
+        Task<ServiceStatus?> GetServiceStatusAsync(int id);
     }
 }

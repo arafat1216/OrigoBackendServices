@@ -1,7 +1,6 @@
 ﻿using Common.Extensions;
 using Common.Interfaces;
 using HardwareServiceOrderServices.Models;
-using HardwareServiceOrderServices.ServiceModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace HardwareServiceOrderServices.Infrastructure
@@ -9,12 +8,15 @@ namespace HardwareServiceOrderServices.Infrastructure
     public class HardwareServiceOrderRepository : IHardwareServiceOrderRepository
     {
         private readonly HardwareServiceOrderContext _hardwareServiceOrderContext;
+
+
         public HardwareServiceOrderRepository(HardwareServiceOrderContext hardwareServiceOrderContext)
         {
             _hardwareServiceOrderContext = hardwareServiceOrderContext;
         }
 
-        /// <inheritdoc cref="IHardwareServiceOrderRepository.ConfigureLoanPhoneAsync(Guid, string, string, Guid)"/>
+
+        /// <inheritdoc/>
         public async Task<CustomerSettings> ConfigureLoanPhoneAsync(
             Guid customerId,
             string loanPhoneNumber,
@@ -44,7 +46,7 @@ namespace HardwareServiceOrderServices.Infrastructure
         }
 
 
-        /// <inheritdoc cref="IHardwareServiceOrderRepository.ConfigureCustomerServiceProviderAsync(int, Guid, string?, string?)"/>
+        /// <inheritdoc/>
         public async Task<string?> ConfigureCustomerServiceProviderAsync(int providerId, Guid customerId, string? apiUsername, string? apiPassword)
         {
             var serviceProvider = await _hardwareServiceOrderContext.ServiceProviders.FirstOrDefaultAsync(m => m.Id == providerId);
@@ -73,13 +75,14 @@ namespace HardwareServiceOrderServices.Infrastructure
             existing.ApiPassword = apiPassword;
 
             _hardwareServiceOrderContext.Entry(existing).State = EntityState.Modified;
-            
+
             await _hardwareServiceOrderContext.SaveChangesAsync();
 
             return existing.ApiUserName;
         }
 
-        /// <inheritdoc cref="IHardwareServiceOrderRepository.ConfigureCustomerSettingsAsync(Guid, Guid)"/>
+
+        /// <inheritdoc/>
         public async Task<CustomerSettings> ConfigureCustomerSettingsAsync(Guid customerId, Guid callerId)
         {
             var settings = await GetSettingsAsync(customerId);
@@ -113,6 +116,8 @@ namespace HardwareServiceOrderServices.Infrastructure
             return await orders.ToListAsync();
         }
 
+
+        /// <inheritdoc/>
         public async Task<PagedModel<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page, int limit, CancellationToken cancellationToken)
         {
             var orders = _hardwareServiceOrderContext.HardwareServiceOrders
@@ -131,40 +136,52 @@ namespace HardwareServiceOrderServices.Infrastructure
 
         }
 
-        /// <inheritdoc cref="GetOrderAsync(Guid)"/>
-        public async Task<HardwareServiceOrder> GetOrderAsync(Guid orderId)
+
+        /// <inheritdoc/>
+        public async Task<HardwareServiceOrder?> GetOrderAsync(Guid orderId)
         {
             var order = await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == orderId);
             return order;
         }
 
-        public async Task<CustomerSettings> GetSettingsAsync(Guid customerId)
+
+        /// <inheritdoc/>
+        public async Task<HardwareServiceOrder?> GetOrderAsync(Guid customerId, Guid orderId)
+        {
+            return await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == orderId && m.CustomerId == customerId);
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<CustomerSettings?> GetSettingsAsync(Guid customerId)
         {
             return await _hardwareServiceOrderContext.CustomerSettings.FirstOrDefaultAsync(m => m.CustomerId == customerId);
         }
 
+
+        /// <inheritdoc/>
         public async Task<HardwareServiceOrder> CreateHardwareServiceOrder(HardwareServiceOrder serviceOrder)
         {
             var serviceType = await GetServiceTypeAsync((int)ServiceTypeEnum.SUR) ?? new ServiceType { Id = (int)ServiceTypeEnum.SUR };
             var serviceStatus = await GetServiceStatusAsync((int)ServiceStatusEnum.Registered);
             var serviceProvider = await GetCustomerServiceProviderAsync(serviceOrder.CustomerId, (int)ServiceProviderEnum.ConmodoNo);
 
-            if (serviceProvider == null || serviceType == null
-                || serviceStatus == null)
+            if (serviceProvider == null || serviceType == null || serviceStatus == null)
             {
                 throw new Exception();
             }
+
             _hardwareServiceOrderContext.HardwareServiceOrders.Add(serviceOrder);
-            //_hardwareServiceOrderContext.ServiceProviders.Add(serviceOrder.ServiceProvider);
-            //_hardwareServiceOrderContext.ServiceStatuses.Add(serviceOrder.Status);
-            //_hardwareServiceOrderContext.ServiceTypes.Add(serviceOrder.ServiceType);
+
             await _hardwareServiceOrderContext.SaveChangesAsync();
-            var savedHardwareServiceOrder = await _hardwareServiceOrderContext.HardwareServiceOrders
-              .FirstOrDefaultAsync(a => a.ExternalId == serviceOrder.ExternalId);
+
+            var savedHardwareServiceOrder = await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(a => a.ExternalId == serviceOrder.ExternalId);
+
             if (savedHardwareServiceOrder == null)
             {
                 throw new Exception();
             }
+
             return savedHardwareServiceOrder;
         }
 
@@ -196,6 +213,8 @@ namespace HardwareServiceOrderServices.Infrastructure
             return order;
         }
 
+
+        /// <inheritdoc/>
         public async Task<string?> GetServiceIdAsync(Guid customerId)
         {
             var entity = await _hardwareServiceOrderContext.CustomerServiceProviders.FirstOrDefaultAsync(m => m.CustomerId == customerId);
@@ -203,10 +222,13 @@ namespace HardwareServiceOrderServices.Infrastructure
             return entity?.ApiUserName;
         }
 
+
+        /// <inheritdoc/>
         public async Task<List<CustomerServiceProvider>> GetAllCustomerProvidersAsync()
         {
             return await _hardwareServiceOrderContext.CustomerServiceProviders.ToListAsync();
         }
+
 
         /// <inheritdoc cref="IHardwareServiceOrderRepository.GetOrderByServiceProviderOrderIdAsync(string)"/>
         public async Task<HardwareServiceOrder?> GetOrderByServiceProviderOrderIdAsync(string serviceProviderOrderId)
@@ -217,7 +239,8 @@ namespace HardwareServiceOrderServices.Infrastructure
                 .FirstOrDefaultAsync(m => m.ServiceProviderOrderId1 == serviceProviderOrderId);
         }
 
-        /// <inheritdoc cref="IHardwareServiceOrderRepository.UpdateCustomerProviderLastUpdateFetchedAsync(CustomerServiceProvider, DateTimeOffset)"/>
+
+        /// <inheritdoc/>
         public async Task UpdateCustomerProviderLastUpdateFetchedAsync(CustomerServiceProvider customerServiceProvider, DateTimeOffset lastUpdateFetched)
         {
             customerServiceProvider.LastUpdateFetched = lastUpdateFetched;
@@ -227,7 +250,8 @@ namespace HardwareServiceOrderServices.Infrastructure
             await _hardwareServiceOrderContext.SaveChangesAsync();
         }
 
-        /// <inheritdoc cref="IHardwareServiceOrderRepository.UpdateServiceEventsAsync(HardwareServiceOrder, IEnumerable{ServiceEvent})"/>
+
+        /// <inheritdoc/>
         public async Task UpdateServiceEventsAsync(HardwareServiceOrder order, IEnumerable<ServiceEvent> events)
         {
             foreach (var serviceEvent in events)
@@ -240,23 +264,22 @@ namespace HardwareServiceOrderServices.Infrastructure
             }
         }
 
-        public async Task<ServiceType> GetServiceTypeAsync(int id)
+
+        /// <inheritdoc/>
+        public async Task<ServiceType?> GetServiceTypeAsync(int id)
         {
             return await _hardwareServiceOrderContext.ServiceTypes.FirstOrDefaultAsync(m => m.Id == id);
         }
 
-        public async Task<ServiceStatus> GetServiceStatusAsync(int id)
+
+        /// <inheritdoc/>
+        public async Task<ServiceStatus?> GetServiceStatusAsync(int id)
         {
             return await _hardwareServiceOrderContext.ServiceStatuses.FirstOrDefaultAsync(m => m.Id == id);
         }
 
-        /// <inheritdoc cref="IHardwareServiceOrderRepository.GetOrderAsync(Guid, Guid)"/>
-        public async Task<HardwareServiceOrder> GetOrderAsync(Guid customerId, Guid orderId)
-        {
-            return await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == orderId && m.CustomerId == customerId);
-        }
 
-        /// <inheritdoc cref="IHardwareServiceOrderRepository.GetCustomerServiceProviderAsync(Guid, int)"/>
+        /// <inheritdoc/>
         public async Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid customerId, int providerId)
         {
             return await _hardwareServiceOrderContext.CustomerServiceProviders.FirstOrDefaultAsync(m => m.CustomerId == customerId && m.ServiceProviderId == providerId);
