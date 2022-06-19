@@ -1,6 +1,6 @@
 ﻿namespace HardwareServiceOrderServices.ServiceModels
 {
-    public class HardwareServiceOrderDTO
+    public class NewHardwareServiceOrderDTO
     {
         public DeliveryAddressDTO DeliveryAddress { get; set; }
         

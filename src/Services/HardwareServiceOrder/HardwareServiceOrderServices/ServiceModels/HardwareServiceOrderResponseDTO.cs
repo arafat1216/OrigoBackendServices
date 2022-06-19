@@ -2,7 +2,7 @@
 
 namespace HardwareServiceOrderServices.ServiceModels
 {
-    public class HardwareServiceOrderResponseDTO
+    public class HardwareServiceOrderDTO
     {
         public Guid Id { get; set; }
         public DateTimeOffset Created { get; set; }

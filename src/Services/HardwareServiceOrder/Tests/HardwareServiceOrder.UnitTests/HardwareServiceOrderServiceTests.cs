@@ -191,7 +191,7 @@ namespace HardwareServiceOrder.UnitTests
                 }
             };
 
-            var serviceOrderDTO = mapper.Map<HardwareServiceOrderDTO>(serviceOrder);
+            var serviceOrderDTO = mapper.Map<NewHardwareServiceOrderDTO>(serviceOrder);
 
 
             Assert.NotNull(serviceOrderDTO);
@@ -225,7 +225,7 @@ namespace HardwareServiceOrder.UnitTests
         [Fact]
         public async Task CreateHardwareServiceOrder()
         {
-            var serviceOrderDTO = new HardwareServiceOrderDTO
+            var serviceOrderDTO = new NewHardwareServiceOrderDTO
             {
                 ErrorDescription = "sd",
                 OrderedBy = new ContactDetailsExtendedDTO

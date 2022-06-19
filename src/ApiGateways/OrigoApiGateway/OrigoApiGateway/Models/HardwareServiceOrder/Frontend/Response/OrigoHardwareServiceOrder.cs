@@ -8,8 +8,6 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
     public class OrigoHardwareServiceOrder
     {
         public Guid Id { get; set; }
-        public DateTimeOffset Created { get; set; }
-        public DateTimeOffset? Updated { get; set; }
         public string Status { get; set; }
         public string Type { get; set; }
         public Guid Owner { get; set; }
@@ -19,5 +17,8 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
         public DeliveryAddress DeliveryAddress { get; set; }
         public string ErrorDescription { get; set; }
         public string ExternalServiceManagementLink { get; set; }
+        
+        public DateTimeOffset Created { get; set; }
+        public DateTimeOffset? Updated { get; set; }
     }
 }

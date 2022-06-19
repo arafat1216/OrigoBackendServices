@@ -49,7 +49,7 @@ namespace HardwareServiceOrderServices
             return dto;
         }
 
-        public async Task<HardwareServiceOrderResponseDTO> CreateHardwareServiceOrderAsync(Guid customerId, HardwareServiceOrderDTO serviceOrderDTO)
+        public async Task<HardwareServiceOrderDTO> CreateHardwareServiceOrderAsync(Guid customerId, NewHardwareServiceOrderDTO serviceOrderDTO)
         {
             var customerSetting = await GetSettingsAsync(customerId);
 
@@ -132,7 +132,7 @@ namespace HardwareServiceOrderServices
 
                 await _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMail, "en");
 
-                var responseDto = new HardwareServiceOrderResponseDTO
+                var responseDto = new HardwareServiceOrderDTO
                 {
                     Created = origoOrder.DateCreated,
                     Updated = origoOrder.DateUpdated,
@@ -158,11 +158,11 @@ namespace HardwareServiceOrderServices
         }
 
         /// <inheritdoc cref="IHardwareServiceOrderService.GetHardwareServiceOrderAsync(Guid, Guid)"/>
-        public async Task<HardwareServiceOrderResponseDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
+        public async Task<HardwareServiceOrderDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
         {
             var orderEntity = await _hardwareServiceOrderRepository.GetOrderAsync(orderId);
 
-            return _mapper.Map<HardwareServiceOrderResponseDTO>(orderEntity);
+            return _mapper.Map<HardwareServiceOrderDTO>(orderEntity);
         }
 
         public Task<List<HardwareServiceOrderLogDTO>> GetHardwareServiceOrderLogsAsync(Guid customerId, Guid orderId)
@@ -170,14 +170,14 @@ namespace HardwareServiceOrderServices
             throw new NotImplementedException();
         }
 
-        public async Task<PagedModel<HardwareServiceOrderResponseDTO>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
+        public async Task<PagedModel<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {
             var orderEntities = await _hardwareServiceOrderRepository.GetAllOrdersAsync(customerId, userId, activeOnly, page, limit, cancellationToken);
 
-            return new PagedModel<HardwareServiceOrderResponseDTO>
+            return new PagedModel<HardwareServiceOrderDTO>
             {
                 CurrentPage = orderEntities.CurrentPage,
-                Items = _mapper.Map<List<HardwareServiceOrderResponseDTO>>(orderEntities.Items),
+                Items = _mapper.Map<List<HardwareServiceOrderDTO>>(orderEntities.Items),
                 PageSize = orderEntities.PageSize,
                 TotalItems = orderEntities.TotalItems,
                 TotalPages = orderEntities.TotalPages

@@ -82,7 +82,7 @@ namespace HardwareServiceOrder.API.Controllers
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> CreateHardwareServiceOrder(Guid customerId, [FromBody] ViewModels.NewHardwareServiceOrder model)
         {
-            var dto = _mapper.Map<HardwareServiceOrderDTO>(model);
+            var dto = _mapper.Map<NewHardwareServiceOrderDTO>(model);
             var vm = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, dto);
             return Ok(_mapper.Map<ViewModels.HardwareServiceOrderResponseDTO>(vm));
         }
@@ -93,7 +93,7 @@ namespace HardwareServiceOrder.API.Controllers
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> GetHardwareServiceOrder(Guid customerId, Guid orderId)
         {
-            var dto = await _hardwareServiceOrderService.GetHardwareServiceOrderAsync(customerId, orderId) ?? new HardwareServiceOrderServices.ServiceModels.HardwareServiceOrderResponseDTO();
+            var dto = await _hardwareServiceOrderService.GetHardwareServiceOrderAsync(customerId, orderId) ?? new HardwareServiceOrderServices.ServiceModels.HardwareServiceOrderDTO();
             return Ok(_mapper.Map<ViewModels.HardwareServiceOrderResponseDTO>(dto));
         }
 

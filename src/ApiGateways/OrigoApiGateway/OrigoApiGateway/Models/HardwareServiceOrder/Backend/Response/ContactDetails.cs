@@ -4,6 +4,10 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response
 {
     public class ContactDetails
     {
+        /// <summary>
+        ///     A TEMPORARY alias for the <see cref="UserId"/> property. This is a temporarily alias to prevent breaking changes in the frontend following
+        ///     the renaming, but it will soon be removed!
+        /// </summary>
         [Obsolete("This value has been renamed to 'UserId'. This is a temporarily alias to prevent breaking changes, but it will soon be removed!")]
         public Guid Id
         {

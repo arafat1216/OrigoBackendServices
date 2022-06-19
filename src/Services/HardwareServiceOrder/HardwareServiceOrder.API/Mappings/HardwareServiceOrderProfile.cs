@@ -16,9 +16,9 @@ namespace HardwareServiceOrder.API.Mappings
                 
 
             //DTO to ViewModel
-            CreateMap<HardwareServiceOrderDTO, ViewModels.NewHardwareServiceOrder>();
+            CreateMap<NewHardwareServiceOrderDTO, ViewModels.NewHardwareServiceOrder>();
             CreateMap<DeliveryAddressDTO, ViewModels.DeliveryAddress>();
-            CreateMap<HardwareServiceOrderServices.ServiceModels.HardwareServiceOrderResponseDTO, ViewModels.HardwareServiceOrderResponseDTO>()
+            CreateMap<HardwareServiceOrderServices.ServiceModels.HardwareServiceOrderDTO, ViewModels.HardwareServiceOrderResponseDTO>()
                 .ForMember(d => d.Status, opts => opts.MapFrom(s => $"{s.Status}"))
                 .ForMember(d => d.Type, opts => opts.MapFrom(s => $"{s.Type}"))
                 .ForMember(d => d.ServiceProvider, opts => opts.MapFrom(s => $"{s.ServiceProvider}"));
@@ -33,7 +33,7 @@ namespace HardwareServiceOrder.API.Mappings
 
             CreateMap<ViewModels.ContactDetailsExtended, ContactDetailsExtendedDTO>();
 
-            CreateMap<NewHardwareServiceOrder, HardwareServiceOrderDTO>()
+            CreateMap<NewHardwareServiceOrder, NewHardwareServiceOrderDTO>()
                 .ForMember(dest => dest.DeliveryAddress, opt => opt.MapFrom(src => src.DeliveryAddress));
 
         }

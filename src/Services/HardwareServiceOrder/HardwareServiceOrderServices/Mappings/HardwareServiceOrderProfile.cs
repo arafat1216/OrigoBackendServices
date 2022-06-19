@@ -8,7 +8,7 @@ namespace HardwareServiceOrderServices.Mappings
     {
         public HardwareServiceOrderProfile()
         {
-            CreateMap<HardwareServiceOrder, HardwareServiceOrderResponseDTO>()
+            CreateMap<HardwareServiceOrder, HardwareServiceOrderDTO>()
                 .ForMember(m => m.Created, opts => opts.MapFrom(s => s.DateCreated))
                 .ForMember(m => m.Updated, opts => opts.MapFrom(s => s.DateCreated))
                 .ForMember(m => m.Id, opts => opts.MapFrom(s => s.ExternalId))
