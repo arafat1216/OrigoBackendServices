@@ -242,7 +242,7 @@ namespace HardwareServiceOrder.UnitTests
                     OrganizationNumber = "12",
                     PhoneNumber = "23"
                 },
-                AssetInfo = new AssetInfoDTO("sdh", "sd", "dssd", 1, "500119468586675", "500119468586675", new DateOnly(),
+                AssetInfo = new AssetInfoDTO( "sd", "dssd", 1, "500119468586675", "500119468586675", new DateOnly(),
             new List<string>
                 {
                         "sdsd"

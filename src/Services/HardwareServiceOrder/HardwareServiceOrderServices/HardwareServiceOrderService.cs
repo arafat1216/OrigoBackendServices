@@ -94,6 +94,14 @@ namespace HardwareServiceOrderServices
                     owner.UserId,
                     customerId,
                     serviceOrderDTO.AssetInfo.AssetLifecycleId,
+                    new(
+                        "Brand",
+                        "Model",
+                        new HashSet<string>() { "IMEI" },
+                        "S/N-12345",
+                        DateOnly.Parse("2020-01-01"),
+                        null
+                    ),
                     serviceOrderDTO.ErrorDescription,
                     owner,
                     deliveryAddress,
@@ -112,7 +120,7 @@ namespace HardwareServiceOrderServices
                 var orderConfirmationMail = new OrderConfirmationEmail
                 {
                     AssetId = $"{serviceOrderDTO.AssetInfo.AssetLifecycleId}",
-                    AssetName = serviceOrderDTO.AssetInfo.AssetName,
+                    AssetName = $"{serviceOrderDTO.AssetInfo.Brand} {serviceOrderDTO.AssetInfo.Model}",
                     FirstName = serviceOrderDTO.OrderedBy.FirstName,
                     OrderDate = origoOrder.DateCreated.UtcDateTime,
                     OrderLink = externalOrderResponseDTO.ExternalServiceManagementLink,

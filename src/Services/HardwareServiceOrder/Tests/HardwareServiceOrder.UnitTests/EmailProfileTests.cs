@@ -25,12 +25,14 @@ namespace HardwareServiceOrder.UnitTests
         {
             var deliveryAddress = new DeliveryAddress(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
             var contactDetails = new ContactDetails(Guid.NewGuid(), "FirstName", "LastName", "test@test.com", "PhoneNumber");
+            AssetInfo assetInfo = new("[AssetBrand]", "[AssetModel]", new HashSet<string>() { "527127734377463" }, "[SerialNumber]", DateOnly.Parse("2020-01-01"), null);
 
 #pragma warning disable CS0618 // Type or member is obsolete
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 Guid.NewGuid(),
+                assetInfo,
                 "UserDescription",
                 contactDetails,
                 deliveryAddress,

@@ -40,6 +40,14 @@ namespace HardwareServiceOrder.IntegrationTests
                     Guid.NewGuid(),
                     CUSTOMER_ONE_ID,
                     Guid.NewGuid(),
+                    new(
+                        "Brand",
+                        "Model",
+                        new HashSet<string>() { "IMEI" },
+                        "S/N-12345",
+                        DateOnly.Parse("2020-01-01"),
+                        null
+                    ),
                     "[UserDescription]",
                     new ContactDetails(
                         USER_ID, 

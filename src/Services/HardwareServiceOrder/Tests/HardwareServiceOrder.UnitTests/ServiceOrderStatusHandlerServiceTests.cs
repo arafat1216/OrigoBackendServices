@@ -34,6 +34,14 @@ namespace HardwareServiceOrder.UnitTests
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),
+                new(
+                    "[AssetBrand]",
+                    "[AssetModel]",
+                    new HashSet<string>() { "527127734377463" },
+                    "[SerialNumber]",
+                    DateOnly.Parse("2020-01-01"),
+                    null
+                ),
                 userDescription: "[UserDescription]",
                 owner: new ContactDetails(
                     userId: Guid.NewGuid(),
@@ -88,6 +96,14 @@ namespace HardwareServiceOrder.UnitTests
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),
+                new(
+                    "[AssetBrand]",
+                    "[AssetModel]",
+                    new HashSet<string>() { "527127734377463" },
+                    "[SerialNumber]",
+                    DateOnly.Parse("2020-01-01"),
+                    null
+                ),
                 userDescription: "[UserDescription]",
                 owner: new ContactDetails(
                     userId: Guid.NewGuid(),
@@ -136,6 +152,14 @@ namespace HardwareServiceOrder.UnitTests
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),
+                new(
+                    "[AssetBrand]",
+                    "[AssetModel]",
+                    new HashSet<string>() { "527127734377463" },
+                    "[SerialNumber]",
+                    DateOnly.Parse("2020-01-01"),
+                    null
+                ),
                 userDescription: "[UserDescription]",
                 owner: new ContactDetails(
                 userId: Guid.NewGuid(),
@@ -184,6 +208,14 @@ namespace HardwareServiceOrder.UnitTests
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),
+                new(
+                    "[AssetBrand]",
+                    "[AssetModel]",
+                    new HashSet<string>() { "527127734377463" },
+                    "[SerialNumber]",
+                    DateOnly.Parse("2020-01-01"),
+                    null
+                ),
                 userDescription: "[UserDescription]",
                 owner: new ContactDetails(
                 userId: Guid.NewGuid(),
@@ -229,33 +261,41 @@ namespace HardwareServiceOrder.UnitTests
         public async Task HandleCompletedStatus_CompletedDiscarded()
         {
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
-                          externalId: Guid.NewGuid(),
-                          customerId: Guid.NewGuid(),
-                          assetLifecycleId: Guid.NewGuid(),
-                          userDescription: "[UserDescription]",
-                          owner: new ContactDetails(
-                            userId: Guid.NewGuid(),
-                            firstName: "[FirstName]",
-                            lastName: "[LastName]",
-                            email: "[Email]",
-                            phoneNumber: "[PhoneNumber]"
-                          ),
-                          deliveryAddress: new DeliveryAddress(
-                              recipientType: RecipientTypeEnum.Personal,
-                              recipient: "[Recipient]",
-                              address1: "[Address1]",
-                              address2: "[Address2]",
-                              postalCode: "[PostalCode]",
-                              city: "[City]",
-                              country: "[Country]"),
-                          serviceTypeId: (int)ServiceTypeEnum.SUR,
-                          statusId: (int)ServiceStatusEnum.CompletedDiscarded,
-                          serviceProviderId: (int)ServiceProviderEnum.ConmodoNo,
-                          serviceProviderOrderId1: "[ServiceProviderOrderId1]",
-                          serviceProviderOrderId2: "[ServiceProviderOrderId2]",
-                          externalServiceManagementLink: "[ExternalServiceManagementLink]",
-                          serviceEvents: new List<ServiceEvent>()
-                      );
+                            externalId: Guid.NewGuid(),
+                            customerId: Guid.NewGuid(),
+                            assetLifecycleId: Guid.NewGuid(),
+                            new(
+                                "[AssetBrand]",
+                                "[AssetModel]",
+                                new HashSet<string>() { "527127734377463" },
+                                "[SerialNumber]",
+                                DateOnly.Parse("2020-01-01"),
+                                null
+                            ),
+                            userDescription: "[UserDescription]",
+                            owner: new ContactDetails(
+                                userId: Guid.NewGuid(),
+                                firstName: "[FirstName]",
+                                lastName: "[LastName]",
+                                email: "[Email]",
+                                phoneNumber: "[PhoneNumber]"
+                            ),
+                            deliveryAddress: new DeliveryAddress(
+                                recipientType: RecipientTypeEnum.Personal,
+                                recipient: "[Recipient]",
+                                address1: "[Address1]",
+                                address2: "[Address2]",
+                                postalCode: "[PostalCode]",
+                                city: "[City]",
+                                country: "[Country]"),
+                            serviceTypeId: (int)ServiceTypeEnum.SUR,
+                            statusId: (int)ServiceStatusEnum.CompletedDiscarded,
+                            serviceProviderId: (int)ServiceProviderEnum.ConmodoNo,
+                            serviceProviderOrderId1: "[ServiceProviderOrderId1]",
+                            serviceProviderOrderId2: "[ServiceProviderOrderId2]",
+                            externalServiceManagementLink: "[ExternalServiceManagementLink]",
+                            serviceEvents: new List<ServiceEvent>()
+            );
 
             var assetMock = new Mock<IAssetService>();
             assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<ISet<string>?>(), It.IsAny<string?>()));
@@ -280,6 +320,14 @@ namespace HardwareServiceOrder.UnitTests
                 externalId: Guid.NewGuid(),
                 customerId: Guid.NewGuid(),
                 assetLifecycleId: Guid.NewGuid(),
+                new(
+                    "[AssetBrand]",
+                    "[AssetModel]",
+                    new HashSet<string>() { "527127734377463" },
+                    "[SerialNumber]",
+                    DateOnly.Parse("2020-01-01"),
+                    null
+                ),
                 userDescription: "[UserDescription]",
                 owner: new ContactDetails(
                     userId: Guid.NewGuid(),

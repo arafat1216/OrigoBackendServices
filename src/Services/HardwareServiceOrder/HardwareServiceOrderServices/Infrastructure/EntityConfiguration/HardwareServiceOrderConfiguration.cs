@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Text.Json;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
@@ -86,6 +87,67 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             });
 
 
+            builder.OwnsOne(navigationExpression: o => o.AssetInfo, builder =>
+            {
+                // Convert the HashSet to a flat item so we don't need a separate table for the values
+                builder.Property(e => e.Imei)
+                       .HasConversion(
+                            v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)default),
+                            v => JsonSerializer.Deserialize<HashSet<string>?>(v, (JsonSerializerOptions?)default),
+                            valueComparer: new ValueComparer<HashSet<string>?>(
+                                (c1, c2) => c1.SequenceEqual(c2),
+                                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                                c => c.ToHashSet()
+                            )
+                        );
+
+                // Convert the List to a flat item so we don't need a separate table for the values
+                builder.Property(propertyExpression: e => e.Accessories)
+                       .HasConversion(
+                            v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)default),
+                            v => JsonSerializer.Deserialize<List<string>?>(v, (JsonSerializerOptions?)default),
+                            new ValueComparer<List<string>?>(
+                                (c1, c2) => c1!.SequenceEqual(c2),
+                                c => c!.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                                c => c!.ToList()
+                            )
+                        );
+            });
+
+            // If all nullable properties contain a null value in database then the object instance won't be created in the query. Therefore we set
+            // it as required as this enforces the creation, even if all it's properties are null (due to the navigation property being non-nullable)
+            builder.Navigation(p => p.AssetInfo)
+                   .IsRequired();
+
+
+            builder.OwnsOne(o => o.ReturnedAssetInfo, builder =>
+            {
+                // Convert the HashSet to a flat item so we don't need a separate table for the values
+                builder.Property(e => e.Imei)
+                       .HasConversion(
+                            v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)default),
+                            v => JsonSerializer.Deserialize<HashSet<string>?>(v, (JsonSerializerOptions?)default),
+                            valueComparer: new ValueComparer<HashSet<string>?>(
+                                (c1, c2) => c1.SequenceEqual(c2),
+                                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                                c => c.ToHashSet()
+                            )
+                        );
+
+                // Convert the List to a flat item so we don't need a separate table for the values
+                builder.Property(propertyExpression: e => e.Accessories)
+                       .HasConversion(
+                            v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)default),
+                            v => JsonSerializer.Deserialize<List<string>?>(v, (JsonSerializerOptions?)default),
+                            new ValueComparer<List<string>?>(
+                                (c1, c2) => c1!.SequenceEqual(c2),
+                                c => c!.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                                c => c!.ToList()
+                            )
+                        );
+            });
+
+
             builder.OwnsMany(e => e.ServiceEvents, builder =>
             {
 
@@ -95,7 +157,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                 if (_isSqlLite)
                 {
                     //Needed for unit testing using sqlite https://stackoverflow.com/questions/69819523/ef-core-owned-entity-shadow-pk-causes-null-constraint-violation-with-sqlite
-                    builder.HasKey("Id"); 
+                    builder.HasKey("Id");
                 }
 
                 builder.Property(e => e.Timestamp)

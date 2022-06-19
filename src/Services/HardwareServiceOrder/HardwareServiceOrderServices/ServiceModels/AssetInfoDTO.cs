@@ -10,31 +10,34 @@ namespace HardwareServiceOrderServices.ServiceModels
     public class AssetInfoDTO
     {
         /// <summary>
-        ///     The asset's brand. 
-        ///     This is required when creating a new service-request, but may be <see langword="null"/> when it's retrieved from the external service-provider.
+        ///     The asset's brand. <para>
+        ///     
+        ///     This is required when creating a new service-request, but may be <see langword="null"/> when it's retrieved from the external service-provider. </para>
         /// </summary>
         /// <example> Samsung </example>
         public string? Brand { get; set; }
 
         /// <summary>
-        ///     The asset's model.
-        ///     This is required when creating a new service-request, but may be <see langword="null"/> when it's retrieved from the external service-provider.
+        ///     The asset's model. <para>
+        ///     
+        ///     This is required when creating a new service-request, but may be <see langword="null"/> when it's retrieved from the external service-provider. </para>
         /// </summary>
         /// <example> Galaxy S7 </example>
         [Required]
         public string? Model { get; set; }
 
         /// <summary>
-        ///     The asset's category ID.
+        ///     The asset's category ID. <para>
+        ///     
+        ///     This is required when creating a new service-request, but may be <see langword="null"/> when it's retrieved from the external service-provider. </para>
         /// </summary>
         /// <example> 1 </example>
         [Required]
         public int? AssetCategoryId { get; set; }
 
         /// <summary>
-        ///     The asset's IMEI number, if available. <para>
-        ///     
-        ///     IMEI is always required for phones. For other asset-types this is required if <c><see cref="SerialNumber"/></c> is not provided. </para>
+        ///     The asset's IMEI number, if available. IMEI is always required for phones. For other asset-types this is required 
+        ///     if <c><see cref="SerialNumber"/></c> is not provided.
         /// </summary>
         /// <example> 498973602928506 </example>
         [RegularExpression("^[0-9]{14,15}$")]
@@ -43,9 +46,7 @@ namespace HardwareServiceOrderServices.ServiceModels
         public string? Imei { get; set; }
 
         /// <summary>
-        ///     The asset's serial-number. <para>
-        ///     
-        ///     Required if <c><see cref="Imei"/></c> is not provided. </para>
+        ///     The asset's serial-number. This is required if <c><see cref="Imei"/></c> is not provided. 
         /// </summary>
         public string? SerialNumber { get; set; }
 
@@ -61,9 +62,9 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// </summary>
         public IEnumerable<string>? Accessories { get; set; }
 
-        public Guid AssetLifecycleId { get; set; }
 
-        public string? AssetName { get; set; }
+        // TODO: This should be moved out of this model, and into the service-order entity!
+        public Guid AssetLifecycleId { get; set; }
 
 
         /// <summary>
@@ -126,11 +127,8 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// <param name="purchaseDate"> The original purchase-date. </param>
         /// <param name="accessories"> An optional list of accessories that is/will be sent in along with the asset. </param>
         /// <exception cref="ArgumentException"> Thrown if both <paramref name="imei"/> and <paramref name="serialNumber"/> is missing. </exception>
-        public AssetInfoDTO(string assetName, string brand, string model, int? assetCategoryId, string? imei, string? serialNumber, DateOnly? purchaseDate, IEnumerable<string>? accessories = null)
+        public AssetInfoDTO(string brand, string model, int? assetCategoryId, string? imei, string? serialNumber, DateOnly? purchaseDate, IEnumerable<string>? accessories = null)
         {
-            if (string.IsNullOrEmpty(imei) && string.IsNullOrEmpty(serialNumber))
-                throw new ArgumentException("Missing both IMEI and serial-number. Please provide at least one of the values.");
-            AssetName = assetName;
             Brand = brand;
             Model = model;
             AssetCategoryId = assetCategoryId;
@@ -139,5 +137,6 @@ namespace HardwareServiceOrderServices.ServiceModels
             PurchaseDate = purchaseDate;
             Accessories = accessories;
         }
+
     }
 }

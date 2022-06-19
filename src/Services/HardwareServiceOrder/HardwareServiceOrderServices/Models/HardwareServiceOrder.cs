@@ -24,6 +24,7 @@ namespace HardwareServiceOrderServices.Models
         /// </summary>
         /// <param name="customerId"> The ID for the customer's organization. </param>
         /// <param name="assetLifecycleId"> The items 'asset life-cycle ID'. </param>
+        /// <param name="assetInfo"> Information about the asset that was sent to the service-provider. </param>
         /// <param name="userDescription"> The users description. This is typically a fault-description stating whats wrong, and what needs to be done. </param>
         /// <param name="owner"> The user that owns and handles the service-order. </param>
         /// <param name="deliveryAddress"> The address that is used for all shipping/return labels to and from the customer/user. </param>
@@ -34,29 +35,31 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="serviceProviderOrderId2">  </param>
         /// <param name="externalServiceManagementLink">  </param>
         /// <param name="serviceEvents"> The service-events that was received from the service-provider. </param>
-        public HardwareServiceOrder(Guid customerId, Guid assetLifecycleId, string userDescription, ContactDetails owner, DeliveryAddress? deliveryAddress, int serviceTypeId, int statusId, int serviceProviderId, string serviceProviderOrderId1, string? serviceProviderOrderId2, string? externalServiceManagementLink, IEnumerable<ServiceEvent> serviceEvents) : base()
+        public HardwareServiceOrder(Guid customerId, Guid assetLifecycleId, AssetInfo assetInfo, string userDescription, ContactDetails owner, DeliveryAddress? deliveryAddress, int serviceTypeId, int statusId, int serviceProviderId, string serviceProviderOrderId1, string? serviceProviderOrderId2, string? externalServiceManagementLink, IEnumerable<ServiceEvent> serviceEvents) : base()
         {
             CustomerId = customerId;
             AssetLifecycleId = assetLifecycleId;
+            AssetInfo = assetInfo;
             UserDescription = userDescription;
-            ExternalServiceManagementLink = externalServiceManagementLink;
-            ServiceProviderOrderId1 = serviceProviderOrderId1;
-            ServiceProviderOrderId2 = serviceProviderOrderId2;
             Owner = owner;
             DeliveryAddress = deliveryAddress;
-            ServiceEvents = serviceEvents;
             ServiceTypeId = serviceTypeId;
             StatusId = statusId;
             ServiceProviderId = serviceProviderId;
+            ServiceProviderOrderId1 = serviceProviderOrderId1;
+            ServiceProviderOrderId2 = serviceProviderOrderId2;
+            ExternalServiceManagementLink = externalServiceManagementLink;
+            ServiceEvents = serviceEvents;
         }
 
 
         /// <summary>
         ///     Used for creating a new service-order after it's been registered in the service-provider's system.
         /// </summary>
-        /// <param name="externalId"> The external ID that uniquely identifies this service-request. </param>
+        /// <param name="externalId"> The service-order's external ID that uniquely identifies this service-request in our solution. </param>
         /// <param name="customerId"> The ID for the customer's organization. </param>
         /// <param name="assetLifecycleId"> The items 'asset life-cycle ID'. </param>
+        /// <param name="assetInfo"> Information about the asset that was sent to the service-provider. </param>
         /// <param name="userDescription"> The users description. This is typically a fault-description stating whats wrong, and what needs to be done. </param>
         /// <param name="owner"> The user that owns and handles the service-order. </param>
         /// <param name="deliveryAddress"> The address that is used for all shipping/return labels to and from the customer/user. </param>
@@ -71,6 +74,7 @@ namespace HardwareServiceOrderServices.Models
             Guid externalId,
             Guid customerId,
             Guid assetLifecycleId,
+            AssetInfo assetInfo,
             string userDescription,
             ContactDetails owner,
             DeliveryAddress? deliveryAddress,
@@ -86,16 +90,17 @@ namespace HardwareServiceOrderServices.Models
             ExternalId = externalId;
             CustomerId = customerId;
             AssetLifecycleId = assetLifecycleId;
+            AssetInfo = assetInfo;
             UserDescription = userDescription;
-            ExternalServiceManagementLink = externalServiceManagementLink;
-            ServiceProviderOrderId1 = serviceProviderOrderId1;
-            ServiceProviderOrderId2 = serviceProviderOrderId2;
             Owner = owner;
             DeliveryAddress = deliveryAddress;
-            ServiceEvents = serviceEvents;
             ServiceTypeId = serviceTypeId;
             StatusId = statusId;
             ServiceProviderId = serviceProviderId;
+            ServiceProviderOrderId1 = serviceProviderOrderId1;
+            ServiceProviderOrderId2 = serviceProviderOrderId2;
+            ExternalServiceManagementLink = externalServiceManagementLink;
+            ServiceEvents = serviceEvents;
         }
 
 
@@ -105,9 +110,10 @@ namespace HardwareServiceOrderServices.Models
         /// <remarks>
         ///     <b>This is a reserved constructor that is only intended for use with unit-testing.</b>
         /// </remarks>
-        /// <param name="externalId"> The external ID that uniquely identifies this service-request. </param>
+        /// <param name="externalId"> The service-order's external ID that uniquely identifies this service-request in our solution. </param>
         /// <param name="customerId"> The ID for the customer's organization. </param>
         /// <param name="assetLifecycleId"> The items 'asset life-cycle ID'. </param>
+        /// <param name="assetInfo"> Information about the asset that was sent to the service-provider. </param>
         /// <param name="userDescription"> The users description. This is typically a fault-description stating whats wrong, and what needs to be done. </param>
         /// <param name="owner"> The user that owns and handles the service-order. </param>
         /// <param name="deliveryAddress"> The address that is used for all shipping/return labels to and from the customer/user. </param>
@@ -130,6 +136,7 @@ namespace HardwareServiceOrderServices.Models
             Guid externalId,
             Guid customerId,
             Guid assetLifecycleId,
+            AssetInfo assetInfo,
             string userDescription,
             ContactDetails owner,
             DeliveryAddress? deliveryAddress,
@@ -152,16 +159,17 @@ namespace HardwareServiceOrderServices.Models
             ExternalId = externalId;
             CustomerId = customerId;
             AssetLifecycleId = assetLifecycleId;
+            AssetInfo = assetInfo;
             UserDescription = userDescription;
-            ExternalServiceManagementLink = externalServiceManagementLink;
-            ServiceProviderOrderId1 = serviceProviderOrderId1;
-            ServiceProviderOrderId2 = serviceProviderOrderId2;
             Owner = owner;
             DeliveryAddress = deliveryAddress;
-            ServiceEvents = serviceEvents;
             ServiceTypeId = serviceTypeId;
             StatusId = statusId;
             ServiceProviderId = serviceProviderId;
+            ServiceProviderOrderId1 = serviceProviderOrderId1;
+            ServiceProviderOrderId2 = serviceProviderOrderId2;
+            ExternalServiceManagementLink = externalServiceManagementLink;
+            ServiceEvents = serviceEvents;
         }
 
 
@@ -280,6 +288,20 @@ namespace HardwareServiceOrderServices.Models
         ///     This is required for repairs, but will be <see langword="null"/> for aftermarket services.</para>
         /// </summary>
         public DeliveryAddress? DeliveryAddress { get; set; }
+
+        /// <summary>
+        ///     The asset details that was provided when the service-order was created.
+        /// </summary>
+        public AssetInfo AssetInfo { get; set; }
+
+        /// <summary>
+        ///     The asset information that is returned from the service-provider once the service has been completed. <para>
+        ///     
+        ///     In most cases this object, or most of it's properties will be <see langword="null"/>. Typically only
+        ///     new or changed values are recorded here, such as new IMEI or serial-number when the user receive a replacement
+        ///     device. </para>
+        /// </summary>
+        public AssetInfo? ReturnedAssetInfo { get; set; }
 
         /// <summary>
         ///     Backing field for <see cref="ServiceEvents"/>
