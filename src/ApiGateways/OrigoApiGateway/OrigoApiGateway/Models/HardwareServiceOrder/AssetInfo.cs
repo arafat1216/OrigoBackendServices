@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
+#nullable enable
+
 namespace OrigoApiGateway.Models.HardwareServiceOrder
 {
     public class AssetInfo

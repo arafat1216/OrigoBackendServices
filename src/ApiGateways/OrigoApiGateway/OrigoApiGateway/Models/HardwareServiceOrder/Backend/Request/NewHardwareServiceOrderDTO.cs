@@ -1,6 +1,8 @@
 ﻿using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using System;
 
+#nullable enable
+
 namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request
 {
     public class NewHardwareServiceOrderDTO

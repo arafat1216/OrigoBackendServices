@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+#nullable enable
+
 namespace OrigoApiGateway.Models.HardwareServiceOrder
 {
     public class DeliveryAddress

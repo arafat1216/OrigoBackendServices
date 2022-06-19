@@ -1,5 +1,7 @@
 ﻿using System;
 
+#nullable enable
+
 namespace OrigoApiGateway.Models.HardwareServiceOrder
 {
     public class CustomerSettings

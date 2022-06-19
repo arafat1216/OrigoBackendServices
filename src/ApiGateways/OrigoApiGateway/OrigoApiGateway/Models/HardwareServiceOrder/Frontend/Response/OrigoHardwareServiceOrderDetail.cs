@@ -1,4 +1,8 @@
-﻿namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
+﻿
+
+#nullable enable
+
+namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
 {
     public class OrigoHardwareServiceOrderDetail : OrigoHardwareServiceOrder
     {

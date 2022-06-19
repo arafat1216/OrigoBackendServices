@@ -1,4 +1,8 @@
-﻿namespace OrigoApiGateway.Models.HardwareServiceOrder
+﻿
+
+#nullable enable
+
+namespace OrigoApiGateway.Models.HardwareServiceOrder
 {
     public class LoanDevice
     {

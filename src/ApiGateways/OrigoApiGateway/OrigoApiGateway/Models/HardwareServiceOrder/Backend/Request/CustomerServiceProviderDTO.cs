@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request
 {
     public class CustomerServiceProviderDTO

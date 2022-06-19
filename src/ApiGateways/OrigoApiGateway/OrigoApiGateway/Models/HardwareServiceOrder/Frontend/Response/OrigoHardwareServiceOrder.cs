@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
 {
     public class OrigoHardwareServiceOrder
