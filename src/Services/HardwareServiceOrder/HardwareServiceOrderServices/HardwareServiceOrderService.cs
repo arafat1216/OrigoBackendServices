@@ -89,18 +89,18 @@ namespace HardwareServiceOrderServices
                 var deliveryAddress = _mapper.Map<DeliveryAddress>(serviceOrderDTO.DeliveryAddress);
 
                 var owner = new ContactDetails(serviceOrderDTO.OrderedBy.UserId, serviceOrderDTO.OrderedBy.FirstName, serviceOrderDTO.OrderedBy.LastName, serviceOrderDTO.OrderedBy.Email, serviceOrderDTO.OrderedBy.PhoneNumber);
-                
+
                 var serviceOrder = new HardwareServiceOrder(
                     owner.UserId,
                     customerId,
                     serviceOrderDTO.AssetInfo.AssetLifecycleId,
                     new(
-                        "Brand",
-                        "Model",
-                        new HashSet<string>() { "IMEI" },
-                        "S/N-12345",
-                        DateOnly.Parse("2020-01-01"),
-                        null
+                        serviceOrderDTO.AssetInfo.Brand,
+                        serviceOrderDTO.AssetInfo.Model,
+                        string.IsNullOrEmpty(serviceOrderDTO.AssetInfo.Imei) ? null : new HashSet<string>() { serviceOrderDTO.AssetInfo.Imei }, // TODO: Change this to directly use a ISet
+                        serviceOrderDTO.AssetInfo.SerialNumber,
+                        serviceOrderDTO.AssetInfo.PurchaseDate,
+                        serviceOrderDTO.AssetInfo.Accessories
                     ),
                     serviceOrderDTO.ErrorDescription,
                     owner,
@@ -172,7 +172,7 @@ namespace HardwareServiceOrderServices
 
         public async Task<PagedModel<HardwareServiceOrderResponseDTO>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {
-            var orderEntities = await _hardwareServiceOrderRepository.GetAllOrdersAsync(customerId, userId,activeOnly, page, limit, cancellationToken);
+            var orderEntities = await _hardwareServiceOrderRepository.GetAllOrdersAsync(customerId, userId, activeOnly, page, limit, cancellationToken);
 
             return new PagedModel<HardwareServiceOrderResponseDTO>
             {
