@@ -26,14 +26,6 @@ namespace HardwareServiceOrderServices.Services
             _httpClient = httpClient;
         }
 
-        /// <inheritdoc/>
-        [Obsolete]
-        public async Task UpdateAssetLifeCycleStatusAsync(Guid customerId, Guid assetLifeCycleId, AssetLifecycleStatus status)
-        {
-            var requestBody = new List<Guid> { assetLifeCycleId };
-
-            throw new NotImplementedException();
-        }
 
         /// <inheritdoc/>
         public async Task UpdateAssetLifeCycleStatusAsync(Guid assetLifecycleId, ServiceStatusEnum newServiceStatus, IEnumerable<string>? newImeis, string? newSerialNumber)

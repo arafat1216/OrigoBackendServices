@@ -14,17 +14,6 @@ namespace HardwareServiceOrderServices.Services
     public interface IAssetService
     {
         /// <summary>
-        /// Update the status of an asset life cycle
-        /// </summary>
-        /// <param name="customerId">Customer identifier</param>
-        /// <param name="assetLifeCycleId">Asset life-cycle identifier</param>
-        /// <param name="status">New status of the asset life-cycle</param>
-        /// <returns></returns>
-        [Obsolete]
-        Task UpdateAssetLifeCycleStatusAsync(Guid customerId, Guid assetLifeCycleId, AssetLifecycleStatus status);
-
-
-        /// <summary>
         ///     Connects to the Asset-microservice, notifying it about new and updated service-statuses.
         /// </summary>
         /// <param name="assetLifecycleId"> The ID for the asset-lifecycle. </param>
