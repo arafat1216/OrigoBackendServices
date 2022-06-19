@@ -24,6 +24,6 @@ namespace HardwareServiceOrderServices.Services
         /// <exception cref="ArgumentNullException"> Thrown when <paramref name="newServiceStatus"/> has a <see langword="null"/> equivalent. </exception>
         /// <exception cref="NotImplementedException"> Thrown when a not-supported, or not implemented (out of scope) service-status is triggered. </exception>
         /// <exception cref="HttpRequestException"> Thrown when we fail to update the asset microservice. </exception>
-        Task UpdateAssetLifeCycleStatusAsync(Guid assetLifecycleId, ServiceStatusEnum newServiceStatus, IEnumerable<string>? newImeis, string? newSerialNumber);
+        Task UpdateAssetLifeCycleStatusAsync(Guid assetLifecycleId, ServiceStatusEnum newServiceStatus, ISet<string>? newImeis, string? newSerialNumber);
     }
 }

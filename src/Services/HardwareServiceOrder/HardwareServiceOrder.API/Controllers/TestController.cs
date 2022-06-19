@@ -182,7 +182,7 @@ namespace HardwareServiceOrder.API.Controllers
 
 
         [HttpPost("trigger-service-update/1")]
-        public async Task<ActionResult> TriggerServiceUpdate([FromQuery] Guid serviceOrderId, [FromQuery] ServiceStatusEnum newServiceStatus, [FromQuery] List<string>? newImeis = null, [FromQuery] string? newSerial = null)
+        public async Task<ActionResult> TriggerServiceUpdate([FromQuery] Guid serviceOrderId, [FromQuery] ServiceStatusEnum newServiceStatus, [FromQuery] HashSet<string>? newImeis = null, [FromQuery] string? newSerial = null)
         {
             var statusHandler = _serviceOrderStatusHandlers.ContainsKey(newServiceStatus) ? _serviceOrderStatusHandlers[newServiceStatus] : _serviceOrderStatusHandlers[ServiceStatusEnum.Unknown];
             await statusHandler.UpdateServiceOrderStatusAsync(serviceOrderId, newServiceStatus, newImeis, newSerial);

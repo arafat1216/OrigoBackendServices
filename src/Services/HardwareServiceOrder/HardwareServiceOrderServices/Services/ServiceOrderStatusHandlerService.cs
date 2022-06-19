@@ -36,6 +36,6 @@ namespace HardwareServiceOrderServices.Services
         /// <param name="newImeis"> If the device is replaced, a list containing the new asset's IMEI numbers. </param>
         /// <param name="newSerialNumber"> If the device is replaced, the asset's new serial-number. </param>
         /// <returns> The awaitiable task. </returns>
-        public abstract Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus, IEnumerable<string>? newImeis, string? newSerialNumber);
+        public abstract Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus, ISet<string>? newImeis, string? newSerialNumber);
     }
 }

@@ -29,7 +29,7 @@ namespace HardwareServiceOrderServices.Services
         }
 
         /// <inheritdoc/>
-        public override async Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus, IEnumerable<string>? newImeis, string? newSerialNumber)
+        public override async Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus, ISet<string>? newImeis, string? newSerialNumber)
         {
             var order = await _hardwareServiceOrderRepository.UpdateOrderStatusAsync(orderId, newStatus);
             

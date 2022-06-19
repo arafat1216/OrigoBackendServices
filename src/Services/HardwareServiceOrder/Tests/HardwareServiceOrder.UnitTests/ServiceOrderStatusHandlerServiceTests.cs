@@ -116,7 +116,7 @@ namespace HardwareServiceOrder.UnitTests
             );
 
             var assetMock = new Mock<IAssetService>();
-            assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<IEnumerable<string>?>(), It.IsAny<string?>()));
+            assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<ISet<string>?>(), It.IsAny<string?>()));
 
             var hwRepositoryMock = new Mock<IHardwareServiceOrderRepository>();
             hwRepositoryMock.Setup(m => m.UpdateOrderStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>()))
@@ -165,7 +165,7 @@ namespace HardwareServiceOrder.UnitTests
             );
 
             var assetMock = new Mock<IAssetService>();
-            assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<IEnumerable<string>?>(), It.IsAny<string?>()));
+            assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<ISet<string>?>(), It.IsAny<string?>()));
 
             var hwRepositoryMock = new Mock<IHardwareServiceOrderRepository>();
             hwRepositoryMock.Setup(m => m.UpdateOrderStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>()))
@@ -214,7 +214,7 @@ namespace HardwareServiceOrder.UnitTests
             );
 
             var assetMock = new Mock<IAssetService>();
-            assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<IEnumerable<string>?>(), It.IsAny<string?>()));
+            assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<ISet<string>?>(), It.IsAny<string?>()));
 
             var hwRepositoryMock = new Mock<IHardwareServiceOrderRepository>();
             hwRepositoryMock.Setup(m => m.UpdateOrderStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>()))
@@ -223,10 +223,10 @@ namespace HardwareServiceOrder.UnitTests
             var serviceOrderCompletedStatusHandlerService = new ServiceOrderCompletedStatusHandlerService(hwRepositoryMock.Object, assetMock.Object);
 
 
-            await serviceOrderCompletedStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.CompletedRepaired, new List<string>() { "IMEI" }, "SERIAL");
+            await serviceOrderCompletedStatusHandlerService.UpdateServiceOrderStatusAsync(orderId: Guid.NewGuid(), ServiceStatusEnum.CompletedRepaired, new HashSet<string>() { "IMEI" }, "SERIAL");
 
             // Verify
-            assetMock.Verify(m => m.UpdateAssetLifeCycleStatusAsync(order.AssetLifecycleId, ServiceStatusEnum.CompletedRepaired, new List<string>() { "IMEI" }, "SERIAL"), Times.Once());
+            assetMock.Verify(m => m.UpdateAssetLifeCycleStatusAsync(order.AssetLifecycleId, ServiceStatusEnum.CompletedRepaired, new HashSet<string>() { "IMEI" }, "SERIAL"), Times.Once());
         }
 
         [Fact]
@@ -263,7 +263,7 @@ namespace HardwareServiceOrder.UnitTests
                       );
 
             var assetMock = new Mock<IAssetService>();
-            assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<IEnumerable<string>?>(), It.IsAny<string?>()));
+            assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<ISet<string>?>(), It.IsAny<string?>()));
 
             var hwRepositoryMock = new Mock<IHardwareServiceOrderRepository>();
             hwRepositoryMock.Setup(m => m.UpdateOrderStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>()))
@@ -312,7 +312,7 @@ namespace HardwareServiceOrder.UnitTests
             );
 
             var assetMock = new Mock<IAssetService>();
-            assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<IEnumerable<string>?>(), It.IsAny<string?>()));
+            assetMock.Setup(m => m.UpdateAssetLifeCycleStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<ISet<string>?>(), It.IsAny<string?>()));
 
             var hwRepositoryMock = new Mock<IHardwareServiceOrderRepository>();
             hwRepositoryMock.Setup(m => m.UpdateOrderStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>()))

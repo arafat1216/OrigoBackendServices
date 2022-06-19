@@ -26,7 +26,7 @@ namespace HardwareServiceOrderServices.Services
         }
 
         /// <inheritdoc/>
-        public override async Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus, IEnumerable<string>? newImeis, string? newSerialNumber)
+        public override async Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus, ISet<string>? newImeis, string? newSerialNumber)
         {
             if (newStatus != ServiceStatusEnum.Unknown)
                 throw new ArgumentException("This handler can't handle this status");

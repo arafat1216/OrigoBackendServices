@@ -28,7 +28,7 @@ namespace HardwareServiceOrderServices.Services
 
 
         /// <inheritdoc/>
-        public async Task UpdateAssetLifeCycleStatusAsync(Guid assetLifecycleId, ServiceStatusEnum newServiceStatus, IEnumerable<string>? newImeis, string? newSerialNumber)
+        public async Task UpdateAssetLifeCycleStatusAsync(Guid assetLifecycleId, ServiceStatusEnum newServiceStatus, ISet<string>? newImeis, string? newSerialNumber)
         {
             HttpResponseMessage? result = null;
 

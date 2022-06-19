@@ -122,7 +122,7 @@ namespace HardwareServiceOrder.IntegrationTests
                 var statusHandlMock = new Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService>();
 
                 var serviceOrderStatusHandlerServiceMock = new Mock<ServiceOrderStatusHandlerService>();
-                serviceOrderStatusHandlerServiceMock.Setup(m => m.UpdateServiceOrderStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<IEnumerable<string>>(), It.IsAny<string>()));
+                serviceOrderStatusHandlerServiceMock.Setup(m => m.UpdateServiceOrderStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<ISet<string>>(), It.IsAny<string>()));
 
                 statusHandlMock.Add(ServiceStatusEnum.Unknown, serviceOrderStatusHandlerServiceMock.Object);
 
