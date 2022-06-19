@@ -1,4 +1,5 @@
-﻿using Common.EntityFramework;
+﻿using Common.Converters.EntityFramework;
+using Common.EntityFramework;
 using HardwareServiceOrderServices.Infrastructure.EntityConfiguration;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.SeedData;
@@ -58,5 +59,31 @@ namespace HardwareServiceOrderServices.Infrastructure
                 optionsBuilder.AddInterceptors(new SaveContextChangesInterceptor(apiRequesterService?.AuthenticatedUserId));
         }
 
+
+        // Add support for DataOnly conversions, as this is currently not fully implemented in all of EF's database extensions.
+        /// <inheritdoc/>
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            if (IsSQLite)
+            {
+                configurationBuilder.Properties<DateOnly>()
+                                    .HaveConversion<DateOnlyConverter>();
+
+                configurationBuilder.Properties<DateOnly?>()
+                                    .HaveConversion<NullableDateOnlyConverter>();
+            }
+            else
+            {
+                configurationBuilder.Properties<DateOnly>()
+                                    .HaveConversion<DateOnlyConverter>()
+                                    .HaveColumnType("date");
+
+                configurationBuilder.Properties<DateOnly?>()
+                                    .HaveConversion<NullableDateOnlyConverter>()
+                                    .HaveColumnType("date");
+            }
+
+            base.ConfigureConventions(configurationBuilder);
+        }
     }
 }
