@@ -1,4 +1,4 @@
-﻿namespace HardwareServiceOrderServices
+﻿namespace HardwareServiceOrderServices.Configuration
 {
     public record ServiceProviderConfiguration
     {

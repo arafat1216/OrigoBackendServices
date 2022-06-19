@@ -1,4 +1,5 @@
-﻿using HardwareServiceOrderServices.Models;
+﻿using HardwareServiceOrderServices.Configuration;
+using HardwareServiceOrderServices.Models;
 using Microsoft.Extensions.Options;
 
 namespace HardwareServiceOrderServices
