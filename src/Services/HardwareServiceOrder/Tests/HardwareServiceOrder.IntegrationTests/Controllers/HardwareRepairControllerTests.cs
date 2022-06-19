@@ -10,6 +10,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Common.Extensions;
 using System.Collections.Generic;
+using HardwareServiceOrderServices.Models;
 
 namespace HardwareServiceOrder.IntegrationTests.Controllers
 {
@@ -49,7 +50,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         [Fact]
         public async Task ConfigureSur()
         {
-            var customerServiceProvider = new CustomerServiceProvider
+            var customerServiceProvider = new HardwareServiceOrder.API.ViewModels.CustomerServiceProvider
             {
                 ApiPassword = "****",
                 ApiUserName = "12345",
@@ -101,12 +102,12 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var url = $"/api/v1/hardware-repair/{_customerId}/orders?page=1&limit=10";
             _testOutputHelper.WriteLine(url);
             var request = await _httpClient.GetAsync(url);
-            var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponseDTO>>();
+            var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponse>>();
             Assert.NotNull(orders);
             Assert.NotNull(orders.Items);
-            Assert.NotNull(orders.Items[0].Events);
+            Assert.NotNull(orders.Items[0].ServiceEvents);
             Assert.NotNull(orders.Items[0].ExternalServiceManagementLink);
-            Assert.NotNull(orders.Items[0].ErrorDescription);
+            Assert.NotNull(orders.Items[0].UserDescription);
             Assert.NotNull(orders.Items[0].DeliveryAddress);
         }
 
@@ -117,11 +118,11 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var url = $"/api/v1/hardware-repair/{_customerId}/orders?userId={userId}&page=1&limit=10";
             _testOutputHelper.WriteLine(url);
             var request = await _httpClient.GetAsync(url);
-            var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponseDTO>>();
+            var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponse>>();
             Assert.NotNull(orders);
             Assert.Equal(1, orders.Items.Count);
             Assert.NotNull(orders.Items[0].ExternalServiceManagementLink);
-            Assert.NotNull(orders.Items[0].ErrorDescription);
+            Assert.NotNull(orders.Items[0].UserDescription);
             Assert.NotNull(orders.Items[0].DeliveryAddress);
         }
 
@@ -132,10 +133,10 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var url = $"/api/v1/hardware-repair/{_customerId}/orders?activeOnly={true}&page=1&limit=10";
             _testOutputHelper.WriteLine(url);
             var request = await _httpClient.GetAsync(url);
-            var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponseDTO>>();
+            var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponse>>();
             Assert.NotNull(orders);
             Assert.NotNull(orders.Items[0].ExternalServiceManagementLink);
-            Assert.NotNull(orders.Items[0].ErrorDescription);
+            Assert.NotNull(orders.Items[0].UserDescription);
             Assert.NotNull(orders.Items[0].DeliveryAddress);
         }
 
@@ -170,7 +171,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
                     OrganizationNumber = "987654321",
                     PhoneNumber = "+4790000000"
                 },
-                AssetInfo = new AssetInfo
+                AssetInfo = new()
                 {
                     Imei = "500119468586675",
                     AssetCategoryId = 1,
@@ -185,7 +186,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
                         "Charger"
                     }
                 },
-                DeliveryAddress = new DeliveryAddress
+                DeliveryAddress = new()
                 {
                     RecipientType = HardwareServiceOrderServices.Models.RecipientTypeEnum.Personal,
                     Recipient = "Recipient",
@@ -201,12 +202,12 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var response = await _httpClient.PostAsJsonAsync(request, body);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var hardwareServiceOrder = await response.Content.ReadFromJsonAsync<HardwareServiceOrderResponseDTO>();
+            var hardwareServiceOrder = await response.Content.ReadFromJsonAsync<HardwareServiceOrderResponse>();
 
-            Assert.Equal("Registered", hardwareServiceOrder.Status);
-            Assert.Equal("SUR", hardwareServiceOrder.Type);
-            Assert.Equal(_customerId, hardwareServiceOrder.Owner);
+            Assert.Equal((int)ServiceStatusEnum.Registered, hardwareServiceOrder.StatusId);
+            Assert.Equal((int)ServiceTypeEnum.SUR, hardwareServiceOrder.ServiceTypeId);
+            Assert.Equal(_customerId, hardwareServiceOrder.CustomerId);
         }
-    
+
     }
 }

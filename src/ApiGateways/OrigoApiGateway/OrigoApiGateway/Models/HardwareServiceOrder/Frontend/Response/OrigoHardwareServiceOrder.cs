@@ -1,24 +1,157 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#nullable enable
 
-#nullable enable
+using Common.Seedwork;
+using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
 
 namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
 {
-    public class OrigoHardwareServiceOrder
+    public class HardwareServiceOrder
     {
+        /// <inheritdoc cref="HardwareServiceOrderDTO.ExternalId"/>
+        /// <example> 00000000-0000-0000-0000-000000000000 </example>
+        [Required]
+        [SwaggerSchema(ReadOnly = true)]
         public Guid Id { get; set; }
-        public string Status { get; set; }
-        public string Type { get; set; }
-        public Guid Owner { get; set; }
-        public string ServiceProvider { get; set; }
-        public IEnumerable<ServiceEvent> Events { get; set; }
+
+        /// <inheritdoc cref="HardwareServiceOrderDTO.CustomerId"/>
+        /// <example> 00000000-0000-0000-0000-000000000000 </example>
+        [Required]
+        public Guid CustomerId { get; set; }
+
+        /// <inheritdoc cref="HardwareServiceOrderDTO.AssetLifecycleId"/>
+        /// <example> 00000000-0000-0000-0000-000000000000 </example>
+        [Required]
         public Guid AssetLifecycleId { get; set; }
-        public DeliveryAddress DeliveryAddress { get; set; }
-        public string ErrorDescription { get; set; }
-        public string ExternalServiceManagementLink { get; set; }
-        
-        public DateTimeOffset Created { get; set; }
-        public DateTimeOffset? Updated { get; set; }
+
+        /// <inheritdoc cref="HardwareServiceOrderDTO.AssetInfo"/>
+        [Required]
+        public AssetInfo AssetInfo { get; set; }
+
+        /// <inheritdoc cref="HardwareServiceOrderDTO.ReturnedAssetInfo"/>
+        [SwaggerSchema(ReadOnly = true)]
+        public AssetInfo? ReturnedAssetInfo { get; set; }
+
+        /// <inheritdoc cref="HardwareServiceOrderDTO.UserDescription"/>
+        /// <example> I dropped the device, and now the screen needs to be replaced. </example>
+        [Required]
+        public string UserDescription { get; set; }
+
+        /// <inheritdoc cref="HardwareServiceOrderDTO.Owner"/>
+        [Required]
+        public ContactDetails Owner { get; set; }
+
+        /// <inheritdoc cref="HardwareServiceOrderDTO.DeliveryAddress"/>
+        [Required]
+        public DeliveryAddress? DeliveryAddress { get; set; }
+
+        /// <summary>
+        ///     The identifier for the service-type that has been registered on this service-order.
+        /// </summary>
+        [Required]
+        public int ServiceTypeId { get; set; }
+
+        /// <summary>
+        ///     The identifier for the service-order's current status.
+        /// </summary>
+        [Required]
+        [SwaggerSchema(ReadOnly = true)]
+        public int StatusId { get; set; }
+
+        /// <summary>
+        ///     The identifier for service-provider that handles this service-order.
+        /// </summary>
+        [Required]
+        public int ServiceProviderId { get; set; }
+
+        /// <inheritdoc cref="HardwareServiceOrderDTO.ExternalServiceManagementLink"/>
+        /// <example> https://www.my-service-provider.com/order/123456?username=1234&password=1234 </example>
+        [SwaggerSchema(ReadOnly = true)]
+        public string? ExternalServiceManagementLink { get; set; }
+
+        /// <inheritdoc cref="HardwareServiceOrderDTO.ServiceEvents"/>
+        [Required]
+        [SwaggerSchema(ReadOnly = true)]
+        public IEnumerable<ServiceEvent> ServiceEvents { get; set; }
+
+        /// <inheritdoc cref="Auditable.DateCreated"/>
+        [Required]
+        [SwaggerSchema(ReadOnly = true)]
+        public DateTimeOffset DateCreated { get; init; }
+
+        /// <inheritdoc cref="Auditable.CreatedBy"/>
+        [SwaggerSchema(ReadOnly = true)]
+        public Guid CreatedBy { get; init; }
+
+        /// <inheritdoc cref="Auditable.DateUpdated"/>
+        [SwaggerSchema(ReadOnly = true)]
+        public DateTimeOffset? DateUpdated { get; init; }
+
+        /// <inheritdoc cref="Auditable.UpdatedBy"/>
+        [SwaggerSchema(ReadOnly = true)]
+        public Guid? UpdatedBy { get; init; }
+
+
+
+        // TODO: Below this point is temp. remapped or hardcoded entries and is purely for not breaking the frontend while the refactoring is ongoing.
+
+
+        [Obsolete("This is removed and replaced with the 'StatusId' identifier.")]
+        [SwaggerSchema(ReadOnly = true)]
+        public string? Status { get; }
+
+        [Obsolete("This is removed and replaced with the 'ServiceProviderId' identifier. It will temporarily allow for mapping between them, but is limited to 'ConmodoNo'.")]
+        public string? ServiceProvider
+        {
+            get
+            {
+                if (ServiceProviderId == 1) return "ConmodoNo";
+                else return null;
+            }
+            set
+            {
+                if (!string.IsNullOrEmpty(value) && value.Equals("ConmodoNo"))
+                {
+                    ServiceProviderId = 1;
+                }
+            }
+        }
+
+
+        [Obsolete("This is removed and replaced with the 'TypeId' identifier. It will temporarily allow for mapping between them, but is limited to 'SUR'.")]
+        public string? Type
+        {
+            get
+            {
+                if (ServiceTypeId == 3) return "SUR";
+                else return null;
+            }
+            set
+            {
+                if (!string.IsNullOrEmpty(value) && value.Equals("SUR"))
+                {
+                    ServiceTypeId = 3;
+                }
+            }
+        }
+
+        //[Obsolete("This have been removed. Use 'Owner.UserId' instead.")]
+        //[SwaggerSchema(ReadOnly = true)]
+        //public Guid? Owner { get; } // get from somewhere else
+
+        [Obsolete("Renamed to 'ServiceEvents'. This temporary alias will be removed in an upcoming commit.")]
+        [SwaggerSchema(ReadOnly = true)]
+        public IEnumerable<ServiceEvent> Events { get { return ServiceEvents; } }
+
+        [Obsolete("Renamed to 'UserDescription'. This temporary alias will be removed in an upcoming commit.")]
+        [SwaggerSchema(ReadOnly = true)]
+        public string ErrorDescription { get { return UserDescription; } }
+
+        [Obsolete("Renamed to 'DateCreated'. This temporary alias will be removed in an upcoming commit.")]
+        [SwaggerSchema(ReadOnly = true)]
+        public DateTimeOffset Created { get { return DateCreated; } }
+
+        [Obsolete("Renamed to 'DateUpdated'. This temporary alias will be removed in an upcoming commit.")]
+        [SwaggerSchema(ReadOnly = true)]
+        public DateTimeOffset? Updated { get { return DateUpdated; } }
     }
 }

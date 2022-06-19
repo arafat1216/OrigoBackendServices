@@ -132,27 +132,12 @@ namespace HardwareServiceOrderServices
 
                 await _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMail, "en");
 
-                var responseDto = new HardwareServiceOrderDTO
-                {
-                    Created = origoOrder.DateCreated,
-                    Updated = origoOrder.DateUpdated,
-                    Id = origoOrder.ExternalId,
-                    Events = new List<ExternalServiceEventDTO> { },
-                    Owner = origoOrder.Owner.UserId,
-                    ServiceProvider = (ServiceProviderEnum)origoOrder.ServiceProviderId,
-                    Status = (ServiceStatusEnum)origoOrder.StatusId,
-                    Type = (ServiceTypeEnum)origoOrder.ServiceTypeId,
-                    AssetLifecycleId = origoOrder.AssetLifecycleId,
-                    ErrorDescription = origoOrder.UserDescription,
-                    ExternalServiceManagementLink = origoOrder.ExternalServiceManagementLink,
-                    DeliveryAddress = _mapper.Map<DeliveryAddressDTO>(origoOrder.DeliveryAddress)
-                };
+                var responseDto = _mapper.Map<HardwareServiceOrderDTO>(origoOrder);
 
                 return responseDto;
             }
             catch (Exception ex)
             {
-
                 throw;
             }
         }

@@ -4,11 +4,11 @@ using HardwareServiceOrderServices.ServiceModels;
 
 namespace HardwareServiceOrderServices.Mappings
 {
-    public class HardwareServiceOrderProfile : Profile
+    public class AssetInfoProfile : Profile
     {
-        public HardwareServiceOrderProfile()
+        public AssetInfoProfile()
         {
-            CreateMap<HardwareServiceOrder, HardwareServiceOrderDTO>();
+            CreateMap<AssetInfo, AssetInfoDTO>();
         }
     }
 }

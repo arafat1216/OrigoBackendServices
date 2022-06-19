@@ -118,7 +118,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoHardwareServiceOrder> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, NewHardwareServiceOrder model)
+        public async Task<HardwareServiceOrder> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, NewHardwareServiceOrder model)
         {
             try
             {
@@ -181,7 +181,7 @@ namespace OrigoApiGateway.Services
 
                 var request = await HttpClient.PostAsync($"{_options.ApiPath}/{customerId}/orders", JsonContent.Create(dto));
                 request.EnsureSuccessStatusCode();
-                return await request.Content.ReadFromJsonAsync<OrigoHardwareServiceOrder>();
+                return await request.Content.ReadFromJsonAsync<HardwareServiceOrder>();
             }
             catch (HttpRequestException exception)
             {
@@ -231,11 +231,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<PagedModel<OrigoHardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page = 1, int limit = 25)
+        public async Task<PagedModel<HardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page = 1, int limit = 25)
         {
             try
             {
-                var response = await HttpClient.GetFromJsonAsync<PagedModel<OrigoHardwareServiceOrder>>($"{_options.ApiPath}/{customerId}/orders?userId={userId}&activeOnly={activeOnly}&page={page}&limit={limit}");
+                var response = await HttpClient.GetFromJsonAsync<PagedModel<HardwareServiceOrder>>($"{_options.ApiPath}/{customerId}/orders?userId={userId}&activeOnly={activeOnly}&page={page}&limit={limit}");
                 return response;
             }
             catch (HttpRequestException exception)

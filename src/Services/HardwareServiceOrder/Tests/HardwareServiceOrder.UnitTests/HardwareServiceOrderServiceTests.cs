@@ -262,9 +262,9 @@ namespace HardwareServiceOrder.UnitTests
             var hardwareServiceOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(CUSTOMER_ONE_ID, serviceOrderDTO);
 
             Assert.NotNull(hardwareServiceOrder);
-            Assert.Equal(ServiceStatusEnum.Registered, hardwareServiceOrder.Status);
-            Assert.Equal(ServiceTypeEnum.SUR, hardwareServiceOrder.Type);
-            Assert.Equal(CUSTOMER_ONE_ID, hardwareServiceOrder.Owner);
+            Assert.Equal((int)ServiceStatusEnum.Registered, hardwareServiceOrder.StatusId);
+            Assert.Equal((int)ServiceTypeEnum.SUR, hardwareServiceOrder.ServiceTypeId);
+            Assert.Equal(CUSTOMER_ONE_ID, hardwareServiceOrder.CustomerId);
         }
 
         [Fact]
@@ -293,7 +293,7 @@ namespace HardwareServiceOrder.UnitTests
 
             Assert.NotNull(orders);
 
-            Assert.Equal(2, orders[0].Events.ElementAt(0).ServiceStatusId);
+            Assert.Equal(2, orders[0].ServiceEvents.ElementAt(0).ServiceStatusId);
         }
 
     }

@@ -17,9 +17,9 @@ namespace OrigoApiGateway.Services
         Task<CustomerSettings> GetSettingsAsync(Guid customerId);
 
         //Hardware Service Order
-        Task<OrigoHardwareServiceOrder> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, NewHardwareServiceOrder model);
+        Task<HardwareServiceOrder> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, NewHardwareServiceOrder model);
         Task<OrigoHardwareServiceOrderDetail> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId);
-        Task<PagedModel<OrigoHardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page = 1, int limit = 25);
+        Task<PagedModel<HardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page = 1, int limit = 25);
         Task<List<HardwareServiceOrderLog>> GetHardwareServiceOrderLogsAsync(Guid customerId, Guid orderId);
     }
 }

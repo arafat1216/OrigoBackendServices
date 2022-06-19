@@ -121,7 +121,7 @@ namespace OrigoApiGateway.Controllers
         /// <returns>New hardware service order</returns>
         [Route("{customerId:Guid}/orders")]
         [HttpPost]
-        [ProducesResponseType(typeof(OrigoHardwareServiceOrder), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(HardwareServiceOrder), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateHardwareServiceOrder(Guid customerId, [FromBody] NewHardwareServiceOrder model)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -157,7 +157,7 @@ namespace OrigoApiGateway.Controllers
         /// <returns>Existing hardware service order</returns>
         [Route("{customerId:Guid}/orders/{orderId:Guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(OrigoHardwareServiceOrder), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(HardwareServiceOrder), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetHardwareServiceOrder(Guid customerId, Guid orderId)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -190,7 +190,7 @@ namespace OrigoApiGateway.Controllers
         /// <returns>List of hardware service orders</returns>
         [Route("{customerId:Guid}/orders")]
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<OrigoHardwareServiceOrder>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<HardwareServiceOrder>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, string userId, [FromQuery] bool activeOnly = false, int page = 1, int limit = 25)
          {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;

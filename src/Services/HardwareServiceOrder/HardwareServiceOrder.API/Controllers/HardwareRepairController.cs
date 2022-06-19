@@ -78,42 +78,51 @@ namespace HardwareServiceOrder.API.Controllers
 
         [Route("{customerId:Guid}/orders")]
         [HttpPost]
-        [ProducesResponseType(typeof(ViewModels.HardwareServiceOrderResponseDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ViewModels.HardwareServiceOrderResponse), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> CreateHardwareServiceOrder(Guid customerId, [FromBody] ViewModels.NewHardwareServiceOrder model)
         {
             var dto = _mapper.Map<NewHardwareServiceOrderDTO>(model);
             var vm = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, dto);
-            return Ok(_mapper.Map<ViewModels.HardwareServiceOrderResponseDTO>(vm));
+
+            //return Ok(_mapper.Map<ViewModels.HardwareServiceOrderResponse>(vm));
+            return Ok(vm);
         }
 
         [Route("{customerId:Guid}/orders/{orderId:Guid}")]
         [HttpGet]
-        [ProducesResponseType(typeof(ViewModels.HardwareServiceOrderResponseDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ViewModels.HardwareServiceOrderResponse), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> GetHardwareServiceOrder(Guid customerId, Guid orderId)
         {
             var dto = await _hardwareServiceOrderService.GetHardwareServiceOrderAsync(customerId, orderId) ?? new HardwareServiceOrderServices.ServiceModels.HardwareServiceOrderDTO();
-            return Ok(_mapper.Map<ViewModels.HardwareServiceOrderResponseDTO>(dto));
+
+            //return Ok(_mapper.Map<ViewModels.HardwareServiceOrderResponse>(dto));
+            return Ok(dto);
         }
 
 
         [Route("{customerId:Guid}/orders")]
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<ViewModels.HardwareServiceOrderResponseDTO>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<ViewModels.HardwareServiceOrderResponse>), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, Guid? userId, [FromQuery] bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {
             var dto = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(customerId, userId,activeOnly, cancellationToken, page, limit);
-            var response = new PagedModel<ViewModels.HardwareServiceOrderResponseDTO>
+            
+            /*
+            var response = new PagedModel<ViewModels.HardwareServiceOrderResponse>
             {
                 TotalPages = dto.TotalPages,
                 TotalItems = dto.TotalItems,
                 PageSize = dto.PageSize,
-                Items = _mapper.Map<List<ViewModels.HardwareServiceOrderResponseDTO>>(dto.Items),
+                Items = _mapper.Map<List<ViewModels.HardwareServiceOrderResponse>>(dto.Items),
                 CurrentPage = dto.CurrentPage
             };
             return Ok(response);
+            */
+
+            return Ok(dto);
         }
 
         /// <summary>

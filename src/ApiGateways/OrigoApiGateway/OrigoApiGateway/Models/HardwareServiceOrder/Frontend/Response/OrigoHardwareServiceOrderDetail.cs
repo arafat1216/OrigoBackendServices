@@ -4,7 +4,7 @@
 
 namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
 {
-    public class OrigoHardwareServiceOrderDetail : OrigoHardwareServiceOrder
+    public class OrigoHardwareServiceOrderDetail : HardwareServiceOrder
     {
         public OrigoAsset AssetInfo { get; set; }
     }

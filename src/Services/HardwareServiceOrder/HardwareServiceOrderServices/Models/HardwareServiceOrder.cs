@@ -223,7 +223,7 @@ namespace HardwareServiceOrderServices.Models
         public Guid ExternalId { get; set; } = Guid.NewGuid();
 
         /// <summary>
-        /// ID of the customer
+        /// The ID of the customer the service-order is attached to.
         /// </summary>
         public Guid CustomerId { get; set; }
 

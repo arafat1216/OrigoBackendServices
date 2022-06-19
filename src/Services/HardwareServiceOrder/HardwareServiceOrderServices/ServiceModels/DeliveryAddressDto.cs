@@ -6,6 +6,7 @@ namespace HardwareServiceOrderServices.ServiceModels
     /// <inheritdoc cref="DeliveryAddress"/>
     public class DeliveryAddressDTO : IValidatableObject
     {
+        /// <inheritdoc cref="DeliveryAddress.RecipientType"/>
         [Required]
         [EnumDataType(typeof(RecipientTypeEnum))]
         public RecipientTypeEnum RecipientType { get; set; }

@@ -13,20 +13,22 @@ namespace HardwareServiceOrder.API.Mappings
 
             CreateMap<ViewModels.CustomerSettings, CustomerSettingsDTO>()
                 .ForMember(d => d.LoanDevicePhoneNumber, opts => opts.MapFrom(s => s.LoanDevice.PhoneNumber));
-                
 
-            //DTO to ViewModel
+
+            // DTO to ViewModel
             CreateMap<NewHardwareServiceOrderDTO, ViewModels.NewHardwareServiceOrder>();
             CreateMap<DeliveryAddressDTO, ViewModels.DeliveryAddress>();
-            CreateMap<HardwareServiceOrderServices.ServiceModels.HardwareServiceOrderDTO, ViewModels.HardwareServiceOrderResponseDTO>()
-                .ForMember(d => d.Status, opts => opts.MapFrom(s => $"{s.Status}"))
-                .ForMember(d => d.Type, opts => opts.MapFrom(s => $"{s.Type}"))
-                .ForMember(d => d.ServiceProvider, opts => opts.MapFrom(s => $"{s.ServiceProvider}"));
+
+            CreateMap<HardwareServiceOrderServices.ServiceModels.HardwareServiceOrderDTO, ViewModels.HardwareServiceOrderResponse>()
+                .ForMember(destination => destination.Id, options => options.MapFrom(source => source.ExternalId))
+                .ForMember(d => d.StatusId, opts => opts.MapFrom(s => $"{(ServiceStatusEnum)s.StatusId}"))
+                .ForMember(d => d.ServiceTypeId, opts => opts.MapFrom(s => $"{(ServiceTypeEnum)s.ServiceTypeId}"))
+                .ForMember(d => d.ServiceProviderId, opts => opts.MapFrom(s => $"{(ServiceProviderEnum)s.ServiceProviderId}"));
 
             CreateMap<ExternalServiceEventDTO, ViewModels.ServiceEvent>()
                 .ForMember(d => d.Status, opts => opts.MapFrom(s => $"{(ServiceStatusEnum)s.ServiceStatusId}"));
 
-            //ViewModels to DTO
+            // ViewModels to DTO
             CreateMap<ViewModels.DeliveryAddress, DeliveryAddressDTO>();
 
             CreateMap<ViewModels.AssetInfo, AssetInfoDTO>();
