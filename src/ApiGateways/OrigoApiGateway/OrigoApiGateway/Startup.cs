@@ -26,6 +26,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Threading;
 using Common.Utilities;
+using OrigoApiGateway.Extensions;
 
 namespace OrigoApiGateway
 {
@@ -307,6 +308,9 @@ namespace OrigoApiGateway
                 // Include XML documentation used for Swagger enrichment
                 var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
+                // Add custom converters to enable DateOnly support in swagger
+                options.UseDateOnlyStringConverters();
 
                 options.EnableAnnotations();
                 options.SwaggerDoc($"v{_apiVersion.MajorVersion}", new OpenApiInfo { Title = "Origo API Gateway", Version = $"v{_apiVersion.MajorVersion}" });
