@@ -168,7 +168,7 @@ namespace CustomerServices
             return user;
         }
 
-        public async Task<UserDTO> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive, Guid callerId)
+        public async Task<UserDTO> SetUserActiveStatusAsync(Guid customerId, Guid userId, bool isActive, Guid callerId)
         {
             var user = await GetUserAsync(customerId, userId);
             if (user == null)

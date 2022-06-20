@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CustomerServices
@@ -76,57 +78,7 @@ namespace CustomerServices
             return _mapper.Map<DepartmentDTO>(department);
         }
 
-        public async Task<DepartmentDTO> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, IList<Guid> departmentManagers,Guid callerId)
-        {
-            var customer = await _customerRepository.GetOrganizationAsync(customerId, includeDepartments: true);
-            if (customer == null)
-            {
-                throw new CustomerNotFoundException();
-            }
-            var allDepartments = await _customerRepository.GetDepartmentsAsync(customerId);
-            var parentDepartment = allDepartments.FirstOrDefault(dept => dept.ExternalDepartmentId == parentDepartmentId);
-            var departmentToUpdate = allDepartments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
-            if (departmentToUpdate == null)
-            {
-                return null;
-            }
-
-            customer.ChangeDepartmentName(departmentToUpdate, name, callerId);
-            customer.ChangeDepartmentCostCenterId(departmentToUpdate, costCenterId, callerId);
-            customer.ChangeDepartmentDescription(departmentToUpdate, description, callerId);
-
-            if (!departmentToUpdate.HasSubDepartment(parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
-            {
-                customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment, callerId);
-            }
-
-            
-            if (departmentManagers.Any())
-            {
-                List<User> users = new List<User>();
-                foreach (var manager in departmentManagers)
-                {
-                    var user = _customerRepository.GetUserAsync(customerId, manager).Result;
-                    if (user != null) 
-                    {
-                        var userPermission = await _userPermissionRepository.GetUserPermissionsAsync(user.Email);
-                        if (userPermission != null)
-                        {
-                            var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString() || a.Role.Name == PredefinedRole.Manager.ToString());
-                            if (role != null) users.Add(user);
-                        }
-                    }
-                }
-               
-                if(users.Any()) customer.UpdateDepartmentManagers(departmentToUpdate,users,callerId);
-            }
-
-            await _customerRepository.SaveEntitiesAsync();
-            return _mapper.Map<DepartmentDTO>(departmentToUpdate);
-            
-        }
-
-        public async Task<DepartmentDTO> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, IList<Guid> departmentManagers, Guid callerId)
+        public async Task<DepartmentDTO> UpdateDepartmentAsync(Guid customerId, Guid departmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, IList<Guid> departmentManagers, Guid callerId)
         {
             var customer = await _customerRepository.GetOrganizationAsync(customerId, includeDepartments: true);
             if (customer == null)
@@ -152,33 +104,57 @@ namespace CustomerServices
             {
                 customer.ChangeDepartmentDescription(departmentToUpdate, description, callerId);
             }
-            if (parentDepartmentId != departmentToUpdate.ParentDepartment?.ExternalDepartmentId && // won't move this department if it already is a subdepartment of the target department
-                !departmentToUpdate.HasSubDepartment(parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
+            if (parentDepartment != null && parentDepartmentId != departmentToUpdate.ParentDepartment?.ExternalDepartmentId && // won't move this department if it already is a sub department of the target department
+                !departmentToUpdate.HasSubDepartment(parentDepartment)) // can't be moved to a department that is a sub department of itself or is itself.
             {
                 customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment, callerId);
             }
             if (departmentManagers.Any())
             {
-                //Remove all managers from 
-                var managers = departmentToUpdate.Managers.ToList();
-                if (managers != null && managers.Any()) customer.RemoveDepartmentManagers(departmentToUpdate, managers, callerId);
+                var managersToBeRemoved = departmentToUpdate.Managers.Where(m => departmentManagers.All(n => n != m.UserId)).ToList();
+                if (managersToBeRemoved.Any())
+                {
+                    customer.RemoveDepartmentManagers(departmentToUpdate, managersToBeRemoved, callerId);
+                    UpdateAccessList(customer, managersToBeRemoved, callerId);
+                }
 
+                var managersToBeAdded = new List<User>();
                 foreach (var manager in departmentManagers)
                 {
                     var user = await _customerRepository.GetUserAsync(customerId, manager);
-                    if (user != null)
-                    {
-                        var userPermission = await _userPermissionRepository.GetUserPermissionsAsync(user.Email);
-                        if (userPermission != null)
-                        {
-                            var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString() || a.Role.Name == PredefinedRole.Manager.ToString());
-                            if (role != null) customer.AddDepartmentManager(departmentToUpdate, user, callerId);
-                        }
-                    }
+                    if (user == null) continue;
+                    var userPermission = await _userPermissionRepository.GetUserPermissionsAsync(user.Email);
+                    if (userPermission == null) continue;
+                    var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString() || a.Role.Name == PredefinedRole.Manager.ToString());
+                    if (role == null) continue;
+                    customer.AddDepartmentManager(departmentToUpdate, user, callerId);
+                    managersToBeAdded.Add(user);
+                }
+            }
+            else
+            {
+                if (departmentToUpdate.Managers.Any())
+                {
+                    customer.RemoveDepartmentManagers(departmentToUpdate, departmentToUpdate.Managers.ToList(), callerId);
                 }
             }
             await _customerRepository.SaveEntitiesAsync();
             return _mapper.Map<DepartmentDTO>(departmentToUpdate);
+        }
+
+        private void UpdateAccessList(Organization customer, IList<User> managersToBeRemoved, Guid callerId)
+        {
+            foreach (var user in managersToBeRemoved)
+            {
+                List<Guid> allDepartmentGuids = new() { customer.OrganizationId };
+                foreach (var department in user.ManagesDepartments)
+                {
+                    var departmentIdsWithSubDepartments = department.SubDepartments(customer.Departments.ToList()).Select(d => d.ExternalDepartmentId);
+                    allDepartmentGuids.AddRange(departmentIdsWithSubDepartments);
+                }
+
+                _userPermissionRepository.AssignUserPermissionsAsync(user.Email, "Manager", allDepartmentGuids, callerId);
+            }
         }
 
         public async Task<DepartmentDTO> DeleteDepartmentAsync(Guid customerId, Guid departmentId, Guid callerId)

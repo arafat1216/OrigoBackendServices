@@ -277,7 +277,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            var user = await _userServices.SetUserActiveStatus(customerId, userId, isActive, callerId);
+            var user = await _userServices.SetUserActiveStatusAsync(customerId, userId, isActive, callerId);
             if (user == null)
                 return NotFound();
             return Ok(_mapper.Map<User>(user));

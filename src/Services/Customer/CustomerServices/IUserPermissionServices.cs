@@ -10,7 +10,7 @@ namespace CustomerServices
     {
         Task<IList<UserPermissions>> GetUserPermissionsAsync(string userName);
         Task<UserPermissions> AssignUserPermissionsAsync(string userName, string roleName, IList<Guid> accessList, Guid callerId);
-        Task<UsersPermissionsDTO> AssignUsersPermissionsAsync(NewUsersPermission newuserPermission, Guid callerId);
+        Task<UsersPermissionsDTO> AssignUsersPermissionsAsync(NewUsersPermission newUserPermission, Guid callerId);
 
         Task<UserPermissions> RemoveUserPermissionsAsync(string userName, string predefinedRole, IList<Guid> accessList, Guid callerId);
         Task<IList<string>> GetAllRolesAsync();

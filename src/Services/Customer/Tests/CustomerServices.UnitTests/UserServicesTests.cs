@@ -9,6 +9,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using AutoMapper;
 using CustomerServices.Mappings;
 using CustomerServices.ServiceModels;
@@ -52,8 +53,8 @@ namespace CustomerServices.UnitTests
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
             
             // Act
-            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
-            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_THREE_ID, false, EMPTY_CALLER_ID);
+            await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
+            await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, false, EMPTY_CALLER_ID);
 
             int users = await userServices.GetUsersCountAsync(CUSTOMER_ONE_ID);
 
@@ -140,11 +141,10 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void AssignUserPermissions_DepartmentManager_WithEmptyAccsessList()
+        public async Task AssignUserPermissions_DepartmentManager_WithEmptyAccessList()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
-            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>(), _mapper);
 
             // Act
@@ -156,7 +156,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void AddUserAsManager_CheckManagedDepartmentCount()
+        public async Task AddUserAsManager_CheckManagedDepartmentCount()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -176,12 +176,12 @@ namespace CustomerServices.UnitTests
 
             // Assert
             var user = await context.Users.FirstOrDefaultAsync(u => u.UserId == USER_ONE_ID);
-            Assert.Equal(1, user.ManagesDepartments.Count);
+            Assert.Equal(1, user!.ManagesDepartments.Count);
         }
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void AddUserAsManager_CheckManagedDepartmentCount_MissingDepartmentRoleException()
+        public async Task AddUserAsManager_CheckManagedDepartmentCount_MissingDepartmentRoleException()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -195,7 +195,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void SetUserActive()
+        public async Task SetUserActive()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -208,7 +208,7 @@ namespace CustomerServices.UnitTests
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
 
             // Act
-            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
+            await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
             var user = await userServices.GetUserAsync(CUSTOMER_ONE_ID, USER_ONE_ID);
 
             // Assert
@@ -218,7 +218,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void DeactivateUser()
+        public async Task DeactivateUser()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -230,10 +230,10 @@ namespace CustomerServices.UnitTests
             oktaMock.Setup(o => o.UserExistsInOktaAsync(It.IsAny<string>())).ReturnsAsync(true);
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
-            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true,EMPTY_CALLER_ID); // Activate user
+            await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, true,EMPTY_CALLER_ID); // Activate user
 
             // Act
-            var user = await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, false, EMPTY_CALLER_ID);
+            var user = await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, false, EMPTY_CALLER_ID);
 
             // Assert
             oktaMock.Verify(mock => mock.RemoveUserFromGroupAsync(It.IsAny<string>()), Times.Once());
@@ -242,7 +242,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void ReactivateUser()
+        public async Task ReactivateUser()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -253,8 +253,8 @@ namespace CustomerServices.UnitTests
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
 
             // Act
-            await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, false, EMPTY_CALLER_ID);
-            var user = await userServices.SetUserActiveStatus(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
+            await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, false, EMPTY_CALLER_ID);
+            var user = await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
 
             // Assert
             oktaMock.Verify(mock => mock.AddUserToGroup(It.IsAny<string>()), Times.Once());

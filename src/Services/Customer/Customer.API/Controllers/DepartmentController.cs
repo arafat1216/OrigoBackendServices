@@ -70,7 +70,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<Department>> UpdateDepartmentPut(Guid customerId, Guid departmentId, [FromBody] UpdateDepartment department)
         {
-            var updatedDepartment = await _departmentServices.UpdateDepartmentPutAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description,department.ManagedBy, department.CallerId);
+            var updatedDepartment = await _departmentServices.UpdateDepartmentAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description,department.ManagedBy, department.CallerId);
             var departmentView = _mapper.Map<Department>(updatedDepartment);
 
             return Ok(departmentView);
@@ -81,7 +81,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<Department>> UpdateDepartmentPatch(Guid customerId, Guid departmentId, [FromBody] UpdateDepartment department)
         {
-            var updatedDepartment = await _departmentServices.UpdateDepartmentPatchAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description, department.ManagedBy, department.CallerId);
+            var updatedDepartment = await _departmentServices.UpdateDepartmentAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description, department.ManagedBy, department.CallerId);
             var departmentView = _mapper.Map<Department>(updatedDepartment);
 
             return Ok(departmentView);

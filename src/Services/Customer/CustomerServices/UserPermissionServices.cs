@@ -33,6 +33,14 @@ namespace CustomerServices
 
         }
 
+        /// <summary>
+        /// For testing
+        /// </summary>
+        public UserPermissionServices()
+        {
+
+        }
+
         private async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
         {
             var numberOfRecordsSaved = 0;
@@ -90,20 +98,24 @@ namespace CustomerServices
         // TODO: Add full and proper docs.
         /// <exception cref="InvalidRoleNameException"></exception>
         /// <exception cref="UserNameDoesNotExistException"></exception>
-        public async Task<UserPermissions> AssignUserPermissionsAsync(string userName, string roleName, IList<Guid> accessList, Guid callerId)
+        public async Task<UserPermissions> AssignUserPermissionsAsync(string userName, string roleName,
+            IList<Guid> accessList, Guid callerId)
         {
             if (!Enum.TryParse(roleName, out PredefinedRole roleType))
             {
                 throw new InvalidRoleNameException();
             }
+
             var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.Email.Trim().ToLower() == userName.Trim().ToLower());
+
 
             if (user == null)
                 throw new UserNameDoesNotExistException();
 
             var userPermissions = await GetUserPermissionsAsync(userName);
 
-            if ((roleType == PredefinedRole.DepartmentManager || roleType == PredefinedRole.Manager) && accessList.Count == 0)// Check if the lists contains at least one id.
+            if (roleType is PredefinedRole.DepartmentManager or PredefinedRole.Manager &&
+                accessList.Count == 0) // Check if the lists contains at least one id.
             {
                 return null;
             }
@@ -114,7 +126,10 @@ namespace CustomerServices
             if (userPermission != null)
             {
                 var role = await GetRole(roleType);
-                userPermission.UpdateRole(role, callerId);
+                if (role.Name != userPermission.Role.Name)
+                {
+                    userPermission.UpdateRole(role, callerId);
+                }
 
                 var remove = userPermissions.Where(a => a.Id != userPermission.Id).ToList();
 
@@ -149,17 +164,19 @@ namespace CustomerServices
             {
                 _customerContext.UserPermissions.Add(userPermission);
             }
-            else if (accessList.Any())
+            else
             {
-                foreach (var access in accessList)
+                if (accessList.Any())
                 {
-                    if (!userPermission.AccessList.Contains(access))
+                    foreach (var access in accessList)
                     {
-                        userPermission.AddAccess(access,callerId);
+                        if (userPermission.AccessList.Contains(access)) continue;
+                        userPermission.AddAccess(access, callerId);
                         _customerContext.Entry(userPermission).State = EntityState.Modified;
                     }
                 }
             }
+
             await SaveEntitiesAsync();
             return userPermission;
         }
@@ -218,7 +235,7 @@ namespace CustomerServices
             await SaveEntitiesAsync();
         }
 
-        public async Task<UsersPermissionsDTO> AssignUsersPermissionsAsync(NewUsersPermission newUserPermissions, Guid callerId)
+        public async Task<UsersPermissionsDTO> AssignUsersPermissionsAsync(NewUsersPermission newUserPermission, Guid callerId)
         {
             //List of error messages with cause of failure for user(s)
             List<string> errorMessages = new List<string>();
@@ -229,14 +246,14 @@ namespace CustomerServices
             };
 
             //Check if the request have unique userId - a user can only have one role
-            List<Guid> users = newUserPermissions.UserPermissions.Select(person => person.UserId).Distinct().ToList();
-            if (users.Count != newUserPermissions.UserPermissions.Count) 
+            List<Guid> users = newUserPermission.UserPermissions.Select(person => person.UserId).Distinct().ToList();
+            if (users.Count != newUserPermission.UserPermissions.Count) 
             {
                 throw new DuplicateException("Only one permission can be added to the user");
             }
             
 
-            foreach (var userPermission in newUserPermissions.UserPermissions)
+            foreach (var userPermission in newUserPermission.UserPermissions)
             {
                 try
                 {
