@@ -403,9 +403,9 @@ namespace CustomerServices
             var manager = department.Managers.FirstOrDefault(a => a.UserId == userId);
             if (manager != null) return;
 
-            //Find subdepartments of the department the user user is to be manager for
-            var subDepartmentsList = department.Subdepartments(departments);
-            List<Guid> accessList = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
+            //Find sub departments of the department the user user is to be manager for
+            var subDepartmentsList = department.SubDepartments(departments);
+            var accessList = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
 
             //Check if user have department role for other departments
             var usersPermission = await _userPermissionServices.GetUserPermissionsAsync(user.Email);
@@ -451,7 +451,7 @@ namespace CustomerServices
             await _organizationRepository.SaveEntitiesAsync();
 
             //Find subdepartments of the department 
-            var subDepartmentsList = department.Subdepartments(departments);
+            var subDepartmentsList = department.SubDepartments(departments);
             List<Guid> accessList = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
 
             //Check if user have permissions for department

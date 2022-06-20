@@ -105,8 +105,9 @@ namespace CustomerServices.Models
         /// The departments for this organization
         /// </summary>
         [JsonIgnore]
-        public ICollection<Department> Departments { get; protected set; }
-        
+        public IReadOnlyCollection<Department> Departments => _departments.AsReadOnly();
+
+        private List<Department> _departments = new();
         /// <summary>
         /// Should users be automatically be generated in Okta when created?
         /// Federated users will be generated in Okta through Just-In-Time creation.
@@ -290,7 +291,7 @@ namespace CustomerServices.Models
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
             AddDomainEvent(new DepartmentAddedToCustomerDomainEvent(department));
-            Departments.Add(department);
+            _departments.Add(department);
         }
 
         public void RemoveDepartment(Department department, Guid callerId)
@@ -299,7 +300,7 @@ namespace CustomerServices.Models
             LastUpdatedDate = DateTime.UtcNow;
             department.SetDeletedBy(callerId);
             AddDomainEvent(new DepartmentRemovedDomainEvent(department));
-            Departments.Remove(department);
+            _departments.Remove(department);
         }
         public void AddLocation(Location location, Guid customerId, Guid callerId)
         {

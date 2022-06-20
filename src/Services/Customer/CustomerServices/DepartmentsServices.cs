@@ -95,7 +95,7 @@ namespace CustomerServices
             customer.ChangeDepartmentCostCenterId(departmentToUpdate, costCenterId, callerId);
             customer.ChangeDepartmentDescription(departmentToUpdate, description, callerId);
 
-            if (!departmentToUpdate.HasSubdepartment(parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
+            if (!departmentToUpdate.HasSubDepartment(parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
             {
                 customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment, callerId);
             }
@@ -153,7 +153,7 @@ namespace CustomerServices
                 customer.ChangeDepartmentDescription(departmentToUpdate, description, callerId);
             }
             if (parentDepartmentId != departmentToUpdate.ParentDepartment?.ExternalDepartmentId && // won't move this department if it already is a subdepartment of the target department
-                !departmentToUpdate.HasSubdepartment(parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
+                !departmentToUpdate.HasSubDepartment(parentDepartment)) // can't be moved to a department that is a subdepartment of itself or is itself.
             {
                 customer.ChangeDepartmentsParentDepartment(departmentToUpdate, parentDepartment, callerId);
             }
@@ -188,7 +188,7 @@ namespace CustomerServices
             var department = departments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
             if (department == null)
                 return null;
-            var departmentsToDelete = department.Subdepartments(departments);
+            var departmentsToDelete = department.SubDepartments(departments);
             foreach (var deleteDepartment in departmentsToDelete)
             {
                 customer.RemoveDepartment(deleteDepartment, callerId);

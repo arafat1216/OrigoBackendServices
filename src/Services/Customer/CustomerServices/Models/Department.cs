@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
+using System.Linq;
 
 namespace CustomerServices.Models
 {
@@ -68,11 +69,11 @@ namespace CustomerServices.Models
         }
 
         /// <summary>
-        /// Checks if the input department is a subdepartment of this department or if the input department is this department.
+        /// Checks if the input department is a sub department of this department or if the input department is this department.
         /// </summary>
         /// <param name="department"></param>
         /// <returns></returns>
-        public bool HasSubdepartment(Department department)
+        public bool HasSubDepartment(Department department)
         {
             if (department == null)
                 return false;
@@ -88,18 +89,20 @@ namespace CustomerServices.Models
         }
 
         /// <summary>
-        /// Returns a list of all subdepartments of this department
+        /// Returns a list of all sub departments of this department
         /// </summary>
         /// <returns></returns>
-        public IList<Department> Subdepartments(IList<Department> departments)
+        public IList<Department> SubDepartments(IList<Department> departments)
         {
-            List<Department> subdepartments = new List<Department>();
-            foreach (var department in departments)
+            var subDepartments = new List<Department>();
+            if (departments != null)
             {
-                if (HasSubdepartment(department))
-                    subdepartments.Add(department);
+                subDepartments.AddRange(from department in departments
+                                        where HasSubDepartment(department)
+                                        select department);
             }
-            return subdepartments;
+
+            return subDepartments;
         }
 
         public void SetUpdatedBy(Guid callerId)

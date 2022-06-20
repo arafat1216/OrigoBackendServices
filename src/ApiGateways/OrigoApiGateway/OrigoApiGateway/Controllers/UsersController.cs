@@ -17,6 +17,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Humanizer;
 
 namespace OrigoApiGateway.Controllers
 {
@@ -72,20 +73,33 @@ namespace OrigoApiGateway.Controllers
         public async Task<ActionResult<PagedModel<OrigoUser>>> GetAllUsers(Guid organizationId, [FromQuery] FilterOptionsForUser filterOptions, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            if (role == PredefinedRole.EndUser.ToString())
             {
                 return Forbid();
             }
 
+            var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
             if (role != PredefinedRole.SystemAdmin.ToString())
             {
                 // Check if caller has access to this organization
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                 if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                 {
                     return Forbid();
                 }
             }
+
+            if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
+            {
+                filterOptions.AssignedToDepartments ??= new List<Guid>();
+                foreach (var departmentId in accessList.Split(","))
+                {
+                    if (Guid.TryParse(departmentId, out var departmentGuid))
+                    {
+                        filterOptions.AssignedToDepartments.Add(departmentGuid);
+                    }
+                }
+            }
+
 
             var users = await _userServices.GetAllUsersAsync(organizationId,filterOptions, cancellationToken, search, page, limit);
             return Ok(users);

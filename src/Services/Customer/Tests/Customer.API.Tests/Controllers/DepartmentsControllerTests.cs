@@ -337,7 +337,7 @@ public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFa
         var role = new NewUserPermission
         {
             AccessList = new List<Guid> { _organizationId },
-            Role = "DepartmentManager",
+            Role = "Manager",
             CallerId = Guid.NewGuid()
         };
         
