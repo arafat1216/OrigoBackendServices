@@ -55,21 +55,19 @@ namespace OrigoApiGateway.Controllers
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
 
-                PredefinedRole tryParseResult;
-                if (Enum.TryParse<PredefinedRole>(role, out tryParseResult))
+                if (email == userName)
+                {
+                    // Validation ok
+                } else if (Enum.TryParse<PredefinedRole>(role, out var tryParseResult))
                 {
                     switch (tryParseResult)
                     {
                         case PredefinedRole.EndUser:
-                            if(email != userName) return Forbid();
-                            break;
+                            return Forbid();
                         case PredefinedRole.DepartmentManager:
-                            if (user.DepartmentId == Guid.Empty) return Forbid();
-                            else if(accessList == null || !accessList.Any() || !accessList.Contains(user.DepartmentId.ToString())) return Forbid();
-                            break;
                         case PredefinedRole.Manager:
                             if (user.DepartmentId == Guid.Empty) return Forbid();
-                            else if (accessList == null || !accessList.Any() || !accessList.Contains(user.DepartmentId.ToString())) return Forbid();
+                            if(accessList == null || !accessList.Any() || !accessList.Contains(user.DepartmentId.ToString())) return Forbid();
                             break;
                         case PredefinedRole.SystemAdmin:
                             break;
