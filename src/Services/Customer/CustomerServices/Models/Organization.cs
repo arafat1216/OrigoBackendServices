@@ -395,5 +395,12 @@ namespace CustomerServices.Models
             department.UpdateDepartmentManagers(managers, callerId);
             AddDomainEvent(new DepartmentUpdateDepartmentManagersDomainEvent(department, callerId));
         }
+        public void RemoveDepartmentManagers(Department department, IList<User> managers, Guid callerId)
+        {
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
+            department.RemoveDepartmentManagers(managers,callerId);
+            AddDomainEvent(new DepartmentRemoveDepartmentManagersDomainEvent(department, callerId));
+        }
     }
 }

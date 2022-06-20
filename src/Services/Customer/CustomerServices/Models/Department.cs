@@ -135,5 +135,18 @@ namespace CustomerServices.Models
             UpdatedBy = CallerId;
             LastUpdatedDate = DateTime.UtcNow;
         }
+        
+        public void RemoveDepartmentManagers(IList<User> managers, Guid CallerId)
+        {
+            if(_managers != null)
+            {
+                foreach (User manager in managers)
+                {
+                    _managers.Remove(manager);
+                }
+            }
+            UpdatedBy = CallerId;
+            LastUpdatedDate = DateTime.UtcNow;
+        }
     }
 }

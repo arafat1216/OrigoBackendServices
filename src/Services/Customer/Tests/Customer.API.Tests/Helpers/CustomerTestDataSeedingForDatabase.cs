@@ -146,8 +146,8 @@ namespace Customer.API.IntegrationTests.Helpers
 
             var userOnePermission = new UserPermissions(userOne, new Role("EndUser"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
             var userTwoPermission = new UserPermissions(userTwo, new Role("EndUser"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
-            var userThreePermission = new UserPermissions(userThree, new Role("DepartmentManager"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
-            var userFourPermission = new UserPermissions(userFour, new Role("DepartmentManager"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
+            var userThreePermission = new UserPermissions(userThree, new Role("Manager"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
+            var userFourPermission = new UserPermissions(userFour, new Role("Manager"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
 
 
 

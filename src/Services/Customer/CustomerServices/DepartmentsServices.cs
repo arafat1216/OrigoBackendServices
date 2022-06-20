@@ -159,6 +159,10 @@ namespace CustomerServices
             }
             if (departmentManagers.Any())
             {
+                //Remove all managers from 
+                var managers = departmentToUpdate.Managers.ToList();
+                if (managers != null && managers.Any()) customer.RemoveDepartmentManagers(departmentToUpdate, managers, callerId);
+
                 foreach (var manager in departmentManagers)
                 {
                     var user = await _customerRepository.GetUserAsync(customerId, manager);

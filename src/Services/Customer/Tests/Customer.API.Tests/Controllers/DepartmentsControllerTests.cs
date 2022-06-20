@@ -21,6 +21,9 @@ public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFa
     private readonly Guid _departmentId;
     private readonly Guid _userOne;
     private readonly Guid _userTwo;
+    private readonly Guid _userThree;
+    private readonly Guid _userFour;
+
 
 
     private readonly CustomerWebApplicationFactory<Startup> _factory;
@@ -35,6 +38,8 @@ public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFa
         _departmentId = factory.HEAD_DEPARTMENT_ID;
         _userOne = factory.USER_ONE_ID;
         _userTwo = factory.USER_TWO_ID;
+        _userThree = factory.USER_THREE_ID;
+        _userFour = factory.USER_FOUR_ID;
         _factory = factory;
     }
 
@@ -317,7 +322,7 @@ public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFa
     }
 
     [Fact]
-    public async Task UpdateDepartmentPatch_DepartmentManagers_UserWithRole_ReturnsOK()
+    public async Task UpdateDepartmentPatch_UpdateDepartmentManager_RemoveOldDepartmentManager()
     {
         //Get user
         var requestUserOne = $"/api/v1/organizations/users/{_userOne}";
@@ -340,7 +345,7 @@ public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFa
             Role = "Manager",
             CallerId = Guid.NewGuid()
         };
-        
+
         var requestPermissionsOne = $"/api/v1/organizations/users/{userOne?.Email}/permissions";
         var putPermissionOne = _httpClient.PutAsJsonAsync(requestPermissionsOne, role);
         Assert.Equal(HttpStatusCode.OK, putPermissionOne?.Result.StatusCode);
@@ -357,7 +362,7 @@ public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFa
             Name = "Department one",
             Description = "Test",
             CostCenterId = "CostCenter",
-            ManagedBy = new List<Guid> { _userOne, _userTwo }
+            ManagedBy = new List<Guid> { _userFour, _userThree }
         };
 
         var responseCreate = await _httpClient.PostAsJsonAsync(uriCreate, requestCreate);
@@ -382,40 +387,16 @@ public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFa
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var departmentRead = await response.Content.ReadFromJsonAsync<Department>();
-        Assert.Equal(4, departmentRead?.ManagedBy.Count);
+        Assert.Equal(2, departmentRead?.ManagedBy.Count);
+        Assert.Collection(departmentRead?.ManagedBy,
+           item => Assert.Equal(_userOne, item.UserId),
+           item => Assert.Equal(_userTwo, item.UserId));
     }
+
     [Fact]
-    public async Task UpdateDepartmentPatch_DepartmentManagers_WithDepartmentManagerRoles_ReturnsOk()
+    public async Task UpdateDepartmentPatch_DepartmentManagers_WithoutManagers_AddingOnlyNewManagers()
     {
-        //Get user
-        var requestUserOne = $"/api/v1/organizations/users/{_userOne}";
-        var responseUserOne = await _httpClient.GetAsync(requestUserOne);
-        var requestUserTwo = $"/api/v1/organizations/users/{_userTwo}";
-        var responseUserTwo = await _httpClient.GetAsync(requestUserTwo);
-
-        var userOne = await responseUserOne.Content.ReadFromJsonAsync<User>();
-        var userTwo = await responseUserTwo.Content.ReadFromJsonAsync<User>();
-
-        Assert.Equal(HttpStatusCode.OK, responseUserOne.StatusCode);
-        Assert.NotNull(userOne);
-        Assert.Equal(HttpStatusCode.OK, responseUserOne.StatusCode);
-        Assert.NotNull(userTwo);
-
-        //Assign role to user
-        var role = new NewUserPermission
-        {
-            AccessList = new List<Guid> { _organizationId },
-            Role = "DepartmentManager",
-            CallerId = Guid.NewGuid()
-        };
-
-        var requestPermissionsOne = $"/api/v1/organizations/users/{userOne?.Email}/permissions";
-        var putPermissionOne = _httpClient.PutAsJsonAsync(requestPermissionsOne, role);
-        Assert.Equal(HttpStatusCode.OK, putPermissionOne?.Result.StatusCode);
-
-        var requestPermissionTwo = $"/api/v1/organizations/users/{userTwo?.Email}/permissions";
-        var putPermissionTwo = _httpClient.PutAsJsonAsync(requestPermissionTwo, role);
-        Assert.Equal(HttpStatusCode.OK, putPermissionTwo?.Result.StatusCode);
+        var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
         var uriCreate = $"/api/v1/organizations/{_organizationId}/departments";
 
@@ -424,11 +405,10 @@ public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFa
             ParentDepartmentId = _departmentId,
             Name = "Department one",
             Description = "Test",
-            CostCenterId = "CostCenter",
-            ManagedBy = new List<Guid> { _userOne, _userTwo }
+            CostCenterId = "CostCenter"
         };
 
-        var responseCreate = await _httpClient.PostAsJsonAsync(uriCreate, requestCreate);
+        var responseCreate = await httpClient.PostAsJsonAsync(uriCreate, requestCreate);
 
         Assert.Equal(HttpStatusCode.Created, responseCreate.StatusCode);
         var departmentCreate = await responseCreate.Content.ReadFromJsonAsync<Department>();
@@ -442,14 +422,18 @@ public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFa
             CostCenterId = "CostCenter123",
             Description = "Description",
             CallerId = Guid.NewGuid(),
-            ManagedBy = new List<Guid> { _userOne, _userTwo }
+            ManagedBy = new List<Guid> { _userThree, _userFour }
         };
 
-        var response = await _httpClient.PostAsJsonAsync(
+        var response = await httpClient.PostAsJsonAsync(
             $"/api/v1/organizations/{_organizationId}/departments/{departmentCreate?.DepartmentId}", department);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var departmentRead = await response.Content.ReadFromJsonAsync<Department>();
-        Assert.Equal(4, departmentRead?.ManagedBy.Count);
+        Assert.Equal(2, departmentRead?.ManagedBy.Count);
+        Assert.Collection(departmentRead?.ManagedBy,
+          item => Assert.Equal(_userThree, item.UserId),
+          item => Assert.Equal(_userFour, item.UserId));
     }
+
 }

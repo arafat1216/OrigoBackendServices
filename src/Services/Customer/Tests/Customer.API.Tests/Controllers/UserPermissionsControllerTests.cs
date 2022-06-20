@@ -222,7 +222,7 @@ namespace Customer.API.IntegrationTests.Controllers
         {
             var requestBody = new NewUserPermission
             {
-                Role = "DepartmentManager",
+                Role = "Manager",
                 AccessList = new List<Guid> { Guid.Parse("00000000-0000-0000-0000-000000000001") },
                 CallerId = Guid.Empty
             };
@@ -240,7 +240,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal(1, readGet?.Count);
             Assert.Equal(2, readGet?[0].AccessList.Count);
-            Assert.Equal("DepartmentManager", readGet?[0].Role);
+            Assert.Equal("Manager", readGet?[0].Role);
 
         }
         [Fact]
