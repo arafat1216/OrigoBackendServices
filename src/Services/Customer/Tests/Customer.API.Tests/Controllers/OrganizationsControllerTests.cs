@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using Customer.API.WriteModels;
 using System.Linq;
 using Customer.API.IntegrationTests.Helpers;
+using Customer.API.ViewModels;
 //Customer.API.IntegrationTests.Controllers
 namespace Customer.API.IntegrationTests.Controllers
 {
@@ -92,6 +93,44 @@ namespace Customer.API.IntegrationTests.Controllers
             _testOutputHelper.WriteLine(requestUri);
             var locations = await httpClient.GetFromJsonAsync<IList<LocationDTO>>(requestUri);
             Assert.Equal(1, locations!.Count);
+        }
+        [Fact]
+        public async Task DeleteLocationAsync()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_organizationId}/location";
+            _testOutputHelper.WriteLine(requestUri);
+            var locations = await httpClient.GetFromJsonAsync<IList<LocationDTO>>(requestUri);
+            var selectedLocation = locations!.FirstOrDefault();
+            
+
+            var delCont = new DeleteContent()
+            {
+                CallerId = Guid.Empty,
+                hardDelete = true
+            };
+
+            requestUri = $"/api/v1/organizations/{selectedLocation!.Id}/location";
+            _testOutputHelper.WriteLine(requestUri);
+
+            HttpRequestMessage request = new HttpRequestMessage
+            {
+                Content = JsonContent.Create(delCont),
+                Method = HttpMethod.Delete,
+                RequestUri = new Uri(requestUri, UriKind.Relative)
+            };
+
+            var deleteResponse = await httpClient.SendAsync(request);
+
+            requestUri = $"/api/v1/organizations/{_organizationId}/location";
+            _testOutputHelper.WriteLine(requestUri);
+            var newLocations = await httpClient.GetFromJsonAsync<IList<LocationDTO>>(requestUri);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
+            Assert.Equal(1, locations!.Count);
+            Assert.Equal(0, newLocations!.Count);
+            Assert.DoesNotContain(newLocations, x =>x.Id == selectedLocation.Id);
         }
 
         [Fact]

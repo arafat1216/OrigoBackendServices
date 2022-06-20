@@ -24,5 +24,6 @@ namespace OrigoApiGateway.Services
         Task<string> GetCurrencyByCustomer(Guid customerId);
         Task<IList<Location>> GetAllCustomerLocations(Guid customerId);
         Task<Location> CreateLocationAsync(OfficeLocation officeLocation, Guid customerId, Guid callerId);
+        Task<IList<Location>> DeleteLocationAsync(Guid customerId, Guid locationId, Guid callerId);
     }
 }

@@ -187,6 +187,46 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+        public async Task<IList<Location>> DeleteLocationAsync(Guid customerId, Guid locationId, Guid callerId)
+        {
+            try
+            {
+                var delCont = new DeleteContent()
+                {
+                   CallerId = callerId,
+                   hardDelete = true
+                };
+
+                var requestUri = $"{_options.ApiPath}/{locationId}/location";
+
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Content = JsonContent.Create(delCont),
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(requestUri, UriKind.Relative)
+                };
+
+                var response = await HttpClient.SendAsync(request);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    if ((int)response.StatusCode == 404)
+                        return null;
+                    var exception = new BadHttpRequestException("Unable to remove location.", (int)response.StatusCode);
+                    _logger.LogError(exception, "Unable to remove location.");
+                    throw exception;
+                }
+
+                var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+                return await GetAllCustomerLocations(customerId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "DeleteLocationAsync unknown error.");
+                throw;
+            }
+        }
+
         public async Task<Organization> CreateCustomerAsync(NewOrganization newCustomer, Guid callerId)
         {
             try

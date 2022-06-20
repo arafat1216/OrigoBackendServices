@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Common.Enums;
 using Common.Exceptions;
+using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
@@ -530,7 +531,7 @@ namespace Customer.API.Controllers
         [Route("{locationId:Guid}/location")]
         [HttpDelete]
         [ProducesResponseType(typeof(LocationDTO), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<LocationDTO>> DeleteLocation(Guid locationId, Guid callerId, bool hardDelete = false)
+        public async Task<ActionResult<LocationDTO>> DeleteLocationAsync(Guid locationId, [FromBody] DeleteContent deleteData)
         {
             if (locationId == Guid.Empty)
                 return BadRequest("Location id cannot be empty");
@@ -540,7 +541,7 @@ namespace Customer.API.Controllers
             if (location == null)
                 return NotFound();
 
-            await _organizationServices.DeleteOrganizationLocationAsync(locationId, callerId, hardDelete);
+            await _organizationServices.DeleteOrganizationLocationAsync(locationId, deleteData.CallerId, deleteData.hardDelete);
 
             var deletedLocationView = new LocationDTO(location);
 
