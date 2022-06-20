@@ -3,7 +3,7 @@
 namespace HardwareServiceOrderServices.Models
 {
     /// <summary>
-    ///     A event/update for a service-order that has been received and adapted from the service-provider.
+    ///     A single event/update for a service-order that has been received and adapted from the service-provider.
     /// </summary>
     public class ServiceEvent
     {
