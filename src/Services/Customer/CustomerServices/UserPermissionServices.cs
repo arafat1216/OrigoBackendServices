@@ -24,7 +24,8 @@ namespace CustomerServices
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
 
-        public UserPermissionServices(CustomerContext customerContext, IFunctionalEventLogService functionalEventLogService, IMediator mediator, IMapper mapper)
+        public UserPermissionServices(CustomerContext customerContext,
+            IFunctionalEventLogService functionalEventLogService, IMediator mediator, IMapper mapper)
         {
             _customerContext = customerContext;
             _functionalEventLogService = functionalEventLogService;
@@ -41,9 +42,8 @@ namespace CustomerServices
 
         }
 
-        private async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
+        private async Task SaveEntitiesAsync(CancellationToken cancellationToken = default)
         {
-            var numberOfRecordsSaved = 0;
             // Use of an EF Core resiliency strategy when using multiple DbContexts within an explicit BeginTransaction():
             // See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency            
             await ResilientTransaction.New(_customerContext).ExecuteAsync(async () =>
@@ -51,41 +51,65 @@ namespace CustomerServices
                 // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
                 foreach (var @event in _customerContext.GetDomainEventsAsync())
                 {
-                    if (!_customerContext.IsSQLite) 
+                    if (!_customerContext.IsSQLite && _customerContext.Database.CurrentTransaction != null)
                     {
-                        await _functionalEventLogService.SaveEventAsync(@event, _customerContext.Database.CurrentTransaction);
+                        await _functionalEventLogService.SaveEventAsync(@event,
+                            _customerContext.Database.CurrentTransaction);
                     }
                 }
+
                 await _customerContext.SaveChangesAsync(cancellationToken);
-                numberOfRecordsSaved = await _customerContext.SaveChangesAsync(cancellationToken);
                 await _mediator.DispatchDomainEventsAsync(_customerContext);
             });
-            return numberOfRecordsSaved;
         }
 
         public async Task<IList<UserPermissions>> GetUserPermissionsAsync(string userName)
         {
-            return await _customerContext.UserPermissions
-                .Include(up => up.Role).ThenInclude(r => r.GrantedPermissions).ThenInclude(p => p.Permissions)
-                .Include(up => up.User)
-                .Where(up => up.User.Email == userName).ToListAsync();
+            return await _customerContext.UserPermissions.Include(up => up.Role).ThenInclude(r => r.GrantedPermissions)
+                .ThenInclude(p => p.Permissions).Include(up => up.User).Where(up => up.User.Email == userName)
+                .ToListAsync();
         }
+
         public async Task<IList<UserPermissions>> GetUserAdminsAsync()
         {
-            return await _customerContext.UserPermissions
-                .Include(up => up.Role).ThenInclude(r => r.GrantedPermissions).ThenInclude(p => p.Permissions)
-                .Include(up => up.User)
-                .Where(up => up.Role.Name == PredefinedRole.SystemAdmin.ToString() ||
-                        up.Role.Name == PredefinedRole.PartnerAdmin.ToString() ||
-                        up.Role.Name == PredefinedRole.PartnerReadOnlyAdmin.ToString()).ToListAsync();
+            return await _customerContext.UserPermissions.Include(up => up.Role).ThenInclude(r => r.GrantedPermissions)
+                .ThenInclude(p => p.Permissions).Include(up => up.User).Where(up =>
+                    up.Role.Name == PredefinedRole.SystemAdmin.ToString() ||
+                    up.Role.Name == PredefinedRole.PartnerAdmin.ToString() ||
+                    up.Role.Name == PredefinedRole.PartnerReadOnlyAdmin.ToString()).ToListAsync();
         }
+
         public async Task<IList<UserPermissions>> GetCustomerAdminsAsync(Guid customerId)
         {
-            return await _customerContext.UserPermissions
-                .Include(up => up.Role).ThenInclude(r => r.GrantedPermissions).ThenInclude(p => p.Permissions)
-                .Include(up => up.User)
-                .Where(up => up.Role.Name == PredefinedRole.CustomerAdmin.ToString() && up.AccessList.Contains(customerId)).ToListAsync();
+            return await _customerContext.UserPermissions.Include(up => up.Role).ThenInclude(r => r.GrantedPermissions)
+                .ThenInclude(p => p.Permissions).Include(up => up.User).Where(up =>
+                    up.Role.Name == PredefinedRole.CustomerAdmin.ToString() && up.AccessList.Contains(customerId))
+                .ToListAsync();
         }
+
+        public async Task UpdateAccessListAsync(User user, List<Guid> accessList, Guid callerId)
+        {
+            var userPermissions = await GetUserPermissionsAsync(user.Email);
+            if (userPermissions.Any() && accessList.Any())
+            {
+                var userPermission = userPermissions.First();
+                foreach (var access in accessList)
+                {
+                    if (userPermission.AccessList.Contains(access)) continue;
+                    userPermission.AddAccess(access, callerId);
+                    _customerContext.Entry(userPermission).State = EntityState.Modified;
+                }
+
+                foreach (var existingPermissionAccess in  userPermission.AccessList.ToList())
+                {
+                    if (accessList.Contains(existingPermissionAccess)) continue;
+                    userPermission.RemoveAccess(existingPermissionAccess, callerId);
+                    _customerContext.Entry(userPermission).State = EntityState.Modified;
+                }
+            }
+        }
+
+
         private async Task<Role> GetRole(PredefinedRole predefinedRole)
         {
             var role = await _customerContext.Roles

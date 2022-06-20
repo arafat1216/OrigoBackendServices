@@ -349,13 +349,12 @@ namespace CustomerServices.Infrastructure
         {
             int numberOfRecordsSaved = 0;
             //Use of an EF Core resiliency strategy when using multiple DbContexts within an explicit BeginTransaction():
-            //See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency            
+            //See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency
             await ResilientTransaction.New(_customerContext).ExecuteAsync(async () =>
             {
                 var editedEntities = _customerContext.ChangeTracker.Entries()
-                                                                   .Where(E => E.State == EntityState.Modified)
+                                                                   .Where(entry => entry.State == EntityState.Modified)
                                                                    .ToList();
-
                 editedEntities.ForEach(entity =>
                 {
                     if (!entity.Entity.GetType().IsSubclassOf(typeof(ValueObject)))

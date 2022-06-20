@@ -115,7 +115,7 @@ namespace CustomerServices
                 if (managersToBeRemoved.Any())
                 {
                     customer.RemoveDepartmentManagers(departmentToUpdate, managersToBeRemoved, callerId);
-                    UpdateAccessList(customer, managersToBeRemoved, callerId);
+                    await UpdateAccessListAsync(customer, managersToBeRemoved, callerId);
                 }
 
                 var managersToBeAdded = new List<User>();
@@ -130,30 +130,44 @@ namespace CustomerServices
                     customer.AddDepartmentManager(departmentToUpdate, user, callerId);
                     managersToBeAdded.Add(user);
                 }
+
+                if (managersToBeAdded.Any())
+                {
+                    await UpdateAccessListAsync(customer, managersToBeAdded, callerId);
+                }
             }
             else
             {
                 if (departmentToUpdate.Managers.Any())
                 {
-                    customer.RemoveDepartmentManagers(departmentToUpdate, departmentToUpdate.Managers.ToList(), callerId);
+                    var managersToBeUpdated = departmentToUpdate.Managers.ToList();
+                    customer.RemoveDepartmentManagers(departmentToUpdate, managersToBeUpdated, callerId);
+                    await UpdateAccessListAsync(customer, managersToBeUpdated, callerId);
                 }
             }
             await _customerRepository.SaveEntitiesAsync();
             return _mapper.Map<DepartmentDTO>(departmentToUpdate);
         }
 
-        private void UpdateAccessList(Organization customer, IList<User> managersToBeRemoved, Guid callerId)
+        private async Task UpdateAccessListAsync(Organization customer, IList<User> managersToBeUpdated, Guid callerId)
         {
-            foreach (var user in managersToBeRemoved)
+            await _customerRepository.SaveEntitiesAsync(); // Must save to set manager and department lists correctly.
+
+            foreach (var user in managersToBeUpdated)
             {
                 List<Guid> allDepartmentGuids = new() { customer.OrganizationId };
-                foreach (var department in user.ManagesDepartments)
+                var updatedUser = await _customerRepository.GetUserAsync(customer.OrganizationId, user.UserId);
+                if (updatedUser == null)
+                {
+                    continue;
+                }
+                foreach (var department in updatedUser.ManagesDepartments)
                 {
                     var departmentIdsWithSubDepartments = department.SubDepartments(customer.Departments.ToList()).Select(d => d.ExternalDepartmentId);
                     allDepartmentGuids.AddRange(departmentIdsWithSubDepartments);
                 }
 
-                _userPermissionRepository.AssignUserPermissionsAsync(user.Email, "Manager", allDepartmentGuids, callerId);
+                await _userPermissionRepository.UpdateAccessListAsync(updatedUser, allDepartmentGuids, callerId);
             }
         }
 
