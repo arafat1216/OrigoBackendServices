@@ -9,7 +9,20 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
     {
         [Required]
         [SwaggerSchema(ReadOnly = true)]
-        public Guid Id { get; set; }
+        public Guid Id { 
+            get; 
+            set; 
+        }
+
+        [Obsolete("A temp. backend-only quickfix. Should not be used by frontend as it will soon be removed!")]
+        public Guid ExternalId
+        {
+            set
+            {
+                if (Id == Guid.Empty)
+                    Id = value;
+            }
+        }
 
         [Required]
         public Guid CustomerId { get; set; }
