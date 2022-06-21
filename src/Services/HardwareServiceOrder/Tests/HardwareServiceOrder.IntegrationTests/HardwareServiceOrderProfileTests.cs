@@ -55,7 +55,7 @@ namespace HardwareServiceOrder.IntegrationTests
         [Fact]
         public void AssetInfoToAssetInfoDTO()
         {
-            var asset = new AssetInfo
+            var asset = new API.ViewModels.AssetInfo
             {
                 PurchaseDate = new DateOnly(),
                 Imei = "123456789",
@@ -73,11 +73,11 @@ namespace HardwareServiceOrder.IntegrationTests
             var serviceOrder = new API.ViewModels.NewHardwareServiceOrder
             {
                 ErrorDescription = "sd",
-                OrderedBy = new API.ViewModels.ContactDetails
+                OrderedBy = new API.ViewModels.ContactDetailsExtended
                 {
                     FirstName = "sd",
                     LastName = "sd",
-                    Id = new Guid(),
+                    UserId = new Guid(),
                     Email = "sds@as.com",
                     PartnerId = new Guid(),
                     PartnerName = "ved",
@@ -90,6 +90,7 @@ namespace HardwareServiceOrder.IntegrationTests
                 AssetInfo = new API.ViewModels.AssetInfo
                 {
                     Imei = "500119468586675",
+                    //AssetLifecycleId = new Guid(),
                     Accessories = new List<string>
                     {
                         "sdsd"
@@ -114,26 +115,34 @@ namespace HardwareServiceOrder.IntegrationTests
                 }
             };
 
-            var serviceOrderDTO = _mapper.Map<HardwareServiceOrderDTO>(serviceOrder);
+            var serviceOrderDTO = _mapper.Map<NewHardwareServiceOrderDTO>(serviceOrder);
+
 
             Assert.NotNull(serviceOrderDTO);
+
             Assert.Equal(serviceOrder.AssetInfo.Imei, serviceOrderDTO.AssetInfo.Imei);
             Assert.Equal(serviceOrder.AssetInfo.Model, serviceOrderDTO.AssetInfo.Model);
             Assert.Equal(serviceOrder.AssetInfo.SerialNumber, serviceOrderDTO.AssetInfo.SerialNumber);
             Assert.Equal(serviceOrder.AssetInfo.Brand, serviceOrderDTO.AssetInfo.Brand);
             Assert.Equal(serviceOrder.AssetInfo.Accessories, serviceOrderDTO.AssetInfo.Accessories);
             Assert.Equal(serviceOrder.AssetInfo.AssetCategoryId, serviceOrderDTO.AssetInfo.AssetCategoryId);
+
+            //Assert.Equal(serviceOrder.AssetInfo.PurchaseDate, serviceOrderDTO.AssetInfo.PurchaseDate);
+
             Assert.Equal(serviceOrder.DeliveryAddress.Address2, serviceOrderDTO.DeliveryAddress.Address2);
             Assert.Equal(serviceOrder.DeliveryAddress.Address1, serviceOrderDTO.DeliveryAddress.Address1);
             Assert.Equal(serviceOrder.DeliveryAddress.City, serviceOrderDTO.DeliveryAddress.City);
             Assert.Equal(serviceOrder.DeliveryAddress.Country, serviceOrderDTO.DeliveryAddress.Country);
             Assert.Equal(serviceOrder.DeliveryAddress.Recipient, serviceOrderDTO.DeliveryAddress.Recipient);
+
+
             Assert.Equal(serviceOrder.OrderedBy.FirstName, serviceOrderDTO.OrderedBy.FirstName);
             Assert.Equal(serviceOrder.OrderedBy.LastName, serviceOrderDTO.OrderedBy.LastName);
             Assert.Equal(serviceOrder.OrderedBy.PartnerName, serviceOrderDTO.OrderedBy.PartnerName);
             Assert.Equal(serviceOrder.OrderedBy.PartnerOrganizationNumber, serviceOrderDTO.OrderedBy.PartnerOrganizationNumber);
             Assert.Equal(serviceOrder.OrderedBy.PhoneNumber, serviceOrderDTO.OrderedBy.PhoneNumber);
             Assert.Equal(serviceOrder.OrderedBy.OrganizationName, serviceOrderDTO.OrderedBy.OrganizationName);
+
             Assert.Equal(serviceOrder.ErrorDescription, serviceOrderDTO.ErrorDescription);
         }
     }
