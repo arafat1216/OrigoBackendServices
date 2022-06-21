@@ -12,5 +12,6 @@ namespace OrigoApiGateway.Models.BackendDTO
         public Guid? PrimaryLocation { get; set; }
         public Guid? ParentId { get; set; }
         public Guid CallerId { get; set; }
+        public bool? AddUsersToOkta { get; set; }
     }
 }

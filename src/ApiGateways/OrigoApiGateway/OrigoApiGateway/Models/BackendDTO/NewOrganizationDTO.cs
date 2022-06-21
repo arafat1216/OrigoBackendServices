@@ -24,5 +24,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         public bool IsCustomer { get; set; }
 
         public NewOrganizationPreferences Preferences { get; set; }
+
+        public bool? AddUsersToOkta { get; set; }
     }
 }

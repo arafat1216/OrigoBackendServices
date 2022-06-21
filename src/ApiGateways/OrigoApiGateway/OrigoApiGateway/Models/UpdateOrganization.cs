@@ -14,5 +14,7 @@ namespace OrigoApiGateway.Models
         public OrigoContactPerson ContactPerson { get; set; }
         public Guid? PrimaryLocation { get; set; }
         public Guid? ParentId { get; set; }
+
+        public bool? AddUsersToOkta { get; set; }
     }
 }

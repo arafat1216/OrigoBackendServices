@@ -57,5 +57,10 @@ namespace OrigoApiGateway.Models
         ///     specialized/custom organizations (e.g. partners and service-providers) that don't have a normal customer relationship under a partner. </para>
         /// </summary>
         public Guid? PartnerId { get; set; }
+
+        /// <summary>
+        /// Should new users be added to Okta for this organization.
+        /// </summary>
+        public bool? AddUsersToOkta { get; set; }
     }
 }

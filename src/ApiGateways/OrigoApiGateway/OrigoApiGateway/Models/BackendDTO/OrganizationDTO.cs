@@ -22,5 +22,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         public LocationDTO Location { get; set; }
 
         public Guid? PartnerId { get; set; }
+
+        public bool? AddUsersToOkta { get; set; }
     }
 }

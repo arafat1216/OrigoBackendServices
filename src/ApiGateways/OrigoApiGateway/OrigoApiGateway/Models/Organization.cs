@@ -15,5 +15,7 @@ namespace OrigoApiGateway.Models
         public NewOrganizationPreferences Preferences { get; init; }
         public Location Location { get; init; }
         public Guid? PartnerId { get; set; }
+
+        public bool? AddUsersToOkta { get; set; }
     }
 }
