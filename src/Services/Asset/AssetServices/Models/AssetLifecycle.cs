@@ -258,7 +258,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
             // Unassign previous owner and add domain events for it - cant have two owners
             if (ContractHolderUser != null) AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, ContractHolderUser));
             if (ManagedByDepartmentId != null) AddDomainEvent(new UnAssignDepartmentAssetLifecycleDomainEvent(this, callerId));
-            ManagedByDepartmentId = null;
+            ManagedByDepartmentId = departmentId;
             IsPersonal = true;
             ContractHolderUser = contractHolderUser;
             var previousContractHolderUser = ContractHolderUser;

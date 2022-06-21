@@ -1334,6 +1334,7 @@ namespace OrigoApiGateway.Services
                         var user = await _userServices.GetUserAsync(customerId, assignedAsset.UserId);
                         if (user == null)
                             throw new BadHttpRequestException("Unable to assign asset. User not found");
+                        assignedAsset.DepartmentId = user.AssignedToDepartment;
                     }
                     catch
                     {

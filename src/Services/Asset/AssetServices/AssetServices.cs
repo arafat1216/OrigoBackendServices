@@ -323,7 +323,7 @@ namespace AssetServices
             if (newAssetDTO.AssetHolderId != null && newAssetDTO.AssetHolderId != Guid.Empty)
             {
                 var user = await _assetLifecycleRepository.GetUser(newAssetDTO.AssetHolderId.Value);
-                assetLifecycle.AssignAssetLifecycleHolder(user != null ? user : new User { ExternalId = newAssetDTO.AssetHolderId.Value }, null,
+                assetLifecycle.AssignAssetLifecycleHolder(user != null ? user : new User { ExternalId = newAssetDTO.AssetHolderId.Value }, newAssetDTO.ManagedByDepartmentId,
                     newAssetDTO.CallerId);
             }
 

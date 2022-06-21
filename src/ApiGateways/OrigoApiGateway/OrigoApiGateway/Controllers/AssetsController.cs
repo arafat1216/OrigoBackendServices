@@ -143,9 +143,9 @@ namespace OrigoApiGateway.Controllers
             {
                 // All roles have access, as long as customer is in their accessList
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -189,19 +189,28 @@ namespace OrigoApiGateway.Controllers
                 {
                     filterOptions.UserId = "me";
                 }
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
                     }
                 }
 
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
+                {
+                    filterOptions.Department = new List<Guid?>();
+                    foreach (var departmentId in accessList.Split(","))
+                    {
+                        if (Guid.TryParse(departmentId, out var departmentGuid))
+                        {
+                            filterOptions.Department.Add(departmentGuid);
+                        }
+                    }
+                }
 
-                if (filterOptions.UserId == "me")
-                    filterOptions.UserId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                else filterOptions.UserId = null;
+                filterOptions.UserId = filterOptions.UserId == "me" ? HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value : null;
 
                 var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId, filterOptions, search, page, limit);
                 if (assets == null)
@@ -1530,9 +1539,11 @@ namespace OrigoApiGateway.Controllers
         }
 
         /// <summary>
-        /// Assign a department or a user to an Asset Life cyle
+        /// Assign a department or a user to an Asset Life cycle
         /// </summary>
+        /// <param name="assetId"></param>
         /// <param name="asset">Needs to have either a departmentId or userId. Can not have id for both and can not be null at the same time.</param>
+        /// <param name="organizationId"></param>
         [Route("{assetId:Guid}/customers/{organizationId:guid}/assign")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]

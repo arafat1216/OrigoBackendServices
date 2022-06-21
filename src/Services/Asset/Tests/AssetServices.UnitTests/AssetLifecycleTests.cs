@@ -113,13 +113,11 @@ public class AssetLifecycleTests
     {
         // Arrange
         Guid newUserId = Guid.NewGuid();
-        const string USER_NAME = "test@test.com";
         var user = new User() { ExternalId = newUserId };
 
         var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
         {
             LifecycleType = LifecycleType.Transactional,
-            //userName = USER_NAME
         };
         var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
 
@@ -132,6 +130,27 @@ public class AssetLifecycleTests
         Assert.Contains(assetLifecycle.DomainEvents, e => e.GetType() == typeof(UpdateAssetLifecycleStatusDomainEvent));
         Assert.Equal(newUserId, assetLifecycle.ContractHolderUser!.ExternalId);
         Assert.Null(assetLifecycle.ManagedByDepartmentId);
+    }
+
+    [Fact]
+    public void AssignLifecycleHolder_PersonalHolderWithDepartment_CheckDepartmentSet()
+    {
+        // Arrange
+        Guid newUserId = Guid.NewGuid();
+        Guid newDepartmentId = Guid.NewGuid();
+        var user = new User() { ExternalId = newUserId };
+
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional,
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        // Act
+        assetLifecycle.AssignAssetLifecycleHolder(user, newDepartmentId, Guid.Empty);
+
+        // Assert
+        Assert.Equal(newDepartmentId, assetLifecycle.ManagedByDepartmentId);
     }
 
     [Fact]

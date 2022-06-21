@@ -100,7 +100,6 @@ namespace OrigoApiGateway.Controllers
                 }
             }
 
-
             var users = await _userServices.GetAllUsersAsync(organizationId,filterOptions, cancellationToken, search, page, limit);
             return Ok(users);
         }
