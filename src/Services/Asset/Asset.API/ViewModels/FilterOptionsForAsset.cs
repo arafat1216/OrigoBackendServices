@@ -17,5 +17,9 @@ namespace Asset.API.ViewModels
         public Guid[]? Label { get; set; }
         [FromQuery(Name = "userId")]
         public string UserId { get; set; }
+        [FromQuery(Name = "isActiveState")]
+        public bool? IsActiveState { get; set; }
+        [FromQuery(Name = "isPersonal")]
+        public bool? IsPersonal { get; set; }
     }
 }

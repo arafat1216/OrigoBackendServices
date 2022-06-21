@@ -2141,5 +2141,47 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
         }
+        [Fact]
+        public async Task GetAsset_FilterOptions_IsPersonal()
+        {
+            
+            var filterOptions = new FilterOptionsForAsset
+            {
+                IsPersonal = true
+            };
+
+            var json = JsonSerializer.Serialize(filterOptions);
+
+
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}?filterOptions={json}";
+
+            // Act
+            var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+
+            // Assert
+            Assert.Equal(2, pagedAssetList!.Items.Count);
+        }
+        [Fact]
+        public async Task GetAsset_FilterOptions_IsActiveState()
+        {
+
+            var filterOptions = new FilterOptionsForAsset
+            {
+                IsActiveState = true
+            };
+
+            var json = JsonSerializer.Serialize(filterOptions);
+
+
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}?filterOptions={json}";
+
+            // Act
+            var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+
+            // Assert
+            Assert.Equal(7, pagedAssetList!.Items.Count);
+        }
     }
 }

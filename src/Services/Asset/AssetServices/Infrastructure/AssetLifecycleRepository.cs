@@ -101,7 +101,7 @@ namespace AssetServices.Infrastructure
         }
 
         public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
-           Guid[]? label, string search, int page, int limit, CancellationToken cancellationToken)
+           Guid[]? label, bool? isActiveState, bool? isPersonal, string search, int page, int limit, CancellationToken cancellationToken)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
             query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
@@ -158,6 +158,27 @@ namespace AssetServices.Infrastructure
             if(userId != null)
             {
                 query = query.Where(al => al.ContractHolderUser.ExternalId == new Guid(userId));
+            }
+            if (isPersonal.HasValue)
+            {
+                query = query.Where(al => al.IsPersonal == isPersonal.Value); 
+            }
+            if (isActiveState.HasValue)
+            {
+               if(isActiveState.Value) query = query.Where(al => al.AssetLifecycleStatus == AssetLifecycleStatus.InputRequired ||
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.InUse ||
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Repair ||
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Available ||
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Active);
+
+                else query = query.Where(al => al.AssetLifecycleStatus == AssetLifecycleStatus.Lost ||
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Stolen ||
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Recycled ||
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Discarded ||
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Returned);
+            
             }
 
             query = query.AsSplitQuery().AsNoTracking();

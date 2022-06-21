@@ -65,11 +65,11 @@ namespace AssetServices
         }
 
         public async Task<PagedModel<AssetLifecycleDTO>> GetAssetLifecyclesForCustomerAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
-           Guid[]? label, string search, int page, int limit, CancellationToken cancellationToken)
+           Guid[]? label, bool? isActiveState, bool? isPersonal, string search, int page, int limit, CancellationToken cancellationToken)
         {
             try
             {
-                var pagedAssetLifeCycles = await _assetLifecycleRepository.GetAssetLifecyclesAsync(customerId, userId, status, department, category, label, search, page, limit, cancellationToken);
+                var pagedAssetLifeCycles = await _assetLifecycleRepository.GetAssetLifecyclesAsync(customerId, userId, status, department, category, label, isActiveState, isPersonal, search, page, limit, cancellationToken);
                 var pagedServiceAssetLifecycles = _mapper.Map<PagedModel<AssetLifecycleDTO>>(pagedAssetLifeCycles);
                 return pagedServiceAssetLifecycles;
             }
