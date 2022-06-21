@@ -42,6 +42,7 @@ namespace Asset.IntegrationTests.Controllers
         private readonly Guid _assetThree;
         private readonly Guid _assetFour;
         private readonly Guid _assetFive;
+        private readonly Guid _assetSix;
         private readonly Guid _assetSeven;
         private readonly Guid _assetEight;
         private readonly Guid _assetNine;
@@ -65,6 +66,7 @@ namespace Asset.IntegrationTests.Controllers
             _assetFour = factory.ASSETLIFECYCLE_FOUR_ID;
             _assetEight = factory.ASSETLIFECYCLE_EIGHT_ID;
             _assetFive = factory.ASSETLIFECYCLE_FIVE_ID;
+            _assetSix = factory.ASSETLIFECYCLE_SIX_ID;
             _assetSeven = factory.ASSETLIFECYCLE_SEVEN_ID;
             _assetNine = factory.ASSETLIFECYCLE_NINE_ID;
             _customerIdTwo = factory.COMPANY_ID_TWO;
@@ -612,6 +614,66 @@ namespace Asset.IntegrationTests.Controllers
             Assert.True(updatedAsset.AssetHolderId == null || updatedAsset.AssetHolderId == Guid.Empty);
             Assert.True(updatedAsset.Labels == null || !updatedAsset.Labels.Any());
         }
+
+        [Fact]
+        public async Task MakeAssetExpireAsync_AssetNotFound()
+        {
+            var postData = new MakeAssetAvailable { AssetLifeCycleId = Guid.NewGuid(), CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/make-expire";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+            Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
+        }
+
+        [Fact]
+        public async Task MakeAssetExpireAsync_AssetNotActive()
+        {
+            var postData = new MakeAssetAvailable { AssetLifeCycleId = _assetFour, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/make-expire";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+            Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
+        }
+
+        [Fact]
+        public async Task MakeAssetExpireAsync_NoEndPeriod()
+        {
+            var postData = new MakeAssetAvailable { AssetLifeCycleId = _assetFive, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/make-expire";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+            Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
+        }
+
+        [Fact]
+        public async Task MakeAssetExpireAsync_NotExpiring()
+        {
+            var postData = new MakeAssetAvailable { AssetLifeCycleId = _assetSix, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/make-expire";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+            Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
+        }
+
+        [Fact]
+        public async Task MakeAssetExpireAsync()
+        {
+            var postData = new MakeAssetAvailable { AssetLifeCycleId = _assetNine, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/make-expire";
+            _testOutputHelper.WriteLine(requestUri);
+            var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+            Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+            var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.Expired);
+            Assert.True(!updatedAsset!.IsActiveState);
+        }
+
         [Fact]
         public async Task ReturnDeviceAsync_PersonalPendingReturn()
         {

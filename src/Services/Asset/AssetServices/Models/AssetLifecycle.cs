@@ -327,6 +327,18 @@ public class AssetLifecycle : Entity, IAggregateRoot
     }
 
     /// <summary>
+    /// Making this asset expired for user/department. 
+    /// </summary>
+    /// <param name="callerId">The userid making this request</param>
+    public void MakeAssetExpired(Guid callerId)
+    {
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        AddDomainEvent(new MakeAssetExpiredDomainEvent(this, callerId));
+        _assetLifecycleStatus = AssetLifecycleStatus.Expired;
+    }
+
+    /// <summary>
     /// Making this asset's return request for managers to Confirm. 
     /// </summary>
     /// <param name="callerId">The userid making this assignment</param>

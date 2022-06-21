@@ -15,6 +15,7 @@
         Recycled = 10,
         Returned = 11,
         Discarded = 12,
-        Inactive = 13
+        Inactive = 13,
+        Expired = 14,
     }
 }

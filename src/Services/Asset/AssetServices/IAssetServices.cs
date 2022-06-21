@@ -60,5 +60,6 @@ namespace AssetServices
         Task<IList<ReturnLocationDTO>> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, ReturnLocationDTO returnLocationDTO, Guid callerId);
         Task<IList<ReturnLocationDTO>> RemoveReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, Guid callerId);
         Task<IList<ReturnLocationDTO>> GetReturnLocationsByCustomer(Guid customerId);
+        Task<AssetLifecycleDTO> MakeAssetExpiredAsync(Guid customerId, Guid assetId, Guid callerId);
     }
 }

@@ -503,6 +503,29 @@ namespace Asset.API.Controllers
             return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
         }
 
+        [Route("customers/{customerId:guid}/make-expire")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> MakeAssetExpired(Guid customerId, [FromBody] MakeAssetExpired data)
+        {
+            try
+            {
+                var updatedAssets = await _assetServices.MakeAssetExpiredAsync(customerId, data.AssetLifeCycleId, data.CallerId);
+                return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger?.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (AssetExpireRequestException ex)
+            {
+                _logger?.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
         [Route("customers/{customerId:guid}/return-device")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
