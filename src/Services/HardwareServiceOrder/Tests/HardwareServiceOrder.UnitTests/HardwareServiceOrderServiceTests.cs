@@ -174,11 +174,11 @@ namespace HardwareServiceOrder.UnitTests
         {
             await _hardwareServiceOrderService.UpdateOrderStatusAsync();
 
-            var orders = _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(CUSTOMER_ONE_ID, null, false, new System.Threading.CancellationToken()).Result.Items;
+            var orders = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(CUSTOMER_ONE_ID, null, false, new System.Threading.CancellationToken());
 
             Assert.NotNull(orders);
 
-            Assert.Equal(2, orders[0].ServiceEvents.ElementAt(0).ServiceStatusId);
+            Assert.Equal(2, orders.Items[0].Events.ElementAt(0).ServiceStatusId);
         }
 
     }
