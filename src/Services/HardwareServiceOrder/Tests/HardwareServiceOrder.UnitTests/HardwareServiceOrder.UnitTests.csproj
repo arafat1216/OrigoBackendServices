@@ -8,7 +8,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="System.Resources.ResourceManager" Version="4.3.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.5" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
 		<PackageReference Include="Moq" Version="4.18.1" />
@@ -24,7 +23,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\HardwareServiceOrder.API\HardwareServiceOrder.API.csproj" />
 		<ProjectReference Include="..\..\HardwareServiceOrderServices\HardwareServiceOrderServices.csproj" />
 	</ItemGroup>
 
