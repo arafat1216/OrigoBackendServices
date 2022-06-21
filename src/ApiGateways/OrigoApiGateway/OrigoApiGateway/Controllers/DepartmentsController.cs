@@ -261,6 +261,10 @@ namespace OrigoApiGateway.Controllers
 
                 return Ok(updatedDepartment);
             }
+            catch (BadHttpRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch
             {
                 return BadRequest();

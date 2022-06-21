@@ -148,10 +148,19 @@ namespace OrigoApiGateway.Services
 
                 //var response = await HttpClient.DeleteAsync($"{_options.ApiPath}/{customerId}/departments/{departmentId}");
                 if (!response.IsSuccessStatusCode)
-                    throw new BadHttpRequestException("Unable to save department", (int)response.StatusCode);
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    if (errorContent != null) throw new BadHttpRequestException(errorContent, (int)response.StatusCode);
+                    else throw new BadHttpRequestException("Unable to save department", (int)response.StatusCode);
+                }
 
                 var deletedDepartment = await response.Content.ReadFromJsonAsync<DepartmentDTO>();
                 return deletedDepartment == null ? null : _mapper.Map<OrigoDepartment>(deletedDepartment);
+            }
+            catch (BadHttpRequestException exception)
+            {
+                _logger.LogError(exception, "DeleteDepartmentPatchAsync could not delete");
+                throw;
             }
             catch (Exception exception)
             {

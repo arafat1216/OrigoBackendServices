@@ -3,6 +3,7 @@ using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -90,12 +91,21 @@ namespace Customer.API.Controllers
         [Route("{departmentId:Guid}")]
         [HttpDelete]
         [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+
         public async Task<ActionResult<Department>> DeleteDepartment(Guid customerId, Guid departmentId, [FromBody] Guid callerId)
         {
-            var updatedDepartment = await _departmentServices.DeleteDepartmentAsync(customerId, departmentId, callerId);
-            var departmentView = _mapper.Map<Department>(updatedDepartment);
+            try
+            {
+                var updatedDepartment = await _departmentServices.DeleteDepartmentAsync(customerId, departmentId, callerId);
+                var departmentView = _mapper.Map<Department>(updatedDepartment);
 
-            return Ok(departmentView);
+                return Ok(departmentView);
+
+            }catch (DbUpdateException ex)
+            {
+                return BadRequest("Could not be deleted. Move all users before deleting the department.");
+            }
         }
     }
 }
