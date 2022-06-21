@@ -209,7 +209,7 @@ namespace CustomerServices
             var organization = new Organization(Guid.NewGuid(), newOrganization.CallerId, newOrganization.ParentId,
                                                 newOrganization.Name, newOrganization.OrganizationNumber, address,
                                                 contactPerson, null, location,
-                                                partner, newOrganization.IsCustomer);
+                                                partner, newOrganization.IsCustomer, newOrganization.AddUsersToOkta);
 
             organization = await _organizationRepository.AddAsync(organization);
 
@@ -246,9 +246,9 @@ namespace CustomerServices
         }
 
 
-        public async Task<Organization> PutOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
-                                                             string street, string postCode, string city, string country,
-                                                             string firstName, string lastName, string email, string phoneNumber)
+        public async Task<Organization> PutOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation,
+            Guid callerId, string name, string organizationNumber, string street, string postCode, string city,
+            string country, string firstName, string lastName, string email, string phoneNumber, bool addUsersToOkta = false)
         {
             try
             {
@@ -299,7 +299,7 @@ namespace CustomerServices
                 ContactPerson newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
-                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer);
+                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, addUsersToOkta);
 
                 organizationOriginal.UpdateOrganization(newOrganization);
 
@@ -341,9 +341,10 @@ namespace CustomerServices
             }
         }
 
-        public async Task<Organization> PatchOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
-                                                               string street, string postCode, string city, string country,
-                                                               string firstName, string lastName, string email, string phoneNumber)
+        public async Task<Organization> PatchOrganizationAsync(Guid organizationId, Guid? parentId,
+            Guid? primaryLocation, Guid callerId, string name, string organizationNumber, string street,
+            string postCode, string city, string country, string firstName, string lastName, string email,
+            string phoneNumber, bool addUsersToOkta = false)
         {
             try
             {
@@ -409,7 +410,7 @@ namespace CustomerServices
                 newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
-                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer);
+                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, addUsersToOkta);
 
                 organizationOriginal.PatchOrganization(newOrganization);
 

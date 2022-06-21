@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace CustomerServices.UnitTests
@@ -33,7 +34,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void GetCompanyOne_CheckName()
+        public async Task GetCompanyOne_CheckName()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -53,7 +54,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void PutCompanyOne_null_values()
+        public async Task PutCompanyOne_null_values()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -79,9 +80,57 @@ namespace CustomerServices.UnitTests
             Assert.Equal("", organization.ContactPerson.PhoneNumber);
         }
 
+
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void PutCompanyOne_partial_null_values()
+        public async Task AddOrganization_WithoutAddOktaUsersSet_CheckDefaultValueSetToFalse()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
+
+            // Act
+            var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
+            {
+                Name = "COMPANY NAME",
+                OrganizationNumber = "999999999",
+                Location = new LocationDTO(),
+                Address = new AddressDTO(),
+                ContactPerson = new ContactPersonDTO()
+            });
+
+            // Assert 
+            Assert.False(organization.AddUsersToOkta);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task AddOrganization_WithAddOktaUsersSet_CheckValue()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
+
+            // Act
+            var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
+            {
+                Name = "COMPANY NAME",
+                OrganizationNumber = "999999999",
+                Location = new LocationDTO(),
+                Address = new AddressDTO(),
+                ContactPerson = new ContactPersonDTO(),
+                AddUsersToOkta = true
+            });
+
+            // Assert 
+            Assert.True(organization.AddUsersToOkta);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task PutCompanyOne_partial_null_values()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -109,7 +158,66 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void PatchCompanyOne__null_values()
+        public async Task PutOrganization_WithAddOktaUsersSet_CheckValue()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
+
+            // Act
+            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null, addUsersToOkta: true);
+
+            // Assert 
+            Assert.True(organization.AddUsersToOkta);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task PatchOrganization_WithAddOktaUsersSet_CheckValue()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
+
+            // Act
+            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null, addUsersToOkta: true);
+
+            // Assert 
+            Assert.True(organization.AddUsersToOkta);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task GetOrganization_WithAddOktaUsersSet_CheckValue()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
+
+            var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
+            {
+                Name = "COMPANY NAME",
+                OrganizationNumber = "999999999",
+                Location = new LocationDTO(),
+                Address = new AddressDTO(),
+                ContactPerson = new ContactPersonDTO(),
+                IsCustomer = true,
+                AddUsersToOkta = true
+            });
+
+            // Act
+            var addedOrganization = await organizationServices.GetOrganizationAsync(organization.OrganizationId);
+
+            // Assert 
+            Assert.True(addedOrganization!.AddUsersToOkta);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task PatchCompanyOne__null_values()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -137,7 +245,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void PatchCompanyOne_partial_null_values()
+        public async Task PatchCompanyOne_partial_null_values()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);

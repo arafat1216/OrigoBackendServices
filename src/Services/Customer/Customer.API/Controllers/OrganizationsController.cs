@@ -216,7 +216,7 @@ namespace Customer.API.Controllers
 
                 // Update
                 var updatedOrganization = await _organizationServices.PutOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
-                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber);
+                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber, organization.AddUsersToOkta ?? default);
 
                 var updatedOrganizationView = new OrganizationDTO
                 {
@@ -227,7 +227,8 @@ namespace Customer.API.Controllers
                     ContactPerson = new ContactPersonDTO(updatedOrganization.ContactPerson),
                     Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(updatedOrganization.Preferences),
                     Location = (updatedOrganization.PrimaryLocation == null) ? null : new LocationDTO(updatedOrganization.PrimaryLocation),
-                    PartnerId = updatedOrganization.Partner?.ExternalId
+                    PartnerId = updatedOrganization.Partner?.ExternalId,
+                    AddUsersToOkta = updatedOrganization.AddUsersToOkta
                 };
 
                 return updatedOrganizationView;
@@ -289,7 +290,7 @@ namespace Customer.API.Controllers
 
                 // Update
                 var updatedOrganization = await _organizationServices.PatchOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
-                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber);
+                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber, organization.AddUsersToOkta ?? default);
 
                 var updatedOrganizationView = new OrganizationDTO
                 {
@@ -300,7 +301,8 @@ namespace Customer.API.Controllers
                     ContactPerson = new ContactPersonDTO(updatedOrganization.ContactPerson),
                     Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(updatedOrganization.Preferences),
                     Location = (updatedOrganization.PrimaryLocation == null) ? null : new LocationDTO(updatedOrganization.PrimaryLocation),
-                    PartnerId = updatedOrganization.Partner?.ExternalId
+                    PartnerId = updatedOrganization.Partner?.ExternalId,
+                    AddUsersToOkta = updatedOrganization.AddUsersToOkta
                 };
 
                 return updatedOrganizationView;

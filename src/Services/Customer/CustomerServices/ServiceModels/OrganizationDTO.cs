@@ -22,6 +22,7 @@ namespace CustomerServices.ServiceModels
             Preferences = new OrganizationPreferencesDTO(organization.Preferences);
             PartnerId = organization.Partner?.ExternalId;
             ParentId = organization.ParentId;
+            AddUsersToOkta = organization.AddUsersToOkta;
 
             if (organization.ChildOrganizations is not null && organization.ChildOrganizations.Count != 0)
             {
@@ -64,5 +65,10 @@ namespace CustomerServices.ServiceModels
         ///     The partner that "owns" and handles the customer-relations with this organization.
         /// </summary>
         public Guid? PartnerId { get; set; }
+
+        /// <summary>
+        /// Should new users be added to Okta when created.
+        /// </summary>
+        public bool AddUsersToOkta { get; set; }
     }
 }

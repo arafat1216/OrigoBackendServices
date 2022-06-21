@@ -204,6 +204,12 @@ namespace CustomerServices.Models
                 isUpdated = true;
             }
 
+            if (AddUsersToOkta != organization.AddUsersToOkta)
+            {
+                AddDomainEvent(new AddUsersToOktaChangedDomainEvent(this));
+                AddUsersToOkta = organization.AddUsersToOkta;
+                isUpdated = true;
+            }
 
             Preferences = organization.Preferences; // preferences cannot be changed here
             //Location = organization.Location; // Is either a new empty location object, or an existing one. Not modified.
@@ -220,9 +226,9 @@ namespace CustomerServices.Models
             bool isUpdated = false;
             if (ParentId != organization.ParentId && organization.ParentId != null)
             {
-                var previousparentId = ParentId.ToString();
+                var previousParentId = ParentId.ToString();
                 ParentId = organization.ParentId;
-                AddDomainEvent(new CustomerParentIdChangedDomainEvent(this, previousparentId));
+                AddDomainEvent(new CustomerParentIdChangedDomainEvent(this, previousParentId));
                 isUpdated = true;
             }
 
@@ -268,6 +274,13 @@ namespace CustomerServices.Models
                 var oldContactPerson = ContactPerson;
                 ContactPerson = organization.ContactPerson;
                 AddDomainEvent(new ContactPersonChangedDomainEvent(this, oldContactPerson));
+                isUpdated = true;
+            }
+
+            if (AddUsersToOkta != organization.AddUsersToOkta)
+            {
+                AddDomainEvent(new AddUsersToOktaChangedDomainEvent(this));
+                AddUsersToOkta = organization.AddUsersToOkta;
                 isUpdated = true;
             }
 

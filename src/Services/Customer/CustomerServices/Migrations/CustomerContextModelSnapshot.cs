@@ -115,7 +115,7 @@ namespace CustomerServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FeatureFlags");
+                    b.ToTable("FeatureFlags", (string)null);
                 });
 
             modelBuilder.Entity("CustomerServices.Models.Location", b =>
@@ -188,7 +188,7 @@ namespace CustomerServices.Migrations
 
                     b.HasIndex("OrganizationId");
 
-                    b.ToTable("Locations");
+                    b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("CustomerServices.Models.Organization", b =>
@@ -304,7 +304,7 @@ namespace CustomerServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OrganizationPreferences");
+                    b.ToTable("OrganizationPreferences", (string)null);
                 });
 
             modelBuilder.Entity("CustomerServices.Models.Partner", b =>
@@ -385,7 +385,7 @@ namespace CustomerServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Permissions");
+                    b.ToTable("Permissions", (string)null);
 
                     b.HasData(
                         new
@@ -461,7 +461,7 @@ namespace CustomerServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PermissionSets");
+                    b.ToTable("PermissionSets", (string)null);
 
                     b.HasData(
                         new
@@ -507,7 +507,7 @@ namespace CustomerServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
 
                     b.HasData(
                         new
@@ -727,7 +727,7 @@ namespace CustomerServices.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserPermissions");
+                    b.ToTable("UserPermissions", (string)null);
                 });
 
             modelBuilder.Entity("CustomerServices.Models.UserPreference", b =>
@@ -762,7 +762,7 @@ namespace CustomerServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserPreference");
+                    b.ToTable("UserPreference", (string)null);
                 });
 
             modelBuilder.Entity("DepartmentUser", b =>
@@ -792,7 +792,7 @@ namespace CustomerServices.Migrations
 
                     b.HasIndex("PermissionsId");
 
-                    b.ToTable("PermissionPermissionSet");
+                    b.ToTable("PermissionPermissionSet", (string)null);
                 });
 
             modelBuilder.Entity("PermissionSetRole", b =>
@@ -807,7 +807,7 @@ namespace CustomerServices.Migrations
 
                     b.HasIndex("RolesId");
 
-                    b.ToTable("PermissionSetRole");
+                    b.ToTable("PermissionSetRole", (string)null);
                 });
 
             modelBuilder.Entity("CustomerServices.Models.Department", b =>
@@ -838,7 +838,7 @@ namespace CustomerServices.Migrations
                         .WithMany("Customers")
                         .HasForeignKey("PartnerId");
 
-                    b.OwnsOne("CustomerServices.Models.Address", "Address", b1 =>
+                    b.OwnsOne("CustomerServices.Models.Organization.Address#CustomerServices.Models.Address", "Address", b1 =>
                         {
                             b1.Property<int>("OrganizationId")
                                 .HasColumnType("int");
@@ -857,13 +857,13 @@ namespace CustomerServices.Migrations
 
                             b1.HasKey("OrganizationId");
 
-                            b1.ToTable("Organization");
+                            b1.ToTable("Organization", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("OrganizationId");
                         });
 
-                    b.OwnsOne("CustomerServices.Models.ContactPerson", "ContactPerson", b1 =>
+                    b.OwnsOne("CustomerServices.Models.Organization.ContactPerson#CustomerServices.Models.ContactPerson", "ContactPerson", b1 =>
                         {
                             b1.Property<int>("OrganizationId")
                                 .HasColumnType("int");
@@ -882,7 +882,7 @@ namespace CustomerServices.Migrations
 
                             b1.HasKey("OrganizationId");
 
-                            b1.ToTable("Organization");
+                            b1.ToTable("Organization", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("OrganizationId");

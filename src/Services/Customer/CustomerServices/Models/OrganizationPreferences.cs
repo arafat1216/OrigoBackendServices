@@ -1,4 +1,5 @@
-﻿using Common.Seedwork;
+﻿#nullable enable
+using Common.Seedwork;
 using CustomerServices.DomainEvents;
 using System;
 
@@ -36,18 +37,6 @@ namespace CustomerServices.Models
             CreatedBy = callerId;
             UpdatedBy = callerId;
             AddDomainEvent(new OrganizationPreferencesAddedDomainEvent(this));
-        }
-
-        /// <summary>
-        /// Cannot check for null in constructor, since patch method needs to check if Preferences object to update has fields we wish to ignore
-        /// This method allows us to set null fields to String.Empty for update method, while ignoring null fields for patch method.
-        /// </summary>
-        public void SetFieldsToEmptyIfNull()
-        {
-            if (WebPage == null) WebPage = "";
-            if (LogoUrl == null) LogoUrl = "";
-            if (OrganizationNotes == null) OrganizationNotes = "";
-            if (PrimaryLanguage == null) PrimaryLanguage = "";
         }
 
         public void UpdatePreferences(OrganizationPreferences newPreferences)
