@@ -69,6 +69,6 @@ namespace CustomerServices.ServiceModels
         /// <summary>
         /// Should new users be added to Okta when created.
         /// </summary>
-        public bool AddUsersToOkta { get; set; }
+        public bool? AddUsersToOkta { get; set; }
     }
 }

@@ -61,7 +61,8 @@ namespace Customer.API.Controllers
                     ContactPerson = new ContactPersonDTO(organization.ContactPerson),
                     Preferences = (organization.Preferences == null) ? null : new OrganizationPreferencesDTO(organization.Preferences),
                     Location = (organization.PrimaryLocation == null) ? null : new LocationDTO(organization.PrimaryLocation),
-                    PartnerId = organization.Partner?.ExternalId
+                    PartnerId = organization.Partner?.ExternalId,
+                    AddUsersToOkta = organization.AddUsersToOkta
                 };
 
                 return Ok(foundCustomer);
