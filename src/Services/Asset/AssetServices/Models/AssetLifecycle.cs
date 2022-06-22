@@ -332,6 +332,8 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <param name="callerId">The userid making this request</param>
     public void MakeAssetExpired(Guid callerId)
     {
+        if (_assetLifecycleType == LifecycleType.NoLifecycle)
+            return;
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         AddDomainEvent(new MakeAssetExpiredDomainEvent(this, callerId));
