@@ -30,7 +30,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             _httpClient = factory.CreateDefaultClient();
             _customerId = factory.CUSTOMER_ONE_ID;
             _userId = factory.USER_ID;
-            _httpClient.DefaultRequestHeaders.Add("X-Authenticated-User", Guid.Empty.SystemUserId().ToString());
+            _httpClient.DefaultRequestHeaders.Add("X-Authenticated-UserId", Guid.Empty.SystemUserId().ToString());
         }
 
         [Fact]

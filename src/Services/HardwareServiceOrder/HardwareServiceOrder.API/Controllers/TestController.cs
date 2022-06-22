@@ -168,7 +168,7 @@ namespace HardwareServiceOrder.API.Controllers
 
 
         [HttpGet("updateInsertTest")]
-        public async Task<ActionResult> TestValueAssignment([FromHeader(Name = "X-Authenticated-User")] Guid userId)
+        public async Task<ActionResult> TestValueAssignment([FromHeader(Name = "X-Authenticated-UserId")] Guid userId)
         {
             ServiceStatus status = new()
             {
