@@ -1582,8 +1582,8 @@ namespace Asset.IntegrationTests.Controllers
                 await httpClient.GetFromJsonAsync<DisposeSetting>(
                     $"/api/v1/Assets/customers/{_customerId}/dispose-setting");
 
-            Assert.True(disposeSetting!.ReturnLocations.Count == 1);
-            Assert.True(disposeSetting!.ReturnLocations.FirstOrDefault()!.LocationId == newSettings.LocationId);
+            Assert.True(disposeSetting!.ReturnLocations.Count == 2);
+            Assert.True(disposeSetting!.ReturnLocations.Any(x=>x.LocationId == newSettings.LocationId));
         }
 
         [Fact]
@@ -1597,14 +1597,21 @@ namespace Asset.IntegrationTests.Controllers
             _testOutputHelper.WriteLine(requestUri);
             var added = await _httpClient.PostAsJsonAsync(requestUri, newSettings);
             var setting = await added.Content.ReadFromJsonAsync<IList<API.ViewModels.ReturnLocation>>();
+            var updateLocation = setting!.FirstOrDefault();
+            var updateData = new NewReturnLocation()
+            {
+                Name = "Name",
+                ReturnDescription = "Description",
+                LocationId = updatedLocationId
+            };
             var response =
                 await _httpClient.PutAsJsonAsync(
-                    $"/api/v1/Assets/customers/{_customerId}/return-location/{setting!.FirstOrDefault()!.Id}", new NewReturnLocation { Name = "Name", ReturnDescription = "Description", LocationId = updatedLocationId });
+                    $"/api/v1/Assets/customers/{_customerId}/return-location/{updateLocation!.Id}", updateData);
 
             var updatedSetting = await response.Content.ReadFromJsonAsync<IList<API.ViewModels.ReturnLocation>>();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.True(updatedSetting!.Count == 1);
-            Assert.True(updatedSetting!.FirstOrDefault()!.LocationId == updatedLocationId);
+            Assert.True(updatedSetting!.Count == 2);
+            Assert.True(updatedSetting!.FirstOrDefault(x=>x.Id==updateLocation.Id)!.LocationId == updatedLocationId);
         }
         [Fact]
         public async Task RemoveReturnLocation()
@@ -1623,7 +1630,7 @@ namespace Asset.IntegrationTests.Controllers
 
             var updatedSetting = await response.Content.ReadFromJsonAsync<IList<API.ViewModels.ReturnLocation>>();
 
-            Assert.True(updatedSetting!.Count == 0);
+            Assert.True(updatedSetting!.Count == 1);
         }
 
         [Fact]
