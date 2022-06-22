@@ -649,7 +649,7 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-        public async Task<OrigoAsset> ReturnDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, Guid callerId)
+        public async Task<OrigoAsset> ReturnDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, Guid returnLocationId, Guid callerId)
         {
             try
             {
@@ -659,12 +659,15 @@ namespace OrigoApiGateway.Services
                 var returnDTO = new ReturnDeviceDTO()
                 {
                     AssetLifeCycleId = assetLifeCycleId,
-                    CallerId = callerId
+                    CallerId = callerId,
+                    ReturnLocationId = returnLocationId
                 };
                 if (existingAsset.IsPersonal && existingAsset.AssetStatus == AssetLifecycleStatus.PendingReturn)
                 {
                     if(role == PredefinedRole.EndUser.ToString()) throw new Exception("Return Request Already Pending!!!");
-                    if(existingAsset.AssetHolderId != null)
+                    if(returnLocationId == Guid.Empty) throw new Exception("Must Select a Return Location to Confirm!!!");
+
+                    if (existingAsset.AssetHolderId != null)
                     {
                         var user = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
                         returnDTO.ContractHolder = new EmailPersonAttributeDTO()

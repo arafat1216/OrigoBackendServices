@@ -627,7 +627,10 @@ namespace Asset.IntegrationTests.Controllers
         [Fact]
         public async Task ReturnDeviceAsync_NonPersonalConfirmReturn()
         {
-            var postData = new ReturnDevice { AssetLifeCycleId = _assetThree, CallerId = _callerId };
+            var disposeSetting =
+                await _httpClient.GetFromJsonAsync<DisposeSetting>(
+                    $"/api/v1/Assets/customers/{_customerId}/dispose-setting");
+            var postData = new ReturnDevice { AssetLifeCycleId = _assetThree, CallerId = _callerId, ReturnLocationId = disposeSetting!.ReturnLocations.FirstOrDefault()!.Id };
             var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-device";
             _testOutputHelper.WriteLine(requestUri);
             var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
@@ -649,7 +652,10 @@ namespace Asset.IntegrationTests.Controllers
         [Fact]
         public async Task ReturnDeviceAsync_PersonalConfirmReturn()
         {
-            var postData = new ReturnDevice { AssetLifeCycleId = _assetOne, CallerId = _callerId };
+            var disposeSetting =
+                await _httpClient.GetFromJsonAsync<DisposeSetting>(
+                    $"/api/v1/Assets/customers/{_customerId}/dispose-setting");
+            var postData = new ReturnDevice { AssetLifeCycleId = _assetOne, CallerId = _callerId, ReturnLocationId = disposeSetting!.ReturnLocations.FirstOrDefault()!.Id };
             var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-device";
             _testOutputHelper.WriteLine(requestUri);
             var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));

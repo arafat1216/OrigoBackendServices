@@ -148,6 +148,8 @@ internal static class AssetTestDataSeedingForDatabase
         assetLifecycleNine.AssignAsset(assetTwo, CALLER_ID);
 
         var disposeSetting = new DisposeSetting("example@techstep.no", Guid.Empty);
+        var returnLocation = new ReturnLocation("Return Location","Return to Mr. on 3rd Floor",Guid.NewGuid());
+        disposeSetting.AddReturnLocation(returnLocation, COMPANY_ID, Guid.Empty);
         var lifeCycleSettingOne = new LifeCycleSetting(1, true, 700M, 24, Guid.Empty);
         var customerSettingOne = new CustomerSettings(COMPANY_ID, new List<LifeCycleSetting>() { lifeCycleSettingOne }, disposeSetting);
 

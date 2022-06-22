@@ -1164,7 +1164,7 @@ namespace OrigoApiGateway.Tests
 
             // Act and assert
             await Assert.ThrowsAsync<ResourceNotFoundException>(() =>
-                assetService.ReturnDeviceAsync(new Guid(CUSTOMER_ID), new Guid(ASSET_ID), PredefinedRole.EndUser.ToString(), Guid.Empty));
+                assetService.ReturnDeviceAsync(new Guid(CUSTOMER_ID), new Guid(ASSET_ID), PredefinedRole.EndUser.ToString(), Guid.Empty, Guid.Empty));
         }
 
         [Fact]

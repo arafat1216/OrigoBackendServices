@@ -27,5 +27,9 @@ namespace Asset.API.ViewModels
         /// id of user making the endpoint call. Can be ignored by frontend.
         /// </summary>
         public Guid CallerId { get; set; }
+        /// <summary>
+        /// Id of the Return Location,to confirm pending returns.
+        /// </summary>
+        public Guid ReturnLocationId { get; set; }
     }
 }

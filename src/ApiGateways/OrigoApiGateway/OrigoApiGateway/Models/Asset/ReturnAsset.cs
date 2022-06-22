@@ -10,5 +10,6 @@ namespace OrigoApiGateway.Models.Asset
     {
         [Required]
         public Guid AssetId { get; set; }
+        public Guid ReturnLocationId { get; set; } = Guid.Empty;
     }
 }

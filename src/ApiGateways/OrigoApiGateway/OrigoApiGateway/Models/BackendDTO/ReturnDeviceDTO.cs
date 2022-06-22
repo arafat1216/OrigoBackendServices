@@ -11,5 +11,6 @@ namespace OrigoApiGateway.Models.BackendDTO
         public IList<EmailPersonAttributeDTO> CustomerAdmins { get; set; }
         public bool IsConfirm { get; set; } = false;
         public Guid CallerId { get; set; }
+        public Guid ReturnLocationId { get; set; }
     }
 }

@@ -10,5 +10,6 @@ namespace AssetServices.ServiceModel
         public IList<EmailPersonAttributeDTO>? Managers { get; init; }
         public IList<EmailPersonAttributeDTO>? CustomerAdmins { get; init; }
         public Guid CallerId { get; set; }
+        public Guid ReturnLocationId { get; set; }
     }
 }

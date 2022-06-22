@@ -427,7 +427,9 @@ namespace AssetServices
                 throw new ReturnDeviceRequestException($"Only Active devices can make return request!!! asset Id: {data.AssetLifeCycleId}", _logger);
             }
 
-            if(assetLifecycle.IsPersonal && assetLifecycle.AssetLifecycleStatus != AssetLifecycleStatus.PendingReturn)
+            var returnLocations = await GetReturnLocationsByCustomer(customerId);
+            var returnLocation = returnLocations.FirstOrDefault(x => x.ExternalId == data.ReturnLocationId);
+            if (assetLifecycle.IsPersonal && assetLifecycle.AssetLifecycleStatus != AssetLifecycleStatus.PendingReturn)
             {
                 // Pending Return
                 assetLifecycle.MakeReturnRequest(data.CallerId);
@@ -437,14 +439,22 @@ namespace AssetServices
             else if(assetLifecycle.IsPersonal && assetLifecycle.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn)
             {
                 // Confirm Return
-                assetLifecycle.ConfirmReturnDevice(data.CallerId);
+                if(returnLocation == null)
+                {
+                    throw new ReturnDeviceRequestException($"Return Location not found to confirm pending return!!! asset Id: {data.AssetLifeCycleId}", _logger);
+                }
+                assetLifecycle.ConfirmReturnDevice(data.CallerId, returnLocation.Name, returnLocation.ReturnDescription);
 
                 // TODO: Email to user(personal) (Task is in another US)
             }
             else if (!assetLifecycle.IsPersonal)
             {
                 // Confirm Return
-                assetLifecycle.ConfirmReturnDevice(data.CallerId);
+                if (returnLocation == null)
+                {
+                    throw new ReturnDeviceRequestException($"Return Location not found to confirm pending return!!! asset Id: {data.AssetLifeCycleId}", _logger);
+                }
+                assetLifecycle.ConfirmReturnDevice(data.CallerId, returnLocation.Name, returnLocation.ReturnDescription);
 
                 // TODO: Email to CustomerAdmin(non-personal) (Task is in another US)
             }

@@ -343,12 +343,12 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// Confirm thi asset as Retrned Device. 
     /// </summary>
     /// <param name="callerId">The userid making this assignment</param>
-    public void ConfirmReturnDevice(Guid callerId)
+    public void ConfirmReturnDevice(Guid callerId, string locationName, string description)
     {
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         var previousLifecycleStatus = _assetLifecycleStatus;
-        AddDomainEvent(new ConfirmReturnDeviceDomainEvent(this, callerId, previousLifecycleStatus));
+        AddDomainEvent(new ConfirmReturnDeviceDomainEvent(this, callerId, previousLifecycleStatus, locationName, description));
         _assetLifecycleStatus = AssetLifecycleStatus.Returned;
     }
     
