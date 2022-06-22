@@ -730,8 +730,6 @@ namespace AssetServices
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
 
-
-
         public IList<AssetCategory> GetAssetCategories(string language = "EN")
         {
             try
@@ -1116,6 +1114,11 @@ namespace AssetServices
 
             await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecycles);
+        }
+
+        public Task SyncDepartmentForUserToAssetLifecycle(Guid customerId, Guid userId, Guid departmentId, Guid guid)
+        {
+            throw new NotImplementedException();
         }
     }
 }

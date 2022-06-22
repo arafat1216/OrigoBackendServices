@@ -22,9 +22,25 @@ public class UserController : Controller
     {
         _assetServices.UnAssignAssetLifecyclesForUserAsync(userDeletedEvent.CustomerId, userDeletedEvent.UserId, userDeletedEvent.DepartmentId, Guid.Empty.SystemUserId());
     }
+
+
+    [Topic("customer-pub-sub", "user-deleted")]
+    [HttpPost("user-deleted")]
+    public void UserAssignDepartment([FromBody] UserChangedDepartmentEvent userDeletedEvent)
+    {
+        _assetServices.SyncDepartmentForUserToAssetLifecycle(userDeletedEvent.CustomerId, userDeletedEvent.UserId, userDeletedEvent.DepartmentId, Guid.Empty.SystemUserId());
+    }
 }
 
 public record UserDeletedEvent
+{
+    public Guid CustomerId { get; set; }
+    public Guid UserId { get; set; }
+    public Guid DepartmentId { get; set; }
+    public DateTime CreatedDate { get; set; }
+}
+
+public record UserChangedDepartmentEvent
 {
     public Guid CustomerId { get; set; }
     public Guid UserId { get; set; }

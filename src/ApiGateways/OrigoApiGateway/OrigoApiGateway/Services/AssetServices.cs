@@ -26,7 +26,6 @@ namespace OrigoApiGateway.Services
         public AssetServices(ILogger<AssetServices> logger, HttpClient httpClient, IOptions<AssetConfiguration> options, IUserServices userServices, IUserPermissionService userPermissionService, IMapper mapper, IDepartmentsServices departmentsServices)
         {
             _logger = logger;
-            _daprClient = new DaprClientBuilder().Build();
             HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _options = options.Value;
             _userServices = userServices;
@@ -39,7 +38,6 @@ namespace OrigoApiGateway.Services
         private readonly IDepartmentsServices _departmentsServices;
         private readonly ILogger<AssetServices> _logger;
         private readonly IMapper _mapper;
-        private readonly DaprClient _daprClient;
         private HttpClient HttpClient { get; }
         private readonly AssetConfiguration _options;
 
