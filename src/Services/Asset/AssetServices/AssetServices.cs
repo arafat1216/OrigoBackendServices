@@ -412,6 +412,8 @@ namespace AssetServices
             var existingAssetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
             if (existingAssetLifeCycle == null)
                 throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
+            if (existingAssetLifeCycle.AssetLifecycleType == LifecycleType.NoLifecycle)
+                throw new AssetExpireRequestException("Asset can not expire for NoLifeCycle type", _logger);
             if (!existingAssetLifeCycle.IsActiveState || existingAssetLifeCycle.IsDeleted)
                 throw new AssetExpireRequestException("Asset is not in Active state or Deleted", _logger);
             if (!existingAssetLifeCycle.EndPeriod.HasValue)
