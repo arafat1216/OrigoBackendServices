@@ -248,7 +248,7 @@ namespace Asset.API.Controllers
             {
                 filterOptions = JsonSerializer.Deserialize<FilterOptionsForAsset>(filterOptionsAsJsonString);
             }
-            var pagedAssetResult = await _assetServices.GetAssetLifecyclesForCustomerAsync(customerId, filterOptions?.UserId, filterOptions?.Status, filterOptions?.Department, filterOptions?.Category, filterOptions?.Label, filterOptions?.IsActiveState, filterOptions?.IsPersonal, search ?? string.Empty, page, limit, cancellationToken);
+            var pagedAssetResult = await _assetServices.GetAssetLifecyclesForCustomerAsync(customerId, filterOptions?.UserId, filterOptions?.Status, filterOptions?.Department, filterOptions?.Category, filterOptions?.Label, filterOptions?.IsActiveState, filterOptions?.IsPersonal, filterOptions?.EndPeriodMonth, search ?? string.Empty, page, limit, cancellationToken);
             var pagedAssetList = _mapper.Map<PagedAssetList>(pagedAssetResult);
             return Ok(pagedAssetList);
         }

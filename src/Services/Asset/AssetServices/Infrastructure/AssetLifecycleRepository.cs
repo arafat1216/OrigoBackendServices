@@ -101,7 +101,7 @@ namespace AssetServices.Infrastructure
         }
 
         public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
-           Guid[]? label, bool? isActiveState, bool? isPersonal, string search, int page, int limit, CancellationToken cancellationToken)
+           Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, string search, int page, int limit, CancellationToken cancellationToken)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
             query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
@@ -171,7 +171,7 @@ namespace AssetServices.Infrastructure
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Repair ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Available ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Active);
-
+               
                 else query = query.Where(al => al.AssetLifecycleStatus == AssetLifecycleStatus.Lost ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Stolen ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
@@ -179,6 +179,10 @@ namespace AssetServices.Infrastructure
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Discarded ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Returned);
             
+            }
+            if (endPeriodMonth.HasValue)
+            {
+                query = query.Where(al => al.EndPeriod.HasValue && al.EndPeriod.Value.Month == endPeriodMonth.Value.Month && al.EndPeriod.Value.Year == endPeriodMonth.Value.Year);
             }
 
             query = query.AsSplitQuery().AsNoTracking();

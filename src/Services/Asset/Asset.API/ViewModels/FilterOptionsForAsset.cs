@@ -21,5 +21,7 @@ namespace Asset.API.ViewModels
         public bool? IsActiveState { get; set; }
         [FromQuery(Name = "isPersonal")]
         public bool? IsPersonal { get; set; }
+        [FromQuery(Name = "endPeriodMonth")]
+        public DateTime? EndPeriodMonth { get; set; }
     }
 }
