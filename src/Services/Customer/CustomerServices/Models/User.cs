@@ -59,7 +59,7 @@ namespace CustomerServices.Models
         public UserPreference UserPreference { get; protected set; }
 
         /// <summary>
-        /// The current status of this asset lifecycle
+        /// The current status of this User.
         /// </summary>
         public UserStatus UserStatus
         {

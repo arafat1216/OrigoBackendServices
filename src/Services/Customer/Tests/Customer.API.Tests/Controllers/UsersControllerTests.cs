@@ -870,6 +870,30 @@ namespace Customer.API.IntegrationTests.Controllers
 
 
         }
+        [Fact]
+        public async Task GetUsersCount_OnlyCountActivatedUsers()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var request = $"/api/v1/organizations/{_customerId}/users/count";
+            var response = await httpClient.GetAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var count = await response.Content.ReadFromJsonAsync<int>();
+
+            Assert.Equal(1, count);
+        }
+        [Fact]
+        public async Task GetUsersCount_NotValidACustomer()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var request = $"/api/v1/organizations/{Guid.NewGuid()}/users/count";
+            var response = await httpClient.GetAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var count = await response.Content.ReadFromJsonAsync<int>();
+
+            Assert.Equal(0, count);
+        }
 
     }
 }
