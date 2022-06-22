@@ -115,13 +115,12 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         [Fact]
         public async Task GetMyOrders()
         {
-            Guid? userId = new Guid("3286ba71-fdde-4496-94fa-36de7aa0b41e");
-            var url = $"/api/v1/hardware-repair/{_customerId}/orders?userId={userId}&page=1&limit=10";
+            var url = $"/api/v1/hardware-repair/{_customerId}/orders?userId={_userId}&page=1&limit=10";
             _testOutputHelper.WriteLine(url);
             var request = await _httpClient.GetAsync(url);
             var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponse>>();
             Assert.NotNull(orders);
-            Assert.Equal(1, orders.Items.Count);
+            Assert.Equal(2, orders.Items.Count);
             Assert.NotNull(orders.Items[0].ExternalServiceManagementLink);
             Assert.NotNull(orders.Items[0].UserDescription);
             Assert.NotNull(orders.Items[0].DeliveryAddress);
@@ -162,7 +161,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
                 {
                     FirstName = "John",
                     LastName = "Doe",
-                    UserId = _customerId,
+                    UserId = _userId,
                     Email = "user@domain.com",
                     PartnerId = Guid.NewGuid(),
                     PartnerName = "Partner AS",
