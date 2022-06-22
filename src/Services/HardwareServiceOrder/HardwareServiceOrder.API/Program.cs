@@ -96,7 +96,7 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<SwaggerDefaultValues>();
 
     // Register global header parameters in the API
-    options.OperationFilter<SwaggerHeaderParameters>();
+    options.OperationFilter<SwaggerGlobalHeaderParameters>();
 
     options.EnableAnnotations();
 

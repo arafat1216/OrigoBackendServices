@@ -22,7 +22,7 @@ namespace HardwareServiceOrderServices.Infrastructure
 
             if (_httpContext is not null)
             {
-                bool userIsParsed = _httpContext.Request.Headers.TryGetValue("X-Authenticated-User", out var userId);
+                bool userIsParsed = _httpContext.Request.Headers.TryGetValue("X-Authenticated-UserId", out var userId);
 
                 if (userIsParsed)
                 {
@@ -31,7 +31,7 @@ namespace HardwareServiceOrderServices.Infrastructure
                 else
                 {
                     // TODO: This should eventually be added back in, but first we need to add the to the API gateway calls.
-                    //throw new Exception("The header 'X-Authenticated-User' is missing.");
+                    //throw new Exception("The header 'X-Authenticated-UserId' is missing.");
                 }
             }
         }
@@ -49,7 +49,7 @@ namespace HardwareServiceOrderServices.Infrastructure
             if (callerIdParsed)
                 AuthenticatedUserId = result;
             else
-                throw new Exception("The value in 'X-Authenticated-User' is not valid.");
+                throw new Exception("The value in 'X-Authenticated-UserId' is not valid.");
         }
 
 
