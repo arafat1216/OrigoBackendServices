@@ -91,7 +91,7 @@ namespace HardwareServiceOrderServices
                 var owner = new ContactDetails(serviceOrderDTO.OrderedBy.UserId, serviceOrderDTO.OrderedBy.FirstName, serviceOrderDTO.OrderedBy.LastName, serviceOrderDTO.OrderedBy.Email, serviceOrderDTO.OrderedBy.PhoneNumber);
 
                 var serviceOrder = new HardwareServiceOrder(
-                    owner.UserId,
+                    Guid.NewGuid(),
                     customerId,
                     serviceOrderDTO.AssetInfo.AssetLifecycleId,
                     // TODO: Fix this as we should not have the category id in the child object..
