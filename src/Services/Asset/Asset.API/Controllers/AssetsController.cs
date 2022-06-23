@@ -699,6 +699,7 @@ namespace Asset.API.Controllers
             var assignAssetDTO = new AssignAssetDTO
             {
                 UserId = asset.UserId,
+                UserAssigneToDepartment = asset.UserAssigneToDepartment,
                 DepartmentId = asset.DepartmentId,
                 Personal = asset.UserId != Guid.Empty,
                 CallerId = asset.CallerId

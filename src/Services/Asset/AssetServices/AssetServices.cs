@@ -654,7 +654,11 @@ namespace AssetServices
             {
                 var user = await _assetLifecycleRepository.GetUser(assignAssetDTO.UserId) ?? new User { ExternalId = assignAssetDTO.UserId };
                 if (user == null) throw new ResourceNotFoundException("No User were found using the given UserId. Did you enter the correct User Id?", _logger);
-                assetLifecycle.AssignAssetLifecycleHolder(user, null, assignAssetDTO.CallerId);
+
+                if(assignAssetDTO.UserAssigneToDepartment != Guid.Empty) assetLifecycle.AssignAssetLifecycleHolder(user, assignAssetDTO.UserAssigneToDepartment, assignAssetDTO.CallerId);
+                else assetLifecycle.AssignAssetLifecycleHolder(user, null, assignAssetDTO.CallerId);
+
+
             }
             else
             {

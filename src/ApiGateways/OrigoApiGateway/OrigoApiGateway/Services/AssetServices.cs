@@ -1336,14 +1336,16 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                if (assignedAsset.UserId != Guid.Empty)
+                var mappedAsset = _mapper.Map<AssignAssetToUserDTO>(assignedAsset);
+                if (mappedAsset.UserId != Guid.Empty)
                 {
                     try
                     {
-                        var user = await _userServices.GetUserAsync(customerId, assignedAsset.UserId);
+                        var user = await _userServices.GetUserAsync(customerId, mappedAsset.UserId);
                         if (user == null)
                             throw new BadHttpRequestException("Unable to assign asset. User not found");
-                        assignedAsset.DepartmentId = user.AssignedToDepartment;
+                        mappedAsset.UserAssigneToDepartment = user.AssignedToDepartment;
+
                     }
                     catch
                     {
@@ -1352,11 +1354,11 @@ namespace OrigoApiGateway.Services
                         throw exception;
                     }
                 }
-                if (assignedAsset.DepartmentId != Guid.Empty)
+                if (mappedAsset.DepartmentId != Guid.Empty)
                 {
                     try
                     {
-                        var department = await _departmentsServices.GetDepartmentAsync(customerId, assignedAsset.DepartmentId);
+                        var department = await _departmentsServices.GetDepartmentAsync(customerId, mappedAsset.DepartmentId);
                         if (department == null)
                             throw new BadHttpRequestException("Unable to assign asset. Department not found");
                     }
@@ -1368,8 +1370,8 @@ namespace OrigoApiGateway.Services
                     }
                 }
 
-                var requestUri = $"{_options.ApiPath}/{assignedAsset.AssetId}/customer/{customerId}/assign";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, assignedAsset);
+                var requestUri = $"{_options.ApiPath}/{mappedAsset.AssetId}/customer/{customerId}/assign";
+                var response = await HttpClient.PostAsJsonAsync(requestUri, mappedAsset);
                 if (!response.IsSuccessStatusCode)
                 {
                     var exception = new BadHttpRequestException("Unable to assign asset", (int)response.StatusCode);

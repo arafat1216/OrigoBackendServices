@@ -2258,5 +2258,51 @@ namespace Asset.IntegrationTests.Controllers
             // Assert
             Assert.Equal(7, pagedAssetList!.Items.Count);
         }
+        [Fact]
+        public async Task PatchAsset_AssignToUser_AssetInputRequired()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+            var assignment = new AssignAssetToUser { UserId = _user, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/{_assetNine}/customer/{_customerId}/assign";
+            var response = await _httpClient.PostAsJsonAsync(requestUri, assignment);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var asset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.Equal(_user, asset?.AssetHolderId);
+            Assert.Null(asset?.ManagedByDepartmentId);
+            Assert.True(asset?.IsPersonal);
+        }
+        [Fact]
+        public async Task PatchAsset_AssignToUser_WhenUserIsNotInUserTable_AssetInputRequired()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+            var userId = Guid.NewGuid();
+            var assignment = new AssignAssetToUser { UserId = userId, CallerId = _callerId };
+            var requestUri = $"/api/v1/Assets/{_assetOne}/customer/{_customerId}/assign";
+            var response = await _httpClient.PostAsJsonAsync(requestUri, assignment);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var asset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.Equal(userId, asset?.AssetHolderId);
+            Assert.Null(asset?.ManagedByDepartmentId);
+            Assert.True(asset?.IsPersonal);
+        }
+        [Fact]
+        public async Task PatchAsset_AssignToUser_WhenUserIsAssignedToADepartment()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+            var userId = Guid.NewGuid();
+            var assignment = new AssignAssetToUser { UserId = userId, CallerId = _callerId, UserAssigneToDepartment = _departmentId };
+            var requestUri = $"/api/v1/Assets/{_assetOne}/customer/{_customerId}/assign";
+            var response = await _httpClient.PostAsJsonAsync(requestUri, assignment);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var asset = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.Equal(userId, asset?.AssetHolderId);
+            Assert.NotNull(asset?.ManagedByDepartmentId);
+            Assert.Equal(_departmentId ,asset?.ManagedByDepartmentId);
+            Assert.True(asset?.IsPersonal);
+        }
     }
 }

@@ -11,6 +11,8 @@ namespace AssetServices.ServiceModel
         public EmailPersonAttributeDTO? NewUser { get; set; }
         public IList<EmailPersonAttributeDTO>? PreviousManagers { get; set; }
         public Guid DepartmentId { get; set; }
+        public Guid UserAssigneToDepartment { get; set; }
+
         public Guid CallerId { get; set; }
     }
 }
