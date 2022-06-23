@@ -800,7 +800,7 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-        public async Task<OrigoAsset> ReportDeviceAsync(Guid customerId, ReportDevice data, string role, List<Guid?> accessList,Guid callerId)
+        public async Task<OrigoAsset> ReportDeviceAsync(Guid customerId, ReportDevice data, string role, List<Guid?> accessList, Guid callerId)
         {
             try
             {
@@ -831,15 +831,43 @@ namespace OrigoApiGateway.Services
                     PostalCode = data.PostalCode
                 };
 
+                if (!existingAsset.IsPersonal)
+                {
+                    var customerAdmin = await _userPermissionService.GetAllCustomerAdminsAsync(customerId);
+                    var admins = new List<EmailPersonAttributeDTO>();
+                    foreach (var admin in customerAdmin)
+                    {
+                        admins.Add(new EmailPersonAttributeDTO()
+                        {
+                            Name = admin.FirstName,
+                            Email = admin.Email
+                        });
+                    }
+                    reportDTO.CustomerAdmins = admins;
+                }
+                OrigoUser user = null;
                 if (existingAsset.AssetHolderId != null)
                 {
-                    var user = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
+                    user = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
                     reportDTO.ContractHolderUser = new EmailPersonAttributeDTO()
                     {
                         Email = user.Email,
                         Name = user.FirstName,
                         PreferedLanguage = user.UserPreference.Language
                     };
+                }
+
+                if (callerId != Guid.Empty)
+                {
+                    if (callerId == existingAsset.AssetHolderId)
+                    {
+                        reportDTO.ReportedBy = $"{user!.DisplayName} - {user.Email}";
+                    }
+                    else
+                    {
+                        var reportedUser = await _userServices.GetUserAsync(callerId);
+                        reportDTO.ReportedBy = $"{reportedUser.DisplayName} - {reportedUser.Email}";
+                    }
                 }
 
                 if (existingAsset.ManagedByDepartmentId != null)

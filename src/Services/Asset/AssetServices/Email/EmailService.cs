@@ -80,5 +80,11 @@ namespace AssetServices.Email
             var variables = _flatDictionaryProvider.Execute(emailData);
             await SendAsync(emailData.Subject, template, new List<string> { emailData.Recipient }, variables);
         }
+        public async Task ReportAssetEmailAsync(ReportAssetNotification emailData, string languageCode)
+        {
+            var template = _resourceManager.GetString(ReportAssetNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var variables = _flatDictionaryProvider.Execute(emailData);
+            await SendAsync(emailData.Subject, template, emailData.Recipients, variables);
+        }
     }
 }

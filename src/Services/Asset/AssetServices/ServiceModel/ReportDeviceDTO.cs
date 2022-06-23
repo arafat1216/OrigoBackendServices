@@ -9,7 +9,9 @@ namespace AssetServices.ServiceModel
         public Guid AssetLifeCycleId { get; set; }
         public EmailPersonAttributeDTO? ContractHolderUser { get; set; }
         public IList<EmailPersonAttributeDTO>? Managers { get; set; }
+        public IList<EmailPersonAttributeDTO>? CustomerAdmins { get; set; }
         public ReportCategory ReportCategory { get; set; }
+        public string ReportedBy { get; set; }
         public string Description { get; set; }
         public DateTime TimePeriodFrom { get; set; }
         public DateTime TimePeriodTo { get; set; }

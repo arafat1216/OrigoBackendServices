@@ -18,7 +18,9 @@ namespace AssetServices.UnitTests
         {
             var resourceManger = new ResourceManager("AssetServices.Resources.Asset", Assembly.GetAssembly(typeof(EmailService)));
             var ReassignedToUserEngTemplate = resourceManger.GetString("ReassignedToUser", CultureInfo.CreateSpecificCulture("EN"));
+            var ReportAssetEngTemplate = resourceManger.GetString("ReportAsset", CultureInfo.CreateSpecificCulture("EN"));
             Assert.NotNull(ReassignedToUserEngTemplate);
+            Assert.NotNull(ReportAssetEngTemplate);
         }
     }
 }

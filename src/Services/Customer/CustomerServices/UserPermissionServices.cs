@@ -81,10 +81,12 @@ namespace CustomerServices
 
         public async Task<IList<UserPermissions>> GetCustomerAdminsAsync(Guid customerId)
         {
-            return await _customerContext.UserPermissions.Include(up => up.Role).ThenInclude(r => r.GrantedPermissions)
+            var userPermissions = await _customerContext.UserPermissions.Include(up => up.Role).ThenInclude(r => r.GrantedPermissions)
                 .ThenInclude(p => p.Permissions).Include(up => up.User).Where(up =>
-                    up.Role.Name == PredefinedRole.CustomerAdmin.ToString() && up.AccessList.Contains(customerId))
+                    up.Role.Name == PredefinedRole.CustomerAdmin.ToString())
                 .ToListAsync();
+            return userPermissions.Where(x => x.AccessList.Contains(customerId)).ToList();
+
         }
 
         public async Task UpdateAccessListAsync(User user, List<Guid> accessList, Guid callerId)

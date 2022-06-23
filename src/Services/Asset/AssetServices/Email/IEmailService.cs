@@ -26,6 +26,13 @@ namespace AssetServices.Email
         /// <param name="languageCode">Code of the language to be used for sending email.</param>
         /// <returns></returns>
         Task UnassignedFromManagerEmailAsync(UnassignedFromManagerNotification emailData, string languageCode);
+        /// <summary>
+        /// Asset Rported Email
+        /// </summary>
+        /// <param name="emailData">Information that will be dynamically inserted into the email.</param>
+        /// <param name="languageCode">Code of the language to be used for sending email.</param>
+        /// <returns></returns>
+        Task ReportAssetEmailAsync(ReportAssetNotification emailData, string languageCode);
 
     }
 }

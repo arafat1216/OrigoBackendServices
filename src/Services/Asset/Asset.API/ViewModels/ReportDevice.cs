@@ -11,6 +11,8 @@ namespace Asset.API.ViewModels
         public Guid AssetLifeCycleId { get; set; }
         public EmailPersonAttribute? ContractHolderUser { get; set; }
         public IList<EmailPersonAttribute>? Managers { get; set; }
+        public IList<EmailPersonAttribute>? CustomerAdmins { get; set; }
+        public string ReportedBy { get; set; } = string.Empty;
         [Required]
         public ReportCategory ReportCategory { get; set; }
         [Required]

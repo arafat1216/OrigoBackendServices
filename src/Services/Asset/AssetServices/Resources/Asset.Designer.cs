@@ -74,6 +74,39 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///&lt;/br&gt;
+        ///An asset have been reported {{ReportType}}.and has been set to inactive.
+        ///&lt;/br&gt;
+        ///### Asset:
+        ///{{AssetName}} ({{AssetId})
+        ///&lt;/br&gt;
+        ///### Report Date:
+        ///{{ReportDate}}
+        ///&lt;/br&gt;
+        ///### Reported by:
+        ///{{ReportedBy}}
+        ///&lt;/br&gt;
+        ///### What happened with the asset?
+        ///{{ReportType}}
+        ///&lt;/br&gt;
+        ///### How did it happen?
+        ///{{Description}}
+        ///&lt;/br&gt;
+        ///### In What time period did it happen?
+        ///{{DateFrom}} To {{DateTo}}
+        ///&lt;/br&gt;
+        ///### Where did it happen?
+        ///{{Address}}
+        ///&lt;/br&gt;.
+        /// </summary>
+        internal static string ReportAsset {
+            get {
+                return ResourceManager.GetString("ReportAsset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hello!
         ///&lt;/br&gt;
         ///An asset was successfully unassigned from your department.

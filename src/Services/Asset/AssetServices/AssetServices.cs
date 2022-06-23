@@ -536,7 +536,42 @@ namespace AssetServices
 
             assetLifecycle.ReportDevice(data.ReportCategory, data.CallerId);
 
-            // TODO: Email to User & manager(s)(personal), Email to manager(s)(non-personal)
+            var emailData = new Email.Model.ReportAssetNotification()
+            {
+                ReportType = data.ReportCategory.ToString(),
+                AssetName = $"{assetLifecycle.Asset!.Brand} {assetLifecycle.Asset!.ProductName}",
+                AssetId = assetLifecycle.ExternalId.ToString(),
+                ReportDate = DateTime.UtcNow.ToShortDateString(),
+                ReportedBy = data.ReportedBy,
+                Description = data.Description,
+                DateFrom = data.TimePeriodFrom.ToShortDateString(),
+                DateTo = data.TimePeriodTo.ToShortDateString(),
+                Address = $"{data.Address} {data.City} {data.PostalCode} {data.Country}"
+            };
+
+            // To User (personal)
+            if (assetLifecycle.IsPersonal && data.ContractHolderUser != null)
+            {
+                emailData.FirstName = data.ContractHolderUser.Name;
+                emailData.Recipients = new List<string> { data.ContractHolderUser.Email };
+                await _emailService.ReportAssetEmailAsync(emailData, string.IsNullOrEmpty(data.ContractHolderUser.PreferedLanguage) ? "en" : data.ContractHolderUser.PreferedLanguage);
+            }
+
+            // To Manager(s)
+            if(data.Managers != null && data.Managers.Any())
+            {
+                emailData.FirstName = string.Empty;
+                emailData.Recipients = data.Managers.Select(x => x.Email).ToList();
+                await _emailService.ReportAssetEmailAsync(emailData, "en");
+            }
+
+            // To Customer (Non-personal)
+            if (!assetLifecycle.IsPersonal && data.CustomerAdmins != null && data.CustomerAdmins.Any())
+            {
+                emailData.FirstName = string.Empty;
+                emailData.Recipients = data.CustomerAdmins.Select(x => x.Email).ToList();
+                await _emailService.ReportAssetEmailAsync(emailData, "en");
+            }
 
             await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
