@@ -649,12 +649,14 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-        public async Task<OrigoAsset> ReturnDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, Guid returnLocationId, Guid callerId)
+        public async Task<OrigoAsset> ReturnDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, List<Guid?> accessList, Guid returnLocationId, Guid callerId)
         {
             try
             {
                 var existingAsset = await GetAssetForCustomerAsync(customerId, assetLifeCycleId);
                 if (existingAsset == null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
+                if((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && !accessList.Contains(existingAsset.ManagedByDepartmentId))
+                    throw new UnauthorizedAccessException("Manager does not have access to this asset!!!");
 
                 var returnDTO = new ReturnDeviceDTO()
                 {
@@ -750,12 +752,14 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-        public async Task<OrigoAsset> BuyoutDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, Guid callerId)
+        public async Task<OrigoAsset> BuyoutDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, List<Guid?> accessList, Guid callerId)
         {
             try
             {
                 var existingAsset = await GetAssetForCustomerAsync(customerId, assetLifeCycleId);
                 if (existingAsset == null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && !accessList.Contains(existingAsset.ManagedByDepartmentId))
+                    throw new UnauthorizedAccessException("Manager does not have access to this asset!!!");
 
                 if (existingAsset.AssetHolderId != callerId && role == PredefinedRole.EndUser.ToString()) throw new Exception("Only ContractHolderUser can do buyout!!!");
 
@@ -796,12 +800,14 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-        public async Task<OrigoAsset> ReportDeviceAsync(Guid customerId, ReportDevice data, string role, Guid callerId)
+        public async Task<OrigoAsset> ReportDeviceAsync(Guid customerId, ReportDevice data, string role, List<Guid?> accessList,Guid callerId)
         {
             try
             {
                 var existingAsset = await GetAssetForCustomerAsync(customerId, data.AssetId);
                 if (existingAsset == null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && !accessList.Contains(existingAsset.ManagedByDepartmentId))
+                    throw new UnauthorizedAccessException("Manager does not have access to this asset!!!");
 
                 if (existingAsset.IsPersonal)
                 {

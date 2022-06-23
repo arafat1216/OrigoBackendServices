@@ -1164,9 +1164,9 @@ namespace OrigoApiGateway.Tests
 
             // Act and assert
             await Assert.ThrowsAsync<ResourceNotFoundException>(() =>
-                assetService.ReturnDeviceAsync(new Guid(CUSTOMER_ID), new Guid(ASSET_ID), PredefinedRole.EndUser.ToString(), Guid.Empty, Guid.Empty));
+                assetService.ReturnDeviceAsync(new Guid(CUSTOMER_ID), new Guid(ASSET_ID), PredefinedRole.EndUser.ToString(), new List<Guid?>(), Guid.Empty, Guid.Empty));
         }
-
+         
         [Fact]
         [Trait("Category", "UnitTest")]
         public async Task ReportDeviceAsync_AssetDoesNotExist()
@@ -1217,7 +1217,7 @@ namespace OrigoApiGateway.Tests
 
             // Act and assert
             await Assert.ThrowsAsync<ResourceNotFoundException>(() =>
-                assetService.ReportDeviceAsync(new Guid(CUSTOMER_ID), reportData, PredefinedRole.EndUser.ToString(), Guid.Empty));
+                assetService.ReportDeviceAsync(new Guid(CUSTOMER_ID), reportData, PredefinedRole.EndUser.ToString(), new List<Guid?>(), Guid.Empty));
         }
 
         [Fact]
@@ -1257,7 +1257,7 @@ namespace OrigoApiGateway.Tests
 
             // Act and assert
             await Assert.ThrowsAsync<ResourceNotFoundException>(() =>
-                assetService.BuyoutDeviceAsync(new Guid(CUSTOMER_ID), new Guid(ASSET_ID), PredefinedRole.EndUser.ToString(), Guid.Empty));
+                assetService.BuyoutDeviceAsync(new Guid(CUSTOMER_ID), new Guid(ASSET_ID), PredefinedRole.EndUser.ToString(), new List<Guid?>(), Guid.Empty));
         }
 
     }

@@ -470,7 +470,7 @@ namespace OrigoApiGateway.Controllers
             {
                 // Only admin or manager roles are allowed to see all assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
@@ -523,7 +523,7 @@ namespace OrigoApiGateway.Controllers
             {
                 // Only admin or manager roles are allowed to see all assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
@@ -574,7 +574,7 @@ namespace OrigoApiGateway.Controllers
             {
                 // Only admin or manager roles are allowed to see all assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
@@ -841,22 +841,31 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
-                if (role != PredefinedRole.SystemAdmin.ToString())
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                var department = new List<Guid?>();
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    foreach (var departmentId in accessList.Split(","))
+                    {
+                        if (Guid.TryParse(departmentId, out var departmentGuid))
+                        {
+                            department.Add(departmentGuid);
+                        }
+                    }
+                }
+                else if (role != PredefinedRole.SystemAdmin.ToString())
+                {
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
                     }
                 }
-
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
                 if (data.AssetId == Guid.Empty)
                     return BadRequest("No asset selected.");
 
-                var updatedAssets = await _assetServices.ReturnDeviceAsync(organizationId, data.AssetId, role, data.ReturnLocationId, callerId);
+                var updatedAssets = await _assetServices.ReturnDeviceAsync(organizationId, data.AssetId, role, department, data.ReturnLocationId, callerId);
                 if (updatedAssets == null)
                 {
                     return NotFound();
@@ -895,22 +904,31 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
-                if (role != PredefinedRole.SystemAdmin.ToString())
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                var department = new List<Guid?>();
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    foreach (var departmentId in accessList.Split(","))
+                    {
+                        if (Guid.TryParse(departmentId, out var departmentGuid))
+                        {
+                            department.Add(departmentGuid);
+                        }
+                    }
+                }
+                else if (role != PredefinedRole.SystemAdmin.ToString())
+                {
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
                     }
                 }
-
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
                 if (data.AssetId == Guid.Empty)
                     return BadRequest("No asset selected.");
 
-                var updatedAssets = await _assetServices.BuyoutDeviceAsync(organizationId, data.AssetId, role, callerId);
+                var updatedAssets = await _assetServices.BuyoutDeviceAsync(organizationId, data.AssetId, role, department, callerId);
                 if (updatedAssets == null)
                 {
                     return NotFound();
@@ -949,22 +967,31 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
-                if (role != PredefinedRole.SystemAdmin.ToString())
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                var department = new List<Guid?>();
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    foreach (var departmentId in accessList.Split(","))
+                    {
+                        if (Guid.TryParse(departmentId, out var departmentGuid))
+                        {
+                            department.Add(departmentGuid);
+                        }
+                    }
+                }
+                else if (role != PredefinedRole.SystemAdmin.ToString())
+                {
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
                     }
                 }
-
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
                 if (data.AssetId == Guid.Empty)
                     return BadRequest("No asset selected.");
 
-                var updatedAssets = await _assetServices.ReportDeviceAsync(organizationId, data, role, callerId);
+                var updatedAssets = await _assetServices.ReportDeviceAsync(organizationId, data, role, department, callerId);
                 if (updatedAssets == null)
                 {
                     return NotFound();
