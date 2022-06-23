@@ -305,19 +305,20 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IList<Location>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<IList<Location>>> GetOrganizationLocations(Guid organizationId)
         {
             try
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-
-                    // Only SystemAdmin has access to all organization user counts
-                    return Forbid();
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
                 }
-
                 var locations = await CustomerServices.GetAllCustomerLocations(organizationId);
                 return locations != null ? Ok(locations) : NotFound();
             }
@@ -332,17 +333,23 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(Location), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Conflict)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<Location>> CreateLocation([FromBody] OfficeLocation newLocation, Guid organizationId)
         {
             try
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role != PredefinedRole.SystemAdmin.ToString() && role != PredefinedRole.PartnerAdmin.ToString())
+                if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
-
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
 
@@ -365,27 +372,23 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<Location>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.CanUpdateCustomer)]
         public async Task<ActionResult<IList<Location>>> DeleteLocation(Guid organizationId, Guid locationId)
         {
             try
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
-                if (role != PredefinedRole.PartnerAdmin.ToString() && role != PredefinedRole.SystemAdmin.ToString())
+                if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
-                // If role is not System admin, check access list
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
                     }
                 }
-
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
