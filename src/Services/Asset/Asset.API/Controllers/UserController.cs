@@ -25,7 +25,7 @@ public class UserController : Controller
 
 
     [Topic("customer-pub-sub", "user-deleted")]
-    [HttpPost("user-deleted")]
+    [HttpPost("user-change-department-assignment")]
     public void UserAssignDepartment([FromBody] UserChangedDepartmentEvent userDeletedEvent)
     {
         _assetServices.SyncDepartmentForUserToAssetLifecycle(userDeletedEvent.CustomerId, userDeletedEvent.UserId, userDeletedEvent.DepartmentId, Guid.Empty.SystemUserId());
