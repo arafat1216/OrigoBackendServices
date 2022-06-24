@@ -54,9 +54,15 @@ public class UsersController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(List<User>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<int>> GetUsersCount(Guid customerId)
+    public async Task<ActionResult<int>> GetUsersCount(Guid customerId, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString)
     {
-        var count = await _userServices.GetUsersCountAsync(customerId);
+        FilterOptionsForUser? filterOptions = null;
+        if (!string.IsNullOrEmpty(filterOptionsAsJsonString))
+        {
+            filterOptions = JsonSerializer.Deserialize<FilterOptionsForUser>(filterOptionsAsJsonString);
+        }
+
+        var count = await _userServices.GetUsersCountAsync(customerId, filterOptions?.AssignedToDepartments, filterOptions?.Roles);
 
         return Ok(count);
     }

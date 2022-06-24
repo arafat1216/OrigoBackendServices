@@ -30,6 +30,7 @@ namespace Customer.API.IntegrationTests.Controllers
         private readonly Guid _userTwoId;
         private readonly Guid _userThreeId;
         private readonly Guid _callerId;
+        private readonly Guid _userFourId;
 
         private readonly CustomerWebApplicationFactory<Startup> _factory;
 
@@ -47,6 +48,7 @@ namespace Customer.API.IntegrationTests.Controllers
             _userTwoId = factory.USER_TWO_ID;
             _userThreeId = factory.USER_THREE_ID;
             _userOneEmail = factory.USER_ONE_EMAIL;
+            _userFourId = factory.USER_FOUR_ID;
             _callerId = Guid.NewGuid();
             _factory = factory;
         }
@@ -874,8 +876,10 @@ namespace Customer.API.IntegrationTests.Controllers
         public async Task GetUsersCount_OnlyCountActivatedUsers()
         {
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var filter = new FilterOptionsForUser { Roles = new[] { "SystemAdmin" } };
+            string json = JsonSerializer.Serialize(filter);
 
-            var request = $"/api/v1/organizations/{_customerId}/users/count";
+            var request = $"/api/v1/organizations/{_customerId}/users/count/?filterOptions={json}";
             var response = await httpClient.GetAsync(request);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var count = await response.Content.ReadFromJsonAsync<int>();
@@ -886,9 +890,54 @@ namespace Customer.API.IntegrationTests.Controllers
         public async Task GetUsersCount_NotValidACustomer()
         {
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            
+            var filter = new FilterOptionsForUser { Roles = new[] { "SystemAdmin" } };
+            string json = JsonSerializer.Serialize(filter);
 
-            var request = $"/api/v1/organizations/{Guid.NewGuid()}/users/count";
+            var request = $"/api/v1/organizations/{Guid.NewGuid()}/users/count/?filterOptions={json}";
             var response = await httpClient.GetAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var count = await response.Content.ReadFromJsonAsync<int>();
+
+            Assert.Equal(0, count);
+        }
+        [Fact]
+        public async Task GetUsersCount_DepartmentFilter_OnlyCountActivatedUsers()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var url = $"/api/v1/organizations/{_customerId}/users/{_userFourId}/department/{_headDepartmentId}";
+            var assigneUserToDepartment = await httpClient.PostAsync(url, JsonContent.Create(_callerId));
+            Assert.Equal(HttpStatusCode.OK, assigneUserToDepartment.StatusCode);
+
+            var filter = new FilterOptionsForUser { AssignedToDepartments = new[] { _headDepartmentId} };
+            string json = JsonSerializer.Serialize(filter);
+
+            var request = $"/api/v1/organizations/{_customerId}/users/count/?filterOptions={json}";
+            var response = await httpClient.GetAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var count = await response.Content.ReadFromJsonAsync<int>();
+
+            Assert.Equal(1, count);
+        }
+        [Fact]
+        public async Task GetUsersCount_FilterNull_ReturnsZero()
+        {
+            var filter = new FilterOptionsForUser { };
+            string json = JsonSerializer.Serialize(filter);
+
+            var request = $"/api/v1/organizations/{_customerId}/users/count/?filterOptions={json}";
+            var response = await _httpClient.GetAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var count = await response.Content.ReadFromJsonAsync<int>();
+
+            Assert.Equal(0, count);
+        }
+        [Fact]
+        public async Task GetUsersCount_NoFilterAtAll_ReturnsZeroAndNotException()
+        {
+            var request = $"/api/v1/organizations/{_customerId}/users/count";
+            var response = await _httpClient.GetAsync(request);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var count = await response.Content.ReadFromJsonAsync<int>();
 

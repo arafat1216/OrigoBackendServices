@@ -245,11 +245,36 @@ namespace CustomerServices.Infrastructure
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<int> GetUsersCount(Guid customerId)
+        public async Task<int> GetUsersCount(Guid customerId, Guid[]? assignedToDepartment, string[]? role)
         {
-            return await _customerContext.Users
-                .Where(u => u.Customer.OrganizationId == customerId && u.UserStatus == Common.Enums.UserStatus.Activated)
-                .CountAsync();
+
+            if (assignedToDepartment != null) {
+
+                var count = await _customerContext.Users
+                .Include(c => c.Customer)
+                .Include(d => d.Department)
+                .Where(a => a.Customer.OrganizationId == customerId && a.UserStatus == Common.Enums.UserStatus.Activated && assignedToDepartment.Contains(a.Department.ExternalDepartmentId))
+                    .GroupBy(a => a.UserId)
+                    .Select(c => new { 
+                        DepartmentId = c.Key, 
+                        Count = c.Count() })
+                    .Select(a => a.Count).SumAsync();
+                return count;
+            }
+
+            if (role != null && role.Any()) {
+
+                if (role.Contains("CustomerAdmin") || role.Contains("PartnerAdmin") ||
+                    role.Contains("SystemAdmin") || role.Contains("GroupAdmin") ||
+                    role.Contains("Admin") || role.Contains("PartnerReadOnlyAdmin"))
+                {
+                    return await _customerContext.Users
+                    .Where(u => u.Customer.OrganizationId == customerId && u.UserStatus == Common.Enums.UserStatus.Activated)
+                    .CountAsync();
+                }
+            }
+            
+            return 0;
         }
 
         public async Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)

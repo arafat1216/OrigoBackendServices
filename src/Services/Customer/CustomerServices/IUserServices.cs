@@ -11,8 +11,7 @@ namespace CustomerServices
 {
     public interface IUserServices
     {
-        Task<int> GetUsersCountAsync(Guid customerId);
-        Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100);
+        Task<int> GetUsersCountAsync(Guid customerId, Guid[]? assignedToDepartment, string[]? role);        Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100);
         Task<UserDTO> GetUserWithRoleAsync(Guid customerId, Guid userId);
         Task<UserDTO> GetUserWithRoleAsync(Guid userId);
         Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,

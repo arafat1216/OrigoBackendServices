@@ -56,7 +56,7 @@ namespace CustomerServices.UnitTests
             await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
             await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, false, EMPTY_CALLER_ID);
 
-            int users = await userServices.GetUsersCountAsync(CUSTOMER_ONE_ID);
+            int users = await userServices.GetUsersCountAsync(CUSTOMER_ONE_ID, null, new[] {"SystemAdmin"});
 
             // Assert
             Assert.Equal(1, users);

@@ -10,7 +10,7 @@ namespace OrigoApiGateway.Services
 {
     public interface IUserServices
     {
-        Task<int> GetUsersCountAsync(Guid customerId);
+        Task<int> GetUsersCountAsync(Guid customerId, FilterOptionsForUser filterOptions, Guid callerId);
         Task<OrigoUser> GetUserAsync(Guid customerId, Guid userId);
         Task<OrigoUser> GetUserAsync(Guid userId);
         Task<PagedModel<OrigoUser>> GetAllUsersAsync(Guid customerId, FilterOptionsForUser filterOptions, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 1000);

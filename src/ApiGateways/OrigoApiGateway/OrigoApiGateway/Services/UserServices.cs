@@ -31,12 +31,35 @@ namespace OrigoApiGateway.Services
         private HttpClient HttpClient { get; }
         private readonly UserConfiguration _options;
 
-        public async Task<int> GetUsersCountAsync(Guid customerId)
+        public async Task<int> GetUsersCountAsync(Guid customerId, FilterOptionsForUser filterOptions, Guid callerId)
         {
             try
             {
-                var count = await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/{customerId}/users/count");
-                return count;
+                if ((filterOptions.Roles != null && filterOptions.Roles.Any()) && (filterOptions.Roles.Contains("Manager") || filterOptions.Roles.Contains("DepartmentManager")))
+                {
+                    var user = await HttpClient.GetFromJsonAsync<UserDTO>($"{_options.ApiPath}/{customerId}/users/{callerId}");
+                    if (user == null)
+                       throw new BadHttpRequestException("User not found");
+
+                    if (user.ManagerOf == null || !user.ManagerOf.Any()) return 0;
+
+                    filterOptions.AssignedToDepartments = user.ManagerOf.Select(a => a.DepartmentId).ToList();
+                }
+
+                string json = JsonSerializer.Serialize(filterOptions);
+
+                return await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/{customerId}/users/count/?filterOptions={json}");
+                
+            }
+            catch (JsonException exception)
+            {
+                _logger.LogError(exception, "GetUserAsync failed with JsonException. ", exception.Message);
+                throw;
+            }
+            catch (BadHttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetUserAsync failed with BadHttpRequestException. ", exception.Message);
+                throw;
             }
             catch (HttpRequestException exception)
             {

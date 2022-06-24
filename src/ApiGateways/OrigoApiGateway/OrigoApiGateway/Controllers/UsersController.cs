@@ -3,21 +3,14 @@ using Common.Enums;
 using Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
-using Humanizer;
 
 namespace OrigoApiGateway.Controllers
 {
@@ -42,13 +35,18 @@ namespace OrigoApiGateway.Controllers
 
         [Route("count")]
         [HttpGet]
-        [ProducesResponseType(typeof(List<OrigoUser>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<int>> GetUsersCount(Guid organizationId)
         {
+            try 
+            { 
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            FilterOptionsForUser filterOptions = new FilterOptionsForUser { Roles = new[] { role ?? null} };
+
+            if (role == PredefinedRole.EndUser.ToString())
             {
                 return Forbid();
             }
@@ -62,8 +60,22 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
             }
-            var count = await _userServices.GetUsersCountAsync(organizationId);
+
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            Guid.TryParse(actor, out Guid callerId);
+
+            var count = await _userServices.GetUsersCountAsync(organizationId, filterOptions, callerId);
             return Ok(new { organizationId, count });
+            
+            }
+            catch (BadHttpRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (HttpRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet]
