@@ -28,9 +28,10 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="customerId">Customer identifier</param>
         /// <param name="loanPhoneNumber">The phone-number in <c>E.164</c> format.</param>
         /// <param name="loanPhoneEmail"></param>
+        /// <param name="providesLoanDevice">This parameter ensures whether a customer provides loan device</param>
         /// <param name="callerId"></param>
         /// <returns></returns>
-        Task<CustomerSettings> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, Guid callerId);
+        Task<CustomerSettings> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, bool providesLoanDevice, Guid callerId);
 
         Task<CustomerSettings?> GetSettingsAsync(Guid customerId);
 

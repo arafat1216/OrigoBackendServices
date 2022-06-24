@@ -31,7 +31,17 @@ namespace HardwareServiceOrderServices
         /// <param name="callerId"></param>
         /// <returns></returns>
         Task<CustomerSettingsDTO> ConfigureCustomerSettingsAsync(Guid customerId, Guid callerId);
-        Task<CustomerSettingsDTO> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, Guid callerId);
+        
+        /// <summary>
+        /// Configure loan phone
+        /// </summary>
+        /// <param name="customerId">Customer identifier</param>
+        /// <param name="loanPhoneNumber">The phone-number in <c>E.164</c> format.</param>
+        /// <param name="loanPhoneEmail">Email addess</param>
+        /// <param name="providesLoanDevice">This parameter ensures whether a customer provides loan device</param>
+        /// <param name="callerId"></param>
+        /// <returns></returns>
+        Task<CustomerSettingsDTO> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, bool providesLoanDevice, Guid callerId);
         Task<CustomerSettingsDTO> GetSettingsAsync(Guid customerId);
 
         // Order

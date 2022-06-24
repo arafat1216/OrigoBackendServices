@@ -38,7 +38,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         {
             var url = $"/api/v1/hardware-repair/{_customerId}/config/loan-device";
             _testOutputHelper.WriteLine(url);
-            var loanDevice = new LoanDevice("+8801724592272", "test@test.com");
+            var loanDevice = new LoanDevice("+8801724592272", "test@test.com", true);
             loanDevice.CallerId = _callerId;
             var request = await _httpClient.PatchAsync(url, JsonContent.Create(loanDevice));
             var settings = await request.Content.ReadFromJsonAsync<CustomerSettingsResponseDTO>();
@@ -46,6 +46,17 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             Assert.NotNull(settings!.ApiUsername);
             Assert.NotNull(settings!.LoanDevice.Email);
             Assert.NotNull(settings!.LoanDevice.PhoneNumber);
+        }
+
+        [Fact]
+        public async Task ConfigureLoanDevice_Does_Not_Provide_Loan_Device_Bad_Request()
+        {
+            var url = $"/api/v1/hardware-repair/{_customerId}/config/loan-device";
+            _testOutputHelper.WriteLine(url);
+            var loanDevice = new LoanDevice("+8801724592272", "test@test.com", false);
+            loanDevice.CallerId = _callerId;
+            var request = await _httpClient.PatchAsync(url, JsonContent.Create(loanDevice));
+            Assert.Equal(HttpStatusCode.BadRequest, request.StatusCode);
         }
 
         [Fact]
@@ -78,6 +89,23 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             Assert.NotNull(settings!.ApiUsername);
             Assert.NotNull(settings!.LoanDevice.Email);
             Assert.NotNull(settings!.LoanDevice.PhoneNumber);
+        }
+
+        [Fact]
+        public async Task ConfigureLoanDevice_Does_Not_Provide_Loan_Device()
+        {
+            var url = $"/api/v1/hardware-repair/{_customerId}/config/loan-device";
+            _testOutputHelper.WriteLine(url);
+            var loanDevice = new LoanDevice("", "", false);
+            loanDevice.CallerId = _callerId;
+            var request = await _httpClient.PatchAsync(url, JsonContent.Create(loanDevice));
+            var settings = await request.Content.ReadFromJsonAsync<CustomerSettingsResponseDTO>();
+            Assert.Equal(HttpStatusCode.OK, request.StatusCode);
+            Assert.NotNull(settings);
+            Assert.NotNull(settings!.ApiUsername);
+            Assert.Empty(settings!.LoanDevice.Email);
+            Assert.Empty(settings!.LoanDevice.PhoneNumber);
+            Assert.False(settings.LoanDevice.ProvidesLoanDevice);
         }
 
         [Fact]

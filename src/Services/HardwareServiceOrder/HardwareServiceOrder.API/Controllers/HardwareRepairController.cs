@@ -47,12 +47,22 @@ namespace HardwareServiceOrder.API.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Configure loan device
+        /// </summary>
+        /// <param name="customerId">Customer identifier</param>
+        /// <param name="loanDevice">Loan device details</param>
+        /// <param name="callerId">API caller's identifier</param>
+        /// <returns></returns>
         [Route("{customerId:Guid}/config/loan-device")]
         [HttpPatch]
         [SwaggerOperation(Tags = new[] { "Configuration" })]
         public async Task<IActionResult> ConfigureLoanDevice(Guid customerId, [FromBody] LoanDevice loanDevice, Guid callerId)
         {
-            var settings = await _hardwareServiceOrderService.ConfigureLoanPhoneAsync(customerId, loanDevice.PhoneNumber, loanDevice.Email, callerId);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var settings = await _hardwareServiceOrderService.ConfigureLoanPhoneAsync(customerId, loanDevice.PhoneNumber, loanDevice.Email, loanDevice.ProvidesLoanDevice, callerId);
 
             var response = new CustomerSettingsResponseDTO(_mapper.Map<ViewModels.CustomerSettings>(settings))
             {
@@ -114,8 +124,8 @@ namespace HardwareServiceOrder.API.Controllers
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, Guid? userId, [FromQuery] bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {
-            var dto = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(customerId, userId,activeOnly, cancellationToken, page, limit);
-            
+            var dto = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(customerId, userId, activeOnly, cancellationToken, page, limit);
+
             /*
             var response = new PagedModel<ViewModels.HardwareServiceOrderResponse>
             {

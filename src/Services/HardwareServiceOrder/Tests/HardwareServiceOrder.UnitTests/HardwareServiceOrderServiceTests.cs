@@ -92,7 +92,7 @@ namespace HardwareServiceOrder.UnitTests
         [Fact]
         public async Task ConfigureLoanPhone()
         {
-            await _hardwareServiceOrderService.ConfigureLoanPhoneAsync(CUSTOMER_ONE_ID, "[+8801724592272]", "[test@test.com]", CALLER_ONE_ID);
+            await _hardwareServiceOrderService.ConfigureLoanPhoneAsync(CUSTOMER_ONE_ID, "[+8801724592272]", "[test@test.com]", true, CALLER_ONE_ID);
 
             var settings = await _hardwareServiceOrderService.GetSettingsAsync(CUSTOMER_ONE_ID);
             Assert.Equal("[+8801724592272]", settings.LoanDevicePhoneNumber);

@@ -19,12 +19,12 @@ namespace HardwareServiceOrderServices.Models
 
         }
 
-        public CustomerSettings(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, Guid callerId)
+        public CustomerSettings(Guid customerId, string loanPhoneNumber, string loanPhoneEmail,  bool providesLoanDevice, Guid callerId)
         {
             CustomerId = customerId;
             LoanDeviceEmail = loanPhoneEmail;
             LoanDevicePhoneNumber = loanPhoneNumber;
-            //CreatedBy = callerId;
+            ProvidesLoanDevice = providesLoanDevice;
         }
 
         /// <summary>
@@ -39,6 +39,14 @@ namespace HardwareServiceOrderServices.Models
         [StringLength(maximumLength: 320)] // The RFC's max-length for email addresses
         public string? LoanDeviceEmail { get; set; }
 
+        /// <summary>
+        /// Customer Identifier
+        /// </summary>
         public Guid CustomerId { get; set; }
+
+        /// <summary>
+        /// This property ensures whether a customer provides loan device
+        /// </summary>
+        public bool ProvidesLoanDevice { get; set; }
     }
 }

@@ -21,6 +21,7 @@ namespace HardwareServiceOrderServices.Infrastructure
             Guid customerId,
             string loanPhoneNumber,
             string loanPhoneEmail,
+            bool providesLoanDevice,
             Guid callerId
             )
         {
@@ -28,15 +29,16 @@ namespace HardwareServiceOrderServices.Infrastructure
 
             if (settings == null)
             {
-                var newSettings = new CustomerSettings(customerId, loanPhoneNumber, loanPhoneEmail, callerId);
+                var newSettings = new CustomerSettings(customerId, loanPhoneNumber, loanPhoneEmail, providesLoanDevice, callerId);
                 _hardwareServiceOrderContext.Add(newSettings);
                 await _hardwareServiceOrderContext.SaveChangesAsync();
                 return newSettings;
             }
 
-            settings.LoanDevicePhoneNumber = loanPhoneNumber;
-
-            settings.LoanDeviceEmail = loanPhoneEmail;
+            // If providesLoanDevice is false, LoanDevicePhoneNumber & LoanDeviceEmail must be set to empty
+            settings.LoanDevicePhoneNumber = providesLoanDevice ? loanPhoneNumber : "";
+            settings.LoanDeviceEmail = providesLoanDevice ? loanPhoneEmail : "";
+            settings.ProvidesLoanDevice = providesLoanDevice;
 
             _hardwareServiceOrderContext.Entry(settings).State = EntityState.Modified;
 

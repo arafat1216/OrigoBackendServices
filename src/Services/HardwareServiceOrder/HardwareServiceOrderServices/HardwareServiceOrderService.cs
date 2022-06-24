@@ -30,10 +30,13 @@ namespace HardwareServiceOrderServices
             _serviceOrderStatusHandlers = serviceOrderStatusHandlers;
         }
 
-        /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureLoanPhoneAsync(Guid, string, string, Guid)"/>
-        public async Task<CustomerSettingsDTO> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, Guid callerId)
+        /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureLoanPhoneAsync(Guid, string, string, bool, Guid)"/>
+        public async Task<CustomerSettingsDTO> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, bool providesLoanDevice, Guid callerId)
         {
-            var entity = await _hardwareServiceOrderRepository.ConfigureLoanPhoneAsync(customerId, loanPhoneNumber, loanPhoneEmail, callerId);
+            if (providesLoanDevice && string.IsNullOrEmpty(loanPhoneEmail))
+                throw new ArgumentException("Loan phone email is required.");
+
+            var entity = await _hardwareServiceOrderRepository.ConfigureLoanPhoneAsync(customerId, loanPhoneNumber, loanPhoneEmail, providesLoanDevice, callerId);
 
             var dto = _mapper.Map<CustomerSettingsDTO>(entity);
 

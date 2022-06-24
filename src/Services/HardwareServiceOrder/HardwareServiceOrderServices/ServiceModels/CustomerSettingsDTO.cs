@@ -29,5 +29,8 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// <inheritdoc cref="Models.CustomerSettings.CustomerId"/>
         [Required]
         public Guid CustomerId { get; set; }
+
+        /// <inheritdoc cref="Models.CustomerSettings.ProvidesLoanDevice"/>
+        public bool ProvidesLoanDevice { get; set; }
     }
 }
