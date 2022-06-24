@@ -104,7 +104,6 @@ namespace HardwareServiceOrder.API.Controllers
 
         [Route("{customerId:Guid}/orders/{orderId:Guid}")]
         [HttpGet]
-        //[ProducesResponseType(typeof(ViewModels.HardwareServiceOrderResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(HardwareServiceOrderDTO), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> GetHardwareServiceOrder(Guid customerId, Guid orderId)
@@ -119,24 +118,11 @@ namespace HardwareServiceOrder.API.Controllers
 
         [Route("{customerId:Guid}/orders")]
         [HttpGet]
-        //[ProducesResponseType(typeof(IEnumerable<ViewModels.HardwareServiceOrderResponse>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(IEnumerable<HardwareServiceOrderDTO>), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, Guid? userId, [FromQuery] bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {
             var dto = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(customerId, userId, activeOnly, cancellationToken, page, limit);
-
-            /*
-            var response = new PagedModel<ViewModels.HardwareServiceOrderResponse>
-            {
-                TotalPages = dto.TotalPages,
-                TotalItems = dto.TotalItems,
-                PageSize = dto.PageSize,
-                Items = _mapper.Map<List<ViewModels.HardwareServiceOrderResponse>>(dto.Items),
-                CurrentPage = dto.CurrentPage
-            };
-            return Ok(response);
-            */
 
             return Ok(dto);
         }

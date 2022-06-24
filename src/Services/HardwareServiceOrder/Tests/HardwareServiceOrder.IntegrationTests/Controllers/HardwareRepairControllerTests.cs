@@ -60,6 +60,17 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         }
 
         [Fact]
+        public async Task ConfigureLoanDevice_Does_Not_Provide_Loan_Device_Bad_Request_Email_Required()
+        {
+            var url = $"/api/v1/hardware-repair/{_customerId}/config/loan-device";
+            _testOutputHelper.WriteLine(url);
+            var loanDevice = new LoanDevice("+8801724592272", "", true);
+            loanDevice.CallerId = _callerId;
+            var request = await _httpClient.PatchAsync(url, JsonContent.Create(loanDevice));
+            Assert.Equal(HttpStatusCode.BadRequest, request.StatusCode);
+        }
+
+        [Fact]
         public async Task ConfigureSur()
         {
             var customerServiceProvider = new HardwareServiceOrder.API.ViewModels.CustomerServiceProvider
