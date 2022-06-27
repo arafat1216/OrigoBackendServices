@@ -6,6 +6,9 @@ using OrigoApiGateway.Models.HardwareServiceOrder;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
+using System.Security.Claims;
+
+#nullable enable
 
 namespace OrigoApiGateway.Services
 {
@@ -17,6 +20,7 @@ namespace OrigoApiGateway.Services
         private readonly IUserServices _userServices;
         private readonly ICustomerServices _customerServices;
         private readonly IPartnerServices _partnerServices;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         private HttpClient HttpClient { get; }
 
@@ -27,7 +31,8 @@ namespace OrigoApiGateway.Services
             IAssetServices assetServices,
             IUserServices userServices,
             ICustomerServices customerServices,
-            IPartnerServices partnerServices)
+            IPartnerServices partnerServices,
+            IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
             HttpClient = httpClient;
@@ -36,13 +41,57 @@ namespace OrigoApiGateway.Services
             _userServices = userServices;
             _customerServices = customerServices;
             _partnerServices = partnerServices;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<CustomerSettings> ConfigureLoanPhoneAsync(Guid customerId, LoanDevice loanDevice)
+        /// <summary>
+        ///     Accesses the current <see cref="HttpContent"/>, and retrieves the user-ID for the authenticated user.
+        /// </summary>
+        /// <returns> The user-ID for the authenticated user. </returns>
+        private string? GetUserId()
+        {
+            return _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+        }
+
+        /// <summary>
+        ///     Serializes <paramref name="inputValue"/> and adds the dynamic HTTP header values before sending a PATCH 
+        ///     request to the underlaying microservice. 
+        /// </summary>
+        /// <typeparam name="T"> The <see cref="Type"/> that will be serialized. </typeparam>
+        /// <param name="requestUri"> The URI the request is sent to. </param>
+        /// <param name="inputValue"> The value that should be serialized. </param>
+        /// <returns> The <see cref="HttpResponseMessage"/> that was received from the microservice. </returns>
+        private async Task<HttpResponseMessage> PatchAsync<T>(string? requestUri, T? inputValue)
+        {
+            var content = JsonContent.Create(inputValue);
+            content.Headers.Add("X-Authenticated-UserId", GetUserId());
+
+            return await HttpClient.PatchAsync(requestUri, content);
+        }
+
+
+        /// <summary>
+        ///     Serializes <paramref name="inputValue"/> and adds the dynamic HTTP header values before sending a POST 
+        ///     request to the underlaying microservice. 
+        /// </summary>
+        /// <typeparam name="T"> The <see cref="Type"/> that will be serialized. </typeparam>
+        /// <param name="requestUri"> The URI the request is sent to. </param>
+        /// <param name="inputValue"> The value that should be serialized. </param>
+        /// <returns> The <see cref="HttpResponseMessage"/> that was received from the microservice. </returns>
+        private async Task<HttpResponseMessage> PostAsync<T>(string? requestUri, T? inputValue)
+        {
+            var content = JsonContent.Create(inputValue);
+            content.Headers.Add("X-Authenticated-UserId", GetUserId());
+
+            return await HttpClient.PostAsync(requestUri, content);
+        }
+
+
+        public async Task<CustomerSettings?> ConfigureLoanPhoneAsync(Guid customerId, LoanDevice loanDevice)
         {
             try
             {
-                var request = await HttpClient.PatchAsync($"{_options.ApiPath}/{customerId}/config/loan-device", JsonContent.Create(loanDevice));
+                var request = await PatchAsync($"{_options.ApiPath}/{customerId}/config/loan-device", loanDevice);
                 request.EnsureSuccessStatusCode();
                 return await request.Content.ReadFromJsonAsync<CustomerSettings>();
             }
@@ -63,17 +112,17 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<CustomerSettings> ConfigureServiceIdAsync(Guid customerId, string serviceId)
+        public async Task<CustomerSettings?> ConfigureServiceIdAsync(Guid customerId, string serviceId)
         {
             try
             {
                 var dto = new CustomerServiceProviderDTO
                 {
-                    ProviderId = 1, //ConmodoNo
+                    ProviderId = 1, // ConmodoNo
                     ApiUserName = serviceId
                 };
 
-                var request = await HttpClient.PatchAsync($"{_options.ApiPath}/{customerId}/config/sur", JsonContent.Create(dto));
+                var request = await PatchAsync($"{_options.ApiPath}/{customerId}/config/sur", dto);
                 request.EnsureSuccessStatusCode();
                 return await request.Content.ReadFromJsonAsync<CustomerSettings>();
             }
@@ -94,7 +143,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<CustomerSettings> GetSettingsAsync(Guid customerId)
+        public async Task<CustomerSettings?> GetSettingsAsync(Guid customerId)
         {
             try
             {
@@ -118,13 +167,13 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<HardwareServiceOrder> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, NewHardwareServiceOrder model)
+        public async Task<HardwareServiceOrder?> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, NewHardwareServiceOrder model)
         {
             try
             {
                 var dto = new NewHardwareServiceOrderDTO(model);
 
-                //Verify whether the asset can be sent to repair
+                // Verify whether the asset can be sent to repair
                 var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(customerId, model.AssetId);
 
                 if (asset == null)
@@ -146,11 +195,11 @@ namespace OrigoApiGateway.Services
                     SerialNumber = asset.SerialNumber
                 };
 
-                //Get owner information
+                // Get owner information
                 userId = asset.AssetHolderId ?? userId;
                 var userInfo = await _userServices.GetUserAsync(userId);
 
-                //Get organization information
+                // Get organization information
                 var organization = await _customerServices.GetCustomerAsync(customerId);
 
                 if (organization == null)
@@ -159,7 +208,7 @@ namespace OrigoApiGateway.Services
                 if (organization.PartnerId == null)
                     throw new ArgumentException($"There is no partner associated with customerID {customerId}", nameof(customerId));
 
-                //Get partner information
+                // Get partner information
                 var partner = await _partnerServices.GetPartnerAsync(organization.PartnerId.GetValueOrDefault());
 
                 if (partner == null)
@@ -179,7 +228,8 @@ namespace OrigoApiGateway.Services
                     partner.OrganizationNumber
                 );
 
-                var request = await HttpClient.PostAsync($"{_options.ApiPath}/{customerId}/orders", JsonContent.Create(dto));
+
+                var request = await PostAsync($"{_options.ApiPath}/{customerId}/orders", dto);
                 request.EnsureSuccessStatusCode();
                 return await request.Content.ReadFromJsonAsync<HardwareServiceOrder>();
             }
@@ -200,7 +250,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<HardwareServiceOrder> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
+        public async Task<HardwareServiceOrder?> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
         {
             try
             {
@@ -224,7 +274,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<PagedModel<HardwareServiceOrder>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page = 1, int limit = 25)
+        public async Task<PagedModel<HardwareServiceOrder>?> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page = 1, int limit = 25)
         {
             try
             {
@@ -248,7 +298,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<List<HardwareServiceOrderLog>> GetHardwareServiceOrderLogsAsync(Guid customerId, Guid orderId)
+        public async Task<List<HardwareServiceOrderLog>?> GetHardwareServiceOrderLogsAsync(Guid customerId, Guid orderId)
         {
             try
             {

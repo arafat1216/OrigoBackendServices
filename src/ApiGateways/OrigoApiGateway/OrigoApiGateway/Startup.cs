@@ -1,32 +1,22 @@
 using AutoMapper;
+using Common.Utilities;
 using Dapr.Client;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Okta.AspNetCore;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Controllers;
+using OrigoApiGateway.Extensions;
 using OrigoApiGateway.Filters;
 using OrigoApiGateway.Helpers;
 using OrigoApiGateway.Services;
-using System;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
-using System.Threading;
-using Common.Utilities;
-using OrigoApiGateway.Extensions;
 
 namespace OrigoApiGateway
 {
@@ -105,7 +95,9 @@ namespace OrigoApiGateway
             //Filters
             services.AddScoped<ErrorExceptionFilter>();
 
+            //services.AddHttpContextAccessor();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
             services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
             services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
@@ -113,7 +105,7 @@ namespace OrigoApiGateway
                 s.GetRequiredService<ILogger<WebshopService>>(),
                 s.GetRequiredService<IOptions<WebshopConfiguration>>(),
                 DaprClient.CreateInvokeHttpClient("customerservices")
-                ));
+            ));
 
             services.AddSingleton<IAssetServices>(x => new AssetServices(
                 x.GetRequiredService<ILogger<AssetServices>>(),
@@ -147,7 +139,9 @@ namespace OrigoApiGateway
                x.GetRequiredService<IAssetServices>(),
                x.GetRequiredService<IUserServices>(),
                x.GetRequiredService<ICustomerServices>(),
-               x.GetRequiredService<IPartnerServices>()));
+               x.GetRequiredService<IPartnerServices>(),
+               x.GetRequiredService<IHttpContextAccessor>()
+            ));
 
             services.AddSingleton<ICustomerServices>(x => new CustomerServices(
                 x.GetRequiredService<ILogger<CustomerServices>>(),
@@ -223,16 +217,16 @@ namespace OrigoApiGateway
 
             services.AddSingleton<ISubscriptionManagementService>(x => new SubscriptionManagementService(
                 x.GetRequiredService<ILogger<SubscriptionManagementService>>(),
-                    x.GetRequiredService<IOptions<SubscriptionManagementConfiguration>>(),
-                    new UserServices(
-                        x.GetRequiredService<ILogger<UserServices>>(),
-                        DaprClient.CreateInvokeHttpClient("customerservices"),
-                        x.GetRequiredService<IOptions<UserConfiguration>>(),
-                        x.GetRequiredService<IMapper>()
-                    ),
-                    DaprClient.CreateInvokeHttpClient("subscriptionmanagementservices"),
+                x.GetRequiredService<IOptions<SubscriptionManagementConfiguration>>(),
+                new UserServices(
+                    x.GetRequiredService<ILogger<UserServices>>(),
+                    DaprClient.CreateInvokeHttpClient("customerservices"),
+                    x.GetRequiredService<IOptions<UserConfiguration>>(),
                     x.GetRequiredService<IMapper>()
-                ));
+                ),
+                DaprClient.CreateInvokeHttpClient("subscriptionmanagementservices"),
+                x.GetRequiredService<IMapper>()
+            ));
 
 
             if (WebHostEnvironment.EnvironmentName == "Development")
@@ -331,7 +325,7 @@ namespace OrigoApiGateway
                 options.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
-                    {securityScheme, new string[] { }}
+                    { securityScheme, new string[] { } }
                 });
             });
 

@@ -1,18 +1,14 @@
 ﻿using Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Models.HardwareServiceOrder;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 using OrigoApiGateway.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
+
+#nullable enable
 
 namespace OrigoApiGateway.Controllers
 {
@@ -24,6 +20,7 @@ namespace OrigoApiGateway.Controllers
     public class HardwareRepairController : ControllerBase
     {
         private readonly IHardwareRepairService _hardwareRepairService;
+
         public HardwareRepairController(IHardwareRepairService hardwareRepairService)
         {
             _hardwareRepairService = hardwareRepairService;
@@ -192,7 +189,7 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<HardwareServiceOrder>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, string userId, [FromQuery] bool activeOnly = false, int page = 1, int limit = 25)
-         {
+        {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
             if (role != PredefinedRole.SystemAdmin.ToString())
@@ -212,7 +209,7 @@ namespace OrigoApiGateway.Controllers
             if (userId == "me")
                 userIdGuid = new Guid(HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value);
 
-            var orders = await _hardwareRepairService.GetHardwareServiceOrdersAsync(customerId,userIdGuid, activeOnly, page, limit);
+            var orders = await _hardwareRepairService.GetHardwareServiceOrdersAsync(customerId, userIdGuid, activeOnly, page, limit);
 
             return Ok(orders);
         }
