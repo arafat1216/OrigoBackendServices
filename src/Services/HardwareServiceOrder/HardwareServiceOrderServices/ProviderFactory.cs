@@ -65,9 +65,6 @@ namespace HardwareServiceOrderServices
             if (!credentialsExist)
                 throw new ApplicationException("Provider credentials was not found!");
 
-            // TODO: Temp override for testing/debug purposes
-            apiUsername = conmodoConfiguration!.ApiUsername;
-
             var provider = new Conmodo.ConmodoProviderServices(conmodoConfiguration.ApiBaseUrl, apiUsername, conmodoConfiguration.ApiPassword);
             return provider;
         }
