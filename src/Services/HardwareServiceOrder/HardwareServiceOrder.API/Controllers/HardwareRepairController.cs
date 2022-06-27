@@ -2,6 +2,7 @@
 using Common.Interfaces;
 using HardwareServiceOrder.API.ViewModels;
 using HardwareServiceOrderServices;
+using HardwareServiceOrderServices.Infrastructure;
 using HardwareServiceOrderServices.Models;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -21,7 +22,8 @@ namespace HardwareServiceOrder.API.Controllers
         public HardwareRepairController(
             IHardwareServiceOrderService hardwareServiceOrderService,
             ILogger<HardwareRepairController> logger,
-            IMapper mapper)
+            IMapper mapper,
+            IApiRequesterService apiRequesterService)
         {
             _hardwareServiceOrderService = hardwareServiceOrderService;
             _logger = logger;

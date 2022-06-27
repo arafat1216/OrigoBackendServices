@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using HardwareServiceOrderServices.Exceptions;
+using Microsoft.AspNetCore.Http;
 
 namespace HardwareServiceOrderServices.Infrastructure
 {
     /// <summary>
-    ///     The dependency-injected implementation of <see cref="IApiRequesterService"/>.
+    ///     A dependency-injected implementation of <see cref="IApiRequesterService"/>.
     /// </summary>
     public class ApiRequesterService : IApiRequesterService
     {
@@ -15,23 +16,36 @@ namespace HardwareServiceOrderServices.Infrastructure
         ///     Initializes a new instance of the <see cref="ApiRequesterService"/>.
         /// </summary>
         /// <param name="contextAccessor"> A dependency-injected <see cref="IHttpContextAccessor"/>. </param>
-        /// <exception cref="Exception"> Thrown whenever a required request-header is missing or invalid. </exception>
         public ApiRequesterService(IHttpContextAccessor contextAccessor)
         {
-            var _httpContext = contextAccessor.HttpContext;
-
-            if (_httpContext is not null)
+            if (contextAccessor.HttpContext is not null)
             {
-                bool userIsParsed = _httpContext.Request.Headers.TryGetValue("X-Authenticated-UserId", out var userId);
+                CheckAuthenticatedUserHeader(contextAccessor.HttpContext.Request);
+            }
+        }
 
-                if (userIsParsed)
+        /// <summary>
+        ///     Ensures that the 'X-Authenticated-UserId' is present and valid on all HTTP-methods that performs write-operations.
+        /// </summary>
+        /// <param name="httpRequest"> The incoming HTTP request. </param>
+        /// <exception cref="HttpHeaderException"> Thrown when the required header parameter is missing or invalid. </exception>
+        private void CheckAuthenticatedUserHeader(in HttpRequest httpRequest)
+        {
+            // If we are able to parse and extract a value from the header: set the value.
+            if (httpRequest.Headers.TryGetValue("X-Authenticated-UserId", out var userId))
+            {
+                SetAuthenticatedUser(userId);
+            }
+            else
+            {
+                // If the header-value was not set, and it's for a write operation (PUT/PATCH/POST methods), we should throw an exception as it's required
+                // when automatically assigning 'CreatedBy', 'UpdatedBy', etc.
+                if (string.Equals(httpRequest.Method, HttpMethod.Post.Method, StringComparison.InvariantCultureIgnoreCase)
+                    || string.Equals(httpRequest.Method, HttpMethod.Put.Method, StringComparison.InvariantCultureIgnoreCase)
+                    || string.Equals(httpRequest.Method, HttpMethod.Patch.Method, StringComparison.InvariantCultureIgnoreCase)
+                )
                 {
-                    SetAuthenticatedUser(userId);
-                }
-                else
-                {
-                    // TODO: This should eventually be added back in, but first we need to add the to the API gateway calls.
-                    //throw new Exception("The header 'X-Authenticated-UserId' is missing.");
+                    throw new HttpHeaderException("X-Authenticated-UserId", "The HTTP header 'X-Authenticated-UserId' is missing.");
                 }
             }
         }
@@ -44,15 +58,13 @@ namespace HardwareServiceOrderServices.Infrastructure
         /// <exception cref="Exception"> Thrown when the <paramref name="userId"/> fails to be parsed (invalid value). </exception>
         private void SetAuthenticatedUser(string userId)
         {
-            bool callerIdParsed = Guid.TryParse(userId, out Guid result);
+            bool parsedId = Guid.TryParse(userId, out Guid result);
 
-            if (callerIdParsed)
+            if (parsedId)
                 AuthenticatedUserId = result;
             else
-                throw new Exception("The value in 'X-Authenticated-UserId' is not valid.");
+                throw new HttpHeaderException("X-Authenticated-UserId", "The HTTP header 'X-Authenticated-UserId' is not valid.");
         }
-
-
 
     }
 }

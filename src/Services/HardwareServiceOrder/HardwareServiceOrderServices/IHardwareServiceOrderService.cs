@@ -30,7 +30,7 @@ namespace HardwareServiceOrderServices
         /// <param name="customerId">Customer identifier</param>
         /// <param name="callerId"></param>
         /// <returns></returns>
-        Task<CustomerSettingsDTO> ConfigureCustomerSettingsAsync(Guid customerId,  Guid callerId);
+        Task<CustomerSettingsDTO> ConfigureCustomerSettingsAsync(Guid customerId, Guid callerId);
         Task<CustomerSettingsDTO> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, Guid callerId);
         Task<CustomerSettingsDTO> GetSettingsAsync(Guid customerId);
 
@@ -39,7 +39,7 @@ namespace HardwareServiceOrderServices
         Task<HardwareServiceOrderDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId);
         Task<PagedModel<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25);
         Task<List<HardwareServiceOrderLogDTO>> GetHardwareServiceOrderLogsAsync(Guid customerId, Guid orderId);
-        
+
         /// <summary>
         /// Update all order status since last updated datetime
         /// </summary>

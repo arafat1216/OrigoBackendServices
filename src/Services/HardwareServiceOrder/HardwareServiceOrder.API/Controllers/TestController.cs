@@ -21,13 +21,23 @@ namespace HardwareServiceOrder.API.Controllers
         private readonly IProviderFactory _providerFactory;
         private readonly HardwareServiceOrderContext _context;
         private readonly Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> _serviceOrderStatusHandlers;
+        private readonly IApiRequesterService _apiRequesterService;
 
-
-        public TestController(IProviderFactory providerFactory, HardwareServiceOrderContext dbContext, Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> serviceOrderStatusHandlers)
+        public TestController(IProviderFactory providerFactory, HardwareServiceOrderContext dbContext, Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> serviceOrderStatusHandlers, IApiRequesterService apiRequesterService)
         {
             _providerFactory = providerFactory;
             _context = dbContext;
             _serviceOrderStatusHandlers = serviceOrderStatusHandlers;
+            _apiRequesterService = apiRequesterService;
+        }
+
+
+        private object GetResponseObject()
+        {
+            return new
+            {
+                AuthenticatedUserId = _apiRequesterService.AuthenticatedUserId
+            };
         }
 
 
@@ -42,7 +52,7 @@ namespace HardwareServiceOrder.API.Controllers
             {
                 var providerInterface = await _providerFactory.GetRepairProviderAsync(providerId);
 
-                return Ok();
+                return Ok(GetResponseObject());
             }
             catch (Exception e)
             {

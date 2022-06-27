@@ -15,6 +15,7 @@ namespace HardwareServiceOrderServices
         private IEmailService _emailService;
         private readonly IProviderFactory _providerFactory;
         private readonly Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> _serviceOrderStatusHandlers;
+
         public HardwareServiceOrderService(
             IHardwareServiceOrderRepository hardwareServiceOrderRepository,
             IMapper mapper,

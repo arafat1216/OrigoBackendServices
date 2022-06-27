@@ -1,5 +1,6 @@
 ﻿using HardwareServiceOrder.API.ViewModels;
 using HardwareServiceOrderServices.Email;
+using HardwareServiceOrderServices.Infrastructure;
 using HardwareServiceOrderServices.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,7 @@ namespace HardwareServiceOrder.API.Controllers
         private readonly IEmailService _emailService;
         private readonly ILogger<HardwareRepairController> _logger;
 
-        public HardwareRepairNotificationController(IEmailService emailService, ILogger<HardwareRepairController> logger)
+        public HardwareRepairNotificationController(IEmailService emailService, ILogger<HardwareRepairController> logger, IApiRequesterService apiRequesterService)
         {
             _emailService = emailService;
             _logger = logger;

@@ -1,4 +1,5 @@
 ﻿using HardwareServiceOrderServices;
+using HardwareServiceOrderServices.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HardwareServiceOrder.API.Controllers
@@ -12,7 +13,8 @@ namespace HardwareServiceOrder.API.Controllers
     public class HardwareRepairOrderStatusController : ControllerBase
     {
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
-        public HardwareRepairOrderStatusController(IHardwareServiceOrderService hardwareServiceOrderService)
+
+        public HardwareRepairOrderStatusController(IHardwareServiceOrderService hardwareServiceOrderService, IApiRequesterService apiRequesterService)
         {
             _hardwareServiceOrderService = hardwareServiceOrderService;
         }

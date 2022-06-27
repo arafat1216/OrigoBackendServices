@@ -1,7 +1,6 @@
 using Common.Configuration;
 using Common.Utilities;
 using Dapr.Client;
-using Google.Api;
 using HardwareServiceOrder.API;
 using HardwareServiceOrder.API.Extensions;
 using HardwareServiceOrderServices;
@@ -150,24 +149,24 @@ builder.Services.AddScoped<ServiceOrderRegisteredStatusHandlerService>();
 builder.Services.AddScoped<ServiceOrderUnknownStatusHandlerService>();
 builder.Services.AddScoped(s => new Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService>
 {
-    {ServiceStatusEnum.Canceled, s.GetRequiredService<ServiceOrderCanceledStatusHandlerService>() },
+    { ServiceStatusEnum.Canceled, s.GetRequiredService<ServiceOrderCanceledStatusHandlerService>() },
     // Completed
-    {ServiceStatusEnum.CompletedNotRepaired, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
-    {ServiceStatusEnum.CompletedRepaired, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
-    {ServiceStatusEnum.CompletedRepairedOnWarranty, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
-    {ServiceStatusEnum.CompletedReplaced, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
-    {ServiceStatusEnum.CompletedReplacedOnWarranty, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
-    {ServiceStatusEnum.CompletedCredited, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
-    {ServiceStatusEnum.CompletedDiscarded, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
+    { ServiceStatusEnum.CompletedNotRepaired, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
+    { ServiceStatusEnum.CompletedRepaired, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
+    { ServiceStatusEnum.CompletedRepairedOnWarranty, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
+    { ServiceStatusEnum.CompletedReplaced, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
+    { ServiceStatusEnum.CompletedReplacedOnWarranty, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
+    { ServiceStatusEnum.CompletedCredited, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
+    { ServiceStatusEnum.CompletedDiscarded, s.GetRequiredService<ServiceOrderCompletedStatusHandlerService>() },
     // Ongoing
-    {ServiceStatusEnum.Ongoing, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
-    {ServiceStatusEnum.OngoingUserActionNeeded, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
-    {ServiceStatusEnum.OngoingInTransit, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
-    {ServiceStatusEnum.OngoingReadyForPickup, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
+    { ServiceStatusEnum.Ongoing, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
+    { ServiceStatusEnum.OngoingUserActionNeeded, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
+    { ServiceStatusEnum.OngoingInTransit, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
+    { ServiceStatusEnum.OngoingReadyForPickup, s.GetRequiredService<ServiceOrderOngoingStatusHandlerService>() },
     // Registered
-    {ServiceStatusEnum.Registered, s.GetRequiredService<ServiceOrderRegisteredStatusHandlerService>() },
-    {ServiceStatusEnum.RegisteredInTransit, s.GetRequiredService<ServiceOrderRegisteredStatusHandlerService>() },
-    {ServiceStatusEnum.RegisteredUserActionNeeded, s.GetRequiredService<ServiceOrderRegisteredStatusHandlerService>() },
+    { ServiceStatusEnum.Registered, s.GetRequiredService<ServiceOrderRegisteredStatusHandlerService>() },
+    { ServiceStatusEnum.RegisteredInTransit, s.GetRequiredService<ServiceOrderRegisteredStatusHandlerService>() },
+    { ServiceStatusEnum.RegisteredUserActionNeeded, s.GetRequiredService<ServiceOrderRegisteredStatusHandlerService>() },
     // Unknown
     { ServiceStatusEnum.Unknown, s.GetRequiredService<ServiceOrderUnknownStatusHandlerService>() }
 });

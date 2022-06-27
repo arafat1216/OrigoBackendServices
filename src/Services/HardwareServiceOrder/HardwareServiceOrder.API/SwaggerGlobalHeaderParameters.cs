@@ -27,7 +27,7 @@ namespace HardwareServiceOrder.API
                     Name = "X-Authenticated-UserId",
                     Description = "The <code>userID</code> of the user/caller that triggered the request.<br/><br/>In supported endpoints, the <code>CreatedBy</code>, <code>UpdatedBy</code> and <code>DeletedBy</code> values is automatically handled, and uses this ID when changes are made in the database.",
                     In = ParameterLocation.Header,
-                    Required = false,
+                    //Required = true,
 
                     Schema = new OpenApiSchema()
                     {
@@ -35,7 +35,11 @@ namespace HardwareServiceOrder.API
                         Format = "uuid"
                     },
 
+                    // Add a example if we are in debug, as this indicates local environment, and it adds a pre-filled value the developer
+                    // can use, making it easier to do testing.
+#if DEBUG
                     //Example = new OpenApiString("00000000-0000-0000-0000-000000000002")
+#endif
                 });
             }
         }
