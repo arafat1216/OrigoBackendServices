@@ -130,7 +130,7 @@ public class AssetServicesTests : AssetBaseTest
 
         // Act
         var assetsFromUser =
-            await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID,null, null, null, null, null, null, null , null, string.Empty, 1, 10,
+            await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID,null, null, null, null, null, null, null , null, null, string.Empty, 1, 10,
                 new CancellationToken());
 
         // Assert
@@ -142,7 +142,7 @@ public class AssetServicesTests : AssetBaseTest
         string userId = "6d16a4cb-4733-44de-b23b-0eb9e8ae6590";
 
 
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, userId, null, null, null, null, null, null, null, null, 1, 10,
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, userId, null, null, null, null, null, null, null,null, null, 1, 10,
              new CancellationToken());
 
         Assert.Equal(1, assetsFromUser.Items.Count);
@@ -156,7 +156,7 @@ public class AssetServicesTests : AssetBaseTest
         Guid[] labels = new Guid[] { new Guid("D3EF00AB-C3B6-4751-982F-BF66738BC068") };
 
 
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, labels, null, null, null, null, 1, 10,
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, labels, null, null, null,null, null, 1, 10,
              new CancellationToken());
 
         Assert.Equal(1, assetsFromUser.Items.Count);
@@ -168,7 +168,7 @@ public class AssetServicesTests : AssetBaseTest
         int[] category = new int[] { 1 };
 
 
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, category, null, null, null, null, null, 1, 10,
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, category, null, null, null, null,null, null, 1, 10,
              new CancellationToken());
 
         Assert.Equal(7, assetsFromUser.Items.Count);
@@ -179,7 +179,7 @@ public class AssetServicesTests : AssetBaseTest
 
         IList<Guid?> depts = new List<Guid?> { new Guid("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72") };
 
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, depts, null, null, null, null, null, null, 1, 10, new CancellationToken());
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, depts, null, null, null, null, null,null, null, 1, 10, new CancellationToken());
 
         Assert.Equal(3, assetsFromUser.Items.Count);
 
@@ -189,7 +189,7 @@ public class AssetServicesTests : AssetBaseTest
         IList<AssetLifecycleStatus> status = new List<AssetLifecycleStatus>{AssetLifecycleStatus.Active ,
             AssetLifecycleStatus.Recycled};
 
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, status, null, null, null, null, null, null, null, 1, 10,
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, status, null, null, null, null, null, null,null, null, 1, 10,
             new CancellationToken());
 
 
@@ -197,7 +197,7 @@ public class AssetServicesTests : AssetBaseTest
 
         //filter data only endPeriodMonth
 
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, null, null, null, DateTime.UtcNow, null, 1, 10,
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, null, null, null, DateTime.UtcNow, null,null, 1, 10,
             new CancellationToken());
 
 
@@ -214,7 +214,7 @@ public class AssetServicesTests : AssetBaseTest
 
         labels = new Guid[] { new Guid("D3EF00AB-C3B6-4751-982F-BF66738BC068") };
 
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, status, depts, category, labels, null, null, null, null, 1, 10,
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, status, depts, category, labels, null, null, null,null, null, 1, 10,
              new CancellationToken());
 
         Assert.Equal(1, assetsFromUser.Items.Count);
@@ -223,14 +223,14 @@ public class AssetServicesTests : AssetBaseTest
 
 
         // search with serial key
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, null, null, null, null, "123456789012399", 1, 10,
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, null, null, null, null,null, "123456789012399", 1, 10,
              new CancellationToken());
 
         // Assert 
         Assert.Equal(5, assetsFromUser.Items.Count);
 
         // search with IMEI
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, null, null, null, null, "512217111821626", 1, 10,
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, null, null, null, null,null, "512217111821626", 1, 10,
              new CancellationToken());
 
         // Assert 
@@ -238,13 +238,13 @@ public class AssetServicesTests : AssetBaseTest
 
         // search with combination of IsPersonal and IsActive state
 
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, null, true, true, null, null, 1, 10,
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, null, true, true, null,null, null, 1, 10,
              new CancellationToken());
 
         // Assert 
         Assert.Equal(2, assetsFromUser.Items.Count);
 
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, null, false, true, null, null, 1, 10,
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, null, false, true, null,null, null, 1, 10,
              new CancellationToken());
 
         // Assert 

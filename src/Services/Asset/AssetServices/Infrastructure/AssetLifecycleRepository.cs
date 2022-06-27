@@ -101,7 +101,7 @@ namespace AssetServices.Infrastructure
         }
 
         public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
-           Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, string search, int page, int limit, CancellationToken cancellationToken)
+           Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string search, int page, int limit, CancellationToken cancellationToken)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
             query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
@@ -177,12 +177,18 @@ namespace AssetServices.Infrastructure
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Recycled ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Discarded ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Returned);
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Returned ||
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Expired);
             
             }
             if (endPeriodMonth.HasValue)
             {
                 query = query.Where(al => al.EndPeriod.HasValue && al.EndPeriod.Value.Month == endPeriodMonth.Value.Month && al.EndPeriod.Value.Year == endPeriodMonth.Value.Year);
+            }
+
+            if (purchaseMonth.HasValue)
+            {
+                query = query.Where(al => al.PurchaseDate.Month == purchaseMonth.Value.Month && al.PurchaseDate.Year == purchaseMonth.Value.Year);
             }
 
             query = query.AsSplitQuery().AsNoTracking();

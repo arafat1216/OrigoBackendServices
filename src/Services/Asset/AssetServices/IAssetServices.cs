@@ -17,7 +17,7 @@ namespace AssetServices
         Task<IList<AssetLifecycleDTO>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId);
         Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
         Task<PagedModel<AssetLifecycleDTO>> GetAssetLifecyclesForCustomerAsync(Guid customerId,string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
-           Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, string search, int page, int limit, CancellationToken cancellationToken);
+           Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string search, int page, int limit, CancellationToken cancellationToken);
         Task<AssetLifecycleDTO?> GetAssetLifecycleForCustomerAsync(Guid customerId, Guid assetId);
         Task<IList<CustomerLabel>> AddLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Label> labels);
         Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId);

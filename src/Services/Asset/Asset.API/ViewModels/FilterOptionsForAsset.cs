@@ -23,5 +23,8 @@ namespace Asset.API.ViewModels
         public bool? IsPersonal { get; set; }
         [FromQuery(Name = "endPeriodMonth")]
         public DateTime? EndPeriodMonth { get; set; }
+        [FromQuery(Name = "purchaseMonth")]
+        public DateTime? purchaseMonth { get; set; }
+
     }
 }
