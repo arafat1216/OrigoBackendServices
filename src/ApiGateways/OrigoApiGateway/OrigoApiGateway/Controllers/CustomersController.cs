@@ -3,7 +3,6 @@ using Common.Enums;
 using Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Filters;
 using OrigoApiGateway.Models;
@@ -13,13 +12,9 @@ using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using OrigoApiGateway.Services;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 
@@ -1018,15 +1013,17 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         public async Task<ActionResult> GetCustomerStandardPrivateSubscriptionProduct(Guid organizationId)
         {
+            
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+
+            if (role == PredefinedRole.EndUser.ToString())
             {
                 return Forbid();
             }
 
             if (role != PredefinedRole.SystemAdmin.ToString())
             {
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                 if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                 {
                     return Forbid();

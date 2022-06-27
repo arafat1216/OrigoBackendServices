@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.TestHost;
+﻿using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading;
@@ -119,6 +119,96 @@ namespace OrigoGateway.IntegrationTests.Controllers
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
             var response = await client.GetAsync($"/origoapi/v1.0/customers/{organization_NOTreadRights}/users/count");
+
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+        [Fact]
+        public async Task GetCustomerStandardPrivateSubscriptionProduct_()
+        {
+            var organizationId = Guid.NewGuid();
+            var departmentId = Guid.NewGuid();
+            var callerId = Guid.NewGuid();
+            var email = "manager@test.io";
+            var role = "Manager";
+
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, role));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+            permissionsIdentity.AddClaim(new Claim("AccessList", departmentId.ToString()));
+
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+                    var subscriptionService = new Mock<ISubscriptionManagementService>();
+
+                    var subProd = new List<OrigoCustomerStandardPrivateSubscriptionProduct>();
+
+                    subscriptionService.Setup(_ => _.GetCustomerStandardPrivateSubscriptionProductAsync(organizationId))
+                        .ReturnsAsync(subProd as IList<OrigoCustomerStandardPrivateSubscriptionProduct>);
+                    services.AddSingleton(subscriptionService.Object);
+                });
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.GetAsync($"/origoapi/v1.0/customers/{organizationId}/standard-private-subscription-products");
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+        [Fact]
+        public async Task GetCustomerStandardPrivateSubscriptionProduct_NotAllowed()
+        {
+            var organizationId = Guid.NewGuid();
+            var organizationId_forUser = Guid.NewGuid();
+            var callerId = Guid.NewGuid();
+            var email = "manager@test.io";
+            var role = "Manager";
+
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, role));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId_forUser.ToString()));
+
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+                });
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.GetAsync($"/origoapi/v1.0/customers/{organizationId}/standard-private-subscription-products");
 
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }

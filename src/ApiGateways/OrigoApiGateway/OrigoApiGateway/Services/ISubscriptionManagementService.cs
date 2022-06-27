@@ -2,9 +2,6 @@
 using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {
