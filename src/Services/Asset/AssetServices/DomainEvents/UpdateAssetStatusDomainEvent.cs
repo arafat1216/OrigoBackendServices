@@ -8,7 +8,7 @@ using System;
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 namespace AssetServices.DomainEvents
 {
-    public class UpdateAssetStatusDomainEvent<T> : BaseEvent where T:Asset
+    public class UpdateAssetStatusDomainEvent<T> : BaseEvent where T:Models.Asset
     {
         public T Asset { get; protected set; }
         public Guid CallerId { get; protected set; }

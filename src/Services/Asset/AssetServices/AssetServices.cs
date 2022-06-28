@@ -59,7 +59,7 @@ namespace AssetServices
             return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecyclesForUser);
         }
 
-        public async Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
+        public async Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid? departmentId, Guid callerId)
         {
             await _assetLifecycleRepository.UnAssignAssetLifecyclesForUserAsync(customerId: customerId, userId: userId, departmentId: departmentId, callerId: callerId);
         }
@@ -312,7 +312,7 @@ namespace AssetServices
             }
             var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(newAssetLifecycle);
 
-            Asset asset = newAssetDTO.AssetCategoryId == 1
+            Models.Asset asset = newAssetDTO.AssetCategoryId == 1
                 ? new MobilePhone(Guid.NewGuid(), newAssetDTO.CallerId, newAssetDTO.SerialNumber ?? string.Empty, newAssetDTO.Brand ?? string.Empty, newAssetDTO.ProductName ?? string.Empty,
                     uniqueImeiList.Select(i => new AssetImei(i)).ToList(), newAssetDTO.MacAddress ?? string.Empty)
                 : new Tablet(Guid.NewGuid(), newAssetDTO.CallerId, newAssetDTO.SerialNumber ?? string.Empty, newAssetDTO.Brand ?? string.Empty, newAssetDTO.ProductName ?? string.Empty,
@@ -631,7 +631,7 @@ namespace AssetServices
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
 
-        private void UpdateDerivedAssetType(Asset asset, string? serialNumber, IList<long>? imei, string? macAddress,Guid callerId)
+        private void UpdateDerivedAssetType(Models.Asset asset, string? serialNumber, IList<long>? imei, string? macAddress,Guid callerId)
         {
             var phone = asset as MobilePhone;
             if (phone != null)
@@ -1024,7 +1024,7 @@ namespace AssetServices
 
                     if (!imeiList.Any()) imeiList = (assetLifeCycle.Asset as HardwareAsset).Imeis.ToList();
 
-                    Asset newAsset = assetLifeCycle.AssetCategoryId == 1
+                    Models.Asset newAsset = assetLifeCycle.AssetCategoryId == 1
                                       ? new MobilePhone(Guid.NewGuid(), assetLifeCycleRepairCompleted.CallerId, assetLifeCycleRepairCompleted.NewSerialNumber ?? (assetLifeCycle.Asset as HardwareAsset).SerialNumber, assetLifeCycle.Asset.Brand, assetLifeCycle.Asset.ProductName,
                                           imeiList, (assetLifeCycle.Asset as HardwareAsset).MacAddress)
                                       : new Tablet(Guid.NewGuid(), assetLifeCycleRepairCompleted.CallerId, assetLifeCycleRepairCompleted.NewSerialNumber ?? (assetLifeCycle.Asset as HardwareAsset).SerialNumber, assetLifeCycle.Asset.Brand, assetLifeCycle.Asset.ProductName,
@@ -1116,9 +1116,15 @@ namespace AssetServices
             return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecycles);
         }
 
-        public Task SyncDepartmentForUserToAssetLifecycle(Guid customerId, Guid userId, Guid departmentId, Guid guid)
+        public async Task SyncDepartmentForUserToAssetLifecycle(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
-            throw new NotImplementedException();
+            var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesForUserAsync(customerId, userId);
+            var user = await _assetLifecycleRepository.GetUser(userId);
+            if (user == null) throw new ResourceNotFoundException("No User were found using the given UserId. Did you enter the correct User Id?", _logger);
+            foreach (var assetLifecycle in assetLifecycles)
+            {
+                assetLifecycle.AssignAssetLifecycleHolder(user, departmentId, callerId);
+            }
         }
     }
 }

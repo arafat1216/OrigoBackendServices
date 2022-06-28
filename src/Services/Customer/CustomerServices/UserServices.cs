@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Asset.API.Controllers;
+using Common.Model.EventModels;
 using Dapr.Client;
 
 namespace CustomerServices
@@ -343,7 +345,14 @@ namespace CustomerServices
                 await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
             }
 
-            await PublishEvent(customerId, userId, user.Department?.ExternalDepartmentId, "user-deleted");
+            var userDeletedEvent = new UserDeletedEvent
+            {
+                CustomerId = customerId,
+                UserId = userId, 
+                DepartmentId = user.Department?.ExternalDepartmentId,
+                CreatedDate = DateTime.UtcNow
+            };
+            await PublishEvent("customer-pub-sub", "user-deleted", userDeletedEvent);
 
             //Get the users role and assign it to the users DTO
             var userDTO = _mapper.Map<UserDTO>(user);
@@ -351,7 +360,7 @@ namespace CustomerServices
             return userDTO;
         }
 
-        private async Task PublishEvent(Guid customerId, Guid userId, Guid? departmentId, string eventName)
+        private async Task PublishEvent(string subscriptionName, string topicName, UserDeletedEvent userDeletedEvent)
         {
             // Publish event
             try
@@ -359,8 +368,7 @@ namespace CustomerServices
                 var source = new CancellationTokenSource();
                 var cancellationToken = source.Token;
                 using var client = new DaprClientBuilder().Build();
-                await client.PublishEventAsync("customer-pub-sub", eventName,
-                    new { CustomerId = customerId, UserId = userId, DepartmentId = departmentId, CreatedDate = DateTime.UtcNow }, cancellationToken);
+                await client.PublishEventAsync(subscriptionName, topicName, userDeletedEvent, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -382,7 +390,7 @@ namespace CustomerServices
             userDTO.DepartmentName = department.Name;
 
             await _organizationRepository.SaveEntitiesAsync();
-            await PublishEvent(customerId, userId, departmentId, "user-assign-department");
+            await PublishEvent("", "user-assign-department", new UserDeletedEvent());
             return userDTO;
         }
 

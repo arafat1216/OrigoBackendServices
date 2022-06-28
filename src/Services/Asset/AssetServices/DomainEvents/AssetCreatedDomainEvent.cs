@@ -7,7 +7,7 @@ using System;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 namespace AssetServices.DomainEvents
 {
-    public class AssetCreatedDomainEvent<T> : BaseEvent where T:Asset
+    public class AssetCreatedDomainEvent<T> : BaseEvent where T:Models.Asset
     {
         public AssetCreatedDomainEvent()
         { }

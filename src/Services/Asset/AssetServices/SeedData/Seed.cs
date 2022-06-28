@@ -11,11 +11,11 @@ namespace CustomerServices.SeedData
         private static Guid OrganizationId2 { get; set; } = new Guid("F2B5B8E5-78E1-4643-B97B-49239DAC74C2");
         private static Guid CallerId { get; set; } = new Guid("D0326090-631F-4138-9CD2-85249AD24BBB");
 
-        public static IList<Asset> GetAssetData()
+        public static IList<AssetServices.Models.Asset> GetAssetData()
         {
             AssetCategory phone = new AssetCategory(1, null, null);
             AssetCategory tablet = new AssetCategory(2, null, null);
-            IList<Asset> assets = new List<Asset>();
+            IList<AssetServices.Models.Asset> assets = new List<AssetServices.Models.Asset>();
             assets.Add(new Tablet(new Guid("40a488fc-9ffa-4544-887f-956f577c116e"), CallerId, "YDMYF2LYHF0L", "Apple", "iPad Pro 11", new List<AssetImei>() { new AssetImei(336327301203750) }, "60:8B:0E:EF:18:83"));
             assets.Add(new MobilePhone(new Guid("d3f45808-d985-4cd8-895e-bde6ab9c087d"), CallerId, "RFCN80WJJ5K", "Samsung", "Galaxy S21", new List<AssetImei>() { new AssetImei(357879702624426), new AssetImei(103735096024176) }, "44:18:FD:C9:77:D3"));
             assets.Add(new MobilePhone(new Guid("945d827e-e2b8-4244-81db-27bfc503acc2"), CallerId, "D1PSDX7X25VJ", "Apple", "iPhone 11", new List<AssetImei>() { new AssetImei(549536515219674) }, "FC:03:9F:5C:31:C2"));

@@ -12,11 +12,11 @@ public class AssetLifecycleProfile : Profile
     {
         CreateMap<AssetLifecycle, MobilePhone>();
         CreateMap<User, UserDTO>();
-        CreateMap<Asset, AssetDTO>();
+        CreateMap<Models.Asset, AssetDTO>();
         CreateMap<HardwareAsset, AssetDTO>();
-        CreateMap<MobilePhone, AssetDTO>().IncludeBase<HardwareAsset, AssetDTO>().IncludeBase<Asset, AssetDTO>()
+        CreateMap<MobilePhone, AssetDTO>().IncludeBase<HardwareAsset, AssetDTO>().IncludeBase<Models.Asset, AssetDTO>()
             .ForMember(dest => dest.Imeis, opts => opts.MapFrom(src => src.Imeis.Select(i => i.Imei).ToList()));
-        CreateMap<Tablet, AssetDTO>().IncludeBase<HardwareAsset, AssetDTO>().IncludeBase<Asset, AssetDTO>()
+        CreateMap<Tablet, AssetDTO>().IncludeBase<HardwareAsset, AssetDTO>().IncludeBase<Models.Asset, AssetDTO>()
             .ForMember(dest => dest.Imeis, opts => opts.MapFrom(src => src.Imeis.Select(i => i.Imei).ToList()));
         CreateMap<CustomerLabel, LabelDTO>()
             .ForMember(dest => dest.ExternalId, opts => opts.MapFrom(src => src.ExternalId))

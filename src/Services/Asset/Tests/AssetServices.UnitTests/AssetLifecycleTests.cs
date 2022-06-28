@@ -262,7 +262,7 @@ public class AssetLifecycleTests
             LifecycleType = LifecycleType.Transactional
         };
         var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
-        Asset asset = new MobilePhone(Guid.NewGuid(), callerId, "123Serial", "Apple", "IPhone X",
+        Models.Asset asset = new MobilePhone(Guid.NewGuid(), callerId, "123Serial", "Apple", "IPhone X",
                     new List<AssetImei>() { new AssetImei(332226834371155) }, "01:56:23:98:45:AB");
         assetLifecycle.AssignAsset(asset, callerId);
         assetLifecycle.AssignAssetLifecycleHolder(null, Guid.NewGuid(), callerId);

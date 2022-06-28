@@ -10,6 +10,7 @@ using Asset.API.Controllers;
 using Asset.API.ViewModels;
 using Asset.IntegrationTests.Helpers;
 using Common.Enums;
+using Common.Model.EventModels;
 using Xunit;
 using Xunit.Abstractions;
 

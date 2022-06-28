@@ -19,7 +19,7 @@ public class AssetsContext : DbContext
         }
     }
 
-    public DbSet<Asset> Assets => Set<Asset>();
+    public DbSet<Models.Asset> Assets => Set<Models.Asset>();
     public DbSet<MobilePhone> MobilePhones => Set<MobilePhone>();
     public DbSet<Tablet> Tablets => Set<Tablet>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();

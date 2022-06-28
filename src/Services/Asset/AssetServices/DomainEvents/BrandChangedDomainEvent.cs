@@ -7,7 +7,7 @@ using System;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 namespace AssetServices.DomainEvents
 {
-    public class BrandChangedDomainEvent<T> : BaseEvent where T:Asset
+    public class BrandChangedDomainEvent<T> : BaseEvent where T:Models.Asset
     {
         public T Asset { get; protected set; }
         public Guid CallerId { get; protected set; }

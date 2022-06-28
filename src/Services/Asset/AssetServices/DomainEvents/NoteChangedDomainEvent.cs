@@ -4,7 +4,7 @@ using System;
 
 namespace AssetServices.DomainEvents
 {
-    public class NoteChangedDomainEvent<T> : BaseEvent where T:Asset
+    public class NoteChangedDomainEvent<T> : BaseEvent where T:Models.Asset
     {
         public T Asset { get; protected set; }
         public Guid CallerId { get; protected set; }

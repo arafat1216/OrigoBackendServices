@@ -730,7 +730,7 @@ public class AssetServicesTests : AssetBaseTest
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
-        Asset asset = new MobilePhone(Guid.NewGuid(), Guid.Empty, "4543534535344", "iPhone", "iPhone X",
+        Models.Asset asset = new MobilePhone(Guid.NewGuid(), Guid.Empty, "4543534535344", "iPhone", "iPhone X",
             new List<AssetImei> { new(111111987863622) }, "a3:21:99:5d:a7:a0");
         var attribute = new ImeiValidationAttribute();
 
@@ -747,7 +747,7 @@ public class AssetServicesTests : AssetBaseTest
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
-        Asset asset = new MobilePhone(Guid.NewGuid(), Guid.Empty, "4543534535344", "iPhone", "iPhone X",
+        Models.Asset asset = new MobilePhone(Guid.NewGuid(), Guid.Empty, "4543534535344", "iPhone", "iPhone X",
             new List<AssetImei> { new(357879702624426) }, "a3:21:99:5d:a7:a0");
         var attribute = new ImeiValidationAttribute();
 

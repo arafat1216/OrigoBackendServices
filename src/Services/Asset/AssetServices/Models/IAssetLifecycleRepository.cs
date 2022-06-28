@@ -11,7 +11,7 @@ namespace AssetServices.Models
     public interface IAssetLifecycleRepository
     {
         Task<AssetLifecycle> AddAsync(AssetLifecycle assetLifecycle);
-        Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
+        Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid? departmentId, Guid callerId);
         Task<IList<CustomerAssetCount>> GetAssetLifecyclesCountsAsync();
         Task<int> GetAssetLifecyclesCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus);
         Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,

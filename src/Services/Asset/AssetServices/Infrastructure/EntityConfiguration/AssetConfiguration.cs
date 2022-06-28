@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AssetServices.Infrastructure.EntityConfiguration;
 
-internal class AssetConfiguration : IEntityTypeConfiguration<Asset>
+internal class AssetConfiguration : IEntityTypeConfiguration<Models.Asset>
 {
     private readonly bool _isSqLite;
 
@@ -13,7 +13,7 @@ internal class AssetConfiguration : IEntityTypeConfiguration<Asset>
         _isSqLite = isSqLite;
     }
 
-    public void Configure(EntityTypeBuilder<Asset> builder)
+    public void Configure(EntityTypeBuilder<Models.Asset> builder)
     {
         builder.Property(s => s.LastUpdatedDate)
             .HasDefaultValueSql(_isSqLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");

@@ -388,7 +388,7 @@ namespace AssetServices.Infrastructure
                 .ToListAsync();
         }
 
-        public async Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
+        public async Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid? departmentId, Guid callerId)
         {
             var assetLifecyclesForUser = _assetContext.AssetLifeCycles
                 .Include(a => a.ContractHolderUser)
@@ -398,7 +398,7 @@ namespace AssetServices.Infrastructure
 
             foreach (var assetLifecycle in assetLifecyclesForUser)
             {
-                if (assetLifecycle.ManagedByDepartmentId == null)
+                if (assetLifecycle.ManagedByDepartmentId == null && departmentId != null)
                     assetLifecycle.AssignAssetLifecycleHolder(null, departmentId, callerId);
 
                 _assetContext.Entry(assetLifecycle).State = EntityState.Modified;
