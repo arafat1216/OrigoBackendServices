@@ -1321,4 +1321,108 @@ public class AssetServicesTests : AssetBaseTest
         // Assert
         Assert.Equal(AssetLifecycleStatus.InUse, assetAfter.AssetLifecycleStatus);
     }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+
+    public async Task IsSentToRepair_DifferentStatuses_OnClassMethod()
+    {
+        // Arrange
+        var callerId = Guid.NewGuid();
+        await using var context = new AssetsContext(ContextOptions);
+
+        //Active
+        var asset1 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_ONE_ID);
+        Assert.Equal(AssetLifecycleStatus.Active, asset1.AssetLifecycleStatus);
+        asset1.IsSentToRepair(callerId);
+        Assert.Equal(AssetLifecycleStatus.Repair, asset1.AssetLifecycleStatus);
+
+        //InputRequired
+        var asset3 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_THREE_ID);
+        Assert.Equal(AssetLifecycleStatus.InputRequired, asset3.AssetLifecycleStatus);
+        asset3.IsSentToRepair(callerId);
+        Assert.Equal(AssetLifecycleStatus.Repair, asset3.AssetLifecycleStatus);
+
+        //Available
+        var asset4 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_FOUR_ID);
+        Assert.Equal(AssetLifecycleStatus.Available, asset4.AssetLifecycleStatus);
+        asset4.IsSentToRepair(callerId);
+        Assert.Equal(AssetLifecycleStatus.Repair, asset4.AssetLifecycleStatus);
+
+        //InUse
+        var asset5 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_FIVE_ID);
+        Assert.Equal(AssetLifecycleStatus.InUse, asset5.AssetLifecycleStatus);
+        asset5.IsSentToRepair(callerId);
+        Assert.Equal(AssetLifecycleStatus.Repair, asset5.AssetLifecycleStatus);
+
+        //Repair
+        var asset7 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_SEVEN_ID);
+        Assert.Equal(AssetLifecycleStatus.Repair, asset7.AssetLifecycleStatus);
+        asset7.IsSentToRepair(callerId);
+        Assert.Equal(AssetLifecycleStatus.Repair, asset7.AssetLifecycleStatus);
+
+
+        //InActive
+        var asset6 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_SIX_ID); 
+        asset6.SetInactiveStatus(callerId);
+        Assert.Equal(AssetLifecycleStatus.Inactive, asset6.AssetLifecycleStatus);
+        asset6.IsSentToRepair(callerId);
+        Assert.Equal(AssetLifecycleStatus.Repair, asset6.AssetLifecycleStatus);
+
+        //Expired
+        asset4.MakeAssetExpired(callerId);
+        Assert.Equal(AssetLifecycleStatus.Expired, asset4.AssetLifecycleStatus);
+        asset4.IsSentToRepair(callerId);
+        Assert.Equal(AssetLifecycleStatus.Repair, asset4.AssetLifecycleStatus);
+
+
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+
+    public async Task IsSentToRepair_DifferentStatuses_NOTALL()
+    {
+        // Arrange
+        var callerId = Guid.NewGuid();
+        await using var context = new AssetsContext(ContextOptions);
+
+        var assetBefore = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_FIVE_ID);
+
+        //Stolen
+        var asset1 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_ONE_ID); 
+        asset1.HasBeenStolen(callerId);
+        Assert.Throws<InvalidAssetDataException>(() => asset1.IsSentToRepair(callerId));
+        Assert.Equal(AssetLifecycleStatus.Stolen, asset1.AssetLifecycleStatus);
+
+        //Lost
+        var asset3 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_THREE_ID); 
+        asset3.ReportDevice(ReportCategory.Lost,callerId);
+        Assert.Throws<InvalidAssetDataException>(() => asset3.IsSentToRepair(callerId));
+        Assert.Equal(AssetLifecycleStatus.Lost, asset3.AssetLifecycleStatus);
+
+        //PendingReturn 
+        var asset4 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_FOUR_ID);
+        asset4.MakeReturnRequest(callerId);
+        Assert.Throws<InvalidAssetDataException>(() => asset4.IsSentToRepair(callerId));
+        Assert.Equal(AssetLifecycleStatus.PendingReturn, asset4.AssetLifecycleStatus);
+
+        //BoughtByUser
+        var asset5 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_FIVE_ID); 
+        asset5.BuyoutDevice(callerId);
+        Assert.Throws<InvalidAssetDataException>(() => asset5.IsSentToRepair(callerId));
+        Assert.Equal(AssetLifecycleStatus.BoughtByUser, asset5.AssetLifecycleStatus);
+
+        //Returned 
+        var asset6 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_SIX_ID); 
+        asset6.ConfirmReturnDevice(callerId, "Office", "Broken");
+        Assert.Throws<InvalidAssetDataException>(() => asset6.IsSentToRepair(callerId));
+        Assert.Equal(AssetLifecycleStatus.Returned, asset6.AssetLifecycleStatus);
+
+        //Discarded
+        var asset7 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_SEVEN_ID);
+        asset7.RepairCompleted(callerId, true);
+        Assert.Throws<InvalidAssetDataException>(() => asset7.IsSentToRepair(callerId));
+        Assert.Equal(AssetLifecycleStatus.Discarded, asset7.AssetLifecycleStatus);
+
+    }
 }

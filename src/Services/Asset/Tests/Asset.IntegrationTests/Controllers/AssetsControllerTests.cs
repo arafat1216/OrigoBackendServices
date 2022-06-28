@@ -1265,7 +1265,7 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal(AssetLifecycleStatus.InUse, assignedAsset?.AssetStatus);
         }
         [Fact]
-        public async Task AssetLifeCycleChangeStatusToRepair()
+        public async Task SendToRepair()
         {
             var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
 
@@ -1290,7 +1290,7 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal(AssetLifecycleStatus.Repair, assetLifeCycleAfter?.AssetStatus);
         }
         [Fact]
-        public async Task AssetLifeCycleChangeStatusToRepair_NotValidGuidForAsset_ReturnsNotFound()
+        public async Task SendToRepair_NotValidGuidForAsset_ReturnsNotFound()
         {
             var NOT_VALID_GUID = Guid.NewGuid();
             var requestUri = $"/api/v1/Assets/{NOT_VALID_GUID}/send-to-repair";
@@ -1300,7 +1300,7 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal($"AssetLifeCycleChangeStatusToRepair returns ResourceNotFoundException with assetLifecycleId {NOT_VALID_GUID}", response.Content.ReadAsStringAsync().Result);
         }
         [Fact]
-        public async Task AssetLifeCycleChangeStatusToRepair_NotValidStatusForSendingAssetOnRepair_ExceptionHandeling()
+        public async Task SendToRepair_NotValidStatusForSendingAssetOnRepair_ExceptionHandeling()
         {
             var body = new BuyoutDeviceDTO { AssetLifeCycleId = _assetOne, CallerId = _callerId };
             var buyoutRequest = $"/api/v1/Assets/customers/{_customerId}/buyout-device";
