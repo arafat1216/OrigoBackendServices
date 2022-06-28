@@ -7,21 +7,33 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HardwareServiceOrderServices.Infrastructure
 {
+    /// <summary>
+    ///     The default <see cref="DbContext"/> that is used for handling service-request entities.
+    /// </summary>
     public class HardwareServiceOrderContext : DbContext
     {
         private readonly bool _isSQLite;
         private readonly IApiRequesterService? apiRequesterService;
 
+        /// <summary>
+        ///     Automatically set during creation, and indicates if this DbContext is currently using SQLite (unit-testing).
+        /// </summary>
         public bool IsSQLite => _isSQLite;
 
-        public DbSet<CustomerSettings> CustomerSettings { get; set; }
-        public DbSet<HardwareServiceOrder> HardwareServiceOrders { get; set; }
-        public DbSet<ServiceProvider> ServiceProviders { get; set; }
-        public DbSet<ServiceStatus> ServiceStatuses { get; set; }
-        public DbSet<ServiceType> ServiceTypes { get; set; }
-        public DbSet<CustomerServiceProvider> CustomerServiceProviders { get; set; }
+        public DbSet<CustomerSettings> CustomerSettings { get; set; } = null!;
+        public DbSet<HardwareServiceOrder> HardwareServiceOrders { get; set; } = null!;
+        public DbSet<ServiceProvider> ServiceProviders { get; set; } = null!;
+        public DbSet<ServiceStatus> ServiceStatuses { get; set; } = null!;
+        public DbSet<ServiceType> ServiceTypes { get; set; } = null!;
+        public DbSet<CustomerServiceProvider> CustomerServiceProviders { get; set; } = null!;
 
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="HardwareServiceOrderContext"/>-class.
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="apiRequesterService"> A dependency-injected interface that provides information about the current HTTP request,
+        ///     such as the user that initiated the request. This information is accessed when entities in this DbContext is saved. </param>
         public HardwareServiceOrderContext(DbContextOptions<HardwareServiceOrderContext> options, IApiRequesterService? apiRequesterService = null) : base(options)
         {
             this.apiRequesterService = apiRequesterService;
@@ -42,10 +54,11 @@ namespace HardwareServiceOrderServices.Infrastructure
         {
             modelBuilder.ApplyConfiguration(new CustomerSettingsConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new HardwareServiceOrderConfiguration(_isSQLite));
-            modelBuilder.ApplyConfiguration(new EntityConfiguration.ServiceProviderConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new ServiceProviderConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new ServiceStatusConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new ServiceTypeConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new CustomerServiceProviderConfiguration(_isSQLite));
+
             modelBuilder.SeedServiceStatus();
             modelBuilder.SeedServiceType();
             modelBuilder.SeedServiceProvider();
