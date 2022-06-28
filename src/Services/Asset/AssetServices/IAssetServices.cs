@@ -16,6 +16,9 @@ namespace AssetServices
         Task<int> GetAssetsCountAsync(Guid customerId, AssetLifecycleStatus? assetLifecycleStatus, Guid? departmentId = null);
         Task<IList<AssetLifecycleDTO>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId);
         Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid? departmentId, Guid callerId);
+        Task<PagedModel<AssetLifecycleDTO>> GetAssetLifecyclesForCustomerAsync(Guid customerId,string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
+           Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string search, int page, int limit, CancellationToken cancellationToken);
+        Task SyncDepartmentForUserToAssetLifecycle(Guid customerId, Guid userId, Guid? departmentId, Guid callerId);
         Task<AssetLifecycleDTO?> GetAssetLifecycleForCustomerAsync(Guid customerId, Guid assetId);
         Task<PagedModel<AssetLifecycleDTO>> GetAssetLifecyclesForCustomerAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
             Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, , string search, int page, int limit, CancellationToken cancellationToken);
@@ -61,6 +64,6 @@ namespace AssetServices
         Task<IList<ReturnLocationDTO>> RemoveReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, Guid callerId);
         Task<IList<ReturnLocationDTO>> GetReturnLocationsByCustomer(Guid customerId);
         Task<AssetLifecycleDTO> MakeAssetExpiredAsync(Guid customerId, Guid assetId, Guid callerId);
-        Task SyncDepartmentForUserToAssetLifecycle(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
+        Task SyncDepartmentForUserToAssetLifecycle(Guid customerId, Guid userId, Guid? departmentId, Guid callerId);
     }
 }
