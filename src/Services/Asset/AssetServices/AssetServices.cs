@@ -1116,7 +1116,7 @@ namespace AssetServices
             return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecycles);
         }
 
-        public async Task SyncDepartmentForUserToAssetLifecycle(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
+        public async Task SyncDepartmentForUserToAssetLifecycle(Guid customerId, Guid userId, Guid? departmentId, Guid callerId)
         {
             var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesForUserAsync(customerId, userId);
             var user = await _assetLifecycleRepository.GetUser(userId);
