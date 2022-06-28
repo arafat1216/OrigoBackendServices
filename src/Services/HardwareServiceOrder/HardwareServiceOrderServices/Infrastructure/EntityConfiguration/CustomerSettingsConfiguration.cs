@@ -1,22 +1,24 @@
 ﻿using HardwareServiceOrderServices.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
-    public class CustomerSettingsConfiguration : IEntityTypeConfiguration<CustomerSettings>
+    internal class CustomerSettingsConfiguration : AuditableBaseConfiguration<CustomerSettings>
     {
-        private readonly bool _isSqlLite;
 
-        public CustomerSettingsConfiguration(bool isSqlLite)
+        public CustomerSettingsConfiguration(bool isSqlLite) : base(isSqlLite)
         {
-            _isSqlLite = isSqlLite;
         }
 
-        public void Configure(EntityTypeBuilder<CustomerSettings> builder)
+
+        /// <inheritdoc/>
+        public override void Configure(EntityTypeBuilder<CustomerSettings> builder)
         {
+            // Call the parent that configures the shared properties from the 'Auditable' entity
+            base.Configure(builder);
+
             // A value comparer for keys. Used to force EF Core into case-insensitive string comparisons like in the database.
             // Source: Use case-insensitive string keys (https://docs.microsoft.com/en-us/ef/core/modeling/value-conversions?tabs=fluent-api#use-case-insensitive-string-keys)
             var comparer = new ValueComparer<string>(
@@ -30,16 +32,6 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             /*
              * Properties
              */
-
-            builder.Property(e => e.DateCreated)
-                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
-                   .ValueGeneratedOnAdd()
-                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-
-            builder.Property(e => e.DateUpdated)
-                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
-                   .ValueGeneratedOnAddOrUpdate()
-                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
             builder.Property(e => e.LoanDeviceEmail)
                    .HasMaxLength(320)

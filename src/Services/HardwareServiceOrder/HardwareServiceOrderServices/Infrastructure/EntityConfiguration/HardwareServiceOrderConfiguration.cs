@@ -1,24 +1,25 @@
 ﻿using HardwareServiceOrderServices.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Text.Json;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
-    internal class HardwareServiceOrderConfiguration : IEntityTypeConfiguration<HardwareServiceOrder>
+    internal class HardwareServiceOrderConfiguration : AuditableBaseConfiguration<HardwareServiceOrder>
     {
-        private readonly bool _isSqlLite;
 
-        public HardwareServiceOrderConfiguration(bool isSqlLite)
+        public HardwareServiceOrderConfiguration(bool isSqlLite) : base(isSqlLite)
         {
-            _isSqlLite = isSqlLite;
         }
 
-        public void Configure(EntityTypeBuilder<HardwareServiceOrder> builder)
+
+        /// <inheritdoc/>
+        public override void Configure(EntityTypeBuilder<HardwareServiceOrder> builder)
         {
+            // Call the parent that configures the shared properties from the 'Auditable' entity
+            base.Configure(builder);
+
             var comparer = new ValueComparer<string>(
                (l, r) => string.Equals(l, r, StringComparison.OrdinalIgnoreCase),
                v => v.ToUpperInvariant().GetHashCode(),
@@ -38,33 +39,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
              * Properties
              */
 
-            if (_isSqlLite)
-            {
-                builder.Property(e => e.DateCreated)
-                       .HasConversion(new DateTimeOffsetToBinaryConverter())
-                       .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                       .ValueGeneratedOnAdd().Metadata
-                       .SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-
-                builder.Property(e => e.DateUpdated)
-                       .HasConversion(new DateTimeOffsetToBinaryConverter())
-                       .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                       .ValueGeneratedOnAddOrUpdate().Metadata
-                       .SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-            }
-            else
-            {
-                builder.Property(e => e.DateCreated)
-                       .HasDefaultValueSql("SYSUTCDATETIME()")
-                       .ValueGeneratedOnAdd().Metadata
-                       .SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-
-                builder.Property(e => e.DateUpdated)
-                       .HasDefaultValueSql("SYSUTCDATETIME()")
-                       .ValueGeneratedOnAddOrUpdate().Metadata
-                       .SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-            }
-
+            // Add here as needed
 
             /*
              * Owned Entities
@@ -150,7 +125,6 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 
             builder.OwnsMany(e => e.ServiceEvents, builder =>
             {
-
                 /*
                  * Properties
                  */

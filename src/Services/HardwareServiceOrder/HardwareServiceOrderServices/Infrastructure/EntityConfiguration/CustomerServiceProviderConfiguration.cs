@@ -1,26 +1,23 @@
 ﻿using HardwareServiceOrderServices.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
-    public class CustomerServiceProviderConfiguration : IEntityTypeConfiguration<CustomerServiceProvider>
+    internal class CustomerServiceProviderConfiguration : AuditableBaseConfiguration<CustomerServiceProvider>
     {
-        private readonly bool _isSqlLite;
 
-        public CustomerServiceProviderConfiguration(bool isSqlLite)
+        public CustomerServiceProviderConfiguration(bool isSqlLite) : base(isSqlLite)
         {
-            _isSqlLite = isSqlLite;
         }
 
-        public void Configure(EntityTypeBuilder<CustomerServiceProvider> builder)
+
+        /// <inheritdoc/>
+        public override void Configure(EntityTypeBuilder<CustomerServiceProvider> builder)
         {
+            // Call the parent that configures the shared properties from the 'Auditable' entity
+            base.Configure(builder);
+
             builder.ToTable("CustomerServiceProvider");
 
             builder.HasKey(x => new { x.CustomerId, x.Id, x.ServiceProviderId });
@@ -29,15 +26,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
              * Properties
              */
 
-            builder.Property(e => e.DateCreated)
-                  .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
-                  .ValueGeneratedOnAdd()
-                  .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
-            builder.Property(e => e.DateUpdated)
-                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
-                   .ValueGeneratedOnAddOrUpdate()
-                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
         }
     }
 }

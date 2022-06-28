@@ -1,34 +1,25 @@
 ﻿using HardwareServiceOrderServices.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
-    internal class ServiceStatusConfiguration : IEntityTypeConfiguration<ServiceStatus>
+    internal class ServiceStatusConfiguration : AuditableBaseConfiguration<ServiceStatus>
     {
-        private readonly bool _isSqlLite;
-
-        public ServiceStatusConfiguration(bool isSqlLite)
+        public ServiceStatusConfiguration(bool isSqlLite) : base(isSqlLite)
         {
-            _isSqlLite = isSqlLite;
         }
 
-        public void Configure(EntityTypeBuilder<ServiceStatus> builder)
+        /// <inheritdoc/>
+        public override void Configure(EntityTypeBuilder<ServiceStatus> builder)
         {
+            // Call the parent that configures the shared properties from the 'Auditable' entity
+            base.Configure(builder);
+
             /*
              * Properties
              */
 
-            builder.Property(e => e.DateCreated)
-                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
-                   .ValueGeneratedOnAdd()
-                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-
-            builder.Property(e => e.DateUpdated)
-                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
-                   .ValueGeneratedOnAddOrUpdate()
-                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            // Add as needed...
         }
     }
 }

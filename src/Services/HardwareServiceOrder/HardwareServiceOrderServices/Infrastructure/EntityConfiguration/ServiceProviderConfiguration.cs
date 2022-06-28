@@ -5,32 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
-    internal class ServiceProviderConfiguration : IEntityTypeConfiguration<ServiceProvider>
+    internal class ServiceProviderConfiguration : AuditableBaseConfiguration<ServiceProvider>
     {
-        private readonly bool _isSqlLite;
-
-        public ServiceProviderConfiguration(bool isSqlLite)
+        public ServiceProviderConfiguration(bool isSqlLite) : base(isSqlLite)
         {
-            _isSqlLite = isSqlLite;
         }
 
-        public void Configure(EntityTypeBuilder<ServiceProvider> builder)
+        /// <inheritdoc/>
+        public override void Configure(EntityTypeBuilder<ServiceProvider> builder)
         {
+            // Call the parent that configures the shared properties from the 'Auditable' entity
+            base.Configure(builder);
+
             /*
              * Properties
              */
 
-            builder.Property(e => e.DateCreated)
-                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
-                   .ValueGeneratedOnAdd()
-                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-
-            builder.Property(e => e.DateUpdated)
-                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()")
-                   .ValueGeneratedOnAddOrUpdate()
-                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-
-
+            // Add as needed...
         }
     }
 }
