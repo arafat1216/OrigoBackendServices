@@ -22,6 +22,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         private readonly Guid _callerId = Guid.Parse("1d64e718-97cb-11ec-ad86-00155d64bd3d");
         private readonly Guid _customerId;
         private readonly Guid _userId;
+
         public HardwareRepairControllerTests(
             HardwareServiceOrderWebApplicationFactory<HardwareRepairController> factory,
             ITestOutputHelper testOutputHelper)
@@ -43,9 +44,9 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var request = await _httpClient.PatchAsync(url, JsonContent.Create(loanDevice));
             var settings = await request.Content.ReadFromJsonAsync<CustomerSettingsResponseDTO>();
             Assert.NotNull(settings);
-            Assert.NotNull(settings!.ApiUsername);
-            Assert.NotNull(settings!.LoanDevice.Email);
-            Assert.NotNull(settings!.LoanDevice.PhoneNumber);
+            Assert.NotNull(settings?.ApiUsername);
+            Assert.NotNull(settings?.LoanDevice?.Email);
+            Assert.NotNull(settings?.LoanDevice?.PhoneNumber);
         }
 
         [Fact]
@@ -84,9 +85,9 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var request = await _httpClient.PatchAsync(url, JsonContent.Create(customerServiceProvider));
             var settings = await request.Content.ReadFromJsonAsync<CustomerSettingsResponseDTO>();
             Assert.NotNull(settings);
-            Assert.NotNull(settings!.ApiUsername);
-            Assert.NotNull(settings!.LoanDevice.Email);
-            Assert.NotNull(settings!.LoanDevice.PhoneNumber);
+            Assert.NotNull(settings?.ApiUsername);
+            Assert.NotNull(settings?.LoanDevice?.Email);
+            Assert.NotNull(settings?.LoanDevice?.PhoneNumber);
         }
 
         [Fact]
@@ -96,10 +97,11 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             _testOutputHelper.WriteLine(url);
             var request = await _httpClient.GetAsync(url);
             var settings = await request.Content.ReadFromJsonAsync<CustomerSettingsResponseDTO>();
+
             Assert.NotNull(settings);
-            Assert.NotNull(settings!.ApiUsername);
-            Assert.NotNull(settings!.LoanDevice.Email);
-            Assert.NotNull(settings!.LoanDevice.PhoneNumber);
+            Assert.NotNull(settings?.ApiUsername);
+            Assert.NotNull(settings?.LoanDevice?.Email);
+            Assert.NotNull(settings?.LoanDevice?.PhoneNumber);
         }
 
         [Fact]
@@ -131,9 +133,9 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             Assert.NotNull(settings);
             Assert.Equal(HttpStatusCode.OK, request.StatusCode);
             Assert.Equal(settings!.CustomerId, customerId);
-            Assert.Null(settings!.ApiUsername);
-            Assert.Null(settings!.LoanDevice.PhoneNumber);
-            Assert.Null(settings!.LoanDevice.Email);
+            Assert.Null(settings?.ApiUsername);
+            Assert.Null(settings?.LoanDevice?.PhoneNumber);
+            Assert.Null(settings?.LoanDevice?.Email);
         }
 
         [Fact]
@@ -144,11 +146,11 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var request = await _httpClient.GetAsync(url);
             var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponse>>();
             Assert.NotNull(orders);
-            Assert.NotNull(orders.Items);
-            Assert.NotNull(orders.Items[0].ServiceEvents);
-            Assert.NotNull(orders.Items[0].ExternalServiceManagementLink);
-            Assert.NotNull(orders.Items[0].UserDescription);
-            Assert.NotNull(orders.Items[0].DeliveryAddress);
+            Assert.NotNull(orders?.Items);
+            Assert.NotNull(orders?.Items[0].ServiceEvents);
+            Assert.NotNull(orders?.Items[0].ExternalServiceManagementLink);
+            Assert.NotNull(orders?.Items[0].UserDescription);
+            Assert.NotNull(orders?.Items[0].DeliveryAddress);
         }
 
         [Fact]
@@ -159,24 +161,23 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var request = await _httpClient.GetAsync(url);
             var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponse>>();
             Assert.NotNull(orders);
-            Assert.Equal(2, orders.Items.Count);
-            Assert.NotNull(orders.Items[0].ExternalServiceManagementLink);
-            Assert.NotNull(orders.Items[0].UserDescription);
-            Assert.NotNull(orders.Items[0].DeliveryAddress);
+            Assert.Equal(2, orders?.Items.Count);
+            Assert.NotNull(orders?.Items[0].ExternalServiceManagementLink);
+            Assert.NotNull(orders?.Items[0].UserDescription);
+            Assert.NotNull(orders?.Items[0].DeliveryAddress);
         }
 
         [Fact]
         public async Task GetActiveOrders()
         {
-            Guid? userId = new Guid("3286ba71-fdde-4496-94fa-36de7aa0b41e");
             var url = $"/api/v1/hardware-repair/{_customerId}/orders?activeOnly={true}&page=1&limit=10";
             _testOutputHelper.WriteLine(url);
             var request = await _httpClient.GetAsync(url);
             var orders = await request.Content.ReadFromJsonAsync<PagedModel<HardwareServiceOrderResponse>>();
             Assert.NotNull(orders);
-            Assert.NotNull(orders.Items[0].ExternalServiceManagementLink);
-            Assert.NotNull(orders.Items[0].UserDescription);
-            Assert.NotNull(orders.Items[0].DeliveryAddress);
+            Assert.NotNull(orders?.Items[0].ExternalServiceManagementLink);
+            Assert.NotNull(orders?.Items[0].UserDescription);
+            Assert.NotNull(orders?.Items[0].DeliveryAddress);
         }
 
         [Fact]
@@ -243,9 +244,9 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
 
             var hardwareServiceOrder = await response.Content.ReadFromJsonAsync<HardwareServiceOrderResponse>();
 
-            Assert.Equal((int)ServiceStatusEnum.Registered, hardwareServiceOrder.StatusId);
-            Assert.Equal((int)ServiceTypeEnum.SUR, hardwareServiceOrder.ServiceTypeId);
-            Assert.Equal(_customerId, hardwareServiceOrder.CustomerId);
+            Assert.Equal((int)ServiceStatusEnum.Registered, hardwareServiceOrder?.StatusId);
+            Assert.Equal((int)ServiceTypeEnum.SUR, hardwareServiceOrder?.ServiceTypeId);
+            Assert.Equal(_customerId, hardwareServiceOrder?.CustomerId);
         }
 
     }
