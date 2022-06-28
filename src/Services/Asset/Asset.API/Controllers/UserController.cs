@@ -19,9 +19,9 @@ public class UserController : Controller
 
     [Topic("customer-pub-sub", "user-deleted")]
     [HttpPost("user-deleted")]
-    public void UserDeleted([FromBody] UserDeletedEvent userDeletedEvent)
+    public void UserDeleted([FromBody] UserEvent userEvent)
     {
-        _assetServices.UnAssignAssetLifecyclesForUserAsync(userDeletedEvent.CustomerId, userDeletedEvent.UserId, userDeletedEvent.DepartmentId, Guid.Empty.SystemUserId());
+        _assetServices.UnAssignAssetLifecyclesForUserAsync(userEvent.CustomerId, userEvent.UserId, userEvent.DepartmentId, Guid.Empty.SystemUserId());
     }
 
 

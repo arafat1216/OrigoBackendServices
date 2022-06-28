@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Asset.API.Controllers;
 using Common.Model.EventModels;
 using Dapr.Client;
 
@@ -345,7 +344,7 @@ namespace CustomerServices
                 await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
             }
 
-            var userDeletedEvent = new UserDeletedEvent
+            var userDeletedEvent = new UserEvent
             {
                 CustomerId = customerId,
                 UserId = userId, 
@@ -360,7 +359,7 @@ namespace CustomerServices
             return userDTO;
         }
 
-        private async Task PublishEvent(string subscriptionName, string topicName, UserDeletedEvent userDeletedEvent)
+        private async Task PublishEvent(string subscriptionName, string topicName, IUserEvent userEvent)
         {
             // Publish event
             try
@@ -368,7 +367,7 @@ namespace CustomerServices
                 var source = new CancellationTokenSource();
                 var cancellationToken = source.Token;
                 using var client = new DaprClientBuilder().Build();
-                await client.PublishEventAsync(subscriptionName, topicName, userDeletedEvent, cancellationToken);
+                await client.PublishEventAsync(subscriptionName, topicName, userEvent, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -390,7 +389,7 @@ namespace CustomerServices
             userDTO.DepartmentName = department.Name;
 
             await _organizationRepository.SaveEntitiesAsync();
-            await PublishEvent("", "user-assign-department", new UserDeletedEvent());
+            await PublishEvent("customer-pub-sub", "user-assign-department", new UserChangedDepartmentEvent{CustomerId = customerId, DepartmentId = departmentId, UserId = userId, CreatedDate = DateTime.UtcNow});
             return userDTO;
         }
 

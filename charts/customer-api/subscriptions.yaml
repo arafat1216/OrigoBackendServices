@@ -2,7 +2,7 @@ apiVersion: dapr.io/v1alpha1
 kind: Subscription
 namespace: {{ .Values.namespace }}
 metadata:
-  name: customer-user-deleted-pub-sub
+  name: customer-pub-sub
 spec:
   topic: user-deleted
   route: /user-deleted
