@@ -1073,5 +1073,31 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal("EndUser", get_user_recreated?.Role);
         }
 
+        [Fact]
+        public async Task GetAllUsers_OnlyUserFromDepartment()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var url = $"/api/v1/organizations/{_customerId}/users/{_userFourId}/department/{_headDepartmentId}";
+            var assigneUserToDepartment = await httpClient.PostAsync(url, JsonContent.Create(_callerId));
+            Assert.Equal(HttpStatusCode.OK, assigneUserToDepartment.StatusCode);
+
+            // Setup
+            var search = "";
+            var page = 1;
+            var limit = 1000;
+
+            var filter = new FilterOptionsForUser { AssignedToDepartments = new[] { _headDepartmentId } };
+            string json = JsonSerializer.Serialize(filter);
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}&filterOptions={json}";
+
+            var response = await httpClient.GetAsync(requestUri);
+            var users = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(1, users?.TotalItems);
+        }
+
     }
 }

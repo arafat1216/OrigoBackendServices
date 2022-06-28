@@ -133,7 +133,9 @@ namespace OrigoApiGateway.Services
         {
             try
             {
+
                 string json = JsonSerializer.Serialize(filterOptions);
+
                 var users = await HttpClient.GetFromJsonAsync<PagedModel<UserDTO>>($"{_options.ApiPath}/{customerId}/users?q={search}&page={page}&limit={limit}&filterOptions={json}");
 
                 //return _mapper.Map<List<OrigoUser>>(users);

@@ -44,7 +44,7 @@ namespace OrigoApiGateway.Controllers
             try 
             { 
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            FilterOptionsForUser filterOptions = new FilterOptionsForUser { Roles = new[] { role ?? null} };
+            FilterOptionsForUser filterOptions = new FilterOptionsForUser { Roles = new string[] { role ?? null} };
 
             if (role == PredefinedRole.EndUser.ToString())
             {
@@ -85,12 +85,14 @@ namespace OrigoApiGateway.Controllers
         public async Task<ActionResult<PagedModel<OrigoUser>>> GetAllUsers(Guid organizationId, [FromQuery] FilterOptionsForUser filterOptions, CancellationToken cancellationToken, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
             if (role == PredefinedRole.EndUser.ToString())
             {
                 return Forbid();
             }
 
-            var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+            var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+
             if (role != PredefinedRole.SystemAdmin.ToString())
             {
                 // Check if caller has access to this organization
@@ -98,19 +100,27 @@ namespace OrigoApiGateway.Controllers
                 {
                     return Forbid();
                 }
-            }
 
-            if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
-            {
-                filterOptions.AssignedToDepartments ??= new List<Guid>();
-                foreach (var departmentId in accessList.Split(","))
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
                 {
-                    if (Guid.TryParse(departmentId, out var departmentGuid))
+                    filterOptions.AssignedToDepartments ??= new List<Guid>();
+                    foreach (var departmentId in accessList)
+
                     {
-                        filterOptions.AssignedToDepartments.Add(departmentGuid);
+                        if (Guid.TryParse(departmentId, out var departmentGuid))
+                        {
+                            if (departmentGuid != organizationId) 
+                            { 
+                              filterOptions.AssignedToDepartments.Add(departmentGuid);
+                            }
+                        }
                     }
                 }
+
             }
+
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            Guid.TryParse(actor, out Guid callerId);
 
             var users = await _userServices.GetAllUsersAsync(organizationId,filterOptions, cancellationToken, search, page, limit);
             return Ok(users);
