@@ -62,7 +62,9 @@ internal static class AssetTestDataSeedingForDatabase
             CustomerId = COMPANY_ID,
             Alias = "alias_0",
             AssetLifecycleStatus = AssetLifecycleStatus.InputRequired,
-            AssetLifecycleType = LifecycleType.Transactional
+            AssetLifecycleType = LifecycleType.Transactional,
+            StartPeriod = DateTime.UtcNow.AddMonths(-12),
+            EndPeriod = DateTime.UtcNow
         };
         assetLifecycleOne.AssignAsset(assetOne, CALLER_ID);
         assetLifecycleOne.AssignAssetLifecycleHolder(userOne, null, CALLER_ID);
@@ -81,7 +83,9 @@ internal static class AssetTestDataSeedingForDatabase
             CustomerId = COMPANY_ID,
             Alias = "alias_2",
             AssetLifecycleStatus = AssetLifecycleStatus.InUse,
-            AssetLifecycleType = LifecycleType.Transactional
+            AssetLifecycleType = LifecycleType.Transactional,
+            StartPeriod = DateTime.UtcNow.AddMonths(-12),
+            EndPeriod = DateTime.UtcNow
         };
         assetLifecycleThree.AssignAsset(assetThree, CALLER_ID);
         assetLifecycleThree.AssignAssetLifecycleHolder(null,DEPARTMENT_ID, CALLER_ID);

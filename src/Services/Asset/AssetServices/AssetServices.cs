@@ -431,21 +431,6 @@ namespace AssetServices
             if (assetLifecycle == null)
                 throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
 
-            if(assetLifecycle.AssetLifecycleType != LifecycleType.Transactional)
-            {
-                throw new ReturnDeviceRequestException($"Only Assets that have Transactionl Life cycle type can make return request!!! asset Id: {data.AssetLifeCycleId}", _logger);
-            }
-            if(assetLifecycle.EndPeriod != null)
-            {
-                if(assetLifecycle.EndPeriod.Value.Month != DateTime.UtcNow.Month || assetLifecycle.EndPeriod.Value.Year != DateTime.UtcNow.Year)
-                    throw new ReturnDeviceRequestException($"Asset's life cycle needs to be on last month to make return request!!! asset Id: {data.AssetLifeCycleId}", _logger);
-            }
-
-            if (!assetLifecycle.IsActiveState)
-            {
-                throw new ReturnDeviceRequestException($"Only Active devices can make return request!!! asset Id: {data.AssetLifeCycleId}", _logger);
-            }
-
             var returnLocations = await GetReturnLocationsByCustomer(customerId);
             var returnLocation = returnLocations.FirstOrDefault(x => x.ExternalId == data.ReturnLocationId);
             if (assetLifecycle.IsPersonal && assetLifecycle.AssetLifecycleStatus != AssetLifecycleStatus.PendingReturn)
@@ -453,7 +438,16 @@ namespace AssetServices
                 // Pending Return
                 assetLifecycle.MakeReturnRequest(data.CallerId);
 
-                // TODO: Email to Managers (Task is in another US)
+                // To Manager(s)
+                if(data.Managers != null && data.Managers.Any())
+                {
+                    await _emailService.PendingReturnEmailAsync(new Email.Model.PendingReturnNotification()
+                    {
+                        FirstName = string.Empty,
+                        Recipients = data.Managers.Select(x=>x.Email).ToList(),
+                        AssetsLink = "https://www.example.com/"
+                    }, "en");
+                }
             }
             else if(assetLifecycle.IsPersonal && assetLifecycle.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn)
             {
@@ -463,8 +457,6 @@ namespace AssetServices
                     throw new ReturnDeviceRequestException($"Return Location not found to confirm pending return!!! asset Id: {data.AssetLifeCycleId}", _logger);
                 }
                 assetLifecycle.ConfirmReturnDevice(data.CallerId, returnLocation.Name, returnLocation.ReturnDescription);
-
-                // TODO: Email to user(personal) (Task is in another US)
             }
             else if (!assetLifecycle.IsPersonal)
             {
@@ -474,8 +466,6 @@ namespace AssetServices
                     throw new ReturnDeviceRequestException($"Return Location not found to confirm pending return!!! asset Id: {data.AssetLifeCycleId}", _logger);
                 }
                 assetLifecycle.ConfirmReturnDevice(data.CallerId, returnLocation.Name, returnLocation.ReturnDescription);
-
-                // TODO: Email to CustomerAdmin(non-personal) (Task is in another US)
             }
 
             await _assetLifecycleRepository.SaveEntitiesAsync();
@@ -495,29 +485,19 @@ namespace AssetServices
                 throw new BuyoutDeviceRequestException($"Payroll responsible email need to set first to do buyout for CustomerId: {customerId}", _logger);
             }
 
-            if (!assetLifecycle.IsActiveState)
-            {
-                throw new BuyoutDeviceRequestException($"Only Active devices can do buyout!!! asset Id: {data.AssetLifeCycleId}", _logger);
-            }
-
-            if (!assetLifecycle.IsPersonal)
-            {
-                throw new BuyoutDeviceRequestException($"Only Personal Assets can be bought out!!! asset Id: {data.AssetLifeCycleId}", _logger);
-            }
-
-            if (assetLifecycle.AssetLifecycleType != LifecycleType.Transactional)
-            {
-                throw new BuyoutDeviceRequestException($"Only Assets that have Transactionl Life cycle type can be bought out!!! asset Id: {data.AssetLifeCycleId}", _logger);
-            }
-
-            if (assetLifecycle.EndPeriod != null)
-            {
-                if (assetLifecycle.EndPeriod.Value.Month != DateTime.UtcNow.Month || assetLifecycle.EndPeriod.Value.Year != DateTime.UtcNow.Year)
-                    throw new BuyoutDeviceRequestException($"Asset's life cycle needs to be on last month to do buyout!!! asset Id: {data.AssetLifeCycleId}", _logger);
-            }
-
             assetLifecycle.BuyoutDevice(data.CallerId);
-            // TODO: Email to Pay-roll responsible contact (Task is in another US)
+
+            // Email to Pay-roll responsible contact
+            var emailData = new Email.Model.AssetBuyoutNotification()
+            {
+                UserName = assetLifecycle.ContractHolderUser!.Name,
+                AssetName = $"{assetLifecycle.Asset!.Brand} {assetLifecycle.Asset!.ProductName}",
+                AssetId = assetLifecycle.ExternalId.ToString(),
+                BuyoutDate = DateTime.UtcNow.ToString("dd MMMM, yyyy"),
+                BuyoutPrice = assetLifecycle.BuyoutPrice.ToString(),
+                Recipient = customerSetting.DisposeSetting.PayrollContactEmail
+            };
+            await _emailService.AssetBuyoutEmailAsync(emailData, "en");
 
             await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
@@ -527,12 +507,6 @@ namespace AssetServices
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId);
             if (assetLifecycle == null)
                 throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
-
-
-            if (!assetLifecycle.IsActiveState)
-            {
-                throw new InactiveDeviceRequestException($"Only Active devices can be reported!!! asset Id: {data.AssetLifeCycleId}", _logger);
-            }
 
             assetLifecycle.ReportDevice(data.ReportCategory, data.CallerId);
 

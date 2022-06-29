@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Asset.IntegrationTests.Helpers;
+using AssetServices.Email;
 using AssetServices.Infrastructure;
 using Common.Logging;
 using Microsoft.AspNetCore.Hosting;
@@ -12,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
+using Moq;
 
 // ReSharper disable StringLiteralTypo
 // ReSharper disable once ClassNeverInstantiated.Global
@@ -67,6 +69,11 @@ public class AssetWebApplicationFactory<TProgram> : WebApplicationFactory<TProgr
                 logger.LogError(exception,
                     "An error occurred seeding the " + "database with test data. Error: {Message}", exception.Message);
             }
+
+            var emailServiceMock = new Mock<IEmailService>();
+            emailServiceMock.Setup(m => m.AssetBuyoutEmailAsync(new AssetServices.Email.Model.AssetBuyoutNotification(), "en"));
+
+            services.AddScoped(s => emailServiceMock.Object);
         });
         base.ConfigureWebHost(builder);
     }

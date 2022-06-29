@@ -201,7 +201,7 @@ public class AssetServicesTests : AssetBaseTest
             new CancellationToken());
 
 
-        Assert.Equal(2, assetsFromUser.Items.Count);
+        Assert.Equal(3, assetsFromUser.Items.Count);
 
 
         //filter data all options
@@ -1394,29 +1394,28 @@ public class AssetServicesTests : AssetBaseTest
         Assert.Throws<InvalidAssetDataException>(() => asset1.IsSentToRepair(callerId));
         Assert.Equal(AssetLifecycleStatus.Stolen, asset1.AssetLifecycleStatus);
 
-        //Lost
-        var asset3 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_THREE_ID); 
-        asset3.ReportDevice(ReportCategory.Lost,callerId);
-        Assert.Throws<InvalidAssetDataException>(() => asset3.IsSentToRepair(callerId));
-        Assert.Equal(AssetLifecycleStatus.Lost, asset3.AssetLifecycleStatus);
-
         //PendingReturn 
-        var asset4 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_FOUR_ID);
-        asset4.MakeReturnRequest(callerId);
-        Assert.Throws<InvalidAssetDataException>(() => asset4.IsSentToRepair(callerId));
-        Assert.Equal(AssetLifecycleStatus.PendingReturn, asset4.AssetLifecycleStatus);
+        var asset3 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_THREE_ID);
+        asset3.MakeReturnRequest(callerId);
+        Assert.Throws<InvalidAssetDataException>(() => asset3.IsSentToRepair(callerId));
+        Assert.Equal(AssetLifecycleStatus.PendingReturn, asset3.AssetLifecycleStatus);
 
         //BoughtByUser
+        var asset4 = await context.AssetLifeCycles.Include(x => x.ContractHolderUser).FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_TWO_ID); 
+        asset4.BuyoutDevice(callerId);
+        Assert.Throws<InvalidAssetDataException>(() => asset4.IsSentToRepair(callerId));
+        Assert.Equal(AssetLifecycleStatus.BoughtByUser, asset4.AssetLifecycleStatus);
+
+        //Lost
         var asset5 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_FIVE_ID); 
-        asset5.BuyoutDevice(callerId);
+        asset5.ReportDevice(ReportCategory.Lost, callerId);
         Assert.Throws<InvalidAssetDataException>(() => asset5.IsSentToRepair(callerId));
-        Assert.Equal(AssetLifecycleStatus.BoughtByUser, asset5.AssetLifecycleStatus);
+        Assert.Equal(AssetLifecycleStatus.Lost, asset5.AssetLifecycleStatus);
 
         //Returned 
-        var asset6 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_SIX_ID); 
-        asset6.ConfirmReturnDevice(callerId, "Office", "Broken");
-        Assert.Throws<InvalidAssetDataException>(() => asset6.IsSentToRepair(callerId));
-        Assert.Equal(AssetLifecycleStatus.Returned, asset6.AssetLifecycleStatus);
+        asset3.ConfirmReturnDevice(callerId, "Office", "Broken");
+        Assert.Throws<InvalidAssetDataException>(() => asset3.IsSentToRepair(callerId));
+        Assert.Equal(AssetLifecycleStatus.Returned, asset3.AssetLifecycleStatus);
 
         //Discarded
         var asset7 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_SEVEN_ID);

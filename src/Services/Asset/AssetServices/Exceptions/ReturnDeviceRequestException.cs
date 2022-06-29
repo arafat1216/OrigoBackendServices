@@ -14,5 +14,8 @@ namespace AssetServices.Exceptions
         {
             logger.LogError(this, message);
         }
+        public ReturnDeviceRequestException(string message) : base(message)
+        {
+        }
     }
 }

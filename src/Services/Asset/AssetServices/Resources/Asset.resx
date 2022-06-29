@@ -117,6 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AssetBuyout" xml:space="preserve">
+    <value>An employee have decided to buyout an asset from your company. There will NOT be any set up for an automactic salary deduction for this. Please make the salary deduction at nexy payrpll
+&lt;/br&gt;
+### Details:
+User: {{UserName}}
+Asset: {{AssetName}} ({{AssetId}})
+Buyout Date: {{BuyoutDate}}
+Buyour Price: {{BuyoutPrice}}</value>
+  </data>
+  <data name="PendingReturn" xml:space="preserve">
+    <value>Hello {{FirstName}}!
+&lt;/br&gt;
+You have assets pending return. As a manager you need to confirm when you have received the asset to complete and end the lifecyce.
+&lt;/br&gt;
+[View Assets]({{AssetsLink}})</value>
+  </data>
   <data name="ReassignedToUser" xml:space="preserve">
     <value>Hello {{FirstName}}!
 &lt;/br&gt;

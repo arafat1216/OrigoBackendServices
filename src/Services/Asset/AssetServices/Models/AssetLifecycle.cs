@@ -346,6 +346,18 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <param name="callerId">The userid making this assignment</param>
     public void MakeReturnRequest(Guid callerId)
     {
+        if (_assetLifecycleType != LifecycleType.Transactional)
+            throw new ReturnDeviceRequestException($"Only Assets that have Transactionl Life cycle type can make return request!!! asset Id: {ExternalId}");
+
+        if (!EndPeriod.HasValue || EndPeriod.Value.Month != DateTime.UtcNow.Month || EndPeriod.Value.Year != DateTime.UtcNow.Year)
+            throw new ReturnDeviceRequestException($"Asset's life cycle needs to be on last month to make return request!!! asset Id: {ExternalId}");
+
+        if (!IsActiveState)
+            throw new ReturnDeviceRequestException($"Only Active devices can make return request!!! asset Id: {ExternalId}");
+
+        if (_assetLifecycleStatus == AssetLifecycleStatus.PendingReturn)
+            throw new ReturnDeviceRequestException($"Asset already have pending return request!!! asset Id: {ExternalId}");
+
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         var previousLifecycleStatus = _assetLifecycleStatus;
@@ -359,6 +371,15 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <param name="callerId">The userid making this assignment</param>
     public void ConfirmReturnDevice(Guid callerId, string locationName, string description)
     {
+        if (_assetLifecycleType != LifecycleType.Transactional)
+            throw new ReturnDeviceRequestException($"Only Assets that have Transactionl Life cycle type can make return request!!! asset Id: {ExternalId}");
+
+        if (!EndPeriod.HasValue || EndPeriod.Value.Month != DateTime.UtcNow.Month || EndPeriod.Value.Year != DateTime.UtcNow.Year)
+            throw new ReturnDeviceRequestException($"Asset's life cycle needs to be on last month to make return request!!! asset Id: {ExternalId}");
+
+        if (!IsActiveState)
+            throw new ReturnDeviceRequestException($"Only Active devices can make return request!!! asset Id: {ExternalId}");
+
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         var previousLifecycleStatus = _assetLifecycleStatus;
@@ -372,6 +393,18 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <param name="callerId">The userid making this assignment</param>
     public void BuyoutDevice(Guid callerId)
     {
+        if (!IsActiveState)
+            throw new BuyoutDeviceRequestException($"Only Active devices can do buyout!!! asset Id: {ExternalId}");
+
+        if (!IsPersonal || ContractHolderUser is null)
+            throw new BuyoutDeviceRequestException($"Only Personal Assets can be bought out!!! asset Id: {ExternalId}");
+
+        if (_assetLifecycleType != LifecycleType.Transactional)
+            throw new BuyoutDeviceRequestException($"Only Assets that have Transactionl Life cycle type can be bought out!!! asset Id: {ExternalId}");
+
+        if (!EndPeriod.HasValue || EndPeriod!.Value.Month != DateTime.UtcNow.Month || EndPeriod!.Value.Year != DateTime.UtcNow.Year)
+            throw new BuyoutDeviceRequestException($"Asset's life cycle needs to be on last month to do buyout!!! asset Id: {ExternalId}");
+
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         var previousLifecycleStatus = _assetLifecycleStatus;
@@ -385,6 +418,9 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <param name="callerId">The userid making this assignment</param>
     public void ReportDevice(ReportCategory reportCategory, Guid callerId)
     {
+        if (!IsActiveState)
+            throw new InactiveDeviceRequestException($"Only Active devices can be reported!!! asset Id: {ExternalId}");
+
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         var previousLifecycleStatus = _assetLifecycleStatus;

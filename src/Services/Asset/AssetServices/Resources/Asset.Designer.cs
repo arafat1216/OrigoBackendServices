@@ -61,6 +61,34 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An employee have decided to buyout an asset from your company. There will NOT be any set up for an automactic salary deduction for this. Please make the salary deduction at nexy payrpll
+        ///&lt;/br&gt;
+        ///### Details:
+        ///User: {{UserName}}
+        ///Asset: {{AssetName}} ({{AssetId}})
+        ///Buyout Date: {{BuyoutDate}}
+        ///Buyour Price: {{BuyoutPrice}}.
+        /// </summary>
+        internal static string AssetBuyout {
+            get {
+                return ResourceManager.GetString("AssetBuyout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///&lt;/br&gt;
+        ///You have assets pending return. As a manager you need to confirm when you have received the asset to complete and end the lifecyce.
+        ///&lt;/br&gt;
+        ///[View Assets]({{AssetsLink}}).
+        /// </summary>
+        internal static string PendingReturn {
+            get {
+                return ResourceManager.GetString("PendingReturn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
         ///&lt;/br&gt;
         ///An asset was successfully reassigned from your department.

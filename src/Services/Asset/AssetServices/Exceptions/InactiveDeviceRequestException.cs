@@ -9,7 +9,9 @@ namespace AssetServices.Exceptions
         {
             logger.LogError(this, "Error in exception");
         }
-
+        public InactiveDeviceRequestException(string message) : base(message)
+        {
+        }
         public InactiveDeviceRequestException(string message, ILogger logger) : base(message)
         {
             logger.LogError(this, message);

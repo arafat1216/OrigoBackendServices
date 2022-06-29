@@ -86,5 +86,18 @@ namespace AssetServices.Email
             var variables = _flatDictionaryProvider.Execute(emailData);
             await SendAsync(emailData.Subject, template, emailData.Recipients, variables);
         }
+        public async Task PendingReturnEmailAsync(PendingReturnNotification emailData, string languageCode)
+        {
+            var template = _resourceManager.GetString(PendingReturnNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var variables = _flatDictionaryProvider.Execute(emailData);
+            await SendAsync(emailData.Subject, template, emailData.Recipients, variables);
+        }
+        public async Task AssetBuyoutEmailAsync(AssetBuyoutNotification emailData, string languageCode)
+        {
+            var template = _resourceManager.GetString(AssetBuyoutNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var variables = _flatDictionaryProvider.Execute(emailData);
+            await SendAsync(emailData.Subject, template, new List<string>() { emailData.Recipient }, variables);
+        }
+
     }
 }

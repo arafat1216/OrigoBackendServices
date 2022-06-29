@@ -14,5 +14,8 @@ namespace AssetServices.Exceptions
         {
             logger.LogError(this, message);
         }
+        public BuyoutDeviceRequestException(string message) : base(message)
+        {
+        }
     }
 }

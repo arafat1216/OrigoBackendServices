@@ -666,17 +666,7 @@ namespace OrigoApiGateway.Services
                 {
                     if(role == PredefinedRole.EndUser.ToString()) throw new Exception("Return Request Already Pending!!!");
                     if(returnLocationId == Guid.Empty) throw new Exception("Must Select a Return Location to Confirm!!!");
-
-                    if (existingAsset.AssetHolderId != null)
-                    {
-                        var user = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
-                        returnDTO.ContractHolder = new EmailPersonAttributeDTO()
-                        {
-                            Email = user.Email,
-                            Name = user.FirstName,
-                            PreferedLanguage = user.UserPreference.Language
-                        };
-                    }                
+              
                 }
                 else if(existingAsset.IsPersonal && existingAsset.AssetStatus != AssetLifecycleStatus.PendingReturn)
                 {
@@ -701,18 +691,6 @@ namespace OrigoApiGateway.Services
                 else if (!existingAsset.IsPersonal)
                 {
                     if (role == PredefinedRole.EndUser.ToString()) throw new Exception("Only Admin can make return request for non-personal asset!!!");
-
-                    var customerAdmin = await _userPermissionService.GetAllCustomerAdminsAsync(customerId);
-                    var admins = new List<EmailPersonAttributeDTO>();
-                    foreach (var admin in customerAdmin)
-                    {
-                        admins.Add(new EmailPersonAttributeDTO()
-                        {
-                            Name = admin.FirstName,
-                            Email = admin.Email
-                        });
-                    }
-                    returnDTO.CustomerAdmins = admins;
                 }
                 else
                 {

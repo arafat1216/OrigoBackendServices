@@ -12,17 +12,9 @@ namespace Asset.API.ViewModels
         [Required]
         public Guid AssetLifeCycleId { get; set; }
         /// <summary>
-        /// Email details of Asset User
-        /// </summary>
-        public EmailPersonAttribute? ContractHolder { get; set; }
-        /// <summary>
         /// Email details of Dept Manager of the asset
         /// </summary>
         public IList<EmailPersonAttribute>? Managers { get; set; }
-        /// <summary>
-        /// Email details of Admins of the customer
-        /// </summary>
-        public IList<EmailPersonAttribute>? CustomerAdmins { get; set; }
         /// <summary>
         /// id of user making the endpoint call. Can be ignored by frontend.
         /// </summary>

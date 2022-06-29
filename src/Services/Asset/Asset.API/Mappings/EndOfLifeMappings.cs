@@ -11,10 +11,8 @@ namespace Asset.API.Mappings
             CreateMap<ReturnDevice, ReturnDeviceDTO>()
                 .ForMember(destination => destination.CallerId, opt => opt.MapFrom(src => src.CallerId))
                 .ForMember(destination => destination.ReturnLocationId, opt => opt.MapFrom(src => src.ReturnLocationId))
-                .ForMember(destination => destination.ContractHolder, opt => opt.MapFrom(src => src.ContractHolder ?? null))
                 .ForMember(destination => destination.AssetLifeCycleId, opt => opt.MapFrom(src => src.AssetLifeCycleId))
-                .ForMember(destination => destination.Managers, opt => opt.MapFrom(src => src.Managers))
-                .ForMember(destination => destination.CustomerAdmins, opt => opt.MapFrom(src => src.CustomerAdmins));
+                .ForMember(destination => destination.Managers, opt => opt.MapFrom(src => src.Managers));
 
             CreateMap<ReportDevice, ReportDeviceDTO>()
                 .ForMember(destination => destination.CallerId, opt => opt.MapFrom(src => src.CallerId))
