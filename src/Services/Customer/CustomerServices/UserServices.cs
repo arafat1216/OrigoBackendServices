@@ -436,7 +436,7 @@ namespace CustomerServices
             return userDTO;
         }
 
-        private async Task PublishEvent(string subscriptionName, string topicName, IUserEvent userEvent)
+        private async Task PublishEvent<T>(string subscriptionName, string topicName, T userEvent) where T: IUserEvent
         {
             // Publish event
             try
@@ -444,7 +444,7 @@ namespace CustomerServices
                 var source = new CancellationTokenSource();
                 var cancellationToken = source.Token;
                 using var client = new DaprClientBuilder().Build();
-                await client.PublishEventAsync(subscriptionName, topicName, userEvent, cancellationToken);
+                await client.PublishEventAsync<T>(subscriptionName, topicName, userEvent, cancellationToken);
             }
             catch (Exception exception)
             {

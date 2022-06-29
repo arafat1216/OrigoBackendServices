@@ -25,7 +25,7 @@ public class UserController : Controller
     }
 
 
-    [Topic("customer-pub-sub", "user-change-department-assignment")]
+    [Topic("customer-pub-sub", "user-assign-department")]
     [HttpPost("user-change-department-assignment")]
     public void UserAssignDepartment([FromBody] UserChangedDepartmentEvent userDeletedEvent)
     {

@@ -2,7 +2,7 @@ apiVersion: dapr.io/v1alpha1
 kind: Subscription
 namespace: {{ .Values.namespace }}
 metadata:
-  name: customer-pub-sub
+  name: userDeleted-subscription
 spec:
   topic: user-deleted
   route: /user-deleted
@@ -15,10 +15,10 @@ apiVersion: dapr.io/v1alpha1
 kind: Subscription
 namespace: {{ .Values.namespace }}
 metadata:
-  name: customer-pub-sub
+  name: userAssignDepartment-subscription
 spec:
-  topic: user-change-department-assignment
-  route: /user-change-department-assignment
+  topic: user-assign-department
+  route: /user-assign-department
   pubsubname: customer-pub-sub
 scopes:
 - customerservices
