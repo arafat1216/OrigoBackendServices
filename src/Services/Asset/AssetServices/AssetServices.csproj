@@ -48,4 +48,11 @@
     </EmbeddedResource>
   </ItemGroup>
 
+
+  <ItemGroup>
+  	<None Update="appsettings.Development.json">
+  	  <DependentUpon>appsettings.json</DependentUpon>
+  	</None>
+  </ItemGroup>
+  
 </Project>
