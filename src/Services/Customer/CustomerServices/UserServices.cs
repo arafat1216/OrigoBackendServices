@@ -152,6 +152,22 @@ namespace CustomerServices
                         userPreference.Language != userWithEmail.UserPreference?.Language)
                         userWithEmail.ChangeUserPreferences(userPreference, callerId);
 
+                    //Okta
+                    if (customer.AddUsersToOkta)
+                    {
+                        var userExistInOkta = await _oktaServices.UserExistsInOktaAsync(userWithEmail.OktaUserId);
+                        if (userExistInOkta)
+                        {
+                            await _oktaServices.AddUserToGroup(userWithEmail.OktaUserId);
+                        }
+                        else //Add new user to Okta
+                        {
+                            var oktaUserId = await _oktaServices.AddOktaUserAsync(userWithEmail.UserId, userWithEmail.FirstName, userWithEmail.LastName,
+                                userWithEmail.Email, userWithEmail.MobileNumber, true);
+                            userWithEmail = await AssignOktaUserIdAsync(userWithEmail.Customer.OrganizationId, userWithEmail.UserId, oktaUserId, callerId);
+                        }
+                    }
+
                     await _organizationRepository.SaveEntitiesAsync();
 
                     var activatedUserMapped = _mapper.Map<UserDTO>(userWithEmail);
