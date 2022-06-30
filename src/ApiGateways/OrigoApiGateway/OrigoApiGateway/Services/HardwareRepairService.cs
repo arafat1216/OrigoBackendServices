@@ -297,29 +297,5 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-
-        public async Task<List<HardwareServiceOrderLog>?> GetHardwareServiceOrderLogsAsync(Guid customerId, Guid orderId)
-        {
-            try
-            {
-                var response = await HttpClient.GetFromJsonAsync<List<HardwareServiceOrderLog>>($"{_options.ApiPath}/{customerId}/orders/{orderId}/logs");
-                return response;
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "GetHardwareServiceOrderLogsAsync failed with HttpRequestException.");
-                throw;
-            }
-            catch (NotSupportedException exception)
-            {
-                _logger.LogError(exception, "GetHardwareServiceOrderLogsAsync failed with content type is not valid.");
-                throw;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "GetHardwareServiceOrderLogsAsync unknown error.");
-                throw;
-            }
-        }
     }
 }

@@ -126,20 +126,5 @@ namespace HardwareServiceOrder.API.Controllers
 
             return Ok(dto);
         }
-
-        /// <summary>
-        /// Gets all logs  associated with a hardware service order
-        /// </summary>
-        /// <param name="customerId">Customer Identifier</param>
-        /// <param name="orderId">Order Identifier</param>
-        /// <returns>Existing hardware service order</returns>
-        [Route("{customerId:Guid}/orders/{orderId:Guid}/logs")]
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<HardwareServiceOrderLog>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetHardwareServiceOrderLogs(Guid customerId, Guid orderId)
-        {
-            var dto = await _hardwareServiceOrderService.GetHardwareServiceOrderLogsAsync(customerId, orderId);
-            return Ok(_mapper.Map<List<HardwareServiceOrderLog>>(dto));
-        }
     }
 }

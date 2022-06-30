@@ -156,11 +156,6 @@ namespace HardwareServiceOrderServices
             return _mapper.Map<HardwareServiceOrderDTO>(orderEntity);
         }
 
-        public Task<List<HardwareServiceOrderLogDTO>> GetHardwareServiceOrderLogsAsync(Guid customerId, Guid orderId)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<PagedModel<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {
             var orderEntities = await _hardwareServiceOrderRepository.GetAllOrdersAsync(customerId, userId, activeOnly, page, limit, cancellationToken);
