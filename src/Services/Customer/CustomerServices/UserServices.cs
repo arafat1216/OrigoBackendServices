@@ -103,13 +103,74 @@ namespace CustomerServices
                 // Set a default language setting
                 userPreference = new UserPreference("EN", callerId);
             }
+
             // Check if email address is used by another user
-            var emailInUse = await _organizationRepository.GetUserByUserName(email);
-            if (emailInUse != null)
-                throw new UserNameIsInUseException("Email address is already in use.");
+            var userWithEmail = await _organizationRepository.GetUserByUserName(email);
+            var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber);
+
+            //Activate the user if the user i soft deleted
+            if (userWithEmail != null) {
+                if (userWithEmail.IsDeleted == true) 
+                {
+                    userWithEmail.SetDeleteStatus(false, callerId);
+
+                    //Check if the phone number should be updated
+                    if (mobileNumber != default && userWithEmail.MobileNumber?.Trim() != mobileNumber?.Trim())
+                    { 
+                    //If mobile number is used by someone else then this user
+                    if(mobileNumberInUse != null && mobileNumberInUse.UserId != userWithEmail.UserId) throw new InvalidPhoneNumberException("Phone number already in use.");
+                        userWithEmail.ChangeMobileNumber(mobileNumber, callerId);
+                    }
+                    
+                    UserPermissions? currentUserPermission = null;
+                    var usersRole = await _userPermissionServices.GetUserPermissionsAsync(userWithEmail.Email);
+                    if (usersRole != null)
+                    {
+                        currentUserPermission = usersRole.FirstOrDefault(a => a.Role.Name == role);
+                    }
+
+                    if (role != null)
+                    {
+                        try
+                        {
+                          //New role - only add the role if the user dont have the role already
+                          if (currentUserPermission == null) currentUserPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid>() { customerId }, callerId);
+                        }
+                        catch (InvalidRoleNameException)
+                        {
+                            currentUserPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, PredefinedRole.EndUser.ToString(), new List<Guid>() { customerId }, callerId);
+                        }
+                    }
+
+                    //If the user dont have any userpermissions and the role did not get assigned in the request give EndUser
+                    if(currentUserPermission == null) currentUserPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, PredefinedRole.EndUser.ToString(), new List<Guid>() { customerId }, callerId);
+
+                    if (firstName != default && userWithEmail.FirstName != firstName) userWithEmail.ChangeFirstName(firstName, callerId);
+                    if (lastName != default && userWithEmail.LastName != lastName) userWithEmail.ChangeLastName(lastName, callerId);
+                    if (employeeId != default && userWithEmail.EmployeeId != employeeId) userWithEmail.ChangeEmployeeId(employeeId, callerId);
+                    if (userPreference != null && userPreference.Language != null &&
+                        userPreference.Language != userWithEmail.UserPreference?.Language)
+                        userWithEmail.ChangeUserPreferences(userPreference, callerId);
+
+                    await _organizationRepository.SaveEntitiesAsync();
+
+                    var activatedUserMapped = _mapper.Map<UserDTO>(userWithEmail);
+                    if (currentUserPermission != null)
+                    {
+                        activatedUserMapped.Role = currentUserPermission.Role.Name.ToString();
+                    }
+                    else
+                    {
+                        activatedUserMapped.Role = null;
+                    }
+
+                    return activatedUserMapped;
+
+                }
+                else throw new UserNameIsInUseException("Email address is already in use.");
+            }
 
             //Check if mobile number is used by another user
-            var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber);
             if (mobileNumberInUse != null) throw new InvalidPhoneNumberException("Phone number already in use.");
 
             var newUser = new User(customer, Guid.NewGuid(), firstName, lastName, email, mobileNumber, employeeId,

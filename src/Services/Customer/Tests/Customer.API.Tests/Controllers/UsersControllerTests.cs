@@ -943,6 +943,135 @@ namespace Customer.API.IntegrationTests.Controllers
 
             Assert.Equal(0, count);
         }
+        [Fact]
+        public async Task CreateUserForCustomer_ThenDeleteUser_ShouldActivateUserSameUser()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            //Create user
+            var body = new NewUser
+            {
+                CallerId = _callerId,
+                Email = "test@mail.com",
+                FirstName = "test",
+                LastName = "user",
+                EmployeeId = "123",
+                MobileNumber = "+479898645",
+                Role = "EndUser",
+                UserPreference = new UserPreference { Language = "en" }
+            };
+            var request = $"/api/v1/organizations/{_customerId}/users";
+            var response = await httpClient.PostAsJsonAsync(request, body);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            var user = await response.Content.ReadFromJsonAsync<ViewModels.User>();
+
+            Assert.NotNull(user);
+            Assert.NotNull(user?.Id);
+            Assert.Equal("EndUser", user?.Role);
+
+            var userId = user?.Id;
+
+            //Delete user
+            var request_uri = $"/api/v1/organizations/{_customerId}/users/{userId}";
+            var request_delete = new HttpRequestMessage(HttpMethod.Delete, request_uri);
+            request_delete.Content = JsonContent.Create(_callerId);
+            var delete_response = await httpClient.SendAsync(request_delete);
+            var deleted_user = await delete_response.Content.ReadFromJsonAsync<User>();
+            Assert.Equal(HttpStatusCode.OK, delete_response.StatusCode);
+
+            Assert.NotNull(deleted_user);
+            Assert.Equal(userId, deleted_user!.Id);
+
+            //Recreate the user - with some different values
+            var body2 = new NewUser
+            {
+                CallerId = _callerId,
+                Email = "test@mail.com",
+                FirstName = "Hans",
+                LastName = "user",
+                EmployeeId = "123",
+                MobileNumber = "+479898645",
+                Role = "Manager",
+                UserPreference = new UserPreference { Language = "en" }
+            };
+            var request_recreate = $"/api/v1/organizations/{_customerId}/users";
+            var response_recreate = await httpClient.PostAsJsonAsync(request_recreate, body2);
+            Assert.Equal(HttpStatusCode.Created, response_recreate.StatusCode);
+
+            var recreated_user = await response_recreate.Content.ReadFromJsonAsync<ViewModels.User>();
+
+            Assert.NotNull(recreated_user);
+
+            //Get user
+            var get_recreated_user_request = $"/api/v1/organizations/{_customerId}/users/{userId}";
+            var get_recreated_user_response = await _httpClient.GetAsync(get_recreated_user_request);
+
+            var get_user_recreated = await get_recreated_user_response.Content.ReadFromJsonAsync<User>();
+
+            Assert.Equal(HttpStatusCode.OK, get_recreated_user_response.StatusCode);
+            Assert.NotNull(get_user_recreated);
+            Assert.Equal("Hans",get_user_recreated?.FirstName);
+            Assert.Equal("Manager", get_user_recreated?.Role);
+        }
+        [Fact]
+        public async Task CreateUserForCustomer_UserIsNotDeleted()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            //Create user
+            var body = new NewUser
+            {
+                CallerId = _callerId,
+                Email = "test@mail.com",
+                FirstName = "test",
+                LastName = "user",
+                EmployeeId = "123",
+                MobileNumber = "+479898645",
+                Role = "EndUser",
+                UserPreference = new UserPreference { Language = "en" }
+            };
+            var request = $"/api/v1/organizations/{_customerId}/users";
+            var response = await httpClient.PostAsJsonAsync(request, body);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            var user = await response.Content.ReadFromJsonAsync<ViewModels.User>();
+
+            Assert.NotNull(user);
+            Assert.NotNull(user?.Id);
+            Assert.Equal("EndUser", user?.Role);
+
+            var userId = user?.Id;
+
+            //Try to create a second user with same email
+            var body2 = new NewUser
+            {
+                CallerId = _callerId,
+                Email = "test@mail.com",
+                FirstName = "Hans",
+                LastName = "user",
+                EmployeeId = "123",
+                MobileNumber = "+479898645",
+                Role = "Manager",
+                UserPreference = new UserPreference { Language = "en" }
+            };
+            var request_recreate = $"/api/v1/organizations/{_customerId}/users";
+            var response_recreate = await httpClient.PostAsJsonAsync(request_recreate, body2);
+            Assert.Equal(HttpStatusCode.Conflict, response_recreate.StatusCode);
+            Assert.Equal("Email address is already in use.", response_recreate.Content.ReadAsStringAsync().Result);
+      
+
+            //Get user
+            var get_recreated_user_request = $"/api/v1/organizations/{_customerId}/users/{userId}";
+            var get_recreated_user_response = await _httpClient.GetAsync(get_recreated_user_request);
+
+            var get_user_recreated = await get_recreated_user_response.Content.ReadFromJsonAsync<User>();
+
+            Assert.Equal(HttpStatusCode.OK, get_recreated_user_response.StatusCode);
+            Assert.NotNull(get_user_recreated);
+            Assert.Equal("test", get_user_recreated?.FirstName);
+            Assert.Equal("EndUser", get_user_recreated?.Role);
+        }
 
     }
 }
