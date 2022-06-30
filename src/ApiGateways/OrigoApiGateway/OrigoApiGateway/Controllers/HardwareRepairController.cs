@@ -1,4 +1,5 @@
 ﻿using Common.Enums;
+using Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrigoApiGateway.Models.HardwareServiceOrder;
@@ -187,8 +188,8 @@ namespace OrigoApiGateway.Controllers
         /// <returns>List of hardware service orders</returns>
         [Route("{customerId:Guid}/orders")]
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<HardwareServiceOrder>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, string userId, [FromQuery] bool activeOnly = false, int page = 1, int limit = 25)
+        [ProducesResponseType(typeof(PagedModel<HardwareServiceOrder>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, string? userId, [FromQuery] bool activeOnly = false, int page = 1, int limit = 25)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
