@@ -282,7 +282,7 @@ namespace OrigoApiGateway.Services
                 var settings = await HttpClient.GetFromJsonAsync<DisposeSetting>($"{_options.ApiPath}/customers/{customerId}/dispose-setting");
 
                 if (settings == null)
-                    return null;
+                    return new DisposeSetting();
 
                 return settings;
             }
