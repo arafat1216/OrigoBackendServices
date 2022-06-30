@@ -881,7 +881,7 @@ namespace AssetServices
             }
             return _mapper.Map<DisposeSettingDTO>(existingSetting.DisposeSetting);
         }
-        public async Task<IList<ReturnLocationDTO>> AddReturnLocationsByCustomer(Guid customerId, ReturnLocationDTO returnLocationDTO, Guid callerId)
+        public async Task<ReturnLocationDTO> AddReturnLocationsByCustomer(Guid customerId, ReturnLocationDTO returnLocationDTO, Guid callerId)
         {
             var customerSettings = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
             if (customerSettings == null)
@@ -896,7 +896,7 @@ namespace AssetServices
             customerSettings.DisposeSetting!.AddReturnLocation(returnLocation, callerId, customerId);
 
             await _assetLifecycleRepository.SaveEntitiesAsync();
-            return _mapper.Map<IList<ReturnLocationDTO>>(customerSettings.DisposeSetting.ReturnLocations);
+            return _mapper.Map<ReturnLocationDTO>(returnLocation);
         }
         public async Task<IList<ReturnLocationDTO>> GetReturnLocationsByCustomer(Guid customerId)
         {

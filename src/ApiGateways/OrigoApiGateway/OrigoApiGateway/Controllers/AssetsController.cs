@@ -461,7 +461,7 @@ namespace OrigoApiGateway.Controllers
 
         [Route("customers/{organizationId:guid}/return-location")]
         [HttpPost]
-        [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ReturnLocation), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> AddReturnLocationsByCustomer(Guid organizationId, [FromBody] NewReturnLocation data)
@@ -488,17 +488,14 @@ namespace OrigoApiGateway.Controllers
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
 
-                var locations = await _assetServices.AddReturnLocationsByCustomer(organizationId, data, allOfficeLocations, callerId);
-                if (locations == null)
+                var location = await _assetServices.AddReturnLocationsByCustomer(organizationId, data, allOfficeLocations, callerId);
+                if (location == null)
                 {
                     return NotFound();
                 }
-                foreach (var location in locations)
-                {
-                    location.Location = allOfficeLocations.FirstOrDefault(x => x.Id == location.LocationId);
-                }
 
-                return Ok(locations);
+                location.Location = allOfficeLocations.FirstOrDefault(x => x.Id == location.LocationId);
+                return Ok(location);
             }
             catch (ResourceNotFoundException ex)
             {

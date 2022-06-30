@@ -56,7 +56,7 @@ namespace AssetServices
         Task<IList<AssetLifecycleDTO>> DeactivateAssetLifecycleStatus(Guid customerId, ChangeAssetStatus assetLifecycles);
         Task<AssetLifecycleDTO> BuyoutDeviceAsync(Guid customerId, BuyoutDeviceDTO data);
         Task<AssetLifecycleDTO> ReportDeviceAsync(Guid customerId, ReportDeviceDTO data);
-        Task<IList<ReturnLocationDTO>> AddReturnLocationsByCustomer(Guid customerId, ReturnLocationDTO returnLocationDTO, Guid callerId);
+        Task<ReturnLocationDTO> AddReturnLocationsByCustomer(Guid customerId, ReturnLocationDTO returnLocationDTO, Guid callerId);
         Task<IList<ReturnLocationDTO>> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, ReturnLocationDTO returnLocationDTO, Guid callerId);
         Task<IList<ReturnLocationDTO>> RemoveReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, Guid callerId);
         Task<IList<ReturnLocationDTO>> GetReturnLocationsByCustomer(Guid customerId);

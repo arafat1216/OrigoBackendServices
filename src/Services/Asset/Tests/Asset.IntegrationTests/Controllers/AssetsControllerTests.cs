@@ -1645,7 +1645,7 @@ namespace Asset.IntegrationTests.Controllers
                     $"/api/v1/Assets/customers/{_customerId}/dispose-setting");
 
             Assert.True(disposeSetting!.ReturnLocations.Count == 2);
-            Assert.True(disposeSetting!.ReturnLocations.Any(x=>x.LocationId == newSettings.LocationId));
+            Assert.Contains(disposeSetting!.ReturnLocations, x =>x.LocationId == newSettings.LocationId);
         }
 
         [Fact]
@@ -1658,8 +1658,7 @@ namespace Asset.IntegrationTests.Controllers
             var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-location";
             _testOutputHelper.WriteLine(requestUri);
             var added = await _httpClient.PostAsJsonAsync(requestUri, newSettings);
-            var setting = await added.Content.ReadFromJsonAsync<IList<API.ViewModels.ReturnLocation>>();
-            var updateLocation = setting!.FirstOrDefault();
+            var updateLocation = await added.Content.ReadFromJsonAsync<API.ViewModels.ReturnLocation>();
             var updateData = new NewReturnLocation()
             {
                 Name = "Name",
@@ -1684,11 +1683,11 @@ namespace Asset.IntegrationTests.Controllers
             var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-location";
             _testOutputHelper.WriteLine(requestUri);
             var added = await _httpClient.PostAsJsonAsync(requestUri, newSettings);
-            var addedLocations = await added.Content.ReadFromJsonAsync<IList<API.ViewModels.ReturnLocation>>();
+            var addedLocations = await added.Content.ReadFromJsonAsync<API.ViewModels.ReturnLocation>();
 
             var response =
                 await _httpClient.DeleteAsync(
-                    $"/api/v1/Assets/customers/{_customerId}/return-location/{addedLocations!.FirstOrDefault()!.Id}");
+                    $"/api/v1/Assets/customers/{_customerId}/return-location/{addedLocations!.Id}");
 
             var updatedSetting = await response.Content.ReadFromJsonAsync<IList<API.ViewModels.ReturnLocation>>();
 
