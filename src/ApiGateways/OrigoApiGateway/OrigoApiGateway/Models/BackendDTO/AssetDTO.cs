@@ -1,6 +1,4 @@
 ﻿using Common.Enums;
-using System;
-using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models.BackendDTO
 {
@@ -144,6 +142,10 @@ namespace OrigoApiGateway.Models.BackendDTO
         /// Is a personal or non-personal asset.
         /// </summary>
         public bool IsPersonal { get; set; }
+        /// <summary>
+        /// Is an asset Active state or Inactive state.
+        /// </summary>
+        public bool IsActiveState { get; set; }
 
         /// <summary>
         /// Which source was this fetched from.

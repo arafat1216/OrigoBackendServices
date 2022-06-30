@@ -2304,5 +2304,37 @@ namespace Asset.IntegrationTests.Controllers
             Assert.Equal(_departmentId ,asset?.ManagedByDepartmentId);
             Assert.True(asset?.IsPersonal);
         }
+        [Fact]
+        public async Task GetAssetsForCustomer_IsActiveState_ShouldBeTrue()
+        {
+            
+            var filterOptions = new FilterOptionsForAsset
+            {
+                IsActiveState = true
+            };
+
+            var json = JsonSerializer.Serialize(filterOptions);
+
+
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}?filterOptions={json}";
+
+            // Act
+            var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+            var items = pagedAssetList?.Items;
+
+            // Assert
+            Assert.NotNull(items);
+            Assert.All(items, m => Assert.True(m.IsActiveState));
+        }
+        [Fact]
+        public async Task GetAsset_IsActiveState_ShouldBeTrue()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+            var url = $"/api/v1/Assets/{_assetSix}/customers/{_customerId}";
+            var asset = await httpClient.GetFromJsonAsync<API.ViewModels.Asset>(url);
+            Assert.True(asset?.IsActiveState);
+        }
     }
 }
