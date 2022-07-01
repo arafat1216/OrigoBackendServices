@@ -866,7 +866,7 @@ namespace Asset.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<CustomerAssetsCounter>> ActivateAssetStatusOnAssetLifecycle(Guid customerId, [FromBody] ChangeAssetStatus assetLifecycle)
+        public async Task<ActionResult<IList<ViewModels.Asset>>> ActivateAssetStatusOnAssetLifecycle(Guid customerId, [FromBody] ChangeAssetStatus assetLifecycle)
         {
             var activateAssets = await _assetServices.ActivateAssetLifecycleStatus(customerId, assetLifecycle);
             return Ok(_mapper.Map<IList<ViewModels.Asset>>(activateAssets));
@@ -875,8 +875,9 @@ namespace Asset.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<CustomerAssetsCounter>> DeactivateAssetStatusOnAssetLifecycle(Guid customerId, [FromBody] ChangeAssetStatus assetLifecycle)
+        public async Task<ActionResult<IList<ViewModels.Asset>>> DeactivateAssetStatusOnAssetLifecycle(Guid customerId, [FromBody] ChangeAssetStatus assetLifecycle)
         {
+
             var activateAssets = await _assetServices.DeactivateAssetLifecycleStatus(customerId, assetLifecycle);
             return Ok(_mapper.Map<IList<ViewModels.Asset>>(activateAssets));
         }

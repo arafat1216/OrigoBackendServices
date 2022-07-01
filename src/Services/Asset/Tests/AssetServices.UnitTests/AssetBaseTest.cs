@@ -28,9 +28,10 @@ namespace AssetServices.UnitTests
 
         protected readonly Guid LABEL_ONE_ID = new("BA92FC18-9399-4AC1-9BEB-57DCE85FF657");
         protected readonly Guid LABEL_TWO_ID = new("D3EF00AB-C3B6-4751-982F-BF66738BC068");
+        protected readonly Guid LABEL_THREE_ID = new("7f24a300-2f8a-4f3c-bbba-208ec483d36c");
 
         protected readonly Guid ASSETHOLDER_ONE_ID = new("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
-        private readonly Guid ASSETHOLDER_TWO_ID = new();
+        public readonly Guid ASSETHOLDER_TWO_ID = new("c90c616f-b165-408b-b90b-9facbbd63eb1");
         protected readonly Guid CALLER_ID = new("da031680-abb0-11ec-849b-00155d3196a5");
 
         protected AssetBaseTest(DbContextOptions<AssetsContext> contextOptions)
@@ -70,6 +71,7 @@ namespace AssetServices.UnitTests
 
             var labelOne = new CustomerLabel(LABEL_ONE_ID, COMPANY_ID, Guid.Empty, new Label("Label_1", LabelColor.Blue));
             var labelTwo = new CustomerLabel(LABEL_TWO_ID, COMPANY_ID, Guid.Empty, new Label("Label_2", LabelColor.Green));
+            var labelThree = new CustomerLabel(LABEL_THREE_ID, COMPANY_ID, Guid.Empty, new Label("Label_3", LabelColor.Orange));
 
             var assetLifecycleOne = new AssetLifecycle(ASSETLIFECYCLE_ONE_ID) { CustomerId = COMPANY_ID, Alias = "alias_0", AssetLifecycleStatus = AssetLifecycleStatus.Active, AssetLifecycleType = LifecycleType.NoLifecycle };
             assetLifecycleOne.AssignAsset(assetOne, CALLER_ID);
@@ -81,7 +83,7 @@ namespace AssetServices.UnitTests
             var assetLifecycleThree = new AssetLifecycle(ASSETLIFECYCLE_THREE_ID) { CustomerId = COMPANY_ID, Alias = "alias_2", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired, AssetLifecycleType = LifecycleType.Transactional, StartPeriod = DateTime.UtcNow.AddMonths(-12), EndPeriod = DateTime.UtcNow };
             assetLifecycleTwo.AssignAsset(assetThree, CALLER_ID);
 
-            var assetLifecycleFour = new AssetLifecycle { CustomerId = COMPANY_ID, Alias = "alias_3", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired, AssetLifecycleType = LifecycleType.Transactional };
+            var assetLifecycleFour = new AssetLifecycle() { CustomerId = COMPANY_ID, Alias = "alias_3", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleFour.AssignAsset(assetFour, CALLER_ID);
             assetLifecycleFour.AssignAssetLifecycleHolder(userOne, null, CALLER_ID);
             assetLifecycleFour.HasBeenStolen(CALLER_ID);
@@ -115,9 +117,12 @@ namespace AssetServices.UnitTests
             var lifeCycleSetting = new LifeCycleSetting(1, true, 500M, 24, Guid.Empty);
             var customerSetting = new CustomerSettings(COMPANY_ID, new List<LifeCycleSetting>() { lifeCycleSetting });
 
+
+            assetLifecycleTwo.AssignCustomerLabel(labelOne,CALLER_ID);
+
             context.Users.AddRange(userOne, userTwo);
             context.Assets.AddRange(assetOne, assetTwo, assetThree, assetFour, assetFive, assetSix, assetOther);
-            context.CustomerLabels.AddRange(labelOne, labelTwo);
+            context.CustomerLabels.AddRange(labelOne, labelTwo,labelThree);
             context.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree, assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleOther, assetLifecycleEight);
             context.CustomerSettings.AddRange(customerSetting);
             context.SaveChanges();

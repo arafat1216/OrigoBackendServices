@@ -105,10 +105,10 @@ namespace Asset.IntegrationTests.Controllers
             IList<Guid?> depts = new List<Guid?> { new Guid("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72") };
             IList<AssetLifecycleStatus> status = new List<AssetLifecycleStatus>{AssetLifecycleStatus.Active ,
             AssetLifecycleStatus.Recycled};
-            Guid[] labels = new Guid[] { new Guid("cab4bb77-3471-4ab3-ae5e-2d4fce450f36"),
-            new Guid("dab4bb77-3471-4ab3-ae5e-2d4fce450f37")};
+            Guid[] labels = new Guid[] { new Guid("D4535FA6-9EBB-4DCF-AB62-21BE01001345"),
+            new Guid("6031CDA2-C1CC-4593-A450-9EE6F47951D0")};
 
-
+           
             var filterOptions = new FilterOptionsForAsset
             {
                 Status = status,
@@ -2302,6 +2302,108 @@ namespace Asset.IntegrationTests.Controllers
             Assert.NotNull(asset?.ManagedByDepartmentId);
             Assert.Equal(_departmentId ,asset?.ManagedByDepartmentId);
             Assert.True(asset?.IsPersonal);
+        }
+        [Fact]
+        public async Task GetAssetlifecycle_CheckingViewmodelValues()
+        {
+            //Get one asset check that it has imei
+            var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetOne}/customers/{_customerId}";
+            var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+            var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.NotNull(assetLifeCycle);
+            Assert.Equal(_assetOne, assetLifeCycle?.Id);
+            Assert.Equal(1, assetLifeCycle?.Imei.Count);
+            Assert.Equal(_user, assetLifeCycle?.AssetHolderId);
+
+            //Activate assets check that imei is same
+            var request = $"/api/v1/Assets/customers/{_customerId}/activate";
+            var body = new AssetServices.ServiceModel.ChangeAssetStatus
+            {
+                AssetLifecycleId = new List<Guid> { _assetOne },
+                CallerId = _callerId
+            };
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assets = await response.Content.ReadFromJsonAsync<IList<API.ViewModels.Asset>>();
+            Assert.NotNull(assets);
+            Assert.Equal(1, assets?[0].Imei.Count);
+            Assert.Equal(_user, assets?[0].AssetHolderId);
+
+            //Get labels
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/labels";
+            var labels = await _httpClient.GetFromJsonAsync<List<Label>>(requestUri);
+
+            //Assigne labels to asset
+            var requestlabels = $"/api/v1/Assets/customers/{_customerId}/labels/assign";
+            AssetLabels labelsBody = new AssetLabels { AssetGuids = new List<Guid> { _assetOne }, LabelGuids = labels.Select(a => a.Id).ToList(), CallerId = _callerId };
+            var responseLabels = await _httpClient.PostAsJsonAsync(requestlabels, labelsBody);
+            var assetsLabels = await responseLabels.Content.ReadFromJsonAsync<IList<API.ViewModels.Asset>>();
+
+            //deactivate
+            var requestDeactivate = $"/api/v1/Assets/customers/{_customerId}/deactivate";
+            var bodyDeactivate = new AssetServices.ServiceModel.ChangeAssetStatus
+            {
+                AssetLifecycleId = new List<Guid> { _assetOne },
+                CallerId = _callerId
+            };
+            var responseDeactivate = await _httpClient.PostAsJsonAsync(requestDeactivate, bodyDeactivate);
+
+            Assert.Equal(HttpStatusCode.OK, responseDeactivate.StatusCode);
+            var assetsDeactivated = await responseDeactivate.Content.ReadFromJsonAsync<IList<API.ViewModels.Asset>>();
+            Assert.NotNull(assetsDeactivated);
+            Assert.Equal(1, assetsDeactivated?[0].Imei.Count);
+            Assert.Equal(_user, assetsDeactivated?[0].AssetHolderId);
+            Assert.Equal(2, assetsDeactivated?[0].Labels.Count);
+
+
+            //Get asset
+            var requestGetAssetLifeCycle1 = $"/api/v1/Assets/{_assetOne}/customers/{_customerId}";
+            var responseGetAssetLifeCycle1 = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle1.StatusCode);
+            var assetLifeCycle1 = await responseGetAssetLifeCycle1.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.Equal(2, assetLifeCycle1?.Labels.Count);
+
+        }
+        [Fact]
+        public async Task AssignLabels_CheckingViewmodelValues()
+        {
+            //Get one asset check that it has imei
+            var request = $"/api/v1/Assets/{_assetOne}/customers/{_customerId}";
+            var response = await _httpClient.GetAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var assetLifeCycleBefore = await response.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+            Assert.Equal(0, assetLifeCycleBefore?.Labels.Count);
+
+            //Get labels
+            var requestUri = $"/api/v1/Assets/customers/{_customerId}/labels";
+            var labels = await _httpClient.GetFromJsonAsync<List<Label>>(requestUri);
+
+            //Assigne labels to asset
+            var requestlabels = $"/api/v1/Assets/customers/{_customerId}/labels/assign";
+            AssetLabels labelsBody = new AssetLabels { AssetGuids = new List<Guid> { _assetOne }, LabelGuids = labels.Select(a => a.Id).ToList(), CallerId = _callerId };
+            var responseLabels = await _httpClient.PostAsJsonAsync(requestlabels, labelsBody);
+            var assetsLabels = await responseLabels.Content.ReadFromJsonAsync<IList<API.ViewModels.Asset>>();
+            Assert.NotNull(assetsLabels);
+            Assert.Equal(_assetOne, assetsLabels[0]?.Id);
+            Assert.Equal(1, assetsLabels[0]?.Imei.Count);
+            Assert.Equal(_user, assetsLabels[0]?.AssetHolderId);
+            Assert.Equal(2, assetsLabels[0]?.Labels.Count);
+
+            //Get asset
+            var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetOne}/customers/{_customerId}";
+            var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+            Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+            var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+            Assert.NotNull(assetLifeCycle);
+            Assert.Equal(_assetOne, assetLifeCycle?.Id);
+            Assert.Equal(1, assetLifeCycle?.Imei.Count);
+            Assert.Equal(_user, assetLifeCycle?.AssetHolderId);
+            Assert.Equal(2, assetLifeCycle?.Labels.Count);
         }
         [Fact]
         public async Task GetAssetsForCustomer_IsActiveState_ShouldBeTrue()

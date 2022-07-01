@@ -335,9 +335,11 @@ namespace AssetServices.Infrastructure
 
         public async Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList)
         {
-            return await _assetContext.AssetLifeCycles.Include(al => al.Asset)
+            return await _assetContext.AssetLifeCycles
                 .Include(al => al.Labels)
-                .Where(al => assetGuidList.Contains(al.ExternalId)).ToListAsync();
+                .Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis)
+                .Include(al => al.ContractHolderUser)
+                .Where(al => assetGuidList.Contains(al.ExternalId) && al.CustomerId == customerId).ToListAsync();
         }
 
         public async Task<IList<CustomerLabel>> AddCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)

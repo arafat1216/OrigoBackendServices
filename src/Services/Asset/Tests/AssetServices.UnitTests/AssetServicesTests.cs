@@ -784,9 +784,9 @@ public class AssetServicesTests : AssetBaseTest
         var savedLabels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
 
         // Assert
-        Assert.Equal(4, savedLabels.Count); // 2 made here, 2 made in AssetBaseTest
-        Assert.Equal("Repair", savedLabels[2].Label.Text);
-        Assert.Equal(LabelColor.Blue, savedLabels[3].Label.Color);
+        Assert.Equal(5, savedLabels.Count); // 2 made here, 3 made in AssetBaseTest
+        Assert.Equal("Repair", savedLabels[3].Label.Text);
+        Assert.Equal(LabelColor.Blue, savedLabels[4].Label.Color);
     }
 
     [Fact]
@@ -800,7 +800,7 @@ public class AssetServicesTests : AssetBaseTest
         var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
         // Act
-        await assetService.DeleteLabelsForCustomerAsync(COMPANY_ID, new List<Guid> { LABEL_ONE_ID, LABEL_TWO_ID });
+        await assetService.DeleteLabelsForCustomerAsync(COMPANY_ID, new List<Guid> { LABEL_ONE_ID, LABEL_TWO_ID, LABEL_THREE_ID});
 
         var savedLabels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
 
@@ -828,7 +828,7 @@ public class AssetServicesTests : AssetBaseTest
         var savedLabels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
 
         // Assert
-        Assert.Equal(2, savedLabels.Count);
+        Assert.Equal(3, savedLabels.Count);
         Assert.Equal("Deprecated", savedLabels[0].Label.Text);
         Assert.Equal(LabelColor.Gray, savedLabels[1].Label.Color);
     }
@@ -1464,5 +1464,93 @@ public class AssetServicesTests : AssetBaseTest
         Assert.Throws<InvalidAssetDataException>(() => asset7.IsSentToRepair(callerId));
         Assert.Equal(AssetLifecycleStatus.Discarded, asset7.AssetLifecycleStatus);
 
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task DeactivateAssetLifecycleStatus()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+
+        var assetBefore = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_SIX_ID);
+        Assert.Equal(AssetLifecycleStatus.Active, assetBefore.AssetLifecycleStatus);
+
+        var body = new ChangeAssetStatus
+        {
+
+            CallerId = CALLER_ID,
+            AssetLifecycleId = new List<Guid> { ASSETLIFECYCLE_SIX_ID }
+        };
+
+        // Act
+        await assetService.DeactivateAssetLifecycleStatus(COMPANY_ID, body);
+
+        var assetAfter = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_SIX_ID);
+
+        // Assert
+        Assert.Equal(AssetLifecycleStatus.Inactive, assetAfter.AssetLifecycleStatus);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task ActivateAssetLifecycleStatus()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+
+        var body = new ChangeAssetStatus
+        {
+
+            CallerId = CALLER_ID,
+            AssetLifecycleId = new List<Guid> { ASSETLIFECYCLE_ONE_ID }
+        };
+
+        // Act
+        await assetService.DeactivateAssetLifecycleStatus(COMPANY_ID, body);
+        var asset = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_ONE_ID);
+        Assert.Equal(AssetLifecycleStatus.Inactive, asset.AssetLifecycleStatus);
+        await assetService.ActivateAssetLifecycleStatus(COMPANY_ID, body);
+        // Assert
+        Assert.Equal(AssetLifecycleStatus.Active, asset.AssetLifecycleStatus);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetAssetLifecyclesFromListAsync_ShouldIncludeAllValues()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+
+        //Act
+        var assetList = await assetRepository.GetAssetLifecyclesFromListAsync(COMPANY_ID, new List<Guid> { ASSETLIFECYCLE_TWO_ID });
+        //Assert
+        Assert.Equal(1, assetList[0].Labels.Count);
+        Assert.Equal(ASSETHOLDER_TWO_ID, assetList[0].ContractHolderUser.ExternalId);
+
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetAssetLifecyclesAsync_ShouldIncludeAllValues()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+
+        //Act
+        var assetList = await assetRepository.GetAssetLifecyclesAsync(COMPANY_ID, null, null,null,null,null,null,null,null,null,null,1,10,CancellationToken.None);
+
+        //Assert
+        Assert.Equal(1, assetList.Items[2].Labels.Count);
+        Assert.NotNull(assetList.Items[2].ContractHolderUser);
+        Assert.Equal(ASSETHOLDER_TWO_ID, assetList.Items[2].ContractHolderUser.ExternalId);
+        Assert.Equal(ASSETLIFECYCLE_TWO_ID, assetList.Items[2].ExternalId);
     }
 }

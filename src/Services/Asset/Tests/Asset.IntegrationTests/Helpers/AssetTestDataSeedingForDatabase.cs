@@ -25,9 +25,9 @@ internal static class AssetTestDataSeedingForDatabase
     public static readonly Guid ASSETLIFECYCLE_SEVEN_ID = new("b3c62ea0-e0c4-11ec-a915-00155dd40b8e");
     public static readonly Guid ASSETLIFECYCLE_EIGHT_ID = new("5e1b365a-0012-4fd1-a451-8a9f4b1de812");
     public static readonly Guid ASSETLIFECYCLE_NINE_ID = new("b1378497-87f5-4204-bd8a-ab1be0b3536c");
-
-
-
+    public static readonly Guid LABEL_ONE_ID = new("D4535FA6-9EBB-4DCF-AB62-21BE01001345");
+    public static readonly Guid LABEL_TWO_ID = new("6031CDA2-C1CC-4593-A450-9EE6F47951D0");
+  
     public static readonly Guid DEPARTMENT_ID = new("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72");
     public static readonly Guid DEPARTMENT_TWO_ID = new("fe625c35-91d0-448e-a803-0dcbbd97f1d5");
     public static readonly Guid COMPANY_ID = new("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
@@ -52,8 +52,8 @@ internal static class AssetTestDataSeedingForDatabase
         var assetFive = new Tablet(Guid.NewGuid(), CALLER_ID, "123456789012397", "Apple", "iPhone 11 Pro",
             new List<AssetImei> { new(512217111821624) }, "0123.4567.89AB");
 
-        var labelOne = new CustomerLabel(COMPANY_ID, COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
-        var labelTwo = new CustomerLabel(COMPANY_ID_TWO, COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
+        var labelOne = new CustomerLabel(LABEL_ONE_ID, COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
+        var labelTwo = new CustomerLabel(LABEL_TWO_ID, COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
 
         var userOne = new User { ExternalId = ASSETHOLDER_ONE_ID };
 
