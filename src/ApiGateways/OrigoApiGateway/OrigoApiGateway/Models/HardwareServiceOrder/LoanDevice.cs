@@ -4,6 +4,9 @@
 
 namespace OrigoApiGateway.Models.HardwareServiceOrder
 {
+    /// <summary>
+    ///    Loan device configuration details 
+    /// </summary>
     public class LoanDevice
     {
         public string PhoneNumber { get; set; }
