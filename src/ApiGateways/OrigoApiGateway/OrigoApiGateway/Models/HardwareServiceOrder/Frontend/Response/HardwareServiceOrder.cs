@@ -24,27 +24,48 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
             }
         }
 
+        /// <summary>
+        /// Customer identifier
+        /// </summary>
         [Required]
         public Guid CustomerId { get; set; }
 
+        /// <summary>
+        /// Asset life-cycle identifier
+        /// </summary>
         [Required]
         public Guid AssetLifecycleId { get; set; }
 
+        /// <summary>
+        /// Asset life-cycle category identifier
+        /// </summary>
         [Required]
         public int AssetLifecycleCategoryId { get; set; }
 
+        /// <summary>
+        /// Asset details
+        /// </summary>
         [Required]
         public AssetInfo AssetInfo { get; set; }
 
         [SwaggerSchema(ReadOnly = true)]
         public AssetInfo? ReturnedAssetInfo { get; set; }
 
+        /// <summary>
+        /// Fault description
+        /// </summary>
         [Required]
         public string UserDescription { get; set; }
 
+        /// <summary>
+        /// Details of the order ownder
+        /// </summary>
         [Required]
         public ContactDetails Owner { get; set; }
 
+        /// <summary>
+        /// Delivery address of the order
+        /// </summary>
         [Required]
         public DeliveryAddress? DeliveryAddress { get; set; }
 
@@ -67,9 +88,15 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response
         [Required]
         public int ServiceProviderId { get; set; }
 
+        /// <summary>
+        /// Link to the external service management portal
+        /// </summary>
         [SwaggerSchema(ReadOnly = true)]
         public string? ExternalServiceManagementLink { get; set; }
 
+        /// <summary>
+        /// All single events/updates for a service-order that has been received and adapted from the service-provider.
+        /// </summary>
         [Required]
         [SwaggerSchema(ReadOnly = true)]
         public IEnumerable<ServiceEvent> ServiceEvents { get; set; }

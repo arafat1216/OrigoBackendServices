@@ -13,6 +13,9 @@ using System.Security.Claims;
 
 namespace OrigoApiGateway.Controllers
 {
+    /// <summary>
+    /// Endpoints for hardware service orders
+    /// </summary>
     [ApiController]
     [ApiVersion("1.0")]
     [Authorize]
@@ -215,29 +218,5 @@ namespace OrigoApiGateway.Controllers
             return Ok(orders);
         }
 
-        /// <summary>
-        /// Gets all logs  associated with a hardware service order
-        /// </summary>
-        /// <param name="customerId">Customer Identifier</param>
-        /// <param name="orderId">Order Identifier</param>
-        /// <returns>Existing hardware service order</returns>
-        [Route("{customerId:Guid}/orders/{orderId:Guid}/logs")]
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<HardwareServiceOrderLog>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetHardwareServiceOrderLogs(Guid customerId, Guid orderId)
-        {
-            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
-            if (role != PredefinedRole.SystemAdmin.ToString())
-            {
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                if (accessList == null || !accessList.Any() || !accessList.Contains(customerId.ToString()))
-                {
-                    return Forbid();
-                }
-            }
-
-            return Ok();
-        }
     }
 }
