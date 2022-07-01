@@ -1,6 +1,7 @@
 ﻿using AssetServices.DomainEvents;
 using Common.Seedwork;
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace AssetServices.Models
@@ -24,7 +25,11 @@ namespace AssetServices.Models
         [JsonInclude]
         public Label Label { get; protected set; }
 
-        
+        /// <summary>
+        /// All Asset lifecycles having this customer label set.
+        /// </summary>
+        public ICollection<AssetLifecycle> AsssetLifecycles { get; set; }
+
         [JsonConstructor]
         public CustomerLabel()
         { }

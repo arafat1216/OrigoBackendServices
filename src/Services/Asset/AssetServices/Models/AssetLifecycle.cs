@@ -321,7 +321,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         var previousContractHolderUser = ContractHolderUser;
         AddDomainEvent(new MakeAssetAvailableDomainEvent(this, callerId, previousLifecycleStatus, previousContractHolderUser));
         ContractHolderUser = null;
-        if(_labels.Any())
+        if(Labels.Any())
             _labels.Clear();
         _assetLifecycleStatus = AssetLifecycleStatus.Available;
     }

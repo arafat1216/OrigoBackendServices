@@ -150,19 +150,6 @@ public class AssetServicesTests : AssetBaseTest
 
         // search with Filter Options
 
-
-        //filter data only label
-
-        Guid[] labels = new Guid[] { new Guid("D3EF00AB-C3B6-4751-982F-BF66738BC068") };
-
-
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, labels, null, null, null,null, null, 1, 10,
-             new CancellationToken());
-
-        Assert.Equal(1, assetsFromUser.Items.Count);
-
-
-
         //filter data only category
 
         int[] category = new int[] { 1 };
@@ -212,7 +199,7 @@ public class AssetServicesTests : AssetBaseTest
 
         category = new int[] { 1 };
 
-        labels = new Guid[] { new Guid("D3EF00AB-C3B6-4751-982F-BF66738BC068") };
+        var labels = new Guid[] { new Guid("D3EF00AB-C3B6-4751-982F-BF66738BC068") };
 
         assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, status, depts, category, labels, null, null, null,null, null, 1, 10,
              new CancellationToken());
@@ -250,6 +237,25 @@ public class AssetServicesTests : AssetBaseTest
         // Assert 
         Assert.Equal(1, assetsFromUser.Items.Count);
 
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetAssetLifecyclesForCustomer_WithLabelFilter_CheckCount()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+
+        // Act
+        Guid[] labels = new Guid[] { LABEL_TWO_ID };
+        var assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, labels, null, null, null, null, null, 1, 10,
+             new CancellationToken());
+
+        // Assert
+        Assert.Equal(2, assetsFromUser.Items.Count);
     }
 
     [Fact]
@@ -853,6 +859,41 @@ public class AssetServicesTests : AssetBaseTest
 
         // Assert
         Assert.Equal(labelGuids.Count, assetLifecycle.Labels.Count);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AssignLabelsToAssets_SameLabelToMultipleAssets_LabelAddedToAssetLifecycles()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+
+        var labels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
+        IList<Guid> labelGuids = new List<Guid>();
+        foreach (var label in labels)
+        {
+            labelGuids.Add(label.ExternalId);
+        }
+
+        var assetLifecycle2 = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_TWO_ID);
+        var assetLifecycle3 = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_THREE_ID);
+
+        // Act
+        await assetService.AssignLabelsToAssetsAsync(COMPANY_ID, Guid.Empty, new List<Guid> { assetLifecycle2!.ExternalId }, labelGuids);
+        await assetService.AssignLabelsToAssetsAsync(COMPANY_ID, Guid.Empty, new List<Guid> { assetLifecycle3!.ExternalId }, labelGuids);
+
+        assetLifecycle2 = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_TWO_ID);
+        assetLifecycle3 = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_THREE_ID);
+
+        // Assert
+        Assert.Equal(labelGuids.Count, assetLifecycle2.Labels.Count);
+        Assert.Equal(labelGuids.Count, assetLifecycle3.Labels.Count);
+        Assert.All(assetLifecycle2.Labels, label => Assert.Contains(label.ExternalId, labelGuids));
+        Assert.All(assetLifecycle3.Labels, label => Assert.Contains(label.ExternalId, labelGuids));
+
     }
 
     [Fact]
