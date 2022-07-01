@@ -109,10 +109,8 @@ namespace OrigoApiGateway.Controllers
                     {
                         if (Guid.TryParse(departmentId, out var departmentGuid))
                         {
-                            if (departmentGuid != organizationId) 
-                            { 
                               filterOptions.AssignedToDepartments.Add(departmentGuid);
-                            }
+                            
                         }
                     }
                 }
