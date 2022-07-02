@@ -662,6 +662,8 @@ namespace Asset.IntegrationTests.Controllers
         [Fact]
         public async Task MakeAssetExpireAsync()
         {
+            var expiresData = new MakeAssetExpired() { AssetLifeCycleId = _assetNine, CallerId = _callerId };
+            await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
             var postData = new MakeAssetAvailable { AssetLifeCycleId = _assetNine, CallerId = _callerId };
             var requestUri = $"/api/v1/Assets/customers/{_customerId}/make-expire";
             _testOutputHelper.WriteLine(requestUri);
@@ -677,6 +679,8 @@ namespace Asset.IntegrationTests.Controllers
         [Fact]
         public async Task ReturnDeviceAsync_PersonalPendingReturn()
         {
+            var expiresData = new MakeAssetExpired() { AssetLifeCycleId = _assetOne, CallerId = _callerId };
+            await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
             var postData = new ReturnDevice { AssetLifeCycleId = _assetOne, CallerId = _callerId };
             var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-device";
             _testOutputHelper.WriteLine(requestUri);
@@ -693,6 +697,8 @@ namespace Asset.IntegrationTests.Controllers
                 await _httpClient.GetFromJsonAsync<DisposeSetting>(
                     $"/api/v1/Assets/customers/{_customerId}/dispose-setting");
             var postData = new ReturnDevice { AssetLifeCycleId = _assetThree, CallerId = _callerId, ReturnLocationId = disposeSetting!.ReturnLocations.FirstOrDefault()!.Id };
+            var expiresData = new MakeAssetExpired() { AssetLifeCycleId = _assetThree, CallerId = _callerId };
+            await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
             var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-device";
             _testOutputHelper.WriteLine(requestUri);
             var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
@@ -714,6 +720,8 @@ namespace Asset.IntegrationTests.Controllers
         [Fact]
         public async Task ReturnDeviceAsync_PersonalConfirmReturn()
         {
+            var expiresData = new MakeAssetExpired() { AssetLifeCycleId = _assetOne, CallerId = _callerId };
+            await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
             var disposeSetting =
                 await _httpClient.GetFromJsonAsync<DisposeSetting>(
                     $"/api/v1/Assets/customers/{_customerId}/dispose-setting");
@@ -731,6 +739,8 @@ namespace Asset.IntegrationTests.Controllers
         [Fact]
         public async Task BuyoutDeviceAsync()
         {
+            var expiresData = new MakeAssetExpired() { AssetLifeCycleId = _assetOne, CallerId = _callerId };
+            await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
             var postData = new BuyoutDeviceDTO { AssetLifeCycleId = _ = _assetOne, CallerId = _callerId };
             var requestUri = $"/api/v1/Assets/customers/{_customerId}/buyout-device";
             _testOutputHelper.WriteLine(requestUri);
@@ -1302,6 +1312,8 @@ namespace Asset.IntegrationTests.Controllers
         [Fact]
         public async Task SendToRepair_NotValidStatusForSendingAssetOnRepair_ExceptionHandeling()
         {
+            var expiresData = new MakeAssetExpired() { AssetLifeCycleId = _assetOne, CallerId = _callerId };
+            await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
             var body = new BuyoutDeviceDTO { AssetLifeCycleId = _assetOne, CallerId = _callerId };
             var buyoutRequest = $"/api/v1/Assets/customers/{_customerId}/buyout-device";
             var buyoutResponse = await _httpClient.PostAsJsonAsync(buyoutRequest, body);
@@ -1490,6 +1502,8 @@ namespace Asset.IntegrationTests.Controllers
         [Fact]
         public async Task AssetLifeCycleRepairCompleted_NotValidStatusForCompletingTheReturn_BadRequestWithMessage()
         {
+            var expiresData = new MakeAssetExpired() { AssetLifeCycleId= _assetOne, CallerId = _callerId };
+            await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
             var body = new BuyoutDeviceDTO { AssetLifeCycleId = _assetOne, CallerId = _callerId };
             var buyoutRequest = $"/api/v1/Assets/customers/{_customerId}/buyout-device";
             var buyoutResponse = await _httpClient.PostAsJsonAsync(buyoutRequest, body);

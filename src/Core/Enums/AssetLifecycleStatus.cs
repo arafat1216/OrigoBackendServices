@@ -17,5 +17,6 @@
         Discarded = 12,
         Inactive = 13,
         Expired = 14,
+        ExpiresSoon = 15,
     }
 }

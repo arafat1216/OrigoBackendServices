@@ -9,6 +9,9 @@ namespace AssetServices.Exceptions
         {
             logger.LogError(this, "Error in exception");
         }
+        public AssetExpireRequestException(string messages) : base(messages)
+        {
+        }
 
         public AssetExpireRequestException(string message, ILogger logger) : base(message)
         {

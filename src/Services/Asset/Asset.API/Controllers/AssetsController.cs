@@ -526,6 +526,29 @@ namespace Asset.API.Controllers
             }
         }
 
+        [Route("customers/{customerId:guid}/make-expiressoon")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> MakeAssetExpiresSoon(Guid customerId, [FromBody] MakeAssetExpired data)
+        {
+            try
+            {
+                var updatedAssets = await _assetServices.MakeAssetExpiresSoonAsync(customerId, data.AssetLifeCycleId, data.CallerId);
+                return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger?.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (AssetExpiresSoonRequestException ex)
+            {
+                _logger?.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
         [Route("customers/{customerId:guid}/return-device")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]

@@ -411,15 +411,20 @@ namespace AssetServices
         {
             var existingAssetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
             if (existingAssetLifeCycle == null)
-                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
-            if (!existingAssetLifeCycle.IsActiveState || existingAssetLifeCycle.IsDeleted)
-                throw new AssetExpireRequestException("Asset is not in Active state or Deleted", _logger);
-            if (!existingAssetLifeCycle.EndPeriod.HasValue)
-                throw new AssetExpireRequestException("Asset does not have End Period to expire", _logger);
-            if(DateTime.UtcNow.AddMonths(-1).Month != existingAssetLifeCycle.EndPeriod.Value.Month || DateTime.UtcNow.AddMonths(-1).Year != existingAssetLifeCycle.EndPeriod.Value.Year)
-                throw new AssetExpireRequestException("Asset is not expiring.", _logger);
+                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);           
 
             existingAssetLifeCycle.MakeAssetExpired(callerId);
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+
+            return _mapper.Map<AssetLifecycleDTO>(existingAssetLifeCycle);
+        }
+        public async Task<AssetLifecycleDTO> MakeAssetExpiresSoonAsync(Guid customerId, Guid assetId, Guid callerId)
+        {
+            var existingAssetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
+            if (existingAssetLifeCycle == null)
+                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
+
+            existingAssetLifeCycle.MakeAssetExpiresSoon(callerId);
             await _assetLifecycleRepository.SaveEntitiesAsync();
 
             return _mapper.Map<AssetLifecycleDTO>(existingAssetLifeCycle);

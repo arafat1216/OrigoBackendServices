@@ -1411,6 +1411,7 @@ public class AssetServicesTests : AssetBaseTest
         Assert.Equal(AssetLifecycleStatus.Repair, asset6.AssetLifecycleStatus);
 
         //Expired
+        asset4.MakeAssetExpiresSoon(callerId);
         asset4.MakeAssetExpired(callerId);
         Assert.Equal(AssetLifecycleStatus.Expired, asset4.AssetLifecycleStatus);
         asset4.IsSentToRepair(callerId);
@@ -1437,12 +1438,14 @@ public class AssetServicesTests : AssetBaseTest
 
         //PendingReturn 
         var asset3 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_THREE_ID);
+        asset3.MakeAssetExpiresSoon(callerId);
         asset3.MakeReturnRequest(callerId);
         Assert.Throws<InvalidAssetDataException>(() => asset3.IsSentToRepair(callerId));
         Assert.Equal(AssetLifecycleStatus.PendingReturn, asset3.AssetLifecycleStatus);
 
         //BoughtByUser
-        var asset4 = await context.AssetLifeCycles.Include(x => x.ContractHolderUser).FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_TWO_ID); 
+        var asset4 = await context.AssetLifeCycles.Include(x => x.ContractHolderUser).FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_TWO_ID);
+        asset4.MakeAssetExpiresSoon(callerId);
         asset4.BuyoutDevice(callerId);
         Assert.Throws<InvalidAssetDataException>(() => asset4.IsSentToRepair(callerId));
         Assert.Equal(AssetLifecycleStatus.BoughtByUser, asset4.AssetLifecycleStatus);

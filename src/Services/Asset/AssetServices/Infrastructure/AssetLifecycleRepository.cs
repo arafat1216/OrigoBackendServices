@@ -170,7 +170,8 @@ namespace AssetServices.Infrastructure
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Repair ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Available ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Active);
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Active ||
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.ExpiresSoon);
                
                 else query = query.Where(al => al.AssetLifecycleStatus == AssetLifecycleStatus.Lost ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Stolen ||

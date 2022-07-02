@@ -176,7 +176,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     {
         return assetLifecycleStatus is AssetLifecycleStatus.InputRequired or AssetLifecycleStatus.InUse
             or AssetLifecycleStatus.Repair or AssetLifecycleStatus.PendingReturn
-            or AssetLifecycleStatus.Available or AssetLifecycleStatus.Active;
+            or AssetLifecycleStatus.Available or AssetLifecycleStatus.Active or AssetLifecycleStatus.ExpiresSoon;
     }
 
     /// <summary>
@@ -333,11 +333,34 @@ public class AssetLifecycle : Entity, IAggregateRoot
     public void MakeAssetExpired(Guid callerId)
     {
         if (_assetLifecycleType == LifecycleType.NoLifecycle)
-            return;
+            throw new AssetExpireRequestException("Asset has No Life Cycle to Expire");
+        if (!IsActiveState)
+            throw new AssetExpireRequestException("Asset is not in Active state");
+        if (_assetLifecycleStatus != AssetLifecycleStatus.ExpiresSoon)
+            throw new AssetExpireRequestException("Asset does not have 'ExpiresSoon' status");
+        if (EndPeriod.HasValue && (int) (EndPeriod.Value - DateTime.UtcNow).TotalDays >= 0)
+            throw new AssetExpireRequestException("Asset is not expiring.");
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         AddDomainEvent(new MakeAssetExpiredDomainEvent(this, callerId));
         _assetLifecycleStatus = AssetLifecycleStatus.Expired;
+    }
+
+    /// <summary>
+    /// Making this asset expired for user/department. 
+    /// </summary>
+    /// <param name="callerId">The userid making this request</param>
+    public void MakeAssetExpiresSoon(Guid callerId)
+    {
+        if (_assetLifecycleType == LifecycleType.NoLifecycle)
+            throw new AssetExpiresSoonRequestException("Asset has No Life Cycle that can expires soon");
+        if (!IsActiveState)
+            throw new AssetExpiresSoonRequestException("Asset is not in Active state");
+
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        AddDomainEvent(new MakeAssetExpiresSoonDomainEvent(this, callerId));
+        _assetLifecycleStatus = AssetLifecycleStatus.ExpiresSoon;
     }
 
     /// <summary>
@@ -349,11 +372,11 @@ public class AssetLifecycle : Entity, IAggregateRoot
         if (_assetLifecycleType != LifecycleType.Transactional)
             throw new ReturnDeviceRequestException($"Only Assets that have Transactionl Life cycle type can make return request!!! asset Id: {ExternalId}");
 
-        if (!EndPeriod.HasValue || EndPeriod.Value.Month != DateTime.UtcNow.Month || EndPeriod.Value.Year != DateTime.UtcNow.Year)
-            throw new ReturnDeviceRequestException($"Asset's life cycle needs to be on last month to make return request!!! asset Id: {ExternalId}");
-
         if (!IsActiveState)
             throw new ReturnDeviceRequestException($"Only Active devices can make return request!!! asset Id: {ExternalId}");
+
+        if (_assetLifecycleStatus != AssetLifecycleStatus.ExpiresSoon)
+            throw new ReturnDeviceRequestException($"Asset is not Expiring Soon to make return request!!! asset Id: {ExternalId}");
 
         if (_assetLifecycleStatus == AssetLifecycleStatus.PendingReturn)
             throw new ReturnDeviceRequestException($"Asset already have pending return request!!! asset Id: {ExternalId}");
@@ -374,8 +397,8 @@ public class AssetLifecycle : Entity, IAggregateRoot
         if (_assetLifecycleType != LifecycleType.Transactional)
             throw new ReturnDeviceRequestException($"Only Assets that have Transactionl Life cycle type can make return request!!! asset Id: {ExternalId}");
 
-        if (!EndPeriod.HasValue || EndPeriod.Value.Month != DateTime.UtcNow.Month || EndPeriod.Value.Year != DateTime.UtcNow.Year)
-            throw new ReturnDeviceRequestException($"Asset's life cycle needs to be on last month to make return request!!! asset Id: {ExternalId}");
+        if (_assetLifecycleStatus != AssetLifecycleStatus.ExpiresSoon && _assetLifecycleStatus != AssetLifecycleStatus.PendingReturn)
+            throw new ReturnDeviceRequestException($"Asset is not Expiring Soon and does not have pending return request!!! asset Id: {ExternalId}");
 
         if (!IsActiveState)
             throw new ReturnDeviceRequestException($"Only Active devices can make return request!!! asset Id: {ExternalId}");
@@ -402,8 +425,8 @@ public class AssetLifecycle : Entity, IAggregateRoot
         if (_assetLifecycleType != LifecycleType.Transactional)
             throw new BuyoutDeviceRequestException($"Only Assets that have Transactionl Life cycle type can be bought out!!! asset Id: {ExternalId}");
 
-        if (!EndPeriod.HasValue || EndPeriod!.Value.Month != DateTime.UtcNow.Month || EndPeriod!.Value.Year != DateTime.UtcNow.Year)
-            throw new BuyoutDeviceRequestException($"Asset's life cycle needs to be on last month to do buyout!!! asset Id: {ExternalId}");
+        if (_assetLifecycleStatus != AssetLifecycleStatus.ExpiresSoon)
+            throw new ReturnDeviceRequestException($"Asset is not Expiring Soon to do buyout!!! asset Id: {ExternalId}");
 
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
