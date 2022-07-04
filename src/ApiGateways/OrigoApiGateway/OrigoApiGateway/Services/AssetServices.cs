@@ -1546,77 +1546,13 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoCustomerAssetsCounter> GetAssetLifecycleCountersAsync(Guid customerId, FilterOptionsForAsset filter, bool manager)
+        public async Task<OrigoCustomerAssetsCounter> GetAssetLifecycleCountersAsync(Guid customerId, FilterOptionsForAsset filter)
         {
 
             try
             {
-                List<Guid> managerOfDepartments = null;
-                
-                if (Guid.TryParse(filter.UserId, out Guid userId))
-                {
-                    try
-                    {
-
-                        var user = await _userServices.GetUserAsync(customerId, userId);
-                        if (user == null)
-                            throw new BadHttpRequestException("User not found");
-
-                        if (manager)
-                        {
-                            managerOfDepartments = user.ManagerOf.Select(a => a.DepartmentId).ToList();
-                            if (!managerOfDepartments.Any()) return new OrigoCustomerAssetsCounter();
-                        }
-
-                    }
-                    catch
-                    {
-                        var exception = new BadHttpRequestException("User not found");
-                        _logger.LogError(exception, exception.Message);
-                        throw exception;
-                    }
-                }
-
-                try
-                {
-                    if(managerOfDepartments != null && managerOfDepartments.Any())
-                    {
-                        if (filter.Department != null && filter.Department.Any())
-                        {
-                            //Make department list based on manager accsess to and only the one's that is in filter    
-                            var guids = filter.Department.OfType<Guid>().ToList();
-                            managerOfDepartments = managerOfDepartments.Intersect(guids).ToList();
-                        }
-
-                        foreach (var department in managerOfDepartments)
-                        {
-                            try
-                            {
-                                var isDepartment = await _departmentsServices.GetDepartmentAsync(customerId, department);
-                                if (isDepartment != null)
-                                {
-                                    if(filter.Department == null) filter.Department = new List<Guid?>();
-                                    filter.Department.Add(department);
-                                }
-                            }
-                            catch
-                            {
-                                //only catch and do nothing
-                            }
-                        }
-
-                    }
-                }
-                catch
-                {
-                    var exception = new BadHttpRequestException("Department ids dont match what user have accsess to");
-                    _logger.LogError(exception, exception.Message);
-                    throw exception;
-                }
 
                 string json = JsonSerializer.Serialize(filter);
-              
-
                 return await HttpClient.GetFromJsonAsync<OrigoCustomerAssetsCounter>($"{_options.ApiPath}/customers/{customerId}/assets-counter/?filter={json}");
 
 

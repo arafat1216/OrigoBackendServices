@@ -189,7 +189,9 @@ namespace OrigoApiGateway.Controllers
                 {
                     filterOptions.UserId = "me";
                 }
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
@@ -200,12 +202,14 @@ namespace OrigoApiGateway.Controllers
 
                 if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
                 {
-                    filterOptions.Department = new List<Guid?>();
-                    foreach (var departmentId in accessList.Split(","))
+                    filterOptions.Department ??= new List<Guid?>();
+                    foreach (var departmentId in accessList)
+
                     {
                         if (Guid.TryParse(departmentId, out var departmentGuid))
                         {
                             filterOptions.Department.Add(departmentGuid);
+
                         }
                     }
                 }
@@ -1833,24 +1837,17 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                bool manager = false;
-
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     filter.UserId = "me";
                 }
-                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && filter.UserId != "me")
-                {
-                    manager = true;
-                    //need the userId for retriving the users managerOf list
-                    filter.UserId = "me";
-                }
+
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
 
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
@@ -1859,12 +1856,23 @@ namespace OrigoApiGateway.Controllers
 
                 }
 
-                if (filter.UserId == "me")
-                    filter.UserId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                else filter.UserId = null;
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
+                {
+                    filter.Department ??= new List<Guid?>();
+                    foreach (var departmentId in accessList)
 
-                
-                var assetCount = await _assetServices.GetAssetLifecycleCountersAsync(organizationId, filter, manager);
+                    {
+                        if (Guid.TryParse(departmentId, out var departmentGuid))
+                        {
+                            filter.Department.Add(departmentGuid);
+
+                        }
+                    }
+                }
+
+                filter.UserId = filter.UserId == "me" ? HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value : null;
+
+                var assetCount = await _assetServices.GetAssetLifecycleCountersAsync(organizationId, filter);
 
 
                 return Ok(assetCount);

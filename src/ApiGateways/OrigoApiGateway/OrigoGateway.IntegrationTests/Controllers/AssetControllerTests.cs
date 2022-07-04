@@ -184,4 +184,121 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
     }
+    [Fact]
+    public async Task GetAssetsForCustomerAsync_Manager()
+    {
+        var organizationId = Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee");
+        var departmentId = Guid.NewGuid();
+
+        var email = "manager@test.io";
+        var permissionsIdentity = new ClaimsIdentity();
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "Manager"));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadAsset"));
+        permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+        permissionsIdentity.AddClaim(new Claim("AccessList", departmentId.ToString()));
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                services.AddSingleton(userPermissionServiceMock.Object);
+
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                    options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                    TestAuthenticationHandler.DefaultScheme, options => {
+                        options.Email = email;
+                    });
+                var customersAssets = new PagedModel<HardwareSuperType>()
+                {
+                    CurrentPage = 1,
+                    Items = new List<HardwareSuperType>()
+                    {
+                        new HardwareSuperType
+                        {
+                            DepartmentName = "",
+                            Alias = "",
+                            AssetCategoryId = 1,
+                            Description = "",
+                            AssetStatus = AssetLifecycleStatus.InUse
+                        }
+                    },
+                    PageSize = 1,
+                    TotalItems = 1,
+                    TotalPages = 1,
+                };
+
+                var assetService = new Mock<IAssetServices>();
+                assetService.Setup(_ => _.GetAssetsForCustomerAsync(organizationId, It.IsAny<FilterOptionsForAsset>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>())).Returns(Task.FromResult(customersAssets));
+                services.AddSingleton(assetService.Object);
+            });
+        }).CreateClient();
+
+
+        var response = await client.GetAsync($"/origoapi/v1.0/assets/customers/{organizationId}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+    }
+    [Fact]
+    public async Task GetAssetLifecycleCounters_Manager()
+    {
+        var organizationId = Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee");
+        var departmentId = Guid.NewGuid();
+
+        var email = "manager@test.io";
+        var permissionsIdentity = new ClaimsIdentity();
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "Manager"));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadAsset"));
+        permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+        permissionsIdentity.AddClaim(new Claim("AccessList", departmentId.ToString()));
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                services.AddSingleton(userPermissionServiceMock.Object);
+
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                    options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                    TestAuthenticationHandler.DefaultScheme, options => {
+                        options.Email = email;
+                    });
+                var counter = new OrigoCustomerAssetsCounter
+                {
+                    Personal = new OrigoAssetCounter {
+                        Active = 1
+                    }
+                };
+
+                var assetService = new Mock<IAssetServices>();
+                assetService.Setup(_ => _.GetAssetLifecycleCountersAsync(organizationId, It.IsAny<FilterOptionsForAsset>())).Returns(Task.FromResult(counter));
+            services.AddSingleton(assetService.Object);
+            });
+        }).CreateClient();
+
+
+        var response = await client.GetAsync($"/origoapi/v1.0/assets/customers/{organizationId}/assets-counter");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+    }
+
 }
