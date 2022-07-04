@@ -286,6 +286,7 @@ public class UsersController : ControllerBase
             var user = await _userServices.SetUserActiveStatusAsync(customerId, userId, isActive, callerId);
             if (user == null)
                 return NotFound();
+
             return Ok(_mapper.Map<User>(user));
         }
         catch (UserNotFoundException exception)
@@ -294,7 +295,7 @@ public class UsersController : ControllerBase
         }
         catch (Exception)
         {
-            return BadRequest("Unable to deactivate user");
+            return BadRequest("Unable to change user status.");
         }
     }
 

@@ -1098,6 +1098,28 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal(1, users?.TotalItems);
         }
+        [Fact]
+        public async Task SetUserActiveStatusAsync_UserHasNoOktaID_ShouldDe()
+        {
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/activate/{true}";
 
+            //Assert
+            var response = await _httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var read =  await response.Content.ReadAsStringAsync();
+            Assert.Equal("User does not have Okta id and can not be activated.", read);
+
+        }
+        [Fact]
+        public async Task SetUserActiveStatusAsync_UserHasOktaID_Activate()
+        {
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userFourId}/activate/{false}";
+
+            //Assert
+            var response = await _httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var read = await response.Content.ReadAsStringAsync();
+            Assert.Equal("User does not exist in Okta.", read);
+        }
     }
 }

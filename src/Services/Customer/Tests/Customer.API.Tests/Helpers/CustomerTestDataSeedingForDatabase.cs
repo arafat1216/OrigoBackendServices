@@ -135,7 +135,7 @@ namespace Customer.API.IntegrationTests.Helpers
                               new UserPreference("no", CALLER_ID),
                               CALLER_ID);
 
-            userFour.ChangeUserStatus("", CALLER_ID, Common.Enums.UserStatus.Activated);
+            userFour.ChangeUserStatus("123", CALLER_ID, Common.Enums.UserStatus.Activated);
 
             customerContext.Users.Add(userOne);
             customerContext.Users.Add(userTwo);

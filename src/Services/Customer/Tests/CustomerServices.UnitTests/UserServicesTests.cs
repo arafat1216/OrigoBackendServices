@@ -46,12 +46,11 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var oktaMock = new Mock<IOktaServices>();
-            const string OKTA_ID = "1234";
-            oktaMock.Setup(o => o.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<string>(), true, It.IsAny<string>())).ReturnsAsync(OKTA_ID);
+            const string OKTA_ID = "123";
+            oktaMock.Setup(o => o.UserExistsInOktaAsync(OKTA_ID)).ReturnsAsync(true);
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
-            
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
+
             // Act
             await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
             await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, false, EMPTY_CALLER_ID);
@@ -201,18 +200,17 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var oktaMock = new Mock<IOktaServices>();
-            const string OKTA_ID = "1234";
-            oktaMock.Setup(o => o.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<string>(), true, It.IsAny<string>())).ReturnsAsync(OKTA_ID);
+            const string OKTA_ID = "123";
+            oktaMock.Setup(o => o.UserExistsInOktaAsync(OKTA_ID)).ReturnsAsync(true);
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
-
+            
             // Act
             await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
             var user = await userServices.GetUserAsync(CUSTOMER_ONE_ID, USER_ONE_ID);
 
             // Assert
-            Assert.Equal("1234", user.OktaUserId);
+            Assert.Equal("123", user.OktaUserId);
             Assert.Equal(Common.Enums.UserStatus.Activated, user.UserStatus);
         }
 
@@ -230,10 +228,10 @@ namespace CustomerServices.UnitTests
             oktaMock.Setup(o => o.UserExistsInOktaAsync(It.IsAny<string>())).ReturnsAsync(true);
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
-            await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, true,EMPTY_CALLER_ID); // Activate user
+            await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, true,EMPTY_CALLER_ID); // Activate user
 
             // Act
-            var user = await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, false, EMPTY_CALLER_ID);
+            var user = await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, false, EMPTY_CALLER_ID);
 
             // Assert
             oktaMock.Verify(mock => mock.RemoveUserFromGroupAsync(It.IsAny<string>()), Times.Once());
@@ -253,8 +251,8 @@ namespace CustomerServices.UnitTests
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
 
             // Act
-            await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, false, EMPTY_CALLER_ID);
-            var user = await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
+            await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, false, EMPTY_CALLER_ID);
+            var user = await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, true, EMPTY_CALLER_ID);
 
             // Assert
             oktaMock.Verify(mock => mock.AddUserToGroup(It.IsAny<string>()), Times.Once());

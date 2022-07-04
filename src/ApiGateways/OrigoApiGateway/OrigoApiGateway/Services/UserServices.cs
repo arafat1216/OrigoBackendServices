@@ -285,15 +285,17 @@ namespace OrigoApiGateway.Services
             try
             {
                 var response = await HttpClient.PostAsync($"{_options.ApiPath}/{customerId}/users/{userId}/activate/{isActive}", JsonContent.Create(callerId));
-                if (!response.IsSuccessStatusCode)
-                    throw new BadHttpRequestException("Unable to change active status on user.", (int)response.StatusCode);
+               
 
+                if (!response.IsSuccessStatusCode) 
+                    throw new BadHttpRequestException(await response.Content.ReadAsStringAsync(), (int)response.StatusCode);
+                
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
                 return user == null ? null : _mapper.Map<OrigoUser>(user);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to deactivate user.");
+                _logger.LogError(ex, "Unable to change user status.");
                 throw;
             }
         }

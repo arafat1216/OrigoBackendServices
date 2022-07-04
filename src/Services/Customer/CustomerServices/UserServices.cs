@@ -264,7 +264,16 @@ namespace CustomerServices
                 return userDTO;
             }
 
+            if (string.IsNullOrEmpty(user.OktaUserId)) 
+            {
+                //Ensure that user with no okta id is set to deactivated
+                if (user.UserStatus == UserStatus.Activated) user.ChangeUserStatus(null, callerId, UserStatus.Deactivated);
+                throw new UserNotFoundException("User does not have Okta id and can not be activated.");
+            }
+
+
             var userExistsInOkta = await _oktaServices.UserExistsInOktaAsync(user.OktaUserId);
+
             if (userExistsInOkta)
             {
                 if (isActive)
@@ -281,16 +290,7 @@ namespace CustomerServices
             }
             else
             {
-                if (isActive)
-                {
-                    var oktaUserId = await _oktaServices.AddOktaUserAsync(user.UserId, user.FirstName, user.LastName,
-                        user.Email, user.MobileNumber, true);
-                    user = await AssignOktaUserIdAsync(user.Customer.OrganizationId, user.UserId, oktaUserId, callerId);
-                }
-                else
-                {
-                    user.ChangeUserStatus(null, callerId,UserStatus.Deactivated);
-                }
+                throw new UserNotFoundException("User does not exist in Okta.");
             }
 
             userDTO = _mapper.Map<UserDTO>(user);
