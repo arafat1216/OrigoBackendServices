@@ -16,7 +16,7 @@ namespace AssetServices.DomainEvents
 
         public override string EventMessage()
         {
-            return $"CustomerLabel {Id} was soft-deleted: IsDeleted was changed from {PreviousDeleteState} to {CustomerLabel.IsDeleted}.";
+            return $"CustomerLabel {Id} was deleted.";
         }
     }
 }

@@ -26,9 +26,10 @@ namespace AssetServices.Models
         public Label Label { get; protected set; }
 
         /// <summary>
-        /// All Asset lifecycles having this customer label set.
+        /// All Asset lifecycles having this customer label set. Needed for many-to-many mapping.
         /// </summary>
-        public ICollection<AssetLifecycle> AsssetLifecycles { get; set; }
+        [JsonIgnore]
+        public ICollection<AssetLifecycle> AssetLifecycles { get; set; }
 
         [JsonConstructor]
         public CustomerLabel()
@@ -85,14 +86,9 @@ namespace AssetServices.Models
         /// Entity still exists, but will not show up when fetching CustomerLabels from repository
         /// </summary>
         /// <param name="callerId"></param>
-        public void SoftDelete(Guid callerId)
+        public void Delete(Guid callerId)
         {
-            var previousState = IsDeleted;
-            IsDeleted = true;
-            LastUpdatedDate = DateTime.UtcNow;
-            DeletedBy = callerId;
-            UpdatedBy = callerId;
-            AddDomainEvent(new CustomerLabelDeletedDomainEvent(this, previousState));
+            AddDomainEvent(new CustomerLabelDeletedDomainEvent(this, true));
         }
     }
 }

@@ -2,21 +2,13 @@
 using Common.Enums;
 using Common.Interfaces;
 using Common.Models;
-using Dapr.Client;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Models.BackendDTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace OrigoApiGateway.Services
@@ -1083,11 +1075,17 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                string requestUri = $"{_options.ApiPath}/customers/{customerId}/labels/delete";
-                var response = await HttpClient.PostAsJsonAsync(requestUri, data);
+                var requestUri = $"{HttpClient.BaseAddress}{_options.ApiPath}/customers/{customerId}/labels/delete";
+                var deleteRequestMessage = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(requestUri),
+                    Content = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json")
+                };
+                var response = await HttpClient.SendAsync(deleteRequestMessage);
                 if (!response.IsSuccessStatusCode)
                 {
-                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    var errorDescription = await response.Content.ReadAsStringAsync();
                     if ((int)response.StatusCode == 500)
                         throw new Exception(errorDescription);
                     else if ((int)response.StatusCode == 404)

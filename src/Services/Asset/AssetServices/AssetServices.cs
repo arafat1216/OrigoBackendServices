@@ -104,9 +104,9 @@ namespace AssetServices
             return await _assetLifecycleRepository.GetCustomerLabelsForCustomerAsync(customerId);
         }
 
-        public async Task<IList<CustomerLabel>> GetCustomerLabelsAsync(IList<Guid> customerLabelGuids)
+        public async Task<IList<CustomerLabel>> GetCustomerLabelsAsync(IList<Guid> customerLabelGuids, Guid customerId)
         {
-            return await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(customerLabelGuids);
+            return await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(customerLabelGuids, customerId);
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace AssetServices
         {
             try
             {
-                var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelGuids);
+                var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelGuids, customerId);
                 if (customerLabels == null || customerLabels.Count == 0)
                 {
                     throw new ResourceNotFoundException("No CustomerLabels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
@@ -148,8 +148,7 @@ namespace AssetServices
         }
 
         /// <summary>
-        /// Set IsDeleted = 1 on CustomerLabels found by Id in <paramref name="labelIds"/>.
-        /// CustomerLabels still exist in database, but will not show up when fetching labels owned by customer
+        /// Delete label for a customer. This will also delete any assignments for this label to asset lifecycles.
         /// </summary>
         /// <param name="customerId">External Id of customer whose labels we are soft deleting</param>
         /// <param name="callerId">Id of user who called endpoint to delete labels</param>
@@ -159,18 +158,19 @@ namespace AssetServices
         {
             try
             {
-                var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelIds);
+                var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelIds, customerId);
 
                 if (customerLabels == null || customerLabels.Count == 0)
                 {
                     throw new ResourceNotFoundException("No CustomerLabels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
                 }
 
-                foreach (var label in customerLabels)
-                {
-                    label.SoftDelete(callerId);
-                }
+                var deletedLabels = await _assetLifecycleRepository.DeleteCustomerLabelsForCustomerAsync(customerId, customerLabels);
 
+                foreach (var label in deletedLabels)
+                {
+                    label.Delete(callerId);
+                }
                 await _assetLifecycleRepository.SaveEntitiesAsync();
                 return await _assetLifecycleRepository.GetCustomerLabelsForCustomerAsync(customerId);
             }
@@ -200,7 +200,7 @@ namespace AssetServices
                     throw new ResourceNotFoundException("No assets were found using the given AssetIds. Did you enter the correct customer Id?", _logger);
                 }
 
-                var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelGuids);
+                var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelGuids, customerId);
                 if (customerLabels == null)
                 {
                     throw new ResourceNotFoundException("No labels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
@@ -208,12 +208,11 @@ namespace AssetServices
 
                 foreach (var assetLifecycle in assetLifecycles)
                 {
-                    foreach (var customerLabel in customerLabels)
+                    foreach (var customerLabel in customerLabels.Where(
+                                 customerLabel => assetLifecycle.Labels.All(l => l.ExternalId != customerLabel.ExternalId))
+                    )
                     {
-                        if (assetLifecycle.Labels.All(l => l.ExternalId != customerLabel.ExternalId))
-                        {
-                            assetLifecycle.AssignCustomerLabel(customerLabel, callerId);
-                        }
+                        assetLifecycle.AssignCustomerLabel(customerLabel, callerId);
                     }
                 }
 
@@ -242,7 +241,7 @@ namespace AssetServices
                     throw new ResourceNotFoundException("No assets were found using the given AssetIds. Did you enter the correct customer Id?", _logger);
                 }
 
-                var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelGuids);
+                var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelGuids, customerId);
                 if (customerLabels == null || customerLabels.Count == 0)
                 {
                     throw new ResourceNotFoundException("No labels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);

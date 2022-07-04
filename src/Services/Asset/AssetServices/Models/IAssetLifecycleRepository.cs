@@ -16,13 +16,14 @@ namespace AssetServices.Models
         Task<int> GetAssetLifecyclesCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus);
         Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
            Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string search, int page, int limit, CancellationToken cancellationToken);
+        Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetId);
+        Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid assetLifeCycleId);
         Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList);
         Task<IList<AssetLifecycle>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId);
-        Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetId);
         Task<IList<CustomerLabel>> AddCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels);
         Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId);
-        Task<IList<CustomerLabel>> GetCustomerLabelsFromListAsync(IList<Guid> labelsGuid);
-        Task<CustomerLabel> GetCustomerLabelAsync(Guid labelGuid);
+        Task<IList<CustomerLabel>> GetCustomerLabelsFromListAsync(IList<Guid> labelsGuid, Guid customerId);
+        Task<CustomerLabel?> GetCustomerLabelAsync(Guid labelGuid, Guid customerId);
         Task<IList<CustomerLabel>> DeleteCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels);
         Task<IList<CustomerLabel>> UpdateCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels);
         Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default);
@@ -32,7 +33,6 @@ namespace AssetServices.Models
         Task<AssetLifecycle?> MakeAssetAvailableAsync(Guid customerId, Guid callerId, Guid assetLifeCycleId);
         Task<IList<AssetLifecycle>> GetAssetForUser(Guid userId);
         Task<CustomerSettings?> GetCustomerSettingsAsync(Guid customerId);
-        Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid assetLifeCycleId);
 
         Task<LifeCycleSetting?> GetCustomerLifeCycleSettingAssetCategory(Guid customerId, int assetCategoryId);
         Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetLifecycleCountForCustomerAsync(Guid customerId, Guid? userId, IList<AssetLifecycleStatus> statuses);

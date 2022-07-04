@@ -142,8 +142,6 @@ namespace AssetServices.Infrastructure
                     query = query.Where(al => al.Asset is MobilePhone);
                 else if(category[0] == 2)
                     query = query.Where(al => al.Asset is Tablet);
-
-                //query = query.Where(al => category.Contains(al.AssetCategoryId));
             }
             else if(category is { Length: 2 })
             {
@@ -340,7 +338,7 @@ namespace AssetServices.Infrastructure
                 .Include(al => al.Labels)
                 .Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis)
                 .Include(al => al.ContractHolderUser)
-                .Where(al => assetGuidList.Contains(al.ExternalId) && al.CustomerId == customerId).ToListAsync();
+                .Where(al => assetGuidList.Contains(al.ExternalId) && al.CustomerId == customerId).AsSplitQuery().ToListAsync();
         }
 
         public async Task<IList<CustomerLabel>> AddCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
@@ -357,16 +355,16 @@ namespace AssetServices.Infrastructure
                          .Where(a => a.CustomerId == customerId && !a.IsDeleted).ToListAsync();
         }
 
-        public async Task<IList<CustomerLabel>> GetCustomerLabelsFromListAsync(IList<Guid> labelsGuid)
+        public async Task<IList<CustomerLabel>> GetCustomerLabelsFromListAsync(IList<Guid> labelsGuid, Guid customerId)
         {
             return await _assetContext.CustomerLabels
                          .Where(a => labelsGuid.Contains<Guid>(a.ExternalId)).ToListAsync();
         }
 
-        public async Task<CustomerLabel> GetCustomerLabelAsync(Guid labelGuid)
+        public async Task<CustomerLabel?> GetCustomerLabelAsync(Guid labelGuid, Guid customerId)
         {
             return await _assetContext.CustomerLabels
-                         .Where(a => labelGuid == a.ExternalId).FirstOrDefaultAsync();
+                         .Where(l => labelGuid == l.ExternalId && customerId == l.CustomerId).FirstOrDefaultAsync();
         }
 
         public async Task<IList<CustomerLabel>> DeleteCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
@@ -379,13 +377,10 @@ namespace AssetServices.Infrastructure
 
         public async Task<IList<CustomerLabel>> UpdateCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
         {
-            foreach (CustomerLabel updateLabel in labels)
+            foreach (var updateLabel in labels)
             {
-                CustomerLabel original = await GetCustomerLabelAsync(updateLabel.ExternalId);
-                if (original != null)
-                {
-                    original.PatchLabel(updateLabel.UpdatedBy, updateLabel.Label);
-                }
+                var original = await GetCustomerLabelAsync(updateLabel.ExternalId, customerId);
+                original?.PatchLabel(updateLabel.UpdatedBy, updateLabel.Label);
             }
 
             await SaveEntitiesAsync();
