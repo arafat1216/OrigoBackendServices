@@ -31,21 +31,10 @@ namespace OrigoApiGateway.Services
         private HttpClient HttpClient { get; }
         private readonly UserConfiguration _options;
 
-        public async Task<int> GetUsersCountAsync(Guid customerId, FilterOptionsForUser filterOptions, Guid callerId)
+        public async Task<int> GetUsersCountAsync(Guid customerId, FilterOptionsForUser filterOptions)
         {
             try
             {
-                if ((filterOptions.Roles != null && filterOptions.Roles.Any()) && (filterOptions.Roles.Contains("Manager") || filterOptions.Roles.Contains("DepartmentManager")))
-                {
-                    var user = await HttpClient.GetFromJsonAsync<UserDTO>($"{_options.ApiPath}/{customerId}/users/{callerId}");
-                    if (user == null)
-                       throw new BadHttpRequestException("User not found");
-
-                    if (user.ManagerOf == null || !user.ManagerOf.Any()) return 0;
-
-                    filterOptions.AssignedToDepartments = user.ManagerOf.Select(a => a.DepartmentId).ToList();
-                }
-
                 string json = JsonSerializer.Serialize(filterOptions);
 
                 return await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/{customerId}/users/count/?filterOptions={json}");

@@ -51,20 +51,32 @@ namespace OrigoApiGateway.Controllers
                 return Forbid();
             }
 
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+
             if (role != PredefinedRole.SystemAdmin.ToString())
             {
                 // Check if caller has access to this organization
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                 if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                 {
                     return Forbid();
                 }
-            }
 
-            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-            Guid.TryParse(actor, out Guid callerId);
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
+                {
+                   filterOptions.AssignedToDepartments ??= new List<Guid>();
+                   
+                        foreach (var departmentId in accessList)
+                        {
+                            if (Guid.TryParse(departmentId, out var departmentGuid))
+                            {
+                                filterOptions.AssignedToDepartments.Add(departmentGuid);
 
-            var count = await _userServices.GetUsersCountAsync(organizationId, filterOptions, callerId);
+                            }
+                        }
+                    }
+                }
+
+            var count = await _userServices.GetUsersCountAsync(organizationId, filterOptions);
             return Ok(new { organizationId, count });
             
             }

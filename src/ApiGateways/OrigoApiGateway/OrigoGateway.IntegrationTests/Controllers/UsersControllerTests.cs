@@ -66,7 +66,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                     var userService = new Mock<IUserServices>();
 
                     
-                    userService.Setup(_ => _.GetUsersCountAsync(organizationId, null, departmentId))
+                    userService.Setup(_ => _.GetUsersCountAsync(organizationId, null))
                         .Returns(Task.FromResult(2));
                     services.AddSingleton(userService.Object);
                 });
@@ -112,7 +112,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                     var userService = new Mock<IUserServices>();
 
                    FilterOptionsForUser filter = new FilterOptionsForUser { Roles = new[] { role } };
-                    userService.Setup(_ => _.GetUsersCountAsync(organization_NOTreadRights, filter, organization_readRights))
+                    userService.Setup(_ => _.GetUsersCountAsync(organization_NOTreadRights, filter))
                         .Returns(Task.FromResult(2));
                     services.AddSingleton(userService.Object);
                 });
