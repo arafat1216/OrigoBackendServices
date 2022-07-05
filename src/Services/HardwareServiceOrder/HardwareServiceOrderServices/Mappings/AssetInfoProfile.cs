@@ -8,7 +8,9 @@ namespace HardwareServiceOrderServices.Mappings
     {
         public AssetInfoProfile()
         {
-            CreateMap<AssetInfo, AssetInfoDTO>();
+            // TODO: Remove the AfterMap as part of the refactoring task for handling multiple IMEI throughout the solution
+            // AfterMap was used instead of ForMember due to ForMember not getting the value from SingleImei.
+            CreateMap<AssetInfo, AssetInfoDTO>().AfterMap((s, d) => { d.Imei = s.SingleImei; });
         }
     }
 }

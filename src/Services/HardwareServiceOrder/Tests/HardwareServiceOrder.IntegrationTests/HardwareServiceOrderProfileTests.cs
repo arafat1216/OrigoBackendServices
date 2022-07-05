@@ -127,8 +127,6 @@ namespace HardwareServiceOrder.IntegrationTests
             Assert.Equal(serviceOrder.AssetInfo.Accessories, serviceOrderDTO.AssetInfo.Accessories);
             Assert.Equal(serviceOrder.AssetInfo.AssetCategoryId, serviceOrderDTO.AssetInfo.AssetCategoryId);
 
-            //Assert.Equal(serviceOrder.AssetInfo.PurchaseDate, serviceOrderDTO.AssetInfo.PurchaseDate);
-
             Assert.Equal(serviceOrder.DeliveryAddress.Address2, serviceOrderDTO.DeliveryAddress.Address2);
             Assert.Equal(serviceOrder.DeliveryAddress.Address1, serviceOrderDTO.DeliveryAddress.Address1);
             Assert.Equal(serviceOrder.DeliveryAddress.City, serviceOrderDTO.DeliveryAddress.City);
@@ -144,6 +142,22 @@ namespace HardwareServiceOrder.IntegrationTests
             Assert.Equal(serviceOrder.OrderedBy.OrganizationName, serviceOrderDTO.OrderedBy.OrganizationName);
 
             Assert.Equal(serviceOrder.ErrorDescription, serviceOrderDTO.ErrorDescription);
+        }
+
+
+        [Fact]
+        public void MapFrom_AssetInfo_To_AssetInfoDTO_ShouldMap_SingleImei()
+        {
+            var assetInfo = new HardwareServiceOrderServices.Models.AssetInfo
+            {
+                Imei = new HashSet<string> { "500119468586675", "123456789012345", "123456789012346" }
+            };
+
+            var dto = _mapper.Map<AssetInfoDTO>(assetInfo);
+
+            Assert.NotNull(dto);
+            Assert.NotNull(dto.Imei);
+            Assert.Equal(dto.Imei, "500119468586675");
         }
     }
 }
