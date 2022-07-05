@@ -243,6 +243,11 @@ namespace AssetServices.Infrastructure
                             else nonPersonal.Expired = g.value;
                             break;
 
+                        case AssetLifecycleStatus.Repair:
+                            if (g.isPersonal) personal.Repair = g.value;
+                            else nonPersonal.Repair = g.value;
+                            break;
+
                         default:
                             break;
 
@@ -308,6 +313,11 @@ namespace AssetServices.Infrastructure
                             case AssetLifecycleStatus.Expired:
                                 if (g.isPersonal) departmentCounter.Personal.Expired = g.value;
                                 else departmentCounter.NonPersonal.Expired = g.value;
+                                break;
+
+                            case AssetLifecycleStatus.Repair:
+                                if (g.isPersonal) departmentCounter.Personal.Repair = g.value;
+                                else departmentCounter.NonPersonal.Repair = g.value;
                                 break;
 
                             default:

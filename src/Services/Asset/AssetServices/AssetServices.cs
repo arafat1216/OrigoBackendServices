@@ -1003,7 +1003,7 @@ namespace AssetServices
             }
             if (filterStatus == null || !filterStatus.Any())
             {
-                filterStatus = new List<AssetLifecycleStatus>() { AssetLifecycleStatus.Active, AssetLifecycleStatus.Available, AssetLifecycleStatus.InUse, AssetLifecycleStatus.InputRequired, AssetLifecycleStatus.Expired };
+                filterStatus = new List<AssetLifecycleStatus>() { AssetLifecycleStatus.Active, AssetLifecycleStatus.Available, AssetLifecycleStatus.InUse, AssetLifecycleStatus.InputRequired, AssetLifecycleStatus.Expired, AssetLifecycleStatus.Repair };
             }
            
             if (!filterStatus.Select(x => x).All(x => Enum.IsDefined(typeof(AssetLifecycleStatus), x)))
