@@ -175,8 +175,8 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult> DeleteLabelsForCustomer(Guid customerId, [FromBody] DeleteCustomerLabelsData customerLabelsData)
         {
-            await _assetServices.DeleteLabelsForCustomerAsync(customerId, customerLabelsData.CallerId, customerLabelsData.LabelGuids);
-            return Ok();
+            var assetList = await _assetServices.DeleteLabelsForCustomerAsync(customerId, customerLabelsData.CallerId, customerLabelsData.LabelGuids);
+            return Ok(_mapper.Map<IList<ViewModels.Label>>(assetList));
         }
 
         [Route("customers/{customerId:guid}/labels/update")]
