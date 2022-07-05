@@ -117,7 +117,6 @@ namespace HardwareServiceOrder.IntegrationTests
 
             var serviceOrderDTO = _mapper.Map<NewHardwareServiceOrderDTO>(serviceOrder);
 
-
             Assert.NotNull(serviceOrderDTO);
 
             Assert.Equal(serviceOrder.AssetInfo.Imei, serviceOrderDTO.AssetInfo.Imei);
@@ -144,7 +143,6 @@ namespace HardwareServiceOrder.IntegrationTests
             Assert.Equal(serviceOrder.ErrorDescription, serviceOrderDTO.ErrorDescription);
         }
 
-
         [Fact]
         public void MapFrom_AssetInfo_To_AssetInfoDTO_ShouldMap_SingleImei()
         {
@@ -157,7 +155,7 @@ namespace HardwareServiceOrder.IntegrationTests
 
             Assert.NotNull(dto);
             Assert.NotNull(dto.Imei);
-            Assert.Equal(dto.Imei, "500119468586675");
+            Assert.Equal("500119468586675", dto.Imei);
         }
     }
 }
