@@ -1075,7 +1075,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var requestUri = $"{HttpClient.BaseAddress}{_options.ApiPath}/customers/{customerId}/labels/delete";
+                var requestUri = $"{HttpClient.BaseAddress}{_options.ApiPath}/customers/{customerId}/labels";
                 var deleteRequestMessage = new HttpRequestMessage
                 {
                     Method = HttpMethod.Delete,

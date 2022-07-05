@@ -110,44 +110,6 @@ namespace AssetServices
         }
 
         /// <summary>
-        /// Deletes labels permanently from table.
-        /// Should not be called by users in gateway, but can be used by a cleanup job, or similar for when 
-        /// an entity has been IsDelete = 1, for a long enough time.
-        /// </summary>
-        /// <param name="customerId"></param>
-        /// <param name="callerId"></param>
-        /// <param name="labelGuids"></param>
-        /// <returns></returns>
-        public async Task<IList<CustomerLabel>> DeleteLabelsForCustomerAsync(Guid customerId, IList<Guid> labelGuids)
-        {
-            try
-            {
-                var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelGuids, customerId);
-                if (customerLabels == null || customerLabels.Count == 0)
-                {
-                    throw new ResourceNotFoundException("No CustomerLabels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
-                }
-
-                IList<int> labelIds = new List<int>();
-                foreach (var label in customerLabels)
-                {
-                    labelIds.Add(label.Id);
-                }
-
-                return await _assetLifecycleRepository.DeleteCustomerLabelsForCustomerAsync(customerId, customerLabels);
-            }
-            catch (ResourceNotFoundException)
-            {
-                throw; // no need to log same exception again
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unknown error. Unable to delete CustomerLabels.");
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Delete label for a customer. This will also delete any assignments for this label to asset lifecycles.
         /// </summary>
         /// <param name="customerId">External Id of customer whose labels we are soft deleting</param>
@@ -165,9 +127,9 @@ namespace AssetServices
                     throw new ResourceNotFoundException("No CustomerLabels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
                 }
 
-                var deletedLabels = await _assetLifecycleRepository.DeleteCustomerLabelsForCustomerAsync(customerId, customerLabels);
+                await _assetLifecycleRepository.DeleteCustomerLabelsForCustomerAsync(customerId, customerLabels);
 
-                foreach (var label in deletedLabels)
+                foreach (var label in customerLabels)
                 {
                     label.Delete(callerId);
                 }
@@ -1094,7 +1056,7 @@ namespace AssetServices
             return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecycles);
         }
 
-        public async Task SyncDepartmentForUserToAssetLifecycle(Guid customerId, Guid userId, Guid? departmentId, Guid callerId)
+        public async Task SyncDepartmentForUserToAssetLifecycleAsync(Guid customerId, Guid userId, Guid? departmentId, Guid callerId)
         {
             var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesForUserAsync(customerId, userId);
             var user = await _assetLifecycleRepository.GetUser(userId);

@@ -800,7 +800,7 @@ public class AssetServicesTests : AssetBaseTest
         var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
         // Act
-        await assetService.DeleteLabelsForCustomerAsync(COMPANY_ID, new List<Guid> { LABEL_ONE_ID, LABEL_TWO_ID, LABEL_THREE_ID});
+        await assetService.DeleteLabelsForCustomerAsync(COMPANY_ID, Guid.NewGuid(), new List<Guid> { LABEL_ONE_ID, LABEL_TWO_ID, LABEL_THREE_ID});
 
         var savedLabels = await assetService.GetCustomerLabelsForCustomerAsync(COMPANY_ID);
 

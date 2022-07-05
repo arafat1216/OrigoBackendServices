@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Dapr;
 using Microsoft.AspNetCore.Mvc;
 using AssetServices;
@@ -8,9 +9,10 @@ using Common.Model.EventModels;
 namespace Asset.API.Controllers;
 
 [Route("api/v{version:apiVersion}/assets")]
-public class UserController : Controller
+[ApiController]
+public class UserController : ControllerBase
 {
-    private IAssetServices _assetServices;
+    private readonly IAssetServices _assetServices;
 
     public UserController(IAssetServices assetServices)
     {
@@ -19,16 +21,16 @@ public class UserController : Controller
 
     [Topic("customer-pub-sub", "user-deleted")]
     [HttpPost("user-deleted")]
-    public void UserDeleted([FromBody] UserEvent userEvent)
+    public async Task UserDeleted([FromBody] UserEvent userEvent)
     {
-        _assetServices.UnAssignAssetLifecyclesForUserAsync(userEvent.CustomerId, userEvent.UserId, userEvent.DepartmentId, Guid.Empty.SystemUserId());
+        await _assetServices.UnAssignAssetLifecyclesForUserAsync(userEvent.CustomerId, userEvent.UserId, userEvent.DepartmentId, Guid.Empty.SystemUserId());
     }
 
 
     [Topic("customer-pub-sub", "user-assign-department")]
     [HttpPost("user-assign-department")]
-    public void UserAssignDepartment([FromBody] UserChangedDepartmentEvent userDeletedEvent)
+    public async Task UserAssignDepartment([FromBody] UserChangedDepartmentEvent userDeletedEvent)
     {
-        _assetServices.SyncDepartmentForUserToAssetLifecycle(userDeletedEvent.CustomerId, userDeletedEvent.UserId, userDeletedEvent.DepartmentId, Guid.Empty.SystemUserId());
+        await _assetServices.SyncDepartmentForUserToAssetLifecycleAsync(userDeletedEvent.CustomerId, userDeletedEvent.UserId, userDeletedEvent.DepartmentId, Guid.Empty.SystemUserId());
     }
 }
