@@ -545,17 +545,14 @@ namespace OrigoApiGateway.Controllers
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
 
-                var locations = await _assetServices.UpdateReturnLocationsByCustomer(organizationId, returnLocationId, data, callerId);
-                if (locations == null)
+                var location = await _assetServices.UpdateReturnLocationsByCustomer(organizationId, returnLocationId, data, callerId);
+                if (location == null)
                 {
                     return NotFound();
                 }
-                foreach (var location in locations)
-                {
-                    location.Location = allOfficeLocations.FirstOrDefault(x => x.Id == location.LocationId);
-                }
 
-                return Ok(locations);
+                location.Location = allOfficeLocations.FirstOrDefault(x => x.Id == location.LocationId);
+                return Ok(location);
             }
             catch (Exception ex)
             {

@@ -415,7 +415,7 @@ namespace Asset.API.Controllers
         }
         [Route("customers/{customerId:guid}/return-location/{returnLocationId:guid}")]
         [HttpPut]
-        [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ReturnLocation), (int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> UpdateReturnLocation(Guid customerId, Guid returnLocationId, [FromBody] NewReturnLocation data)
         {
@@ -423,7 +423,7 @@ namespace Asset.API.Controllers
             {
                 var newLocationDTO = _mapper.Map<ReturnLocationDTO>(data);
                 var updatedLocations = await _assetServices.UpdateReturnLocationsByCustomer(customerId, returnLocationId, newLocationDTO, data.CallerId);
-                return Ok(_mapper.Map<IList<ReturnLocation>>(updatedLocations));
+                return Ok(_mapper.Map<ReturnLocation>(updatedLocations));
             }
             catch (Exception ex)
             {

@@ -380,7 +380,7 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-        public async Task<IList<ReturnLocation>> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, NewReturnLocation data, Guid callerId)
+        public async Task<ReturnLocation> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, NewReturnLocation data, Guid callerId)
         {
             try
             {
@@ -397,7 +397,7 @@ namespace OrigoApiGateway.Services
                     var exception = new BadHttpRequestException(errorDescription, (int)response.StatusCode);
                     throw exception;
                 }
-                var newReturnLocations = await response.Content.ReadFromJsonAsync<IList<ReturnLocation>>();
+                var newReturnLocations = await response.Content.ReadFromJsonAsync<ReturnLocation>();
                 return newReturnLocations;
             }
             catch (Exception exception)

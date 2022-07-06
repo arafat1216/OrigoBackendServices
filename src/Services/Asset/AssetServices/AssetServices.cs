@@ -874,7 +874,7 @@ namespace AssetServices
             return _mapper.Map<IList<ReturnLocationDTO>>(customerSettings.DisposeSetting.ReturnLocations);
         }
 
-        public async Task<IList<ReturnLocationDTO>> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, ReturnLocationDTO returnLocationDTO, Guid callerId)
+        public async Task<ReturnLocationDTO> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, ReturnLocationDTO returnLocationDTO, Guid callerId)
         {
             var customerSettings = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
             if(customerSettings is null || customerSettings.DisposeSetting is null || !customerSettings.DisposeSetting.ReturnLocations.Any())
@@ -890,7 +890,7 @@ namespace AssetServices
             customerSettings.DisposeSetting.UpdateReturnLocation(callerId, returnLocationId, updatedReturnLocatio);
 
             await _assetLifecycleRepository.SaveEntitiesAsync();
-            return _mapper.Map<IList<ReturnLocationDTO>>(customerSettings.DisposeSetting.ReturnLocations);
+            return _mapper.Map<ReturnLocationDTO>(returnLocation);
         }
         public async Task<IList<ReturnLocationDTO>> RemoveReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, Guid callerId)
         {

@@ -52,7 +52,7 @@ namespace OrigoApiGateway.Services
         Task<IList<OrigoAsset>> DeactivateAssetStatusOnAssetLifecycle(Guid customerId, ChangeAssetStatusDTO changedAssetStatus);
         Task<IList<ReturnLocation>> GetReturnLocationsByCustomer(Guid customerId);
         Task<ReturnLocation> AddReturnLocationsByCustomer(Guid customerId, NewReturnLocation data, IList<Location> officeLocation, Guid callerId);
-        Task<IList<ReturnLocation>> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, NewReturnLocation data, Guid callerId);
+        Task<ReturnLocation> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, NewReturnLocation data, Guid callerId);
         Task<IList<ReturnLocation>> DeleteReturnLocationsByCustomer(Guid customerId, Guid returnLocationId);
     }
 }

@@ -1703,10 +1703,10 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
             await _httpClient.PutAsJsonAsync(
                 $"/api/v1/Assets/customers/{_customerId}/return-location/{updateLocation!.Id}", updateData);
 
-        var updatedSetting = await response.Content.ReadFromJsonAsync<IList<ReturnLocation>>();
+        var updatedSetting = await response.Content.ReadFromJsonAsync<ReturnLocation>();
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.True(updatedSetting!.Count == 2);
-        Assert.True(updatedSetting!.FirstOrDefault(x => x.Id == updateLocation.Id)!.LocationId == updatedLocationId);
+        Assert.True(updatedSetting!.Id == updateLocation.Id);
+        Assert.True(updatedSetting.LocationId == updatedLocationId);
     }
 
     [Fact]
