@@ -406,14 +406,14 @@ namespace CustomerServices.Infrastructure
             return numberOfRecordsSaved;
         }
 
-        public async Task<IList<Department>> GetDepartmentsAsync(Guid customerId)
+        public async Task<IList<Department>> GetDepartmentsAsync(Guid organizationId)
         {
-            return await _customerContext.Departments.Include(m => m.Managers).Where(p => p.Customer.OrganizationId == customerId).ToListAsync();
+            return await _customerContext.Organizations.Where(a => a.OrganizationId == organizationId).Include(d => d.Departments).ThenInclude(a => a.Managers).SelectMany(a => a.Departments).ToListAsync();
         }
 
-        public async Task<Department?> GetDepartmentAsync(Guid customerId, Guid departmentId)
+        public async Task<Department?> GetDepartmentAsync(Guid organizationId, Guid departmentId)
         {
-            return await _customerContext.Departments.Include(d => d.ParentDepartment).Include(m => m.Managers).FirstOrDefaultAsync(p => p.Customer.OrganizationId == customerId && p.ExternalDepartmentId == departmentId);
+            return await _customerContext.Departments.Include(d => d.ParentDepartment).Include(m => m.Managers).FirstOrDefaultAsync(p => p.Customer.OrganizationId == organizationId && p.ExternalDepartmentId == departmentId);
         }
 
         public async Task<IList<Department>> DeleteDepartmentsAsync(IList<Department> department)

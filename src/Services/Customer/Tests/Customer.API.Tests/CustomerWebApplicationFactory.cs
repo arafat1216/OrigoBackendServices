@@ -27,6 +27,7 @@ namespace Customer.API.Tests;
         public Guid USER_TWO_ID => CustomerTestDataSeedingForDatabase.USER_TWO_ID;
         public Guid USER_THREE_ID => CustomerTestDataSeedingForDatabase.USER_THREE_ID;
         public Guid USER_FOUR_ID => CustomerTestDataSeedingForDatabase.USER_FOUR_ID;
+        public Guid USER_FIVE_ID => CustomerTestDataSeedingForDatabase.USER_FIVE_ID;
         public string USER_ONE_EMAIL => CustomerTestDataSeedingForDatabase.USER_ONE_EMAIL;
         public string USER_FOUR_EMAIL => CustomerTestDataSeedingForDatabase.USER_FOUR_EMAIL;
 

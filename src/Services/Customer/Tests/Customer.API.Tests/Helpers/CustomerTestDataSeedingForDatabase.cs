@@ -22,6 +22,7 @@ namespace Customer.API.IntegrationTests.Helpers
         public static readonly string USER_ONE_EMAIL = "kari@normann.no";
 
         public static readonly Guid USER_FOUR_ID = Guid.Parse("208ad639-9fe8-476d-bd89-d9b8ddcb76bf");
+        public static readonly Guid USER_FIVE_ID = Guid.Parse("15936b85-22c8-466f-848b-59191094a576");
         public static readonly string USER_FOUR_EMAIL = "petter@pan.no";
 
 
@@ -134,6 +135,16 @@ namespace Customer.API.IntegrationTests.Helpers
                               "EID:909093",
                               new UserPreference("no", CALLER_ID),
                               CALLER_ID);
+            
+            var userFive = new User(organization,
+                              USER_FIVE_ID,
+                              "Ole",
+                              "Brum",
+                              "ole@brum.no",
+                              "+4790689778",
+                              "EID:90005",
+                              new UserPreference("en", CALLER_ID),
+                              CALLER_ID);
 
             userFour.ChangeUserStatus("123", CALLER_ID, Common.Enums.UserStatus.Activated);
 
@@ -141,6 +152,7 @@ namespace Customer.API.IntegrationTests.Helpers
             customerContext.Users.Add(userTwo);
             customerContext.Users.Add(userThree);
             customerContext.Users.Add(userFour);
+            customerContext.Users.Add(userFive);
 
 
 
@@ -148,6 +160,7 @@ namespace Customer.API.IntegrationTests.Helpers
             var userTwoPermission = new UserPermissions(userTwo, new Role("EndUser"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
             var userThreePermission = new UserPermissions(userThree, new Role("Manager"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
             var userFourPermission = new UserPermissions(userFour, new Role("Manager"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
+            var userFivePermission = new UserPermissions(userFive, new Role("Manager"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
 
 
 
@@ -155,6 +168,8 @@ namespace Customer.API.IntegrationTests.Helpers
             customerContext.UserPermissions.Add(userTwoPermission);
             customerContext.UserPermissions.Add(userThreePermission);
             customerContext.UserPermissions.Add(userFourPermission);
+            customerContext.UserPermissions.Add(userFivePermission);
+
 
 
 

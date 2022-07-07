@@ -72,7 +72,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var users = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(3, users?.TotalItems);
+            Assert.Equal(4, users?.TotalItems);
         }
 
         [Fact]
@@ -116,7 +116,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(4, read?.TotalItems);
+            Assert.Equal(5, read?.TotalItems);
             Assert.Equal("Head department", read?.Items[1].DepartmentName);
         }
 
@@ -236,7 +236,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var read = await getResponse.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
-            Assert.Equal(3, read?.TotalItems);
+            Assert.Equal(4, read?.TotalItems);
         }
 
         [Fact]
@@ -632,7 +632,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(4, read?.TotalItems);
+            Assert.Equal(5, read?.TotalItems);
             Assert.Equal(1, read?.Items[2]?.ManagerOf.Count);
             Assert.Equal(_headDepartmentId, read?.Items[2]?.ManagerOf[0].DepartmentId);
             Assert.Equal("Head department", read?.Items[2]?.ManagerOf[0].DepartmentName);

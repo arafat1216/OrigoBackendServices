@@ -53,25 +53,33 @@ namespace CustomerServices
             var department = new Department(name, costCenterId, description, customer, newDepartmentId, callerId, parentDepartment: parentDepartment);
             customer.AddDepartment(department, callerId);
 
-            if (departmentManagers.Any())
+            //If department is a subdepartment and has no managers then the managers of the parentdepartment should have accsess
+            if (!departmentManagers.Any() && parentDepartment != null)
             {
-                foreach (var managers in departmentManagers) 
-                {
-                    
-                    var user = await _customerRepository.GetUserAsync(customerId, managers);
-                    if (user != null)
-                    {
-                        var userPermission = await _userPermissionRepository.GetUserPermissionsAsync(user.Email);
-                        if (userPermission != null)
-                        {
-                            var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString() || a.Role.Name == PredefinedRole.Manager.ToString());
-                            if (role != null) customer.AddDepartmentManager(department, user, callerId);
-                        }
-                    }
-                    
-                }
+               if(parentDepartment.Managers.Any()) departmentManagers = parentDepartment.Managers.Select(a => a.UserId).ToList();
             }
 
+            if (departmentManagers.Any())
+            {
+                var managersToBeAdded = new List<User>();
+                foreach (var manager in departmentManagers)
+                {
+                    var user = await _customerRepository.GetUserAsync(customerId, manager);
+                    if (user == null) continue;
+                    var userPermission = await _userPermissionRepository.GetUserPermissionsAsync(user.Email);
+                    if (userPermission == null) continue;
+                    var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString() || a.Role.Name == PredefinedRole.Manager.ToString());
+                    if (role == null) continue;
+                    customer.AddDepartmentManager(department, user, callerId);
+                    managersToBeAdded.Add(user);
+                }
+
+                if (managersToBeAdded.Any())
+                {
+                    await UpdateAccessListAsync(customer, managersToBeAdded, callerId);
+                }
+            }
+          
 
             await _customerRepository.SaveEntitiesAsync();
 
@@ -112,6 +120,7 @@ namespace CustomerServices
             if (departmentManagers.Any())
             {
                 var managersToBeRemoved = departmentToUpdate.Managers.Where(m => departmentManagers.All(n => n != m.UserId)).ToList();
+                
                 if (managersToBeRemoved.Any())
                 {
                     customer.RemoveDepartmentManagers(departmentToUpdate, managersToBeRemoved, callerId);

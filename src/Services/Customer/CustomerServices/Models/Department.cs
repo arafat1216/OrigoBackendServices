@@ -121,9 +121,12 @@ namespace CustomerServices.Models
             { 
                 _managers = new List<User>();
             }
-            _managers.Add(manager);
-            UpdatedBy = CallerId;
-            LastUpdatedDate = DateTime.UtcNow;
+            if (!_managers.Contains(manager))
+            {
+                _managers.Add(manager);
+                UpdatedBy = CallerId;
+                LastUpdatedDate = DateTime.UtcNow;
+            }
         }
         public void UpdateDepartmentManagers(IList<User> managers, Guid CallerId)
         {
