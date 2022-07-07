@@ -1060,7 +1060,12 @@ namespace AssetServices
         {
             var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesForUserAsync(customerId, userId);
             var user = await _assetLifecycleRepository.GetUser(userId);
-            if (user == null) throw new ResourceNotFoundException("No User were found using the given UserId. Did you enter the correct User Id?", _logger);
+            if (user == null)
+            {
+                // We don't care if the user exists in Assets database.
+                user = new User { ExternalId = userId };
+            }
+
             foreach (var assetLifecycle in assetLifecycles)
             {
                 assetLifecycle.AssignAssetLifecycleHolder(user, departmentId, callerId);

@@ -59,13 +59,15 @@ public class UserControllerTests : IClassFixture<AssetWebApplicationFactory<Star
     {
         // Arrange
         var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
-        var requestUri = $"/api/v1/assets/user-deleted";
+        var requestUri = $"/user-deleted";
         var deleteUserRequestEvent = new UserEvent { CustomerId = _customerId, UserId = _user , DepartmentId = _departmentId, CreatedDate = DateTime.UtcNow};
 
         // Act
         var response =  await httpClient.PostAsJsonAsync(requestUri, deleteUserRequestEvent);
 
         // Assert
+        Assert.True(response.IsSuccessStatusCode);
+
         var filterOptionsForAsset = new FilterOptionsForAsset();
         var serializedFilterOptionsForAsset = JsonSerializer.Serialize(filterOptionsForAsset);
         var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>($"/api/v1/Assets/customers/{_customerId}?filterOptions={serializedFilterOptionsForAsset}");

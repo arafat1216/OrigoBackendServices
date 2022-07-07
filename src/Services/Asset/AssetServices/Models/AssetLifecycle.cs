@@ -253,7 +253,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     public void AssignAssetLifecycleHolder(User? contractHolderUser, Guid? departmentId, Guid callerId)
     {
         // Assign to user if user is set.
-        if (contractHolderUser != null)
+        if (contractHolderUser != null && contractHolderUser != ContractHolderUser)
         {
             // Unassign previous owner and add domain events for it - cant have two owners
             if (ContractHolderUser != null) AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, ContractHolderUser));
@@ -269,6 +269,10 @@ public class AssetLifecycle : Entity, IAggregateRoot
             AddDomainEvent(new AssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, previousContractHolderUser));
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
+        }
+        else if (contractHolderUser != null)
+        {
+            ManagedByDepartmentId = departmentId;
         }
         else if (departmentId != null && departmentId != Guid.Empty)
         {

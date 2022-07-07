@@ -8,7 +8,6 @@ using Common.Model.EventModels;
 
 namespace Asset.API.Controllers;
 
-[Route("api/v{version:apiVersion}/assets")]
 [ApiController]
 public class UserController : ControllerBase
 {

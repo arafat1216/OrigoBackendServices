@@ -20,8 +20,6 @@ using Common.Exceptions;
 using Dapr;
 using Microsoft.FeatureManagement;
 using Asset.API.Filters;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace Asset.API.Controllers
 {

@@ -155,7 +155,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 		charts\customer-api\templates\NOTES.txt = charts\customer-api\templates\NOTES.txt
 		charts\customer-api\templates\secrets.yaml = charts\customer-api\templates\secrets.yaml
 		charts\customer-api\templates\service.yaml = charts\customer-api\templates\service.yaml
-		charts\customer-api\subscriptions.yaml = charts\customer-api\subscriptions.yaml
+		charts\customer-api\subscription-user-deleted.yaml = charts\customer-api\subscription-user-deleted.yaml
+		subscription-user-assign-department.yaml = subscription-user-assign-department.yaml
 		charts\customer-api\templates\_helpers.tpl = charts\customer-api\templates\_helpers.tpl
 	EndProjectSection
 EndProject

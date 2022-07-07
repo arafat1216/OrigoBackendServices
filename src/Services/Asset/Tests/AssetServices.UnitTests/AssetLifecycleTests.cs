@@ -154,6 +154,32 @@ public class AssetLifecycleTests
     }
 
     [Fact]
+    public void AssignLifecycleHolder_PersonalHolderWithChangedDepartment_CheckDepartmentChanged()
+    {
+        // Arrange
+        Guid newUserId = Guid.NewGuid();
+        Guid departmentId = Guid.NewGuid();
+        var user = new User() { ExternalId = newUserId };
+
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional,
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        // Act
+
+        assetLifecycle.AssignAssetLifecycleHolder(user, departmentId, Guid.Empty);
+
+        var newDepartmentId = Guid.NewGuid();
+        assetLifecycle.AssignAssetLifecycleHolder(user, newDepartmentId, Guid.Empty);
+
+        // Assert
+        Assert.Equal(newDepartmentId, assetLifecycle.ManagedByDepartmentId);
+    }
+
+
+    [Fact]
     public void CreateAsset_IsSentToRepair_CheckDomainEventsCreated()
     {
         // Arrange
