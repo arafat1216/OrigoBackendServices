@@ -117,7 +117,7 @@ namespace HardwareServiceOrderServices
                     externalOrderResponseDTO.ServiceProviderOrderId1,
                     externalOrderResponseDTO.ServiceProviderOrderId2,
                     externalOrderResponseDTO.ExternalServiceManagementLink,
-                    new List<ServiceEvent> { new ServiceEvent { ServiceStatusId = (int)ServiceStatusEnum.Registered, Timestamp = DateTimeOffset.UtcNow } }
+                    new List<ServiceEvent> { }
                     );
 
                 //Creating order at Origo
