@@ -1,6 +1,5 @@
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
-namespace: {{ .Values.namespace }}
 metadata:
   name: userDeleted-subscription
 spec:
