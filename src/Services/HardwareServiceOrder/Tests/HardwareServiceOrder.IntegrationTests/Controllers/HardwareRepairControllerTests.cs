@@ -45,6 +45,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var settings = await request.Content.ReadFromJsonAsync<CustomerSettingsResponseDTO>();
             Assert.NotNull(settings);
             Assert.NotNull(settings?.ApiUsername);
+            Assert.Equal("d723hjdfhdfnsl23sdf", settings?.ApiUsername);
             Assert.NotNull(settings?.LoanDevice?.Email);
             Assert.NotNull(settings?.LoanDevice?.PhoneNumber);
         }
@@ -86,6 +87,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             var settings = await request.Content.ReadFromJsonAsync<CustomerSettingsResponseDTO>();
             Assert.NotNull(settings);
             Assert.NotNull(settings?.ApiUsername);
+            Assert.Equal("12345", settings?.ApiUsername);
             Assert.NotNull(settings?.LoanDevice?.Email);
             Assert.NotNull(settings?.LoanDevice?.PhoneNumber);
         }

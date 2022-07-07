@@ -1,10 +1,16 @@
 ﻿using AutoMapper;
+using Common.Cryptography;
 using Common.Interfaces;
+using HardwareServiceOrderServices.Configuration;
 using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Email.Models;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
 using HardwareServiceOrderServices.Services;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Options;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace HardwareServiceOrderServices
 {
@@ -15,19 +21,21 @@ namespace HardwareServiceOrderServices
         private IEmailService _emailService;
         private readonly IProviderFactory _providerFactory;
         private readonly Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> _serviceOrderStatusHandlers;
-
+        private readonly IDataProtectionProvider _dataProtectionProvider;
         public HardwareServiceOrderService(
             IHardwareServiceOrderRepository hardwareServiceOrderRepository,
             IMapper mapper,
             IProviderFactory providerFactory,
             Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> serviceOrderStatusHandlers,
-            IEmailService emailService)
+            IEmailService emailService,
+            IDataProtectionProvider dataProtectionProvider)
         {
             _hardwareServiceOrderRepository = hardwareServiceOrderRepository;
             _mapper = mapper;
             _emailService = emailService;
             _providerFactory = providerFactory;
             _serviceOrderStatusHandlers = serviceOrderStatusHandlers;
+            _dataProtectionProvider = dataProtectionProvider;
         }
 
         /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureLoanPhoneAsync(Guid, string, string, bool, Guid)"/>
@@ -225,6 +233,14 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureCustomerServiceProviderAsync(int, Guid, string?, string?)"/>
         public async Task<string?> ConfigureCustomerServiceProviderAsync(int providerId, Guid customerId, string? apiUsername, string? apiPassword)
         {
+            var protector = _dataProtectionProvider.CreateProtector($"{customerId}");
+
+            //Encrypt apiUsername
+            apiUsername = string.IsNullOrEmpty(apiUsername) ? apiUsername : protector.Protect(apiUsername);
+
+            //Encrypt apiPassword
+            apiPassword = string.IsNullOrEmpty(apiPassword) ? apiPassword : protector.Protect(apiPassword);
+
             return await _hardwareServiceOrderRepository.ConfigureCustomerServiceProviderAsync(providerId, customerId, apiUsername, apiPassword);
         }
 
@@ -233,7 +249,14 @@ namespace HardwareServiceOrderServices
         {
             var serviceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, providerId);
 
-            return serviceProvider?.ApiUserName;
+            if (string.IsNullOrEmpty(serviceProvider?.ApiUserName))
+                return serviceProvider?.ApiUserName;
+
+            var protector = _dataProtectionProvider.CreateProtector($"{customerId}");
+
+            var decryptedApiUserName = protector.Unprotect(serviceProvider?.ApiUserName);
+
+            return decryptedApiUserName;
         }
     }
 }

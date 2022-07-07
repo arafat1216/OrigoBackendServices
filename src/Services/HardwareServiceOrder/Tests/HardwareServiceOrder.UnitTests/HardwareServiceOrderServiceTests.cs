@@ -9,6 +9,7 @@ using HardwareServiceOrderServices.Mappings;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
 using HardwareServiceOrderServices.Services;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -78,7 +79,7 @@ namespace HardwareServiceOrder.UnitTests
             serviceOrderStatusHandlerServiceMock.Setup(m => m.UpdateServiceOrderStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<ISet<string>>(), It.IsAny<string>()));
             statusHandlMock.Add(ServiceStatusEnum.Unknown, serviceOrderStatusHandlerServiceMock.Object);
 
-            _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository, _mapper, providerFactoryMock.Object, statusHandlMock, emailService.Object);
+            _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository, _mapper, providerFactoryMock.Object, statusHandlMock, emailService.Object, new EphemeralDataProtectionProvider());
 
         }
 
@@ -127,7 +128,7 @@ namespace HardwareServiceOrder.UnitTests
                     OrganizationNumber = "12",
                     PhoneNumber = "23"
                 },
-                AssetInfo = new AssetInfoDTO( "sd", "dssd", 1, "500119468586675", "500119468586675", new DateOnly(),
+                AssetInfo = new AssetInfoDTO("sd", "dssd", 1, "500119468586675", "500119468586675", new DateOnly(),
             new List<string>
                 {
                         "sdsd"
@@ -179,6 +180,16 @@ namespace HardwareServiceOrder.UnitTests
             Assert.NotNull(orders);
 
             Assert.Equal(2, orders[0].ServiceEvents.ElementAt(0).ServiceStatusId);
+        }
+
+        [Fact]
+        public async Task ConfigureCustomerServiceProvider()
+        {
+            await _hardwareServiceOrderService.ConfigureCustomerServiceProviderAsync(providerId: 1, customerId: CUSTOMER_ONE_ID, apiUsername: "123456", apiPassword: "password123");
+            
+            var apiUserName = await _hardwareServiceOrderService.GetServicerProvidersUsernameAsync(CUSTOMER_ONE_ID, 1);
+            
+            Assert.Equal("123456", apiUserName);
         }
 
     }

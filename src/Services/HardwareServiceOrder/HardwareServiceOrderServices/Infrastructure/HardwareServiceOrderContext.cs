@@ -3,6 +3,7 @@ using Common.EntityFramework;
 using HardwareServiceOrderServices.Infrastructure.EntityConfiguration;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.SeedData;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace HardwareServiceOrderServices.Infrastructure
@@ -10,7 +11,7 @@ namespace HardwareServiceOrderServices.Infrastructure
     /// <summary>
     ///     The default <see cref="DbContext"/> that is used for handling service-request entities.
     /// </summary>
-    public class HardwareServiceOrderContext : DbContext
+    public class HardwareServiceOrderContext : DbContext, IDataProtectionKeyContext
     {
         private readonly bool _isSQLite;
         private readonly IApiRequesterService? apiRequesterService;
@@ -26,7 +27,7 @@ namespace HardwareServiceOrderServices.Infrastructure
         public DbSet<ServiceStatus> ServiceStatuses { get; set; } = null!;
         public DbSet<ServiceType> ServiceTypes { get; set; } = null!;
         public DbSet<CustomerServiceProvider> CustomerServiceProviders { get; set; } = null!;
-
+        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="HardwareServiceOrderContext"/>-class.

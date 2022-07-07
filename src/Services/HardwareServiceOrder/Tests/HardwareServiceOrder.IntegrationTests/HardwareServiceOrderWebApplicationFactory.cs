@@ -4,6 +4,7 @@ using HardwareServiceOrderServices.Infrastructure;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
 using HardwareServiceOrderServices.Services;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -77,19 +78,22 @@ namespace HardwareServiceOrder.IntegrationTests
                     new List<ServiceEvent> { new ServiceEvent { ServiceStatusId = 3, Timestamp = DateTime.UtcNow } }
                 );
 
+                var dataProtector1 = scope.ServiceProvider.GetRequiredService<IDataProtectionProvider>().CreateProtector($"{CUSTOMER_ONE_ID}");
+                var dataProtector2 = scope.ServiceProvider.GetRequiredService<IDataProtectionProvider>().CreateProtector($"{CUSTOMER_TWO_ID}");
+                
                 var cmServiceProvider1 = new CustomerServiceProvider
                 {
                     CustomerId = CUSTOMER_ONE_ID,
-                    ApiPassword = "52079706",
-                    ApiUserName = "d723hjdfhdfnsl23sdf",
+                    ApiPassword = dataProtector1.Protect("52079706"),
+                    ApiUserName = dataProtector1.Protect("d723hjdfhdfnsl23sdf"),
                     ServiceProviderId = 1,
                     LastUpdateFetched = DateTime.Today,
                 };
                 var cmServiceProvider2 = new CustomerServiceProvider
                 {
                     CustomerId = CUSTOMER_TWO_ID,
-                    ApiPassword = "52079706",
-                    ApiUserName = "d723hjdfhdfnsl23sdf",
+                    ApiPassword = dataProtector2.Protect("52079706"),
+                    ApiUserName = dataProtector2.Protect("d723hjdfhdfnsl23sdf"),
                     ServiceProviderId = 1,
                     LastUpdateFetched = DateTime.Today.AddDays(-1),
                 };

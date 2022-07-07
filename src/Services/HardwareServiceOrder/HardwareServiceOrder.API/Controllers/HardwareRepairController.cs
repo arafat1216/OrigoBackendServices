@@ -49,7 +49,7 @@ namespace HardwareServiceOrder.API.Controllers
 
             var response = new CustomerSettingsResponseDTO(_mapper.Map<ViewModels.CustomerSettings>(settings))
             {
-                ApiUsername = serviceId
+                ApiUsername = customerServiceProvider.ApiUserName
             };
 
             return Ok(response);
