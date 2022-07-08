@@ -58,7 +58,7 @@ internal static class AssetTestDataSeedingForDatabase
         var labelOne = new CustomerLabel(LABEL_ONE_ID, COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
         var labelTwo = new CustomerLabel(LABEL_TWO_ID, COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
 
-        var userOne = new User { ExternalId = ASSETHOLDER_ONE_ID };
+        var userOne = new User { ExternalId = ASSETHOLDER_ONE_ID, Name = "Bob Ram" };
 
         var assetLifecycleOne = new AssetLifecycle(ASSETLIFECYCLE_ONE_ID)
         {

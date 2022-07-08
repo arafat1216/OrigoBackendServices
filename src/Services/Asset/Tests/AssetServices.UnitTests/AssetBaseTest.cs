@@ -49,7 +49,7 @@ namespace AssetServices.UnitTests
             context.Database.EnsureCreated();
 
             var userOne = new User { ExternalId = ASSETHOLDER_ONE_ID };
-            var userTwo = new User { ExternalId = ASSETHOLDER_TWO_ID };
+            var userTwo = new User { ExternalId = ASSETHOLDER_TWO_ID, Name = "Atish" };
             var assetRepository = new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var assetCategory = new AssetCategory(ASSET_CATEGORY_ID, null, new List<AssetCategoryTranslation>());
 
@@ -58,11 +58,11 @@ namespace AssetServices.UnitTests
             var assetTwo = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012364", "Apple", "Apple iPhone 8", new List<AssetImei>() { new AssetImei(546366434558702) }, "487027C99FA1");
 
             var assetThree = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012399", "Samsung", "Samsung Galaxy S21", new List<AssetImei>() { new AssetImei(512217111821626) }, "840F1D0C06AD");
-            
+
             var assetFour = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012399", "Samsung", "Samsung Galaxy S21", new List<AssetImei>() { new AssetImei(512217111821626) }, "840F1D0C06AD");
-            
+
             var assetFive = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012399", "Apple", "iPhone 12", new List<AssetImei>() { new AssetImei(512217111821626) }, "840F1D0C06AD");
-            
+
             var assetSix = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012399", "Apple", "iPhone 12", new List<AssetImei>() { new AssetImei(512217111821626) }, "840F1D0C06AD");
 
             var assetSeven = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123458789012399", "Samsung", "Samsung Galaxy S21", new List<AssetImei>() { new AssetImei(335958985460224) }, "A93FE191233B");
@@ -89,9 +89,9 @@ namespace AssetServices.UnitTests
             assetLifecycleFour.HasBeenStolen(CALLER_ID);
             assetLifecycleFour.AssignCustomerLabel(labelOne, CALLER_ID);
 
-            var assetLifecycleFive = new AssetLifecycle(ASSETLIFECYCLE_FOUR_ID) { CustomerId = COMPANY_ID, Alias = "alias_4", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired, AssetLifecycleType = LifecycleType.Transactional};
+            var assetLifecycleFive = new AssetLifecycle(ASSETLIFECYCLE_FOUR_ID) { CustomerId = COMPANY_ID, Alias = "alias_4", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleFive.AssignAsset(assetFive, CALLER_ID);
-            assetLifecycleFive.AssignAssetLifecycleHolder(userOne,null, CALLER_ID);
+            assetLifecycleFive.AssignAssetLifecycleHolder(userOne, null, CALLER_ID);
             assetLifecycleFive.MakeAssetAvailable(CALLER_ID);
             assetLifecycleFive.AssignCustomerLabel(labelOne, CALLER_ID);
 
@@ -107,7 +107,7 @@ namespace AssetServices.UnitTests
 
             var assetLifecycleOther = new AssetLifecycle { CustomerId = Guid.NewGuid(), Alias = "alias_4", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleOther.AssignAsset(assetOther, CALLER_ID);
-            assetLifecycleOther.AssignAssetLifecycleHolder(new User{ExternalId = Guid.NewGuid()},null, CALLER_ID);
+            assetLifecycleOther.AssignAssetLifecycleHolder(new User { ExternalId = Guid.NewGuid() }, null, CALLER_ID);
 
             var assetLifecycleEight = new AssetLifecycle(ASSETLIFECYCLE_SEVEN_ID) { CustomerId = COMPANY_ID, Alias = "alias_7", AssetLifecycleStatus = AssetLifecycleStatus.Active, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleEight.AssignAsset(assetSeven, CALLER_ID);
@@ -118,11 +118,11 @@ namespace AssetServices.UnitTests
             var customerSetting = new CustomerSettings(COMPANY_ID, new List<LifeCycleSetting>() { lifeCycleSetting });
 
 
-            assetLifecycleTwo.AssignCustomerLabel(labelOne,CALLER_ID);
+            assetLifecycleTwo.AssignCustomerLabel(labelOne, CALLER_ID);
 
             context.Users.AddRange(userOne, userTwo);
             context.Assets.AddRange(assetOne, assetTwo, assetThree, assetFour, assetFive, assetSix, assetOther);
-            context.CustomerLabels.AddRange(labelOne, labelTwo,labelThree);
+            context.CustomerLabels.AddRange(labelOne, labelTwo, labelThree);
             context.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree, assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleOther, assetLifecycleEight);
             context.CustomerSettings.AddRange(customerSetting);
             context.SaveChanges();

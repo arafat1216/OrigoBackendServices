@@ -125,6 +125,23 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     }
 
     [Fact]
+    public async Task GetAssetsForCustomer_SearchByName()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}?q=bob";
+
+        // Act
+        var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+
+        // Assert
+        Assert.Equal(2, pagedAssetList!.Items.Count);
+        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[0]!.CreatedDate.Date);
+        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[1]!.CreatedDate.Date);
+        Assert.Equal(_factory.ASSETHOLDER_ONE_ID, pagedAssetList!.Items[0]!.AssetHolderId);
+        Assert.Equal(_factory.ASSETHOLDER_ONE_ID, pagedAssetList!.Items[1]!.AssetHolderId);
+    }
+
+    [Fact]
     public async Task GetCustomerItemCount_ForCustomer()
     {
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/count";

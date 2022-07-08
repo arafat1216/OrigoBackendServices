@@ -121,7 +121,8 @@ namespace AssetServices.Infrastructure
                                               al.Asset.Brand.ToLower().Contains(search.ToLower()) ||
                                               al.Asset.ProductName.ToLower().Contains(search.ToLower())) ||
                                               (imeiFound && al.Asset is MobilePhone && (al.Asset as MobilePhone).Imeis.Any(im => im.Imei == imei)) ||
-                                              (al.Asset is MobilePhone && (al.Asset as MobilePhone).SerialNumber.ToLower().Contains(search.ToLower()))
+                                              (al.Asset is MobilePhone && (al.Asset as MobilePhone).SerialNumber.ToLower().Contains(search.ToLower())) ||
+                                              al.ContractHolderUser.Name.ToLower().Contains(search.ToLower())
                 );
             }
 

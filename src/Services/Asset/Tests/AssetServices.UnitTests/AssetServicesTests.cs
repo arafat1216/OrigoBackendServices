@@ -1627,4 +1627,23 @@ public class AssetServicesTests : AssetBaseTest
         Assert.NotNull(asset);
         Assert.Equal(DEPARTMENT_ID,asset?.ManagedByDepartmentId);
     }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetAssetLifecyclesAsync_SearchByUsername()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+
+        //Act
+        var assetList = await assetRepository.GetAssetLifecyclesAsync(COMPANY_ID, null, null, null, null, null, null, null, null, null, "atish", 1, 10, CancellationToken.None);
+
+        //Assert
+        Assert.Equal(1, assetList.Items.Count);
+        Assert.NotNull(assetList.Items[0].ContractHolderUser);
+        Assert.Equal(ASSETHOLDER_TWO_ID, assetList.Items[0].ContractHolderUser.ExternalId);
+        Assert.Equal("Atish", assetList.Items[0].ContractHolderUser.Name);
+    }
 }
