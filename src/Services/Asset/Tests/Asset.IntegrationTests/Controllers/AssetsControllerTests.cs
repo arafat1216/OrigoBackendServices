@@ -2453,4 +2453,19 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var asset = await httpClient.GetFromJsonAsync<API.ViewModels.Asset>(url);
         Assert.True(asset?.IsActiveState);
     }
+    [Fact]
+    public async Task GetAsset_WithFilter()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+        var userId = _user.ToString();
+        var filterOptions = new FilterOptionsForAsset { UserId = userId };
+
+        var json = JsonSerializer.Serialize(filterOptions);
+        
+
+        var url = $"/api/v1/Assets/{_assetOne}/customers/{_customerId}?filterOptions={json}";
+        var asset = await httpClient.GetFromJsonAsync<API.ViewModels.Asset>(url);
+        Assert.Equal(_user, asset?.AssetHolderId);
+        Assert.Equal(_assetOne, asset?.Id);
+    }
 }

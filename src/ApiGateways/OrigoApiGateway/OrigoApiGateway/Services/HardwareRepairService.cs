@@ -174,7 +174,7 @@ namespace OrigoApiGateway.Services
                 var dto = new NewHardwareServiceOrderDTO(model);
 
                 // Verify whether the asset can be sent to repair
-                var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(customerId, model.AssetId);
+                var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(customerId, model.AssetId, null);
 
                 if (asset == null)
                     throw new ArgumentException($"Asset does not exist with ID {model.AssetId}", nameof(model.AssetId));

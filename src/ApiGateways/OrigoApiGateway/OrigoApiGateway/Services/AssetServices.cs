@@ -430,11 +430,18 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId)
+        public async Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId, FilterOptionsForAsset? filterOptions)
         {
             try
             {
-                var asset = await HttpClient.GetFromJsonAsync<AssetDTO>($"{_options.ApiPath}/{assetId}/customers/{customerId}");
+                string url = $"{_options.ApiPath}/{assetId}/customers/{customerId}";
+                if (filterOptions != null)
+                {
+                    string json = JsonSerializer.Serialize(filterOptions);
+                    url = $"{_options.ApiPath}/{assetId}/customers/{customerId}?filterOptions={json}";
+                }
+
+                var asset = await HttpClient.GetFromJsonAsync<AssetDTO>(url);
 
                 OrigoAsset result = null;
                 if (asset != null)
@@ -594,11 +601,12 @@ namespace OrigoApiGateway.Services
         {
             try
             {
+
                 var makeAssetAvailableDTO = _mapper.Map<MakeAssetAvailableDTO>(data);
                 makeAssetAvailableDTO.CallerId = callerId; // Guid.Empty if tryparse fails.
 
                 var requestUri = $"{_options.ApiPath}/customers/{customerId}/make-available";
-                var existingAsset = await GetAssetForCustomerAsync(customerId, data.AssetLifeCycleId);
+                var existingAsset = await GetAssetForCustomerAsync(customerId, data.AssetLifeCycleId, null);
                 if(existingAsset.AssetHolderId != null)
                 {
                     var user = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
@@ -643,7 +651,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var existingAsset = await GetAssetForCustomerAsync(customerId, assetLifeCycleId);
+                var existingAsset = await GetAssetForCustomerAsync(customerId, assetLifeCycleId, null);
                 if (existingAsset == null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
                 if((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && !accessList.Contains(existingAsset.ManagedByDepartmentId))
                     throw new UnauthorizedAccessException("Manager does not have access to this asset!!!");
@@ -724,7 +732,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var existingAsset = await GetAssetForCustomerAsync(customerId, assetLifeCycleId);
+                var existingAsset = await GetAssetForCustomerAsync(customerId, assetLifeCycleId, null);
                 if (existingAsset == null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
                 if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && !accessList.Contains(existingAsset.ManagedByDepartmentId))
                     throw new UnauthorizedAccessException("Manager does not have access to this asset!!!");
@@ -772,7 +780,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var existingAsset = await GetAssetForCustomerAsync(customerId, data.AssetId);
+                var existingAsset = await GetAssetForCustomerAsync(customerId, data.AssetId, null);
                 if (existingAsset == null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
                 if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && !accessList.Contains(existingAsset.ManagedByDepartmentId))
                     throw new UnauthorizedAccessException("Manager does not have access to this asset!!!");
@@ -891,7 +899,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var existingAsset = await GetAssetForCustomerAsync(customerId, assetId);
+                var existingAsset = await GetAssetForCustomerAsync(customerId, assetId, null);
                 var department = await _departmentsServices.GetDepartmentAsync(customerId, existingAsset.ManagedByDepartmentId.Value);
                 var oldManagers = new List<EmailPersonAttributeDTO>();
                 foreach (var manager in department.ManagedBy)
@@ -941,7 +949,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var existingAsset = await GetAssetForCustomerAsync(customerId, assetId);
+                var existingAsset = await GetAssetForCustomerAsync(customerId, assetId, null);
                 if (existingAsset.AssetHolderId != null)
                 {
                     var previousUser = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);

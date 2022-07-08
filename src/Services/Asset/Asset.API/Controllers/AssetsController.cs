@@ -255,9 +255,14 @@ namespace Asset.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<ViewModels.Asset>> Get(Guid customerId, Guid assetId)
+        public async Task<ActionResult<ViewModels.Asset>> Get(Guid customerId, Guid assetId, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString = null)
         {
-            var assetLifecycle = await _assetServices.GetAssetLifecycleForCustomerAsync(customerId, assetId);
+            FilterOptionsForAsset? filterOptions = null;
+            if (!string.IsNullOrEmpty(filterOptionsAsJsonString))
+            {
+                filterOptions = JsonSerializer.Deserialize<FilterOptionsForAsset>(filterOptionsAsJsonString);
+            }
+            var assetLifecycle = await _assetServices.GetAssetLifecycleForCustomerAsync(customerId, assetId, filterOptions?.UserId);
             return Ok(_mapper.Map<ViewModels.Asset>(assetLifecycle));
         }
 

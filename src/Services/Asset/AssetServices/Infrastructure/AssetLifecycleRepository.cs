@@ -445,17 +445,20 @@ namespace AssetServices.Infrastructure
         }
 
 
-        public async Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetLifecycleId)
+        public async Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetLifecycleId, string? userId)
         {
-            var assetLifecycle = await _assetContext.AssetLifeCycles
-                .Include(al => al.Asset)
-                .ThenInclude(hw => (hw as MobilePhone).Imeis)
-                //.ThenInclude(hw => (hw as Tablet).Imeis)
-                .Include(al => al.ContractHolderUser)
-                .Include(a => a.Labels)
-                .Where(a => a.CustomerId == customerId && a.ExternalId == assetLifecycleId)
-                .FirstOrDefaultAsync();
-            return assetLifecycle;
+            IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
+            query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
+            query = query.Include(al => al.Labels);
+            query = query.Include(al => al.ContractHolderUser);
+            query = query.Where(al => al.CustomerId == customerId);
+            query = query.Where(al => al.ExternalId == assetLifecycleId);
+
+            if (userId != null) 
+            { 
+            query = query.Where(al => al.ContractHolderUser.ExternalId == new Guid(userId));
+            }
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task<User?> GetUser(Guid userId)

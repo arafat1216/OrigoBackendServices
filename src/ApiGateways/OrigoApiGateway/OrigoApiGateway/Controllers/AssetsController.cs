@@ -616,12 +616,16 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                FilterOptionsForAsset filterOptions = null;
+
                 // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role == PredefinedRole.EndUser.ToString())
                 {
-                    return Forbid();
+                    filterOptions = new FilterOptionsForAsset();
+                    filterOptions.UserId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value ?? null;
                 }
+
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
@@ -631,7 +635,9 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var asset = await _assetServices.GetAssetForCustomerAsync(organizationId, assetId);
+                
+
+                var asset = await _assetServices.GetAssetForCustomerAsync(organizationId, assetId, filterOptions);
                 if (asset == null)
                 {
                     return NotFound();
@@ -838,6 +844,7 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                 var department = new List<Guid?>();

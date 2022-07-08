@@ -23,5 +23,7 @@ namespace OrigoApiGateway.Models
         public bool? IsPersonal { get; set; }
         [FromQuery(Name = "endPeriodMonth")]
         public DateTime? EndPeriodMonth { get; set; }
+        [FromQuery(Name = "role")]
+        public string[]? Roles { get; set; }
     }
 }

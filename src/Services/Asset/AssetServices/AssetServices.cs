@@ -79,9 +79,9 @@ namespace AssetServices
             }
         }
 
-        public async Task<AssetLifecycleDTO?> GetAssetLifecycleForCustomerAsync(Guid customerId, Guid assetId)
+        public async Task<AssetLifecycleDTO?> GetAssetLifecycleForCustomerAsync(Guid customerId, Guid assetId, string? userId)
         {
-            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
+            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, userId);
             return assetLifecycle == null ? null : _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
 
@@ -326,7 +326,7 @@ namespace AssetServices
 
         public async Task<AssetLifecycleDTO?> ChangeAssetLifecycleTypeForCustomerAsync(Guid customerId, Guid assetId, Guid callerId, LifecycleType newLifecycleType)
         {
-            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
+            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, null);
             if (assetLifecycle == null) return null;
             assetLifecycle.AssignLifecycleType(newLifecycleType, callerId);
             await _assetLifecycleRepository.SaveEntitiesAsync();
@@ -370,7 +370,7 @@ namespace AssetServices
 
         public async Task<AssetLifecycleDTO> MakeAssetExpiredAsync(Guid customerId, Guid assetId, Guid callerId)
         {
-            var existingAssetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
+            var existingAssetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, null);
             if (existingAssetLifeCycle == null)
                 throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);           
 
@@ -381,7 +381,7 @@ namespace AssetServices
         }
         public async Task<AssetLifecycleDTO> MakeAssetExpiresSoonAsync(Guid customerId, Guid assetId, Guid callerId)
         {
-            var existingAssetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
+            var existingAssetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, null);
             if (existingAssetLifeCycle == null)
                 throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
 
@@ -393,7 +393,7 @@ namespace AssetServices
 
         public async Task<AssetLifecycleDTO> ReturnDeviceAsync(Guid customerId, ReturnDeviceDTO data)
         {
-            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId);
+            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null);
             if (assetLifecycle == null)
                 throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
 
@@ -440,7 +440,7 @@ namespace AssetServices
 
         public async Task<AssetLifecycleDTO> BuyoutDeviceAsync(Guid customerId, BuyoutDeviceDTO data)
         {
-            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId);
+            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null);
             if (assetLifecycle == null)
                 throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
 
@@ -470,7 +470,7 @@ namespace AssetServices
         }
         public async Task<AssetLifecycleDTO> ReportDeviceAsync(Guid customerId, ReportDeviceDTO data)
         {
-            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId);
+            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null);
             if (assetLifecycle == null)
                 throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
 
@@ -519,7 +519,7 @@ namespace AssetServices
 
         public async Task<AssetLifecycleDTO> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string? alias, string? serialNumber, string? brand, string? model, DateTime? purchaseDate, string? note, string? tag, string? description, IList<long>? imei, string? macAddress)
         {
-            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
+            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, null);
             if (assetLifecycle == null)
             {
                 throw new InvalidAssetDataException($"Asset Lifecycle {assetId} not found");
@@ -623,7 +623,7 @@ namespace AssetServices
 
         public async Task<AssetLifecycleDTO> AssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, AssignAssetDTO assignAssetDTO)
         {
-            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId);
+            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, null);
             if (assetLifecycle == null) throw new ResourceNotFoundException("No asset were found using the given AssetId. Did you enter the correct Asset Id?", _logger);
             if (assignAssetDTO.UserId != Guid.Empty)
             {
