@@ -38,6 +38,9 @@ deployment:
   probes:
     enabled: false
 
+pubsub:
+  host: amqp://localhost:5672
+
 ingress:
   enabled: false
   annotations:
