@@ -262,7 +262,7 @@ namespace Asset.API.Controllers
             {
                 filterOptions = JsonSerializer.Deserialize<FilterOptionsForAsset>(filterOptionsAsJsonString);
             }
-            var assetLifecycle = await _assetServices.GetAssetLifecycleForCustomerAsync(customerId, assetId, filterOptions?.UserId);
+            var assetLifecycle = await _assetServices.GetAssetLifecycleForCustomerAsync(customerId, assetId, filterOptions?.UserId, filterOptions?.Department);
             return Ok(_mapper.Map<ViewModels.Asset>(assetLifecycle));
         }
 

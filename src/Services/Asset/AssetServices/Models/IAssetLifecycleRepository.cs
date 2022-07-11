@@ -16,7 +16,7 @@ namespace AssetServices.Models
         Task<int> GetAssetLifecyclesCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus);
         Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
            Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string search, int page, int limit, CancellationToken cancellationToken);
-        Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetId, string? userId);
+        Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetId, string? userId, IList<Guid?>? department);
         Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid assetLifeCycleId);
         Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList);
         Task<IList<AssetLifecycle>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId);

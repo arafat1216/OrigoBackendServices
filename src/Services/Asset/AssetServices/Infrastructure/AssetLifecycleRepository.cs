@@ -416,7 +416,7 @@ namespace AssetServices.Infrastructure
 
             foreach (var assetLifecycle in assetLifecyclesForUser)
             {
-                if (assetLifecycle.ManagedByDepartmentId == null && departmentId != null)
+                if (departmentId != null)
                     assetLifecycle.AssignAssetLifecycleHolder(null, departmentId, callerId);
 
                 _assetContext.Entry(assetLifecycle).State = EntityState.Modified;
@@ -445,7 +445,7 @@ namespace AssetServices.Infrastructure
         }
 
 
-        public async Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetLifecycleId, string? userId)
+        public async Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetLifecycleId, string? userId, IList<Guid?>? department)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
             query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
@@ -457,6 +457,10 @@ namespace AssetServices.Infrastructure
             if (userId != null) 
             { 
             query = query.Where(al => al.ContractHolderUser.ExternalId == new Guid(userId));
+            }
+            if (department != null)
+            {
+                query = query.Where(al => department.Contains(al.ManagedByDepartmentId));
             }
             return await query.FirstOrDefaultAsync();
         }

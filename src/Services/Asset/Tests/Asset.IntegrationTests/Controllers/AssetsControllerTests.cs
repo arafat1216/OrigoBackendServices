@@ -139,7 +139,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/count?departmentId={_departmentId}";
         _testOutputHelper.WriteLine(requestUri);
         var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
-        Assert.Equal(4, count);
+        Assert.Equal(5, count);
     }
 
     [Fact]
@@ -162,7 +162,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
             $"/api/v1/Assets/customers/{_customerId}/count?departmentId={_departmentId}&assetLifecycleStatus={(int)AssetLifecycleStatus.InUse}";
         _testOutputHelper.WriteLine(requestUri);
         var count = await httpClient.GetFromJsonAsync<int>(requestUri);
-        Assert.Equal(2, count);
+        Assert.Equal(3, count);
     }
 
     [Fact]
@@ -2467,5 +2467,47 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var asset = await httpClient.GetFromJsonAsync<API.ViewModels.Asset>(url);
         Assert.Equal(_user, asset?.AssetHolderId);
         Assert.Equal(_assetOne, asset?.Id);
+    }
+    [Fact]
+    public async Task GetAsset_Manager_FilterByDepartmentId()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+       
+        var filterOptions = new FilterOptionsForAsset { Department = new List<Guid?> { _departmentId } };
+
+        var json = JsonSerializer.Serialize(filterOptions);
+
+
+        var url = $"/api/v1/Assets/{_assetSeven}/customers/{_customerId}?filterOptions={json}";
+        var asset = await httpClient.GetFromJsonAsync<API.ViewModels.Asset>(url);
+        Assert.Equal(_departmentId, asset?.ManagedByDepartmentId);
+        Assert.Null(asset?.AssetHolderId);
+        Assert.Equal(_assetSeven, asset?.Id);
+    }
+    [Fact]
+    public async Task GetAsset_Manager_GetUserOfDepartmentAsset()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+        var filterOptions = new FilterOptionsForAsset { Department = new List<Guid?> { _departmentId } };
+
+        var json = JsonSerializer.Serialize(filterOptions);
+        var url = $"/api/v1/Assets/{_assetFour}/customers/{_customerId}?filterOptions={json}";
+        var asset = await httpClient.GetFromJsonAsync<API.ViewModels.Asset>(url);
+        Assert.Equal(_user, asset?.AssetHolderId);
+        Assert.Equal(_departmentId, asset?.ManagedByDepartmentId);
+        Assert.Equal(_assetFour, asset?.Id);
+    }
+    [Fact]
+    public async Task GetAsset_Manager_NotFromManagersDepartment()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+        var filterOptions = new FilterOptionsForAsset { Department = new List<Guid?> { _departmentIdTwo } };
+
+        var json = JsonSerializer.Serialize(filterOptions);
+        var url = $"/api/v1/Assets/{_assetFour}/customers/{_customerId}?filterOptions={json}";
+        var response = await httpClient.GetAsync(url);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 }

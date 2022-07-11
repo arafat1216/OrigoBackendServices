@@ -618,24 +618,37 @@ namespace OrigoApiGateway.Controllers
             {
                 FilterOptionsForAsset filterOptions = null;
 
-                // Only admin or manager roles are allowed to manage assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == PredefinedRole.EndUser.ToString())
-                {
-                    filterOptions = new FilterOptionsForAsset();
-                    filterOptions.UserId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value ?? null;
-                }
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
                     }
                 }
 
-                
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    filterOptions = new FilterOptionsForAsset();
+                    filterOptions.UserId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value ?? null;
+                }
+
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
+                {
+                    filterOptions = new FilterOptionsForAsset();
+                    filterOptions.Department ??= new List<Guid?>();
+
+                    foreach (var departmentId in accessList)
+                    {
+                        if (Guid.TryParse(departmentId, out var departmentGuid))
+                        {
+                            filterOptions.Department.Add(departmentGuid);
+
+                        }
+                    }
+                }
 
                 var asset = await _assetServices.GetAssetForCustomerAsync(organizationId, assetId, filterOptions);
                 if (asset == null)

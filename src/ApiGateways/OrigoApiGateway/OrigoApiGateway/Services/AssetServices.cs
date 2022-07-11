@@ -438,7 +438,7 @@ namespace OrigoApiGateway.Services
                 if (filterOptions != null)
                 {
                     string json = JsonSerializer.Serialize(filterOptions);
-                    url = $"{_options.ApiPath}/{assetId}/customers/{customerId}?filterOptions={json}";
+                    url = $"{_options.ApiPath}/{assetId}/customers/{customerId}/?filterOptions={json}";
                 }
 
                 var asset = await HttpClient.GetFromJsonAsync<AssetDTO>(url);
