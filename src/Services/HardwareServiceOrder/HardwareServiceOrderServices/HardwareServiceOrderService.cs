@@ -194,7 +194,8 @@ namespace HardwareServiceOrderServices
 
             foreach (var customerProvider in customerProviders)
             {
-                var provider = await _providerFactory.GetRepairProviderAsync(customerProvider.ServiceProviderId, customerProvider.ApiUserName, customerProvider.ApiPassword);
+                string? decryptedApiUserName = await GetServicerProvidersUsernameAsync(customerProvider.CustomerId, customerProvider.ServiceProviderId);
+                var provider = await _providerFactory.GetRepairProviderAsync(customerProvider.ServiceProviderId, decryptedApiUserName, customerProvider.ApiPassword);
 
                 var updateStarted = DateTimeOffset.UtcNow;
 
