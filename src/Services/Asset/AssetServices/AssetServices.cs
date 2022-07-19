@@ -625,19 +625,12 @@ namespace AssetServices
 
         public IList<AssetCategory> GetAssetCategories(string language = "EN")
         {
-            try
-            {
                 return new List<AssetCategory>
                 {
                     new(1, null,
                         new List<AssetCategoryTranslation> { new(1, "EN", "Mobile phones", string.Empty) }),
                     new(2, null, new List<AssetCategoryTranslation> { new(1, "EN", "Tablets", string.Empty) })
                 };
-            }
-            catch (Exception exception)
-            {
-                throw new ReadingDataException(exception);
-            }
         }
 
         public async Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId, Guid userId, string role)
