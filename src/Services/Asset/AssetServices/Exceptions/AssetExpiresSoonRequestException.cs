@@ -1,21 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Common.Enums;
 using System;
 
 namespace AssetServices.Exceptions
 {
-    public class AssetExpiresSoonRequestException : Exception
+    public class AssetExpiresSoonRequestException : AssetException
     {
-        public AssetExpiresSoonRequestException(ILogger logger)
+        public AssetExpiresSoonRequestException(string message, Guid traceId, Exception? innerException = null) : base(message, traceId, OrigoErrorCodes.ExpiresSoonError, innerException)
         {
-            logger.LogError(this, "Error in exception");
-        }
-        public AssetExpiresSoonRequestException(string messages) : base(messages)
-        {
-        }
-
-        public AssetExpiresSoonRequestException(string message, ILogger logger) : base(message)
-        {
-            logger.LogError(this, message);
         }
     }
 }

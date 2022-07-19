@@ -6,6 +6,7 @@ namespace AssetServices.Exceptions
     [Serializable]
     internal class ReadingDataException : Exception
     {
+        //Cam be deleted
         private Exception exception;
 
         public ReadingDataException()

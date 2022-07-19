@@ -337,13 +337,13 @@ public class AssetLifecycle : Entity, IAggregateRoot
     public void MakeAssetExpired(Guid callerId)
     {
         if (_assetLifecycleType == LifecycleType.NoLifecycle)
-            throw new AssetExpireRequestException("Asset has No Life Cycle to Expire");
+            throw new AssetExpireRequestException("Asset has No Life Cycle to Expire", Guid.Parse("57421580-2f0f-4e94-b8cd-ed26e4b7ee64"));
         if (!IsActiveState)
-            throw new AssetExpireRequestException("Asset is not in Active state");
+            throw new InvalidOperationForInactiveState($"{_assetLifecycleStatus}", ExternalId, Guid.Parse("4c4af52f-2b2a-44a5-bad0-11f8a9df5772"));
         if (_assetLifecycleStatus != AssetLifecycleStatus.ExpiresSoon)
-            throw new AssetExpireRequestException("Asset does not have 'ExpiresSoon' status");
+            throw new AssetExpireRequestException("Asset does not have 'ExpiresSoon' status", Guid.Parse("0a3cb7d5-8ceb-46ba-841b-056e9aaf40d1"));
         if (EndPeriod.HasValue && (int) (EndPeriod.Value - DateTime.UtcNow).TotalDays >= 0)
-            throw new AssetExpireRequestException("Asset is not expiring.");
+            throw new AssetExpireRequestException("Asset is not expiring.", Guid.Parse("7d0860fa-9144-4f26-b9dc-cbaaf80af5a2"));
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         AddDomainEvent(new MakeAssetExpiredDomainEvent(this, callerId));
@@ -357,9 +357,9 @@ public class AssetLifecycle : Entity, IAggregateRoot
     public void MakeAssetExpiresSoon(Guid callerId)
     {
         if (_assetLifecycleType == LifecycleType.NoLifecycle)
-            throw new AssetExpiresSoonRequestException("Asset has No Life Cycle that can expires soon");
+            throw new AssetExpiresSoonRequestException("Asset has No Life Cycle that can expires soon", Guid.Parse("51307f19-ee44-4897-a90c-bb8eca6cb44e"));
         if (!IsActiveState)
-            throw new AssetExpiresSoonRequestException("Asset is not in Active state");
+            throw new InvalidOperationForInactiveState($"{_assetLifecycleStatus}", ExternalId, Guid.Parse("46b0157b-9366-4aa8-9bbb-1b9f77962378"));
 
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
@@ -374,16 +374,16 @@ public class AssetLifecycle : Entity, IAggregateRoot
     public void MakeReturnRequest(Guid callerId)
     {
         if (_assetLifecycleType != LifecycleType.Transactional)
-            throw new ReturnDeviceRequestException($"Only Assets that have Transactionl Life cycle type can make return request!!! asset Id: {ExternalId}");
+            throw new ReturnDeviceRequestException($"Only Assets that have Transactionl Life cycle type can make return request!!! asset Id: {ExternalId}", Guid.Parse("af416bd6-0879-4f26-9dba-176f7d01e971"));
 
         if (!IsActiveState)
-            throw new ReturnDeviceRequestException($"Only Active devices can make return request!!! asset Id: {ExternalId}");
+            throw new InvalidOperationForInactiveState($"{_assetLifecycleStatus}", ExternalId, Guid.Parse("fdabaf1c-7586-4c01-89cf-80efc6220cce"));
 
         if (_assetLifecycleStatus != AssetLifecycleStatus.ExpiresSoon)
-            throw new ReturnDeviceRequestException($"Asset is not Expiring Soon to make return request!!! asset Id: {ExternalId}");
+            throw new ReturnDeviceRequestException($"Asset is not Expiring Soon to make return request!!! asset Id: {ExternalId}", Guid.Parse("e1e4a4a3-af75-4a14-a9d0-24d354f550f6"));
 
         if (_assetLifecycleStatus == AssetLifecycleStatus.PendingReturn)
-            throw new ReturnDeviceRequestException($"Asset already have pending return request!!! asset Id: {ExternalId}");
+            throw new ReturnDeviceRequestException($"Asset already have pending return request!!! asset Id: {ExternalId}", Guid.Parse("a6def7ce-75bd-4985-96a1-f0d9d9fe7299"));
 
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
@@ -399,13 +399,13 @@ public class AssetLifecycle : Entity, IAggregateRoot
     public void ConfirmReturnDevice(Guid callerId, string locationName, string description)
     {
         if (_assetLifecycleType != LifecycleType.Transactional)
-            throw new ReturnDeviceRequestException($"Only Assets that have Transactionl Life cycle type can make return request!!! asset Id: {ExternalId}");
+            throw new ReturnDeviceRequestException($"Only Assets that have Transactionl Life cycle type can make return request!!! asset Id: {ExternalId}", Guid.Parse("9ca1610a-16ba-432a-9e8a-f601933ba7a1"));
 
         if (_assetLifecycleStatus != AssetLifecycleStatus.ExpiresSoon && _assetLifecycleStatus != AssetLifecycleStatus.PendingReturn)
-            throw new ReturnDeviceRequestException($"Asset is not Expiring Soon and does not have pending return request!!! asset Id: {ExternalId}");
+            throw new ReturnDeviceRequestException($"Asset is not Expiring Soon and does not have pending return request!!! asset Id: {ExternalId}", Guid.Parse("46d0a2b2-73a9-40b7-9ccf-3d44e6c0a35f"));
 
         if (!IsActiveState)
-            throw new ReturnDeviceRequestException($"Only Active devices can make return request!!! asset Id: {ExternalId}");
+            throw new InvalidOperationForInactiveState($"{_assetLifecycleStatus}", ExternalId, Guid.Parse("d7f038ac-0af5-4018-a3bc-6d851772b15c"));
 
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
@@ -421,16 +421,16 @@ public class AssetLifecycle : Entity, IAggregateRoot
     public void BuyoutDevice(Guid callerId)
     {
         if (!IsActiveState)
-            throw new BuyoutDeviceRequestException($"Only Active devices can do buyout!!! asset Id: {ExternalId}");
+            throw new InvalidOperationForInactiveState($"{_assetLifecycleStatus}", ExternalId, Guid.Parse("950d05f4-ca1b-43ed-86ea-937c1b1da98d"));
 
         if (!IsPersonal || ContractHolderUser is null)
-            throw new BuyoutDeviceRequestException($"Only Personal Assets can be bought out!!! asset Id: {ExternalId}");
+            throw new BuyoutDeviceRequestException($"Only Personal Assets can be bought out!!! asset Id: {ExternalId}", Guid.Parse("1c7358ca-e3bf-44eb-89c3-977004bdb749"));
 
         if (_assetLifecycleType != LifecycleType.Transactional)
-            throw new BuyoutDeviceRequestException($"Only Assets that have Transactionl Life cycle type can be bought out!!! asset Id: {ExternalId}");
+            throw new BuyoutDeviceRequestException($"Only Assets that have Transactionl Life cycle type can be bought out!!! asset Id: {ExternalId}", Guid.Parse("1462a412-af22-4d2f-94c4-082f658400d3"));
 
         if (_assetLifecycleStatus != AssetLifecycleStatus.ExpiresSoon)
-            throw new ReturnDeviceRequestException($"Asset is not Expiring Soon to do buyout!!! asset Id: {ExternalId}");
+            throw new ReturnDeviceRequestException($"Asset is not Expiring Soon to do buyout!!! asset Id: {ExternalId}", Guid.Parse("2428fe7a-ec4d-440c-8e7b-79092ca3800e"));
 
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
@@ -446,7 +446,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     public void ReportDevice(ReportCategory reportCategory, Guid callerId)
     {
         if (!IsActiveState)
-            throw new InactiveDeviceRequestException($"Only Active devices can be reported!!! asset Id: {ExternalId}");
+            throw new InvalidOperationForInactiveState($"{_assetLifecycleStatus}", ExternalId, Guid.Parse("1efc46cc-5045-4811-a49c-ec234ba3b9ef"));
 
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
@@ -608,7 +608,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
       _assetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
       _assetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
       _assetLifecycleStatus == AssetLifecycleStatus.Returned ||
-      _assetLifecycleStatus == AssetLifecycleStatus.Discarded) throw new InvalidAssetDataException($"Invalid asset lifecycle status: {_assetLifecycleStatus} for sending asset lifecycle on repair.");
+      _assetLifecycleStatus == AssetLifecycleStatus.Discarded) throw new InvalidAssetDataException($"Invalid asset lifecycle status: {_assetLifecycleStatus} for sending asset lifecycle on repair.",Guid.Parse("c3c2cde5-b627-4de9-9dfd-e69f71804535"));
 
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
@@ -622,7 +622,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
             _assetLifecycleStatus == AssetLifecycleStatus.Recycled ||
             _assetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
             _assetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
-            _assetLifecycleStatus == AssetLifecycleStatus.Returned) throw new InvalidAssetDataException($"Invalid asset lifecycle status: {_assetLifecycleStatus} for completing return.");
+            _assetLifecycleStatus == AssetLifecycleStatus.Returned) throw new InvalidAssetDataException($"Invalid asset lifecycle status: {_assetLifecycleStatus} for completing return.", Guid.Parse("c8e7d181-8eb6-4fa3-b553-58c8fac0544e"));
 ;
         if (_assetLifecycleStatus == AssetLifecycleStatus.Repair)
         {

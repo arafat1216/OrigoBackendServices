@@ -49,7 +49,7 @@ namespace AssetServices.Models
             {
                 if (!AssetValidatorUtility.ValidateImei(imei.ToString()))
                 {
-                    throw new InvalidAssetDataException($"Invalid imei: {imei}");
+                    throw new InvalidAssetImeiException($"{imei}", Guid.Parse("4d88ed3b-c5f1-498d-ac85-82ed92c23884"));
                 }
             }
             _imeis.Clear();
@@ -70,7 +70,7 @@ namespace AssetServices.Models
             {
                 if (!AssetValidatorUtility.ValidateImei(imei.ToString()))
                 {
-                    throw new InvalidAssetDataException($"Invalid imei: {imei}");
+                    throw new InvalidAssetImeiException($"{imei}", Guid.Parse("4d88ed3b-c5f1-498d-ac85-82ed92c23884"));
                 }
 
                 if (Imeis.All(i => i.Imei != imei))
@@ -95,12 +95,12 @@ namespace AssetServices.Models
             }
             else
             {
-                throw new InvalidAssetDataException($"Mac address {macAddress} is invalid");
+                throw new InvalidAssetMacAddressException($"{macAddress}",Guid.Parse("509ef045-4b9a-4587-97c8-8f473460b7bf"));
             }
         }
         protected bool ValidateMacAddress(string? macAddress)
         {
-            if (macAddress == null || string.IsNullOrEmpty(macAddress)) throw new InvalidAssetDataException($"Mac address is empty");
+            if (macAddress == null || string.IsNullOrEmpty(macAddress)) throw new InvalidAssetMacAddressException($"EMPTY", Guid.Parse("4dfa8a73-bd31-4eb8-96bf-df2ecbfe5471"));
             
 
             var regex = "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})|([0-9a-fA-F]{4}\\.[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4})$";

@@ -1,18 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Common.Enums;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace AssetServices.Exceptions
 {
-    public class ResourceNotFoundException : Exception
+    public class ResourceNotFoundException : AssetException
     {
-        public ResourceNotFoundException(ILogger logger)
+        public ResourceNotFoundException(string message, Guid traceId, Exception? innerException = null) : base(message, traceId, OrigoErrorCodes.ResourceNotFound, innerException)
         {
-            logger.LogError(this, "Error in exception");
-        }
-
-        public ResourceNotFoundException(string message, ILogger logger) : base(message)
-        {
-            logger.LogError(this, message);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using AssetServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Hosting;
@@ -24,6 +25,11 @@ namespace Asset.API.Filters
             if (exception is ArgumentException)
             {
                 context.Result = new BadRequestObjectResult(exception.Message);
+                return;
+            }
+            if (exception is AssetException assetException)
+            {
+                context.Result = new BadRequestObjectResult(assetException.ErrorResponse);
                 return;
             }
 

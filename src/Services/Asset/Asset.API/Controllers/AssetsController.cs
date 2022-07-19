@@ -16,7 +16,6 @@ using System.Text.Json;
 using AssetServices.ServiceModel;
 using AutoMapper;
 using Common.Enums;
-using Common.Exceptions;
 using Dapr;
 using Microsoft.FeatureManagement;
 using Asset.API.Filters;
@@ -102,45 +101,36 @@ namespace Asset.API.Controllers
             return Accepted();
         }
 
+
         [Route("customers/{customerId:guid}/labels")]
         [HttpPost]
         [ProducesResponseType(typeof(IList<ViewModels.Label>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Label>>> CreateLabelsForCustomer(Guid customerId, [FromBody] AddLabelsData data)
         {
-            try
+            List<AssetServices.Models.Label> labels = new List<AssetServices.Models.Label>();
+            foreach (NewLabel newLabel in data.NewLabels)
             {
-                List<AssetServices.Models.Label> labels = new List<AssetServices.Models.Label>();
-                foreach (NewLabel newLabel in data.NewLabels)
-                {
-                    labels.Add(new AssetServices.Models.Label(newLabel.Text, newLabel.Color));
-                }
-
-                var labelsAdded = await _assetServices.AddLabelsForCustomerAsync(customerId, data.CallerId, labels);
-
-                if (labelsAdded == null)
-                    return BadRequest("Unable to add labels.");
-
-                var labelsView = new List<object>();
-                foreach (AssetServices.Models.CustomerLabel label in labelsAdded)
-                {
-                    labelsView.Add(new ViewModels.Label(label));
-                }
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    WriteIndented = true
-                };
-                return Ok(JsonSerializer.Serialize<object>(labelsView, options));
+                labels.Add(new AssetServices.Models.Label(newLabel.Text, newLabel.Color));
             }
-            catch (ResourceNotFoundException ex)
+
+            var labelsAdded = await _assetServices.AddLabelsForCustomerAsync(customerId, data.CallerId, labels);
+
+            if (labelsAdded == null)
+                return BadRequest("Unable to add labels.");
+
+            var labelsView = new List<object>();
+            foreach (AssetServices.Models.CustomerLabel label in labelsAdded)
             {
-                return NotFound(ex.Message);
+                labelsView.Add(new ViewModels.Label(label));
             }
-            catch (Exception)
+            var options = new JsonSerializerOptions
             {
-                return BadRequest();
-            }
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            };
+            return Ok(JsonSerializer.Serialize<object>(labelsView, options));
+
         }
 
         [Route("customers/{customerId:guid}/labels")]
@@ -183,36 +173,25 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<ViewModels.Label>>> UpdateLabelsForCustomer(Guid customerId, [FromBody] UpdateCustomerLabelsData data)
         {
-            try
-            {
-                IList<AssetServices.Models.CustomerLabel> customerLabels = new List<AssetServices.Models.CustomerLabel>();
+            IList<AssetServices.Models.CustomerLabel> customerLabels = new List<AssetServices.Models.CustomerLabel>();
 
-                foreach (Label label in data.Labels)
-                {
-                    customerLabels.Add(new AssetServices.Models.CustomerLabel(label.Id, customerId, data.CallerId, new AssetServices.Models.Label(label.Text, label.Color)));
-                }
+            foreach (Label label in data.Labels)
+            {
+                customerLabels.Add(new AssetServices.Models.CustomerLabel(label.Id, customerId, data.CallerId, new AssetServices.Models.Label(label.Text, label.Color)));
+            }
 
-                var updatedLabels = await _assetServices.UpdateLabelsForCustomerAsync(customerId, customerLabels);
-                var labelList = new List<object>();
-                foreach (AssetServices.Models.CustomerLabel label in updatedLabels)
-                {
-                    labelList.Add(new ViewModels.Label(label));
-                }
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    WriteIndented = true
-                };
-                return Ok(JsonSerializer.Serialize<object>(labelList, options));
-            }
-            catch (ResourceNotFoundException ex)
+            var updatedLabels = await _assetServices.UpdateLabelsForCustomerAsync(customerId, customerLabels);
+            var labelList = new List<object>();
+            foreach (AssetServices.Models.CustomerLabel label in updatedLabels)
             {
-                return NotFound(ex.Message);
+                labelList.Add(new ViewModels.Label(label));
             }
-            catch (Exception)
+            var options = new JsonSerializerOptions
             {
-                return BadRequest();
-            }
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            };
+            return Ok(JsonSerializer.Serialize<object>(labelList, options));
         }
 
         [Route("customers/{customerId:guid}/labels/assign")]
@@ -272,18 +251,10 @@ namespace Asset.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> GetLifeCycleSetting(Guid customerId)
         {
-            try
-            {
-                var setting = await _assetServices.GetLifeCycleSettingByCustomer(customerId);
-                if (setting == null)
-                    return Ok(new object());
-                return Ok(_mapper.Map<IList<LifeCycleSetting>>(setting));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var setting = await _assetServices.GetLifeCycleSettingByCustomer(customerId);
+            if (setting == null)
+                return Ok(new object());
+            return Ok(_mapper.Map<IList<LifeCycleSetting>>(setting));
         }
 
         [Route("customers/{customerId:guid}/lifecycle-setting")]
@@ -292,17 +263,9 @@ namespace Asset.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> CreateLifeCycleSetting(Guid customerId, [FromBody] NewLifeCycleSetting setting)
         {
-            try
-            {
-                var newSettingDTO = _mapper.Map<LifeCycleSettingDTO>(setting);
-                var createdSetting = await _assetServices.AddLifeCycleSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
-                return CreatedAtAction(nameof(CreateLifeCycleSetting), new { id = createdSetting.ExternalId }, _mapper.Map<LifeCycleSetting>(createdSetting));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var newSettingDTO = _mapper.Map<LifeCycleSettingDTO>(setting);
+            var createdSetting = await _assetServices.AddLifeCycleSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
+            return CreatedAtAction(nameof(CreateLifeCycleSetting), new { id = createdSetting.ExternalId }, _mapper.Map<LifeCycleSetting>(createdSetting));
         }
 
         [Route("customers/{customerId:guid}/lifecycle-setting")]
@@ -311,17 +274,9 @@ namespace Asset.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> UpdateLifeCycleSetting(Guid customerId, [FromBody] NewLifeCycleSetting setting)
         {
-            try
-            {
-                var newSettingDTO = _mapper.Map<LifeCycleSettingDTO>(setting);
-                var updatedSetting = await _assetServices.UpdateLifeCycleSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
-                return Ok(_mapper.Map<LifeCycleSetting>(updatedSetting));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var newSettingDTO = _mapper.Map<LifeCycleSettingDTO>(setting);
+            var updatedSetting = await _assetServices.UpdateLifeCycleSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
+            return Ok(_mapper.Map<LifeCycleSetting>(updatedSetting));
         }
 
         [Route("customers/{customerId:guid}/dispose-setting")]
@@ -330,18 +285,10 @@ namespace Asset.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> GetDisposeSetting(Guid customerId)
         {
-            try
-            {
-                var setting = await _assetServices.GetDisposeSettingByCustomer(customerId);
-                if (setting == null)
-                    return Ok(null);
-                return Ok(_mapper.Map<DisposeSetting>(setting));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var setting = await _assetServices.GetDisposeSettingByCustomer(customerId);
+            if (setting == null)
+                return Ok(null);
+            return Ok(_mapper.Map<DisposeSetting>(setting));
         }
 
         [Route("customers/{customerId:guid}/dispose-setting")]
@@ -350,17 +297,10 @@ namespace Asset.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> CreateDisposeSetting(Guid customerId, [FromBody] NewDisposeSetting setting)
         {
-            try
-            {
-                var newSettingDTO = _mapper.Map<DisposeSettingDTO>(setting);
-                var createdSetting = await _assetServices.AddDisposeSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
-                return CreatedAtAction(nameof(CreateDisposeSetting), new { id = createdSetting.ExternalId }, _mapper.Map<DisposeSetting>(createdSetting));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var newSettingDTO = _mapper.Map<DisposeSettingDTO>(setting);
+            var createdSetting = await _assetServices.AddDisposeSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
+            return CreatedAtAction(nameof(CreateDisposeSetting), new { id = createdSetting.ExternalId }, _mapper.Map<DisposeSetting>(createdSetting));
+
         }
 
         [Route("customers/{customerId:guid}/dispose-setting")]
@@ -369,34 +309,20 @@ namespace Asset.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> UpdateDisposeSetting(Guid customerId, [FromBody] NewDisposeSetting setting)
         {
-            try
-            {
-                var newSettingDTO = _mapper.Map<DisposeSettingDTO>(setting);
-                var updatedSetting = await _assetServices.UpdateDisposeSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
-                return Ok(_mapper.Map<DisposeSetting>(updatedSetting));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var newSettingDTO = _mapper.Map<DisposeSettingDTO>(setting);
+            var updatedSetting = await _assetServices.UpdateDisposeSettingForCustomerAsync(customerId, newSettingDTO, setting.CallerId);
+            return Ok(_mapper.Map<DisposeSetting>(updatedSetting));
         }
+
         [Route("customers/{customerId:guid}/return-location")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> GetReturnLocations(Guid customerId)
         {
-            try
-            {
-                var locations = await _assetServices.GetReturnLocationsByCustomer(customerId);
-                return Ok(_mapper.Map<IList<ReturnLocation>>(locations));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var locations = await _assetServices.GetReturnLocationsByCustomer(customerId);
+            return Ok(_mapper.Map<IList<ReturnLocation>>(locations));
+
         }
         [Route("customers/{customerId:guid}/return-location")]
         [HttpPost]
@@ -404,17 +330,10 @@ namespace Asset.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> AddReturnLocation(Guid customerId, [FromBody] NewReturnLocation data)
         {
-            try
-            {
-                var newLocationDTO = _mapper.Map<ReturnLocationDTO>(data);
-                var addedLocation = await _assetServices.AddReturnLocationsByCustomer(customerId, newLocationDTO, data.CallerId);
-                return Ok(_mapper.Map<ReturnLocation>(addedLocation));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var newLocationDTO = _mapper.Map<ReturnLocationDTO>(data);
+            var addedLocation = await _assetServices.AddReturnLocationsByCustomer(customerId, newLocationDTO, data.CallerId);
+            return Ok(_mapper.Map<ReturnLocation>(addedLocation));
+
         }
         [Route("customers/{customerId:guid}/return-location/{returnLocationId:guid}")]
         [HttpPut]
@@ -422,17 +341,10 @@ namespace Asset.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> UpdateReturnLocation(Guid customerId, Guid returnLocationId, [FromBody] NewReturnLocation data)
         {
-            try
-            {
-                var newLocationDTO = _mapper.Map<ReturnLocationDTO>(data);
-                var updatedLocations = await _assetServices.UpdateReturnLocationsByCustomer(customerId, returnLocationId, newLocationDTO, data.CallerId);
-                return Ok(_mapper.Map<ReturnLocation>(updatedLocations));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var newLocationDTO = _mapper.Map<ReturnLocationDTO>(data);
+            var updatedLocations = await _assetServices.UpdateReturnLocationsByCustomer(customerId, returnLocationId, newLocationDTO, data.CallerId);
+            return Ok(_mapper.Map<ReturnLocation>(updatedLocations));
+
         }
         [Route("customers/{customerId:guid}/return-location/{returnLocationId:guid}")]
         [HttpDelete]
@@ -440,16 +352,8 @@ namespace Asset.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> RemoveReturnLocation(Guid customerId, Guid returnLocationId)
         {
-            try
-            {
-                var updatedLocations = await _assetServices.RemoveReturnLocationsByCustomer(customerId, returnLocationId, Guid.Empty);
-                return Ok(_mapper.Map<IList<ReturnLocation>>(updatedLocations));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var updatedLocations = await _assetServices.RemoveReturnLocationsByCustomer(customerId, returnLocationId, Guid.Empty);
+            return Ok(_mapper.Map<IList<ReturnLocation>>(updatedLocations));
         }
 
         [Route("customers/{customerId:guid}")]
@@ -458,30 +362,10 @@ namespace Asset.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> CreateAsset(Guid customerId, [FromBody] NewAsset asset)
         {
-            try
-            {
-                var newAssetDTO = _mapper.Map<NewAssetDTO>(asset);
-                var updatedAsset = await _assetServices.AddAssetLifecycleForCustomerAsync(customerId, newAssetDTO);
-                return CreatedAtAction(nameof(CreateAsset), new { id = updatedAsset.ExternalId }, _mapper.Map<ViewModels.Asset>(updatedAsset));
-            }
-            catch (AssetLifeCycleSettingNotFoundException)
-            {
-                return BadRequest("Unable to find LifeCycle Setting for the Customer and the Asset CategoryId");
-            }
-            catch (AssetCategoryNotFoundException)
-            {
-                return BadRequest("Unable to find Asset CategoryId");
-            }
-            catch (InvalidAssetDataException ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var newAssetDTO = _mapper.Map<NewAssetDTO>(asset);
+            var updatedAsset = await _assetServices.AddAssetLifecycleForCustomerAsync(customerId, newAssetDTO);
+            return CreatedAtAction(nameof(CreateAsset), new { id = updatedAsset.ExternalId }, _mapper.Map<ViewModels.Asset>(updatedAsset));
+
         }
 
 
@@ -512,21 +396,9 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> MakeAssetExpired(Guid customerId, [FromBody] MakeAssetExpired data)
         {
-            try
-            {
-                var updatedAssets = await _assetServices.MakeAssetExpiredAsync(customerId, data.AssetLifeCycleId, data.CallerId);
-                return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger?.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
-            catch (AssetExpireRequestException ex)
-            {
-                _logger?.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var updatedAssets = await _assetServices.MakeAssetExpiredAsync(customerId, data.AssetLifeCycleId, data.CallerId);
+            return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
+
         }
 
         [Route("customers/{customerId:guid}/make-expiressoon")]
@@ -535,21 +407,9 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> MakeAssetExpiresSoon(Guid customerId, [FromBody] MakeAssetExpired data)
         {
-            try
-            {
-                var updatedAssets = await _assetServices.MakeAssetExpiresSoonAsync(customerId, data.AssetLifeCycleId, data.CallerId);
-                return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger?.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
-            catch (AssetExpiresSoonRequestException ex)
-            {
-                _logger?.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var updatedAssets = await _assetServices.MakeAssetExpiresSoonAsync(customerId, data.AssetLifeCycleId, data.CallerId);
+            return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
+
         }
 
         [Route("customers/{customerId:guid}/return-device")]
@@ -558,22 +418,10 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> ReturnDeviceAsync(Guid customerId, [FromBody] ReturnDevice data)
         {
-            try
-            {
-                var dataDTO = _mapper.Map<ReturnDeviceDTO>(data);
-                var updatedAssets = await _assetServices.ReturnDeviceAsync(customerId, dataDTO);
-                return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger?.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
-            catch (ReturnDeviceRequestException ex)
-            {
-                _logger?.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var dataDTO = _mapper.Map<ReturnDeviceDTO>(data);
+            var updatedAssets = await _assetServices.ReturnDeviceAsync(customerId, dataDTO);
+            return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
+
         }
 
         [Route("customers/{customerId:guid}/buyout-device")]
@@ -582,21 +430,8 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> BuyoutDeviceAsync(Guid customerId, [FromBody] BuyoutDeviceDTO data)
         {
-            try
-            {
-                var updatedAssets = await _assetServices.BuyoutDeviceAsync(customerId, data);
-                return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger?.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
-            catch (BuyoutDeviceRequestException ex)
-            {
-                _logger?.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var updatedAssets = await _assetServices.BuyoutDeviceAsync(customerId, data);
+            return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
         }
 
         [Route("customers/{customerId:guid}/report-device")]
@@ -605,22 +440,10 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> ReportDeviceAsync(Guid customerId, [FromBody] ReportDevice data)
         {
-            try
-            {
-                var dataDTO = _mapper.Map<ReportDeviceDTO>(data);
-                var updatedAssets = await _assetServices.ReportDeviceAsync(customerId, dataDTO);
-                return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger?.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
-            catch (InactiveDeviceRequestException ex)
-            {
-                _logger?.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
+            var dataDTO = _mapper.Map<ReportDeviceDTO>(data);
+            var updatedAssets = await _assetServices.ReportDeviceAsync(customerId, dataDTO);
+            return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
+
         }
 
         [Route("{assetId:Guid}/customers/{customerId:guid}/re-assignment")]
@@ -678,7 +501,7 @@ namespace Asset.API.Controllers
                 {
                     errorMessage.Append($"    -{(int)e} ({e})\n");
                 }
-                throw new InvalidLifecycleTypeException(errorMessage.ToString());
+                throw new InvalidLifecycleTypeException(errorMessage.ToString(), Guid.Parse(""));
             }
             var lifecycleType = (LifecycleType)data.LifecycleType;
             var updatedAsset = await _assetServices.ChangeAssetLifecycleTypeForCustomerAsync(customerId, data.AssetId, data.CallerId, lifecycleType);
@@ -695,23 +518,10 @@ namespace Asset.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> UpdateAsset(Guid customerId, Guid assetId, [FromBody] UpdateAsset asset)
         {
-            try
-            {
-                var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.CallerId, asset?.Alias, asset?.SerialNumber, asset?.Brand, asset?.ProductName, asset?.PurchaseDate, asset?.Note, asset?.AssetTag, asset?.Description, asset?.Imei, asset?.MacAddress);
+            var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.CallerId, asset?.Alias, asset?.SerialNumber, asset?.Brand, asset?.ProductName, asset?.PurchaseDate, asset?.Note, asset?.AssetTag, asset?.Description, asset?.Imei, asset?.MacAddress);
 
-                var value = _mapper.Map<ViewModels.Asset>(updatedAsset);
-                return Ok(value);
-            }
-            catch (InvalidAssetDataException ex)
-            {
-                _logger?.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError("{0}", ex.Message);
-                return BadRequest();
-            }
+            var value = _mapper.Map<ViewModels.Asset>(updatedAsset);
+            return Ok(value);
         }
 
         [Route("{assetId:Guid}/customer/{customerId:guid}/assign")]
@@ -741,24 +551,17 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<AssetCategory>>> GetAssetCategories(bool hierarchical = false, string language = "EN")
         {
-            try
+            if (language.Length != 2)
             {
-                if (language.Length != 2)
-                {
-                    return BadRequest("Language code is too long or too short.");
-                }
-                var assetCategories = _assetServices.GetAssetCategories(language);
-                if (!hierarchical)
-                    return assetCategories.Select(ac => new AssetCategory(ac)).ToList();
+                return BadRequest("Language code is too long or too short.");
+            }
+            var assetCategories = _assetServices.GetAssetCategories(language);
+            if (!hierarchical)
+                return assetCategories.Select(ac => new AssetCategory(ac)).ToList();
 
-                IList<AssetCategory> results = assetCategories.Where(a => a.ParentAssetCategory == null).Select(ac => new AssetCategory(ac, assetCategories)).ToList();
-                return Ok(results);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest();
-            }
+            IList<AssetCategory> results = assetCategories.Where(a => a.ParentAssetCategory == null).Select(ac => new AssetCategory(ac, assetCategories)).ToList();
+            return Ok(results);
+
         }
 
         [Route("auditlog/{assetId:Guid}/{callerId:Guid}/{role}")]
@@ -767,26 +570,16 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<IEnumerable<AssetAuditLog>>> GetAssetAuditLog(Guid assetId, Guid callerId, string role)
         {
-            try
-            {
-                // use asset id to find asset log: Mock example just takes any id and returns dummy data
-                if (assetId == Guid.Empty)
-                {
-                    return NotFound();
-                }
-
-                var assetLogList = await _assetServices.GetAssetAuditLog(assetId, callerId, role);
-
-                return Ok(assetLogList);
-            }
-            catch (ResourceNotFoundException)
+            // use asset id to find asset log: Mock example just takes any id and returns dummy data
+            if (assetId == Guid.Empty)
             {
                 return NotFound();
             }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
+
+            var assetLogList = await _assetServices.GetAssetAuditLog(assetId, callerId, role);
+
+            return Ok(assetLogList);
+
         }
         [Route("{assetLifecycleId:Guid}/repair-completed")]
         [HttpPut]
@@ -794,32 +587,15 @@ namespace Asset.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> RepairCompleted(Guid assetLifecycleId, AssetLifeCycleRepairCompleted assetLifeCycle)
         {
-            try
+            if (assetLifecycleId == Guid.Empty)
             {
-                if (assetLifecycleId == Guid.Empty)
-                {
-                    return BadRequest("AssetLifeCycleRepairCompleted assetLifecycleId is a empty Guid");
-                }
+                return BadRequest("AssetLifeCycleRepairCompleted assetLifecycleId is a empty Guid");
+            }
 
-                await _assetServices.AssetLifeCycleRepairCompleted(assetLifecycleId, assetLifeCycle);
+            await _assetServices.AssetLifeCycleRepairCompleted(assetLifecycleId, assetLifeCycle);
 
-                return Ok();
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger?.LogError("AssetLifeCycleRepairCompleted returns ResourceNotFoundException", ex.Message);
-                return BadRequest($"AssetLifeCycleRepairCompleted returns ResourceNotFoundException with assetLifecycleId {assetLifecycleId}");
-            }
-            catch (InvalidAssetDataException ex)
-            {
-                _logger?.LogError("AssetLifeCycleRepairCompleted returns InvalidAssetDataException", ex.Message);
-                return BadRequest($"{ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError("AssetLifeCycleRepairCompleted returns ResourceNotFoundException", ex.Message);
-                return BadRequest($"AssetLifeCycleRepairCompleted returns ResourceNotFoundException with assetLifecycleId {assetLifecycleId}");
-            }
+            return Ok();
+
         }
         [Route("{assetLifecycleId:Guid}/send-to-repair")]
         [HttpPatch]
@@ -828,34 +604,17 @@ namespace Asset.API.Controllers
 
         public async Task<ActionResult> SendToRepair(Guid assetLifecycleId, [FromBody] Guid callerId)
         {
-            try
+            if (assetLifecycleId == Guid.Empty)
             {
-                if (assetLifecycleId == Guid.Empty)
-                {
-                    return BadRequest("AssetLifeCycleChangeStatusToRepair assetLifecycleId is a empty Guid");
-                }
+                return BadRequest("AssetLifeCycleChangeStatusToRepair assetLifecycleId is a empty Guid");
+            }
 
-                await _assetServices.AssetLifeCycleSendToRepair(assetLifecycleId, callerId);
+            await _assetServices.AssetLifeCycleSendToRepair(assetLifecycleId, callerId);
 
-                return Ok();
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger?.LogError("AssetLifeCycleChangeStatusToRepair returns ResourceNotFoundException", ex.Message);
-                return BadRequest($"AssetLifeCycleChangeStatusToRepair returns ResourceNotFoundException with assetLifecycleId {assetLifecycleId}");
-            }
-            catch (InvalidAssetDataException ex)
-            {
-                _logger?.LogError("AssetLifeCycleChangeStatusToRepair returns InvalidAssetDataException", ex.Message);
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError("AssetLifeCycleChangeStatusToRepair returns Exception", ex.Message);
-                return BadRequest($"AssetLifeCycleChangeStatusToRepair returns Exception with assetLifecycleId {assetLifecycleId}");
-            }
+            return Ok();
+
         }
-        
+
         [Route("customers/{customerId:guid}/assets-counter")]
         [HttpGet]
         [ProducesResponseType(typeof(CustomerAssetsCounter), (int)HttpStatusCode.OK)]
@@ -874,19 +633,13 @@ namespace Asset.API.Controllers
                 _logger?.LogError("GetCustomerAssetsCount returns JsonException", ex.Path);
                 return BadRequest($"GetCustomerAssetsCount returns JsonException with message {ex.Path}");
             }
-            try {
+
 
             Guid.TryParse(filterOptions?.UserId, out Guid userId);
 
             var assetCounter = await _assetServices.GetAssetLifecycleCountersAsync(customerId, filterOptions?.Status, filterOptions?.Department, userId);
 
             return Ok(assetCounter);
-
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                return BadRequest($"GetCustomerAssetsCount returns ResourceNotFoundException with message: {ex.Message}");
-            }
         }
         [Route("customers/{customerId:guid}/activate")]
         [HttpPost]

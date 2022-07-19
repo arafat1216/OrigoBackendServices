@@ -75,7 +75,6 @@ namespace AssetServices.Models
         /// <param name="label"></param>
         public void PatchLabel(Guid callerId, Label label)
         {
-            var previousLabel = Label;
             Label = label;
             LastUpdatedDate = DateTime.UtcNow;
             UpdatedBy = callerId;

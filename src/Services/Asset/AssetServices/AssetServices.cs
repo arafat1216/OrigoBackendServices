@@ -67,37 +67,21 @@ namespace AssetServices
         public async Task<PagedModel<AssetLifecycleDTO>> GetAssetLifecyclesForCustomerAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
            Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string search, int page, int limit, CancellationToken cancellationToken)
         {
-            try
-            {
-                var pagedAssetLifeCycles = await _assetLifecycleRepository.GetAssetLifecyclesAsync(customerId, userId, status, department, category, label, isActiveState, isPersonal, endPeriodMonth, purchaseMonth, search, page, limit, cancellationToken);
-                var pagedServiceAssetLifecycles = _mapper.Map<PagedModel<AssetLifecycleDTO>>(pagedAssetLifeCycles);
-                return pagedServiceAssetLifecycles;
-            }
-            catch (Exception exception)
-            {
-                throw new ReadingDataException(exception);
-            }
+            var pagedAssetLifeCycles = await _assetLifecycleRepository.GetAssetLifecyclesAsync(customerId, userId, status, department, category, label, isActiveState, isPersonal, endPeriodMonth, purchaseMonth, search, page, limit, cancellationToken);
+            var pagedServiceAssetLifecycles = _mapper.Map<PagedModel<AssetLifecycleDTO>>(pagedAssetLifeCycles);
+            return pagedServiceAssetLifecycles;
         }
 
         public async Task<AssetLifecycleDTO?> GetAssetLifecycleForCustomerAsync(Guid customerId, Guid assetId, string? userId, IList<Guid?>? department)
         {
-            
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, userId, department);
             return assetLifecycle == null ? null : _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
 
         public async Task<IList<CustomerLabel>> AddLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Label> labels)
         {
-            try
-            {
-                var customerLabels = labels.Select(label => new CustomerLabel(customerId, callerId, label)).ToList();
-                return await _assetLifecycleRepository.AddCustomerLabelsForCustomerAsync(customerId, customerLabels);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unknown error. Unable to delete CustomerLabels.");
-                throw;
-            }
+            var customerLabels = labels.Select(label => new CustomerLabel(customerId, callerId, label)).ToList();
+            return await _assetLifecycleRepository.AddCustomerLabelsForCustomerAsync(customerId, customerLabels);            
         }
 
         public async Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId)
@@ -119,33 +103,22 @@ namespace AssetServices
         /// <returns></returns>
         public async Task<IList<CustomerLabel>> DeleteLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Guid> labelIds)
         {
-            try
-            {
-                var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelIds, customerId);
+            var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelIds, customerId);
 
-                if (customerLabels == null || customerLabels.Count == 0)
-                {
-                    throw new ResourceNotFoundException("No CustomerLabels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
-                }
-
-                await _assetLifecycleRepository.DeleteCustomerLabelsForCustomerAsync(customerId, customerLabels);
-
-                foreach (var label in customerLabels)
-                {
-                    label.Delete(callerId);
-                }
-                await _assetLifecycleRepository.SaveEntitiesAsync();
-                return await _assetLifecycleRepository.GetCustomerLabelsForCustomerAsync(customerId);
-            }
-            catch (ResourceNotFoundException)
+            if (customerLabels == null || customerLabels.Count == 0)
             {
-                throw; // no need to log same exception again
+                throw new ResourceNotFoundException("No CustomerLabels were found using the given LabelIds. Did you enter the correct customer Id?", Guid.Parse("892612b2-8951-4ff0-9fca-b4351d6707d0"));
             }
-            catch (Exception ex)
+
+            await _assetLifecycleRepository.DeleteCustomerLabelsForCustomerAsync(customerId, customerLabels);
+
+            foreach (var label in customerLabels)
             {
-                _logger.LogError(ex, "Unknown error. Unable to delete CustomerLabels.");
-                throw;
+                label.Delete(callerId);
             }
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return await _assetLifecycleRepository.GetCustomerLabelsForCustomerAsync(customerId);
+
         }
 
         public async Task<IList<CustomerLabel>> UpdateLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> updateLabels)
@@ -155,85 +128,63 @@ namespace AssetServices
 
         public async Task<IList<AssetLifecycleDTO>> AssignLabelsToAssetsAsync(Guid customerId, Guid callerId, IList<Guid> assetGuids, IList<Guid> labelGuids)
         {
-            try
+            var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids);
+            if (assetLifecycles == null || assetLifecycles.Count == 0)
             {
-                var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids);
-                if (assetLifecycles == null || assetLifecycles.Count == 0)
-                {
-                    throw new ResourceNotFoundException("No assets were found using the given AssetIds. Did you enter the correct customer Id?", _logger);
-                }
-
-                var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelGuids, customerId);
-                if (customerLabels == null)
-                {
-                    throw new ResourceNotFoundException("No labels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
-                }
-
-                foreach (var assetLifecycle in assetLifecycles)
-                {
-                    foreach (var customerLabel in customerLabels.Where(
-                                 customerLabel => assetLifecycle.Labels.All(l => l.ExternalId != customerLabel.ExternalId))
-                    )
-                    {
-                        assetLifecycle.AssignCustomerLabel(customerLabel, callerId);
-                    }
-                }
-
-                await _assetLifecycleRepository.SaveEntitiesAsync();
-
-                return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecycles);
+                throw new ResourceNotFoundException("No assets were found using the given AssetIds. Did you enter the correct customer Id?", Guid.Parse("453ccd21-e0ee-4ef3-a609-aa95924e0f9e"));
             }
-            catch (ResourceNotFoundException)
+
+            var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelGuids, customerId);
+            if (customerLabels == null)
             {
-                throw; // no need to log same exception again
+                throw new ResourceNotFoundException("No labels were found using the given LabelIds. Did you enter the correct customer Id?", Guid.Parse("15b9cc1e-b577-49ae-be4f-192309d3176b"));
             }
-            catch (Exception ex)
+
+            foreach (var assetLifecycle in assetLifecycles)
             {
-                _logger.LogError(ex, "Unknown error. Unable to assign given labels to assets.");
-                throw;
+                foreach (var customerLabel in customerLabels.Where(
+                             customerLabel => assetLifecycle.Labels.All(l => l.ExternalId != customerLabel.ExternalId))
+                )
+                {
+                    assetLifecycle.AssignCustomerLabel(customerLabel, callerId);
+                }
             }
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+
+            return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecycles);
+
         }
 
         public async Task<IList<AssetLifecycleDTO>> UnAssignLabelsToAssetsAsync(Guid customerId, Guid callerId, IList<Guid> assetGuids, IList<Guid> labelGuids)
         {
-            try
+            var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids);
+            if (assetLifecycles == null || assetLifecycles.Count == 0)
             {
-                var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids);
-                if (assetLifecycles == null || assetLifecycles.Count == 0)
-                {
-                    throw new ResourceNotFoundException("No assets were found using the given AssetIds. Did you enter the correct customer Id?", _logger);
-                }
+                throw new ResourceNotFoundException("No assets were found using the given AssetIds. Did you enter the correct customer Id?", Guid.Parse("0c275a26-5765-48fe-91a2-20a43cb72863"));
+            }
 
-                var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelGuids, customerId);
-                if (customerLabels == null || customerLabels.Count == 0)
-                {
-                    throw new ResourceNotFoundException("No labels were found using the given LabelIds. Did you enter the correct customer Id?", _logger);
-                }
+            var customerLabels = await _assetLifecycleRepository.GetCustomerLabelsFromListAsync(labelGuids, customerId);
+            if (customerLabels == null || customerLabels.Count == 0)
+            {
+                throw new ResourceNotFoundException("No labels were found using the given LabelIds. Did you enter the correct customer Id?", Guid.Parse("22d6c83d-32b5-42f3-ad77-11bec2d89f8a"));
+            }
 
-                foreach (var assetLifecycle in assetLifecycles)
+            foreach (var assetLifecycle in assetLifecycles)
+            {
+                foreach (var customerLabel in customerLabels)
                 {
-                    foreach (var customerLabel in customerLabels)
+                    if (assetLifecycle.Labels.Any(l => l.ExternalId == customerLabel.ExternalId))
                     {
-                        if (assetLifecycle.Labels.Any(l => l.ExternalId == customerLabel.ExternalId))
-                        {
-                            assetLifecycle.RemoveCustomerLabel(customerLabel, callerId);
-                        }
+                        assetLifecycle.RemoveCustomerLabel(customerLabel, callerId);
                     }
                 }
+            }
 
-                await _assetLifecycleRepository.SaveEntitiesAsync();
-                var assetLifecyclesFromList = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids);
-                return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecyclesFromList);
-            }
-            catch (ResourceNotFoundException)
-            {
-                throw; // no need to log same exception again
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unknown error. Unable to unassign given labels to assets.");
-                throw;
-            }
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            var assetLifecyclesFromList = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids);
+            return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecyclesFromList);
+
         }
 
         public async Task<AssetLifecycleDTO> AddAssetLifecycleForCustomerAsync(Guid customerId, NewAssetDTO newAssetDTO)
@@ -254,7 +205,7 @@ namespace AssetServices
                 {
                     if (!AssetValidatorUtility.ValidateImei(i.ToString()))
                     {
-                        throw new InvalidAssetDataException($"Invalid imei: {i}");
+                        throw new InvalidAssetImeiException(i.ToString(), Guid.Parse("7fa65f5a-c8c1-48b3-a3cb-e33a8870d2bc"));
                     }
                 }
             }
@@ -356,7 +307,7 @@ namespace AssetServices
         {
             var updatedAssetLifeCycle = await _assetLifecycleRepository.MakeAssetAvailableAsync(customerId, data.CallerId, data.AssetLifeCycleId);
             if (updatedAssetLifeCycle == null)
-                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
+                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("fc64478-8011-4900-afb8-06b4b624aaeb"));
             if (data.PreviousUser != null)
             {
                 await _emailService.UnassignedFromUserEmailAsync(new Email.Model.UnassignedFromUserNotification()
@@ -373,7 +324,7 @@ namespace AssetServices
         {
             var existingAssetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, null, null);
             if (existingAssetLifeCycle == null)
-                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);           
+                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("d038d1e5-dbe8-4479-b31f-7028a6c650e7"));
 
             existingAssetLifeCycle.MakeAssetExpired(callerId);
             await _assetLifecycleRepository.SaveEntitiesAsync();
@@ -384,7 +335,7 @@ namespace AssetServices
         {
             var existingAssetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, null, null);
             if (existingAssetLifeCycle == null)
-                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
+                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("1a8b22d3-004b-4ddc-9941-30d18e7e42ca"));
 
             existingAssetLifeCycle.MakeAssetExpiresSoon(callerId);
             await _assetLifecycleRepository.SaveEntitiesAsync();
@@ -396,7 +347,7 @@ namespace AssetServices
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null);
             if (assetLifecycle == null)
-                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
+                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("05f5d961-2cb4-4067-bd2f-125e5740ef3e"));
 
             var returnLocations = await GetReturnLocationsByCustomer(customerId);
             var returnLocation = returnLocations.FirstOrDefault(x => x.ExternalId == data.ReturnLocationId);
@@ -421,7 +372,7 @@ namespace AssetServices
                 // Confirm Return
                 if(returnLocation == null)
                 {
-                    throw new ReturnDeviceRequestException($"Return Location not found to confirm pending return!!! asset Id: {data.AssetLifeCycleId}", _logger);
+                    throw new ReturnDeviceRequestException($"Return Location not found to confirm pending return!!! asset Id: {data.AssetLifeCycleId}", Guid.Parse("78d06bfc-3897-497e-af90-8d9e3f0cc2e7"));
                 }
                 assetLifecycle.ConfirmReturnDevice(data.CallerId, returnLocation.Name, returnLocation.ReturnDescription);
             }
@@ -430,7 +381,7 @@ namespace AssetServices
                 // Confirm Return
                 if (returnLocation == null)
                 {
-                    throw new ReturnDeviceRequestException($"Return Location not found to confirm pending return!!! asset Id: {data.AssetLifeCycleId}", _logger);
+                    throw new ReturnDeviceRequestException($"Return Location not found to confirm pending return!!! asset Id: {data.AssetLifeCycleId}", Guid.Parse("a8af69cc-7b17-4044-b34b-218f7ca5ff98"));
                 }
                 assetLifecycle.ConfirmReturnDevice(data.CallerId, returnLocation.Name, returnLocation.ReturnDescription);
             }
@@ -443,13 +394,13 @@ namespace AssetServices
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null);
             if (assetLifecycle == null)
-                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
+                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("47308bc8-ceeb-4f79-8910-75224e65ab0d"));
 
             var customerSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
 
             if (customerSetting is null || customerSetting.DisposeSetting is null || string.IsNullOrEmpty(customerSetting.DisposeSetting.PayrollContactEmail))
             {
-                throw new BuyoutDeviceRequestException($"Payroll responsible email need to set first to do buyout for CustomerId: {customerId}", _logger);
+                throw new BuyoutDeviceRequestException($"Payroll responsible email need to set first to do buyout for CustomerId: {customerId}", Guid.Parse("3f0b292c-99a5-4277-a695-4c57acd225b9"));
             }
 
             assetLifecycle.BuyoutDevice(data.CallerId);
@@ -473,7 +424,7 @@ namespace AssetServices
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null);
             if (assetLifecycle == null)
-                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", _logger);
+                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("bc644bf3-9f85-475b-bd8c-18f08c5c8cd0"));
 
             assetLifecycle.ReportDevice(data.ReportCategory, data.CallerId);
 
@@ -523,12 +474,13 @@ namespace AssetServices
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, null, null);
             if (assetLifecycle == null)
             {
-                throw new InvalidAssetDataException($"Asset Lifecycle {assetId} not found");
+                throw new InvalidAssetDataException($"Asset Lifecycle {assetId} not found",Guid.Parse("175d952c-d23e-44ed-82c2-ca47112958ac"));
             }
             var asset = assetLifecycle.Asset;
             if (asset == null)
             {
-                throw new InvalidAssetDataException($"Asset for asset life cycle {assetId} not found");
+                //Should have a AssetNotFoundException?
+                throw new InvalidAssetDataException($"Asset for asset life cycle {assetId} not found",Guid.Parse("bb2d2355-b141-44f2-aecd-32026d62877f"));
             }
 
             if (!string.IsNullOrWhiteSpace(brand) && asset.Brand != brand)
@@ -563,7 +515,7 @@ namespace AssetServices
                     }
                 }
 
-                throw new InvalidAssetDataException(exceptionMsg.ToString());
+                throw new InvalidAssetDataException(exceptionMsg.ToString(), Guid.Parse("cd8694a9-a5fb-4bd6-b1ba-032bbb52ba33"));
             }
 
             UpdateDerivedAssetType(asset, serialNumber, imei, macAddress, callerId);
@@ -625,13 +577,13 @@ namespace AssetServices
         public async Task<AssetLifecycleDTO> AssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, AssignAssetDTO assignAssetDTO)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, null, null);
-            if (assetLifecycle == null) throw new ResourceNotFoundException("No asset were found using the given AssetId. Did you enter the correct Asset Id?", _logger);
+            if (assetLifecycle == null) throw new ResourceNotFoundException("No asset were found using the given AssetId. Did you enter the correct Asset Id?", Guid.Parse("d10ebba0-97d1-4065-b302-f580b1604e61"));
             if (assignAssetDTO.UserId != Guid.Empty)
             {
                 var user = await _assetLifecycleRepository.GetUser(assignAssetDTO.UserId) ?? new User { ExternalId = assignAssetDTO.UserId };
-                if (user == null) throw new ResourceNotFoundException("No User were found using the given UserId. Did you enter the correct User Id?", _logger);
+                if (user == null) throw new ResourceNotFoundException("No User were found using the given UserId. Did you enter the correct User Id?", Guid.Parse("bc855ef2-9445-4e22-a658-bf195b6202ae"));
 
-                if(assignAssetDTO.UserAssigneToDepartment != Guid.Empty) assetLifecycle.AssignAssetLifecycleHolder(user, assignAssetDTO.UserAssigneToDepartment, assignAssetDTO.CallerId);
+                if (assignAssetDTO.UserAssigneToDepartment != Guid.Empty) assetLifecycle.AssignAssetLifecycleHolder(user, assignAssetDTO.UserAssigneToDepartment, assignAssetDTO.CallerId);
                 else assetLifecycle.AssignAssetLifecycleHolder(user, null, assignAssetDTO.CallerId);
 
 
@@ -694,7 +646,7 @@ namespace AssetServices
             {
                 var usersAssets = await _assetLifecycleRepository.GetAssetForUser(userId);
                 var hasAsset = usersAssets.FirstOrDefault(a => a.ExternalId == assetId);
-                if (hasAsset == null) throw new ResourceNotFoundException(_logger);
+                if (hasAsset == null) throw new ResourceNotFoundException($"No connected assets to user with id: {userId}.",Guid.Parse("7d8a072c-a8a9-4b46-888d-2ad97bffaf9e"));
             }
 
 
@@ -767,13 +719,13 @@ namespace AssetServices
 
             if (existingSettings == null || existingSettings.LifeCycleSettings.Count < 1)
             {
-                throw new ResourceNotFoundException("No LifeCycletSetting were found using the given Customer. Did you enter the correct customer Id?", _logger);
+                throw new ResourceNotFoundException("No LifeCycletSetting were found using the given Customer. Did you enter the correct customer Id?", Guid.Parse("b3fbf0f4-40e2-4562-84a5-8bc8c84824d4"));
             }
             var lifeCycleSetting = existingSettings.LifeCycleSettings.FirstOrDefault(x=>x.AssetCategoryId == lifeCycleSettingDTO.AssetCategoryId);
             
             if (lifeCycleSetting == null)
             {
-                throw new ResourceNotFoundException("No LifeCycletSetting were found for this AssetCategory", _logger);
+                throw new ResourceNotFoundException("No LifeCycletSetting were found for this AssetCategory", Guid.Parse("33643f96-5446-4f82-b79d-4e53f1daa0b0"));
             }
 
             if (lifeCycleSetting.BuyoutAllowed != lifeCycleSettingDTO.BuyoutAllowed)
@@ -828,7 +780,7 @@ namespace AssetServices
 
             if (customerSetting == null || customerSetting.DisposeSetting == null)
             {
-                throw new ResourceNotFoundException("No DisposeSetting were found using the given Customer. Did you enter the correct customer Id?", _logger);
+                throw new ResourceNotFoundException("No DisposeSetting were found using the given Customer. Did you enter the correct customer Id?", Guid.Parse("23ea63e9-2528-459d-93ab-e7c107779902"));
             }
 
             if (customerSetting.DisposeSetting.PayrollContactEmail != disposeSettingDTO.PayrollContactEmail)
@@ -880,12 +832,12 @@ namespace AssetServices
             var customerSettings = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
             if(customerSettings is null || customerSettings.DisposeSetting is null || !customerSettings.DisposeSetting.ReturnLocations.Any())
             {
-                throw new ResourceNotFoundException("No DisposeSetting were found using the given Customer. Did you enter the correct customer Id?", _logger);
+                throw new ResourceNotFoundException("No DisposeSetting were found using the given Customer. Did you enter the correct customer Id?", Guid.Parse("da38e153-18b8-4b57-8ae4-c2f490875c16"));
             }
             var returnLocation = customerSettings.DisposeSetting.ReturnLocations.FirstOrDefault(x => x.ExternalId == returnLocationId);
             if (returnLocation == null)
             {
-                throw new ResourceNotFoundException("No Return Location were found using the given Location. Did you enter the correct Return Location Id?", _logger);
+                throw new ResourceNotFoundException("No Return Location were found using the given Location. Did you enter the correct Return Location Id?", Guid.Parse("ac5cf843-3e57-4bda-af08-3d63f3c3ad77"));
             }
             var updatedReturnLocatio = new ReturnLocation(returnLocationDTO.Name, returnLocationDTO.ReturnDescription, returnLocationDTO.LocationId);
             customerSettings.DisposeSetting.UpdateReturnLocation(callerId, returnLocationId, updatedReturnLocatio);
@@ -898,14 +850,14 @@ namespace AssetServices
             var customerSettings = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
             if (customerSettings is null || customerSettings.DisposeSetting is null || !customerSettings.DisposeSetting.ReturnLocations.Any())
             {
-                throw new ResourceNotFoundException("No DisposeSetting were found using the given Customer. Did you enter the correct customer Id?", _logger);
+                throw new ResourceNotFoundException("No DisposeSetting were found using the given Customer. Did you enter the correct customer Id?", Guid.Parse("e1f6ff7f-3122-4cc7-9b15-c61abb8afad9"));
             }
             var returnLocation = customerSettings.DisposeSetting.ReturnLocations.FirstOrDefault(x => x.ExternalId == returnLocationId);
             if (returnLocation == null)
             {
-                throw new ResourceNotFoundException("No Return Location were found using the given Location. Did you enter the correct Return Location Id?", _logger);
+                throw new ResourceNotFoundException("No Return Location were found using the given Location. Did you enter the correct Return Location Id?", Guid.Parse("8d93deba-7786-4625-9952-e947de06f2cc]"));
             }
-            customerSettings!.DisposeSetting.RemoveReturnLocation(returnLocation, callerId, customerId);
+                customerSettings!.DisposeSetting.RemoveReturnLocation(returnLocation, callerId, customerId);
 
             await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<IList<ReturnLocationDTO>>(customerSettings.DisposeSetting.ReturnLocations);
@@ -928,7 +880,7 @@ namespace AssetServices
             var assetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(assetLifecycleId);
             if (assetLifeCycle == null)
             {
-                throw new ResourceNotFoundException($"Asset lifecycle with id {assetLifecycleId} not found", _logger);
+                throw new ResourceNotFoundException($"Asset lifecycle with id {assetLifecycleId} not found", Guid.Parse("75a7f22c-d243-4d9f-b96b-4afd7d53d1f6"));
             }
 
             //Change status
@@ -950,9 +902,9 @@ namespace AssetServices
                                 imeiList.Add(new AssetImei(imei));
 
                             }
-                            else throw new InvalidAssetDataException($"Invalid imei: {asset}");
+                            else throw new InvalidAssetImeiException($"{asset}", Guid.Parse("14e873e0-fa74-4387-af6f-cb2687a67ec7"));
                         }
-                        else throw new InvalidAssetDataException($"No asset imei");
+                        else throw new InvalidAssetImeiException($"NOT IMEI NUMBER", Guid.Parse("1fe8b6ff-14dc-4d24-b98d-61c78e203e23"));
 
                     }
             }
@@ -984,7 +936,7 @@ namespace AssetServices
 
             if(assetLifeCycle == null)
             {
-                throw new ResourceNotFoundException($"Asset lifecycle with id {assetLifecycleId} not found", _logger);
+                throw new ResourceNotFoundException($"Asset lifecycle with id {assetLifecycleId} not found", Guid.Parse("9925087e-78e2-4ea3-b7df-b18a0f6c4782"));
             }
 
             assetLifeCycle.IsSentToRepair(callerId);
@@ -1009,7 +961,7 @@ namespace AssetServices
            
             if (!filterStatus.Select(x => x).All(x => Enum.IsDefined(typeof(AssetLifecycleStatus), x)))
             {
-                throw new ResourceNotFoundException("Not valid a valid asset status", _logger);
+                throw new ResourceNotFoundException("Not a valid asset status", Guid.Parse("b7a42841-bef7-4138-a3d1-d5f7d3b5aab1"));
             }
 
             if (departments != null && departments.Any(d => d == Guid.Empty)) departments = departments.Where(x => x != Guid.Empty).ToList();

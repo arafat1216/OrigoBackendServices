@@ -14,6 +14,8 @@ using AssetServices.Infrastructure;
 using AssetServices.Models;
 using AssetServices.ServiceModel;
 using Common.Enums;
+using Common.Model;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -1340,14 +1342,19 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     [Fact]
     public async Task SendToRepair_NotValidGuidForAsset_ReturnsNotFound()
     {
+        //Arrange
         var NOT_VALID_GUID = Guid.NewGuid();
         var requestUri = $"/api/v1/Assets/{NOT_VALID_GUID}/send-to-repair";
-        var response = await _httpClient.PatchAsync(requestUri, JsonContent.Create(_callerId));
 
+        //Act
+        var response = await _httpClient.PatchAsync(requestUri, JsonContent.Create(_callerId));
+        var errorResponse = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+
+        //Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
-            $"AssetLifeCycleChangeStatusToRepair returns ResourceNotFoundException with assetLifecycleId {NOT_VALID_GUID}",
-            response.Content.ReadAsStringAsync().Result);
+            $"Asset lifecycle with id {NOT_VALID_GUID} not found",
+            errorResponse?.Message);
     }
 
     [Fact]
@@ -1361,10 +1368,11 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
 
         var requestUri = $"/api/v1/Assets/{_assetOne}/send-to-repair";
         var response = await _httpClient.PatchAsync(requestUri, JsonContent.Create(_callerId));
+        var errorResponse = await response.Content.ReadFromJsonAsync<ErrorResponse>();
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("Invalid asset lifecycle status: BoughtByUser for sending asset lifecycle on repair.",
-            response.Content.ReadAsStringAsync().Result);
+            errorResponse?.Message);
     }
 
     [Fact]
@@ -1552,10 +1560,11 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         };
         var requestUri = $"/api/v1/Assets/{_assetOne}/repair-completed";
         var response = await _httpClient.PutAsJsonAsync(requestUri, assetLifeCycleRepairCompleted);
+        var errorResponse = await response.Content.ReadFromJsonAsync<ErrorResponse>();
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("Invalid asset lifecycle status: BoughtByUser for completing return.",
-            response.Content.ReadAsStringAsync().Result);
+            errorResponse?.Message);
     }
 
     [Fact]
@@ -1581,8 +1590,11 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var requestUri = $"/api/v1/Assets/{_assetEight}/repair-completed";
         var response = await _httpClient.PutAsJsonAsync(requestUri, assetLifeCycleRepairCompleted);
 
+        var errorResponse = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+
+        // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal($"Invalid imei: {INVALID_IMEI}", response.Content.ReadAsStringAsync().Result);
+        Assert.Equal($"Invalid imei: {INVALID_IMEI}", errorResponse?.Message);
     }
 
     [Fact]
@@ -1882,12 +1894,12 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
 
         var request = $"/api/v1/Assets/customers/{_customerId}/assets-counter/?filter={json}";
         var response = await _httpClient.GetAsync(request);
-
+        var errorResponse = await response.Content.ReadFromJsonAsync<ErrorResponse>();
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(
-            "GetCustomerAssetsCount returns ResourceNotFoundException with message: Not valid a valid asset status",
-            response.Content.ReadAsStringAsync().Result);
+            "Not a valid asset status",
+            errorResponse?.Message);
     }
 
     [Fact]
@@ -2201,17 +2213,18 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     [Fact]
     public async Task UpdateAsset_MacAddress_notValid()
     {
+        //Arrange
         var macAddress = "0123456789ab";
-
         var request = $"/api/v1/Assets/{_assetFive}/customers/{_customerId}/update";
 
+        //Act
         var body = new UpdateAsset { MacAddress = macAddress };
         var response = await _httpClient.PostAsJsonAsync(request, body);
+        var errorResponse = await response.Content.ReadFromJsonAsync<ErrorResponse>();
 
-
+        //Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        var error = await response.Content.ReadAsStringAsync();
-        Assert.Equal($"Mac address {macAddress} is invalid", error);
+        Assert.Equal($"Invalid mac address {macAddress}", errorResponse?.Message);
     }
 
     [Theory]

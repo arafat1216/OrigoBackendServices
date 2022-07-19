@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Seedwork;
+using AssetServices.Exceptions;
 
 namespace AssetServices.Infrastructure
 {
@@ -139,39 +140,39 @@ namespace AssetServices.Infrastructure
 
             if (category is { Length: 1 })
             {
-                if(category[0] == 1)
+                if (category[0] == 1)
                     query = query.Where(al => al.Asset is MobilePhone);
-                else if(category[0] == 2)
+                else if (category[0] == 2)
                     query = query.Where(al => al.Asset is Tablet);
             }
-            else if(category is { Length: 2 })
+            else if (category is { Length: 2 })
             {
                 query = query.Where(al => al.Asset is MobilePhone || al.Asset is Tablet);
             }
 
             if (label != null)
             {
-                query = query.Where(al => al.Labels.Any(e => label.Contains(e.ExternalId)) );
+                query = query.Where(al => al.Labels.Any(e => label.Contains(e.ExternalId)));
             }
 
-            if(userId != null)
+            if (userId != null)
             {
                 query = query.Where(al => al.ContractHolderUser.ExternalId == new Guid(userId));
             }
             if (isPersonal.HasValue)
             {
-                query = query.Where(al => al.IsPersonal == isPersonal.Value); 
+                query = query.Where(al => al.IsPersonal == isPersonal.Value);
             }
             if (isActiveState.HasValue)
             {
-               if(isActiveState.Value) query = query.Where(al => al.AssetLifecycleStatus == AssetLifecycleStatus.InputRequired ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.InUse ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Repair ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Available ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Active ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.ExpiresSoon);
-               
+                if (isActiveState.Value) query = query.Where(al => al.AssetLifecycleStatus == AssetLifecycleStatus.InputRequired ||
+                                      al.AssetLifecycleStatus == AssetLifecycleStatus.InUse ||
+                                      al.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
+                                      al.AssetLifecycleStatus == AssetLifecycleStatus.Repair ||
+                                      al.AssetLifecycleStatus == AssetLifecycleStatus.Available ||
+                                      al.AssetLifecycleStatus == AssetLifecycleStatus.Active ||
+                                      al.AssetLifecycleStatus == AssetLifecycleStatus.ExpiresSoon);
+
                 else query = query.Where(al => al.AssetLifecycleStatus == AssetLifecycleStatus.Lost ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Stolen ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
@@ -179,7 +180,7 @@ namespace AssetServices.Infrastructure
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Discarded ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Returned ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Expired);
-            
+
             }
             if (endPeriodMonth.HasValue)
             {
@@ -194,7 +195,7 @@ namespace AssetServices.Infrastructure
             query = query.AsSplitQuery().AsNoTracking();
             return await query.PaginateAsync(page, limit, cancellationToken);
         }
-        public async Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetLifecycleCountForCustomerAsync(Guid customerId,Guid? userId, IList<AssetLifecycleStatus> statuses)
+        public async Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetLifecycleCountForCustomerAsync(Guid customerId, Guid? userId, IList<AssetLifecycleStatus> statuses)
         {
             ServiceModel.CustomerAssetsCounterDTO customerAssetsCounter = new ServiceModel.CustomerAssetsCounterDTO();
             ServiceModel.AssetCounter personal = new ServiceModel.AssetCounter();
@@ -204,15 +205,16 @@ namespace AssetServices.Infrastructure
             {
                 c.AssetLifecycleStatus,
                 c.IsPersonal
-            }) .Select(group => new
-                   {
-                       AssetLifecycle = group.Key.AssetLifecycleStatus,
-                       value = group.Count(),
-                       isPersonal = group.Key.IsPersonal
-                   })
+            }).Select(group => new
+            {
+                AssetLifecycle = group.Key.AssetLifecycleStatus,
+                value = group.Count(),
+                isPersonal = group.Key.IsPersonal
+            })
                    .ToListAsync();
 
-            foreach (var g in groups) {
+            foreach (var g in groups)
+            {
 
 
                 if (statuses == null || (statuses.Contains(g.AssetLifecycle)))
@@ -390,7 +392,7 @@ namespace AssetServices.Infrastructure
         {
             foreach (var updateLabel in labels)
             {
-                var original = await GetCustomerLabelAsync(updateLabel.ExternalId, customerId);
+                var original = await GetCustomerLabelAsync(updateLabel.ExternalId, customerId) ?? throw new ResourceNotFoundException($"Labels with id {updateLabel.ExternalId} not found", Guid.Parse("968b4e19-12f7-4bef-939d-f97054fbc27e"));
                 original?.PatchLabel(updateLabel.UpdatedBy, updateLabel.Label);
             }
 
@@ -455,9 +457,9 @@ namespace AssetServices.Infrastructure
             query = query.Where(al => al.CustomerId == customerId);
             query = query.Where(al => al.ExternalId == assetLifecycleId);
 
-            if (userId != null) 
-            { 
-            query = query.Where(al => al.ContractHolderUser.ExternalId == new Guid(userId));
+            if (userId != null)
+            {
+                query = query.Where(al => al.ContractHolderUser.ExternalId == new Guid(userId));
             }
             if (department != null)
             {
@@ -528,8 +530,8 @@ namespace AssetServices.Infrastructure
         #region LifeCycleSetting
         public async Task<CustomerSettings> AddCustomerSettingAsync(CustomerSettings customerSettings, Guid customerId)
         {
-            var setting = await _assetContext.CustomerSettings.FirstOrDefaultAsync(x=>x.CustomerId == customerId);
-            if(setting != null) throw new InvalidOperationException();
+            var setting = await _assetContext.CustomerSettings.FirstOrDefaultAsync(x => x.CustomerId == customerId);
+            if (setting != null) throw new InvalidOperationException();
             await _assetContext.CustomerSettings.AddAsync(customerSettings);
             await SaveEntitiesAsync();
             return customerSettings;

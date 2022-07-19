@@ -599,8 +599,8 @@ public class AssetServicesTests : AssetBaseTest
             Description = "description"
         };
 
-        // Act and assert
-        await Assert.ThrowsAsync<InvalidAssetDataException>(() =>
+        // Act and assert 
+        await Assert.ThrowsAsync<InvalidAssetImeiException>(() =>
             assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, newAssetDTO));
     }
 

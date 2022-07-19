@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Common.Enums;
+using System;
 
-namespace Common.Exceptions
+namespace AssetServices.Exceptions
 {
-    public class InvalidLifecycleTypeException : Exception
+    public class InvalidLifecycleTypeException : AssetException
     {
-        public InvalidLifecycleTypeException(string msg) : base(msg)
+        public InvalidLifecycleTypeException(string message, Guid traceId, Exception? innerException = null) : base($"Invalid invalidLifecycle type, {message}", traceId, OrigoErrorCodes.InvalidLifecycleType, innerException)
         {
-
         }
     }
 }

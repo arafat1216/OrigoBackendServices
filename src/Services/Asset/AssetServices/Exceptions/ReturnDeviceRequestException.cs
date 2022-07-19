@@ -1,21 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Common.Enums;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace AssetServices.Exceptions
 {
-    public class ReturnDeviceRequestException : Exception
+    public class ReturnDeviceRequestException : AssetException
     {
-        public ReturnDeviceRequestException(ILogger logger)
-        {
-            logger.LogError(this, "Error in exception");
-        }
-
-        public ReturnDeviceRequestException(string message, ILogger logger) : base(message)
-        {
-            logger.LogError(this, message);
-        }
-        public ReturnDeviceRequestException(string message) : base(message)
-        {
-        }
+        public ReturnDeviceRequestException(string message, Guid traceId, Exception? innerException = null) : base(message, traceId, OrigoErrorCodes.ReturnDeviceError, innerException)
+    {
     }
+}
 }
