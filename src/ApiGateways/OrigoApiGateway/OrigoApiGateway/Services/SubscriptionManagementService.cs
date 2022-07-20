@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
@@ -9,14 +7,8 @@ using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Backend.Response;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {
@@ -27,14 +19,16 @@ namespace OrigoApiGateway.Services
         private readonly IUserServices _userServices;
         private readonly IMapper _mapper;
         private readonly SubscriptionManagementConfiguration _options;
-        private HttpClient HttpClient { get; }
-        public SubscriptionManagementService(ILogger<SubscriptionManagementService> logger, IOptions<SubscriptionManagementConfiguration> options, IUserServices userServices, HttpClient httpClient, IMapper mapper)
+        private readonly IHttpClientFactory _httpClientFactory;
+        private HttpClient HttpClient => _httpClientFactory.CreateClient("subscriptionmanagementservices");
+
+        public SubscriptionManagementService(ILogger<SubscriptionManagementService> logger, IOptions<SubscriptionManagementConfiguration> options, IUserServices userServices, IHttpClientFactory httpClientFactory, IMapper mapper)
         {
             _logger = logger;
             _userServices = userServices;
             _mapper = mapper;
             _options = options.Value;
-            HttpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<IList<OrigoOperator>> GetAllOperatorsAsync()

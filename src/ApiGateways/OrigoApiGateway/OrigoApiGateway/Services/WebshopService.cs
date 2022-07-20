@@ -1,9 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Options;
 
 namespace OrigoApiGateway.Services
 {
@@ -11,11 +6,12 @@ namespace OrigoApiGateway.Services
     {
         private readonly ILogger<WebshopService> _logger;
         private readonly WebshopConfiguration _webshopConfiguration;
-        private HttpClient _httpClient { get; }
-        public WebshopService(ILogger<WebshopService> logger, IOptions<WebshopConfiguration> options, HttpClient httpClient)
+        private readonly IHttpClientFactory _httpClientFactory;
+        private HttpClient HttpClient => _httpClientFactory.CreateClient("customerservices");
+        public WebshopService(ILogger<WebshopService> logger, IOptions<WebshopConfiguration> options, IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
             _webshopConfiguration = options.Value;
         }
 
@@ -23,7 +19,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync($"{_webshopConfiguration.ApiPath}/users", email);
+                var response = await HttpClient.PostAsJsonAsync($"{_webshopConfiguration.ApiPath}/users", email);
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception ex)

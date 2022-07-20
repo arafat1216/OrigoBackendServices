@@ -1,14 +1,7 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {
@@ -17,14 +10,14 @@ namespace OrigoApiGateway.Services
         private readonly ILogger<DepartmentsServices> _logger;
         private readonly IMapper _mapper;
         private readonly DepartmentConfiguration _options;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private HttpClient HttpClient => _httpClientFactory.CreateClient("customerservices");
 
-        private HttpClient HttpClient { get; }
-
-        public DepartmentsServices(ILogger<DepartmentsServices> logger, HttpClient httpClient,
+        public DepartmentsServices(ILogger<DepartmentsServices> logger, IHttpClientFactory httpClientFactory,
          IOptions<DepartmentConfiguration> options, IMapper mapper)
         {
             _logger = logger;
-            HttpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
             _options = options.Value;
             _mapper = mapper;
         }
@@ -145,13 +138,10 @@ namespace OrigoApiGateway.Services
                 };
 
                 var response = await HttpClient.SendAsync(request);
-
-                //var response = await HttpClient.DeleteAsync($"{_options.ApiPath}/{customerId}/departments/{departmentId}");
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    if (errorContent != null) throw new BadHttpRequestException(errorContent, (int)response.StatusCode);
-                    else throw new BadHttpRequestException("Unable to save department", (int)response.StatusCode);
+                    throw new BadHttpRequestException(errorContent, (int)response.StatusCode);
                 }
 
                 var deletedDepartment = await response.Content.ReadFromJsonAsync<DepartmentDTO>();

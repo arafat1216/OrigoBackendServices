@@ -1,11 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Options;
 using Common.Utilities;
 
 namespace OrigoApiGateway.Services
@@ -13,30 +6,31 @@ namespace OrigoApiGateway.Services
     public class FeatureFlagServices : IFeatureFlagServices
     {
         private readonly ILogger<FeatureFlagServices> _logger;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private HttpClient HttpClient => _httpClientFactory.CreateClient("customerservices");
         private readonly FeatureFlagConfiguration _options;
 
-        public FeatureFlagServices(ILogger<FeatureFlagServices> logger, HttpClient httpClient,
+        public FeatureFlagServices(ILogger<FeatureFlagServices> logger, IHttpClientFactory httpClientFactory,
             IOptions<FeatureFlagConfiguration> options)
         {
             _logger = logger;
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
             _options = options.Value;
         }
 
         public async Task<IList<string>> GetFeatureFlags()
         {
-            return await _httpClient.GetFromJsonAsync<List<string>>($"{_options.ApiPath}/feature-flags");
+            return await HttpClient.GetFromJsonAsync<List<string>>($"{_options.ApiPath}/feature-flags");
         }
 
         public async Task<IList<string>> GetFeatureFlags(Guid customerId)
         {
-            return await _httpClient.GetFromJsonAsync<List<string>>($"{_options.ApiPath}/feature-flags/{customerId}");
+            return await HttpClient.GetFromJsonAsync<List<string>>($"{_options.ApiPath}/feature-flags/{customerId}");
         }
 
         public async Task AddFeatureFlags(string featureFlagName, Guid? customerId)
         {
-            var response = await _httpClient.PostAsJsonAsync($"{_options.ApiPath}/feature-flags",
+            var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/feature-flags",
                 new { featureFlagName, customerId });
             if (!response.IsSuccessStatusCode)
                 throw new BadHttpRequestException("Unable to add feature flag", (int)response.StatusCode);
@@ -49,7 +43,7 @@ namespace OrigoApiGateway.Services
             httpRequestMessage.Content = customerId.HasValue
                 ? JsonContent.Create(new { FeatureFlagName = featureFlagName, CustomerId = customerId })
                 : JsonContent.Create(new { FeatureFlagName = featureFlagName });
-            var response = await _httpClient.SendAsync(httpRequestMessage);
+            var response = await HttpClient.SendAsync(httpRequestMessage);
             if (!response.IsSuccessStatusCode)
                 throw new BadHttpRequestException("Unable to delete feature flag", (int)response.StatusCode);
         }

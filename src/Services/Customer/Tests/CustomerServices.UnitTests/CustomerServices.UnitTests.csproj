@@ -8,6 +8,10 @@
 
 		<UserSecretsId>0a258d4b-bd92-45a0-96c6-2fc1c1350b60</UserSecretsId>
 	</PropertyGroup>
+	<PropertyGroup>
+		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+		<GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.6" />

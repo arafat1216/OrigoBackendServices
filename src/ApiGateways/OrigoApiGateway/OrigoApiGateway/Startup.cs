@@ -40,9 +40,7 @@ namespace OrigoApiGateway
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers().AddDapr();
-
             services.AddRouting(options => options.LowercaseUrls = true);
-
             services.AddApiVersioning(config =>
             {
                 config.DefaultApiVersion = _apiVersion;
@@ -50,28 +48,18 @@ namespace OrigoApiGateway
             });
 
             services.AddHealthChecks();
-
-
             services.AddHealthChecksUI().AddInMemoryStorage();
+            
             var blobConnectionString = Configuration.GetSection("Storage:ConnectionString").Value;
             services.AddAzureClients(builder =>
             {
                 builder.AddBlobServiceClient(blobConnectionString);
             });
-            services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
-            services.AddTransient<IStorageService, StorageService>();
-            services.Configure<AssetConfiguration>(Configuration.GetSection("Asset"));
-            services.Configure<CustomerConfiguration>(Configuration.GetSection("Customer"));
-            services.Configure<PartnerConfiguration>(Configuration.GetSection("Partner"));
-            services.Configure<UserConfiguration>(Configuration.GetSection("User"));
-            services.Configure<UserPermissionsConfigurations>(Configuration.GetSection("UserPermissions"));
-            services.Configure<DepartmentConfiguration>(Configuration.GetSection("Department"));
-            services.Configure<ProductCatalogConfiguration>(Configuration.GetSection("ProductCatalog"));
-            services.Configure<SubscriptionManagementConfiguration>(Configuration.GetSection("SubscriptionManagement"));
-            services.Configure<HardwareServiceOrderConfiguration>(Configuration.GetSection("HardwareServiceOrder"));
-            services.Configure<WebshopConfiguration>(Configuration.GetSection("Webshop"));
-            services.Configure<FeatureFlagConfiguration>(Configuration.GetSection("FeatureFlag"));
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+            services.AddHttpContextAccessor();
+
+            AddServiceConfigurations(services);
 
             services.AddAuthentication(options =>
             {
@@ -92,203 +80,29 @@ namespace OrigoApiGateway
                     .Build();
             });
 
-            //Filters
             services.AddScoped<ErrorExceptionFilter>();
-
-            //services.AddHttpContextAccessor();
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
+            
+            services.AddTransient<IStorageService, StorageService>();
             services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
             services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+            
+            AddHttpClientsToFactory(services);
 
-            services.AddSingleton<IWebshopService>(s => new WebshopService(
-                s.GetRequiredService<ILogger<WebshopService>>(),
-                s.GetRequiredService<IOptions<WebshopConfiguration>>(),
-                DaprClient.CreateInvokeHttpClient("customerservices")
-            ));
-
-            services.AddSingleton<IAssetServices>(x => new AssetServices(
-                x.GetRequiredService<ILogger<AssetServices>>(),
-                DaprClient.CreateInvokeHttpClient("assetservices"),
-                x.GetRequiredService<IOptions<AssetConfiguration>>(),
-                new UserServices(
-                    x.GetRequiredService<ILogger<UserServices>>(),
-                    DaprClient.CreateInvokeHttpClient("customerservices"),
-                    x.GetRequiredService<IOptions<UserConfiguration>>(),
-                    x.GetRequiredService<IMapper>()
-                ),
-                new UserPermissionService(
-                    x.GetRequiredService<ILogger<UserPermissionService>>(),
-                    DaprClient.CreateInvokeHttpClient("customerservices"),
-                    x.GetRequiredService<IOptions<UserPermissionsConfigurations>>(),
-                    x.GetRequiredService<IMapper>()
-                ),
-                x.GetRequiredService<IMapper>(),
-                new DepartmentsServices(
-                    x.GetRequiredService<ILogger<DepartmentsServices>>(),
-                    DaprClient.CreateInvokeHttpClient("customerservices"),
-                    x.GetRequiredService<IOptions<DepartmentConfiguration>>(),
-                    x.GetRequiredService<IMapper>()
-               )
-            ));
-
-            services.AddSingleton<IHardwareRepairService>(x => new HardwareRepairService(
-               x.GetRequiredService<ILogger<HardwareRepairService>>(),
-               DaprClient.CreateInvokeHttpClient("hardwareserviceorderservices"),
-               x.GetRequiredService<IOptions<HardwareServiceOrderConfiguration>>(),
-               x.GetRequiredService<IAssetServices>(),
-               x.GetRequiredService<IUserServices>(),
-               x.GetRequiredService<ICustomerServices>(),
-               x.GetRequiredService<IPartnerServices>(),
-               x.GetRequiredService<IHttpContextAccessor>()
-            ));
-
-            services.AddSingleton<ICustomerServices>(x => new CustomerServices(
-                x.GetRequiredService<ILogger<CustomerServices>>(),
-                DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<CustomerConfiguration>>(),
-                new AssetServices(
-                    x.GetRequiredService<ILogger<AssetServices>>(),
-                    DaprClient.CreateInvokeHttpClient("assetservices"),
-                    x.GetRequiredService<IOptions<AssetConfiguration>>(),
-                    new UserServices(
-                            x.GetRequiredService<ILogger<UserServices>>(),
-                            DaprClient.CreateInvokeHttpClient("customerservices"),
-                            x.GetRequiredService<IOptions<UserConfiguration>>(),
-                            x.GetRequiredService<IMapper>()
-                    ),
-                    new UserPermissionService(
-                    x.GetRequiredService<ILogger<UserPermissionService>>(),
-                    DaprClient.CreateInvokeHttpClient("customerservices"),
-                    x.GetRequiredService<IOptions<UserPermissionsConfigurations>>(),
-                    x.GetRequiredService<IMapper>()
-                    ),
-                    x.GetRequiredService<IMapper>(),
-                    new DepartmentsServices(
-                        x.GetRequiredService<ILogger<DepartmentsServices>>(),
-                        DaprClient.CreateInvokeHttpClient("customerservices"),
-                        x.GetRequiredService<IOptions<DepartmentConfiguration>>(),
-                        x.GetRequiredService<IMapper>()
-                    )
-                ),
-                x.GetRequiredService<IMapper>()
-            ));
-
-            services.AddSingleton<IPartnerServices>(x => new PartnerServices(
-                x.GetRequiredService<ILogger<PartnerServices>>(),
-                DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<PartnerConfiguration>>(),
-                x.GetRequiredService<IMapper>()
-            ));
-
-            services.AddSingleton<IUserPermissionService>(x => new UserPermissionService(
-                x.GetRequiredService<ILogger<UserPermissionService>>(),
-                DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<UserPermissionsConfigurations>>(),
-                x.GetRequiredService<IMapper>()
-            ));
-
-            services.AddSingleton<IFeatureFlagServices>(x => new FeatureFlagServices(
-                x.GetRequiredService<ILogger<FeatureFlagServices>>(),
-                DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<FeatureFlagConfiguration>>()
-            ));
-
-            services.AddSingleton<IUserServices>(x => new UserServices(
-                x.GetRequiredService<ILogger<UserServices>>(),
-                DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<UserConfiguration>>(),
-                x.GetRequiredService<IMapper>()
-            ));
-
-            services.AddSingleton<IDepartmentsServices>(x => new DepartmentsServices(
-                x.GetRequiredService<ILogger<DepartmentsServices>>(),
-                DaprClient.CreateInvokeHttpClient("customerservices"),
-                x.GetRequiredService<IOptions<DepartmentConfiguration>>(),
-                x.GetRequiredService<IMapper>()
-            ));
-
-            services.AddSingleton<IProductCatalogServices>(x => new ProductCatalogServices(
-                x.GetRequiredService<ILogger<ProductCatalogServices>>(),
-                DaprClient.CreateInvokeHttpClient("productcatalogservices"),
-                x.GetRequiredService<IOptions<ProductCatalogConfiguration>>()
-            ));
-
-
-            services.AddSingleton<ISubscriptionManagementService>(x => new SubscriptionManagementService(
-                x.GetRequiredService<ILogger<SubscriptionManagementService>>(),
-                x.GetRequiredService<IOptions<SubscriptionManagementConfiguration>>(),
-                new UserServices(
-                    x.GetRequiredService<ILogger<UserServices>>(),
-                    DaprClient.CreateInvokeHttpClient("customerservices"),
-                    x.GetRequiredService<IOptions<UserConfiguration>>(),
-                    x.GetRequiredService<IMapper>()
-                ),
-                DaprClient.CreateInvokeHttpClient("subscriptionmanagementservices"),
-                x.GetRequiredService<IMapper>()
-            ));
-
+            services.AddSingleton<IWebshopService, WebshopService>();
+            services.AddSingleton<IAssetServices, AssetServices>();
+            services.AddSingleton<ICustomerServices, CustomerServices>();
+            services.AddSingleton<IHardwareRepairService, HardwareRepairService>();
+            services.AddSingleton<IPartnerServices, PartnerServices>();
+            services.AddSingleton<IUserPermissionService, UserPermissionService>();
+            services.AddSingleton<IFeatureFlagServices, FeatureFlagServices>();
+            services.AddSingleton<IUserServices, UserServices>();
+            services.AddSingleton<IDepartmentsServices, DepartmentsServices>();
+            services.AddSingleton<IProductCatalogServices, ProductCatalogServices>();
+            services.AddSingleton<ISubscriptionManagementService, SubscriptionManagementService>();
 
             if (WebHostEnvironment.EnvironmentName == "Development")
             {
-                services.AddSingleton<ISeedDatabaseService>(x => new SeedDatabaseService(
-                    x.GetRequiredService<ILogger<SeedDatabaseService>>(),
-                    new AssetServices(
-                        x.GetRequiredService<ILogger<AssetServices>>(),
-                        DaprClient.CreateInvokeHttpClient("assetservices"),
-                        x.GetRequiredService<IOptions<AssetConfiguration>>(),
-                        new UserServices(
-                            x.GetRequiredService<ILogger<UserServices>>(),
-                            DaprClient.CreateInvokeHttpClient("customerservices"),
-                            x.GetRequiredService<IOptions<UserConfiguration>>(),
-                            x.GetRequiredService<IMapper>()
-                        ),
-                        new UserPermissionService(
-                            x.GetRequiredService<ILogger<UserPermissionService>>(),
-                            DaprClient.CreateInvokeHttpClient("customerservices"),
-                            x.GetRequiredService<IOptions<UserPermissionsConfigurations>>(),
-                            x.GetRequiredService<IMapper>()
-                        ),
-                        x.GetRequiredService<IMapper>(),
-                        new DepartmentsServices(
-                            x.GetRequiredService<ILogger<DepartmentsServices>>(),
-                             DaprClient.CreateInvokeHttpClient("customerservices"),
-                            x.GetRequiredService<IOptions<DepartmentConfiguration>>(),
-                            x.GetRequiredService<IMapper>()
-                        )
-                    ),
-                    new CustomerServices(
-                            x.GetRequiredService<ILogger<CustomerServices>>(),
-                            DaprClient.CreateInvokeHttpClient("customerservices"),
-                            x.GetRequiredService<IOptions<CustomerConfiguration>>(),
-                            new AssetServices(
-                                x.GetRequiredService<ILogger<AssetServices>>(),
-                                DaprClient.CreateInvokeHttpClient("assetservices"),
-                                x.GetRequiredService<IOptions<AssetConfiguration>>(),
-                                new UserServices(
-                                    x.GetRequiredService<ILogger<UserServices>>(),
-                                    DaprClient.CreateInvokeHttpClient("customerservices"),
-                                    x.GetRequiredService<IOptions<UserConfiguration>>(),
-                                    x.GetRequiredService<IMapper>()
-                                ),
-                                new UserPermissionService(
-                                    x.GetRequiredService<ILogger<UserPermissionService>>(),
-                                    DaprClient.CreateInvokeHttpClient("customerservices"),
-                                    x.GetRequiredService<IOptions<UserPermissionsConfigurations>>(),
-                                    x.GetRequiredService<IMapper>()
-                                ),
-                                x.GetRequiredService<IMapper>(),
-                                new DepartmentsServices(
-                                    x.GetRequiredService<ILogger<DepartmentsServices>>(),
-                                    DaprClient.CreateInvokeHttpClient("customerservices"),
-                                    x.GetRequiredService<IOptions<DepartmentConfiguration>>(),
-                                    x.GetRequiredService<IMapper>()
-                                )
-                            ),
-                            x.GetRequiredService<IMapper>()
-                        )
-                    )
-                );
+                services.AddSingleton<ISeedDatabaseService, SeedDatabaseService>();
             }
             else
             {
@@ -330,6 +144,37 @@ namespace OrigoApiGateway
             });
 
             services.AddApplicationInsightsTelemetry();
+        }
+
+        private void AddHttpClientsToFactory(IServiceCollection services)
+        {
+            services.AddHttpClient("assetservices", c => { c.BaseAddress = new Uri("http://assetservices"); })
+                .AddHttpMessageHandler(() => new InvocationHandler());
+
+            services.AddHttpClient("customerservices", c => { c.BaseAddress = new Uri("http://customerservices"); })
+                .AddHttpMessageHandler(() => new InvocationHandler());
+            services.AddHttpClient("hardwareserviceorderservices",
+                    c => { c.BaseAddress = new Uri("http://hardwareserviceorderservices"); })
+                .AddHttpMessageHandler(() => new InvocationHandler());
+            services.AddHttpClient("productcatalogservices", c => { c.BaseAddress = new Uri("http://productcatalogservices"); })
+                .AddHttpMessageHandler(() => new InvocationHandler());
+            services.AddHttpClient("subscriptionmanagementservices", c => { c.BaseAddress = new Uri("http://subscriptionmanagementservices"); })
+                .AddHttpMessageHandler(() => new InvocationHandler());
+        }
+
+        private void AddServiceConfigurations(IServiceCollection services)
+        {
+            services.Configure<AssetConfiguration>(Configuration.GetSection("Asset"));
+            services.Configure<CustomerConfiguration>(Configuration.GetSection("Customer"));
+            services.Configure<PartnerConfiguration>(Configuration.GetSection("Partner"));
+            services.Configure<UserConfiguration>(Configuration.GetSection("User"));
+            services.Configure<UserPermissionsConfigurations>(Configuration.GetSection("UserPermissions"));
+            services.Configure<DepartmentConfiguration>(Configuration.GetSection("Department"));
+            services.Configure<ProductCatalogConfiguration>(Configuration.GetSection("ProductCatalog"));
+            services.Configure<SubscriptionManagementConfiguration>(Configuration.GetSection("SubscriptionManagement"));
+            services.Configure<HardwareServiceOrderConfiguration>(Configuration.GetSection("HardwareServiceOrder"));
+            services.Configure<WebshopConfiguration>(Configuration.GetSection("Webshop"));
+            services.Configure<FeatureFlagConfiguration>(Configuration.GetSection("FeatureFlag"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

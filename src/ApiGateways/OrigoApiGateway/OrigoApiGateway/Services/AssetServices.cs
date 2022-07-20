@@ -15,10 +15,10 @@ namespace OrigoApiGateway.Services
 {
     public class AssetServices : IAssetServices
     {
-        public AssetServices(ILogger<AssetServices> logger, HttpClient httpClient, IOptions<AssetConfiguration> options, IUserServices userServices, IUserPermissionService userPermissionService, IMapper mapper, IDepartmentsServices departmentsServices)
+        public AssetServices(ILogger<AssetServices> logger, IHttpClientFactory httpClientFactory, IOptions<AssetConfiguration> options, IUserServices userServices, IUserPermissionService userPermissionService, IMapper mapper, IDepartmentsServices departmentsServices)
         {
             _logger = logger;
-            HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _httpClientFactory = httpClientFactory;
             _options = options.Value;
             _userServices = userServices;
             _departmentsServices = departmentsServices;
@@ -30,8 +30,9 @@ namespace OrigoApiGateway.Services
         private readonly IDepartmentsServices _departmentsServices;
         private readonly ILogger<AssetServices> _logger;
         private readonly IMapper _mapper;
-        private HttpClient HttpClient { get; }
+        private HttpClient HttpClient => _httpClientFactory.CreateClient("assetservices");
         private readonly AssetConfiguration _options;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public async Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync()
         {

@@ -21,12 +21,13 @@ namespace OrigoApiGateway.Services
         private readonly ICustomerServices _customerServices;
         private readonly IPartnerServices _partnerServices;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        private HttpClient HttpClient { get; }
+        private HttpClient HttpClient => _httpClientFactory.CreateClient("hardwareserviceorderservices");
 
         public HardwareRepairService(
             ILogger<HardwareRepairService> logger,
-            HttpClient httpClient,
+            IHttpClientFactory httpClientFactory,
             IOptions<HardwareServiceOrderConfiguration> options,
             IAssetServices assetServices,
             IUserServices userServices,
@@ -35,13 +36,13 @@ namespace OrigoApiGateway.Services
             IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
-            HttpClient = httpClient;
             _options = options.Value;
             _assetServices = assetServices;
             _userServices = userServices;
             _customerServices = customerServices;
             _partnerServices = partnerServices;
             _httpContextAccessor = httpContextAccessor;
+            _httpClientFactory = httpClientFactory;
         }
 
         /// <summary>

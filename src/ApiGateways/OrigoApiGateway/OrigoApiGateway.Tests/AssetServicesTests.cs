@@ -74,13 +74,13 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
             var userPermissionOptionsMock = new Mock<IOptions<UserPermissionsConfigurations>>();
-            var userPermissionService = new UserPermissionService(Mock.Of<ILogger<UserPermissionService>>(), httpClient, userPermissionOptionsMock.Object, _mapper);
+            var userPermissionService = new UserPermissionService(Mock.Of<ILogger<UserPermissionService>>(), mockFactory.Object, userPermissionOptionsMock.Object, _mapper);
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, userPermissionService, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, userPermissionService, _mapper, departmentService);
 
             // Act
             var minBuyoutPrices = await assetService.GetBaseMinBuyoutPrice();
@@ -156,13 +156,13 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
             var userPermissionOptionsMock = new Mock<IOptions<UserPermissionsConfigurations>>();
-            var userPermissionService = new UserPermissionService(Mock.Of<ILogger<UserPermissionService>>(), httpClient, userPermissionOptionsMock.Object, _mapper);
+            var userPermissionService = new UserPermissionService(Mock.Of<ILogger<UserPermissionService>>(), mockFactory.Object, userPermissionOptionsMock.Object, _mapper);
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, userPermissionService, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, userPermissionService, _mapper, departmentService);
             // Act
             var assetsFromUser = await assetService.GetAssetsForUserAsync(new Guid(CUSTOMER_ID), Guid.NewGuid());
 
@@ -206,7 +206,7 @@ namespace OrigoApiGateway.Tests
 
             var mockUserPermissionService = new Mock<IUserPermissionService>();
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, mockUserService.Object, mockUserPermissionService.Object, _mapper, mockDepartmentService.Object);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, mockUserService.Object, mockUserPermissionService.Object, _mapper, mockDepartmentService.Object);
 
 
             // Act
@@ -285,12 +285,12 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             IList<Guid> assetGuidList = new List<Guid>();
             assetGuidList.Add(new Guid("64add3ea-74ae-48a3-aad7-1a811f25ccdc"));
@@ -355,12 +355,12 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             IList<NewLabel> newLabels = new List<NewLabel>();
             newLabels.Add(new NewLabel { Text = "Manager", Color = LabelColor.Red });
@@ -418,16 +418,16 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             
 
 
 
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             IList<Guid> guidList = new List<Guid>();
             guidList.Add(new Guid(LABEL_THREE_ID));
@@ -624,10 +624,10 @@ namespace OrigoApiGateway.Tests
 
 
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService.Object, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService.Object, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             var postData = new MakeAssetAvailable()
             {
@@ -684,12 +684,12 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             // Act
             var assetings = await assetService.GetLifeCycleSettingByCustomer(new Guid(CUSTOMER_ID), CurrencyCode.NOK.ToString());
@@ -761,12 +761,12 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             var newSettings = new NewLifeCycleSetting()
             {
@@ -844,12 +844,12 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             var newSettings = new NewLifeCycleSetting()
             {
@@ -913,12 +913,12 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             IList<Label> labels = new List<Label>();
             labels.Add(new Label { Id = new Guid(LABEL_ONE_ID), Text = "Administrator", Color = LabelColor.Blue });
@@ -974,12 +974,12 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             // Act
             var assetings = await assetService.GetDisposeSettingByCustomer(new Guid(CUSTOMER_ID));
@@ -1015,12 +1015,12 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             // Act
             var assetings = await assetService.GetDisposeSettingByCustomer(new Guid(CUSTOMER_ID));
@@ -1083,12 +1083,12 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             var newSettings = new NewDisposeSetting()
             {
@@ -1149,12 +1149,12 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             var newSettings = new NewDisposeSetting()
             {
@@ -1196,12 +1196,12 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             // Act and assert
             await Assert.ThrowsAsync<ResourceNotFoundException>(() =>
@@ -1236,12 +1236,12 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             var reportData = new ReportDevice()
             {
@@ -1289,12 +1289,12 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, userOptionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
-            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), httpClient, departmentOptionsMock.Object, _mapper);
+            var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object, departmentOptionsMock.Object, _mapper);
 
 
-            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), httpClient, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
+            var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), mockFactory.Object, optionsMock.Object, userService, new Mock<IUserPermissionService>().Object, _mapper, departmentService);
 
             // Act and assert
             await Assert.ThrowsAsync<ResourceNotFoundException>(() =>

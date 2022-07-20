@@ -1,31 +1,23 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {
     public class UserPermissionService : IUserPermissionService
     {
-        private readonly HttpClient _httpClient;
         private readonly UserPermissionsConfigurations _options;
         private readonly ILogger<UserPermissionService> _logger;
-        private readonly IMapper _mapper;
+        private readonly IMapper _mapper; private readonly IHttpClientFactory _httpClientFactory; 
+        private HttpClient HttpClient => _httpClientFactory.CreateClient("customerservices");
 
-        public UserPermissionService(ILogger<UserPermissionService> logger, HttpClient httpClient, IOptions<UserPermissionsConfigurations> options, IMapper mapper)
+
+        public UserPermissionService(ILogger<UserPermissionService> logger, IHttpClientFactory httpClientFactory, IOptions<UserPermissionsConfigurations> options, IMapper mapper)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
             _options = options.Value;
             _logger = logger;
             _mapper = mapper;
@@ -34,7 +26,7 @@ namespace OrigoApiGateway.Services
         public async Task<ClaimsIdentity> GetUserPermissionsIdentityAsync(string sub, string userName, CancellationToken cancellationToken)
         {
             var encodedUserName = WebUtility.UrlEncode(userName);
-            var userPermissions = await _httpClient.GetFromJsonAsync<IList<UserPermissionsDTO>>($"{_options.ApiPath}/users/{encodedUserName}/permissions", cancellationToken);
+            var userPermissions = await HttpClient.GetFromJsonAsync<IList<UserPermissionsDTO>>($"{_options.ApiPath}/users/{encodedUserName}/permissions", cancellationToken);
             if (userPermissions == null || !userPermissions.Any())
             {
                 return new ClaimsIdentity();
@@ -66,7 +58,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 var encodedUserName = WebUtility.UrlEncode(userName);
-                var userPermissions = await _httpClient.GetFromJsonAsync<IList<UserPermissionsDTO>>($"{_options.ApiPath}/users/{encodedUserName}/permissions");
+                var userPermissions = await HttpClient.GetFromJsonAsync<IList<UserPermissionsDTO>>($"{_options.ApiPath}/users/{encodedUserName}/permissions");
                 return _mapper.Map<List<OrigoUserPermissions>>(userPermissions);
             }
             catch (HttpRequestException exception)
@@ -89,7 +81,7 @@ namespace OrigoApiGateway.Services
         public async Task<OrigoUserPermissions> AddUserPermissionsForUserAsync(string userName, NewUserPermissionsDTO userPermission)
         {
             var encodedUserName = WebUtility.UrlEncode(userName);
-            var response = await _httpClient.PutAsync($"{_options.ApiPath}/users/{encodedUserName}/permissions", JsonContent.Create(userPermission));
+            var response = await HttpClient.PutAsync($"{_options.ApiPath}/users/{encodedUserName}/permissions", JsonContent.Create(userPermission));
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
@@ -113,7 +105,7 @@ namespace OrigoApiGateway.Services
                 Method = HttpMethod.Delete,
                 RequestUri = new Uri(requestUri, UriKind.Relative)
             };
-            var response = await _httpClient.SendAsync(request);
+            var response = await HttpClient.SendAsync(request);
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
@@ -131,7 +123,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var allRoles = await _httpClient.GetFromJsonAsync<IList<string>>($"{_options.ApiPath}/roles");
+                var allRoles = await HttpClient.GetFromJsonAsync<IList<string>>($"{_options.ApiPath}/roles");
                 return allRoles?.ToList();
             }
             catch (HttpRequestException exception)
@@ -155,7 +147,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var allAdmins = await _httpClient.GetFromJsonAsync<IList<UserAdminDTO>>($"{_options.ApiPath}/admins");
+                var allAdmins = await HttpClient.GetFromJsonAsync<IList<UserAdminDTO>>($"{_options.ApiPath}/admins");
                 return allAdmins?.ToList();
             }
             catch (HttpRequestException exception)
@@ -179,7 +171,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var allAdmins = await _httpClient.GetFromJsonAsync<IList<UserAdminDTO>>($"{_options.ApiPath}/{customerId}/customer-admins");
+                var allAdmins = await HttpClient.GetFromJsonAsync<IList<UserAdminDTO>>($"{_options.ApiPath}/{customerId}/customer-admins");
                 return allAdmins?.ToList();
             }
             catch (HttpRequestException exception)
@@ -203,7 +195,7 @@ namespace OrigoApiGateway.Services
         public async Task<OrigoUsersPermissions> AddUsersPermissionsForUsersAsync(NewUsersPermissionsDTO userPermission)
         {
             
-            var response = await _httpClient.PutAsJsonAsync($"{_options.ApiPath}/users/permissions", userPermission);
+            var response = await HttpClient.PutAsJsonAsync($"{_options.ApiPath}/users/permissions", userPermission);
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;

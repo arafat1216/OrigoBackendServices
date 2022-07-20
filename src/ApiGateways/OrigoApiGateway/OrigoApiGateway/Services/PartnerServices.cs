@@ -1,30 +1,24 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {
     public class PartnerServices : IPartnerServices
     {
-        public PartnerServices(ILogger<PartnerServices> logger, HttpClient httpClient,
+        public PartnerServices(ILogger<PartnerServices> logger, IHttpClientFactory httpClientFactory,
             IOptions<PartnerConfiguration> options, IMapper mapper)
         {
             _logger = logger;
-            HttpClient = httpClient;
             _options = options.Value;
             _mapper = mapper;
+            _httpClientFactory = httpClientFactory;
         }
 
         private readonly ILogger<PartnerServices> _logger;
-        private HttpClient HttpClient { get; }
+        private readonly IHttpClientFactory _httpClientFactory;
+        private HttpClient HttpClient => _httpClientFactory.CreateClient("customerservices");
         private readonly PartnerConfiguration _options;
         private readonly IMapper _mapper;
 
@@ -32,15 +26,8 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var partnerDto = new CreatePartnerDto();
-                partnerDto.CallerId = callerId;
-                partnerDto.OrganizationId = organizationId;
-
+                var partnerDto = new CreatePartnerDto { CallerId = callerId, OrganizationId = organizationId };
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}", partnerDto);
-#if DEBUG
-                var responseMessage = await response.Content.ReadAsStringAsync();
-#endif
-
                 if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException("Unable to save partner", (int)response.StatusCode);
 

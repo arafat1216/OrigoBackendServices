@@ -1,13 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models.ProductCatalog;
-using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {
@@ -16,23 +10,25 @@ namespace OrigoApiGateway.Services
         private readonly ILogger<ProductCatalogServices> _logger;
         private readonly ProductCatalogConfiguration _options;
 
-        private HttpClient HttpClient { get; }
+        private readonly IHttpClientFactory _httpClientFactory;
+        private HttpClient HttpClient => _httpClientFactory.CreateClient("productcatalogservices");
+
         private string ProductsApiPath { get; }
         private string ProductTypesApiPath { get; }
         private string OrdersApiPath { get; }
         private string FeaturesApiPath { get; }
 
 
-        public ProductCatalogServices(ILogger<ProductCatalogServices> logger, HttpClient httpClient, IOptions<ProductCatalogConfiguration> options)
+        public ProductCatalogServices(ILogger<ProductCatalogServices> logger, IHttpClientFactory httpClientFactory, IOptions<ProductCatalogConfiguration> options)
         {
             _logger = logger;
-            HttpClient = httpClient;
             _options = options.Value;
 
             ProductsApiPath = $"{_options.ApiPath}products";
             ProductTypesApiPath = $"{_options.ApiPath}producttypes";
             OrdersApiPath = $"{_options.ApiPath}orders";
             FeaturesApiPath = $"{_options.ApiPath}features";
+            _httpClientFactory = httpClientFactory;
         }
 
         #region Features

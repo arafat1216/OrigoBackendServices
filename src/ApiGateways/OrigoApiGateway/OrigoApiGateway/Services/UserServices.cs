@@ -1,34 +1,27 @@
 ﻿using AutoMapper;
 using Common.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {
     public class UserServices : IUserServices
     {
-        public UserServices(ILogger<UserServices> logger, HttpClient httpClient, IOptions<UserConfiguration> options, IMapper mapper)
+        public UserServices(ILogger<UserServices> logger, IHttpClientFactory httpClientFactory, IOptions<UserConfiguration> options, IMapper mapper)
         {
             _logger = logger;
             _mapper = mapper;
-            HttpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
             _options = options.Value;
         }
 
         private readonly ILogger<UserServices> _logger;
         private readonly IMapper _mapper;
-        private HttpClient HttpClient { get; }
+        private readonly IHttpClientFactory _httpClientFactory;
+        private HttpClient HttpClient => _httpClientFactory.CreateClient("customerservices");
         private readonly UserConfiguration _options;
 
         public async Task<int> GetUsersCountAsync(Guid customerId, FilterOptionsForUser filterOptions)
@@ -42,12 +35,12 @@ namespace OrigoApiGateway.Services
             }
             catch (JsonException exception)
             {
-                _logger.LogError(exception, "GetUserAsync failed with JsonException. ", exception.Message);
+                _logger.LogError(exception, "GetUserAsync failed with JsonException. {0}", exception.Message);
                 throw;
             }
             catch (BadHttpRequestException exception)
             {
-                _logger.LogError(exception, "GetUserAsync failed with BadHttpRequestException. ", exception.Message);
+                _logger.LogError(exception, "GetUserAsync failed with BadHttpRequestException. {0}", exception.Message);
                 throw;
             }
             catch (HttpRequestException exception)
@@ -123,11 +116,12 @@ namespace OrigoApiGateway.Services
             try
             {
 
-                string json = JsonSerializer.Serialize(filterOptions);
-
-                var users = await HttpClient.GetFromJsonAsync<PagedModel<UserDTO>>($"{_options.ApiPath}/{customerId}/users?q={search}&page={page}&limit={limit}&filterOptions={json}");
-
-                //return _mapper.Map<List<OrigoUser>>(users);
+                var json = JsonSerializer.Serialize(filterOptions);
+                var users = await HttpClient.GetFromJsonAsync<PagedModel<UserDTO>>($"{_options.ApiPath}/{customerId}/users?q={search}&page={page}&limit={limit}&filterOptions={json}", cancellationToken);
+                if (users == null)
+                {
+                    return new PagedModel<OrigoUser>();
+                }
                 return new PagedModel<OrigoUser>
                 {
                     Items = _mapper.Map<IList<OrigoUser>>(users.Items),

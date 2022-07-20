@@ -67,7 +67,7 @@ namespace OrigoApiGateway.Tests
             var optionsMock = new Mock<IOptions<UserConfiguration>>();
             optionsMock.Setup(o => o.Value).Returns(options);
 
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, optionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
 
             // Act
             var user = await userService.GetUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID));
@@ -111,7 +111,7 @@ namespace OrigoApiGateway.Tests
             var optionsMock = new Mock<IOptions<UserConfiguration>>();
             optionsMock.Setup(o => o.Value).Returns(options);
 
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, optionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
             var updateUser = new Models.OrigoUpdateUser { FirstName = null, LastName = null, Email = null, EmployeeId = null,  MobileNumber = null, UserPreference = null };
             // Act
             var user = await userService.PutUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser, EMPTY_CALLER_ID);
@@ -159,7 +159,7 @@ namespace OrigoApiGateway.Tests
             var optionsMock = new Mock<IOptions<UserConfiguration>>();
             optionsMock.Setup(o => o.Value).Returns(options);
 
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, optionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
             var updateUser = new Models.OrigoUpdateUser { FirstName = "Ada", LastName = "Lovelace", Email = "jane.doe@example.com", EmployeeId = "E1", MobileNumber = "+4795554613", UserPreference = null };
             // Act
             var user = await userService.PutUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser, EMPTY_CALLER_ID);
@@ -207,7 +207,7 @@ namespace OrigoApiGateway.Tests
             var optionsMock = new Mock<IOptions<UserConfiguration>>();
             optionsMock.Setup(o => o.Value).Returns(options);
 
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, optionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
             var updateUser = new Models.OrigoUpdateUser { FirstName = "Ada", LastName = "Lovelace", Email = null, EmployeeId = null, MobileNumber = null, UserPreference = null };
             // Act
             var user = await userService.PatchUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser, EMPTY_CALLER_ID);
@@ -256,7 +256,7 @@ namespace OrigoApiGateway.Tests
             var optionsMock = new Mock<IOptions<UserConfiguration>>();
             optionsMock.Setup(o => o.Value).Returns(options);
 
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), httpClient, optionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
             var updateUser = new Models.OrigoUpdateUser { FirstName = "Ada", LastName = "Lovelace", Email = null, EmployeeId = null, MobileNumber = null, UserPreference = null };
             // Act
             var userDeleted = await userService.DeleteUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), true, EMPTY_CALLER_ID);
