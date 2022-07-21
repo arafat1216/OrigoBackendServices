@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Common.Enums;
 
 #nullable enable
 
@@ -42,6 +43,17 @@ namespace CustomerServices.Models
         ///     This value will be <see langword="null"/> for special/custom organization entries (e.g. service-providers) that don't have any active
         ///     customer-relationship, and therefore should not be managed by a partner. </para>
         /// </summary>
+
+        /// <summary>
+        /// The current status of this organization.
+        /// </summary>
+        public CustomerStatus CustomerStatus
+        {
+            get => _customerStatus;
+            init => _customerStatus = value;
+        }
+        private CustomerStatus _customerStatus;
+
         [JsonIgnore]
         public Partner? Partner { get; protected set; }
         public Location? PrimaryLocation
@@ -140,6 +152,7 @@ namespace CustomerServices.Models
             CreatedBy = callerId;
             UpdatedBy = callerId;
             IsDeleted = false;
+            _customerStatus = CustomerStatus.BeforeOnboarding;
             AddUsersToOkta = addUsersToOkta;
             organizationLocation.SetPrimaryLocation(true, callerId);
             Locations.Add(organizationLocation);

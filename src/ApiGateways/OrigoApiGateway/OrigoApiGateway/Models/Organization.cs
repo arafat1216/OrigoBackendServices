@@ -17,5 +17,7 @@ namespace OrigoApiGateway.Models
         public Guid? PartnerId { get; set; }
 
         public bool? AddUsersToOkta { get; set; }
+        public int Status { get; set; }
+        public string StatusName { get; set; }
     }
 }

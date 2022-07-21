@@ -30,12 +30,9 @@ public class CustomerServices : ICustomerServices
         try
         {
             bool customersOnly = true;
-            var organizations = await HttpClient.GetFromJsonAsync<IList<OrganizationDTO>>($"{_options.ApiPath}/{customersOnly}/?partnerId={partnerId}");
+            var organizations = await HttpClient.GetFromJsonAsync<IList<Organization>>($"{_options.ApiPath}/{customersOnly}/?partnerId={partnerId}");
 
-            if (organizations == null)
-                return null;
-
-            return _mapper.Map<List<Organization>>(organizations);
+            return organizations ?? null;
         }
         catch (HttpRequestException exception)
         {
@@ -59,8 +56,9 @@ public class CustomerServices : ICustomerServices
         try
         {
             bool customerOnly = true;
-            var organization = await HttpClient.GetFromJsonAsync<OrganizationDTO>($"{_options.ApiPath}/{customerId}/{customerOnly}");
-            return organization == null ? null : _mapper.Map<Organization>(organization);
+            var organization = await HttpClient.GetFromJsonAsync<Organization>($"{_options.ApiPath}/{customerId}/{customerOnly}");
+
+            return organization ?? null; 
         }
         catch (HttpRequestException exception)
         {
@@ -245,8 +243,8 @@ public class CustomerServices : ICustomerServices
             else if (!response.IsSuccessStatusCode)
                 throw new BadHttpRequestException("Unable to save customer", (int)response.StatusCode);
 
-            var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
-            return organization == null ? null : _mapper.Map<Organization>(organization);
+            var organization = await response.Content.ReadFromJsonAsync<Organization>();
+            return organization ?? null;
         }
         catch (InvalidOrganizationNumberException exception)
         {
@@ -289,8 +287,8 @@ public class CustomerServices : ICustomerServices
             if (!response.IsSuccessStatusCode)
                 throw new BadHttpRequestException("Unable to save organization", (int)response.StatusCode);
 
-            var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
-            return organization == null ? null : _mapper.Map<Organization>(organization);
+            var organization = await response.Content.ReadFromJsonAsync<Organization>();
+            return organization ?? null;
         }
         catch (InvalidOrganizationNumberException exception)
         {
@@ -335,8 +333,8 @@ public class CustomerServices : ICustomerServices
                 throw exception;
             }
 
-            var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
-            return organization == null ? null : _mapper.Map<Organization>(organization);
+            var organization = await response.Content.ReadFromJsonAsync<Organization>();
+            return organization ?? null;
         }
         catch (Exception ex)
         {
@@ -353,8 +351,8 @@ public class CustomerServices : ICustomerServices
             if (!response.IsSuccessStatusCode)
                 throw new BadHttpRequestException("Unable to update organization", (int)response.StatusCode);
 
-            var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
-            return organization == null ? null : _mapper.Map<Organization>(organization);
+            var organization = await response.Content.ReadFromJsonAsync<Organization>();
+            return organization ?? null;
         }
         catch (Exception ex)
         {
@@ -371,8 +369,8 @@ public class CustomerServices : ICustomerServices
             if (!response.IsSuccessStatusCode)
                 throw new BadHttpRequestException("Unable to update organization", (int)response.StatusCode);
 
-            var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
-            return organization == null ? null : _mapper.Map<Organization>(organization);
+            var organization = await response.Content.ReadFromJsonAsync<Organization>();
+            return organization ?? null;
         }
         catch (Exception ex)
         {

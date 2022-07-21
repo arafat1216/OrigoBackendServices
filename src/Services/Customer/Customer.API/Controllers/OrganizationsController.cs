@@ -51,21 +51,7 @@ namespace Customer.API.Controllers
             {
                 var organization = await _organizationServices.GetOrganizationAsync(organizationId, includeOrganizationPreferences, includeLocation, customerOnly);
                 if (organization == null) return NotFound();
-
-                var foundCustomer = new OrganizationDTO
-                {
-                    OrganizationId = organization.OrganizationId,
-                    Name = organization.Name,
-                    OrganizationNumber = organization.OrganizationNumber,
-                    Address = new AddressDTO(organization.Address),
-                    ContactPerson = new ContactPersonDTO(organization.ContactPerson),
-                    Preferences = (organization.Preferences == null) ? null : new OrganizationPreferencesDTO(organization.Preferences),
-                    Location = (organization.PrimaryLocation == null) ? null : new LocationDTO(organization.PrimaryLocation),
-                    PartnerId = organization.Partner?.ExternalId,
-                    AddUsersToOkta = organization.AddUsersToOkta
-                };
-
-                return Ok(foundCustomer);
+                return Ok(_mapper.Map<OrganizationDTO>(organization));
             }
             catch (EntityIsDeletedException ex)
             {
@@ -95,44 +81,7 @@ namespace Customer.API.Controllers
             try
             {
                 var organizations = await _organizationServices.GetOrganizationsAsync(hierarchical, customersOnly, partnerId);
-                IList<OrganizationDTO> list = new List<OrganizationDTO>();
-
-                foreach (CustomerServices.Models.Organization org in organizations)
-                {
-                    var organizationView = new OrganizationDTO
-                    {
-                        OrganizationId = org.OrganizationId,
-                        Name = org.Name,
-                        OrganizationNumber = org.OrganizationNumber,
-                        Address = new AddressDTO(org.Address),
-                        ContactPerson = new ContactPersonDTO(org.ContactPerson),
-                        Preferences = (org.Preferences == null) ? null : new OrganizationPreferencesDTO(org.Preferences),
-                        Location = (org.PrimaryLocation == null) ? null : new LocationDTO(org.PrimaryLocation),
-                        ChildOrganizations = new List<OrganizationDTO>(),
-                        PartnerId = org.Partner?.ExternalId
-                    };
-
-                    if (org.ChildOrganizations != null)
-                    {
-                        foreach (CustomerServices.Models.Organization childOrg in org.ChildOrganizations)
-                        {
-                            var childOrgView = new OrganizationDTO
-                            {
-                                OrganizationId = childOrg.OrganizationId,
-                                Name = childOrg.Name,
-                                OrganizationNumber = childOrg.OrganizationNumber,
-                                Address = new AddressDTO(childOrg.Address),
-                                ContactPerson = new ContactPersonDTO(childOrg.ContactPerson),
-                                Preferences = (childOrg.Preferences == null) ? null : new OrganizationPreferencesDTO(childOrg.Preferences),
-                                Location = (childOrg.PrimaryLocation == null) ? null : new LocationDTO(childOrg.PrimaryLocation)
-                            };
-                            organizationView.ChildOrganizations.Add(childOrgView);
-                        }
-                    }
-                    list.Add(organizationView);
-                }
-
-                return Ok(list);
+                return Ok(_mapper.Map<IList<OrganizationDTO>>(organizations));
             }
             catch (Exception ex)
             {
@@ -219,20 +168,8 @@ namespace Customer.API.Controllers
                 var updatedOrganization = await _organizationServices.PutOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
                                                            organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber, organization.AddUsersToOkta ?? default);
 
-                var updatedOrganizationView = new OrganizationDTO
-                {
-                    OrganizationId = updatedOrganization.OrganizationId,
-                    Name = updatedOrganization.Name,
-                    OrganizationNumber = updatedOrganization.OrganizationNumber,
-                    Address = new AddressDTO(updatedOrganization.Address),
-                    ContactPerson = new ContactPersonDTO(updatedOrganization.ContactPerson),
-                    Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(updatedOrganization.Preferences),
-                    Location = (updatedOrganization.PrimaryLocation == null) ? null : new LocationDTO(updatedOrganization.PrimaryLocation),
-                    PartnerId = updatedOrganization.Partner?.ExternalId,
-                    AddUsersToOkta = updatedOrganization.AddUsersToOkta
-                };
+                return Ok(_mapper.Map<OrganizationDTO>(updatedOrganization));
 
-                return updatedOrganizationView;
             }
             catch (CustomerNotFoundException ex)
             {
@@ -293,20 +230,7 @@ namespace Customer.API.Controllers
                 var updatedOrganization = await _organizationServices.PatchOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
                                                            organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber, organization.AddUsersToOkta ?? default);
 
-                var updatedOrganizationView = new OrganizationDTO
-                {
-                    OrganizationId = updatedOrganization.OrganizationId,
-                    Name = updatedOrganization.Name,
-                    OrganizationNumber = updatedOrganization.OrganizationNumber,
-                    Address = new AddressDTO(updatedOrganization.Address),
-                    ContactPerson = new ContactPersonDTO(updatedOrganization.ContactPerson),
-                    Preferences = (updatedOrganization.Preferences == null) ? null : new OrganizationPreferencesDTO(updatedOrganization.Preferences),
-                    Location = (updatedOrganization.PrimaryLocation == null) ? null : new LocationDTO(updatedOrganization.PrimaryLocation),
-                    PartnerId = updatedOrganization.Partner?.ExternalId,
-                    AddUsersToOkta = updatedOrganization.AddUsersToOkta
-                };
-
-                return updatedOrganizationView;
+                return Ok(_mapper.Map<OrganizationDTO>(updatedOrganization));
             }
             catch (CustomerNotFoundException ex)
             {
@@ -366,7 +290,7 @@ namespace Customer.API.Controllers
                     Location = (removedOrganization.PrimaryLocation == null) ? null : new LocationDTO(removedOrganization.PrimaryLocation),
                     PartnerId = removedOrganization.Partner?.ExternalId
                 };
-                return Ok(removedOrganizationView);
+                return Ok(_mapper.Map<OrganizationDTO>(removedOrganization));
 
             }
             catch (CustomerNotFoundException ex)

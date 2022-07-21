@@ -1,4 +1,5 @@
-﻿using CustomerServices.Models;
+﻿using Common.Enums;
+using CustomerServices.Models;
 using System;
 using System.Collections.Generic;
 
@@ -70,5 +71,13 @@ namespace CustomerServices.ServiceModels
         /// Should new users be added to Okta when created.
         /// </summary>
         public bool? AddUsersToOkta { get; set; }
+        /// <summary>
+        /// The enum value of the customer status 
+        /// </summary>
+        public CustomerStatus Status { get; set; }
+        /// <summary>
+        /// The string value of the customer status
+        /// </summary>
+        public string StatusName { get; set; }
     }
 }
