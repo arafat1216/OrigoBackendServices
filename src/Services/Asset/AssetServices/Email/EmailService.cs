@@ -10,25 +10,24 @@ using System.Net.Http.Json;
 using System.Resources;
 using System.Threading.Tasks;
 
+
 namespace AssetServices.Email
 {
     public class EmailService : IEmailService
     {
         private readonly EmailConfiguration _emailConfiguration;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private HttpClient _httpClient => _httpClientFactory.CreateClient("emailservices");
         private readonly IFlatDictionaryProvider _flatDictionaryProvider;
         private readonly ResourceManager _resourceManager;
 
         public EmailService(
             IOptions<EmailConfiguration> emailConfiguration,
             IFlatDictionaryProvider flatDictionaryProvider,
-            ResourceManager resourceManager)
+            ResourceManager resourceManager, IHttpClientFactory httpClientFactory)
         {
             _emailConfiguration = emailConfiguration.Value;
-
-            if (!string.IsNullOrEmpty(_emailConfiguration.BaseUrl))
-                _httpClient = new HttpClient() { BaseAddress = new Uri(_emailConfiguration.BaseUrl) };
-
+            _httpClientFactory = httpClientFactory;
             _flatDictionaryProvider = flatDictionaryProvider;
             _resourceManager = resourceManager;
         }

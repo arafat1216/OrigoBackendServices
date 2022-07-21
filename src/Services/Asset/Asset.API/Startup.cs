@@ -77,9 +77,13 @@ namespace Asset.API
             services.AddScoped<IAssetTestDataService, AssetTestDataService>();
             services.AddScoped<IAssetLifecycleRepository, AssetLifecycleRepository>();
             services.Configure<EmailConfiguration>(Configuration.GetSection("Email"));
-            services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<IFlatDictionaryProvider, FlatDictionary>();
+            services.AddSingleton<IEmailService, EmailService>();
+            services.AddSingleton<IFlatDictionaryProvider, FlatDictionary>();
             services.AddScoped<ErrorExceptionFilter>();
+            
+            services.AddHttpClient("emailservices", c => { c.BaseAddress = new Uri("http://emailservices"); })
+                .AddHttpMessageHandler(() => new InvocationHandler());
+
             // Feature flag initialization.
             services.Configure<FeatureFlagConfiguration>(Configuration.GetSection("FeatureFlag"));
             services.AddSingleton<IFeatureDefinitionProvider, ApiFeatureFilter>(
