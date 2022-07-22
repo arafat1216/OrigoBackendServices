@@ -9,6 +9,7 @@ using Common.Model.EventModels;
 namespace Asset.API.Controllers;
 
 [ApiController]
+[Route("/")]
 public class UserController : ControllerBase
 {
     private readonly IAssetServices _assetServices;
