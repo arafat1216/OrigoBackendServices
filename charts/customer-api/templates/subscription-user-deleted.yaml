@@ -3,9 +3,10 @@ kind: Subscription
 metadata:
   name: user-deleted-subscription
 spec:
-  topic: user-deleted
-  route: /user-deleted
   pubsubname: customer-pub-sub
+  topic: user-deleted
+  routes:
+    default: /user-deleted
 scopes:
-- customerservices
-- assetservices
+  - customerservices
+  - assetservices

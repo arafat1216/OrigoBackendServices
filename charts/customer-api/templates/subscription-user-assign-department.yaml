@@ -3,9 +3,10 @@ kind: Subscription
 metadata:
   name: user-assign-department-subscription
 spec:
-  topic: user-assign-department
-  route: /user-assign-department
   pubsubname: customer-pub-sub
+  topic: user-assign-department
+  routes:
+    default: /user-assign-department
 scopes:
-- customerservices
-- assetservices
+  - customerservices
+  - assetservices
