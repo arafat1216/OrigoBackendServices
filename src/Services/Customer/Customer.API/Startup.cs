@@ -94,7 +94,7 @@ namespace Customer.API
                                 //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
                                 sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(30), null);
                             });
-                        options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
+                        //options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
                     }
             );
             services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(
