@@ -1,5 +1,6 @@
 using Common.Logging;
 using Customer.API.IntegrationTests.Helpers;
+using CustomerServices.Email;
 using CustomerServices.Infrastructure.Context;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Moq;
 using System;
 using System.Linq;
 
@@ -16,20 +18,20 @@ namespace Customer.API.Tests;
 
     public class CustomerWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
     {
-        //private readonly DbConnection _dbConnection = new SqliteConnection("Data Source=:memory:");
-       
-        private readonly InMemoryDatabaseRoot _dbRoot = new InMemoryDatabaseRoot();
-        public Guid ORGANIZATION_ID => CustomerTestDataSeedingForDatabase.ORGANIZATION_ID;
-        public Guid HEAD_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.HEAD_DEPARTMENT_ID;
-        public Guid SUB_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.SUB_DEPARTMENT_ID;
-        public Guid INDEPENDENT_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.INDEPENDENT_DEPARTMENT_ID;
-        public Guid USER_ONE_ID => CustomerTestDataSeedingForDatabase.USER_ONE_ID;
-        public Guid USER_TWO_ID => CustomerTestDataSeedingForDatabase.USER_TWO_ID;
-        public Guid USER_THREE_ID => CustomerTestDataSeedingForDatabase.USER_THREE_ID;
-        public Guid USER_FOUR_ID => CustomerTestDataSeedingForDatabase.USER_FOUR_ID;
-        public Guid USER_FIVE_ID => CustomerTestDataSeedingForDatabase.USER_FIVE_ID;
-        public string USER_ONE_EMAIL => CustomerTestDataSeedingForDatabase.USER_ONE_EMAIL;
-        public string USER_FOUR_EMAIL => CustomerTestDataSeedingForDatabase.USER_FOUR_EMAIL;
+    //private readonly DbConnection _dbConnection = new SqliteConnection("Data Source=:memory:");
+
+    private readonly InMemoryDatabaseRoot _dbRoot = new InMemoryDatabaseRoot();
+    public Guid ORGANIZATION_ID => CustomerTestDataSeedingForDatabase.ORGANIZATION_ID;
+    public Guid HEAD_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.HEAD_DEPARTMENT_ID;
+    public Guid SUB_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.SUB_DEPARTMENT_ID;
+    public Guid INDEPENDENT_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.INDEPENDENT_DEPARTMENT_ID;
+    public Guid USER_ONE_ID => CustomerTestDataSeedingForDatabase.USER_ONE_ID;
+    public Guid USER_TWO_ID => CustomerTestDataSeedingForDatabase.USER_TWO_ID;
+    public Guid USER_THREE_ID => CustomerTestDataSeedingForDatabase.USER_THREE_ID;
+    public Guid USER_FOUR_ID => CustomerTestDataSeedingForDatabase.USER_FOUR_ID;
+    public Guid USER_FIVE_ID => CustomerTestDataSeedingForDatabase.USER_FIVE_ID;
+    public string USER_ONE_EMAIL => CustomerTestDataSeedingForDatabase.USER_ONE_EMAIL;
+    public string USER_FOUR_EMAIL => CustomerTestDataSeedingForDatabase.USER_FOUR_EMAIL;
 
 
 
@@ -56,6 +58,9 @@ namespace Customer.API.Tests;
                     logger.LogError(exception,
                         "An error occurred seeding the " + "database with test data. Error: {Message}", exception.Message);
                 }
+                var emailServiceMock = new Mock<IEmailService>();
+
+                services.AddSingleton(s => emailServiceMock.Object);
             });
             base.ConfigureWebHost(builder);
         }

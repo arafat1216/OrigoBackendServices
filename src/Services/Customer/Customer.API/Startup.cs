@@ -1,10 +1,13 @@
 using Common.Logging;
+using Common.Utilities;
 using Customer.API.Filters;
 using CustomerServices;
+using CustomerServices.Email;
 using CustomerServices.Infrastructure;
 using CustomerServices.Infrastructure.Context;
 using CustomerServices.Mappings;
 using CustomerServices.Models;
+using Dapr.Client;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -20,6 +23,7 @@ using System.Reflection;
 using Common.Infrastructure;
 using Common.Utilities;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using System.Resources;
 
 namespace Customer.API
 {
@@ -105,6 +109,7 @@ namespace Customer.API
                     sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(30), null);
                 }));
             services.AddAutoMapper(Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(UserDTOProfile)));
+            services.AddSingleton(s => new ResourceManager("CustomerServices.Resources.Customer", Assembly.GetAssembly(typeof(EmailService))));
             services.Configure<OktaConfiguration>(Configuration.GetSection("Okta"));
             services.Configure<WebshopConfiguration>(Configuration.GetSection("Webshop"));
             services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
@@ -119,6 +124,14 @@ namespace Customer.API
             services.AddScoped<IWebshopService, WebshopService>();
             services.AddScoped<IFeatureFlagServices, FeatureFlagServices>();
             services.AddScoped<ErrorExceptionFilter>();
+            
+            services.AddSingleton<IEmailService, EmailService>();
+            services.AddSingleton<IFlatDictionaryProvider, FlatDictionary>();
+
+
+            services.AddHttpClient("emailservices", c => { c.BaseAddress = new Uri("http://emailservices"); })
+                .AddHttpMessageHandler(() => new InvocationHandler());
+
             services.AddMediatR(typeof(Startup));
         }
 

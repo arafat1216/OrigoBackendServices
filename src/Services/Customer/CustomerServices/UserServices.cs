@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Model.EventModels;
 using Dapr.Client;
+using CustomerServices.Email;
 
 namespace CustomerServices
 {
@@ -25,15 +26,18 @@ namespace CustomerServices
         private readonly IOktaServices _oktaServices;
         private readonly IMapper _mapper;
         private readonly IUserPermissionServices _userPermissionServices;
+        private readonly IEmailService _emailService;
 
         public UserServices(ILogger<UserServices> logger, IOrganizationRepository customerRepository,
-            IOktaServices oktaServices, IMapper mapper, IUserPermissionServices userPermissionServices)
+            IOktaServices oktaServices, IMapper mapper, IUserPermissionServices userPermissionServices, 
+            IEmailService emailService)
         {
             _logger = logger;
             _organizationRepository = customerRepository;
             _oktaServices = oktaServices;
             _mapper = mapper;
             _userPermissionServices = userPermissionServices;
+            _emailService = emailService;
         }
 
         public Task<int> GetUsersCountAsync(Guid customerId, Guid[]? assignedToDepartment, string[]? role)
@@ -100,8 +104,9 @@ namespace CustomerServices
             if (customer == null) throw new CustomerNotFoundException();
             if (userPreference == null || userPreference.Language == null)
             {
-                // Set a default language setting
-                userPreference = new UserPreference("EN", callerId);
+                // Set a default language setting - try to add organizations primary language 
+                if (customer.Preferences.PrimaryLanguage != null) userPreference = new UserPreference(customer.Preferences.PrimaryLanguage, callerId);
+                else userPreference = new UserPreference("EN", callerId);
             }
 
             // Check if email address is used by another user

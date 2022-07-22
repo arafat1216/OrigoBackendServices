@@ -18,6 +18,7 @@ using CustomerServices.Infrastructure.Context;
 using Common.Interfaces;
 using Common.Enums;
 using Common.Infrastructure;
+using CustomerServices.Email;
 
 namespace CustomerServices.UnitTests
 {
@@ -51,7 +52,7 @@ namespace CustomerServices.UnitTests
             const string OKTA_ID = "123";
             oktaMock.Setup(o => o.UserExistsInOktaAsync(OKTA_ID)).ReturnsAsync(true);
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
             // Act
             await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
@@ -71,7 +72,7 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices,Mock.Of<IEmailService>());
 
             // Act
             var user = await userServices.GetUserAsync(CUSTOMER_ONE_ID, USER_ONE_ID);
@@ -88,7 +89,7 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
             // Act
             const string EMAIL_TEST_TEST = "email@test.test";
@@ -109,7 +110,7 @@ namespace CustomerServices.UnitTests
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
             var oktaMock = new Mock<IOktaServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, oktaMock.Object, _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, oktaMock.Object, _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
             // Act
             const string EMAIL_TEST_TEST = "email@test.test";
@@ -129,7 +130,7 @@ namespace CustomerServices.UnitTests
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
             var oktaMock = new Mock<IOktaServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, oktaMock.Object, _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, oktaMock.Object, _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
             // Act
             const string EMAIL_TEST_TEST = "email@test.test";
@@ -163,7 +164,7 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>(), _mapper);
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
             // Act
             await userPermissionServices.AssignUserPermissionsAsync("jane@doe.com", "DepartmentManager", new List<Guid> { CUSTOMER_ONE_ID }, EMPTY_CALLER_ID);
@@ -188,7 +189,7 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
             // Act & Assert
             await Assert.ThrowsAsync<MissingRolePermissionsException>(() => userServices.AssignManagerToDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, DEPARTMENT_ONE_ID, EMPTY_CALLER_ID));
@@ -205,8 +206,8 @@ namespace CustomerServices.UnitTests
             const string OKTA_ID = "123";
             oktaMock.Setup(o => o.UserExistsInOktaAsync(OKTA_ID)).ReturnsAsync(true);
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
-            
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices, Mock.Of<IEmailService>());
+
             // Act
             await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
             var user = await userServices.GetUserAsync(CUSTOMER_ONE_ID, USER_ONE_ID);
@@ -229,7 +230,7 @@ namespace CustomerServices.UnitTests
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>())).ReturnsAsync(OKTA_ID);
             oktaMock.Setup(o => o.UserExistsInOktaAsync(It.IsAny<string>())).ReturnsAsync(true);
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices, Mock.Of<IEmailService>());
             await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, true,EMPTY_CALLER_ID); // Activate user
 
             // Act
@@ -250,7 +251,7 @@ namespace CustomerServices.UnitTests
             var oktaMock = new Mock<IOktaServices>();
             oktaMock.Setup(o => o.UserExistsInOktaAsync(It.IsAny<string>())).ReturnsAsync(true);
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
             // Act
             await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, false, EMPTY_CALLER_ID);
@@ -269,7 +270,7 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
             // Act
             var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "TEST", "TEST", "hello@mail.com", "+479898989", "hhhh", new UserPreference("EN", EMPTY_CALLER_ID), EMPTY_CALLER_ID,"Role");
@@ -297,7 +298,7 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
             //Act
             const string NOT_VALID_CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
@@ -314,7 +315,7 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
             //Act
             const string NOT_VALID_CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
@@ -331,7 +332,7 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
             //Act
             const string NOT_VALID_USER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
@@ -348,7 +349,7 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
             //Act
             const string NOT_VALID_DEPARTMENT_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
@@ -365,7 +366,7 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
             // Act
             const string EMAIL_THAT_EXIST = "john@doe.com";
             var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
@@ -383,7 +384,7 @@ namespace CustomerServices.UnitTests
             await using var context = new CustomerContext(ContextOptions);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
-            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
             // Act
             const string PHONE_NUMBER_THAT_EXIST = "+4799999999";
             var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
