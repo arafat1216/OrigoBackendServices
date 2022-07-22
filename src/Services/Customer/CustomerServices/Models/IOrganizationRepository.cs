@@ -12,7 +12,7 @@ namespace CustomerServices.Models
 {
     public interface IOrganizationRepository
     {
-        Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default);
+        Task SaveEntitiesAsync(CancellationToken cancellationToken = default);
 
         Task<Organization> AddAsync(Organization customer);
         Task<IList<OrganizationUserCount>> GetOrganizationUserCountAsync();

@@ -33,6 +33,7 @@ namespace CustomerServices.Models
         {
             // Using a yield return statement to return each element one at a time
             yield return FirstName;
+            yield return LastName;
             yield return Email;
             yield return PhoneNumber;
         }

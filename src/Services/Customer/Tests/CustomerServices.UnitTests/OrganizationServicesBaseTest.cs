@@ -3,6 +3,9 @@ using CustomerServices.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Common.Infrastructure;
+using Moq;
 
 // ReSharper disable InconsistentNaming
 
@@ -28,6 +31,7 @@ namespace CustomerServices.UnitTests
         private readonly Guid LOCATION_THREE_ID = new("E52D8C49-727F-49B1-8DAC-2CE1B199AE15");
         private readonly Guid LOCATION_FOUR_ID = new("8C5D801A-E7E8-45BB-B9AD-F32111D7AA8D");
         protected readonly Guid EMPTY_CALLER_ID = Guid.Empty;
+        protected readonly Guid CALLER_ID = new("5E9729DA-8D91-41AD-9D88-BB0E0BC25C99");
 
         protected OrganizationServicesBaseTest(DbContextOptions<CustomerContext> contextOptions)
         {
@@ -39,36 +43,38 @@ namespace CustomerServices.UnitTests
 
         private void Seed()
         {
-            using var context = new CustomerContext(ContextOptions);
+            var apiRequesterServiceMock = new Mock<IApiRequesterService>();
+            apiRequesterServiceMock.Setup(r => r.AuthenticatedUserId).Returns(CALLER_ID);
+            using var context = new CustomerContext(ContextOptions, apiRequesterServiceMock.Object);
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
-            var customerOne = new Organization(CUSTOMER_ONE_ID, USER_ONE_ID, null, "COMPANY ONE", "999888777",
+            var customerOne = new Organization(CUSTOMER_ONE_ID, null, "COMPANY ONE", "999888777",
                 new Address("My Way 1", "1111", "My City", "NO"),
                 new ContactPerson("JOHN", "DOE", "john.doe@example.com", "99999999"),
                 new OrganizationPreferences(CUSTOMER_ONE_ID, USER_ONE_ID, "webPage 1", "logoUrl 1", "organizationNotes 1", true, "nb", 0),
-                new Location(USER_ONE_ID, "COMPANY ONE", "Location of COMPANY ONE", "My Way 1A", "My Way 1B", "0585", "Oslo", "NO"),
+                new Location("COMPANY ONE", "Location of COMPANY ONE", "My Way 1A", "My Way 1B", "0585", "Oslo", "NO"),
                 null, true);
 
-            var customerTwo = new Organization(CUSTOMER_TWO_ID, USER_ONE_ID, null, "COMPANY TWO", "999777666",
+            var customerTwo = new Organization(CUSTOMER_TWO_ID, null, "COMPANY TWO", "999777666",
                 new Address("My Way 2", "1111", "My City", "NO"),
                 new ContactPerson("Ola", "Nordmann", "ola.nordmann@example.com", "99999998"),
                 new OrganizationPreferences(CUSTOMER_TWO_ID, USER_ONE_ID, "webPage 2", "logoUrl 2", "organizationNotes 2", true, "nb", 0),
-                new Location(USER_ONE_ID, "name", "description", "My Way 2A", "My Way 2B", "0585", "Oslo", "NO"),
+                new Location("name", "description", "My Way 2A", "My Way 2B", "0585", "Oslo", "NO"),
                 null, true, true);
 
-            var customerThree = new Organization(CUSTOMER_THREE_ID, USER_ONE_ID, CUSTOMER_ONE_ID, "COMPANY THREE", "999666555",
+            var customerThree = new Organization(CUSTOMER_THREE_ID, CUSTOMER_ONE_ID, "COMPANY THREE", "999666555",
                 new Address("My Way 3", "1111", "My Other City", "NO"),
                 new ContactPerson("Kari", "Nordmann", "kari.nordmann@example.com", "99999997"),
                 new OrganizationPreferences(CUSTOMER_THREE_ID, USER_ONE_ID, "webPage 3", "logoUrl 3", "organizationNotes 3", true, "nb", 0),
-                new Location(USER_ONE_ID, "name", "description", "My Way 3A", "My Way 3B", "0585", "Oslo", "NO"),
+                new Location("name", "description", "My Way 3A", "My Way 3B", "0585", "Oslo", "NO"),
                 null, true);
 
-            var customerFour = new Organization(CUSTOMER_FOUR_ID, USER_ONE_ID, null, "COMPANY FOUR", "999555444",
+            var customerFour = new Organization(CUSTOMER_FOUR_ID, null, "COMPANY FOUR", "999555444",
                 new Address("My Way 4", "1111", "My City", "NO"),
                 new ContactPerson("Petter", "Smart", "petter.smart@example.com", "99999996"),
                 new OrganizationPreferences(CUSTOMER_FOUR_ID, USER_ONE_ID, "webPage 4", "logoUrl 4", "organizationNotes 4", true, "nb", 0),
-                new Location(USER_ONE_ID, "name", "description", "My Way 4A", "My Way 4B", "0585", "Oslo", "NO"),
+                new Location("name", "description", "My Way 4A", "My Way 4B", "0585", "Oslo", "NO"),
                 null, true);
 
             context.AddRange(customerOne, customerTwo, customerThree);
@@ -113,8 +119,6 @@ namespace CustomerServices.UnitTests
             context.AddRange(role1,managerRole);
             context.AddRange(userPersmission, managerPersmission, managerPersmissionTwo);
             context.AddRange(userOne, userTwo, userThree, userFour, userFive);
-
-            
 
             context.SaveChanges();
         }

@@ -1,165 +1,157 @@
-﻿using Xunit;
-using System;
+﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
-using CustomerServices.Infrastructure.Context;
-using Microsoft.EntityFrameworkCore;
-using CustomerServices.UnitTests;
+using AutoMapper;
+using Common.Infrastructure;
 using Common.Logging;
+using CustomerServices.Exceptions;
 using CustomerServices.Infrastructure;
+using CustomerServices.Infrastructure.Context;
+using CustomerServices.ServiceModels;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
-using CustomerServices.Exceptions;
-using AutoMapper;
-using System.Reflection;
-using CustomerServices.ServiceModels;
+using Xunit;
 
-namespace CustomerServices.Tests
+namespace CustomerServices.UnitTests;
+
+public class PartnerServicesTests : OrganizationServicesBaseTest
 {
-    public class PartnerServicesTests : OrganizationServicesBaseTest
+    private readonly OrganizationServices _organizationServices;
+    private readonly PartnerServices _partnerServices;
+
+    public PartnerServicesTests() : base(new DbContextOptionsBuilder<CustomerContext>()
+        .UseSqlite("Data Source=sqlitepartnerunittests.db").Options)
     {
-        private readonly CustomerContext _context;
-        private readonly OrganizationServices _organizationServices;
-        private readonly PartnerServices _partnerServices;
-        private static IMapper _mapper;
+        var mappingConfig = new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(LocationDTO))); });
+        var mapper = mappingConfig.CreateMapper();
+        var apiRequesterServiceMock = new Mock<IApiRequesterService>();
+        apiRequesterServiceMock.Setup(r => r.AuthenticatedUserId).Returns(CALLER_ID);
+        var context = new CustomerContext(ContextOptions, apiRequesterServiceMock.Object);
+        var organizationRepository =
+            new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        _organizationServices =
+            new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, mapper);
+        _partnerServices = new PartnerServices(Mock.Of<ILogger<PartnerServices>>(), organizationRepository);
+    }
 
-        private Guid CallerId { get; init; }
+    [Fact]
+    public async Task CreatePartnerAsyncTest1()
+    {
+        var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
+        organization!.ChangePartner(null);
+        organization = await _organizationServices.UpdateOrganizationAsync(organization);
 
-        public PartnerServicesTests() : base(new DbContextOptionsBuilder<CustomerContext>().UseSqlite("Data Source=sqlitepartnerunittests.db").Options)
-        {
-            if (_mapper == null)
-            {
-                var mappingConfig = new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(LocationDTO))); });
-                _mapper = mappingConfig.CreateMapper();
-            }
-            _context = new CustomerContext(ContextOptions);
-            var _organizationRepository = new OrganizationRepository(_context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            _organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), _organizationRepository, _mapper);
-            _partnerServices = new PartnerServices(Mock.Of<ILogger<PartnerServices>>(), _organizationRepository);
+        var partner = await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID);
 
-            CallerId = Guid.NewGuid();
-        }
+        // Make sure ID is generated correctly
+        Assert.True(partner.ExternalId != Guid.Empty);
 
+        // Make sure the timestamps are +-30 minutes of the current UTC time.
+        // If these tests fail, then UTC has not been used or there are problems with setting the timestamp correctly.
+        Assert.True(DateTime.UtcNow < partner.CreatedDate.AddMinutes(30));
+        Assert.True(DateTime.UtcNow.AddMinutes(30) > partner.CreatedDate);
+        Assert.True(DateTime.UtcNow < partner.LastUpdatedDate.AddMinutes(15));
+        Assert.True(DateTime.UtcNow.AddMinutes(30) > partner.LastUpdatedDate);
 
-        [Fact()]
-        public async Task CreatePartnerAsyncTest1()
-        {
-            var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
-            organization.ChangePartner(null, CallerId);
-            organization = await _organizationServices.UpdateOrganizationAsync(organization);
+        // Check that the caller IDs are correct
+        Assert.Equal(CALLER_ID, partner.CreatedBy);
+        Assert.Equal(Guid.Empty, partner.UpdatedBy);
 
-            var partner = await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID, CallerId);
+        // Make sure we have retrieved the correct organization (we don't test for all values as we only attach the retrieved entity).
+        Assert.Equal(organization.Id, partner.Organization.Id);
+        Assert.Equal(organization.OrganizationId, partner.Organization.OrganizationId);
 
-            // Make sure ID is generated correctly
-            Assert.True(partner.ExternalId != Guid.Empty);
+        // Misc
+        Assert.False(partner.IsDeleted);
+    }
 
-            // Make sure the timestamps are +-30 minutes of the current UTC time.
-            // If these tests fail, then UTC has not been used or there are problems with setting the timestamp correctly.
-            Assert.True(DateTime.UtcNow < partner.CreatedDate.AddMinutes(30));
-            Assert.True(DateTime.UtcNow.AddMinutes(30) > partner.CreatedDate);
-            Assert.True(DateTime.UtcNow < partner.LastUpdatedDate.AddMinutes(15));
-            Assert.True(DateTime.UtcNow.AddMinutes(30) > partner.LastUpdatedDate);
+    // Negative test to ensure we cant create a partner from non-existing organizations
+    [Fact]
+    public async Task CreatePartnerAsyncTest2()
+    {
+        await Assert.ThrowsAsync<CustomerNotFoundException>(async () =>
+            await _partnerServices.CreatePartnerAsync(Guid.Parse("00000000-0000-0000-0000-000000000002")));
+    }
 
-            // Check that the caller IDs are correct
-            Assert.Equal(CallerId, partner.CreatedBy);
-            Assert.Equal(CallerId, partner.UpdatedBy);
+    // Negative test that makes sure we can't register a single organization as a two partners (prevents accidental creation duplicates)
+    [Fact]
+    public async Task CreatePartnerAsyncTest3()
+    {
+        // Ensure the organization don't have a partner or customer status
+        var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
+        organization!.ChangePartner(null);
+        await _organizationServices.UpdateOrganizationAsync(organization);
 
-            // Make sure we have retrieved the correct organization (we dont test for all values as we only attach the retrieved entity).
-            Assert.Equal(organization.Id, partner.Organization.Id);
-            Assert.Equal(organization.OrganizationId, partner.Organization.OrganizationId);
+        // Register the 1st partner instance, and then unset the organization's auto-assigned partner so we can recycle it
+        var partner = await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID);
+        partner.Organization.ChangePartner(null);
+        await _organizationServices.UpdateOrganizationAsync(partner.Organization);
 
-            // Misc
-            Assert.False(partner.IsDeleted);
-        }
+        await Assert.ThrowsAsync<DuplicateException>(async () =>
+            await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID));
+    }
 
-        // Negative test to ensure we cant create a partner from non-existing organizations
-        [Fact()]
-        public async Task CreatePartnerAsyncTest2()
-        {
-            await Assert.ThrowsAsync<CustomerNotFoundException>(async () =>
-                await _partnerServices.CreatePartnerAsync(Guid.Parse("00000000-0000-0000-0000-000000000002"), CallerId)
-            );
-        }
+    // Negative test that ensures we can't assign a customer as a partner.
+    [Fact]
+    public async Task CreatePartnerAsyncTest4()
+    {
+        // Ensure the organization don't have a partner or customer status
+        var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
+        organization!.ChangePartner(null);
+        await _organizationServices.UpdateOrganizationAsync(organization);
 
-        // Negative test that makes sure we can't register a single organization as a two partners (prevents accidental creation duplicates)
-        [Fact()]
-        public async Task CreatePartnerAsyncTest3()
-        {
-            // Ensure the organization don't have a partner or customer status
-            var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
-            organization.ChangePartner(null, CallerId);
-            organization = await _organizationServices.UpdateOrganizationAsync(organization);
+        // Create the partner, and remove the assigned partner it's organization so we can re-use it
+        var partner = await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID);
+        partner.Organization.ChangePartner(partner);
+        await _organizationServices.UpdateOrganizationAsync(partner.Organization);
 
-            // Register the 1st partner instance, and then unset the organization's auto-assigned partner so we can recycle it
-            var partner = await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID, CallerId);
-            partner.Organization.ChangePartner(null, CallerId);
-            await _organizationServices.UpdateOrganizationAsync(partner.Organization);
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID));
+    }
 
-            await Assert.ThrowsAsync<DuplicateException>(async () =>
-                await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID, CallerId)
-            );
-        }
+    [Fact]
+    public async Task GetPartnerAsyncTest()
+    {
+        // Ensure the organization don't have a partner or customer status
+        var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
+        organization!.ChangePartner(null);
+        await _organizationServices.UpdateOrganizationAsync(organization);
 
-        // Negative test that ensures we can't assign a customer as a partner.
-        [Fact()]
-        public async Task CreatePartnerAsyncTest4()
-        {
-            // Ensure the organization don't have a partner or customer status
-            var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
-            organization.ChangePartner(null, CallerId);
-            organization = await _organizationServices.UpdateOrganizationAsync(organization);
+        var partner = await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID);
+        var result1 =
+            await _partnerServices.GetPartnerAsync(
+                Guid.Parse("00000000-0000-0000-0000-000000000002")); // Partner not found (null)
+        var result2 = await _partnerServices.GetPartnerAsync(partner.ExternalId); // Partner found
 
-            // Create the partner, and remove the assigned partner it's organization so we can re-use it
-            var partner = await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID, CallerId);
-            partner.Organization.ChangePartner(partner, CallerId);
-            await _organizationServices.UpdateOrganizationAsync(partner.Organization);
+        // Make sure a non-existing partner returns null.
+        Assert.True(result1 == null);
 
-            await Assert.ThrowsAsync<ArgumentException>(async () =>
-                await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID, CallerId)
-            );
-        }
+        // Make sure the partner exists and have correct external ID.
+        Assert.True(result2 != null);
+        Assert.Equal(partner.ExternalId, result2?.ExternalId);
+    }
 
-        [Fact()]
-        public async Task GetPartnerAsyncTest()
-        {
-            // Ensure the organization don't have a partner or customer status
-            var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
-            organization.ChangePartner(null, CallerId);
-            organization = await _organizationServices.UpdateOrganizationAsync(organization);
+    [Fact]
+    public async Task GetPartnersAsyncTest()
+    {
+        // Ensure the organization don't have a partner or customer status
+        var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
+        organization!.ChangePartner(null);
+        await _organizationServices.UpdateOrganizationAsync(organization);
 
-            var partner = await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID, CallerId);
-            var result1 = await _partnerServices.GetPartnerAsync(Guid.Parse("00000000-0000-0000-0000-000000000002")); // Partner not found (null)
-            var result2 = await _partnerServices.GetPartnerAsync(partner.ExternalId); // Partner found
+        // Empty list
+        var results = await _partnerServices.GetPartnersAsync();
 
-            // Make sure a non-existing partner returns null.
-            Assert.True(result1 == null);
+        Assert.True(results is not null);
+        Assert.True(results?.Count == 0);
 
-            // Make sure the partner exists and have correct external ID.
-            Assert.True(result2 != null);
-            Assert.Equal(partner.ExternalId, result2?.ExternalId);
-        }
+        // List with results
+        await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID);
+        results = await _partnerServices.GetPartnersAsync();
 
-        [Fact()]
-        public async Task GetPartnersAsyncTest()
-        {
-            // Ensure the organization don't have a partner or customer status
-            var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
-            organization.ChangePartner(null, CallerId);
-            organization = await _organizationServices.UpdateOrganizationAsync(organization);
-
-            // Empty list
-            var results = await _partnerServices.GetPartnersAsync();
-
-            Assert.True(results is not null);
-            Assert.True(results?.Count == 0);
-
-            // List with results
-            await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID, CallerId);
-            results = await _partnerServices.GetPartnersAsync();
-
-            Assert.True(results is not null);
-            Assert.True(results?.Count == 1);
-        }
-
+        Assert.True(results is not null);
+        Assert.True(results?.Count == 1);
     }
 }

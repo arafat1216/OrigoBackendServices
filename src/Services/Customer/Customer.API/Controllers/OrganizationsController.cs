@@ -208,7 +208,7 @@ namespace Customer.API.Controllers
         [Route("{organizationId:Guid}/organization")]
         [HttpPost]
         [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrganizationDTO>> UpdateOrganizationPatch([FromBody] UpdateOrganization organization)
+        public async Task<ActionResult<OrganizationDTO>> UpdateOrganizationPatch(Guid organizationId, [FromBody] UpdateOrganization organization)
         {
             try
             {
@@ -227,7 +227,7 @@ namespace Customer.API.Controllers
                 string phoneNumber = (contactpersonIsNull) ? null : organization.ContactPerson.PhoneNumber;
 
                 // Update
-                var updatedOrganization = await _organizationServices.PatchOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
+                var updatedOrganization = await _organizationServices.PatchOrganizationAsync(organizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
                                                            organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber, organization.AddUsersToOkta ?? default);
 
                 return Ok(_mapper.Map<OrganizationDTO>(updatedOrganization));
@@ -407,8 +407,7 @@ namespace Customer.API.Controllers
                 if (location.LocationId == Guid.Empty)
                     return BadRequest("Location id cannot be empty.");
 
-                var newLocation = new CustomerServices.Models.Location(location.CallerId,
-                                                                       location.Name,
+                var newLocation = new CustomerServices.Models.Location(location.Name,
                                                                        location.Description,
                                                                        location.Address1,
                                                                        location.Address2,

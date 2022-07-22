@@ -45,12 +45,10 @@ namespace CustomerServices.Models
         }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-        public Partner(Organization organization, Guid callerId)
+        public Partner(Organization organization)
         {
             ExternalId = Guid.NewGuid();
             Organization = organization;
-            CreatedBy = callerId;
-            UpdatedBy = callerId;
             AddDomainEvent(new PartnerCreatedDomainEvent(this));
         }
     }

@@ -12,7 +12,7 @@ namespace OrigoApiGateway.Services
         private readonly UserPermissionsConfigurations _options;
         private readonly ILogger<UserPermissionService> _logger;
         private readonly IMapper _mapper; private readonly IHttpClientFactory _httpClientFactory; 
-        private HttpClient HttpClient => _httpClientFactory.CreateClient("customerservices");
+        private HttpClient HttpClient => _httpClientFactory.CreateClient("userpermissionservices");
 
 
         public UserPermissionService(ILogger<UserPermissionService> logger, IHttpClientFactory httpClientFactory, IOptions<UserPermissionsConfigurations> options, IMapper mapper)

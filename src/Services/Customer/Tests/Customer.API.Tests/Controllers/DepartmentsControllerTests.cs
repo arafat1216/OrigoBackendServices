@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Common.Extensions;
 using Customer.API.IntegrationTests.Helpers;
 using Customer.API.Tests;
 using Customer.API.ViewModels;
@@ -47,6 +48,7 @@ public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFa
         _userFive = factory.USER_FIVE_ID;
         _userFourEmail = factory.USER_FOUR_EMAIL;
         _factory = factory;
+        _httpClient.DefaultRequestHeaders.Add("X-Authenticated-UserId", Guid.Empty.SystemUserId().ToString());
     }
 
     [Fact]

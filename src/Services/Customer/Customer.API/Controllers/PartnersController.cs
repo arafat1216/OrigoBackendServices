@@ -49,7 +49,7 @@ namespace Customer.API.Controllers
         {
             try
             {
-                var result = await _partnerServices.CreatePartnerAsync(newPartner.OrganizationId, newPartner.CallerId);
+                var result = await _partnerServices.CreatePartnerAsync(newPartner.OrganizationId);
 
                 var organization = new PartnerOrganization(result.Organization);
                 var partner = new Partner(result.ExternalId, organization);

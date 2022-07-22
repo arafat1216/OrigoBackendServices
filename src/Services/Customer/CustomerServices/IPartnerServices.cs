@@ -13,9 +13,8 @@ namespace CustomerServices
         ///     Uses an existing <see cref="Organization"/> to create a new partner.
         /// </summary>
         /// <param name="organizationId"> The ID of the organization that should be set as a partner. </param>
-        /// <param name="callerId"> The ID of the user that is creating the new partner. </param>
         /// <returns> The created object. </returns>
-        Task<Partner> CreatePartnerAsync(Guid organizationId, Guid callerId);
+        Task<Partner> CreatePartnerAsync(Guid organizationId);
 
         /// <summary>
         ///     Retrieves a partner using it's external ID.

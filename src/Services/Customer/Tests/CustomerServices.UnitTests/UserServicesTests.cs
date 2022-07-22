@@ -17,33 +17,35 @@ using Xunit;
 using CustomerServices.Infrastructure.Context;
 using Common.Interfaces;
 using Common.Enums;
+using Common.Infrastructure;
 
 namespace CustomerServices.UnitTests
 {
     public class UserServicesTests : OrganizationServicesBaseTest
     {
-        private static IMapper _mapper;
+        private readonly IMapper _mapper;
+        private readonly IApiRequesterService _apiRequesterService;
 
         public UserServicesTests() : base(new DbContextOptionsBuilder<CustomerContext>()
             // ReSharper disable once StringLiteralTypo
             .UseSqlite("Data Source=sqliteusersunittests.db").Options)
         {
-            if (_mapper == null)
+            var mappingConfig = new MapperConfiguration(mc =>
             {
-                var mappingConfig = new MapperConfiguration(mc =>
-                {
-                    mc.AddMaps(Assembly.GetAssembly(typeof(UserDTOProfile)));
-                });
-                _mapper = mappingConfig.CreateMapper();
-            }
+                mc.AddMaps(Assembly.GetAssembly(typeof(UserDTOProfile)));
+            });
+            _mapper = mappingConfig.CreateMapper();
+            var apiRequesterServiceMock = new Mock<IApiRequesterService>();
+            apiRequesterServiceMock.Setup(r => r.AuthenticatedUserId).Returns(CALLER_ID);
+            _apiRequesterService = apiRequesterServiceMock.Object;
         }
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void GetUsersCount_ForCompanyOne()
+        public async Task GetUsersCount_ForCompanyOne()
         {
             // Arrange
-            await using var context = new CustomerContext(ContextOptions);
+            await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var oktaMock = new Mock<IOktaServices>();
             const string OKTA_ID = "123";
@@ -63,7 +65,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void GetAllUsers_ForCompanyOne()
+        public async Task GetAllUsers_ForCompanyOne()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -80,10 +82,10 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void AddUserWithoutDepartment_CheckSavedExists()
+        public async Task AddUserWithoutDepartment_CheckSavedExists()
         {
             // Arrange
-            await using var context = new CustomerContext(ContextOptions);
+            await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
@@ -100,10 +102,10 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void AddUserForCustomer_WithFederatedUsers_ShouldNotCallOkta()
+        public async Task AddUserForCustomer_WithFederatedUsers_ShouldNotCallOkta()
         {
             // Arrange
-            await using var context = new CustomerContext(ContextOptions);
+            await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
             var oktaMock = new Mock<IOktaServices>();
@@ -120,10 +122,10 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void AddUserForCustomer_WithAddToOkta_ShouldCallOkta()
+        public async Task AddUserForCustomer_WithAddToOkta_ShouldCallOkta()
         {
             // Arrange
-            await using var context = new CustomerContext(ContextOptions);
+            await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
             var oktaMock = new Mock<IOktaServices>();
@@ -158,7 +160,7 @@ namespace CustomerServices.UnitTests
         public async Task AddUserAsManager_CheckManagedDepartmentCount()
         {
             // Arrange
-            await using var context = new CustomerContext(ContextOptions);
+            await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>(), _mapper);
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
@@ -197,7 +199,7 @@ namespace CustomerServices.UnitTests
         public async Task SetUserActive()
         {
             // Arrange
-            await using var context = new CustomerContext(ContextOptions);
+            await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var oktaMock = new Mock<IOktaServices>();
             const string OKTA_ID = "123";
@@ -219,7 +221,7 @@ namespace CustomerServices.UnitTests
         public async Task DeactivateUser()
         {
             // Arrange
-            await using var context = new CustomerContext(ContextOptions);
+            await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var oktaMock = new Mock<IOktaServices>();
             const string OKTA_ID = "1234";
@@ -243,7 +245,7 @@ namespace CustomerServices.UnitTests
         public async Task ReactivateUser()
         {
             // Arrange
-            await using var context = new CustomerContext(ContextOptions);
+            await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var oktaMock = new Mock<IOktaServices>();
             oktaMock.Setup(o => o.UserExistsInOktaAsync(It.IsAny<string>())).ReturnsAsync(true);
@@ -261,10 +263,10 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void GetAllUsers_AddAUser_ListCountPlusOne()
+        public async Task GetAllUsers_AddAUser_ListCountPlusOne()
         {
             // Arrange
-            await using var context = new CustomerContext(ContextOptions);
+            await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var userPermissionServices = Mock.Of<IUserPermissionServices>();
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices);
@@ -289,7 +291,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async System.Threading.Tasks.Task AddUserForCustomer_CustomerNotFoundException()
+        public async Task AddUserForCustomer_CustomerNotFoundException()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -306,7 +308,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void AssignManager_CustomerNotFound_ThrowsCustomerNotFoundException()
+        public async Task AssignManager_CustomerNotFound_ThrowsCustomerNotFoundException()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -323,7 +325,7 @@ namespace CustomerServices.UnitTests
         }
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void AssignManager_UserNotFound_ThrowsUserNotFoundException()
+        public async Task AssignManager_UserNotFound_ThrowsUserNotFoundException()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -340,7 +342,7 @@ namespace CustomerServices.UnitTests
         }
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void AssignManager_DepartmentNotFound_ThrowsDepartmentNotFoundException()
+        public async Task AssignManager_DepartmentNotFound_ThrowsDepartmentNotFoundException()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -357,7 +359,7 @@ namespace CustomerServices.UnitTests
         }
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void AddUserForCustomerAsync_WithExistingMail_ShouldThrowInvalidEmailException()
+        public async Task AddUserForCustomerAsync_WithExistingMail_ShouldThrowInvalidEmailException()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -375,7 +377,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async void AddUserForCustomerAsync_WithExistingPhoneNumber_ShouldThrowInvalidPhoneNumberException()
+        public async Task AddUserForCustomerAsync_WithExistingPhoneNumber_ShouldThrowInvalidPhoneNumberException()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);

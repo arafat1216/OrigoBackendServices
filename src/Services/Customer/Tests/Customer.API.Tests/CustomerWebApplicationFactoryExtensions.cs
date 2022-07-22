@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using System;
 using System.Net.Http;
+using Common.Extensions;
 
 namespace Customer.API.IntegrationTests
 {
@@ -12,7 +13,7 @@ namespace Customer.API.IntegrationTests
         {
             var client = factory.WithWebHostBuilder(builder => { builder.ConfigureTestDatabase(configure); })
                 .CreateClient();
-
+            client.DefaultRequestHeaders.Add("X-Authenticated-UserId", Guid.Empty.SystemUserId().ToString());
             return client;
         }
     }

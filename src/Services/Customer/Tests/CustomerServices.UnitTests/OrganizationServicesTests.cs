@@ -10,13 +10,16 @@ using Moq;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using Common.Infrastructure;
 using Xunit;
 
 namespace CustomerServices.UnitTests
 {
     public class OrganizationServicesTests : OrganizationServicesBaseTest
     {
-        private static IMapper _mapper;
+        private readonly IMapper _mapper;
+        private readonly OrganizationServices organizationServices;
+
         public OrganizationServicesTests()
             : base(
                 new DbContextOptionsBuilder<CustomerContext>()
@@ -25,22 +28,20 @@ namespace CustomerServices.UnitTests
                     .Options
             )
         {
-            if (_mapper == null)
-            {
-                var mappingConfig = new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(LocationDTO))); });
-                _mapper = mappingConfig.CreateMapper();
-            }
+            var mappingConfig =
+                new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(LocationDTO))); });
+            _mapper = mappingConfig.CreateMapper();
+            var apiRequesterServiceMock = new Mock<IApiRequesterService>();
+            apiRequesterServiceMock.Setup(r => r.AuthenticatedUserId).Returns(CALLER_ID);
+            var context = new CustomerContext(ContextOptions, apiRequesterServiceMock.Object);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
         }
 
         [Fact]
         [Trait("Category", "UnitTest")]
         public async Task GetCompanyOne_CheckName()
         {
-            // Arrange
-            await using var context = new CustomerContext(ContextOptions);
-            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
-
             // Act
             var organization = await organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
 
@@ -56,11 +57,6 @@ namespace CustomerServices.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task PutCompanyOne_null_values()
         {
-            // Arrange
-            await using var context = new CustomerContext(ContextOptions);
-            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
-
             // Act
             var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "Mytos", null, null, null, null, null, null, null, null, null);
 
@@ -69,7 +65,7 @@ namespace CustomerServices.UnitTests
             Assert.Equal("", organization.OrganizationNumber);
             Assert.Null(organization.ParentId);
             Assert.True(organization.PrimaryLocation!.IsNull());
-            Assert.Equal(Guid.Empty, organization.UpdatedBy);
+            Assert.Equal(CALLER_ID, organization.UpdatedBy);
             Assert.Equal("", organization.Address.Street);
             Assert.Equal("", organization.Address.PostCode);
             Assert.Equal("", organization.Address.City);
@@ -85,11 +81,6 @@ namespace CustomerServices.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task AddOrganization_WithoutAddOktaUsersSet_CheckDefaultValueSetToFalse()
         {
-            // Arrange
-            await using var context = new CustomerContext(ContextOptions);
-            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
-
             // Act
             var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
             {
@@ -108,11 +99,6 @@ namespace CustomerServices.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task AddOrganization_WithAddOktaUsersSet_CheckValue()
         {
-            // Arrange
-            await using var context = new CustomerContext(ContextOptions);
-            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
-
             // Act
             var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
             {
@@ -132,11 +118,6 @@ namespace CustomerServices.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task PutCompanyOne_partial_null_values()
         {
-            // Arrange
-            await using var context = new CustomerContext(ContextOptions);
-            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
-
             // Act
             var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null);
 
@@ -145,7 +126,7 @@ namespace CustomerServices.UnitTests
             Assert.Equal("", organization.OrganizationNumber);
             Assert.Null(organization.ParentId);
             Assert.True(organization.PrimaryLocation!.IsNull());
-            Assert.Equal(Guid.Empty, organization.UpdatedBy);
+            Assert.Equal(CALLER_ID, organization.UpdatedBy);
             Assert.Equal("street", organization.Address.Street);
             Assert.Equal("", organization.Address.PostCode);
             Assert.Equal("", organization.Address.City);
@@ -160,11 +141,6 @@ namespace CustomerServices.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task PutOrganization_WithAddOktaUsersSet_CheckValue()
         {
-            // Arrange
-            await using var context = new CustomerContext(ContextOptions);
-            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
-
             // Act
             var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null, addUsersToOkta: true);
 
@@ -176,11 +152,6 @@ namespace CustomerServices.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task PatchOrganization_WithAddOktaUsersSet_CheckValue()
         {
-            // Arrange
-            await using var context = new CustomerContext(ContextOptions);
-            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
-
             // Act
             var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null, addUsersToOkta: true);
 
@@ -193,10 +164,6 @@ namespace CustomerServices.UnitTests
         public async Task GetOrganization_WithAddOktaUsersSet_CheckValue()
         {
             // Arrange
-            await using var context = new CustomerContext(ContextOptions);
-            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
-
             var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
             {
                 Name = "COMPANY NAME",
@@ -219,11 +186,6 @@ namespace CustomerServices.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task PatchCompanyOne__null_values()
         {
-            // Arrange
-            await using var context = new CustomerContext(ContextOptions);
-            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
-
             // Act
             var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, null, null, null, null, null, null, null, null, null, null);
             
@@ -247,11 +209,6 @@ namespace CustomerServices.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task PatchCompanyOne_partial_null_values()
         {
-            // Arrange
-            await using var context = new CustomerContext(ContextOptions);
-            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
-
             // Act
             var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, null, "Paavola", null, null);
 
@@ -260,7 +217,7 @@ namespace CustomerServices.UnitTests
             Assert.Equal("999888777", organization.OrganizationNumber);
             Assert.Null(organization.ParentId);
             Assert.NotNull(organization.PrimaryLocation);
-            Assert.Equal(Guid.Empty, organization.UpdatedBy);
+            Assert.Equal(CALLER_ID, organization.UpdatedBy);
             Assert.Equal("street", organization.Address.Street);
             Assert.Equal("1111", organization.Address.PostCode);
             Assert.Equal("My City", organization.Address.City);

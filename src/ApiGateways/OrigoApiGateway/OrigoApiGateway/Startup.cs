@@ -85,7 +85,8 @@ namespace OrigoApiGateway
             services.AddTransient<IStorageService, StorageService>();
             services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
             services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
-            
+            services.AddTransient<AddCallerIdHeaderHandler>();
+
             AddHttpClientsToFactory(services);
 
             services.AddSingleton<IWebshopService, WebshopService>();
@@ -149,17 +150,22 @@ namespace OrigoApiGateway
         private void AddHttpClientsToFactory(IServiceCollection services)
         {
             services.AddHttpClient("assetservices", c => { c.BaseAddress = new Uri("http://assetservices"); })
-                .AddHttpMessageHandler(() => new InvocationHandler());
-
+                .AddHttpMessageHandler(() => new InvocationHandler())
+                .AddHttpMessageHandler<AddCallerIdHeaderHandler>();
             services.AddHttpClient("customerservices", c => { c.BaseAddress = new Uri("http://customerservices"); })
+                .AddHttpMessageHandler(() => new InvocationHandler())
+                .AddHttpMessageHandler<AddCallerIdHeaderHandler>();
+            services.AddHttpClient("userpermissionservices", c => { c.BaseAddress = new Uri("http://customerservices"); })
                 .AddHttpMessageHandler(() => new InvocationHandler());
-            services.AddHttpClient("hardwareserviceorderservices",
-                    c => { c.BaseAddress = new Uri("http://hardwareserviceorderservices"); })
-                .AddHttpMessageHandler(() => new InvocationHandler());
+            services.AddHttpClient("hardwareserviceorderservices", c => { c.BaseAddress = new Uri("http://hardwareserviceorderservices"); })
+                .AddHttpMessageHandler(() => new InvocationHandler())
+                .AddHttpMessageHandler<AddCallerIdHeaderHandler>();
             services.AddHttpClient("productcatalogservices", c => { c.BaseAddress = new Uri("http://productcatalogservices"); })
-                .AddHttpMessageHandler(() => new InvocationHandler());
+                .AddHttpMessageHandler(() => new InvocationHandler())
+                .AddHttpMessageHandler<AddCallerIdHeaderHandler>();
             services.AddHttpClient("subscriptionmanagementservices", c => { c.BaseAddress = new Uri("http://subscriptionmanagementservices"); })
-                .AddHttpMessageHandler(() => new InvocationHandler());
+                .AddHttpMessageHandler(() => new InvocationHandler())
+                .AddHttpMessageHandler<AddCallerIdHeaderHandler>();
         }
 
         private void AddServiceConfigurations(IServiceCollection services)

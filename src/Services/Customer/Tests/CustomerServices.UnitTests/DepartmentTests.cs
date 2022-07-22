@@ -17,9 +17,9 @@ namespace CustomerServices.UnitTests
             // Arrange
             var customerId = Guid.NewGuid();
             var organizationPreferences = new OrganizationPreferences(customerId, Guid.Empty, null, null, null, false, string.Empty, 1);
-            var location = new Location(Guid.Empty, string.Empty, string.Empty, string.Empty, string.Empty,
+            var location = new Location(string.Empty, string.Empty, string.Empty, string.Empty,
                 string.Empty, string.Empty, string.Empty);
-            var organization = new Organization(customerId, Guid.Empty, null, "COMPANY A", "999999999", new Address(),
+            var organization = new Organization(customerId, null, "COMPANY A", "999999999", new Address(),
                 new ContactPerson(), organizationPreferences, location, null, true);
             var l1DeptId = Guid.NewGuid();
             var topLevelDepartment = new Department("L1", "", "", organization, l1DeptId, Guid.Empty);

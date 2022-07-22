@@ -139,7 +139,7 @@ namespace CustomerServices.Infrastructure
             if (includeLocations)
                 query = query.Include(x => x.Locations);
 
-            return await query.FirstOrDefaultAsync(e => e.OrganizationId == organizationId);
+            return await query.AsSplitQuery().FirstOrDefaultAsync(e => e.OrganizationId == organizationId);
         }
 
         public async Task<Organization?> GetOrganizationAsync(int id)
@@ -370,27 +370,14 @@ namespace CustomerServices.Infrastructure
             return user;
         }
 
-        public async Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default)
+        public async Task SaveEntitiesAsync(CancellationToken cancellationToken = default)
         {
-            int numberOfRecordsSaved = 0;
             //Use of an EF Core resiliency strategy when using multiple DbContexts within an explicit BeginTransaction():
             //See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency
             await ResilientTransaction.New(_customerContext).ExecuteAsync(async () =>
             {
-                var editedEntities = _customerContext.ChangeTracker.Entries()
-                                                                   .Where(entry => entry.State == EntityState.Modified)
-                                                                   .ToList();
-                editedEntities.ForEach(entity =>
-                {
-                    if (!entity.Entity.GetType().IsSubclassOf(typeof(ValueObject)))
-                    {
-                        entity.Property("LastUpdatedDate").CurrentValue = DateTime.UtcNow;
-                    }
-                });
-
                 // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
                 await _customerContext.SaveChangesAsync(cancellationToken);
-
                 if (!_customerContext.IsSQLite)
                 {
                     foreach (var @event in _customerContext.GetDomainEventsAsync())
@@ -398,12 +385,8 @@ namespace CustomerServices.Infrastructure
                         await _functionalEventLogService.SaveEventAsync(@event, _customerContext.Database.CurrentTransaction!);
                     }
                 }
-
-                numberOfRecordsSaved = await _customerContext.SaveChangesAsync(cancellationToken);
-
                 await _mediator.DispatchDomainEventsAsync(_customerContext);
             });
-            return numberOfRecordsSaved;
         }
 
         public async Task<IList<Department>> GetDepartmentsAsync(Guid organizationId)

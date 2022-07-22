@@ -28,7 +28,7 @@ namespace CustomerServices
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="CustomerNotFoundException"></exception>
         /// <exception cref="DuplicateException"></exception>
-        public async Task<Partner> CreatePartnerAsync(Guid organizationId, Guid callerId)
+        public async Task<Partner> CreatePartnerAsync(Guid organizationId)
         {
             var existingOrganization = await _organizationRepository.GetOrganizationAsync(organizationId, includeDepartments: false, customersOnly: false);
 
@@ -41,9 +41,9 @@ namespace CustomerServices
             if (await _organizationRepository.OrganizationIsPartner(existingOrganization.Id))
                 throw new DuplicateException("This organization is already a partner.");
 
-            Partner partner = new Partner(existingOrganization, callerId);
+            var partner = new Partner(existingOrganization);
             var partnerResult = await _organizationRepository.AddPartnerAsync(partner);
-            existingOrganization.ChangePartner(partner, callerId);
+            existingOrganization.ChangePartner(partner);
             await _organizationRepository.SaveEntitiesAsync();
 
             return partnerResult;

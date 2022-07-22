@@ -107,10 +107,10 @@ namespace CustomerServices
                 }
                 if(includeLocations && organization.PrimaryLocation is null && organization.Address != null)
                 {
-                    var newLocation = new Location(Guid.Empty, string.Empty , string.Empty,
+                    var newLocation = new Location(string.Empty , string.Empty,
                     organization.Address.Street, string.Empty, organization.Address.PostCode, organization.Address.City,
                     organization.Address.Country);
-                    newLocation.SetPrimaryLocation(true, Guid.Empty);
+                    newLocation.SetPrimaryLocation(true);
                     organization.AddLocation(newLocation, customerId, Guid.Empty);
                     await _organizationRepository.AddOrganizationLocationAsync(newLocation);
                 }
@@ -163,7 +163,7 @@ namespace CustomerServices
             }
             else
             {
-                location = new Location(newOrganization.CallerId, newOrganization.Location.Name,
+                location = new Location(newOrganization.Location.Name,
                                             newOrganization.Location.Description, newOrganization.Location.Address1,
                                             newOrganization.Location.Address2, newOrganization.Location.PostalCode,
                                             newOrganization.Location.City, newOrganization.Location.Country);
@@ -206,7 +206,7 @@ namespace CustomerServices
 
             var address = new Address(newOrganization.Address.Street, newOrganization.Address.PostCode, newOrganization.Address.City, newOrganization.Address.Country);
             var contactPerson = new ContactPerson(newOrganization.ContactPerson.FirstName, newOrganization.ContactPerson.LastName, newOrganization.ContactPerson.Email, newOrganization.ContactPerson.PhoneNumber);
-            var organization = new Organization(Guid.NewGuid(), newOrganization.CallerId, newOrganization.ParentId,
+            var organization = new Organization(Guid.NewGuid(), newOrganization.ParentId,
                                                 newOrganization.Name, newOrganization.OrganizationNumber, address,
                                                 contactPerson, null, location,
                                                 partner, newOrganization.IsCustomer, newOrganization.AddUsersToOkta);
@@ -274,7 +274,7 @@ namespace CustomerServices
                 // PrimaryLocation
                 Location newLocation;
                 if (primaryLocation is null || primaryLocation == Guid.Empty)
-                    newLocation = new Location(callerId, "", "", "", "", "", "", "");
+                    newLocation = new Location("", "", "", "", "", "", "");
                 else
                 {
                     if (primaryLocation is null)
@@ -299,7 +299,7 @@ namespace CustomerServices
                 ContactPerson newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
-                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, addUsersToOkta);
+                Organization newOrganization = new Organization(organizationId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, addUsersToOkta);
 
                 organizationOriginal.UpdateOrganization(newOrganization);
 
@@ -377,9 +377,9 @@ namespace CustomerServices
                 // PrimaryLocation
                 Location newLocation;
                 if (primaryLocation == null)
-                    newLocation = (organizationOriginal.PrimaryLocation is null) ? new Location(callerId, "", "", "", "", "", "", "") : organizationOriginal.PrimaryLocation;
+                    newLocation = (organizationOriginal.PrimaryLocation is null) ? new Location("", "", "", "", "", "", "") : organizationOriginal.PrimaryLocation;
                 else if (primaryLocation == Guid.Empty)
-                    newLocation = new Location(callerId, "", "", "", "", "", "", "");
+                    newLocation = new Location("", "", "", "", "", "", "");
                 else
                 {
                     if (primaryLocation is null)
@@ -410,9 +410,9 @@ namespace CustomerServices
                 newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
-                Organization newOrganization = new Organization(organizationId, callerId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, addUsersToOkta);
+                Organization newOrganization = new Organization(organizationId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, addUsersToOkta);
 
-                organizationOriginal.PatchOrganization(newOrganization);
+                organizationOriginal.UpdateOrganization(newOrganization);
 
                 await _organizationRepository.SaveEntitiesAsync();
 
@@ -463,7 +463,7 @@ namespace CustomerServices
 
                 if (usingPatch)
                 {
-                    organization.PatchOrganization(updateOrganization);
+                    organization.UpdateOrganization(updateOrganization);
                 }
                 else
                 {
@@ -711,7 +711,7 @@ namespace CustomerServices
 
                 if (organization is null) throw new CustomerNotFoundException();
 
-                var newLocation = new Location(callerId, location.Name, location.Description,
+                var newLocation = new Location(location.Name, location.Description,
                     location.Address1, location.Address2, location.PostalCode, location.City,
                     location.Country);
 
@@ -721,8 +721,8 @@ namespace CustomerServices
                 {
                     var existingPrimaryLocation = organization.PrimaryLocation;
                     if (existingPrimaryLocation is not null)
-                        existingPrimaryLocation.SetPrimaryLocation(false, callerId);
-                    newLocation.SetPrimaryLocation(true, callerId);
+                        existingPrimaryLocation.SetPrimaryLocation(false);
+                    newLocation.SetPrimaryLocation(true);
                 }
                 organization.AddLocation(newLocation, customerId, callerId);
 

@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Common.Extensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -47,6 +48,7 @@ namespace Customer.API.IntegrationTests.Controllers
 
             _callerId = Guid.NewGuid();
             _factory = factory;
+            _httpClient.DefaultRequestHeaders.Add("X-Authenticated-UserId", Guid.Empty.SystemUserId().ToString());
         }
         [Fact]
         public async Task GetUserPermission()

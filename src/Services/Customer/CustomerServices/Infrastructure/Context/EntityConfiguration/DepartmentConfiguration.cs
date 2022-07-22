@@ -25,15 +25,6 @@ namespace CustomerServices.Infrastructure.Context.EntityConfiguration
              * Properties
              */
 
-            builder.Property(e => e.CreatedDate)
-                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "GETUTCDATE()")
-                   .ValueGeneratedOnAdd()
-                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-
-            builder.Property(e => e.LastUpdatedDate)
-                   .HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "GETUTCDATE()")
-                   .ValueGeneratedOnAddOrUpdate();
-
             builder.Property(e => e.ExternalDepartmentId)
                    .HasDefaultValueSql("NEWID()")
                    .ValueGeneratedOnAdd()

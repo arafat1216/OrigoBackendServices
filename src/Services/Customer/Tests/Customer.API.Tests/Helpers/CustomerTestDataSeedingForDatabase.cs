@@ -44,8 +44,7 @@ namespace Customer.API.IntegrationTests.Helpers
                                                                         1);
             customerContext.OrganizationPreferences.Add(organizationPreferences);
 
-            var location = new Location(CALLER_ID,
-                                        "Location1",
+            var location = new Location("Location1",
                                         "Description",
                                         "Billingstadsletta",
                                         "19 B",
@@ -56,7 +55,6 @@ namespace Customer.API.IntegrationTests.Helpers
             customerContext.Locations.Add(location);
 
             var organization = new Organization(ORGANIZATION_ID,
-                                                CALLER_ID,
                                                 PARENT_ID,
                                                 "ORGANIZATION ONE",
                                                 "ORGNUM12345",

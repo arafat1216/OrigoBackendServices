@@ -6,30 +6,11 @@ namespace CustomerServices.ServiceModels;
 
 public record NewOrganizationDTO
 {
-    public NewOrganizationDTO() { }
+    public NewOrganizationDTO(){}
 
-    public NewOrganizationDTO(string name, string organizationNumber, AddressDTO address, ContactPersonDTO contactPerson, LocationDTO location,
-        Guid? parentId, string? internalNotes, Guid? partnerId, bool isCustomer,
-        NewOrganizationPreferencesDTO preferences, Guid callerId, bool addUsersToOkta = false)
-    {
-        Name = name;
-        OrganizationNumber = organizationNumber;
-        Address = address;
-        ContactPerson = contactPerson;
-        Location = location;
-        PrimaryLocation = null;
-        ParentId = parentId;
-        InternalNotes = internalNotes;
-        PartnerId = partnerId;
-        IsCustomer = isCustomer;
-        Preferences = preferences;
-        CallerId = callerId;
-        AddUsersToOkta = addUsersToOkta;
-    }
-
-    public NewOrganizationDTO(string name, string organizationNumber, AddressDTO address, ContactPersonDTO contactPerson, Guid primaryLocation,
-        Guid? parentId, string? internalNotes, Guid? partnerId, bool isCustomer,
-        NewOrganizationPreferencesDTO preferences, Guid callerId, bool addUsersToOkta = false)
+    public NewOrganizationDTO(string name, string organizationNumber, AddressDTO address,
+        ContactPersonDTO contactPerson, Guid primaryLocation, Guid? parentId, string? internalNotes, Guid? partnerId,
+        bool isCustomer, NewOrganizationPreferencesDTO preferences, bool addUsersToOkta = false)
     {
         Name = name;
         OrganizationNumber = organizationNumber;
@@ -42,17 +23,16 @@ public record NewOrganizationDTO
         PartnerId = partnerId;
         IsCustomer = isCustomer;
         Preferences = preferences;
-        CallerId = callerId;
         AddUsersToOkta = addUsersToOkta;
     }
 
-    public string Name { get; set; }
+    public string Name { get; init; } = string.Empty;
 
-    public string OrganizationNumber { get; set; }
+    public string OrganizationNumber { get; init; } = string.Empty;
 
-    public AddressDTO Address { get; set; }
+    public AddressDTO Address { get; init; } = new();
 
-    public ContactPersonDTO ContactPerson { get; set; }
+    public ContactPersonDTO ContactPerson { get; init; } = new();
 
     /// <summary>
     ///     The new location object that should be created and attached to the organization. <para>
@@ -106,11 +86,6 @@ public record NewOrganizationDTO
     ///     always be provided if possible! </para>
     /// </summary>
     public NewOrganizationPreferencesDTO? Preferences { get; set; }
-
-    /// <summary>
-    ///     The ID of the user that is creating the entity.
-    /// </summary>
-    public Guid CallerId { get; set; }
 
     /// <summary>
     /// Should new users be added to Okta.

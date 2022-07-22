@@ -11,6 +11,7 @@ using System.Net;
 using System.Collections.Generic;
 using Customer.API.WriteModels;
 using System.Linq;
+using Common.Extensions;
 using Customer.API.IntegrationTests.Helpers;
 using Customer.API.ViewModels;
 //Customer.API.IntegrationTests.Controllers
@@ -30,8 +31,8 @@ namespace Customer.API.IntegrationTests.Controllers
             _httpClient = factory.CreateDefaultClient();
             _factory = factory;
             _organizationId = factory.ORGANIZATION_ID;
+            _httpClient.DefaultRequestHeaders.Add("X-Authenticated-UserId", Guid.Empty.SystemUserId().ToString());
         }
-
 
         [Fact()]
         public async Task CreateOrganizationTest()
@@ -70,7 +71,6 @@ namespace Customer.API.IntegrationTests.Controllers
                 },
                 PrimaryLocation = null,
                 ParentId = null,
-                CallerId = Guid.Parse("fd93b1f9-3df8-4823-9215-306135992d25"),
                 InternalNotes = null,
                 IsCustomer = true,
                 Preferences = null
@@ -122,7 +122,6 @@ namespace Customer.API.IntegrationTests.Controllers
                 },
                 PrimaryLocation = null,
                 ParentId = null,
-                CallerId = Guid.Parse("fd93b1f9-3df8-4823-9215-306135992d25"),
                 InternalNotes = null,
                 IsCustomer = true,
                 Preferences = null,

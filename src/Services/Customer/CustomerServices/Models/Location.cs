@@ -35,7 +35,8 @@ namespace CustomerServices.Models
         protected Location()
         { }
 
-        public Location(Guid callerId, string name, string description, string address1, string address2, string postalCode, string city, string country, RecipientType recipientType = RecipientType.Organization)
+        public Location(string name, string description, string address1, string address2, string postalCode,
+            string city, string country, RecipientType recipientType = RecipientType.Organization)
         {
             Name = name;
             Description = description;
@@ -44,8 +45,6 @@ namespace CustomerServices.Models
             PostalCode = postalCode;
             City = city;
             Country = country;
-            CreatedBy = callerId;
-            UpdatedBy = callerId;
             RecipientType = recipientType;
             AddDomainEvent(new LocationCreatedDomainEvent(this));
         }
@@ -152,11 +151,9 @@ namespace CustomerServices.Models
                 return true;
             return false;
         }
-        public void SetPrimaryLocation(bool primary, Guid callerId)
+        public void SetPrimaryLocation(bool primary)
         {
             IsPrimary = primary;
-            LastUpdatedDate = DateTime.UtcNow;
-            UpdatedBy = callerId;
             AddDomainEvent(new SetPrimaryLocationDomainEvent(this));
         }
     }

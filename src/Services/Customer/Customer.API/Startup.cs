@@ -17,6 +17,9 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.IO;
 using System.Reflection;
+using Common.Infrastructure;
+using Common.Utilities;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Customer.API
 {
@@ -31,7 +34,10 @@ namespace Customer.API
 
         private IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to add services to the container.
+        /// </summary>
+        /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRouting(options => options.LowercaseUrls = true);
@@ -71,22 +77,32 @@ namespace Customer.API
                         c.IncludeXmlComments(xmlCommentsFullPath);
                     }
                 }
+                c.OperationFilter<AuthenticatedUserHeaderFilter>();
             });
 
             services.AddApplicationInsightsTelemetry();
-            services.AddDbContext<CustomerContext>(options => options.UseSqlServer(
-                Configuration.GetConnectionString("CustomerConnectionString"), sqlOptions =>
-                {
-                    sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
-                    //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
-                    sqlOptions.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
-                }));
+            // Register the two DI items used by EF to retrieve/assign the API's callerID
+            services.AddHttpContextAccessor();
+            services.AddTransient<IApiRequesterService, ApiRequesterService>();
+            services.AddDbContext<CustomerContext>(
+                    options =>
+                    {
+                        options.UseSqlServer(Configuration.GetConnectionString("CustomerConnectionString"),
+                            sqlOptions =>
+                            {
+                                sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
+                                //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
+                                sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(30), null);
+                            });
+                        options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
+                    }
+            );
             services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(
                 Configuration.GetConnectionString("CustomerConnectionString"), sqlOptions =>
                 {
                     sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
                     //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
-                    sqlOptions.EnableRetryOnFailure(15, TimeSpan.FromSeconds(30), null);
+                    sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(30), null);
                 }));
             services.AddAutoMapper(Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(UserDTOProfile)));
             services.Configure<OktaConfiguration>(Configuration.GetSection("Okta"));
@@ -106,7 +122,11 @@ namespace Customer.API
             services.AddMediatR(typeof(Startup));
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();

@@ -18,7 +18,6 @@ namespace CustomerServices.SeedData
             #region organizations 
             Organization organization1 = new Organization(
                 organizationId: OrganizationId1,
-                callerId: new Guid("00000000-0000-0000-0000-000000000000"),
                 parentId: null,
                 companyName: "Blume Corporation",
                 orgNumber: "898742482",
@@ -27,13 +26,13 @@ namespace CustomerServices.SeedData
                     postCode: "IL 60607",
                     city: "Chicago",
                     country: "United States of America"
-                    ),
+                ),
                 organizationContactPerson: new ContactPerson(
                     firstName: "Dušan",
                     lastName: "Nemec",
                     email: "Dušan.Nemec@blumecorp.com",
                     phoneNumber: "+4791119914"
-                    ),
+                ),
                 organizationPreferences: new OrganizationPreferences(
                     organizationId: new Guid("A19EA756-86F2-423C-9B10-11CB10181858"),
                     callerId: new Guid("00000000-0000-0000-0000-000000000000"),
@@ -43,9 +42,8 @@ namespace CustomerServices.SeedData
                     enforceTwoFactorAuth: true,
                     primaryLanguage: "EN",
                     defaultDepartmentClassification: 0
-                   ),
-                organizationLocation: new Location(
-                    callerId: new Guid("00000000-0000-0000-0000-000000000000"), // callerId
+                ),
+                organizationLocation: new Location(// callerId
                     name: "Bellwether", // name
                     description: "Blume headquarters", // description
                     address1: "320 N Morgan St Suite 600", // address1
@@ -53,14 +51,13 @@ namespace CustomerServices.SeedData
                     postalCode: "IL 60607", // postalCode
                     city: "Chicago", // city 
                     country: "United States of America" // country
-                    ),
-                 null,
-                 true
+                ),
+                 partner: null,
+                 isCustomer: true
                 );
 
             Organization organization2 = new Organization(
                 organizationId: OrganizationId2,
-                callerId: new Guid("00000000-0000-0000-0000-000000000000"),
                 parentId: new Guid("A19EA756-86F2-423C-9B10-11CB10181858"),
                 companyName: "Umeni Security Corps",
                 orgNumber: "913992399",
@@ -69,13 +66,13 @@ namespace CustomerServices.SeedData
                     postCode: "IL 60607",
                     city: "Chicago",
                     country: "United States of America"
-                    ),
+                ),
                 organizationContactPerson: new ContactPerson(
                     firstName: "Dušan",
                     lastName: "Nemec",
                     email: "Dušan.Nemec@blumecorp.com",
                     phoneNumber: "+4791119914"
-                    ),
+                ),
                 organizationPreferences: new OrganizationPreferences(
                     organizationId: new Guid("A19EA756-86F2-423C-9B10-11CB10181858"),
                     callerId: new Guid("00000000-0000-0000-0000-000000000000"),
@@ -85,19 +82,17 @@ namespace CustomerServices.SeedData
                     enforceTwoFactorAuth: true,
                     primaryLanguage: "EN",
                     defaultDepartmentClassification: 0
-                   ),
-                organizationLocation: new Location(
-                    callerId: new Guid("00000000-0000-0000-0000-000000000000"),
-                    name: "Sonarus",
+                ),
+                organizationLocation: new Location(name: "Sonarus",
                     description: "Umeni main location",
                     address1: "1200 W Harrison St",
                     address2: "320 N Morgan St Suite 600",
                     postalCode: "IL 60607",
                     city: "Chicago",
                     country: "United States of America"
-                    ),
-                null,
-                true
+                ),
+                partner: null,
+                isCustomer: true
                 );
             #endregion
 

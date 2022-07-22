@@ -22,11 +22,6 @@ namespace CustomerServices.Models
     public class Organization : Entity, IAggregateRoot
     {
         /// <summary>
-        ///     Backing field for <see cref="Users"/>.
-        /// </summary>
-        private IList<User> _users;
-
-        /// <summary>
         ///     The organization's external ID
         /// </summary>
         public Guid OrganizationId { get; protected set; }
@@ -104,22 +99,14 @@ namespace CustomerServices.Models
         /// </summary>
         [JsonIgnore]
         public ICollection<Location> Locations { get; protected set; } = new List<Location>();
-
-
-        [JsonIgnore]
-        public IList<User> Users
-        {
-            get { return _users?.ToImmutableList(); }
-            protected set { _users = value; }
-        }
-
+        
         /// <summary>
         /// The departments for this organization
         /// </summary>
         [JsonIgnore]
         public IReadOnlyCollection<Department> Departments => _departments.AsReadOnly();
 
-        private List<Department> _departments = new();
+        private readonly List<Department> _departments = new();
         /// <summary>
         /// Should users be automatically be generated in Okta when created?
         /// Federated users will be generated in Okta through Just-In-Time creation.
@@ -136,9 +123,10 @@ namespace CustomerServices.Models
 
         }
 
-        public Organization(Guid organizationId, Guid callerId, Guid? parentId, string companyName, string orgNumber, Address companyAddress,
-                            ContactPerson organizationContactPerson, OrganizationPreferences organizationPreferences, Location organizationLocation, 
-                            Partner? partner, bool isCustomer, bool addUsersToOkta = false)
+        public Organization(Guid organizationId, Guid? parentId, string companyName, string orgNumber,
+            Address companyAddress, ContactPerson organizationContactPerson,
+            OrganizationPreferences organizationPreferences, Location organizationLocation, Partner? partner,
+            bool isCustomer, bool addUsersToOkta = false)
         {
             Name = companyName;
             ParentId = parentId;
@@ -149,158 +137,68 @@ namespace CustomerServices.Models
             Preferences = organizationPreferences;
             Partner = partner;
             IsCustomer = isCustomer;
-            CreatedBy = callerId;
-            UpdatedBy = callerId;
             IsDeleted = false;
             _customerStatus = CustomerStatus.BeforeOnboarding;
             AddUsersToOkta = addUsersToOkta;
-            organizationLocation.SetPrimaryLocation(true, callerId);
+            organizationLocation.SetPrimaryLocation(true);
             Locations.Add(organizationLocation);
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
 
         public void UpdateOrganization(Organization organization)
         {
-            bool isUpdated = false;
-
             if (ParentId != organization.ParentId)
             {
-                var previousparentId = ParentId.ToString();
+                var previousParentId = ParentId.ToString();
                 ParentId = organization.ParentId;
-                AddDomainEvent(new CustomerParentIdChangedDomainEvent(this, previousparentId));
-                isUpdated = true;
+                AddDomainEvent(new CustomerParentIdChangedDomainEvent(this, previousParentId));
             }
 
-            if (organization.PrimaryLocation != null && PrimaryLocation != null)
+            if (organization.PrimaryLocation != null && (PrimaryLocation != null && !PrimaryLocation.Equals(organization.PrimaryLocation) || PrimaryLocation == null))
             {
                 var previousPrimaryLocation = PrimaryLocation!.Name;
                 Locations.FirstOrDefault()!.UpdateLocation(organization.PrimaryLocation);
                 AddDomainEvent(new CustomerPrimaryLocationChangedDomainEvent(this, previousPrimaryLocation));
-                isUpdated = true;
             }
 
             if (Name != organization.Name)
             {
                 var oldName = Name;
-                Name = (organization.Name == null) ? "" : organization.Name;
+                Name = organization.Name;
                 AddDomainEvent(new CustomerNameChangedDomainEvent(this, oldName));
-                isUpdated = true;
             }
 
             if (OrganizationNumber != organization.OrganizationNumber)
             {
                 var oldNumber = OrganizationNumber;
-                OrganizationNumber = (organization.OrganizationNumber == null) ? "" : organization.OrganizationNumber;
-                AddDomainEvent(new OrganizationNumberChangedDomainEvent(this, oldNumber));
-                isUpdated = true;
-            }
-
-            if (Address != organization.Address)
-            {
-                var oldAddress = Address;
-                Address = organization.Address;
-                AddDomainEvent(new CustomerAddressChangedDomainEvent(this, oldAddress));
-                isUpdated = true;
-            }
-
-            if (ContactPerson != organization.ContactPerson)
-            {
-                var oldContactPerson = ContactPerson;
-                ContactPerson = organization.ContactPerson;
-                AddDomainEvent(new ContactPersonChangedDomainEvent(this, oldContactPerson));
-                isUpdated = true;
-            }
-
-            if (Partner != organization.Partner)
-            {
-                ChangePartner(Partner, UpdatedBy);
-                isUpdated = true;
-            }
-
-            if (AddUsersToOkta != organization.AddUsersToOkta)
-            {
-                AddDomainEvent(new AddUsersToOktaChangedDomainEvent(this));
-                AddUsersToOkta = organization.AddUsersToOkta;
-                isUpdated = true;
-            }
-
-            Preferences = organization.Preferences; // preferences cannot be changed here
-            //Location = organization.Location; // Is either a new empty location object, or an existing one. Not modified.
-
-            if (isUpdated)
-            {
-                LastUpdatedDate = DateTime.UtcNow;
-                UpdatedBy = organization.CreatedBy;
-            }
-        }
-
-        public void PatchOrganization(Organization organization)
-        {
-            bool isUpdated = false;
-            if (ParentId != organization.ParentId && organization.ParentId != null)
-            {
-                var previousParentId = ParentId.ToString();
-                ParentId = organization.ParentId;
-                AddDomainEvent(new CustomerParentIdChangedDomainEvent(this, previousParentId));
-                isUpdated = true;
-            }
-
-            if (organization.PrimaryLocation != null && PrimaryLocation != null)
-            {
-                var previousPrimaryLocation = PrimaryLocation!.Name;
-                Locations.FirstOrDefault()!.UpdateLocation(organization.PrimaryLocation);
-                AddDomainEvent(new CustomerPrimaryLocationChangedDomainEvent(this, previousPrimaryLocation));
-                isUpdated = true;
-            }
-            if (Name != organization.Name && organization.Name != null)
-            {
-                var oldName = Name;
-                Name = organization.Name;
-                AddDomainEvent(new CustomerNameChangedDomainEvent(this, oldName));
-                isUpdated = true;
-            }
-
-            if (OrganizationNumber != organization.OrganizationNumber && organization.OrganizationNumber != null)
-            {
-                var oldNumber = OrganizationNumber;
                 OrganizationNumber = organization.OrganizationNumber;
                 AddDomainEvent(new OrganizationNumberChangedDomainEvent(this, oldNumber));
-                isUpdated = true;
             }
 
-            if (Address != organization.Address && organization.Address != null)
+            if (!Address.Equals(organization.Address))
             {
                 var oldAddress = Address;
                 Address = organization.Address;
                 AddDomainEvent(new CustomerAddressChangedDomainEvent(this, oldAddress));
-                isUpdated = true;
             }
 
-            if (Partner != organization.Partner)
-            {
-                ChangePartner(Partner, UpdatedBy);
-                isUpdated = true;
-            }
-
-            if (ContactPerson != organization.ContactPerson && organization.ContactPerson != null)
+            if (!ContactPerson.Equals(organization.ContactPerson))
             {
                 var oldContactPerson = ContactPerson;
                 ContactPerson = organization.ContactPerson;
                 AddDomainEvent(new ContactPersonChangedDomainEvent(this, oldContactPerson));
-                isUpdated = true;
+            }
+
+            if ((organization.Partner != null && (Partner == null || !Partner.Equals(organization.Partner)))
+                || organization.Partner == null && Partner != null)
+            {
+                ChangePartner(organization.Partner);
             }
 
             if (AddUsersToOkta != organization.AddUsersToOkta)
             {
                 AddDomainEvent(new AddUsersToOktaChangedDomainEvent(this));
                 AddUsersToOkta = organization.AddUsersToOkta;
-                isUpdated = true;
-            }
-
-            if (isUpdated)
-            {
-                LastUpdatedDate = DateTime.UtcNow;
-                UpdatedBy = organization.CreatedBy;
             }
         }
 
@@ -381,20 +279,12 @@ namespace CustomerServices.Models
         ///     If the partner gets removed, then <see cref="IsCustomer"/> will also be set as <see langword="false"/>. </para>
         /// </summary>
         /// <param name="partner"> The new partner. </param>
-        /// <param name="callerId"> The ID of the user performing the operation. </param>
-        public void ChangePartner(Partner? partner, Guid callerId)
+        public void ChangePartner(Partner? partner)
         {
-            Partner? oldPartner = Partner;
-            UpdatedBy = callerId;
-            LastUpdatedDate = DateTime.UtcNow;
+            var oldPartner = Partner;
             Partner = partner;
-
             // Update the customer status along with the partner assignment.
-            if (partner is null)
-                IsCustomer = false;
-            else
-                IsCustomer = true;
-
+            IsCustomer = partner is not null;
             AddDomainEvent(new OrganizationPartnerChangedDomainEvent(this, oldPartner?.ExternalId));
         }
 
