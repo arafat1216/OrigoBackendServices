@@ -820,5 +820,17 @@ namespace CustomerServices
             return true;
         }
 
+        public async Task<Organization> InitiateOnbardingAsync(Guid organizationId, Guid callerId)
+        {
+            var customer = await _organizationRepository.GetOrganizationAsync(organizationId);
+            
+            if (customer == null) throw new CustomerNotFoundException();
+
+            customer.InitiateOnboarding(callerId);
+            await _organizationRepository.SaveEntitiesAsync();
+
+            return customer;
+
+        }
     }
 }

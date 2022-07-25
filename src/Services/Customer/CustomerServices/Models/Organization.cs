@@ -2,7 +2,6 @@
 using CustomerServices.DomainEvents;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -317,6 +316,13 @@ namespace CustomerServices.Models
             LastUpdatedDate = DateTime.UtcNow;
             department.RemoveDepartmentManagers(managers,callerId);
             AddDomainEvent(new DepartmentRemoveDepartmentManagersDomainEvent(department, callerId));
+        }
+        public void InitiateOnboarding(Guid callerId)
+        {
+            UpdatedBy = callerId;
+            LastUpdatedDate = DateTime.UtcNow;
+            _customerStatus = CustomerStatus.StartedOnboardning;
+            AddDomainEvent(new CustomerStartedOnboardingDomainEvent(this,callerId));
         }
     }
 }

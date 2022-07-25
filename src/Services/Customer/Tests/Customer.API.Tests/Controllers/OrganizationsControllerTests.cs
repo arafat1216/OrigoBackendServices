@@ -272,5 +272,34 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.True(returnedLocation!.IsPrimary);
             Assert.True(returnedLocation!.Id == Org!.Location.Id);
         }
+        [Fact]
+        public async Task InitiateOnbarding_ChangeOnboardingStatus()
+        {
+            
+            // Arrange
+            var requestUri = $"/api/v1/organizations/{_organizationId}/initiate-onboarding";
+
+            //Act
+            var response = await _httpClient.PostAsync(requestUri, null);
+            var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(Common.Enums.CustomerStatus.StartedOnboardning,organization?.Status);
+            Assert.Equal("StartedOnboardning", organization?.StatusName);
+        }
+        [Fact]
+        public async Task InitiateOnbarding_OrganizationNotFound()
+        {
+            // Arrange
+            var organizationId = Guid.NewGuid();
+            var requestUri = $"/api/v1/organizations/{organizationId}/initiate-onboarding";
+
+            //Act
+            var response = await _httpClient.PostAsync(requestUri, null);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
     }
 }

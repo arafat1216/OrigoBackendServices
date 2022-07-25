@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CustomerServices.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,11 @@ namespace Customer.API.Filters
             if (exception is ArgumentException)
             {
                 context.Result = new BadRequestObjectResult(exception.Message);
+                return;
+            }
+            if (exception is CustomerNotFoundException)
+            {
+                context.Result = new NotFoundObjectResult(exception.Message);
                 return;
             }
 

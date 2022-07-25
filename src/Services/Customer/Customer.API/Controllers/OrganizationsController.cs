@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Common.Enums;
 using Common.Exceptions;
+using Customer.API.Filters;
 using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices;
@@ -24,6 +24,7 @@ namespace Customer.API.Controllers
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal Server Error: Returned when an unexpected error occurs.")]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class OrganizationsController : ControllerBase
     {
         private readonly IOrganizationServices _organizationServices;
@@ -472,6 +473,23 @@ namespace Customer.API.Controllers
             var deletedLocationView = new LocationDTO(location);
 
             return Ok(deletedLocationView);
+        }
+        /// <summary>
+        /// Changes the customers onboarding status to started onboarding
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <returns>The organization that has started the onbarding process</returns>
+        [Route("{organizationId:Guid}/initiate-onboarding")]
+        [HttpPost]
+        [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> InitiateOnbardingAsync(Guid organizationId)
+        {
+            //Should come in the header when it is set up in gateway.
+            var callerId = Guid.NewGuid();
+            var organization = await _organizationServices.InitiateOnbardingAsync(organizationId, callerId);
+            return Ok(_mapper.Map<OrganizationDTO>(organization));
         }
 
     }
