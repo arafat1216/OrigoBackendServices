@@ -875,6 +875,31 @@ namespace Customer.API.IntegrationTests.Controllers
 
         }
         [Fact]
+        public async Task CreateUserForCustomer_WithNoUserPreference_ShouldGetCustomerPrimaryLanguage()
+        {
+
+            var body = new NewUser
+            {
+                CallerId = _callerId,
+                Email = "primary@language.com",
+                FirstName = "test",
+                LastName = "user",
+                EmployeeId = "123",
+                MobileNumber = "+479898600",
+                Role = "EndUser"
+            };
+            var request = $"/api/v1/organizations/{_customerId}/users";
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            var user = await response.Content.ReadFromJsonAsync<ViewModels.User>();
+
+            Assert.NotNull(user);
+            Assert.Equal("no", user?.UserPreference.Language);
+
+
+        }
+        [Fact]
         public async Task GetUsersCount_OnlyCountActivatedUsers()
         {
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);

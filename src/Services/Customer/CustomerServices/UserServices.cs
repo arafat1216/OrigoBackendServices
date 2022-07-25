@@ -101,11 +101,12 @@ namespace CustomerServices
             string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId, string role)
         {
             var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
+            var customerPreferences = await _organizationRepository.GetOrganizationPreferencesAsync(customerId);
             if (customer == null) throw new CustomerNotFoundException();
             if (userPreference == null || userPreference.Language == null)
             {
                 // Set a default language setting - try to add organizations primary language 
-                if (customer.Preferences.PrimaryLanguage != null) userPreference = new UserPreference(customer.Preferences.PrimaryLanguage, callerId);
+                if (customerPreferences != null) userPreference = new UserPreference(customerPreferences.PrimaryLanguage ?? "EN", callerId);
                 else userPreference = new UserPreference("EN", callerId);
             }
 
