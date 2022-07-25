@@ -6,14 +6,12 @@ namespace CustomerServices.DomainEvents
 {
     public class CustomerStartedOnboardingDomainEvent : BaseEvent
     {
-        public CustomerStartedOnboardingDomainEvent(Organization organization, Guid callerId) : base(organization.OrganizationId)
+        public CustomerStartedOnboardingDomainEvent(Organization organization) : base(organization.OrganizationId)
         {
             Organization = organization;
-            CallerId = callerId;
         }
 
         public Organization Organization { get; protected set; }
-        public Guid CallerId { get; protected set; }
 
 
         public override string EventMessage()

@@ -317,12 +317,10 @@ namespace CustomerServices.Models
             department.RemoveDepartmentManagers(managers,callerId);
             AddDomainEvent(new DepartmentRemoveDepartmentManagersDomainEvent(department, callerId));
         }
-        public void InitiateOnboarding(Guid callerId)
+        public void InitiateOnboarding()
         {
-            UpdatedBy = callerId;
-            LastUpdatedDate = DateTime.UtcNow;
             _customerStatus = CustomerStatus.StartedOnboardning;
-            AddDomainEvent(new CustomerStartedOnboardingDomainEvent(this,callerId));
+            AddDomainEvent(new CustomerStartedOnboardingDomainEvent(this));
         }
     }
 }

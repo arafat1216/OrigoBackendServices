@@ -486,9 +486,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
         public async Task<ActionResult> InitiateOnbardingAsync(Guid organizationId)
         {
-            //Should come in the header when it is set up in gateway.
-            var callerId = Guid.NewGuid();
-            var organization = await _organizationServices.InitiateOnbardingAsync(organizationId, callerId);
+            var organization = await _organizationServices.InitiateOnbardingAsync(organizationId);
             return Ok(_mapper.Map<OrganizationDTO>(organization));
         }
 

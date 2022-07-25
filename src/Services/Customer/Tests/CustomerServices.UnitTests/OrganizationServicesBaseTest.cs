@@ -76,7 +76,7 @@ namespace CustomerServices.UnitTests
                 new OrganizationPreferences(CUSTOMER_FOUR_ID, USER_ONE_ID, "webPage 4", "logoUrl 4", "organizationNotes 4", true, "nb", 0),
                 new Location("name", "description", "My Way 4A", "My Way 4B", "0585", "Oslo", "NO"),
                 null, true);
-            customerFour.InitiateOnboarding(CALLER_ID);
+            customerFour.InitiateOnboarding();
 
             context.AddRange(customerOne, customerTwo, customerThree);
 

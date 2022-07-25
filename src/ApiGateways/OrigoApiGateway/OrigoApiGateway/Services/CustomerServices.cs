@@ -214,6 +214,25 @@ public class CustomerServices : ICustomerServices
             throw;
         }
     }
+    public async Task<Organization> InitiateOnbardingAsync(Guid customerId)
+    {
+        try
+        {
+            var requestUri = $"{_options.ApiPath}/{customerId}/initiate-onboarding";
+            var response = await HttpClient.PostAsync(requestUri, null);
+
+            if ((int)response.StatusCode == 404)
+                return null;
+
+            return _mapper.Map<Organization>(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "InitiateOnbardingAsync unknown error.");
+            throw;
+        }
+        
+    }
 
     public async Task<Organization> CreateCustomerAsync(NewOrganization newCustomer, Guid callerId)
     {

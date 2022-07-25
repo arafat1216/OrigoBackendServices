@@ -396,6 +396,42 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
+        [Route("{organizationId:Guid}/initiate-onboarding")]
+        [HttpPost]
+        [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<Organization>> InitiateOnboarding(Guid organizationId)
+        {
+            try
+            {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var customer = await CustomerServices.InitiateOnbardingAsync(organizationId);
+                if (customer == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(customer);
+            }
+            catch (Exception)
+            {
+                return BadRequest("Unknown error");
+            }
+        }
         [Route("webshopUrl")]
         [HttpGet]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]

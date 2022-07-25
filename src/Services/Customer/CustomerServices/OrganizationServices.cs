@@ -820,13 +820,13 @@ namespace CustomerServices
             return true;
         }
 
-        public async Task<Organization> InitiateOnbardingAsync(Guid organizationId, Guid callerId)
+        public async Task<Organization> InitiateOnbardingAsync(Guid organizationId)
         {
             var customer = await _organizationRepository.GetOrganizationAsync(organizationId);
             
             if (customer == null) throw new CustomerNotFoundException();
 
-            customer.InitiateOnboarding(callerId);
+            customer.InitiateOnboarding();
             await _organizationRepository.SaveEntitiesAsync();
 
             return customer;

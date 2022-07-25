@@ -100,7 +100,7 @@ namespace Customer.API.IntegrationTests.Helpers
                                                 true
                                                 );
 
-            organizationTWO.InitiateOnboarding(CALLER_ID);
+            organizationTWO.InitiateOnboarding();
 
             customerContext.Organizations.Add(organization);
             customerContext.Organizations.Add(organizationTWO);
