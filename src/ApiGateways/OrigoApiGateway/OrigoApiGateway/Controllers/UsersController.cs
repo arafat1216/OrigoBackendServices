@@ -155,7 +155,23 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
             }
+            var user = await _userServices.GetUserAsync(organizationId, userId);
+            if (user == null) return NotFound();
+            return Ok(user);
+        }
 
+        [Route("me")]
+        [HttpGet]
+        [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<OrigoUser>> GetLoggedInUser(Guid organizationId)
+        {
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            if (!Guid.TryParse(actor, out var userId))
+            {
+                return NotFound();
+            }
             var user = await _userServices.GetUserAsync(organizationId, userId);
             if (user == null) return NotFound();
             return Ok(user);
