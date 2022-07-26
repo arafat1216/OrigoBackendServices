@@ -70,11 +70,7 @@ namespace CustomerServices.Models
         /// <summary>
         /// Returns the state of current UserStatus.
         /// </summary>
-        public bool IsActiveState => HasActiveState(UserStatus);
-        public static bool HasActiveState(UserStatus userStatus)
-        {
-            return userStatus is UserStatus.Invited or UserStatus.Activated;
-        }
+        public bool IsActiveState => UserStatus is UserStatus.Invited or UserStatus.Activated;
 
         public string OktaUserId { get; protected set; }
 
