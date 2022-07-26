@@ -18,7 +18,7 @@ namespace CustomerServices.UnitTests
         protected readonly Guid DEPARTMENT_TWO_ID = new("424f4485-53cc-4e59-8fae-59b27f12ff61");
         protected readonly Guid CUSTOMER_TWO_ID = new("f1530515-fe2e-4e2f-84c2-c60da5875e22");
         private readonly Guid CUSTOMER_THREE_ID = new("6fb371c9-da3e-4ce4-b4e4-bc7f020eebf9");
-        private readonly Guid CUSTOMER_FOUR_ID = new("2C005777-ED56-43D9-9B1E-2B8112E67D10");
+        protected readonly Guid CUSTOMER_FOUR_ID = new("2C005777-ED56-43D9-9B1E-2B8112E67D10");
 
         protected readonly Guid USER_ONE_ID = new Guid("42803f8e-5608-4beb-a3e6-029b8e229d91");
         private readonly Guid USER_TWO_ID = new Guid("39349c24-6e47-4a5e-9bab-7b65f438fac5");
@@ -76,6 +76,7 @@ namespace CustomerServices.UnitTests
                 new OrganizationPreferences(CUSTOMER_FOUR_ID, USER_ONE_ID, "webPage 4", "logoUrl 4", "organizationNotes 4", true, "nb", 0),
                 new Location("name", "description", "My Way 4A", "My Way 4B", "0585", "Oslo", "NO"),
                 null, true);
+            customerFour.InitiateOnboarding(CALLER_ID);
 
             context.AddRange(customerOne, customerTwo, customerThree);
 

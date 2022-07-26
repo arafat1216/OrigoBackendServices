@@ -120,6 +120,47 @@ namespace CustomerServices.UnitTests
             // Assert
             oktaMock.Verify(okta => okta.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
         }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task AddUserForCustomer_CustomerIsOnBaorded_ShouldInvitationMailToUser()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userPermissionServices = Mock.Of<IUserPermissionServices>();
+            
+            var emailMock = new Mock<IEmailService>();
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices, emailMock.Object);
+
+            // Act
+            const string EMAIL_TEST_TEST = "email@test.test";
+            var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
+            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_FOUR_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, null);
+
+            // Assert
+            emailMock.Verify(email => email.InvitationEmailToUserAsync(It.IsAny<Email.Models.InvitationMail>(), It.IsAny<string>()), Times.Once);
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task AddUserForCustomer_UserShouldChangeStatusToInvited()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userPermissionServices = Mock.Of<IUserPermissionServices>();
+
+            var emailMock = new Mock<IEmailService>();
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices, emailMock.Object);
+
+            // Act
+            var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
+            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_FOUR_ID, "Test Firstname", "Testlastname", "email@test.test", "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, null);
+
+            // Assert
+            Assert.Equal(2,newUser.UserStatus);
+            Assert.Equal("Invited",newUser.UserStatusName);
+            Assert.True(newUser.IsActiveState);
+        }
 
         [Fact]
         [Trait("Category", "UnitTest")]

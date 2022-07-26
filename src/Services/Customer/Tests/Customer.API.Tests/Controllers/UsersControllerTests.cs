@@ -23,6 +23,7 @@ namespace Customer.API.IntegrationTests.Controllers
         private readonly ITestOutputHelper _testOutputHelper;
         private readonly HttpClient _httpClient;
         private readonly Guid _customerId;
+        private readonly Guid _customerIdTwo;
         private readonly Guid _headDepartmentId;
         private readonly Guid _subDepartmentId;
         private readonly Guid _independentDepartmentId;
@@ -42,6 +43,7 @@ namespace Customer.API.IntegrationTests.Controllers
             _testOutputHelper = testOutputHelper;
             _httpClient = factory.CreateDefaultClient();
             _customerId = factory.ORGANIZATION_ID;
+            _customerIdTwo = factory.ORGANIZATION__TWO_ID;
             _headDepartmentId = factory.HEAD_DEPARTMENT_ID;
             _subDepartmentId = factory.SUB_DEPARTMENT_ID;
             _independentDepartmentId = factory.INDEPENDENT_DEPARTMENT_ID;
@@ -65,7 +67,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var page = 1;
             var limit = 1000;
 
-            FilterOptionsForUser filterOptions = new FilterOptionsForUser {UserStatuses = new List<int>{1}};
+            FilterOptionsForUser filterOptions = new FilterOptionsForUser();
             string json = JsonSerializer.Serialize(filterOptions);
 
             var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}&filterOptions={json}";
@@ -74,7 +76,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var users = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(4, users?.TotalItems);
+            Assert.Equal(5,users?.TotalItems);
         }
 
         [Fact]
@@ -1147,6 +1149,62 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             var read = await response.Content.ReadAsStringAsync();
             Assert.Equal("User does not exist in Okta.", read);
+        }
+
+        [Fact]
+        public async Task CreateUserForCustomer_OnboardedCustomer_UserShouldBeInvited()
+        {
+            //Arrange
+            var body = new NewUser
+            {
+                CallerId = _callerId,
+                Email = "test@mail.com",
+                FirstName = "test",
+                LastName = "user",
+                EmployeeId = "123",
+                MobileNumber = "+479898645",
+                Role = "EndUser",
+                UserPreference = new UserPreference { Language = "en" }
+            };
+            var request = $"/api/v1/organizations/{_customerIdTwo}/users";
+
+            //Act
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+            var user = await response.Content.ReadFromJsonAsync<ViewModels.User>();
+
+            //Assert
+            Assert.NotNull(user);
+            Assert.Equal(2,user?.UserStatus);
+            Assert.Equal("Invited", user?.UserStatusName);
+            Assert.True(user?.IsActiveState);
+        }
+        [Fact]
+        public async Task CreateUserForCustomer_CustomerIsNotOnboarded_UserShouldBeNotInvited()
+        {
+            //Arrange
+            var body = new NewUser
+            {
+                CallerId = _callerId,
+                Email = "test@mail.com",
+                FirstName = "test",
+                LastName = "user",
+                EmployeeId = "123",
+                MobileNumber = "+479898645",
+                Role = "EndUser"
+            };
+            var request = $"/api/v1/organizations/{_customerId}/users";
+
+            //Act
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+            var user = await response.Content.ReadFromJsonAsync<ViewModels.User>();
+
+            //Assert
+            Assert.NotNull(user);
+            Assert.Equal(3, user?.UserStatus);
+            Assert.Equal("NotInvited", user?.UserStatusName);
+            Assert.False(user?.IsActiveState);
+            Assert.Equal("no",user?.UserPreference.Language);
+
         }
     }
 }

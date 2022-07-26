@@ -4,6 +4,7 @@
     {
         Activated = 0,
         Deactivated = 1,
-        Invited = 2
+        Invited = 2,
+        NotInvited = 3
     }
 }

@@ -198,6 +198,18 @@ namespace CustomerServices
             var newUser = new User(customer, Guid.NewGuid(), firstName, lastName, email, mobileNumber, employeeId,
                 userPreference, callerId);
 
+            //Only send invitation mail if the customer has started their onbaording 
+            if (customer.CustomerStatus == CustomerStatus.StartedOnboardning)
+            {
+                await _emailService.InvitationEmailToUserAsync(new Email.Models.InvitationMail
+                {
+                    FirstName = firstName,
+                    Recipient = new List<string> { email }
+                },userPreference.Language ?? "EN");
+
+                newUser.ChangeUserStatus(null,callerId, UserStatus.Invited);
+            }
+
             newUser = await _organizationRepository.AddUserAsync(newUser);
             if (customer.AddUsersToOkta)
             {

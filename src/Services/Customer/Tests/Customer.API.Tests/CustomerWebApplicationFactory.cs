@@ -16,12 +16,14 @@ using System.Linq;
 
 namespace Customer.API.Tests;
 
-    public class CustomerWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
-    {
+public class CustomerWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
+{
     //private readonly DbConnection _dbConnection = new SqliteConnection("Data Source=:memory:");
 
     private readonly InMemoryDatabaseRoot _dbRoot = new InMemoryDatabaseRoot();
     public Guid ORGANIZATION_ID => CustomerTestDataSeedingForDatabase.ORGANIZATION_ID;
+    public Guid ORGANIZATION__TWO_ID => CustomerTestDataSeedingForDatabase.ORGANIZATION_TWO_ID;
+
     public Guid HEAD_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.HEAD_DEPARTMENT_ID;
     public Guid SUB_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.SUB_DEPARTMENT_ID;
     public Guid INDEPENDENT_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.INDEPENDENT_DEPARTMENT_ID;
@@ -37,47 +39,47 @@ namespace Customer.API.Tests;
 
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        builder.ConfigureTestServices(services =>
         {
-            builder.ConfigureTestServices(services =>
+
+            ReplaceDbContext<CustomerContext>(services);
+            ReplaceDbContext<LoggingDbContext>(services);
+
+            var serviceProvider = services.BuildServiceProvider();
+            using var scope = serviceProvider.CreateScope();
+            using var customerContext = scope.ServiceProvider.GetRequiredService<CustomerContext>();
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<CustomerWebApplicationFactory<TProgram>>>();
+
+            try
             {
-
-                ReplaceDbContext<CustomerContext>(services);
-                ReplaceDbContext<LoggingDbContext>(services);
-
-                var serviceProvider = services.BuildServiceProvider();
-                using var scope = serviceProvider.CreateScope();
-                using var customerContext = scope.ServiceProvider.GetRequiredService<CustomerContext>();
-                var logger = scope.ServiceProvider.GetRequiredService<ILogger<CustomerWebApplicationFactory<TProgram>>>();
-
-                try
-                {
-                    CustomerTestDataSeedingForDatabase.PopulateData(customerContext);
-                }
-                catch (Exception exception)
-                {
-                    logger.LogError(exception,
-                        "An error occurred seeding the " + "database with test data. Error: {Message}", exception.Message);
-                }
-                var emailServiceMock = new Mock<IEmailService>();
-
-                services.AddSingleton(s => emailServiceMock.Object);
-            });
-            base.ConfigureWebHost(builder);
-        }
-        private void ReplaceDbContext<T>(IServiceCollection services) where T : DbContext
-        {
-            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<T>));
-            if (descriptor != null)
-            {
-                services.Remove(descriptor);
+                CustomerTestDataSeedingForDatabase.PopulateData(customerContext);
             }
-
-            services.AddDbContext<T>(options =>
+            catch (Exception exception)
             {
-                options.UseInMemoryDatabase("InMemoryDbForTesting", _dbRoot);
-                options.ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-                options.EnableSensitiveDataLogging();
-            });
-        }
+                logger.LogError(exception,
+                    "An error occurred seeding the " + "database with test data. Error: {Message}", exception.Message);
+            }
+            var emailServiceMock = new Mock<IEmailService>();
+
+            services.AddSingleton(s => emailServiceMock.Object);
+        });
+        base.ConfigureWebHost(builder);
     }
+    private void ReplaceDbContext<T>(IServiceCollection services) where T : DbContext
+    {
+        var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<T>));
+        if (descriptor != null)
+        {
+            services.Remove(descriptor);
+        }
+
+        services.AddDbContext<T>(options =>
+        {
+            options.UseInMemoryDatabase("InMemoryDbForTesting", _dbRoot);
+            options.ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
+            options.EnableSensitiveDataLogging();
+        });
+    }
+}
 

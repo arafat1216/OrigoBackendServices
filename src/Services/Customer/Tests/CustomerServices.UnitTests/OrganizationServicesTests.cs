@@ -113,6 +113,23 @@ namespace CustomerServices.UnitTests
             // Assert 
             Assert.True(organization.AddUsersToOkta);
         }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task AddOrganization_initializedStatus_BeforOnboarding()
+        {
+            // Act
+            var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
+            {
+                Name = "COMPANY NAME",
+                OrganizationNumber = "999999999",
+                Location = new LocationDTO(),
+                Address = new AddressDTO(),
+                ContactPerson = new ContactPersonDTO()
+            });
+
+            // Assert 
+            Assert.Equal(Common.Enums.CustomerStatus.BeforeOnboarding,organization.Status);
+        }
 
         [Fact]
         [Trait("Category", "UnitTest")]

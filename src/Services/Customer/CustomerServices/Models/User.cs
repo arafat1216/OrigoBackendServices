@@ -24,7 +24,7 @@ namespace CustomerServices.Models
             EmployeeId = employeeId;
             CreatedBy = callerId;
             UserPreference = (userPreference == null) ? new UserPreference("EN", callerId) : userPreference;
-            _userStatus = UserStatus.Deactivated;
+            _userStatus = UserStatus.NotInvited;
             OktaUserId = "";
             AddDomainEvent(new UserCreatedDomainEvent(this));
         }
@@ -67,6 +67,14 @@ namespace CustomerServices.Models
             init => _userStatus = value;
         }
         private UserStatus _userStatus;
+        /// <summary>
+        /// Returns the state of current UserStatus.
+        /// </summary>
+        public bool IsActiveState => HasActiveState(UserStatus);
+        public static bool HasActiveState(UserStatus userStatus)
+        {
+            return userStatus is UserStatus.Invited or UserStatus.Activated;
+        }
 
         public string OktaUserId { get; protected set; }
 

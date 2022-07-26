@@ -30,6 +30,8 @@ namespace Customer.API.ViewModels
         public string OrganizationName { get; init; }
         public string UserStatusName { get; init; }
         public int UserStatus { get; init; }
+        public bool IsActiveState { get; init; }
+
 
         public Guid AssignedToDepartment { get; init; }
         public string DepartmentName { get; init; }

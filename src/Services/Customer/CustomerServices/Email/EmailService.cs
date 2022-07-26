@@ -50,8 +50,8 @@ namespace CustomerServices.Email
                                         }
                                     }
                                 };
-                var bodyRequest = new List<Dictionary<string, object>> { request };
-                var response = await _httpClient.PostAsJsonAsync("/notification", bodyRequest);
+                
+                var response = await _httpClient.PostAsJsonAsync("/notification", new List<Dictionary<string, object>> { request });
 
                 response.EnsureSuccessStatusCode();
             }

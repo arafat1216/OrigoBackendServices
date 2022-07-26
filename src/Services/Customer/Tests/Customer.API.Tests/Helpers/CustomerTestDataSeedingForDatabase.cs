@@ -10,6 +10,7 @@ namespace Customer.API.IntegrationTests.Helpers
     {
 
         public static readonly Guid ORGANIZATION_ID = Guid.Parse("f5635deb-9b38-411c-9577-5423c9290106");
+        public static readonly Guid ORGANIZATION_TWO_ID = Guid.Parse("e454f5c8-f19c-4c76-ae9e-cc53ecefb21a");
         public static readonly Guid HEAD_DEPARTMENT_ID = Guid.Parse("37d6d1b1-54a5-465d-a313-b6c250d66db4");
         public static readonly Guid SUB_DEPARTMENT_ID = Guid.Parse("5355134f-4852-4c36-99d1-fa9d4a1d7a61");
         public static readonly Guid INDEPENDENT_DEPARTMENT_ID = Guid.Parse("384821b4-1872-484e-af44-14cf61e16266");
@@ -42,7 +43,19 @@ namespace Customer.API.IntegrationTests.Helpers
                                                                         true,
                                                                         "NO",
                                                                         1);
+
+            var contactPersonTWO = new ContactPerson("Kong", "Harald", "kong@harald.no", "+4790000000");
+            var organizationPreferencesTWO = new OrganizationPreferences(ORGANIZATION_TWO_ID,
+                                                                      CALLER_ID,
+                                                                        null,
+                                                                        null,
+                                                                        null,
+                                                                        true,
+                                                                        "NO",
+                                                                        1);
+
             customerContext.OrganizationPreferences.Add(organizationPreferences);
+            customerContext.OrganizationPreferences.Add(organizationPreferencesTWO);
 
             var location = new Location("Location1",
                                         "Description",
@@ -52,7 +65,16 @@ namespace Customer.API.IntegrationTests.Helpers
                                         "Oslo",
                                         "NO");
 
+            var locationTWO = new Location("Location2",
+                                       "Description",
+                                       "Slottsplassen",
+                                       "1",
+                                       "0010",
+                                       "Oslo",
+                                       "NO");
+
             customerContext.Locations.Add(location);
+            customerContext.Locations.Add(locationTWO);
 
             var organization = new Organization(ORGANIZATION_ID,
                                                 PARENT_ID,
@@ -65,7 +87,23 @@ namespace Customer.API.IntegrationTests.Helpers
                                                 null,
                                                 true
                                                 );
+
+            var organizationTWO = new Organization(ORGANIZATION_TWO_ID,
+                                                null,
+                                                "ORGANIZATION TWO",
+                                                "ORGNUM2222",
+                                                null,
+                                                contactPersonTWO,
+                                                organizationPreferencesTWO,
+                                                locationTWO,
+                                                null,
+                                                true
+                                                );
+
+            organizationTWO.InitiateOnboarding(CALLER_ID);
+
             customerContext.Organizations.Add(organization);
+            customerContext.Organizations.Add(organizationTWO);
 
             var headDepartment = new Department("Head department",
                                             "costCenterId",

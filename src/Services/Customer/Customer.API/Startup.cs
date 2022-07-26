@@ -24,6 +24,7 @@ using Common.Infrastructure;
 using Common.Utilities;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Resources;
+using Common.Configuration;
 
 namespace Customer.API
 {
@@ -124,7 +125,7 @@ namespace Customer.API
             services.AddScoped<IWebshopService, WebshopService>();
             services.AddScoped<IFeatureFlagServices, FeatureFlagServices>();
             services.AddScoped<ErrorExceptionFilter>();
-            
+            services.Configure<EmailConfiguration>(Configuration.GetSection("Email"));
             services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<IFlatDictionaryProvider, FlatDictionary>();
 
