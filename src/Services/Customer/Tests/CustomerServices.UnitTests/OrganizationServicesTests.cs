@@ -59,7 +59,7 @@ namespace CustomerServices.UnitTests
         public async Task PutCompanyOne_null_values()
         {
             // Act
-            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "Mytos", null, null, null, null, null, null, null, null, null);
+            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "Mytos", null, null, null, null, null, null, null, null, null, 1, "");
 
             // Assert 
             Assert.Equal("Mytos", organization.Name);
@@ -137,7 +137,7 @@ namespace CustomerServices.UnitTests
         public async Task PutCompanyOne_partial_null_values()
         {
             // Act
-            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null);
+            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null, 1, "");
 
             // Assert 
             Assert.Equal("name", organization.Name);
@@ -160,7 +160,7 @@ namespace CustomerServices.UnitTests
         public async Task PutOrganization_WithAddOktaUsersSet_CheckValue()
         {
             // Act
-            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null, addUsersToOkta: true);
+            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null, 1, "", addUsersToOkta: true);
 
             // Assert 
             Assert.True(organization.AddUsersToOkta);
@@ -171,7 +171,7 @@ namespace CustomerServices.UnitTests
         public async Task PatchOrganization_WithAddOktaUsersSet_CheckValue()
         {
             // Act
-            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null, addUsersToOkta: true);
+            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null, 1, "", addUsersToOkta: true);
 
             // Assert 
             Assert.True(organization.AddUsersToOkta);
@@ -205,7 +205,7 @@ namespace CustomerServices.UnitTests
         public async Task PatchCompanyOne__null_values()
         {
             // Act
-            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, null, null, null, null, null, null, null, null, null, null);
+            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, null, null, null, null, null, null, null, null, null, null, 1, "");
             
             // Assert 
             Assert.Equal("COMPANY ONE", organization.Name);
@@ -228,7 +228,7 @@ namespace CustomerServices.UnitTests
         public async Task PatchCompanyOne_partial_null_values()
         {
             // Act
-            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, null, "Paavola", null, null);
+            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, null, "Paavola", null, null, 1, "");
 
             // Assert 
             Assert.Equal("name", organization.Name);

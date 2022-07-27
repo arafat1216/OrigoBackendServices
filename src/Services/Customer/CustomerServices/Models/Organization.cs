@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Common.Enums;
+using System.ComponentModel.DataAnnotations;
 
 #nullable enable
 
@@ -67,6 +68,17 @@ namespace CustomerServices.Models
         /// </summary>
         public string OrganizationNumber { get; protected set; }
 
+        /// <summary>
+        ///     Last day in month to report Salary Deduction.
+        /// </summary>
+        [Range(1, 28)]
+        public int LastDayForReportingSalaryDeduction { get; protected set; }
+
+        /// <summary>
+        ///     Email where notification will ben sent for payroll information.
+        /// </summary>
+        public string PayrollContactEmail { get; protected set; } = string.Empty;
+
         public Address Address { get; protected set; }
 
         public ContactPerson ContactPerson { get; protected set; }
@@ -125,7 +137,7 @@ namespace CustomerServices.Models
         public Organization(Guid organizationId, Guid? parentId, string companyName, string orgNumber,
             Address companyAddress, ContactPerson organizationContactPerson,
             OrganizationPreferences organizationPreferences, Location organizationLocation, Partner? partner,
-            bool isCustomer, bool addUsersToOkta = false)
+            bool isCustomer, int lastSalaryReportingDay, string payrollEmail = "", bool addUsersToOkta = false)
         {
             Name = companyName;
             ParentId = parentId;
@@ -141,6 +153,8 @@ namespace CustomerServices.Models
             AddUsersToOkta = addUsersToOkta;
             organizationLocation.SetPrimaryLocation(true);
             Locations.Add(organizationLocation);
+            LastDayForReportingSalaryDeduction = lastSalaryReportingDay;
+            PayrollContactEmail = payrollEmail;
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
 
@@ -198,6 +212,20 @@ namespace CustomerServices.Models
             {
                 AddDomainEvent(new AddUsersToOktaChangedDomainEvent(this));
                 AddUsersToOkta = organization.AddUsersToOkta;
+            }
+
+            if(LastDayForReportingSalaryDeduction != organization.LastDayForReportingSalaryDeduction)
+            {
+                var previousDate = organization.LastDayForReportingSalaryDeduction;
+                LastDayForReportingSalaryDeduction = organization.LastDayForReportingSalaryDeduction;
+                AddDomainEvent(new SetLastDayOfReportingSalaryDeductionDomainEvent(this, previousDate));
+            }
+
+            if (PayrollContactEmail != organization.PayrollContactEmail)
+            {
+                var previousEmail = organization.PayrollContactEmail;
+                PayrollContactEmail = organization.PayrollContactEmail;
+                AddDomainEvent(new SetPayrollContactEmailDomainEvent(this, previousEmail));
             }
         }
 

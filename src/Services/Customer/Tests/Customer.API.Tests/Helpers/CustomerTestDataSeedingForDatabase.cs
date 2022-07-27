@@ -86,7 +86,9 @@ namespace Customer.API.IntegrationTests.Helpers
                                                 organizationPreferences,
                                                 location,
                                                 null,
-                                                true
+                                                true,
+                                                1,
+                                                ""
                                                 );
 
             var organizationTWO = new Organization(ORGANIZATION_TWO_ID,
@@ -98,7 +100,9 @@ namespace Customer.API.IntegrationTests.Helpers
                                                 organizationPreferencesTWO,
                                                 locationTWO,
                                                 null,
-                                                true
+                                                true,
+                                                1,
+                                                ""
                                                 );
 
             organizationTWO.InitiateOnboarding();

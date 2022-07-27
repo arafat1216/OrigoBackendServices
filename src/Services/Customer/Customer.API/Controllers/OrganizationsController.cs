@@ -175,7 +175,7 @@ namespace Customer.API.Controllers
 
                 // Update
                 var updatedOrganization = await _organizationServices.PutOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
-                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber, organization.AddUsersToOkta ?? default);
+                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber, organization.LastDayForReportingSalaryDeduction, organization.PayrollContactEmail, organization.AddUsersToOkta ?? default);
 
                 return Ok(_mapper.Map<OrganizationDTO>(updatedOrganization));
 
@@ -237,7 +237,7 @@ namespace Customer.API.Controllers
 
                 // Update
                 var updatedOrganization = await _organizationServices.PatchOrganizationAsync(organizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
-                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber, organization.AddUsersToOkta ?? default);
+                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber, organization.LastDayForReportingSalaryDeduction, organization.PayrollContactEmail, organization.AddUsersToOkta ?? default);
 
                 return Ok(_mapper.Map<OrganizationDTO>(updatedOrganization));
             }

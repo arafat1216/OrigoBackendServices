@@ -55,28 +55,28 @@ namespace CustomerServices.UnitTests
                 new ContactPerson("JOHN", "DOE", "john.doe@example.com", "99999999"),
                 new OrganizationPreferences(CUSTOMER_ONE_ID, USER_ONE_ID, "webPage 1", "logoUrl 1", "organizationNotes 1", true, "nb", 0),
                 new Location("COMPANY ONE", "Location of COMPANY ONE", "My Way 1A", "My Way 1B", "0585", "Oslo", "NO"),
-                null, true);
+                null, true, 1, "");
 
             var customerTwo = new Organization(CUSTOMER_TWO_ID, null, "COMPANY TWO", "999777666",
                 new Address("My Way 2", "1111", "My City", "NO"),
                 new ContactPerson("Ola", "Nordmann", "ola.nordmann@example.com", "99999998"),
                 new OrganizationPreferences(CUSTOMER_TWO_ID, USER_ONE_ID, "webPage 2", "logoUrl 2", "organizationNotes 2", true, "nb", 0),
                 new Location("name", "description", "My Way 2A", "My Way 2B", "0585", "Oslo", "NO"),
-                null, true, true);
+                null, true, 1, "",true);
 
             var customerThree = new Organization(CUSTOMER_THREE_ID, CUSTOMER_ONE_ID, "COMPANY THREE", "999666555",
                 new Address("My Way 3", "1111", "My Other City", "NO"),
                 new ContactPerson("Kari", "Nordmann", "kari.nordmann@example.com", "99999997"),
                 new OrganizationPreferences(CUSTOMER_THREE_ID, USER_ONE_ID, "webPage 3", "logoUrl 3", "organizationNotes 3", true, "nb", 0),
                 new Location("name", "description", "My Way 3A", "My Way 3B", "0585", "Oslo", "NO"),
-                null, true);
+                null, true, 1, "");
 
             var customerFour = new Organization(CUSTOMER_FOUR_ID, null, "COMPANY FOUR", "999555444",
                 new Address("My Way 4", "1111", "My City", "NO"),
                 new ContactPerson("Petter", "Smart", "petter.smart@example.com", "99999996"),
                 new OrganizationPreferences(CUSTOMER_FOUR_ID, USER_ONE_ID, "webPage 4", "logoUrl 4", "organizationNotes 4", true, "nb", 0),
                 new Location("name", "description", "My Way 4A", "My Way 4B", "0585", "Oslo", "NO"),
-                null, true);
+                null, true, 1, "");
             customerFour.InitiateOnboarding();
 
             //context.AddRange(customerOne, customerTwo, customerThree);

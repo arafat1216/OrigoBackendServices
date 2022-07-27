@@ -53,7 +53,8 @@ namespace CustomerServices.SeedData
                     country: "United States of America" // country
                 ),
                  partner: null,
-                 isCustomer: true
+                 isCustomer: true,
+                 lastSalaryReportingDay: 1
                 );
 
             Organization organization2 = new Organization(
@@ -92,7 +93,8 @@ namespace CustomerServices.SeedData
                     country: "United States of America"
                 ),
                 partner: null,
-                isCustomer: true
+                isCustomer: true,
+                 lastSalaryReportingDay: 1
                 );
             #endregion
 

@@ -17,6 +17,8 @@ namespace OrigoApiGateway.Models
         ///     The organization-number as used in the national registry.
         /// </summary>
         public string OrganizationNumber { get; init; }
+        public int LastDayForReportingSalaryDeduction { get; init; }
+        public string PayrollContactEmail { get; init; } = string.Empty;
 
         public Address Address { get; init; }
 

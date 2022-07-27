@@ -24,6 +24,8 @@ namespace CustomerServices.ServiceModels
             PartnerId = organization.Partner?.ExternalId;
             ParentId = organization.ParentId;
             AddUsersToOkta = organization.AddUsersToOkta;
+            LastDayForReportingSalaryDeduction = organization.LastDayForReportingSalaryDeduction;
+            PayrollContactEmail = organization.PayrollContactEmail;
 
             if (organization.ChildOrganizations is not null && organization.ChildOrganizations.Count != 0)
             {
@@ -46,6 +48,12 @@ namespace CustomerServices.ServiceModels
 
         /// <inheritdoc cref="Organization.OrganizationNumber"/>
         public string OrganizationNumber { get; set; }
+
+        /// <inheritdoc cref="Organization.LastDayForReportingSalaryDeduction"/>
+        public int LastDayForReportingSalaryDeduction { get; set; }
+
+        /// <inheritdoc cref="Organization.PayrollContactEmail"/>
+        public string PayrollContactEmail { get; set; } = string.Empty;
 
         /// <inheritdoc cref="Organization.Address"/>
         public AddressDTO Address { get; set; }
