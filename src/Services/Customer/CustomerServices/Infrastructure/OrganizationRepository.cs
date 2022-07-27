@@ -285,7 +285,7 @@ namespace CustomerServices.Infrastructure
                 var count = await _customerContext.Users
                 .Include(c => c.Customer)
                 .Include(d => d.Department)
-                .Where(a => a.Customer.OrganizationId == customerId && a.UserStatus == Common.Enums.UserStatus.Activated && assignedToDepartment.Contains(a.Department.ExternalDepartmentId))
+                .Where(a => a.Customer.OrganizationId == customerId && (a.UserStatus == Common.Enums.UserStatus.Activated || a.UserStatus == Common.Enums.UserStatus.Invited) && assignedToDepartment.Contains(a.Department.ExternalDepartmentId))
                     .GroupBy(a => a.UserId)
                     .Select(c => new { 
                         DepartmentId = c.Key, 
@@ -300,8 +300,13 @@ namespace CustomerServices.Infrastructure
                     role.Contains("SystemAdmin") || role.Contains("GroupAdmin") ||
                     role.Contains("Admin") || role.Contains("PartnerReadOnlyAdmin"))
                 {
+                    var he = await _customerContext.Users
+                   .Where(u => u.Customer.OrganizationId == customerId && (u.UserStatus == Common.Enums.UserStatus.Activated || u.UserStatus == Common.Enums.UserStatus.Invited)).ToListAsync();
+                    var hde = await _customerContext.Users
+                  .Where(u => u.Customer.OrganizationId == customerId).ToListAsync();
+
                     return await _customerContext.Users
-                    .Where(u => u.Customer.OrganizationId == customerId && u.UserStatus == Common.Enums.UserStatus.Activated)
+                    .Where(u => u.Customer.OrganizationId == customerId && (u.UserStatus == Common.Enums.UserStatus.Activated || u.UserStatus == Common.Enums.UserStatus.Invited))
                     .CountAsync();
                 }
             }

@@ -24,7 +24,8 @@ namespace CustomerServices.UnitTests
         private readonly Guid USER_TWO_ID = new Guid("39349c24-6e47-4a5e-9bab-7b65f438fac5");
         protected readonly Guid USER_THREE_ID = new Guid("08DB1C4F-FAA3-436A-9598-90822649B793");
         protected readonly Guid USER_FOUR_ID = new Guid("a0c3ee8d-b543-4dc9-88b5-958c54b9d270");
-        protected readonly Guid USER_FIVE_ID = new Guid("07c8ce13-a6a1-4a80-b029-619098a76bb5");
+        protected readonly Guid USER_FIVE_ID = new Guid("07c8ce13-a6a1-4a80-b029-619098a76bb5"); 
+        protected readonly Guid USER_SIX_ID = new Guid("cee1e91f-e6d0-44ef-866a-23b032f3a214"); 
 
         protected readonly Guid LOCATION_ONE_ID = new("8080A5F0-57C6-4D72-B164-82D54A94C776");
         private readonly Guid LOCATION_TWO_ID = new("DDF4FDB7-B1B9-4F03-B343-2B2F38AC6138");
@@ -78,7 +79,7 @@ namespace CustomerServices.UnitTests
                 null, true);
             customerFour.InitiateOnboarding();
 
-            context.AddRange(customerOne, customerTwo, customerThree);
+            //context.AddRange(customerOne, customerTwo, customerThree);
 
             context.AddRange(customerOne, customerTwo, customerThree, customerFour);
             context.OrganizationPreferences.AddRange(customerOne.Preferences, customerTwo.Preferences, customerThree.Preferences, customerFour.Preferences);
@@ -98,14 +99,17 @@ namespace CustomerServices.UnitTests
             var userTwo = new User(customerOne, USER_THREE_ID, "Gordon", "Freeman", "gordon@freeman.com", "+4755555555", "DH-101", userPreferences2, EMPTY_CALLER_ID);
             userTwo.AssignDepartment(departmentOneForCustomerOne, EMPTY_CALLER_ID);
             userTwo.ChangeUserStatus("123", Common.Enums.UserStatus.Activated);
-            var userThree = new User(customerTwo, USER_TWO_ID, "John", "Doe", "john@doe.com", "+4791111111", "X", userPreferences3, EMPTY_CALLER_ID);
-            userThree.ChangeUserStatus("123", Common.Enums.UserStatus.Invited);
 
             var userPreferences4 = new UserPreference("EN", EMPTY_CALLER_ID);
             var userPreferences5 = new UserPreference("EN", EMPTY_CALLER_ID);
             var userFour = new User(customerOne, USER_FOUR_ID, "Al", "Pacino", "al@Pacino.com", "+4755555555", "DH-104", userPreferences4, EMPTY_CALLER_ID);
             var userFive = new User(customerOne, USER_FIVE_ID, "Robert", "De Niro", "robert@deniro.com", "+4755555555", "DH-105", userPreferences5, EMPTY_CALLER_ID);
-            
+
+            //CustomerTwo
+            var userThree = new User(customerTwo, USER_TWO_ID, "John", "Doe", "john@doe.com", "+4791111111", "X", userPreferences3, EMPTY_CALLER_ID);
+            userThree.ChangeUserStatus("123", Common.Enums.UserStatus.Invited);
+            var userSix = new User(customerTwo, USER_SIX_ID, "Elvis", "Presley", "the@king.com", "+4790000000", "X", userPreferences3, EMPTY_CALLER_ID);
+
 
             var role1 = new Role("admin");
             var managerRole = new Role("Manager");
@@ -119,7 +123,7 @@ namespace CustomerServices.UnitTests
 
             context.AddRange(role1,managerRole);
             context.AddRange(userPersmission, managerPersmission, managerPersmissionTwo);
-            context.AddRange(userOne, userTwo, userThree, userFour, userFive);
+            context.AddRange(userOne, userTwo, userThree, userFour, userFive, userSix);
 
             context.SaveChanges();
         }

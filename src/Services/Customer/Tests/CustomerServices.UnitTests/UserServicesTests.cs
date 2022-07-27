@@ -63,6 +63,25 @@ namespace CustomerServices.UnitTests
             // Assert
             Assert.Equal(1, users);
         }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task GetUsersCount_ForCompanyTwo()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
+            var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var oktaMock = new Mock<IOktaServices>();
+            const string OKTA_ID = "123";
+            oktaMock.Setup(o => o.UserExistsInOktaAsync(OKTA_ID)).ReturnsAsync(true);
+            var userPermissionServices = Mock.Of<IUserPermissionServices>();
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices, Mock.Of<IEmailService>());
+
+            // Act
+            int users = await userServices.GetUsersCountAsync(CUSTOMER_TWO_ID, null, new[] { "SystemAdmin" });
+
+            // Assert
+            Assert.Equal(1, users);
+        }
 
         [Fact]
         [Trait("Category", "UnitTest")]
