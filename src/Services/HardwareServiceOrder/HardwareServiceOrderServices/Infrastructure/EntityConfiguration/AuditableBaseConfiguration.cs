@@ -8,10 +8,10 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
     /// <summary>
     ///     Implements the <see cref="IEntityTypeConfiguration{TEntity}"/> for the given <typeparamref name="T"/> entity-type,
-    ///     and configures the shared properties from <see cref="Auditable"/>.
+    ///     and configures all shared properties from <see cref="Auditable"/>. <para>
     ///     
     ///     To configure the inherited entity, overwrite the <see cref="Configure(EntityTypeBuilder{T})"/> method, and add a call
-    ///     to "<c>base.Configure(builder)</c>" inside the override.
+    ///     to "<c>base.Configure(builder)</c>" inside the override. </para>
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal class AuditableBaseConfiguration<T> : IEntityTypeConfiguration<T> where T : Auditable
