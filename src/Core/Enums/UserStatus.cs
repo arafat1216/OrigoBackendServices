@@ -5,6 +5,8 @@
         Activated = 0,
         Deactivated = 1,
         Invited = 2,
-        NotInvited = 3
+        NotInvited = 3,
+        OnboardInitiated = 4,
+        AwaitingConfirmation = 5
     }
 }

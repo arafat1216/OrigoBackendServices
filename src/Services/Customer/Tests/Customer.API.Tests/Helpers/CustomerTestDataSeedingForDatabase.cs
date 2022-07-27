@@ -20,6 +20,7 @@ namespace Customer.API.IntegrationTests.Helpers
         public static readonly Guid USER_ONE_ID = Guid.Parse("a12c5f56-aee9-47e0-9f5f-a726818323a9");
         public static readonly Guid USER_TWO_ID = Guid.Parse("8246626C-3BDD-46E7-BCDF-10FC038C0463");
         public static readonly Guid USER_THREE_ID = Guid.Parse("9f19a9e5-a4f0-431e-9137-e8bfba285c7f");
+        public static readonly Guid USER_SIX_ID = Guid.Parse("86ff1e04-97ff-4753-81e6-e69343ee30a8");
         public static readonly string USER_ONE_EMAIL = "kari@normann.no";
 
         public static readonly Guid USER_FOUR_ID = Guid.Parse("208ad639-9fe8-476d-bd89-d9b8ddcb76bf");
@@ -181,14 +182,25 @@ namespace Customer.API.IntegrationTests.Helpers
                               "EID:90005",
                               new UserPreference("en", CALLER_ID),
                               CALLER_ID);
+            var userSix = new User(organizationTWO,
+                            USER_SIX_ID,
+                            "Christoper",
+                            "Robin",
+                            "chris@eobin.no",
+                            "+4790680078",
+                            "EID:90006",
+                            new UserPreference("en", CALLER_ID),
+                            CALLER_ID);
 
             userFour.ChangeUserStatus("123", CALLER_ID, Common.Enums.UserStatus.Activated);
+            userSix.ChangeUserStatus("123", CALLER_ID, Common.Enums.UserStatus.Activated);
 
             customerContext.Users.Add(userOne);
             customerContext.Users.Add(userTwo);
             customerContext.Users.Add(userThree);
             customerContext.Users.Add(userFour);
             customerContext.Users.Add(userFive);
+            customerContext.Users.Add(userSix);
 
 
 

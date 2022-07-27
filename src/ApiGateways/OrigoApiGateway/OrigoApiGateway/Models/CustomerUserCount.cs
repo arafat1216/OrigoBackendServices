@@ -12,5 +12,7 @@ namespace OrigoApiGateway.Models
         public Guid OrganizationId { get; set; }
         [Required]
         public int Count { get; set; }
+        public int NotOnboarded { get; set; }
+
     }
 }

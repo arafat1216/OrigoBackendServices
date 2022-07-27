@@ -190,14 +190,30 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                FilterOptionsForUser filterOptions = new FilterOptionsForUser { Roles = new string[] { role ?? null } };
+                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                {
+                    return Forbid();
+                }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
 
                     // Only SystemAdmin has access to all organization user counts
-                    return Forbid();
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+
+                    filterOptions.AssignedToDepartments ??= new List<Guid>();
+                    foreach (var departmentId in accessList)
+
+                    {
+                        if (Guid.TryParse(departmentId, out var departmentGuid))
+                        {
+                            filterOptions.AssignedToDepartments.Add(departmentGuid);
+
+                        }
+                    }
                 }
 
-                var organizationUserCounts = await CustomerServices.GetCustomerUsersAsync();
+                var organizationUserCounts = await CustomerServices.GetCustomerUsersAsync(filterOptions);
                 return organizationUserCounts != null ? Ok(organizationUserCounts) : NotFound();
             }
             catch (Exception)

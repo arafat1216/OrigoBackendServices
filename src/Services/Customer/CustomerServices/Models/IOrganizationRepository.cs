@@ -15,7 +15,7 @@ namespace CustomerServices.Models
         Task SaveEntitiesAsync(CancellationToken cancellationToken = default);
 
         Task<Organization> AddAsync(Organization customer);
-        Task<IList<OrganizationUserCount>> GetOrganizationUserCountAsync();
+        Task<IList<OrganizationUserCount>?> GetOrganizationUserCountAsync(string[]? role, Guid[]? assignedToDepartment);
 
         /// <summary>
         ///     Retrieves all organization. Optional parameters may be provided to apply additional filtering, and for enabling eager loading. <br/>

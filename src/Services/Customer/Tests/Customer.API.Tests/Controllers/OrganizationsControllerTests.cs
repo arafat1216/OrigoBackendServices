@@ -22,6 +22,9 @@ namespace Customer.API.IntegrationTests.Controllers
         private readonly ITestOutputHelper _testOutputHelper;
         private readonly HttpClient _httpClient;
         private readonly Guid _organizationId;
+        private readonly Guid _organizationTwoId;
+        private readonly Guid _departmentId;
+
 
         private readonly CustomerWebApplicationFactory<Startup> _factory;
 
@@ -31,6 +34,8 @@ namespace Customer.API.IntegrationTests.Controllers
             _httpClient = factory.CreateDefaultClient();
             _factory = factory;
             _organizationId = factory.ORGANIZATION_ID;
+            _organizationTwoId = factory.ORGANIZATION__TWO_ID;
+            _departmentId = factory.HEAD_DEPARTMENT_ID;
             _httpClient.DefaultRequestHeaders.Add("X-Authenticated-UserId", Guid.Empty.SystemUserId().ToString());
         }
 
@@ -300,6 +305,113 @@ namespace Customer.API.IntegrationTests.Controllers
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+        [Fact]
+        public async Task GetOrganizationUserCountAsync_ForSystemAdmin()
+        {
+            // Arrange
+            FilterOptionsForUser filter = new FilterOptionsForUser { Roles = new string[] {"SystemAdmin"} };
+            var json = JsonSerializer.Serialize(filter);
+            var requestUri = $"/api/v1/organizations/userCount?filterOptions={json}";
+
+            //Act
+            var response = await _httpClient.GetAsync(requestUri);
+            var organizationCount = await response.Content.ReadFromJsonAsync<IList<CustomerServices.Models.OrganizationUserCount>>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(2, organizationCount?.Count);
+            Assert.Collection(organizationCount,
+               item => Assert.Equal(1,item.Count),
+               item => Assert.Equal(1,item.Count)
+           );
+        }
+        [Fact]
+        public async Task GetOrganizationUserCountAsync_ForAdmin()
+        {
+            // Arrange
+            FilterOptionsForUser filter = new FilterOptionsForUser {AssignedToDepartments= new Guid[] { _organizationId, _departmentId }, Roles = new string[] { "Admin" } };
+            var json = JsonSerializer.Serialize(filter);
+            var requestUri = $"/api/v1/organizations/userCount?filterOptions={json}";
+
+            //Act
+            var response = await _httpClient.GetAsync(requestUri);
+            var organizationCount = await response.Content.ReadFromJsonAsync<IList<CustomerServices.Models.OrganizationUserCount>>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(1, organizationCount?.Count);
+            Assert.Collection(organizationCount,
+               item => Assert.Equal(1, item.Count)
+           );
+        }
+        [Fact]
+        public async Task GetOrganizationUserCountAsync_ForAdmin_OrganizationIdIsNotValid()
+        {
+            // Arrange
+            FilterOptionsForUser filter = new FilterOptionsForUser { AssignedToDepartments = new Guid[] { Guid.NewGuid() }, Roles = new string[] { "Admin" } };
+            var json = JsonSerializer.Serialize(filter);
+            var requestUri = $"/api/v1/organizations/userCount?filterOptions={json}";
+
+            //Act
+            var response = await _httpClient.GetAsync(requestUri);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+        [Fact]
+        public async Task GetOrganizationUserCountAsync_ForSystemAdmin_CountAll()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            //Arrange
+            var body = new NewUser
+            {
+                Email = "test@mail.com",
+                FirstName = "test",
+                LastName = "user",
+                EmployeeId = "123",
+                MobileNumber = "+479898645",
+                Role = "EndUser"
+            };
+            var request = $"/api/v1/organizations/{_organizationTwoId}/users";
+
+            //Act
+            var postUser = await httpClient.PostAsJsonAsync(request, body);
+            var user = await postUser.Content.ReadFromJsonAsync<ViewModels.User>();
+
+            //Assert
+            Assert.NotNull(user);
+            Assert.Equal(2, user?.UserStatus);
+            Assert.Equal("Invited", user?.UserStatusName);
+            Assert.True(user?.IsActiveState);
+            Assert.Equal("no", user?.UserPreference.Language);
+
+            // Arrange
+            FilterOptionsForUser filter = new FilterOptionsForUser { Roles = new string[] { "SystemAdmin" } };
+            var json = JsonSerializer.Serialize(filter);
+            var requestUri = $"/api/v1/organizations/userCount?filterOptions={json}";
+
+            //Act
+            var response = await httpClient.GetAsync(requestUri);
+            var organizationCount = await response.Content.ReadFromJsonAsync<IList<CustomerServices.Models.OrganizationUserCount>>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(2, organizationCount?.Count);
+            Assert.Collection(organizationCount,
+               item => Assert.Equal(1, item.Count),
+               item => Assert.Equal(1, item.Count)
+           );
+            Assert.Collection(organizationCount,
+               item => Assert.Equal(1, item.NotOnboarded),
+               item => Assert.Equal(0, item.NotOnboarded)
+           );
+            Assert.Collection(organizationCount,
+              item => Assert.Equal(_organizationTwoId, item.OrganizationId),
+              item => Assert.Equal(_organizationId, item.OrganizationId)
+          );
+
         }
     }
 }

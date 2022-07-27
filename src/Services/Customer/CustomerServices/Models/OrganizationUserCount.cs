@@ -13,5 +13,6 @@ namespace CustomerServices.Models
 
         [Required]
         public int Count { get; set; }
+        public int NotOnboarded { get; set; }
     }
 }

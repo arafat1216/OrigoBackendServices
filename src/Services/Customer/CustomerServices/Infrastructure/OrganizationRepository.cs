@@ -55,17 +55,49 @@ namespace CustomerServices.Infrastructure
         }
 
 
-        public async Task<IList<OrganizationUserCount>> GetOrganizationUserCountAsync()
+        public async Task<IList<OrganizationUserCount>?> GetOrganizationUserCountAsync(string[]? role, Guid[]? assignedToDepartment)
         {
-            return await _customerContext.Users
-                                         .Where(u => u.UserStatus == Common.Enums.UserStatus.Activated)
-                                         .GroupBy(u => u.Customer.OrganizationId)
-                                         .Select(group => new OrganizationUserCount()
-                                         {
-                                             OrganizationId = group.Key,
-                                             Count = group.Count()
-                                         })
-                                         .ToListAsync();
+            if (role != null && role.Any())
+            {
+                if (role.Contains("SystemAdmin"))
+                {
+                    return await _customerContext.Users
+                                                 .GroupBy(u => u.Customer.OrganizationId)
+                                                 .Select(group => new OrganizationUserCount()
+                                                 {
+                                                     OrganizationId = group.Key,
+                                                     Count = group.Where(u => u.UserStatus == Common.Enums.UserStatus.Activated).Count(),
+                                                     NotOnboarded = group.Where(u => u.UserStatus == Common.Enums.UserStatus.Invited ||
+                                                                                u.UserStatus == Common.Enums.UserStatus.OnboardInitiated ||
+                                                                                u.UserStatus == Common.Enums.UserStatus.AwaitingConfirmation).Count()
+                                                 })
+                                                 .ToListAsync();
+
+                }
+
+                if (role.Contains("CustomerAdmin") ||
+                    role.Contains("PartnerAdmin") ||
+                    role.Contains("Admin"))
+                {
+
+                    if (assignedToDepartment != null && assignedToDepartment.Any()) {
+                        return await _customerContext.Users
+                                                     .Where(u => assignedToDepartment.Contains(u.Customer.OrganizationId))
+                                                     .GroupBy(u => u.Customer.OrganizationId)
+                                                     .Select(group => new OrganizationUserCount()
+                                                     {
+                                                         OrganizationId = group.Key,
+                                                         Count = group.Where(u => u.UserStatus == Common.Enums.UserStatus.Activated).Count(),
+                                                         NotOnboarded = group.Where(u => u.UserStatus == Common.Enums.UserStatus.Invited ||
+                                                                                    u.UserStatus == Common.Enums.UserStatus.OnboardInitiated ||
+                                                                                    u.UserStatus == Common.Enums.UserStatus.AwaitingConfirmation).Count()
+                                                     })
+                                                     .ToListAsync();
+                    }
+                }
+
+            }
+            return null;
         }
 
         public async Task<IList<Organization>> GetOrganizationsAsync(Expression<Func<Organization, bool>>? whereFilter = null,

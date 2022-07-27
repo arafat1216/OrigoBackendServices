@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Customer.API.Controllers
@@ -95,12 +96,19 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(IList<CustomerServices.Models.OrganizationUserCount>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.Gone)]
-        public async Task<ActionResult<IList<CustomerServices.Models.OrganizationUserCount>>> GetOrganizationUserCountAsync()
+        public async Task<ActionResult<IList<CustomerServices.Models.OrganizationUserCount>>> GetOrganizationUserCountAsync([FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString)
         {
             try
             {
-                var organizationUserCount = await _organizationServices.GetOrganizationUserCountAsync();
-                if (organizationUserCount == null)
+                FilterOptionsForUser? filterOptions = null;
+                if (!string.IsNullOrEmpty(filterOptionsAsJsonString))
+                {
+                    filterOptions = JsonSerializer.Deserialize<FilterOptionsForUser>(filterOptionsAsJsonString);
+                }
+
+
+                var organizationUserCount = await _organizationServices.GetOrganizationUserCountAsync(filterOptions?.Roles,filterOptions?.AssignedToDepartments);
+                if (organizationUserCount == null || organizationUserCount.Count == 0)
                     return NotFound();
 
                 return Ok(organizationUserCount);

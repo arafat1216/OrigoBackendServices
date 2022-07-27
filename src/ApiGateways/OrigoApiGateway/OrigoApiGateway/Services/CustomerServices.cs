@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text.Json;
 using AutoMapper;
 using Common.Enums;
 using Common.Exceptions;
@@ -82,11 +83,12 @@ public class CustomerServices : ICustomerServices
         }
     }
 
-    public async Task<IList<CustomerUserCount>> GetCustomerUsersAsync()
+    public async Task<IList<CustomerUserCount>> GetCustomerUsersAsync(FilterOptionsForUser filterOptions)
     {
         try
         {
-            var customerUserCounts = await HttpClient.GetFromJsonAsync<IList<CustomerUserCount>>($"{_options.ApiPath}/userCount");
+            var json = JsonSerializer.Serialize(filterOptions);
+            var customerUserCounts = await HttpClient.GetFromJsonAsync<IList<CustomerUserCount>>($"{_options.ApiPath}/userCount?filterOptions={json}");
             return customerUserCounts == null ? null : _mapper.Map<IList<CustomerUserCount>>(customerUserCounts);
         }
         catch (HttpRequestException exception)
