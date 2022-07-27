@@ -26,7 +26,8 @@ namespace CustomerServices.Infrastructure.Context.EntityConfiguration
             /*
              * Properties
              */
-            
+            builder.Property(a => a.LastDayForReportingSalaryDeduction).HasColumnType("int").HasDefaultValue(1);
+
             builder.Property(e => e.OrganizationId)
                    .HasDefaultValueSql("NEWID()")
                    .ValueGeneratedOnAdd()
