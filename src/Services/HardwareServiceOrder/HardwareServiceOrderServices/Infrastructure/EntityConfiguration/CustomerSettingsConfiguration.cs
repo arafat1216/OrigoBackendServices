@@ -34,6 +34,8 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 
             builder.ToTable("CustomerSettings");
 
+            builder.HasIndex(e => e.CustomerId);
+
 
             /*
              * Properties

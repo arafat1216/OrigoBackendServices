@@ -61,7 +61,11 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 
             builder.OwnsOne(o => o.Owner, builder =>
             {
-                // Configure here as needed...
+                /*
+                 * DB table configuration (keys, constraints, indexing, etc.)
+                 */
+
+                builder.HasIndex(e => e.UserId);
             });
 
 
