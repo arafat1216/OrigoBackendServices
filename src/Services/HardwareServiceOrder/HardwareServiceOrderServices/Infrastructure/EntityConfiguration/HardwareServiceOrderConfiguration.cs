@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
-    internal class HardwareServiceOrderConfiguration : AuditableBaseConfiguration<HardwareServiceOrder>
+    internal class HardwareServiceOrderConfiguration : EntityBaseConfiguration<HardwareServiceOrder>
     {
 
         public HardwareServiceOrderConfiguration(bool isSqlLite) : base(isSqlLite)
@@ -17,7 +17,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
         /// <inheritdoc/>
         public override void Configure(EntityTypeBuilder<HardwareServiceOrder> builder)
         {
-            // Call the parent that configures the shared properties from the 'Auditable' entity
+            // Call the parent that configures the shared properties from the 'EntityV2' entity
             base.Configure(builder);
 
             var comparer = new ValueComparer<string>(

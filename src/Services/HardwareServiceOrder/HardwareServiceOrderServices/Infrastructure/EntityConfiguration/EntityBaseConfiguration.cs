@@ -12,12 +12,10 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
     ///     to "<c>base.Configure(builder)</c>" inside the override. </para>
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class EntityBaseConfiguration<T> : AuditableBaseConfiguration<T> where T : EntityV2
+    internal abstract class EntityBaseConfiguration<T> : AuditableBaseConfiguration<T> where T : EntityV2
     {
-
-        public EntityBaseConfiguration(bool isSqlLite) : base(isSqlLite)
+        protected EntityBaseConfiguration(bool isSqlLite) : base(isSqlLite)
         {
-
         }
 
 

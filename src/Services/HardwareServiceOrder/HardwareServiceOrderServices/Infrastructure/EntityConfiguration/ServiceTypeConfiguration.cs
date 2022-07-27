@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
-    internal class ServiceTypeConfiguration : AuditableBaseConfiguration<ServiceType>
+    internal class ServiceTypeConfiguration : EntityBaseConfiguration<ServiceType>
     {
         public ServiceTypeConfiguration(bool isSqlLite) : base(isSqlLite)
         {
@@ -12,7 +12,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
         /// <inheritdoc/>
         public override void Configure(EntityTypeBuilder<ServiceType> builder)
         {
-            // Call the parent that configures the shared properties from the 'Auditable' entity
+            // Call the parent that configures the shared properties from the 'EntityV2' entity
             base.Configure(builder);
 
             /*

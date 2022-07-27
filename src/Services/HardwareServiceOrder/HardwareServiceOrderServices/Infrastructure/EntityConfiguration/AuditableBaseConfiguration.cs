@@ -14,7 +14,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
     ///     to "<c>base.Configure(builder)</c>" inside the override. </para>
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class AuditableBaseConfiguration<T> : IEntityTypeConfiguration<T> where T : Auditable
+    internal abstract class AuditableBaseConfiguration<T> : IEntityTypeConfiguration<T> where T : Auditable
     {
         /// <summary>
         ///     Set during creation, and indicates if the <see cref="HardwareServiceOrderContext"/> is using
@@ -22,8 +22,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
         /// </summary>
         protected readonly bool _isSqlLite;
 
-
-        public AuditableBaseConfiguration(bool isSqlLite)
+        protected AuditableBaseConfiguration(bool isSqlLite)
         {
             _isSqlLite = isSqlLite;
         }

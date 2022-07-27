@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
-    internal class CustomerSettingsConfiguration : AuditableBaseConfiguration<CustomerSettings>
+    internal class CustomerSettingsConfiguration : EntityBaseConfiguration<CustomerSettings>
     {
 
         public CustomerSettingsConfiguration(bool isSqlLite) : base(isSqlLite)
@@ -16,7 +16,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
         /// <inheritdoc/>
         public override void Configure(EntityTypeBuilder<CustomerSettings> builder)
         {
-            // Call the parent that configures the shared properties from the 'Auditable' entity
+            // Call the parent that configures the shared properties from the 'EntityV2' entity
             base.Configure(builder);
 
             // A value comparer for keys. Used to force EF Core into case-insensitive string comparisons like in the database.
