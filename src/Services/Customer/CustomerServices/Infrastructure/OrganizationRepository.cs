@@ -386,6 +386,13 @@ namespace CustomerServices.Infrastructure
             await SaveEntitiesAsync();
             return newUser;
         }
+        public async Task<IList<User>> GetUsersForCustomerAsync(Guid organizationId)
+        {
+            return await _customerContext.Users
+                .Include(u => u.Customer).Where(u => u.Customer.OrganizationId == organizationId)
+                .Include(u => u.UserPreference)
+                .ToListAsync();
+        }
 
         public async Task<User> DeleteUserAsync(User user)
         {

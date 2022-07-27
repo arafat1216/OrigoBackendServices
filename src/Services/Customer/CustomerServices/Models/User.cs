@@ -76,14 +76,13 @@ namespace CustomerServices.Models
 
         [JsonIgnore]
         public Organization Customer { get; set; }
-        public void ChangeUserStatus(string? oktaUserId, Guid callerId, UserStatus newStatus)
+        public void ChangeUserStatus(string? oktaUserId, UserStatus newStatus)
         {
-            UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
             if(oktaUserId != null) OktaUserId = oktaUserId;
             var oldStatus = _userStatus;
             _userStatus = newStatus;
-            AddDomainEvent(new UserStatusChangedDomainEvent(this, callerId, oldStatus));
+            AddDomainEvent(new UserStatusChangedDomainEvent(this, oldStatus));
 
         }
 

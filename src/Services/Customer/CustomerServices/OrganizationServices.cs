@@ -2,6 +2,7 @@
 using Common.Cryptography;
 using Common.Enums;
 using Common.Exceptions;
+using CustomerServices.Email;
 using CustomerServices.Exceptions;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
@@ -19,13 +20,14 @@ namespace CustomerServices
         private readonly ILogger<OrganizationServices> _logger;
         private readonly IOrganizationRepository _organizationRepository;
         private readonly IMapper _mapper;
+        private readonly IEmailService _emailService;
 
-
-        public OrganizationServices(ILogger<OrganizationServices> logger, IOrganizationRepository customerRepository, IMapper mapper)
+        public OrganizationServices(ILogger<OrganizationServices> logger, IOrganizationRepository customerRepository, IMapper mapper, IEmailService emailService)
         {
             _logger = logger;
             _organizationRepository = customerRepository;
             _mapper = mapper;
+            _emailService = emailService;
         }
 
         public async Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false, Guid? partnerId = null)
@@ -827,9 +829,39 @@ namespace CustomerServices
             if (customer == null) throw new CustomerNotFoundException();
 
             customer.InitiateOnboarding();
+            
+            //Get all the users to send invitation mail and change status 
+            var users = await _organizationRepository.GetUsersForCustomerAsync(organizationId);
+            var customerPreferences = await _organizationRepository.GetOrganizationPreferencesAsync(organizationId);
+
+            if (users != null && users.Any()) await SendIvitationMail(users, customerPreferences != null ? customerPreferences.PrimaryLanguage : "EN");
+
             await _organizationRepository.SaveEntitiesAsync();
 
             return customer;
+
+        }
+        public async Task SendIvitationMail(IList<User> users, string defaultLanguage)
+        {
+
+            foreach (User user in users)
+            {
+                try
+                {
+                    await _emailService.InvitationEmailToUserAsync(new Email.Models.InvitationMail
+                    {
+                        FirstName = user.FirstName,
+                        Recipient = new List<string> { user.Email }
+                    }, user.UserPreference != null ? user.UserPreference.Language : defaultLanguage);
+
+                    user.ChangeUserStatus(null, UserStatus.Invited);
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogError($"SendIvitationMail failed. " + ex.Message);
+                }
+            }
+
 
         }
     }

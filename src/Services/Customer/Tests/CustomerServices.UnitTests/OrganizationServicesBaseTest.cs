@@ -93,13 +93,13 @@ namespace CustomerServices.UnitTests
             var userPreferences2 = new UserPreference("EN", EMPTY_CALLER_ID);
             var userPreferences3 = new UserPreference("EN", EMPTY_CALLER_ID);
             var userOne = new User(customerOne, USER_ONE_ID, "Jane", "Doe", "jane@doe.com", "+4799999999", "007", userPreferences1, EMPTY_CALLER_ID);
-            userOne.ChangeUserStatus("123",EMPTY_CALLER_ID,Common.Enums.UserStatus.Deactivated);
+            userOne.ChangeUserStatus("123",Common.Enums.UserStatus.Deactivated);
 
             var userTwo = new User(customerOne, USER_THREE_ID, "Gordon", "Freeman", "gordon@freeman.com", "+4755555555", "DH-101", userPreferences2, EMPTY_CALLER_ID);
             userTwo.AssignDepartment(departmentOneForCustomerOne, EMPTY_CALLER_ID);
-            userTwo.ChangeUserStatus("123", EMPTY_CALLER_ID, Common.Enums.UserStatus.Activated);
+            userTwo.ChangeUserStatus("123", Common.Enums.UserStatus.Activated);
             var userThree = new User(customerTwo, USER_TWO_ID, "John", "Doe", "john@doe.com", "+4791111111", "X", userPreferences3, EMPTY_CALLER_ID);
-            userThree.ChangeUserStatus("123", EMPTY_CALLER_ID, Common.Enums.UserStatus.Invited);
+            userThree.ChangeUserStatus("123", Common.Enums.UserStatus.Invited);
 
             var userPreferences4 = new UserPreference("EN", EMPTY_CALLER_ID);
             var userPreferences5 = new UserPreference("EN", EMPTY_CALLER_ID);

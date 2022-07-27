@@ -5,6 +5,7 @@ using System.Text;
 using AutoMapper;
 using Common.Cryptography;
 using Common.Logging;
+using CustomerServices.Email;
 using CustomerServices.Infrastructure;
 using CustomerServices.Infrastructure.Context;
 using CustomerServices.ServiceModels;
@@ -41,7 +42,7 @@ namespace CustomerServices.UnitTests
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
             var customerRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository, _mapper);
+            var customerService = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), customerRepository, _mapper, Mock.Of<IEmailService>());
 
             byte[] iv, key;
             var message = "Super secret data";

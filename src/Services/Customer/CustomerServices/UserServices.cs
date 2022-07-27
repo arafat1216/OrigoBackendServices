@@ -207,7 +207,7 @@ namespace CustomerServices
                     Recipient = new List<string> { email }
                 },userPreference.Language ?? "EN");
 
-                newUser.ChangeUserStatus(null,callerId, UserStatus.Invited);
+                newUser.ChangeUserStatus(null, UserStatus.Invited);
             }
 
             newUser = await _organizationRepository.AddUserAsync(newUser);
@@ -259,7 +259,7 @@ namespace CustomerServices
             var user = await GetUserAsync(customerId, userId);
             if (user == null)
                 throw new UserNotFoundException($"Unable to find {userId}");
-            user.ChangeUserStatus(oktaUserId,callerId,UserStatus.Activated);
+            user.ChangeUserStatus(oktaUserId,UserStatus.Activated);
             await _organizationRepository.SaveEntitiesAsync();
             return user;
         }
@@ -285,7 +285,7 @@ namespace CustomerServices
             if (string.IsNullOrEmpty(user.OktaUserId)) 
             {
                 //Ensure that user with no okta id is set to deactivated
-                if (user.UserStatus == UserStatus.Activated) user.ChangeUserStatus(null, callerId, UserStatus.Deactivated);
+                if (user.UserStatus == UserStatus.Activated) user.ChangeUserStatus(null, UserStatus.Deactivated);
                 throw new UserNotFoundException("User does not have Okta id and can not be activated.");
             }
 
@@ -298,12 +298,12 @@ namespace CustomerServices
                 {
                     // set active, but reuse the userId set on creation of user : (This may change in future)
                     await _oktaServices.AddUserToGroup(user.OktaUserId);
-                    user.ChangeUserStatus(user.OktaUserId, callerId, UserStatus.Activated);
+                    user.ChangeUserStatus(user.OktaUserId, UserStatus.Activated);
                 }
                 else
                 {
                     await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
-                    user.ChangeUserStatus(null,callerId,UserStatus.Deactivated);
+                    user.ChangeUserStatus(null,UserStatus.Deactivated);
                 }
             }
             else

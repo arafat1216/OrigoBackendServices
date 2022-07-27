@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Common.Infrastructure;
 using Common.Logging;
+using CustomerServices.Email;
 using CustomerServices.Exceptions;
 using CustomerServices.Infrastructure;
 using CustomerServices.Infrastructure.Context;
@@ -32,7 +33,7 @@ public class PartnerServicesTests : OrganizationServicesBaseTest
         var organizationRepository =
             new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         _organizationServices =
-            new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, mapper);
+            new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, mapper, Mock.Of<IEmailService>());
         _partnerServices = new PartnerServices(Mock.Of<ILogger<PartnerServices>>(), organizationRepository);
     }
 

@@ -307,6 +307,67 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
         [Fact]
+        public async Task InitiateOnbarding_NoUsersForCustomer()
+        {
+            //add new organization
+            var requestUri = $"/api/v1/organizations";
+            _testOutputHelper.WriteLine(requestUri);
+
+            var newOrganization = new NewOrganizationDTO
+            {
+                Name = "TE BØ",
+                OrganizationNumber = "919724617",
+                Address = new AddressDTO
+                {
+                    City = "OSLO",
+                    Country = "NO",
+                    PostCode = "0554",
+                    Street = "Markveien 32F"
+                },
+                ContactPerson = new ContactPersonDTO
+                {
+                    Email = "test@test.test",
+                    FirstName = "test",
+                    LastName = "test",
+                    PhoneNumber = "+4790909090"
+                },
+                Location = new LocationDTO
+                {
+                    Name = "Default location",
+                    Description = null,
+                    Address1 = "Markveien 32F",
+                    Address2 = null,
+                    City = "OSLO",
+                    PostalCode = "0554",
+                    Country = "NO"
+                },
+                PrimaryLocation = null,
+                ParentId = null,
+                InternalNotes = null,
+                IsCustomer = true,
+                Preferences = null
+            };
+
+            //Act
+            var response = await _httpClient.PostAsJsonAsync(requestUri, newOrganization);
+            var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+
+            //Assert
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            // Arrange
+            var requestInit = $"/api/v1/organizations/{organization.OrganizationId}/initiate-onboarding";
+
+            //Act
+            var responseInit = await _httpClient.PostAsync(requestInit, null);
+            var organizationInit = await responseInit.Content.ReadFromJsonAsync<OrganizationDTO>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, responseInit.StatusCode);
+            Assert.Equal(organization.OrganizationId, organizationInit?.OrganizationId);
+
+        }
+        [Fact]
         public async Task GetOrganizationUserCountAsync_ForSystemAdmin()
         {
             // Arrange
@@ -413,5 +474,6 @@ namespace Customer.API.IntegrationTests.Controllers
           );
 
         }
+       
     }
 }

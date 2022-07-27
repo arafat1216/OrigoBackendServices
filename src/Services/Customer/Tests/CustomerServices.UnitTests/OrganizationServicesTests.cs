@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Common.Infrastructure;
 using Xunit;
+using CustomerServices.Email;
 
 namespace CustomerServices.UnitTests
 {
@@ -35,7 +36,7 @@ namespace CustomerServices.UnitTests
             apiRequesterServiceMock.Setup(r => r.AuthenticatedUserId).Returns(CALLER_ID);
             var context = new CustomerContext(ContextOptions, apiRequesterServiceMock.Object);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper);
+            organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper, Mock.Of<IEmailService>());
         }
 
         [Fact]

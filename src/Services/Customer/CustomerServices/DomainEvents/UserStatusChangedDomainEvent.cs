@@ -7,16 +7,14 @@ namespace CustomerServices.DomainEvents
 {
     class UserStatusChangedDomainEvent : BaseEvent
     {
-        public UserStatusChangedDomainEvent(User user,Guid callerId, UserStatus oldState) : base(user.UserId)
+        public UserStatusChangedDomainEvent(User user, UserStatus oldState) : base(user.UserId)
         {
             User = user;
             OldState = oldState;
-            CallerId = callerId;
         }
 
         public User User { get; protected set; }
         public UserStatus OldState { get; protected set; }
-        public Guid CallerId { get; protected set; }
 
 
         public override string EventMessage()
