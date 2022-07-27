@@ -35,8 +35,8 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             {
                 builder.Property(e => e.DateCreated)
                        .HasConversion(new DateTimeOffsetToBinaryConverter())
-                       .HasDefaultValueSql("CURRENT_TIMESTAMP").Metadata
-                       .SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+                       .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                       .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
                 builder.Property(e => e.DateUpdated)
                        .HasConversion(new DateTimeOffsetToBinaryConverter());
@@ -47,12 +47,9 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             else
             {
                 builder.Property(e => e.DateCreated)
-                       .HasDefaultValueSql("SYSUTCDATETIME()").Metadata
-                       .SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+                       .HasDefaultValueSql("SYSUTCDATETIME()")
+                       .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             }
-
-            builder.Property(e => e.CreatedBy)
-                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
             builder.Property(e => e.CreatedBy)
                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
