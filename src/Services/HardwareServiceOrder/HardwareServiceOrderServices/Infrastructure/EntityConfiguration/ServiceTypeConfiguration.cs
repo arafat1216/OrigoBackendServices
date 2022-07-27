@@ -12,7 +12,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
         /// <inheritdoc/>
         public override void Configure(EntityTypeBuilder<ServiceType> builder)
         {
-            // Call the parent that configures the shared properties from the 'EntityV2' entity
+            // Call the parent that configures the shared properties from the inherited 'EntityV2' entity
             base.Configure(builder);
 
             /*

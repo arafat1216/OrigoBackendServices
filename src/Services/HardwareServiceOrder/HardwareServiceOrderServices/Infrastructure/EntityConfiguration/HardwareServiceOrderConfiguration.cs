@@ -17,7 +17,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
         /// <inheritdoc/>
         public override void Configure(EntityTypeBuilder<HardwareServiceOrder> builder)
         {
-            // Call the parent that configures the shared properties from the 'EntityV2' entity
+            // Call the parent that configures the shared properties from the inherited 'EntityV2' entity
             base.Configure(builder);
 
             var comparer = new ValueComparer<string>(
@@ -26,8 +26,9 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                v => v
             );
 
+
             /*
-             * Keys, constraints & indexing
+             * DB table configuration (keys, constraints, indexing, etc.)
              */
 
             builder.HasAlternateKey(e => e.ExternalId);
@@ -35,11 +36,13 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             builder.HasIndex(e => e.AssetLifecycleId);
             builder.HasIndex(e => e.CustomerId);
 
+
             /*
              * Properties
              */
 
             // Add here as needed
+
 
             /*
              * Owned Entities

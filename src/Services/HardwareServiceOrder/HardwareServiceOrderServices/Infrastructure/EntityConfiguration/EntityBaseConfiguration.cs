@@ -22,8 +22,13 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
         /// <inheritdoc/>
         public override void Configure(EntityTypeBuilder<T> builder)
         {
-            // Call the parent that configures the shared properties from the 'Auditable' entity
+            // Call the parent that configures the shared properties from the inherited 'Auditable' entity
             base.Configure(builder);
+
+
+            /*
+             * Properties
+             */
 
             // Configure all ID columns so the auto-incremental value starts on 1000.
             // This frees up a wide range of values that can be used for seeding-data.

@@ -31,6 +31,10 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
         /// <inheritdoc/>
         public virtual void Configure(EntityTypeBuilder<T> builder)
         {
+            /*
+             * Properties
+             */
+
             if (_isSqlLite)
             {
                 builder.Property(e => e.DateCreated)
