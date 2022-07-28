@@ -132,14 +132,21 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 
             builder.OwnsMany(e => e.ServiceEvents, builder =>
             {
+                builder.ToTable("ServiceEvents");
+
+                // Needed for unit testing using sqlite https://stackoverflow.com/questions/69819523/ef-core-owned-entity-shadow-pk-causes-null-constraint-violation-with-sqlite
+                builder.HasKey(e => e.Id);
+
+
                 /*
                  * Properties
                  */
-                if (_isSqlLite)
-                {
-                    //Needed for unit testing using sqlite https://stackoverflow.com/questions/69819523/ef-core-owned-entity-shadow-pk-causes-null-constraint-violation-with-sqlite
-                    builder.HasKey("Id");
-                }
+
+                // Configure all ID columns so the auto-incremental value starts on 1000.
+                // This frees up a wide range of values that can be used for seeding-data.
+                builder.Property(e => e.Id)
+                       .ValueGeneratedOnAdd()
+                       .UseIdentityColumn(1000);
 
                 builder.Property(e => e.Timestamp)
                        .HasComment("When this event was recorded in the external service-provider's system");
