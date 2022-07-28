@@ -380,7 +380,8 @@ namespace Customer.API.IntegrationTests.Controllers
                 ParentId = null,
                 InternalNotes = null,
                 IsCustomer = true,
-                Preferences = null
+                Preferences = null,
+                LastDayForReportingSalaryDeduction = 1,
             };
 
             //Act
