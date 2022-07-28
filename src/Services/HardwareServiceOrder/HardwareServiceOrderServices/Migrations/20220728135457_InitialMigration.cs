@@ -14,7 +14,7 @@ namespace HardwareServiceOrderServices.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1000, 1"),
+                        .Annotation("SqlServer:Identity", "1000000, 1"),
                     LoanDevicePhoneNumber = table.Column<string>(type: "varchar(15)", unicode: false, maxLength: 15, nullable: true, comment: "A phone-number using E.164 format."),
                     LoanDeviceEmail = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: true),
                     CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -51,7 +51,7 @@ namespace HardwareServiceOrderServices.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1000, 1"),
+                        .Annotation("SqlServer:Identity", "1000000, 1"),
                     OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
                     DateUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -71,7 +71,7 @@ namespace HardwareServiceOrderServices.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1000, 1"),
+                        .Annotation("SqlServer:Identity", "1000000, 1"),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
                     DateUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     DateDeleted = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -90,7 +90,7 @@ namespace HardwareServiceOrderServices.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1000, 1"),
+                        .Annotation("SqlServer:Identity", "1000000, 1"),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSUTCDATETIME()"),
                     DateUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     DateDeleted = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -109,7 +109,7 @@ namespace HardwareServiceOrderServices.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1000, 1"),
+                        .Annotation("SqlServer:Identity", "1000000, 1"),
                     CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ServiceProviderId = table.Column<int>(type: "int", nullable: false),
                     ApiUserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -140,7 +140,7 @@ namespace HardwareServiceOrderServices.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1000, 1"),
+                        .Annotation("SqlServer:Identity", "1000000, 1"),
                     ExternalId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AssetLifecycleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -216,7 +216,7 @@ namespace HardwareServiceOrderServices.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1000, 1"),
+                        .Annotation("SqlServer:Identity", "1000000, 1"),
                     ServiceStatusId = table.Column<int>(type: "int", nullable: false),
                     Timestamp = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, comment: "When this event was recorded in the external service-provider's system"),
                     HardwareServiceOrderId = table.Column<int>(type: "int", nullable: false)

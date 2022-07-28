@@ -34,7 +34,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             // This frees up a wide range of values that can be used for seeding-data.
             builder.Property(e => e.Id)
                    .ValueGeneratedOnAdd()
-                   .UseIdentityColumn(1000);
+                   .UseIdentityColumn(1000000);
         }
     }
 }
