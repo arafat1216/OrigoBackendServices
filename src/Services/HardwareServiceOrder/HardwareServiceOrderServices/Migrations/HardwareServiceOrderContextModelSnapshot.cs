@@ -24,14 +24,11 @@ namespace HardwareServiceOrderServices.Migrations
 
             modelBuilder.Entity("HardwareServiceOrderServices.Models.CustomerServiceProvider", b =>
                 {
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("ServiceProviderId")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1000L, 1);
 
                     b.Property<string>("ApiPassword")
                         .HasColumnType("nvarchar(max)");
@@ -40,6 +37,9 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("DateCreated")
@@ -62,10 +62,15 @@ namespace HardwareServiceOrderServices.Migrations
                     b.Property<DateTimeOffset>("LastUpdateFetched")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<int>("ServiceProviderId")
+                        .HasColumnType("int");
+
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("CustomerId", "Id", "ServiceProviderId");
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("CustomerId", "ServiceProviderId");
 
                     b.HasIndex("ServiceProviderId");
 
@@ -78,7 +83,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1000L, 1);
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -121,6 +126,8 @@ namespace HardwareServiceOrderServices.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomerId");
+
                     b.ToTable("CustomerSettings", (string)null);
                 });
 
@@ -130,7 +137,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1000L, 1);
 
                     b.Property<int>("AssetLifecycleCategoryId")
                         .HasColumnType("int");
@@ -222,7 +229,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1000L, 1);
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -279,7 +286,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1000L, 1);
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -429,7 +436,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1000L, 1);
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -566,6 +573,8 @@ namespace HardwareServiceOrderServices.Migrations
 
                             b1.HasKey("HardwareServiceOrderId");
 
+                            b1.HasIndex("UserId");
+
                             b1.ToTable("HardwareServiceOrders");
 
                             b1.WithOwner()
@@ -681,14 +690,14 @@ namespace HardwareServiceOrderServices.Migrations
 
                     b.OwnsMany("HardwareServiceOrderServices.Models.ServiceEvent", "ServiceEvents", b1 =>
                         {
-                            b1.Property<int>("HardwareServiceOrderId")
-                                .HasColumnType("int");
-
                             b1.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType("int");
 
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"), 1L, 1);
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"), 1000L, 1);
+
+                            b1.Property<int>("HardwareServiceOrderId")
+                                .HasColumnType("int");
 
                             b1.Property<int>("ServiceStatusId")
                                 .HasColumnType("int");
@@ -697,9 +706,11 @@ namespace HardwareServiceOrderServices.Migrations
                                 .HasColumnType("datetimeoffset")
                                 .HasComment("When this event was recorded in the external service-provider's system");
 
-                            b1.HasKey("HardwareServiceOrderId", "Id");
+                            b1.HasKey("Id");
 
-                            b1.ToTable("ServiceEvent");
+                            b1.HasIndex("HardwareServiceOrderId");
+
+                            b1.ToTable("ServiceEvents", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("HardwareServiceOrderId");

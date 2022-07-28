@@ -12,28 +12,25 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HardwareServiceOrderServices.Migrations
 {
     [DbContext(typeof(HardwareServiceOrderContext))]
-    [Migration("20220616100440_remove_asset_category_id")]
-    partial class remove_asset_category_id
+    [Migration("20220728121054_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.5")
+                .HasAnnotation("ProductVersion", "6.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("HardwareServiceOrderServices.Models.CustomerServiceProvider", b =>
                 {
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("ServiceProviderId")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1000L, 1);
 
                     b.Property<string>("ApiPassword")
                         .HasColumnType("nvarchar(max)");
@@ -42,6 +39,9 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("DateCreated")
@@ -53,9 +53,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("DateUpdated")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -66,10 +64,15 @@ namespace HardwareServiceOrderServices.Migrations
                     b.Property<DateTimeOffset>("LastUpdateFetched")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<int>("ServiceProviderId")
+                        .HasColumnType("int");
+
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("CustomerId", "Id", "ServiceProviderId");
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("CustomerId", "ServiceProviderId");
 
                     b.HasIndex("ServiceProviderId");
 
@@ -82,7 +85,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1000L, 1);
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -99,9 +102,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("DateUpdated")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -119,10 +120,15 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("varchar(15)")
                         .HasComment("A phone-number using E.164 format.");
 
+                    b.Property<bool>("ProvidesLoanDevice")
+                        .HasColumnType("bit");
+
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("CustomerSettings", (string)null);
                 });
@@ -133,7 +139,10 @@ namespace HardwareServiceOrderServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1000L, 1);
+
+                    b.Property<int>("AssetLifecycleCategoryId")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("AssetLifecycleId")
                         .HasColumnType("uniqueidentifier");
@@ -153,9 +162,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("DateUpdated")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -224,7 +231,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1000L, 1);
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -238,9 +245,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("DateUpdated")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -283,7 +288,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1000L, 1);
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -297,9 +302,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("DateUpdated")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -435,7 +438,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1000L, 1);
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -449,9 +452,7 @@ namespace HardwareServiceOrderServices.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("DateUpdated")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -495,6 +496,25 @@ namespace HardwareServiceOrderServices.Migrations
                             IsDeleted = false,
                             UpdatedBy = new Guid("00000000-0000-0000-0000-000000000001")
                         });
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("FriendlyName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Xml")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DataProtectionKeys");
                 });
 
             modelBuilder.Entity("HardwareServiceOrderServices.Models.CustomerServiceProvider", b =>
@@ -542,10 +562,20 @@ namespace HardwareServiceOrderServices.Migrations
                                 .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
+                            b1.Property<string>("LastName")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("PhoneNumber")
+                                .HasMaxLength(15)
+                                .HasColumnType("nvarchar(15)");
+
                             b1.Property<Guid>("UserId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.HasKey("HardwareServiceOrderId");
+
+                            b1.HasIndex("UserId");
 
                             b1.ToTable("HardwareServiceOrders");
 
@@ -598,16 +628,78 @@ namespace HardwareServiceOrderServices.Migrations
                                 .HasForeignKey("HardwareServiceOrderId");
                         });
 
-                    b.OwnsMany("HardwareServiceOrderServices.Models.ServiceEvent", "ServiceEvents", b1 =>
+                    b.OwnsOne("HardwareServiceOrderServices.Models.AssetInfo", "AssetInfo", b1 =>
                         {
                             b1.Property<int>("HardwareServiceOrderId")
                                 .HasColumnType("int");
 
+                            b1.Property<string>("Accessories")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Brand")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Imei")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Model")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<DateTime?>("PurchaseDate")
+                                .HasColumnType("date");
+
+                            b1.Property<string>("SerialNumber")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("HardwareServiceOrderId");
+
+                            b1.ToTable("HardwareServiceOrders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("HardwareServiceOrderId");
+                        });
+
+                    b.OwnsOne("HardwareServiceOrderServices.Models.AssetInfo", "ReturnedAssetInfo", b1 =>
+                        {
+                            b1.Property<int>("HardwareServiceOrderId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Accessories")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Brand")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Imei")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Model")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<DateTime?>("PurchaseDate")
+                                .HasColumnType("date");
+
+                            b1.Property<string>("SerialNumber")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("HardwareServiceOrderId");
+
+                            b1.ToTable("HardwareServiceOrders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("HardwareServiceOrderId");
+                        });
+
+                    b.OwnsMany("HardwareServiceOrderServices.Models.ServiceEvent", "ServiceEvents", b1 =>
+                        {
                             b1.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType("int");
 
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"), 1L, 1);
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"), 1000L, 1);
+
+                            b1.Property<int>("HardwareServiceOrderId")
+                                .HasColumnType("int");
 
                             b1.Property<int>("ServiceStatusId")
                                 .HasColumnType("int");
@@ -616,18 +708,25 @@ namespace HardwareServiceOrderServices.Migrations
                                 .HasColumnType("datetimeoffset")
                                 .HasComment("When this event was recorded in the external service-provider's system");
 
-                            b1.HasKey("HardwareServiceOrderId", "Id");
+                            b1.HasKey("Id");
 
-                            b1.ToTable("ServiceEvent");
+                            b1.HasIndex("HardwareServiceOrderId");
+
+                            b1.ToTable("ServiceEvents", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("HardwareServiceOrderId");
                         });
 
+                    b.Navigation("AssetInfo")
+                        .IsRequired();
+
                     b.Navigation("DeliveryAddress");
 
                     b.Navigation("Owner")
                         .IsRequired();
+
+                    b.Navigation("ReturnedAssetInfo");
 
                     b.Navigation("ServiceEvents");
 
