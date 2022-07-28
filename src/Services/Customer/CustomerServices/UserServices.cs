@@ -2,7 +2,6 @@
 using AutoMapper;
 using Common.Enums;
 using Common.Interfaces;
-using Common.Extensions;
 using CustomerServices.Exceptions;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
@@ -53,9 +52,12 @@ namespace CustomerServices
         private async Task<string> GetRoleNameForUser(string userEmail)
         {
             var userPermissions = await _userPermissionServices.GetUserPermissionsAsync(userEmail);
-            return userPermissions != null && userPermissions.Any()
-                ? userPermissions.FirstOrDefault()?.Role.Name
-                : string.Empty;
+            if (userPermissions == null || !userPermissions.Any())
+            {
+                return string.Empty;
+            }
+
+            return userPermissions.FirstOrDefault() == null ? string.Empty : userPermissions.FirstOrDefault()!.Role.Name;
         }
 
         public async Task<User> GetUserAsync(Guid customerId, Guid userId)
@@ -462,7 +464,7 @@ namespace CustomerServices
                 var source = new CancellationTokenSource();
                 var cancellationToken = source.Token;
                 using var client = new DaprClientBuilder().Build();
-                await client.PublishEventAsync<T>(subscriptionName, topicName, userEvent, cancellationToken);
+                await client.PublishEventAsync(subscriptionName, topicName, userEvent, cancellationToken);
             }
             catch (Exception exception)
             {

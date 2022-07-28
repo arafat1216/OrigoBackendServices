@@ -115,6 +115,7 @@ namespace Asset.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapSubscribeHandler();
                 endpoints.MapHealthChecks("/healthz");
             });
         }
