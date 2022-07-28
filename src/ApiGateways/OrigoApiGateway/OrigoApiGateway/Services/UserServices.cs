@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.Enums;
 using Common.Interfaces;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Exceptions;
@@ -79,6 +80,61 @@ namespace OrigoApiGateway.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "GetUserAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoUser> InitiateOffboarding(Guid customerId, Guid userId, string role, List<Guid> departments, OffboardInitiate offboardDate, Guid callerId)
+        {
+            try
+            {
+                var user = await HttpClient.GetFromJsonAsync<UserDTO>($"{_options.ApiPath}/{customerId}/users/{userId}");
+                if (user == null)
+                    throw new InvalidUserValueException();
+                if(role == PredefinedRole.DepartmentManager.ToString() && !departments.Contains(user.AssignedToDepartment))
+                    throw new UnauthorizedAccessException("Manager does not have access to this User!!!");
+
+                var postDate = new OffboardInitiateDTO()
+                {
+                    LastWorkingDay = offboardDate.LastWorkingDay,
+                    CallerId = callerId
+                };
+
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users/{userId}/initiate-offboarding", postDate);
+                
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return null;
+                if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+                    throw new InvalidUserValueException(await response.Content.ReadAsStringAsync());
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDescription = await response.Content.ReadAsStringAsync();
+                    if (errorDescription.Contains("Okta"))
+                        throw new OktaException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var updatedUser = await response.Content.ReadFromJsonAsync<UserDTO>();
+                return user == null ? null : _mapper.Map<OrigoUser>(user);
+            }
+            catch (HttpRequestException exception)
+            {
+                // Handle this special case by writing id of user instead of users name in auditlog
+                if (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return null;
+
+                _logger.LogError(exception, "InitiateOffboarding failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "InitiateOffboarding failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "InitiateOffboarding unknown error.");
                 throw;
             }
         }

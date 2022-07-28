@@ -14,6 +14,8 @@ namespace CustomerServices.Mappings
                 .ForMember(u => u.OrganizationName, opt => opt.MapFrom(src => src.Customer.Name))
                 .ForMember(u => u.UserStatusName, opt => opt.MapFrom(src => src.UserStatus.ToString()))
                 .ForMember(u => u.UserStatus, opt => opt.MapFrom(src => src.UserStatus))
+                .ForMember(u => u.LastWorkingDay, opt => opt.MapFrom(src => src.LastWorkingDay))
+                .ForMember(u => u.LastDayForReportingSalaryDeduction, opt => opt.MapFrom(src => src.LastDayForReportingSalaryDeduction))
                 .ForMember(u => u.AssignedToDepartment, opt => opt.MapFrom(src => src.Department.ExternalDepartmentId))
                 .ForMember(u => u.ManagerOf, opt => opt.MapFrom(src => src.ManagesDepartments.Select(a => new ManagerOfDTO
                 {

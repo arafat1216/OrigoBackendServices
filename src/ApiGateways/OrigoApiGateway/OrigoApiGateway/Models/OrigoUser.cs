@@ -14,6 +14,8 @@ namespace OrigoApiGateway.Models
         public string FirstName { get; init; }
         public string LastName { get; init; }
         public string Email { get; init; }
+        public DateTime? LastWorkingDay { get; init; } = null;
+        public DateTime? LastDayForReportingSalaryDeduction { get; init; } = null;
         public string MobileNumber { get; init; }
         public string EmployeeId { get; init; }
         public string OrganizationName { get; init; }

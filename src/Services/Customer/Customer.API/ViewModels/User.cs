@@ -14,6 +14,8 @@ namespace Customer.API.ViewModels
 
         [EmailAddress]
         public string Email { get; init; }
+        public DateTime? LastWorkingDay { get; init; } = null;
+        public DateTime? LastDayForReportingSalaryDeduction { get; init; } = null;
 
         /// <summary>
         /// NB! This Will be removed in a later version

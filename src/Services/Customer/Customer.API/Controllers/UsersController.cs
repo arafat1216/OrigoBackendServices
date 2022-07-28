@@ -374,6 +374,29 @@ public class UsersController : ControllerBase
         if (user == null) return NotFound();
         return Ok(_mapper.Map<User>(user));
     }
+
+    [Route("{userId:Guid}/initiate-offboarding")]
+    [HttpPost]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<User>> InitiateOffboarding(Guid customerId, Guid userId, [FromBody] OffboardingInitiated offboardData)
+    {
+        try
+        {
+            var user = await _userServices.InitiateOffboarding(customerId, userId, offboardData.LastWorkingDay, offboardData.CallerId);
+            return Ok(_mapper.Map<User>(user));
+        }
+        catch (UserNotFoundException exception)
+        {
+
+            return BadRequest(exception.Message);
+        }
+        catch (Exception)
+        {
+            return BadRequest();
+        }
+    }
+
     /// <summary>
     /// Only used by userpermission gateway to get info about user to be made a claim for
     /// Either userName or userId

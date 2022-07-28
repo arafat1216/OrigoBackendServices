@@ -1206,5 +1206,38 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal("no",user?.UserPreference.Language);
 
         }
+
+        [Theory]
+        [InlineData("2022-08-17T00:00:00.000Z")]
+        [InlineData("2022-08-14T00:00:00.000Z")]
+        public async Task InitiateOffboarding(string lastWorkingDate)
+        {
+            // Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/initiate-offboarding";
+            var postData = new OffboardingInitiated()
+            {
+                LastWorkingDay = Convert.ToDateTime(lastWorkingDate),
+                CallerId = Guid.Empty
+            };
+            // Act
+            var response = await httpClient.PostAsJsonAsync(requestUri, postData);
+            var user = await response.Content.ReadFromJsonAsync<User>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal((int)UserStatus.OffboardInitiated, user!.UserStatus);
+            if(lastWorkingDate == "2022-08-17T00:00:00.000Z")
+            {
+                Assert.Equal(new DateTime(2022,8,15).ToString("yyyy/MM/DD"), user!.LastDayForReportingSalaryDeduction!.Value.ToString("yyyy/MM/DD"));
+                Assert.Equal(new DateTime(2022,8,17).ToString("yyyy/MM/DD"), user!.LastWorkingDay!.Value.ToString("yyyy/MM/DD"));
+            }
+            if (lastWorkingDate == "2022-08-14T00:00:00.000Z")
+            {
+                Assert.Equal(new DateTime(2022, 7, 15).ToString("yyyy/MM/DD"), user!.LastDayForReportingSalaryDeduction!.Value.ToString("yyyy/MM/DD"));
+                Assert.Equal(new DateTime(2022, 8, 14).ToString("yyyy/MM/DD"), user!.LastWorkingDay!.Value.ToString("yyyy/MM/DD"));
+            }
+        }
+
     }
 }

@@ -14,6 +14,9 @@ namespace CustomerServices.ServiceModels
 
         [EmailAddress]
         public string Email { get; init; }
+        public DateTime? LastWorkingDay { get; init; } = null;
+        public DateTime? LastDayForReportingSalaryDeduction { get; init; } = null;
+
 
         /// <summary>
         ///     The persons phone-number, standardized using the <c>E.164</c> format.

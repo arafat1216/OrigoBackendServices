@@ -24,6 +24,7 @@ namespace OrigoApiGateway.Services
         Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
         Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
         Task<UserInfoDTO> GetUserInfo(string userName, Guid userId);
+        Task<OrigoUser> InitiateOffboarding(Guid customerId, Guid userId, string role, List<Guid> departments, OffboardInitiate offboardDate, Guid callerId);
 
     }
 }

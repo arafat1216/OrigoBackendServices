@@ -87,7 +87,7 @@ namespace Customer.API.IntegrationTests.Helpers
                                                 location,
                                                 null,
                                                 true,
-                                                1,
+                                                15,
                                                 ""
                                                 );
 

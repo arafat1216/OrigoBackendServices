@@ -45,6 +45,7 @@ namespace CustomerServices.Models
         public string FirstName { get; protected set; }
         public string LastName { get; protected set; }
         public string Email { get; protected set; }
+        public DateTime? LastWorkingDay { get; protected set; } = null;
 
         /// <summary>
         /// TODO: this will be remove in a later version
@@ -88,10 +89,33 @@ namespace CustomerServices.Models
 
         public Department? Department { get; set; }
 
+        public DateTime? LastDayForReportingSalaryDeduction
+        {
+            get
+            {
+                if (LastWorkingDay == null || Customer == null)
+                    return null;
+                var deductionDate = new DateTime(LastWorkingDay.Value.Year, LastWorkingDay.Value.Month, Customer.LastDayForReportingSalaryDeduction);
+                if ((LastWorkingDay.Value - deductionDate).TotalDays > 0)
+                    return deductionDate;
+                else
+                    return deductionDate.AddMonths(-1);
+            }
+        }
+
         public IReadOnlyCollection<Department> ManagesDepartments
         {
             get => new ReadOnlyCollection<Department>(_managesDepartments);
             protected set => _managesDepartments = value != null ? new List<Department>(value) : new List<Department>();
+        }
+
+        public void OffboardingInitiated(DateTime lastWorkingDay, Guid callerId)
+        {
+            UpdatedBy = callerId;
+            SetLastWorkingDay(lastWorkingDay, callerId);
+            ChangeUserStatus(null, UserStatus.OffboardInitiated);
+            AddDomainEvent(new OffboardingInitiatedDomainEvent(this, callerId));
+            LastUpdatedDate = DateTime.UtcNow;
         }
 
         public void AssignDepartment(Department department, Guid callerId)
@@ -146,6 +170,13 @@ namespace CustomerServices.Models
             _managesDepartments.Remove(department);
         }
 
+        internal void SetLastWorkingDay(DateTime? lastWorkingDay, Guid callerId)
+        {
+            UpdatedBy = callerId;
+            AddDomainEvent(new SetLastWorkingDayDomainEvent(this, lastWorkingDay, callerId));
+            LastUpdatedDate = DateTime.UtcNow;
+            LastWorkingDay = lastWorkingDay;
+        }
         internal void ChangeUserPreferences(UserPreference userPreference, Guid callerId)
         {
             AddDomainEvent(new UserPreferenceChangedDomainEvent(userPreference, UserId));
