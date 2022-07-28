@@ -28,9 +28,7 @@ namespace CustomerServices
         Task<IList<OrganizationUserCount>?> GetOrganizationUserCountAsync(string[]? role, Guid[]? assignedToDepartment);
         Task<Organization?> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool customersOnly = false);
         Task<Organization> UpdateOrganizationAsync(Organization updateOrganization, bool usingPatch = false);
-        Task<Organization> PutOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
-                                                               string street, string postCode, string city, string country,
-                                                               string firstName, string lastName, string email, string phoneNumber, int lastSalaryReportingDay, string payrollEmail = "", bool addUsersToOkta = false);
+        Task<Organization> PutOrganizationAsync(UpdateOrganizationDTO updatedOrganization);
         Task<Organization> PatchOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
                                                                string street, string postCode, string city, string country,
                                                                string firstName, string lastName, string email, string phoneNumber, int lastSalaryReportingDay, string payrollEmail = "", bool addUsersToOkta = false);

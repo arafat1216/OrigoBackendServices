@@ -150,6 +150,37 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.True(readOrganization!.AddUsersToOkta);
         }
 
+        [Fact()]
+        public async Task UpdateOrganizationTest_LastDayOfReport()
+        {
+            // Setup
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_organizationId}/true";
+            _testOutputHelper.WriteLine(requestUri);
+            var org = await httpClient.GetFromJsonAsync<OrganizationDTO>(requestUri);
+
+            // Do the request
+            org.LastDayForReportingSalaryDeduction = 20;
+            org.PayrollContactEmail = "example@techstep.com";
+            var orgData = new UpdateOrganization()
+            {
+                OrganizationId = _organizationId,
+                LastDayForReportingSalaryDeduction = 20,
+                PayrollContactEmail = "example@techstep.com",
+                Name = org.Name
+            };
+            requestUri = $"/api/v1/organizations/{_organizationId}/organization";
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(org));
+            var response = await _httpClient.PutAsJsonAsync(requestUri, orgData);
+            var responseasd = await response.Content.ReadAsStringAsync();
+            var updatedOrg = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+
+            // Check asserts
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(org.LastDayForReportingSalaryDeduction, updatedOrg!.LastDayForReportingSalaryDeduction);
+            Assert.Equal(org.PayrollContactEmail, updatedOrg!.PayrollContactEmail);
+        }
+
         [Fact]
         public async Task GetAllLocationInOrganization()
         {

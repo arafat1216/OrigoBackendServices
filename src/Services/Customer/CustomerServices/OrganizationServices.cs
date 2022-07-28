@@ -248,41 +248,39 @@ namespace CustomerServices
         }
 
 
-        public async Task<Organization> PutOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation,
-            Guid callerId, string name, string organizationNumber, string street, string postCode, string city,
-            string country, string firstName, string lastName, string email, string phoneNumber, int lastSalaryReportingDay, string payrollEmail = "", bool addUsersToOkta = false)
+        public async Task<Organization> PutOrganizationAsync(UpdateOrganizationDTO updatedOrganization)
         {
             try
             {
                 // Check id
-                var organizationOriginal = await GetOrganizationAsync(organizationId, true, true);
+                var organizationOriginal = await GetOrganizationAsync(updatedOrganization.OrganizationId, true, true);
                 if (organizationOriginal is null)
                     throw new CustomerNotFoundException("Organization with the given id was not found.");
 
                 // Check parent
-                if (!await ParentOrganizationIsValid(parentId, organizationId))
+                if (!await ParentOrganizationIsValid(updatedOrganization.ParentId, updatedOrganization.OrganizationId))
                     throw new ParentNotValidException("Invalid organization id on parent.");
 
                 // string fields
-                if (name == null || name == string.Empty)
+                if (updatedOrganization.Name == null || updatedOrganization.Name == string.Empty)
                     throw new RequiredFieldIsEmptyException("The name field is required and cannot be one of: (null || string.Empty). Null is allowed for patch queries.");
-                organizationNumber = (organizationNumber is null) ? "" : organizationNumber;
+                updatedOrganization.OrganizationNumber = (updatedOrganization.OrganizationNumber is null) ? "" : updatedOrganization.OrganizationNumber;
 
                 // Check organizationNumber
-                var organizationFromOrgNumber = await GetOrganizationByOrganizationNumberAsync(organizationNumber);
+                var organizationFromOrgNumber = await GetOrganizationByOrganizationNumberAsync(updatedOrganization.OrganizationNumber);
                 if (organizationFromOrgNumber is not null && organizationFromOrgNumber.OrganizationId != organizationOriginal.OrganizationId)
-                    throw new InvalidOrganizationNumberException($"Organization numbers must be unique. An Organization with organization number {organizationNumber} already exists.");
+                    throw new InvalidOrganizationNumberException($"Organization numbers must be unique. An Organization with organization number {updatedOrganization.OrganizationNumber} already exists.");
 
                 // PrimaryLocation
                 Location newLocation;
-                if (primaryLocation is null || primaryLocation == Guid.Empty)
+                if (updatedOrganization.PrimaryLocation is null || updatedOrganization.PrimaryLocation == Guid.Empty)
                     newLocation = new Location("", "", "", "", "", "", "");
                 else
                 {
-                    if (primaryLocation is null)
+                    if (updatedOrganization.PrimaryLocation is null)
                         throw new LocationNotFoundException();
 
-                    newLocation = await _organizationRepository.GetOrganizationLocationAsync((Guid)primaryLocation);
+                    newLocation = await _organizationRepository.GetOrganizationLocationAsync((Guid)updatedOrganization.PrimaryLocation.Value);
 
                     if (newLocation is null)
                         throw new LocationNotFoundException();
@@ -290,18 +288,15 @@ namespace CustomerServices
 
                 // Address
                 Address newAddress;
-                street = (street == null) ? "" : street;
-                postCode = (postCode == null) ? "" : postCode;
-                city = (city == null) ? "" : city;
-                country = (country == null) ? "" : country;
 
-                newAddress = new Address(street, postCode, city, country);
+                newAddress = new Address(updatedOrganization.Address.Street, updatedOrganization.Address.PostCode, updatedOrganization.Address.City, updatedOrganization.Address.Country);
 
                 // Contact Person
-                ContactPerson newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
+                ContactPerson newContactPerson = new ContactPerson(updatedOrganization.ContactPerson.FirstName, updatedOrganization.ContactPerson.LastName, updatedOrganization.ContactPerson.Email, updatedOrganization.ContactPerson.Email);
 
                 // Do update
-                Organization newOrganization = new Organization(organizationId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, lastSalaryReportingDay, payrollEmail, addUsersToOkta);
+                Organization newOrganization = new Organization(updatedOrganization.OrganizationId, updatedOrganization.ParentId, updatedOrganization
+                    .Name, updatedOrganization.OrganizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, updatedOrganization.LastDayForReportingSalaryDeduction, updatedOrganization.PayrollContactEmail, updatedOrganization.AddUsersToOkta == null? false:true);
 
                 organizationOriginal.UpdateOrganization(newOrganization);
 

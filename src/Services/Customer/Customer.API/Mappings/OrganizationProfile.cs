@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Customer.API.WriteModels;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
 
@@ -13,7 +14,8 @@ namespace Customer.API.Mappings
                 .ForMember(d => d.Location, opts => opts.MapFrom(o => o.PrimaryLocation))
                 .ForMember(d => d.Status, opts => opts.MapFrom(o => o.CustomerStatus))
                 .ForMember(d => d.StatusName, opts => opts.MapFrom(o => o.CustomerStatus.ToString()));
-
+            
+            CreateMap<UpdateOrganization, UpdateOrganizationDTO>();
         }
     }
     }

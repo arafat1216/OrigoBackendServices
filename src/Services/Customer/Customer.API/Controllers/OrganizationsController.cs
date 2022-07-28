@@ -160,22 +160,23 @@ namespace Customer.API.Controllers
             try
             {
                 // Get address values
-                bool addressIsNull = (organization.Address == null);
-                string street = (addressIsNull) ? "" : organization.Address.Street;
-                string postCode = (addressIsNull) ? "" : organization.Address.PostCode;
-                string city = (addressIsNull) ? "" : organization.Address.City;
-                string country = (addressIsNull) ? "" : organization.Address.Country;
+                organization.Address = organization.Address == null ? new AddressDTO() : organization.Address;
+                organization.Address.Street = string.IsNullOrEmpty(organization.Address.Street) ? "" : organization.Address.Street;
+                organization.Address.PostCode = string.IsNullOrEmpty(organization.Address.PostCode) ? "" : organization.Address.PostCode;
+                organization.Address.City = string.IsNullOrEmpty(organization.Address.City) ? "" : organization.Address.City;
+                organization.Address.Country = string.IsNullOrEmpty(organization.Address.Country) ? "" : organization.Address.Country;
 
                 // Get ContactPerson values
                 bool contactpersonIsNull = (organization.ContactPerson == null);
-                string firstName = (contactpersonIsNull) ? "" : organization.ContactPerson.FirstName;
-                string lastName = (contactpersonIsNull) ? "" : organization.ContactPerson.LastName;
-                string email = (contactpersonIsNull) ? "" : organization.ContactPerson.Email;
-                string phoneNumber = (contactpersonIsNull) ? "" : organization.ContactPerson.PhoneNumber;
+                organization.ContactPerson = organization.ContactPerson == null ? new ContactPersonDTO() : organization.ContactPerson;
+                organization.ContactPerson.FirstName = string.IsNullOrEmpty(organization.ContactPerson.FirstName) ? "" : organization.ContactPerson.FirstName;
+                organization.ContactPerson.LastName = string.IsNullOrEmpty(organization.ContactPerson.LastName) ? "" : organization.ContactPerson.LastName;
+                organization.ContactPerson.Email = string.IsNullOrEmpty(organization.ContactPerson.Email) ? "" : organization.ContactPerson.Email;
+                organization.ContactPerson.PhoneNumber = string.IsNullOrEmpty(organization.ContactPerson.PhoneNumber) ? "" : organization.ContactPerson.PhoneNumber;
 
+                var updatedData = _mapper.Map<UpdateOrganizationDTO>(organization);
                 // Update
-                var updatedOrganization = await _organizationServices.PutOrganizationAsync(organization.OrganizationId, organization.ParentId, organization.PrimaryLocation, organization.CallerId,
-                                                           organization.Name, organization.OrganizationNumber, street, postCode, city, country, firstName, lastName, email, phoneNumber, organization.LastDayForReportingSalaryDeduction, organization.PayrollContactEmail, organization.AddUsersToOkta ?? default);
+                var updatedOrganization = await _organizationServices.PutOrganizationAsync(updatedData);
 
                 return Ok(_mapper.Map<OrganizationDTO>(updatedOrganization));
 

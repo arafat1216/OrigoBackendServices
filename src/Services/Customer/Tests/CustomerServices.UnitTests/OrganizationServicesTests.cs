@@ -58,8 +58,19 @@ namespace CustomerServices.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task PutCompanyOne_null_values()
         {
+            // Aarrange
+            var orgData = new UpdateOrganizationDTO()
+            {
+                OrganizationId = CUSTOMER_ONE_ID,
+                ParentId = null,
+                PrimaryLocation = null,
+                CallerId = Guid.Empty,
+                Name = "Mytos",
+                LastDayForReportingSalaryDeduction = 1
+            };
+
             // Act
-            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "Mytos", null, null, null, null, null, null, null, null, null, 1, "");
+            var organization = await organizationServices.PutOrganizationAsync(orgData);
 
             // Assert 
             Assert.Equal("Mytos", organization.Name);
@@ -136,8 +147,27 @@ namespace CustomerServices.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task PutCompanyOne_partial_null_values()
         {
+            // Arrange
+            var orgData = new UpdateOrganizationDTO()
+            {
+                OrganizationId = CUSTOMER_ONE_ID,
+                ParentId = null,
+                PrimaryLocation = null,
+                CallerId = Guid.Empty,
+                Name = "name",
+                Address = new AddressDTO()
+                {
+                    Street = "street",
+                },
+                ContactPerson = new ContactPersonDTO()
+                {
+                    FirstName = "FirstName"
+                },
+                LastDayForReportingSalaryDeduction = 1
+            };
+
             // Act
-            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null, 1, "");
+            var organization = await organizationServices.PutOrganizationAsync(orgData);
 
             // Assert 
             Assert.Equal("name", organization.Name);
@@ -159,8 +189,28 @@ namespace CustomerServices.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task PutOrganization_WithAddOktaUsersSet_CheckValue()
         {
+            // Arrange
+            var orgData = new UpdateOrganizationDTO()
+            {
+                OrganizationId = CUSTOMER_ONE_ID,
+                ParentId = null,
+                PrimaryLocation = null,
+                CallerId = Guid.Empty,
+                Name = "name",
+                Address = new AddressDTO()
+                {
+                    Street = "street"
+                },
+                ContactPerson = new ContactPersonDTO()
+                {
+                    FirstName = "FirstName"
+                },
+                LastDayForReportingSalaryDeduction = 1,
+                AddUsersToOkta = true
+            };
+
             // Act
-            var organization = await organizationServices.PutOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null, 1, "", addUsersToOkta: true);
+            var organization = await organizationServices.PutOrganizationAsync(orgData);
 
             // Assert 
             Assert.True(organization.AddUsersToOkta);
