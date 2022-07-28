@@ -21,8 +21,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using Common.Infrastructure;
-using Common.Utilities;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Resources;
 using Common.Configuration;
 

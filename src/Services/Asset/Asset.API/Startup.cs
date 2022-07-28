@@ -105,17 +105,17 @@ namespace Asset.API
 
             app.UseCloudEvents();
             app.UseHealthChecks("/healthz");
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint($"/swagger/v{_apiVersion.MajorVersion}/swagger.json",
-                $"Customer Asset Services v{_apiVersion.MajorVersion}"));
+            //app.UseSwagger();
+            //app.UseSwaggerUI(c => c.SwaggerEndpoint($"/swagger/v{_apiVersion.MajorVersion}/swagger.json",
+            //    $"Customer Asset Services v{_apiVersion.MajorVersion}"));
 
             app.UseRouting();
 
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
                 endpoints.MapSubscribeHandler();
+                endpoints.MapControllers();
                 endpoints.MapHealthChecks("/healthz");
             });
         }
