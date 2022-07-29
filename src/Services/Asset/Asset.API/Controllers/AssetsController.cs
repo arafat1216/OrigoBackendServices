@@ -93,8 +93,6 @@ namespace Asset.API.Controllers
 
         [Route("customers/{customerId:guid}/users/{userId:Guid}")]
         [HttpPatch]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        [Topic("user_deleted_pub_sub", "user_topic")]
         public async Task<ActionResult> UnAssignAssetsFromUser(Guid customerId, Guid userId, [FromBody] UnAssignAssetToUser data)
         {
             await _assetServices.UnAssignAssetLifecyclesForUserAsync(customerId, userId, data.DepartmentId, data.CallerId);
