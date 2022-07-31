@@ -135,6 +135,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         public AssetLifecycleStatus AssetStatus { get; init; }
 
         public string AssetStatusName { get; init; }
+        public decimal OffboardBuyoutPrice { get; init; }
 
         public IList<Label> Labels { get; init; }
 

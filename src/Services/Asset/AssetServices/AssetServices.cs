@@ -389,7 +389,19 @@ namespace AssetServices
             await _assetLifecycleRepository.SaveEntitiesAsync();
             return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
         }
+        public async Task<AssetLifecycleDTO> PendingBuyoutDeviceAsync(Guid customerId, PendingBuyoutDeviceDTO data)
+        {
+            var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null);
+            if (assetLifecycle == null)
+                throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("47308bc8-ceeb-4f79-8910-75224e65ab0d"));
 
+            assetLifecycle.RequestPendingBuyout(data.LasWorkingDay, data.CallerId);
+
+            //TODO: Email to User
+
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+            return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
+        }
         public async Task<AssetLifecycleDTO> BuyoutDeviceAsync(Guid customerId, BuyoutDeviceDTO data)
         {
             var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null);

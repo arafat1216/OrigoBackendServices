@@ -432,6 +432,16 @@ namespace Asset.API.Controllers
             return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
         }
 
+        [Route("customers/{customerId:guid}/pending-buyout")]
+        [HttpPost]
+        [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> PendingBuyoutDeviceAsync(Guid customerId, [FromBody] PendingBuyoutDeviceDTO data)
+        {
+            var updatedAssets = await _assetServices.PendingBuyoutDeviceAsync(customerId, data);
+            return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
+        }
+
         [Route("customers/{customerId:guid}/report-device")]
         [HttpPost]
         [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]

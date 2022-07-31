@@ -103,6 +103,7 @@ public record Asset
     /// The end period for this asset lifecycle.
     /// </summary>
     public DateTime? EndPeriod { get; init; }
+    public decimal OffboardBuyoutPrice { get; init; }
 
     /// <summary>
     ///     The department or cost center this asset is assigned to.

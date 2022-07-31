@@ -778,6 +778,77 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+        public async Task<OrigoAsset> PendingBuyoutDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, List<Guid?> accessList, Guid callerId)
+        {
+            try
+            {
+                var existingAsset = await GetAssetForCustomerAsync(customerId, assetLifeCycleId, null);
+                if (existingAsset == null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && !accessList.Contains(existingAsset.ManagedByDepartmentId))
+                    throw new UnauthorizedAccessException("Manager does not have access to this asset!!!");
+
+                if (existingAsset.AssetHolderId != callerId && role == PredefinedRole.EndUser.ToString()) throw new Exception("Only ContractHolderUser can do buyout!!!");
+
+                var buyoutDTO = new PendingBuyoutDeviceDTO()
+                {
+                    AssetLifeCycleId = assetLifeCycleId,
+                    CallerId = callerId
+                };
+
+                if(existingAsset.AssetHolderId == null)
+                {
+                    throw new Exception("No Asset Contract Holder found!!!");
+                }
+                else
+                {
+                    var user = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
+                    if(user.UserStatus != (int)UserStatus.OffboardInitiated || user.UserStatus != (int)UserStatus.OffboardOverdue)
+                        throw new Exception("User is not Offboarding!!!");
+
+                    buyoutDTO.User = new EmailPersonAttributeDTO()
+                    {
+                        Email = user.Email,
+                        Name = user.FirstName,
+                        PreferedLanguage = user.UserPreference.Language
+                    };
+                    if (user.LastWorkingDay == null)
+                        throw new Exception("User does not have LastWorkingDay set!!!");
+
+                    buyoutDTO.LasWorkingDay = user.LastWorkingDay.Value;
+                }
+
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/pending-buyout";
+
+                var response = await HttpClient.PostAsJsonAsync(requestUri, buyoutDTO);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorDescription = await response.Content.ReadAsStringAsync();
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                }
+
+                var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
+                OrigoAsset result = null;
+                if (asset != null)
+                {
+                    if (asset.AssetCategoryId == 1)
+                        result = _mapper.Map<OrigoMobilePhone>(asset);
+                    else
+                        result = _mapper.Map<OrigoTablet>(asset);
+                }
+                return result;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Unable to buyout assets.");
+                throw;
+            }
+        }
+
         public async Task<OrigoAsset> ReportDeviceAsync(Guid customerId, ReportDevice data, string role, List<Guid?> accessList, Guid callerId)
         {
             try

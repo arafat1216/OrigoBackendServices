@@ -979,6 +979,69 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("customers/{organizationId:guid}/pending-buyout")]
+        [HttpPatch]
+        [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> PendingBuyoutDeviceAsync(Guid organizationId, [FromBody] BuyoutDevice data)
+        {
+            try
+            {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                var department = new List<Guid?>();
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
+                {
+                    foreach (var departmentId in accessList.Split(","))
+                    {
+                        if (Guid.TryParse(departmentId, out var departmentGuid))
+                        {
+                            department.Add(departmentGuid);
+                        }
+                    }
+                }
+                else if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                Guid.TryParse(actor, out Guid callerId);
+                if (data.AssetId == Guid.Empty)
+                    return BadRequest("No asset selected.");
+
+                var updatedAssets = await _assetServices.PendingBuyoutDeviceAsync(organizationId, data.AssetId, role, department, callerId);
+                if (updatedAssets == null)
+                {
+                    return NotFound();
+                }
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+                return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
+            }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, $"Unable to process 'Pending Buyout' for this Asset Id:{data.AssetId}");
+            }
+        }
+
         [Route("customers/{organizationId:guid}/report-device")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]

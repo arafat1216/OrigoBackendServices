@@ -18,5 +18,6 @@
         Inactive = 13,
         Expired = 14,
         ExpiresSoon = 15,
+        PendingBuyout = 16
     }
 }

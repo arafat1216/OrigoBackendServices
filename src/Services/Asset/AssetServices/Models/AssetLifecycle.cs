@@ -79,6 +79,11 @@ public class AssetLifecycle : Entity, IAggregateRoot
     public decimal PaidByCompany { get; init; } = decimal.Zero;
 
     /// <summary>
+    /// the buyout amount that will be deduce after last working day
+    /// </summary>
+    public decimal OffboardBuyoutPrice { get; private set; } = decimal.Zero;
+
+    /// <summary>
     /// Is a personal or non-personal asset.
     /// </summary>
     public bool IsPersonal { get; private set; }
@@ -137,8 +142,6 @@ public class AssetLifecycle : Entity, IAggregateRoot
         }
     }
 
-
-
     /// <summary>
     /// Return the name of the category based on the type of the asset.
     /// </summary>
@@ -175,7 +178,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     public static bool HasActiveState(AssetLifecycleStatus assetLifecycleStatus)
     {
         return assetLifecycleStatus is AssetLifecycleStatus.InputRequired or AssetLifecycleStatus.InUse
-            or AssetLifecycleStatus.Repair or AssetLifecycleStatus.PendingReturn
+            or AssetLifecycleStatus.Repair or AssetLifecycleStatus.PendingReturn or AssetLifecycleStatus.PendingBuyout
             or AssetLifecycleStatus.Available or AssetLifecycleStatus.Active or AssetLifecycleStatus.ExpiresSoon;
     }
 
@@ -440,6 +443,29 @@ public class AssetLifecycle : Entity, IAggregateRoot
     }
 
     /// <summary>
+    /// User has buought out this asset.. 
+    /// </summary>
+    /// <param name="callerId">The userid making this assignment</param>
+    public void RequestPendingBuyout(DateTime lastWorkingDay, Guid callerId)
+    {
+        if (!IsActiveState)
+            throw new InvalidOperationForInactiveState($"{_assetLifecycleStatus}", ExternalId, Guid.Parse("950d05f4-ca1b-43ed-86ea-937c1b1da98d"));
+
+        if (!IsPersonal || ContractHolderUser is null)
+            throw new BuyoutDeviceRequestException($"Only Personal Assets can be requested for bought out!!! asset Id: {ExternalId}", Guid.Parse("1c7358ca-e3bf-44eb-89c3-977004bdb749"));
+
+        if (_assetLifecycleType != LifecycleType.Transactional)
+            throw new BuyoutDeviceRequestException($"Only Assets that have Transactionl Life cycle type can be bought out!!! asset Id: {ExternalId}", Guid.Parse("1462a412-af22-4d2f-94c4-082f658400d3"));
+
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        var previousLifecycleStatus = _assetLifecycleStatus;
+        OffboardBuyoutPrice = BuyoutPriceByDate(lastWorkingDay);
+        AddDomainEvent(new PendingBuyoutDeviceDomainEvent(this, callerId, previousLifecycleStatus));
+        _assetLifecycleStatus = AssetLifecycleStatus.PendingBuyout;
+    }
+
+    /// <summary>
     /// User has Reported this asset.. 
     /// </summary>
     /// <param name="callerId">The userid making this assignment</param>
@@ -598,6 +624,18 @@ public class AssetLifecycle : Entity, IAggregateRoot
             return null;
         }
         return purchaseDate.Date.AddMonths(1).AddDays(-purchaseDate.Day + 1);
+    }
+
+    private decimal BuyoutPriceByDate(DateTime buyoutDate)
+    {
+        if (AssetLifecycleType != LifecycleType.Transactional)
+            return 0;
+        var differenceInMonth = ((buyoutDate.Year - PurchaseDate.Year) * 12) + buyoutDate.Month - PurchaseDate.Month;
+        var bookValue = PaidByCompany - (PaidByCompany / 36 * differenceInMonth);
+        bookValue = bookValue < 0 ? 0 : decimal.Round(bookValue, 2, MidpointRounding.AwayFromZero);
+        var vat = VATConfiguration.Amount;
+        var buyOutPrice = bookValue * vat;
+        return buyOutPrice < 0 ? 0 : decimal.Round(buyOutPrice, 2, MidpointRounding.AwayFromZero);
     }
 
     public void IsSentToRepair(Guid callerId)
