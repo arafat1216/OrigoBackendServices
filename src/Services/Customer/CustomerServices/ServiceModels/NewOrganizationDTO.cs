@@ -34,6 +34,7 @@ public record NewOrganizationDTO
     public string OrganizationNumber { get; init; } = string.Empty;
     [Range(1, 28)]
     public int LastDayForReportingSalaryDeduction { get; init; }
+    [RegularExpression("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$", ErrorMessage = "Invalid Email address!!")]
     public string PayrollContactEmail { get; init; } = string.Empty;
     public AddressDTO Address { get; init; } = new();
 

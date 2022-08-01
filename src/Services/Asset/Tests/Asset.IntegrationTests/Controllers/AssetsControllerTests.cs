@@ -770,7 +770,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     {
         var expiresData = new MakeAssetExpired { AssetLifeCycleId = _assetOne, CallerId = _callerId };
         await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
-        var postData = new BuyoutDeviceDTO { AssetLifeCycleId = _ = _assetOne, CallerId = _callerId };
+        var postData = new BuyoutDeviceDTO { AssetLifeCycleId = _ = _assetOne, CallerId = _callerId, PayrollContactEmail = "test@techstep.no" };
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/buyout-device";
         _testOutputHelper.WriteLine(requestUri);
         var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
@@ -1362,7 +1362,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     {
         var expiresData = new MakeAssetExpired { AssetLifeCycleId = _assetOne, CallerId = _callerId };
         await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
-        var body = new BuyoutDeviceDTO { AssetLifeCycleId = _assetOne, CallerId = _callerId };
+        var body = new BuyoutDeviceDTO { AssetLifeCycleId = _assetOne, CallerId = _callerId, PayrollContactEmail ="test@techstep.no" };
         var buyoutRequest = $"/api/v1/Assets/customers/{_customerId}/buyout-device";
         var buyoutResponse = await _httpClient.PostAsJsonAsync(buyoutRequest, body);
 
@@ -1550,7 +1550,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     {
         var expiresData = new MakeAssetExpired { AssetLifeCycleId = _assetOne, CallerId = _callerId };
         await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
-        var body = new BuyoutDeviceDTO { AssetLifeCycleId = _assetOne, CallerId = _callerId };
+        var body = new BuyoutDeviceDTO { AssetLifeCycleId = _assetOne, CallerId = _callerId, PayrollContactEmail = "test@techstep.no" };
         var buyoutRequest = $"/api/v1/Assets/customers/{_customerId}/buyout-device";
         var buyoutResponse = await _httpClient.PostAsJsonAsync(buyoutRequest, body);
 
@@ -1622,13 +1622,12 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         _testOutputHelper.WriteLine(requestUri);
         var setting = await _httpClient.GetFromJsonAsync<DisposeSetting>(requestUri);
         Assert.True(setting != null);
-        Assert.True(!string.IsNullOrEmpty(setting!.PayrollContactEmail));
     }
 
     [Fact]
     public async Task CreateDisposeSetting()
     {
-        var newSettings = new NewDisposeSetting { PayrollContactEmail = "example@techstep.no", CallerId = _callerId };
+        var newSettings = new NewDisposeSetting { CallerId = _callerId };
         var customerId = Guid.NewGuid();
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
         var requestUri = $"/api/v1/Assets/customers/{customerId}/dispose-setting";
@@ -1640,35 +1639,6 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
                 $"/api/v1/Assets/customers/{customerId}/dispose-setting");
 
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
-        Assert.True(setting!.PayrollContactEmail == newSettings.PayrollContactEmail);
-    }
-
-    [Fact]
-    public async Task CreateDisposeSetting_InvalidPayrollEmail()
-    {
-        var newSettings = new NewDisposeSetting { PayrollContactEmail = "exampleError@techtep", CallerId = _callerId };
-        var customerId = Guid.NewGuid();
-        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
-        var requestUri = $"/api/v1/Assets/customers/{customerId}/dispose-setting";
-        _testOutputHelper.WriteLine(requestUri);
-        var response = await _httpClient.PostAsync(requestUri, JsonContent.Create(newSettings));
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-    }
-
-
-    [Fact]
-    public async Task UpdateDiposeSetting()
-    {
-        var newSettings = new NewDisposeSetting { PayrollContactEmail = "example2@techstep.no", CallerId = _callerId };
-        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
-        var requestUri = $"/api/v1/Assets/customers/{_customerId}/dispose-setting";
-        _testOutputHelper.WriteLine(requestUri);
-        await _httpClient.PutAsJsonAsync(requestUri, newSettings);
-        var setting =
-            await _httpClient.GetFromJsonAsync<DisposeSetting>(
-                $"/api/v1/Assets/customers/{_customerId}/dispose-setting");
-
-        Assert.True(setting!.PayrollContactEmail == newSettings.PayrollContactEmail);
     }
 
     [Fact]

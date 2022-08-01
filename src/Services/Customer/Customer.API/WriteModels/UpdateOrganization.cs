@@ -1,5 +1,6 @@
 ﻿using CustomerServices.ServiceModels;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Customer.API.WriteModels
 {
@@ -10,6 +11,7 @@ namespace Customer.API.WriteModels
 
         public string OrganizationNumber { get; set; }
         public int LastDayForReportingSalaryDeduction { get; set; }
+        [RegularExpression("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$", ErrorMessage = "Invalid Email address!!")]
         public string PayrollContactEmail { get; set; } = string.Empty;
         public AddressDTO Address { get; set; }
 

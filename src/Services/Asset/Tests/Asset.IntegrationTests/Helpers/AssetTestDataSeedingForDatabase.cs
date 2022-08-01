@@ -171,7 +171,7 @@ internal static class AssetTestDataSeedingForDatabase
         assetLifecycleTen.IsSentToRepair(CALLER_ID);
 
 
-        var disposeSetting = new DisposeSetting("example@techstep.no", Guid.Empty);
+        var disposeSetting = new DisposeSetting(Guid.Empty);
         var returnLocation = new ReturnLocation("Return Location","Return to Mr. on 3rd Floor",Guid.NewGuid());
         disposeSetting.AddReturnLocation(returnLocation, COMPANY_ID, Guid.Empty);
         var lifeCycleSettingOne = new LifeCycleSetting(1, true, 700M, 24, Guid.Empty);

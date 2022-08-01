@@ -729,7 +729,7 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-        public async Task<OrigoAsset> BuyoutDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, List<Guid?> accessList, Guid callerId)
+        public async Task<OrigoAsset> BuyoutDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, List<Guid?> accessList, string payrollContactEmail, Guid callerId)
         {
             try
             {
@@ -739,10 +739,11 @@ namespace OrigoApiGateway.Services
                     throw new UnauthorizedAccessException("Manager does not have access to this asset!!!");
 
                 if (existingAsset.AssetHolderId != callerId && role == PredefinedRole.EndUser.ToString()) throw new Exception("Only ContractHolderUser can do buyout!!!");
-
+                
                 var buyoutDTO = new BuyoutDeviceDTO()
                 {
                     AssetLifeCycleId = assetLifeCycleId,
+                    PayrollContactEmail = payrollContactEmail,
                     CallerId = callerId
                 };
 

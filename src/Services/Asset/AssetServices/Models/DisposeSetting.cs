@@ -13,20 +13,14 @@ namespace AssetServices.Models
     [Owned]
     public class DisposeSetting : Entity
     {
-        public DisposeSetting(string payrollContactEmail, Guid callerId)
+        public DisposeSetting(Guid callerId)
         {
             CreatedBy = callerId;
-            PayrollContactEmail = payrollContactEmail;
         }
 
         public DisposeSetting()
         {
         }
-
-        /// <summary>
-        ///     Email where notification will ben sent for payroll information.
-        /// </summary>
-        public string PayrollContactEmail { get; protected set; } = string.Empty;
 
         /// <summary>
         ///     The organization's Return locations/addresses.
@@ -78,19 +72,6 @@ namespace AssetServices.Models
                 return;
             AddDomainEvent(new ReturnLocationUpdatedDomainEvent(returnLocation, callerId, returnLocationData));
             returnLocation.Update(returnLocationData);
-        }
-        /// <summary>
-        ///     Set Payroll Contact Email for this customer.
-        /// </summary>
-        /// <param name="payrollContactEmail">The email for updating PayrollContactEmail</param>
-        /// <param name="callerId">The userid making this assignment</param>
-        public void SetPayrollContactEmail(string payrollContactEmail, Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate = DateTime.UtcNow;
-            var previousEmail = PayrollContactEmail;
-            PayrollContactEmail = payrollContactEmail;
-            AddDomainEvent(new SetPayrollContactEmailDomainEvent(this, callerId, previousEmail));
         }
     }
 }

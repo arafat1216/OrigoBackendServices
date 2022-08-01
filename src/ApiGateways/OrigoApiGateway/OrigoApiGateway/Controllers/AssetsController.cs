@@ -945,8 +945,11 @@ namespace OrigoApiGateway.Controllers
                 Guid.TryParse(actor, out Guid callerId);
                 if (data.AssetId == Guid.Empty)
                     return BadRequest("No asset selected.");
+                var org = await _customerServices.GetCustomerAsync(organizationId);
+                if(string.IsNullOrEmpty(org.PayrollContactEmail))
+                    throw new BadHttpRequestException($"Payroll responsible email need to set first to do buyout for CustomerId: {organizationId}");
 
-                var updatedAssets = await _assetServices.BuyoutDeviceAsync(organizationId, data.AssetId, role, department, callerId);
+                var updatedAssets = await _assetServices.BuyoutDeviceAsync(organizationId, data.AssetId, role, department, org.PayrollContactEmail, callerId);
                 if (updatedAssets == null)
                 {
                     return NotFound();

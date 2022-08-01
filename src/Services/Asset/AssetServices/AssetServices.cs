@@ -396,9 +396,8 @@ namespace AssetServices
             if (assetLifecycle == null)
                 throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("47308bc8-ceeb-4f79-8910-75224e65ab0d"));
 
-            var customerSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
 
-            if (customerSetting is null || customerSetting.DisposeSetting is null || string.IsNullOrEmpty(customerSetting.DisposeSetting.PayrollContactEmail))
+            if (string.IsNullOrEmpty(data.PayrollContactEmail))
             {
                 throw new BuyoutDeviceRequestException($"Payroll responsible email need to set first to do buyout for CustomerId: {customerId}", Guid.Parse("3f0b292c-99a5-4277-a695-4c57acd225b9"));
             }
@@ -413,7 +412,7 @@ namespace AssetServices
                 AssetId = assetLifecycle.ExternalId.ToString(),
                 BuyoutDate = DateTime.UtcNow.ToString("dd MMMM, yyyy"),
                 BuyoutPrice = assetLifecycle.BuyoutPrice.ToString(),
-                Recipient = customerSetting.DisposeSetting.PayrollContactEmail
+                Recipient = data.PayrollContactEmail
             };
             await _emailService.AssetBuyoutEmailAsync(emailData, "en");
 
@@ -754,7 +753,7 @@ namespace AssetServices
         #region DisposeSetting
         public async Task<DisposeSettingDTO> AddDisposeSettingForCustomerAsync(Guid customerId, DisposeSettingDTO disposeSettingDTO, Guid CallerId)
         {
-            var disposeSetting = new DisposeSetting(disposeSettingDTO.PayrollContactEmail, CallerId);
+            var disposeSetting = new DisposeSetting(CallerId);
             var customerSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
             if(customerSetting == null)
             {
@@ -774,11 +773,6 @@ namespace AssetServices
             if (customerSetting == null || customerSetting.DisposeSetting == null)
             {
                 throw new ResourceNotFoundException("No DisposeSetting were found using the given Customer. Did you enter the correct customer Id?", Guid.Parse("23ea63e9-2528-459d-93ab-e7c107779902"));
-            }
-
-            if (customerSetting.DisposeSetting.PayrollContactEmail != disposeSettingDTO.PayrollContactEmail)
-            {
-                customerSetting.DisposeSetting.SetPayrollContactEmail(disposeSettingDTO.PayrollContactEmail, CallerId);
             }
 
             await _assetLifecycleRepository.SaveEntitiesAsync();
