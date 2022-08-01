@@ -1540,6 +1540,7 @@ namespace OrigoApiGateway.Services
             defaultAttributes.Add(new AssetCategoryAttribute { Name = "endPeriod", Required = false });
             defaultAttributes.Add(new AssetCategoryAttribute { Name = "paidByCompany", Required = false });
             defaultAttributes.Add(new AssetCategoryAttribute { Name = "bookValue", Required = false });
+            defaultAttributes.Add(new AssetCategoryAttribute { Name = "offboardBuyoutPrice", Required = false });
             defaultAttributes.Add(new AssetCategoryAttribute { Name = "buyoutPrice", Required = false });
 
             if (categoryId == 1)
