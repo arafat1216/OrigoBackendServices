@@ -8,11 +8,11 @@ namespace HardwareServiceOrder.UnitTests
 {
     public class HardwareServiceOrderServiceBaseTests
     {
-        protected readonly Guid CUSTOMER_ONE_ID = new("42447F76-D9A8-4F0A-B0FF-B4683ACEDD62");
-        protected readonly Guid CUSTOMER_TWO_ID = new("42447F76-D9A8-4F0A-B0FF-B4683ACEDD63");
-        protected readonly Guid CUSTOMER_THREE_ID = new("42447F76-D9A8-4F0A-B0FF-B4683ACEDD64");
-        protected readonly Guid CUSTOMER_FOUR_ID = new("42447F76-D9A8-4F0A-B0FF-B4683ACEDD65");
-        protected readonly Guid CALLER_ONE_ID = new("42447F76-D9A8-4F0A-B0FF-B4683ACEDD63");
+        protected readonly Guid CUSTOMER_ONE_ID = Guid.Parse("42447F76-D9A8-4F0A-B0FF-B4683ACEDD62");
+        protected readonly Guid CUSTOMER_TWO_ID = Guid.Parse("42447F76-D9A8-4F0A-B0FF-B4683ACEDD63");
+        protected readonly Guid CUSTOMER_THREE_ID = Guid.Parse("42447F76-D9A8-4F0A-B0FF-B4683ACEDD64");
+        protected readonly Guid CUSTOMER_FOUR_ID = Guid.Parse("42447F76-D9A8-4F0A-B0FF-B4683ACEDD65");
+        protected readonly Guid CALLER_ONE_ID = Guid.Parse("42447F76-D9A8-4F0A-B0FF-B4683ACEDD63");
 
         protected HardwareServiceOrderServiceBaseTests(DbContextOptions<HardwareServiceOrderContext> dbContext)
         {
@@ -30,7 +30,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var deliveryAddress = new DeliveryAddress(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
             var serviceType = new ServiceType() { Id = 400 };
-            var serviceProvider = new ServiceProvider { OrganizationId = CUSTOMER_ONE_ID };
+            var serviceProvider = new ServiceProvider(CUSTOMER_ONE_ID, "ServiceProviderName");
             AssetInfo assetInfo = new("[AssetBrand]", "[AssetModel]", new HashSet<string>() { "527127734377463" }, "[SerialNumber]", DateOnly.Parse("2020-01-01"), null);
 
             var order1 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_ONE_ID, Guid.NewGuid(), 1, assetInfo, "UserDescription", new ContactDetails(CUSTOMER_ONE_ID, "FirstName", "LastName", "test@test.com", "PhoneNumber"), deliveryAddress, (int)ServiceTypeEnum.SUR, (int)ServiceStatusEnum.Ongoing, (int)ServiceProviderEnum.ConmodoNo, "serviceProviderOrderId1", null, "externalLink", new List<ServiceEvent>());

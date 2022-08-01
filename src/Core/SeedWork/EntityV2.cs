@@ -32,7 +32,7 @@ namespace Common.Seedwork
 
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Auditable"/> class.
+        ///     Initializes a new instance of the <see cref="EntityV2"/> class.
         /// </summary>
         /// <inheritdoc/>
         protected EntityV2() : base()
@@ -41,11 +41,11 @@ namespace Common.Seedwork
 
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Auditable"/> class that is intended for unit-testing.
+        ///     Initializes a new instance of the <see cref="EntityV2"/> class that is intended for unit-testing.
         /// </summary>
         /// <inheritdoc/>
         [Obsolete("This is a reserved constructor that should only be used for unit-testing.")]
-        protected EntityV2(Guid createdBy, DateTimeOffset dateCreated, Guid? updatedBy, DateTimeOffset? dateUpdated, Guid? deletedBy = null, DateTimeOffset? dateDeleted = null, bool isDeleted = false) : base(createdBy, dateCreated, updatedBy, dateUpdated, deletedBy, dateDeleted, isDeleted)
+        protected EntityV2(Guid createdBy, DateTimeOffset dateCreated, Guid? updatedBy = null, DateTimeOffset? dateUpdated = null, Guid? deletedBy = null, DateTimeOffset? dateDeleted = null, bool isDeleted = false) : base(createdBy, dateCreated, updatedBy, dateUpdated, deletedBy, dateDeleted, isDeleted)
         {
         }
 
