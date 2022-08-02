@@ -23,6 +23,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
              */
 
             builder.ToTable("CustomerServiceProvider");
+            builder.HasComment("Configures a customer's service-provider settings.");
 
             builder.HasAlternateKey(x => new { x.CustomerId, x.ServiceProviderId });
 

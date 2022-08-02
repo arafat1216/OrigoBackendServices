@@ -3,41 +3,76 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HardwareServiceOrderServices.SeedData
 {
+    /// <summary>
+    ///     Defines the seeding-data that should be added to the database. 
+    ///     This should only contain seeding-data that is intended for the production-environment.
+    /// </summary>
     internal static class HardwareServiceSeedData
     {
-        static Guid systemUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        /// <summary>
+        ///     The system's user-ID. This identifies an action as being completed by the system.
+        /// </summary>
+        private static readonly Guid _systemUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
 
-        public static void SeedServiceStatus(this ModelBuilder modelBuilder)
+        /// <summary>
+        ///     Applies seeding-data for the <see cref="ServiceStatus"/> entities.
+        /// </summary>
+        /// <param name="builder"></param>
+        public static void SeedServiceStatus(this ModelBuilder builder)
         {
             var statuses = Enum.GetValues(typeof(ServiceStatusEnum))
                     .Cast<int>()
-                    .Where(i => i > 0) //Ignoring Null
-                    .Select(m => new { Id = m, CreatedBy = systemUserId, UpdatedBy = systemUserId, IsDeleted = false });
+                    .Where(i => i > 0) // Ignoring Null
+                    .Select(m => new { Id = m, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
 
-            modelBuilder.Entity<ServiceStatus>().HasData(statuses);
+            builder.Entity<ServiceStatus>().HasData(statuses);
         }
 
 
-        public static void SeedServiceType(this ModelBuilder modelBuilder)
+        /// <summary>
+        ///     Applies seeding-data for the <see cref="ServiceType"/> entities.
+        /// </summary>
+        /// <param name="builder"></param>
+        public static void SeedServiceType(this ModelBuilder builder)
         {
             // Seed data
             var serviceTypes = Enum.GetValues(typeof(ServiceTypeEnum))
                     .Cast<int>()
-                    .Where(i => i > 0) //Ignoring Null
-                    .Select(m => new { Id = m, CreatedBy = systemUserId, UpdatedBy = systemUserId, IsDeleted = false });
+                    .Where(i => i > 0) // Ignoring Null
+                    .Select(m => new { Id = m, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
 
-            modelBuilder.Entity<ServiceType>().HasData(serviceTypes);
+            builder.Entity<ServiceType>().HasData(serviceTypes);
         }
 
 
-        public static void SeedServiceProvider(this ModelBuilder modelBuilder)
+        /// <summary>
+        ///     Applies seeding-data for the <see cref="ServiceProvider"/> entities.
+        /// </summary>
+        /// <param name="builder"></param>
+        public static void SeedServiceProvider(this ModelBuilder builder)
         {
-            // Conmodo Norway
-            modelBuilder.Entity<ServiceProvider>().HasData(new { Id = 1, OrganizationId = Guid.Empty, Name = "Conmodo (NO)", CreatedBy = systemUserId, UpdatedBy = systemUserId, IsDeleted = false, });
+            builder.Entity<ServiceProvider>(entity =>
+            {
+                // Conmodo Norway
+                entity.HasData(new { Id = 1, Name = "Conmodo (NO)", OrganizationId = Guid.Empty, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
 
-            // Conmodo Sweden
-            modelBuilder.Entity<ServiceProvider>().HasData(new { Id = 2, OrganizationId = Guid.Empty, Name = "Conmodo (SE)", CreatedBy = systemUserId, UpdatedBy = systemUserId, IsDeleted = false });
+                // Conmodo Sweden
+                entity.HasData(new { Id = 2, Name = "Conmodo (SE)", OrganizationId = Guid.Empty, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
+            });
+        }
+
+
+        /// <summary>
+        ///     Applies seeding-data for the <see cref="ServiceProviderServiceType"/> entities.
+        /// </summary>
+        /// <param name="builder"></param>
+        public static void SeedServiceProviderServiceType(this ModelBuilder builder)
+        {
+            builder.Entity<ServiceProviderServiceType>(entity =>
+            {
+                entity.HasData(new { Id = 1, ServiceProviderId = 1, ServiceTypeId = (int)ServiceTypeEnum.SUR, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
+            });
         }
     }
 }

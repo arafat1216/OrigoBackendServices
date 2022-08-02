@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HardwareServiceOrderServices.Models
 {
@@ -24,17 +25,12 @@ namespace HardwareServiceOrderServices.Models
         /// </summary>
         /// <param name="organizationId"> The identifier that's used for the service-provider in it's organization-entity. </param>
         /// <param name="name"> The service provider's name. </param>
-        public ServiceProvider(Guid organizationId, string name) : base()
+        public ServiceProvider(string name, Guid organizationId, ISet<ServiceProviderServiceType> supportedServiceTypes) : base()
         {
-            OrganizationId = organizationId;
             Name = name;
+            OrganizationId = organizationId;
+            SupportedServiceTypes = supportedServiceTypes;
         }
-
-
-        /// <summary>
-        ///     The identifier that's used for the service-provider in it's organization-entity.
-        /// </summary>
-        public Guid OrganizationId { get; set; }
 
         /// <summary>
         ///     The service-provider's name.
@@ -43,7 +39,27 @@ namespace HardwareServiceOrderServices.Models
         public string Name { get; set; }
 
 
-        // TODO: Add misc. provider specific things here in the future (e.g. supported categories, models, countries, etc.)...
+        /// <summary>
+        ///     The identifier that's used for the service-provider in it's organization-entity.
+        /// </summary>
+        public Guid OrganizationId { get; set; }
+
+
+        /// <summary>
+        ///     Retrieves all <see cref="ServiceType.Id"/> values contained in <see cref="SupportedServiceTypes"/>.
+        /// </summary>
+        [NotMapped]
+        public IEnumerable<int> SupportedServiceTypesIds
+        {
+            get { return SupportedServiceTypes.Select(e => e.ServiceTypeId); }
+        }
+
+        /// <summary>
+        ///     A collection of all service-types that is supported by this service-provider.
+        /// </summary>
+        public ICollection<ServiceProviderServiceType> SupportedServiceTypes { get; private set; }
+
+        // TODO: Eventually, we will extend this to do something similar for supported countries and asset-categories.
 
 
         /*

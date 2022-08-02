@@ -59,10 +59,13 @@ namespace HardwareServiceOrderServices.Infrastructure
             modelBuilder.ApplyConfiguration(new ServiceStatusConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new ServiceTypeConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new CustomerServiceProviderConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new ServiceProviderServiceTypeConfiguration(_isSQLite));
 
+            // Add mandatory seeding-data
             modelBuilder.SeedServiceStatus();
             modelBuilder.SeedServiceType();
             modelBuilder.SeedServiceProvider();
+            modelBuilder.SeedServiceProviderServiceType();
         }
 
 
