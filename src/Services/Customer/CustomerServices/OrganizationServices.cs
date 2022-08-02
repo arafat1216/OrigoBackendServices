@@ -211,7 +211,7 @@ namespace CustomerServices
             var organization = new Organization(Guid.NewGuid(), newOrganization.ParentId,
                                                 newOrganization.Name, newOrganization.OrganizationNumber, address,
                                                 contactPerson, null, location,
-                                                partner, newOrganization.IsCustomer, newOrganization.LastDayForReportingSalaryDeduction, newOrganization.PayrollContactEmail, newOrganization.AddUsersToOkta);
+                                                partner, newOrganization.IsCustomer, addUsersToOkta: newOrganization.AddUsersToOkta);
 
             organization = await _organizationRepository.AddAsync(organization);
 

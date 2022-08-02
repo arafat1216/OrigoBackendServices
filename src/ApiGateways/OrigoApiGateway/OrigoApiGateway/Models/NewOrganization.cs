@@ -17,9 +17,6 @@ namespace OrigoApiGateway.Models
         ///     The organization-number as used in the national registry.
         /// </summary>
         public string OrganizationNumber { get; init; }
-        public int LastDayForReportingSalaryDeduction { get; init; }
-        [RegularExpression("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$", ErrorMessage = "Invalid Email address!!")]
-        public string PayrollContactEmail { get; init; } = string.Empty;
 
         public Address Address { get; init; }
 

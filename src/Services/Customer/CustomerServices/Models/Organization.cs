@@ -137,7 +137,7 @@ namespace CustomerServices.Models
         public Organization(Guid organizationId, Guid? parentId, string companyName, string orgNumber,
             Address companyAddress, ContactPerson organizationContactPerson,
             OrganizationPreferences organizationPreferences, Location organizationLocation, Partner? partner,
-            bool isCustomer, int lastSalaryReportingDay, string payrollEmail = "", bool addUsersToOkta = false)
+            bool isCustomer, int lastSalaryReportingDay = 1, string payrollEmail = "", bool addUsersToOkta = false)
         {
             Name = companyName;
             ParentId = parentId;

@@ -22,8 +22,6 @@ namespace OrigoApiGateway.Models.BackendDTO
 
         public Guid? PartnerId { get; set; }
         public bool IsCustomer { get; set; }
-        public int LastDayForReportingSalaryDeduction { get; set; }
-        public string PayrollContactEmail { get; set; } = string.Empty;
 
         public NewOrganizationPreferences Preferences { get; set; }
 

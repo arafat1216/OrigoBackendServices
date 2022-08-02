@@ -78,9 +78,7 @@ namespace Customer.API.IntegrationTests.Controllers
                 ParentId = null,
                 InternalNotes = null,
                 IsCustomer = true,
-                Preferences = null,
-                LastDayForReportingSalaryDeduction = 1,
-                PayrollContactEmail = ""
+                Preferences = null
             };
 
             // Do the request
@@ -132,9 +130,7 @@ namespace Customer.API.IntegrationTests.Controllers
                 InternalNotes = null,
                 IsCustomer = true,
                 Preferences = null,
-                AddUsersToOkta = true,
-                LastDayForReportingSalaryDeduction = 1,
-                PayrollContactEmail = ""
+                AddUsersToOkta = true
             };
 
             // Do the request
@@ -380,8 +376,7 @@ namespace Customer.API.IntegrationTests.Controllers
                 ParentId = null,
                 InternalNotes = null,
                 IsCustomer = true,
-                Preferences = null,
-                LastDayForReportingSalaryDeduction = 1,
+                Preferences = null
             };
 
             //Act

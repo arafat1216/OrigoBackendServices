@@ -10,7 +10,7 @@ namespace OrigoApiGateway.Models
         public Guid OrganizationId { get; init; }
         public string Name { get; init; }
         public string OrganizationNumber { get; init; }
-        public int LastDayForReportingSalaryDeduction { get; init; }
+        public int LastDayForReportingSalaryDeduction { get; init; } = 1;
         public string PayrollContactEmail { get; init; } = string.Empty;
         public Address Address { get; init; }
         public OrigoContactPerson ContactPerson { get; init; }

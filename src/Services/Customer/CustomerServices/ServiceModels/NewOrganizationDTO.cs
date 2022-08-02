@@ -11,7 +11,7 @@ public record NewOrganizationDTO
 
     public NewOrganizationDTO(string name, string organizationNumber, AddressDTO address,
         ContactPersonDTO contactPerson, Guid primaryLocation, Guid? parentId, string? internalNotes, Guid? partnerId,
-        bool isCustomer, NewOrganizationPreferencesDTO preferences, int lastSalaryReportingDay, string payrollEmail = "", bool addUsersToOkta = false)
+        bool isCustomer, NewOrganizationPreferencesDTO preferences, bool addUsersToOkta = false)
     {
         Name = name;
         OrganizationNumber = organizationNumber;
@@ -25,17 +25,11 @@ public record NewOrganizationDTO
         IsCustomer = isCustomer;
         Preferences = preferences;
         AddUsersToOkta = addUsersToOkta;
-        LastDayForReportingSalaryDeduction = lastSalaryReportingDay;
-        PayrollContactEmail = payrollEmail;
     }
 
     public string Name { get; init; } = string.Empty;
 
     public string OrganizationNumber { get; init; } = string.Empty;
-    [Range(1, 28)]
-    public int LastDayForReportingSalaryDeduction { get; init; }
-    [RegularExpression("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$", ErrorMessage = "Invalid Email address!!")]
-    public string PayrollContactEmail { get; init; } = string.Empty;
     public AddressDTO Address { get; init; } = new();
 
     public ContactPersonDTO ContactPerson { get; init; } = new();
