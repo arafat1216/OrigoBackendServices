@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
+using AssetServices.DomainEvents;
 using AssetServices.DomainEvents.AssetLifecycleEvents;
 using AssetServices.DomainEvents.EndOfLifeCycleEvents;
 using AssetServices.Exceptions;
@@ -466,6 +467,19 @@ public class AssetLifecycle : Entity, IAggregateRoot
     }
 
     /// <summary>
+    /// User Offboarding cancelled.. 
+    /// </summary>
+    /// <param name="callerId">The userid making this assignment</param>
+    public void OffboardingCancelled(Guid callerId)
+    {
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        OffboardBuyoutPrice = decimal.Zero;
+        AddDomainEvent(new OffboardingCancelledDomainEvent(this, callerId));
+        ReactivatePendingAsset(callerId);
+    }
+
+    /// <summary>
     /// User has Reported this asset.. 
     /// </summary>
     /// <param name="callerId">The userid making this assignment</param>
@@ -495,6 +509,19 @@ public class AssetLifecycle : Entity, IAggregateRoot
         LastUpdatedDate = DateTime.UtcNow;
         _labels.Add(customerLabel);
         AddDomainEvent(new AssignLabelToAssetLifecycleDomainEvent(this, callerId, customerLabel));
+    }
+
+    /// <summary>
+    /// Reactivating pending assets.
+    /// </summary>
+    public void ReactivatePendingAsset(Guid callerId)
+    {
+        if (AssetLifecycleStatus != AssetLifecycleStatus.PendingReturn || AssetLifecycleStatus != AssetLifecycleStatus.PendingBuyout)
+            return;
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        AddDomainEvent(new ReactivatePendingAssetDomainEvent(this, callerId));
+        UpdateAssetStatus(AssetLifecycleStatus.Active, callerId);
     }
 
     /// <summary>

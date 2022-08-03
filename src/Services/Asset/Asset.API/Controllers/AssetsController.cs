@@ -19,6 +19,8 @@ using Common.Enums;
 using Dapr;
 using Microsoft.FeatureManagement;
 using Asset.API.Filters;
+using Common.Model.EventModels;
+using Common.Extensions;
 
 namespace Asset.API.Controllers
 {
@@ -667,6 +669,13 @@ namespace Asset.API.Controllers
 
             var activateAssets = await _assetServices.DeactivateAssetLifecycleStatus(customerId, assetLifecycle);
             return Ok(_mapper.Map<IList<ViewModels.Asset>>(activateAssets));
+        }
+
+        [Topic("customer-pub-sub", "offboard-cancelled")]
+        [HttpPost("customers/cancel-employee-offboarding")]
+        public async Task CancelUserOffboarding([FromBody] UserEvent userEvent)
+        {
+            await _assetServices.CancelUserOffboarding(userEvent.CustomerId, userEvent.UserId, Guid.Empty.SystemUserId());
         }
 
     }

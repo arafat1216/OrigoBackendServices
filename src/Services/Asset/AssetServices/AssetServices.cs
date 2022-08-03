@@ -64,6 +64,21 @@ namespace AssetServices
             await _assetLifecycleRepository.UnAssignAssetLifecyclesForUserAsync(customerId: customerId, userId: userId, departmentId: departmentId, callerId: callerId);
         }
 
+        public async Task CancelUserOffboarding(Guid customerId, Guid userId, Guid callerId)
+        {
+            var assets = await _assetLifecycleRepository.GetAssetLifecyclesForUserAsync(customerId, userId);
+            if (assets == null) return;
+
+            assets = assets.Where(x => x.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn || x.AssetLifecycleStatus == AssetLifecycleStatus.PendingBuyout).ToList();
+            if (!assets.Any()) return;
+
+            foreach (var asset in assets)
+            {
+                asset.OffboardingCancelled(callerId);
+            }
+            await _assetLifecycleRepository.SaveEntitiesAsync();
+        }
+
         public async Task<PagedModel<AssetLifecycleDTO>> GetAssetLifecyclesForCustomerAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
            Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string search, int page, int limit, CancellationToken cancellationToken)
         {

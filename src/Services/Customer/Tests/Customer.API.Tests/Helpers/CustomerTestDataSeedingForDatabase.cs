@@ -157,6 +157,8 @@ namespace Customer.API.IntegrationTests.Helpers
                                 new UserPreference("no", CALLER_ID),
                                 CALLER_ID);
 
+            userTwo.OffboardingInitiated(DateTime.UtcNow.AddDays(60) ,CALLER_ID);
+
             var userThree = new User(organization,
                               USER_THREE_ID,
                               "Ola",

@@ -1239,5 +1239,23 @@ namespace Customer.API.IntegrationTests.Controllers
             }
         }
 
+        [Fact]
+        public async Task CancelOffboarding()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userTwoId}/{_callerId}/cancel-offboarding";
+
+            // Act
+            var response = await httpClient.PostAsync(requestUri, null);
+            var user = await response.Content.ReadFromJsonAsync<User>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal((int)UserStatus.Activated, user!.UserStatus);
+            Assert.Null(user!.LastDayForReportingSalaryDeduction);
+            Assert.Null(user!.LastWorkingDay);
+        }
+
     }
 }

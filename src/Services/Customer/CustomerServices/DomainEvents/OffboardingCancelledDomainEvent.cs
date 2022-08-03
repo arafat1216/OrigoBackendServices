@@ -4,9 +4,9 @@ using System;
 
 namespace CustomerServices.DomainEvents
 {
-    class OffboardingInitiatedDomainEvent : BaseEvent
+    class OffboardingCancelledDomainEvent : BaseEvent
     {
-        public OffboardingInitiatedDomainEvent(User user, Guid callerId) : base(user.UserId)
+        public OffboardingCancelledDomainEvent(User user, Guid callerId) : base(user.UserId)
         {
             User = user;
             CallerId = callerId;
@@ -17,7 +17,7 @@ namespace CustomerServices.DomainEvents
 
         public override string EventMessage()
         {
-            return $"Offboarding Initiated for User {User.Id} by {CallerId}";
+            return $"Offboarding Cancelled for User {User.Id} by {CallerId} and User Status changed to 'Activated'";
         }
 
     }

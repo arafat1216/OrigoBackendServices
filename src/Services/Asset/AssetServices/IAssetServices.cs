@@ -64,5 +64,6 @@ namespace AssetServices
         Task<AssetLifecycleDTO> MakeAssetExpiresSoonAsync(Guid customerId, Guid assetId, Guid callerId);
         Task SyncDepartmentForUserToAssetLifecycleAsync(Guid customerId, Guid userId, Guid? departmentId, Guid callerId);
         Task<AssetLifecycleDTO> PendingBuyoutDeviceAsync(Guid customerId, PendingBuyoutDeviceDTO data);
+        Task CancelUserOffboarding(Guid customerId, Guid userId, Guid callerId);
     }
 }

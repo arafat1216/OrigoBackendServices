@@ -577,5 +577,41 @@ namespace OrigoApiGateway.Controllers
             if (user == null) return NotFound();
             return Ok(user);
         }
+
+        [Route("{userId:Guid}/cancel-offboarding")]
+        [HttpPost]
+        [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<OrigoUser>> CancelOffboarding(Guid organizationId, Guid userId)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString())
+                return Forbid();
+
+            var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+            var department = new List<Guid>();
+
+            if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
+            {
+                foreach (var departmentId in accessList.Split(","))
+                {
+                    if (Guid.TryParse(departmentId, out var departmentGuid))
+                        department.Add(departmentGuid);
+                }
+            }
+            else if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    return Forbid();
+            }
+
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            _ = Guid.TryParse(actor, out Guid callerId);
+
+            var user = await _userServices.CancelOffboarding(organizationId, userId, role, department, callerId);
+            if (user == null) return NotFound();
+            return Ok(user);
+        }
     }
 }

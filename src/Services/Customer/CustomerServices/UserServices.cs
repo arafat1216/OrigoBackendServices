@@ -504,6 +504,27 @@ namespace CustomerServices
             return userDTO;
         }
 
+        public async Task<UserDTO> CancelOffboarding(Guid customerId, Guid userId, Guid callerId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
+
+            user.OffboardingCancelled(callerId);
+            await _organizationRepository.SaveEntitiesAsync();
+
+            var userDeletedEvent = new UserEvent
+            {
+                CustomerId = customerId,
+                UserId = userId,
+                DepartmentId = user.Department?.ExternalDepartmentId,
+                CreatedDate = DateTime.UtcNow
+            };
+            await PublishEvent("customer-pub-sub", "offboard-cancelled", userDeletedEvent);
+
+            var userDTO = _mapper.Map<UserDTO>(user);
+            return userDTO;
+        }
+
         public async Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
             var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
