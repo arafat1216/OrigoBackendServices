@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HardwareServiceOrderServices.Models
@@ -62,6 +63,38 @@ namespace HardwareServiceOrderServices.Models
         public int ServiceProviderId { get; set; }
 
         // TODO: Add translatable properties containing "Name" and "Description".
+
+        /// <summary>
+        ///     Is this an option that the users themselves can choose to include when they are placing service-orders?
+        /// 
+        ///     <para>
+        ///     When <see langword="true"/>, the user that places the order may choose to include this service-addon when 
+        ///     creating a new service-order. All user selectable service-addons are opt-in, and is not included in the service-order
+        ///     unless the user has explicitly added it to the order. </para>
+        ///     
+        ///     <para>
+        ///     If <see langword="false"/>, then the service-addon is always included. </para>
+        /// </summary>
+        /// <remarks>
+        ///     NB: This setting is only applicable if the service-addon has been enabled on the customer!
+        /// </remarks>
+        /// <value>
+        ///     A <see cref="bool"/> that indicates if the service-addon is enforced, or selectable by the user when placing service-orders.
+        /// </value>
+        public bool IsUserSelectable { get; set; }
+
+
+        /// <summary>
+        ///     Can customers turn this addon on/off for their own organization using the administration APIs?
+        /// 
+        ///     <para>
+        ///     When <see langword="true"/>, then customers should be able to toggle the service on/off in their organization settings/APIs. <br/>
+        ///     When <see langword="false"/>, it means that this is a system/backoffice-only setting. </para>
+        /// </summary>
+        /// <value>
+        ///     A <see cref="bool"/> that indicates if customers are allowed to enable/disable this service-addon for their own organization.
+        /// </value>
+        public bool IsCustomerTogglable { get; set; }
 
 
         /*
