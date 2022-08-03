@@ -15,6 +15,12 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             // Call the parent that configures the shared properties from the inherited 'EntityV2' entity
             base.Configure(builder);
 
+
+            /*
+             * Configure relationships
+             */
+
+            
         }
     }
 }

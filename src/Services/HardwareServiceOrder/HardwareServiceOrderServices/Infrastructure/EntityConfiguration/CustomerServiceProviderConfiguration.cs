@@ -29,10 +29,12 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 
 
             /*
-             * Properties
+             * Configure relationships
              */
 
-            // Add here
+            builder.HasOne(e => e.ServiceProvider)
+                   .WithMany(e => e.CustomerServiceProviders)
+                   .HasForeignKey(e => e.ServiceProviderId);
         }
     }
 }

@@ -55,10 +55,7 @@ namespace HardwareServiceOrderServices.SeedData
             builder.Entity<ServiceProvider>(entity =>
             {
                 // Conmodo Norway
-                entity.HasData(new { Id = 1, Name = "Conmodo (NO)", OrganizationId = Guid.Empty, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
-
-                // Conmodo Sweden
-                entity.HasData(new { Id = 2, Name = "Conmodo (SE)", OrganizationId = Guid.Empty, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
+                entity.HasData(new { Id = (int)ServiceProviderEnum.ConmodoNo, Name = "Conmodo (NO)", OrganizationId = Guid.Empty, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
             });
         }
 
@@ -71,7 +68,20 @@ namespace HardwareServiceOrderServices.SeedData
         {
             builder.Entity<ServiceProviderServiceType>(entity =>
             {
-                entity.HasData(new { Id = 1, ServiceProviderId = 1, ServiceTypeId = (int)ServiceTypeEnum.SUR, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
+                entity.HasData(new { Id = 1, ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo, ServiceTypeId = (int)ServiceTypeEnum.SUR, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
+            });
+        }
+
+
+        /// <summary>
+        ///     Applies seeding-data for the <see cref="ServiceOrderAddon"/> entities.
+        /// </summary>
+        /// <param name="builder"></param>
+        public static void SeedServiceOrderAddon(this ModelBuilder builder)
+        {
+            builder.Entity<ServiceOrderAddon>(entity =>
+            {
+                entity.HasData(new { Id = 1, ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo, ThirdPartyId = "", CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
             });
         }
     }

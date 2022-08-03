@@ -30,7 +30,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var deliveryAddress = new DeliveryAddress(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
             var serviceType = new ServiceType() { Id = 400 };
-            var serviceProvider = new ServiceProvider("ServiceProviderName", CUSTOMER_ONE_ID, new HashSet<ServiceProviderServiceType>());
+            var serviceProvider = new ServiceProvider("ServiceProviderName", CUSTOMER_ONE_ID);
             AssetInfo assetInfo = new("[AssetBrand]", "[AssetModel]", new HashSet<string>() { "527127734377463" }, "[SerialNumber]", DateOnly.Parse("2020-01-01"), null);
 
             var order1 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_ONE_ID, Guid.NewGuid(), 1, assetInfo, "UserDescription", new ContactDetails(CUSTOMER_ONE_ID, "FirstName", "LastName", "test@test.com", "PhoneNumber"), deliveryAddress, (int)ServiceTypeEnum.SUR, (int)ServiceStatusEnum.Ongoing, (int)ServiceProviderEnum.ConmodoNo, "serviceProviderOrderId1", null, "externalLink", new List<ServiceEvent>());
