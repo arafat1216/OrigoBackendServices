@@ -7,6 +7,7 @@ using AssetServices.ServiceModel;
 using Common.Enums;
 using Common.Interfaces;
 using Common.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace AssetServices
 {
@@ -65,5 +66,6 @@ namespace AssetServices
         Task SyncDepartmentForUserToAssetLifecycleAsync(Guid customerId, Guid userId, Guid? departmentId, Guid callerId);
         Task<AssetLifecycleDTO> PendingBuyoutDeviceAsync(Guid customerId, PendingBuyoutDeviceDTO data);
         Task CancelUserOffboarding(Guid customerId, Guid userId, Guid callerId);
+        AssetValidationResult ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly);
     }
 }

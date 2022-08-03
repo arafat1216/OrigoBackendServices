@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using AssetServices.Attributes;
 
 namespace AssetServices.Models
 {
@@ -98,22 +99,19 @@ namespace AssetServices.Models
                 throw new InvalidAssetMacAddressException($"{macAddress}",Guid.Parse("509ef045-4b9a-4587-97c8-8f473460b7bf"));
             }
         }
-        protected bool ValidateMacAddress(string? macAddress)
+
+        private bool ValidateMacAddress(string? macAddress)
         {
-            if (macAddress == null || string.IsNullOrEmpty(macAddress)) throw new InvalidAssetMacAddressException($"EMPTY", Guid.Parse("4dfa8a73-bd31-4eb8-96bf-df2ecbfe5471"));
-            
-
-            var regex = "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})|([0-9a-fA-F]{4}\\.[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4})$";
-
-            return Regex.IsMatch(macAddress, regex);
-           
+            if (macAddress == null || string.IsNullOrEmpty(macAddress)) return true;
+            const string MACADDRESS_REGEX = "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})|([0-9a-fA-F]{4}\\.[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4})$";
+            return Regex.IsMatch(macAddress, MACADDRESS_REGEX);
         }
 
-        protected override bool ValidateAsset()
+        public override bool ValidateAsset()
         {
             ErrorMsgList = new List<string>();
 
-            bool validAsset = true;
+            var validAsset = true;
             // General (all types)
             if (string.IsNullOrEmpty(Brand))
             {
@@ -132,7 +130,12 @@ namespace AssetServices.Models
                 ErrorMsgList.Add("Imeis or SerialNumber - An asset must have at least one identifying attribute");
                 validAsset = false;
             }
-            
+
+            if (!ValidateMacAddress(MacAddress))
+            {
+                ErrorMsgList.Add("Invalid MacAddress");
+                validAsset = false;
+            }
 
             return validAsset;
         }

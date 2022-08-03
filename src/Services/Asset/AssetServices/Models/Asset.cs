@@ -77,13 +77,6 @@ namespace AssetServices.Models
         }
 
         /// <summary>
-        /// Defines whether the asset made has the necessary properties set, as defined by ValidateAsset.
-        /// </summary>
-        [NotMapped]
-        [JsonIgnore]
-        public bool AssetPropertiesAreValid { get { return ValidateAsset(); } }
-
-        /// <summary>
         /// List of error messages set when ValidateAsset runs
         /// </summary>
         [NotMapped]
@@ -103,6 +96,6 @@ namespace AssetServices.Models
         ///  - Imei must be valid
         /// </summary>
         /// <returns>Boolean value, true if asset has valid properties, false if not</returns>
-        protected abstract bool ValidateAsset();
+        public abstract bool ValidateAsset();
     }
 }

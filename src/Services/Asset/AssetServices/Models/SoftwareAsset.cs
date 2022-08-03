@@ -10,7 +10,7 @@ namespace AssetServices.Models
         /// </summary>
         public string SerialKey { get; set; }
 
-        protected override bool ValidateAsset()
+        public override bool ValidateAsset()
         {
             ErrorMsgList = new List<string>();
 

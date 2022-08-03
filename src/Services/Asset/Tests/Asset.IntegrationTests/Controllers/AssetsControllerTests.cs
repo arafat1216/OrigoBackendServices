@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -15,7 +16,6 @@ using AssetServices.Models;
 using AssetServices.ServiceModel;
 using Common.Enums;
 using Common.Model;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -93,15 +93,15 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
 
         // Assert
         Assert.Equal(2, pagedAssetList!.Items.Count);
-        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[0]!.CreatedDate.Date);
-        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[1]!.CreatedDate.Date);
+        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList.Items[0].CreatedDate.Date);
+        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList.Items[1].CreatedDate.Date);
     }
 
     [Fact]
     public async Task GetAssetsForCustomer()
     {
         int[] category = { 1, 2 };
-        IList<Guid?> depts = new List<Guid?> { new Guid("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72") };
+        IList<Guid?> departments = new List<Guid?> { new Guid("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72") };
         IList<AssetLifecycleStatus> status =
             new List<AssetLifecycleStatus> { AssetLifecycleStatus.Active, AssetLifecycleStatus.Recycled };
         Guid[] labels = { new("D4535FA6-9EBB-4DCF-AB62-21BE01001345"), new("6031CDA2-C1CC-4593-A450-9EE6F47951D0") };
@@ -109,7 +109,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
 
         var filterOptions = new FilterOptionsForAsset
         {
-            Status = status, Label = labels, Department = depts, Category = category
+            Status = status, Label = labels, Department = departments, Category = category
         };
 
         var json = JsonSerializer.Serialize(filterOptions);
@@ -122,8 +122,8 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
 
         // Assert
         Assert.Equal(2, pagedAssetList!.Items.Count);
-        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[0]!.CreatedDate.Date);
-        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[1]!.CreatedDate.Date);
+        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList.Items[0].CreatedDate.Date);
+        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList.Items[1].CreatedDate.Date);
     }
 
     [Fact]
@@ -137,10 +137,10 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
 
         // Assert
         Assert.Equal(2, pagedAssetList!.Items.Count);
-        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[0]!.CreatedDate.Date);
-        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList!.Items[1]!.CreatedDate.Date);
-        Assert.Equal(_factory.ASSETHOLDER_ONE_ID, pagedAssetList!.Items[0]!.AssetHolderId);
-        Assert.Equal(_factory.ASSETHOLDER_ONE_ID, pagedAssetList!.Items[1]!.AssetHolderId);
+        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList.Items[0].CreatedDate.Date);
+        Assert.Equal(DateTime.UtcNow.Date, pagedAssetList.Items[1].CreatedDate.Date);
+        Assert.Equal(_factory.ASSETHOLDER_ONE_ID, pagedAssetList.Items[0].AssetHolderId);
+        Assert.Equal(_factory.ASSETHOLDER_ONE_ID, pagedAssetList.Items[1].AssetHolderId);
     }
 
     [Fact]
@@ -159,6 +159,27 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         _testOutputHelper.WriteLine(requestUri);
         var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
         Assert.Equal(5, count);
+    }
+
+    [Fact]
+    public async Task ReadAssetFile()
+    {
+        // Arrange
+        var fullFilename = Path.Combine(@"TestData", "demo_fileimport.csv");
+        var assetImportFileBytes = await File.ReadAllBytesAsync(fullFilename);
+        var assetFileByteContent = new ByteArrayContent(assetImportFileBytes);
+        using var content = new MultipartFormDataContent();
+        content.Add(assetFileByteContent, "assetImportFile", "demo_fileimport.csv");
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/import";
+
+        // Act
+        var importResponse = await _httpClient.PostAsync(requestUri, content);
+        var assetValidationResult = await importResponse.Content.ReadFromJsonAsync<AssetValidationResult>();
+
+        // Assert
+        Assert.True(importResponse.IsSuccessStatusCode);
+        Assert.Equal(5, assetValidationResult!.ValidAssets.Count);
+        Assert.Equal(1, assetValidationResult!.InvalidAssets.Count);
     }
 
     [Fact]

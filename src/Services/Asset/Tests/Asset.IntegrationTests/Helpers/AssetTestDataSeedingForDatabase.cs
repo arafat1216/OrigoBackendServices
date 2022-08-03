@@ -47,13 +47,13 @@ internal static class AssetTestDataSeedingForDatabase
             new List<AssetImei> { new(546366434558702) }, "01:23:45:67:89:AB");
 
         var assetThree = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012399", "Samsung", "Samsung Galaxy S21",
-            new List<AssetImei> { new(512217111821626) }, "0123.4567.89AB");
+            new List<AssetImei> { new() }, "0123.4567.89AB");
 
         var assetFour = new MobilePhone(Guid.NewGuid(), CALLER_ID, "123456789012397", "Apple", "iPhone 11 Pro",
-            new List<AssetImei> { new(512217111821624) }, "01:23:00:67:89:AB");
+            new List<AssetImei> { new(512217121821624) }, "01:23:00:67:89:AB");
 
         var assetFive = new Tablet(Guid.NewGuid(), CALLER_ID, "123456789012397", "Apple", "iPhone 11 Pro",
-            new List<AssetImei> { new(512217111821624) }, "0123.4567.89AB");
+            new List<AssetImei> { new(512217411821623) }, "0123.4567.89AB");
 
         var labelOne = new CustomerLabel(LABEL_ONE_ID, COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));
         var labelTwo = new CustomerLabel(LABEL_TWO_ID, COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));

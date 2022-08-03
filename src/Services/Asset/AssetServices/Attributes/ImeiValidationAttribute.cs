@@ -3,21 +3,17 @@ using AssetServices.Utility;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
-namespace AssetServices.Attributes
+namespace AssetServices.Attributes;
+
+public class ImeiValidationAttribute : ValidationAttribute
 {
-    public class ImeiValidationAttribute : ValidationAttribute
+    public override bool IsValid(object? value)
     {
-        public override bool IsValid(object value)
+        if (value == null)
         {
-            var inputValue = value as HardwareAsset;
-            var isValid = false;
-
-            if (AssetValidatorUtility.ValidateImeis(string.Join(',', inputValue.Imeis.Select(i=>i.Imei))))
-            {
-                isValid = true;
-            }
-
-            return isValid;
+            return false;
         }
+        var inputValue = value as HardwareAsset;
+        return inputValue != null && AssetValidatorUtility.ValidateImeis(string.Join(',', inputValue.Imeis.Select(i=>i.Imei)));
     }
 }

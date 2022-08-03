@@ -1,6 +1,9 @@
 ﻿using AssetServices.DomainEvents;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using AssetServices.Attributes;
+using AssetServices.Utility;
 
 namespace AssetServices.Models
 {
@@ -55,6 +58,18 @@ namespace AssetServices.Models
             base.SetMacAddress(macAddress, callerId);
             AddDomainEvent(new MacAddressChangedDomainEvent<MobilePhone>(this, macAddress, callerId));
 
+        }
+
+        public override bool ValidateAsset()
+        {
+            var validAsset = base.ValidateAsset();
+            if (!AssetValidatorUtility.ValidateImeis(string.Join(',', Imeis.Select(i => i.Imei))))
+            {
+                ErrorMsgList.Add("Invalid Imei for mobile phone");
+                validAsset = false;
+            }
+
+            return validAsset;
         }
     }
 }
