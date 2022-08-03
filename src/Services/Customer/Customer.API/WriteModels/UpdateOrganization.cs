@@ -11,7 +11,6 @@ namespace Customer.API.WriteModels
 
         public string OrganizationNumber { get; set; }
         public int LastDayForReportingSalaryDeduction { get; set; } = 1;
-        [EmailAddress]
         public string PayrollContactEmail { get; set; } = string.Empty;
         public AddressDTO Address { get; set; }
 

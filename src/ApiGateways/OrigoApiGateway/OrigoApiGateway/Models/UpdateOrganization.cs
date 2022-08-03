@@ -11,7 +11,6 @@ namespace OrigoApiGateway.Models
         public string Name { get; set; }
         public string OrganizationNumber { get; set; }
         public int LastDayForReportingSalaryDeduction { get; set; } = 1;
-        [EmailAddress]
         public string PayrollContactEmail { get; set; } = string.Empty;
         public Address Address { get; set; }
         public OrigoContactPerson ContactPerson { get; set; }

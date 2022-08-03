@@ -386,6 +386,14 @@ public class CustomerServices : ICustomerServices
     {
         try
         {
+            if (!string.IsNullOrEmpty(organizationToChange.PayrollContactEmail))
+            {
+                if(!new EmailAddressAttribute().IsValid(organizationToChange.PayrollContactEmail))
+                    throw new BadHttpRequestException("Invalid Email for 'PayrollContactEmail'", (int)HttpStatusCode.BadRequest);
+            }
+            if(organizationToChange.LastDayForReportingSalaryDeduction < 1 || organizationToChange.LastDayForReportingSalaryDeduction > 28)
+                throw new BadHttpRequestException("Invalid Input!! Valu must be within (1-28) for 'LastDayForReportingSalaryDeduction'", (int)HttpStatusCode.BadRequest);
+
             var response = await HttpClient.PostAsync($"{_options.ApiPath}/{organizationToChange.OrganizationId}/organization", JsonContent.Create(organizationToChange));
             if (!response.IsSuccessStatusCode)
                 throw new BadHttpRequestException("Unable to update organization", (int)response.StatusCode);
