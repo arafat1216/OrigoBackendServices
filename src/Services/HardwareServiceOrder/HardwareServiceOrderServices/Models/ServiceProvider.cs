@@ -30,6 +30,36 @@ namespace HardwareServiceOrderServices.Models
             OrganizationId = organizationId;
         }
 
+
+        /// <summary>
+        ///     This is a reserved constructor that is used unit-testing and data-seeding. 
+        ///     This constructor should otherwise not be called directly in production code!
+        /// </summary>
+        /// <inheritdoc cref="EntityV2(Guid, DateTimeOffset, Guid?, DateTimeOffset?, Guid?, DateTimeOffset?, bool)"/>
+        [Obsolete("This is a reserved constructor, and should not be used for anything but unit-testing and data-seeding!")]
+        public ServiceProvider(int id,
+                               string name,
+                               Guid organizationId,
+                               ICollection<ServiceProviderServiceType>? supportedServiceTypes,
+                               ICollection<ServiceOrderAddon>? offeredServiceOrderAddons,
+                               Guid createdBy,
+                               DateTimeOffset dateCreated,
+                               Guid? updatedBy = null,
+                               DateTimeOffset? dateUpdated = null,
+                               Guid? deletedBy = null,
+                               DateTimeOffset? dateDeleted = null,
+                               bool isDeleted = false) : base(createdBy, dateCreated, updatedBy, dateUpdated, deletedBy, dateDeleted, isDeleted)
+        {
+            Id = id;
+            Name = name;
+            OrganizationId = organizationId;
+            SupportedServiceTypes = supportedServiceTypes;
+            OfferedServiceOrderAddons = offeredServiceOrderAddons;
+        }
+
+
+
+
         /// <summary>
         ///     The service-provider's name.
         /// </summary>
@@ -95,6 +125,5 @@ namespace HardwareServiceOrderServices.Models
         ///     containing the <see cref="CustomerServiceProvider"/> entities tied to this service-provider.
         /// </value>
         public virtual ICollection<CustomerServiceProvider>? CustomerServiceProviders { get; private set; }
-
     }
 }

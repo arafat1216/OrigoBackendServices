@@ -34,6 +34,33 @@ namespace HardwareServiceOrderServices.Models
         }
 
 
+        /// <summary>
+        ///     This is a reserved constructor that is used unit-testing and data-seeding. 
+        ///     This constructor should otherwise not be called directly in production code!
+        /// </summary>
+        /// <inheritdoc cref="EntityV2(Guid, DateTimeOffset, Guid?, DateTimeOffset?, Guid?, DateTimeOffset?, bool)"/>
+        [Obsolete("This is a reserved constructor, and should not be used for anything but unit-testing and data-seeding!")]
+        public ServiceOrderAddon(int id,
+                                 int serviceProviderId,
+                                 string thirdPartyId,
+                                 bool isUserSelectable,
+                                 bool isCustomerTogglable,
+                                 Guid createdBy,
+                                 DateTimeOffset dateCreated,
+                                 Guid? updatedBy = null,
+                                 DateTimeOffset? dateUpdated = null,
+                                 Guid? deletedBy = null,
+                                 DateTimeOffset? dateDeleted = null,
+                                 bool isDeleted = false) : base(createdBy, dateCreated, updatedBy, dateUpdated, deletedBy, dateDeleted, isDeleted)
+        {
+            Id = id;
+            ServiceProviderId = serviceProviderId;
+            ThirdPartyId = thirdPartyId;
+            IsUserSelectable = isUserSelectable;
+            IsCustomerTogglable = isCustomerTogglable;
+        }
+
+
         /*
          * Entity properties
          */
