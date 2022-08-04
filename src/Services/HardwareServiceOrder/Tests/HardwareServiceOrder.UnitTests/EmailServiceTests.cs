@@ -1,19 +1,16 @@
-﻿using Xunit;
-using System.Resources;
-using System.Reflection;
-using HardwareServiceOrderServices.Email;
-using System.Globalization;
-using Microsoft.Extensions.Options;
+﻿using AutoMapper;
 using Common.Configuration;
 using Common.Utilities;
-using Microsoft.EntityFrameworkCore;
-using HardwareServiceOrderServices.Infrastructure;
-using AutoMapper;
-using HardwareServiceOrderServices.Mappings;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
 using HardwareServiceOrderServices.Configuration;
+using HardwareServiceOrderServices.Email;
+using HardwareServiceOrderServices.Infrastructure;
+using HardwareServiceOrderServices.Mappings;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using System.Globalization;
+using System.Reflection;
+using System.Resources;
+using System.Threading.Tasks;
 
 namespace HardwareServiceOrder.UnitTests
 {

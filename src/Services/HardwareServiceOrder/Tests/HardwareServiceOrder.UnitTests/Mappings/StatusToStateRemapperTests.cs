@@ -1,7 +1,4 @@
-﻿using HardwareServiceOrderServices.Models;
-using Xunit;
-
-namespace HardwareServiceOrderServices.Mappings.Tests
+﻿namespace HardwareServiceOrderServices.Mappings.Tests
 {
     public class StatusToStateRemapperTests
     {

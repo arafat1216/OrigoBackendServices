@@ -1,25 +1,15 @@
 ﻿using AutoMapper;
-using Common.Configuration;
-using Common.Utilities;
 using HardwareServiceOrderServices;
-using HardwareServiceOrderServices.Configuration;
 using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Infrastructure;
-using HardwareServiceOrderServices.Mappings;
-using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
 using HardwareServiceOrderServices.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Moq;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Resources;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace HardwareServiceOrder.UnitTests
 {
@@ -186,9 +176,9 @@ namespace HardwareServiceOrder.UnitTests
         public async Task ConfigureCustomerServiceProvider()
         {
             await _hardwareServiceOrderService.ConfigureCustomerServiceProviderAsync(providerId: 1, customerId: CUSTOMER_ONE_ID, apiUsername: "123456", apiPassword: "password123");
-            
+
             var apiUserName = await _hardwareServiceOrderService.GetServicerProvidersUsernameAsync(CUSTOMER_ONE_ID, 1);
-            
+
             Assert.Equal("123456", apiUserName);
         }
 

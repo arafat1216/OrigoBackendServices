@@ -1,10 +1,6 @@
 ﻿using AutoMapper;
 using HardwareServiceOrderServices.Mappings;
-using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
-using System;
-using System.Collections.Generic;
-using Xunit;
 
 namespace HardwareServiceOrder.UnitTests
 {

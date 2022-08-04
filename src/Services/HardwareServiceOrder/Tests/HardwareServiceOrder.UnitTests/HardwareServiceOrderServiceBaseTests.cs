@@ -1,8 +1,5 @@
 ﻿using HardwareServiceOrderServices.Infrastructure;
-using HardwareServiceOrderServices.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 
 namespace HardwareServiceOrder.UnitTests
 {
