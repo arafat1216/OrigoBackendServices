@@ -14,7 +14,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         public Guid? ParentId { get; set; }
         public Guid CallerId { get; set; }
         public bool? AddUsersToOkta { get; set; }
-        public int LastDayForReportingSalaryDeduction { get; set; } = 1;
+        public int? LastDayForReportingSalaryDeduction { get; set; }
         public string PayrollContactEmail { get; set; } = string.Empty;
     }
 }

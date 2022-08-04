@@ -5,7 +5,7 @@ namespace CustomerServices.DomainEvents
 {
     public class SetLastDayOfReportingSalaryDeductionDomainEvent : BaseEvent
     {
-        public SetLastDayOfReportingSalaryDeductionDomainEvent(Organization organization, int previousDate) : base(
+        public SetLastDayOfReportingSalaryDeductionDomainEvent(Organization organization, int? previousDate) : base(
         organization.OrganizationId)
         {
             Organization = organization;
@@ -13,7 +13,7 @@ namespace CustomerServices.DomainEvents
         }
 
         public Organization Organization { get; protected set; }
-        public int PreviousDate { get; protected set; }
+        public int? PreviousDate { get; protected set; }
 
         public override string EventMessage()
         {

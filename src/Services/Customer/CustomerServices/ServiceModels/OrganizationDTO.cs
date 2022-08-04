@@ -50,7 +50,7 @@ namespace CustomerServices.ServiceModels
         public string OrganizationNumber { get; set; }
 
         /// <inheritdoc cref="Organization.LastDayForReportingSalaryDeduction"/>
-        public int LastDayForReportingSalaryDeduction { get; set; }
+        public int? LastDayForReportingSalaryDeduction { get; set; }
 
         /// <inheritdoc cref="Organization.PayrollContactEmail"/>
         public string PayrollContactEmail { get; set; } = string.Empty;

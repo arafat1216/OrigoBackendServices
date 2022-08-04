@@ -72,7 +72,7 @@ namespace CustomerServices.Models
         ///     Last day in month to report Salary Deduction.
         /// </summary>
         [Range(1, 28)]
-        public int LastDayForReportingSalaryDeduction { get; protected set; }
+        public int? LastDayForReportingSalaryDeduction { get; protected set; }
 
         /// <summary>
         ///     Email where notification will ben sent for payroll information.
@@ -137,7 +137,7 @@ namespace CustomerServices.Models
         public Organization(Guid organizationId, Guid? parentId, string companyName, string orgNumber,
             Address companyAddress, ContactPerson organizationContactPerson,
             OrganizationPreferences organizationPreferences, Location organizationLocation, Partner? partner,
-            bool isCustomer, int lastSalaryReportingDay = 1, string payrollEmail = "", bool addUsersToOkta = false)
+            bool isCustomer, int? lastSalaryReportingDay, string payrollEmail = "", bool addUsersToOkta = false)
         {
             Name = companyName;
             ParentId = parentId;
@@ -214,7 +214,7 @@ namespace CustomerServices.Models
                 AddUsersToOkta = organization.AddUsersToOkta;
             }
 
-            if(LastDayForReportingSalaryDeduction != organization.LastDayForReportingSalaryDeduction)
+            if(organization.LastDayForReportingSalaryDeduction != null &&  (LastDayForReportingSalaryDeduction != organization.LastDayForReportingSalaryDeduction))
             {
                 var previousDate = organization.LastDayForReportingSalaryDeduction;
                 LastDayForReportingSalaryDeduction = organization.LastDayForReportingSalaryDeduction;

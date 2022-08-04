@@ -147,7 +147,7 @@ namespace Customer.API.IntegrationTests.Controllers
         }
 
         [Fact()]
-        public async Task UpdateOrganizationTest_LastDayOfReport()
+        public async Task UpdateOrganizationTest_WithLastDayOfReport()
         {
             // Setup
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
@@ -156,13 +156,10 @@ namespace Customer.API.IntegrationTests.Controllers
             var org = await httpClient.GetFromJsonAsync<OrganizationDTO>(requestUri);
 
             // Do the request
-            org.LastDayForReportingSalaryDeduction = 20;
-            org.PayrollContactEmail = "example@techstep.com";
             var orgData = new UpdateOrganization()
             {
                 OrganizationId = _organizationId,
                 LastDayForReportingSalaryDeduction = 20,
-                PayrollContactEmail = "example@techstep.com",
                 Name = org.Name
             };
             requestUri = $"/api/v1/organizations/{_organizationId}/organization";
@@ -173,10 +170,89 @@ namespace Customer.API.IntegrationTests.Controllers
 
             // Check asserts
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(org.LastDayForReportingSalaryDeduction, updatedOrg!.LastDayForReportingSalaryDeduction);
-            Assert.Equal(org.PayrollContactEmail, updatedOrg!.PayrollContactEmail);
+            Assert.Equal(orgData.LastDayForReportingSalaryDeduction, updatedOrg!.LastDayForReportingSalaryDeduction);
         }
 
+        [Fact()]
+        public async Task UpdateOrganizationTest_WithoutLastDayOfReport()
+        {
+            // Setup
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_organizationId}/true";
+            _testOutputHelper.WriteLine(requestUri);
+            var org = await httpClient.GetFromJsonAsync<OrganizationDTO>(requestUri);
+
+            // Do the request
+            var orgData = new UpdateOrganization()
+            {
+                OrganizationId = _organizationId,
+                Name = "UpdateTest"
+            };
+            requestUri = $"/api/v1/organizations/{_organizationId}/organization";
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(org));
+            var response = await _httpClient.PutAsJsonAsync(requestUri, orgData);
+            var responseasd = await response.Content.ReadAsStringAsync();
+            var updatedOrg = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+
+            // Check asserts
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(orgData.Name, updatedOrg!.Name);
+            Assert.Equal(org!.LastDayForReportingSalaryDeduction, updatedOrg!.LastDayForReportingSalaryDeduction);
+        }
+
+        [Fact()]
+        public async Task UpdateOrganizationTest_WithPayrollEmail()
+        {
+            // Setup
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_organizationId}/true";
+            _testOutputHelper.WriteLine(requestUri);
+            var org = await httpClient.GetFromJsonAsync<OrganizationDTO>(requestUri);
+
+            // Do the request
+            var orgData = new UpdateOrganization()
+            {
+                OrganizationId = _organizationId,
+                PayrollContactEmail = "example@techstep.no",
+                Name = org.Name
+            };
+            requestUri = $"/api/v1/organizations/{_organizationId}/organization";
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(org));
+            var response = await _httpClient.PutAsJsonAsync(requestUri, orgData);
+            var responseasd = await response.Content.ReadAsStringAsync();
+            var updatedOrg = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+
+            // Check asserts
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(orgData.PayrollContactEmail, updatedOrg!.PayrollContactEmail);
+        }
+
+        [Fact()]
+        public async Task UpdateOrganizationTest_WithoutPayrollEmail()
+        {
+            // Setup
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_organizationId}/true";
+            _testOutputHelper.WriteLine(requestUri);
+            var org = await httpClient.GetFromJsonAsync<OrganizationDTO>(requestUri);
+
+            // Do the request
+            var orgData = new UpdateOrganization()
+            {
+                OrganizationId = _organizationId,
+                Name = "UpdateTest"
+            };
+            requestUri = $"/api/v1/organizations/{_organizationId}/organization";
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(org));
+            var response = await _httpClient.PutAsJsonAsync(requestUri, orgData);
+            var responseasd = await response.Content.ReadAsStringAsync();
+            var updatedOrg = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+
+            // Check asserts
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(orgData.Name, updatedOrg!.Name);
+            Assert.Equal(org!.PayrollContactEmail, updatedOrg!.PayrollContactEmail);
+        }
         [Fact]
         public async Task GetAllLocationInOrganization()
         {

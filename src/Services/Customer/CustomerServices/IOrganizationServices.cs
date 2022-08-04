@@ -31,7 +31,7 @@ namespace CustomerServices
         Task<Organization> PutOrganizationAsync(UpdateOrganizationDTO updatedOrganization);
         Task<Organization> PatchOrganizationAsync(Guid organizationId, Guid? parentId, Guid? primaryLocation, Guid callerId, string name, string organizationNumber,
                                                                string street, string postCode, string city, string country,
-                                                               string firstName, string lastName, string email, string phoneNumber, int lastSalaryReportingDay, string payrollEmail = "", bool addUsersToOkta = false);
+                                                               string firstName, string lastName, string email, string phoneNumber, int? lastSalaryReportingDay, string payrollEmail = "", bool addUsersToOkta = false);
         Task<Organization> DeleteOrganizationAsync(Guid organizationId, Guid callerId, bool hardDelete = false);
         Task<OrganizationPreferencesDTO> GetOrganizationPreferencesAsync(Guid organizationId);
         Task<OrganizationPreferences> UpdateOrganizationPreferencesAsync(OrganizationPreferences preferences, bool usingPatch = false);

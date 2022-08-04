@@ -10,7 +10,7 @@ namespace Customer.API.WriteModels
         public string Name { get; set; }
 
         public string OrganizationNumber { get; set; }
-        public int LastDayForReportingSalaryDeduction { get; set; } = 1;
+        public int? LastDayForReportingSalaryDeduction { get; set; }
         public string PayrollContactEmail { get; set; } = string.Empty;
         public AddressDTO Address { get; set; }
 

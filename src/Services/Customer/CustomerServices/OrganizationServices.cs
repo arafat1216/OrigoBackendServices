@@ -211,7 +211,7 @@ namespace CustomerServices
             var organization = new Organization(Guid.NewGuid(), newOrganization.ParentId,
                                                 newOrganization.Name, newOrganization.OrganizationNumber, address,
                                                 contactPerson, null, location,
-                                                partner, newOrganization.IsCustomer, addUsersToOkta: newOrganization.AddUsersToOkta);
+                                                partner, newOrganization.IsCustomer, lastSalaryReportingDay: null, addUsersToOkta: newOrganization.AddUsersToOkta);
 
             organization = await _organizationRepository.AddAsync(organization);
 
@@ -341,7 +341,7 @@ namespace CustomerServices
         public async Task<Organization> PatchOrganizationAsync(Guid organizationId, Guid? parentId,
             Guid? primaryLocation, Guid callerId, string name, string organizationNumber, string street,
             string postCode, string city, string country, string firstName, string lastName, string email,
-            string phoneNumber, int lastSalaryReportingDay, string payrollEmail = "", bool addUsersToOkta = false)
+            string phoneNumber, int? lastSalaryReportingDay, string payrollEmail = "", bool addUsersToOkta = false)
         {
             try
             {

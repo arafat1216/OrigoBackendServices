@@ -93,9 +93,9 @@ namespace CustomerServices.Models
         {
             get
             {
-                if (LastWorkingDay == null || Customer == null)
+                if (LastWorkingDay == null || Customer == null || Customer.LastDayForReportingSalaryDeduction == null)
                     return null;
-                var deductionDate = new DateTime(LastWorkingDay.Value.Year, LastWorkingDay.Value.Month, Customer.LastDayForReportingSalaryDeduction);
+                var deductionDate = new DateTime(LastWorkingDay.Value.Year, LastWorkingDay.Value.Month, Customer.LastDayForReportingSalaryDeduction.Value);
                 if ((LastWorkingDay.Value - deductionDate).TotalDays > 0)
                     return deductionDate;
                 else

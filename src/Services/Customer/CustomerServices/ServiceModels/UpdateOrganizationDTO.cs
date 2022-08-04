@@ -12,7 +12,7 @@ namespace CustomerServices.ServiceModels
         public string Name { get; set; }
 
         public string OrganizationNumber { get; set; }
-        public int LastDayForReportingSalaryDeduction { get; set; }
+        public int? LastDayForReportingSalaryDeduction { get; set; }
         public string PayrollContactEmail { get; set; } = string.Empty;
         public AddressDTO Address { get; set; } = new AddressDTO();
 
