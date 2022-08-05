@@ -13,7 +13,7 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="apiPassword">Password for calling provider's API</param>
         /// <returns></returns>
         Task<string?> ConfigureCustomerServiceProviderAsync(int providerId, Guid customerId, string? apiUsername, string? apiPassword);
-        
+
         /// <summary>
         /// Configure customer settings
         /// </summary>
@@ -36,8 +36,6 @@ namespace HardwareServiceOrderServices.Models
         Task<CustomerSettings?> GetSettingsAsync(Guid customerId);
 
         Task<string?> GetServiceIdAsync(Guid customerId);
-
-        Task<IEnumerable<HardwareServiceOrder>> GetAllOrdersAsync(DateTime? olderThan = null, List<int>? statusIds = null);
 
         /// <summary>
         /// Get order
@@ -91,7 +89,7 @@ namespace HardwareServiceOrderServices.Models
         /// <returns></returns>
         Task UpdateServiceEventsAsync(HardwareServiceOrder order, IEnumerable<ServiceEvent> events);
         Task<HardwareServiceOrder> CreateHardwareServiceOrder(HardwareServiceOrder serviceOrder);
-        
+
         /// <summary>
         /// Get customer's service provider
         /// </summary>
@@ -102,5 +100,20 @@ namespace HardwareServiceOrderServices.Models
 
         Task<ServiceType?> GetServiceTypeAsync(int id);
         Task<ServiceStatus?> GetServiceStatusAsync(int id);
+
+        /// <summary>
+        ///     Retrieves all service-providers that exist in the system.
+        /// </summary>
+        /// <param name="includeSupportedServiceTypes"> Should <see cref="ServiceProvider.SupportedServiceTypes"/> be loaded and included in the result? </param>
+        /// <param name="includeOfferedServiceOrderAddons"> Should <see cref="ServiceProvider.OfferedServiceOrderAddons"/> be loaded and included in the result? </param>
+        /// <param name="asNoTracking"> 
+        ///     Should the query be run using '<c>AsNoTracking</c>'? 
+        ///     
+        ///     <para>
+        ///     To improve performance, this should be set to <see langword="true"/> for read-only operations.
+        ///     However, if any write operations will occur, then this should always be set to <see langword="false"/>. </para>
+        /// </param>
+        /// <returns> A collection containing all matching service-providers. </returns>
+        Task<IEnumerable<ServiceProvider>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons, bool asNoTracking);
     }
 }

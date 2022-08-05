@@ -1,16 +1,11 @@
 ﻿using AutoMapper;
-using Common.Cryptography;
 using Common.Interfaces;
-using HardwareServiceOrderServices.Configuration;
 using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Email.Models;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
 using HardwareServiceOrderServices.Services;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Extensions.Options;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace HardwareServiceOrderServices
 {
@@ -18,10 +13,12 @@ namespace HardwareServiceOrderServices
     {
         private readonly IHardwareServiceOrderRepository _hardwareServiceOrderRepository;
         private readonly IMapper _mapper;
-        private IEmailService _emailService;
+        private readonly IEmailService _emailService;
         private readonly IProviderFactory _providerFactory;
         private readonly Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> _serviceOrderStatusHandlers;
         private readonly IDataProtectionProvider _dataProtectionProvider;
+
+
         public HardwareServiceOrderService(
             IHardwareServiceOrderRepository hardwareServiceOrderRepository,
             IMapper mapper,
@@ -38,7 +35,8 @@ namespace HardwareServiceOrderServices
             _dataProtectionProvider = dataProtectionProvider;
         }
 
-        /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureLoanPhoneAsync(Guid, string, string, bool, Guid)"/>
+
+        /// <inheritdoc/>
         public async Task<CustomerSettingsDTO> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, bool providesLoanDevice, Guid callerId)
         {
             if (providesLoanDevice && string.IsNullOrEmpty(loanPhoneEmail))
@@ -51,7 +49,8 @@ namespace HardwareServiceOrderServices
             return dto;
         }
 
-        /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureCustomerSettingsAsync(Guid, Guid)"/>
+
+        /// <inheritdoc/>
         public async Task<CustomerSettingsDTO> ConfigureCustomerSettingsAsync(Guid customerId, Guid callerId)
         {
             var entity = await _hardwareServiceOrderRepository.ConfigureCustomerSettingsAsync(customerId, callerId);
@@ -61,6 +60,8 @@ namespace HardwareServiceOrderServices
             return dto;
         }
 
+
+        /// <inheritdoc/>
         public async Task<HardwareServiceOrderDTO> CreateHardwareServiceOrderAsync(Guid customerId, NewHardwareServiceOrderDTO serviceOrderDTO)
         {
             var customerSetting = await GetSettingsAsync(customerId);
@@ -107,7 +108,7 @@ namespace HardwareServiceOrderServices
                     customerId,
                     serviceOrderDTO.AssetInfo.AssetLifecycleId,
                     // TODO: Fix this as we should not have the category id in the child object..
-                    (serviceOrderDTO.AssetInfo.AssetCategoryId.HasValue) ? serviceOrderDTO.AssetInfo.AssetCategoryId.Value : 0,
+                    serviceOrderDTO.AssetInfo.AssetCategoryId ?? 0,
                     new(
                         serviceOrderDTO.AssetInfo.Brand,
                         serviceOrderDTO.AssetInfo.Model,
@@ -156,7 +157,8 @@ namespace HardwareServiceOrderServices
             }
         }
 
-        /// <inheritdoc cref="IHardwareServiceOrderService.GetHardwareServiceOrderAsync(Guid, Guid)"/>
+
+        /// <inheritdoc/>
         public async Task<HardwareServiceOrderDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
         {
             var orderEntity = await _hardwareServiceOrderRepository.GetOrderAsync(orderId);
@@ -164,6 +166,8 @@ namespace HardwareServiceOrderServices
             return _mapper.Map<HardwareServiceOrderDTO>(orderEntity);
         }
 
+
+        /// <inheritdoc/>
         public async Task<PagedModel<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {
             var orderEntities = await _hardwareServiceOrderRepository.GetAllOrdersAsync(customerId, userId, activeOnly, page, limit, cancellationToken);
@@ -178,6 +182,8 @@ namespace HardwareServiceOrderServices
             };
         }
 
+
+        /// <inheritdoc/>
         public async Task<CustomerSettingsDTO> GetSettingsAsync(Guid customerId)
         {
             var entity = await _hardwareServiceOrderRepository.GetSettingsAsync(customerId);
@@ -187,7 +193,8 @@ namespace HardwareServiceOrderServices
             return dto;
         }
 
-        /// <inheritdoc cref="IHardwareServiceOrderService.UpdateOrderStatusAsync"/>
+
+        /// <inheritdoc/>
         public async Task UpdateOrderStatusAsync()
         {
             var customerProviders = await _hardwareServiceOrderRepository.GetAllCustomerProvidersAsync();
@@ -231,7 +238,7 @@ namespace HardwareServiceOrderServices
         }
 
 
-        /// <inheritdoc cref="IHardwareServiceOrderService.ConfigureCustomerServiceProviderAsync(int, Guid, string?, string?)"/>
+        /// <inheritdoc/>
         public async Task<string?> ConfigureCustomerServiceProviderAsync(int providerId, Guid customerId, string? apiUsername, string? apiPassword)
         {
             var protector = _dataProtectionProvider.CreateProtector($"{customerId}");
@@ -245,7 +252,8 @@ namespace HardwareServiceOrderServices
             return await _hardwareServiceOrderRepository.ConfigureCustomerServiceProviderAsync(providerId, customerId, apiUsername, apiPassword);
         }
 
-        /// <inheritdoc cref="IHardwareServiceOrderService.GetServicerProvidersUsernameAsync(Guid, int)"/>
+
+        /// <inheritdoc/>
         public async Task<string?> GetServicerProvidersUsernameAsync(Guid customerId, int providerId)
         {
             var serviceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, providerId);
@@ -258,6 +266,16 @@ namespace HardwareServiceOrderServices
             var decryptedApiUserName = protector.Unprotect(serviceProvider?.ApiUserName);
 
             return decryptedApiUserName;
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<ServiceProviderDTO>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons)
+        {
+            var serviceProviders = await _hardwareServiceOrderRepository.GetAllServiceProvidersAsync(true, true, true);
+            var serviceProviderDTOs = _mapper.Map<IEnumerable<ServiceProviderDTO>>(serviceProviders);
+
+            return serviceProviderDTOs;
         }
     }
 }

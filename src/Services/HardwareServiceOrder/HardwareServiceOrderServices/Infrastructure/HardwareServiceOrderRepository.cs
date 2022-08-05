@@ -1,5 +1,6 @@
 ﻿using Common.Extensions;
 using Common.Interfaces;
+using HardwareServiceOrderServices.Conmodo.ApiModels;
 using HardwareServiceOrderServices.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -97,25 +98,6 @@ namespace HardwareServiceOrderServices.Infrastructure
             }
 
             return settings;
-        }
-
-        /// <summary>
-        /// Get all status regardless of customer
-        /// </summary>
-        /// <param name="olderThan">Must return orders those are older than specified date</param>
-        /// <param name="statusIds">The value-mappings can be retrieved from <see cref="ServiceStatusEnum"/>.</param>
-        /// <returns></returns>
-        public async Task<IEnumerable<HardwareServiceOrder>> GetAllOrdersAsync(DateTime? olderThan = null, List<int>? statusIds = null)
-        {
-            var orders = _hardwareServiceOrderContext.HardwareServiceOrders.Include(m => m.Status).AsQueryable();
-
-            if (olderThan != null)
-                orders = orders.Where(m => m.DateCreated <= olderThan);
-
-            if (statusIds != null)
-                orders = orders.Where(m => statusIds.Contains(m.Status.Id));
-
-            return await orders.ToListAsync();
         }
 
 
@@ -285,6 +267,23 @@ namespace HardwareServiceOrderServices.Infrastructure
         public async Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid customerId, int providerId)
         {
             return await _hardwareServiceOrderContext.CustomerServiceProviders.FirstOrDefaultAsync(m => m.CustomerId == customerId && m.ServiceProviderId == providerId);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<ServiceProvider>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons, bool asNoTracking)
+        {
+            IQueryable<ServiceProvider> query = _hardwareServiceOrderContext.ServiceProviders;
+
+            if (includeSupportedServiceTypes)
+                query = query.Include(e => e.SupportedServiceTypes);
+
+            if (includeOfferedServiceOrderAddons)
+                query = query.Include(e => e.OfferedServiceOrderAddons);
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.ToListAsync();
         }
     }
 }

@@ -46,7 +46,7 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// </remarks>
         /// <value>
         ///     When <see langword="null"/>, the property has not been included. Otherwise, it will return a collection
-        ///     detailing the service-type IDs can be used with this service-provider.
+        ///     detailing the service-type IDs that can be used with this service-provider.
         /// </value>
         public IEnumerable<int>? SupportedServiceTypeIds
         {

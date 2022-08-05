@@ -37,7 +37,7 @@ namespace HardwareServiceOrderServices
         /// </summary>
         /// <param name="customerId">Customer identifier</param>
         /// <param name="loanPhoneNumber">The phone-number in <c>E.164</c> format.</param>
-        /// <param name="loanPhoneEmail">Email addess</param>
+        /// <param name="loanPhoneEmail">Email address</param>
         /// <param name="providesLoanDevice">This parameter ensures whether a customer provides loan device</param>
         /// <param name="callerId"></param>
         /// <returns></returns>
@@ -45,7 +45,7 @@ namespace HardwareServiceOrderServices
         Task<CustomerSettingsDTO> GetSettingsAsync(Guid customerId);
 
         // Order
-        Task<HardwareServiceOrderDTO> CreateHardwareServiceOrderAsync(Guid customerId, NewHardwareServiceOrderDTO model);
+        Task<HardwareServiceOrderDTO> CreateHardwareServiceOrderAsync(Guid customerId, NewHardwareServiceOrderDTO serviceOrderDTO);
         Task<HardwareServiceOrderDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId);
         Task<PagedModel<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25);
 
@@ -54,5 +54,14 @@ namespace HardwareServiceOrderServices
         /// </summary>
         /// <returns></returns>
         Task UpdateOrderStatusAsync();
+
+
+        /// <summary>
+        ///     Returns a list containing all service-providers in the system.
+        /// </summary>
+        /// <param name="includeSupportedServiceTypes"> Should <see cref="ServiceProviderDTO.SupportedServiceTypes"/> be loaded and included in the result? </param>
+        /// <param name="includeOfferedServiceOrderAddons"> Should <see cref="ServiceProviderDTO.OfferedServiceOrderAddons"/> be loaded and included in the result? </param>
+        /// <returns> A list of all service-providers. </returns>
+        Task<IEnumerable<ServiceProviderDTO>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons);
     }
 }
