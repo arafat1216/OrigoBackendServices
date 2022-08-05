@@ -26,7 +26,6 @@ using DisposeSetting = Asset.API.ViewModels.DisposeSetting;
 using Label = Asset.API.ViewModels.Label;
 using LifeCycleSetting = Asset.API.ViewModels.LifeCycleSetting;
 using ReturnLocation = Asset.API.ViewModels.ReturnLocation;
-using Asset.API.Filters;
 using Common.Model.EventModels;
 using Common.Extensions;
 using Dapr;
@@ -621,7 +620,7 @@ public class AssetsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(AssetCategory), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<IEnumerable<AssetCategory>>> GetAssetCategories(bool hierarchical = false,
+    public ActionResult<IEnumerable<AssetCategory>> GetAssetCategories(bool hierarchical = false,
         string language = "EN")
     {
         if (language.Length != 2)

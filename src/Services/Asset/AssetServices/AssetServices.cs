@@ -429,13 +429,6 @@ public class AssetServices : IAssetServices
 
     public AssetValidationResult ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly)
     {
-        //Strip out any path specifiers (ex: /../)
-        //var originalFileName = Path.GetFileName(file.FileName);
-
-        ////Create a unique file path
-        //var uniqueFileName = Path.GetRandomFileName();
-        //var uniqueFilePath = Path.Combine(@"C:\temp\", uniqueFileName);
-
         IList<AssetFromCsvFile> assetsFromFileRecords;
         var csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
@@ -471,20 +464,6 @@ public class AssetServices : IAssetServices
             {
                 assetValidationResult.InvalidAssets.Add(asset);
             }
-
-            //var newAsset = new NewAsset
-            //{
-            //    AssetCategoryId = asset.Category == "Mobile phone" ? 1 : 2,
-            //    OrganizationId = customerId,
-            //    Brand = asset.Brand,
-            //    ProductName = asset.ProductName,
-            //    PurchaseDate = purchaseDate,
-            //    Imei = imeis.ToArray(),
-            //    MacAddress = asset.MacAddress,
-            //    SerialNumber = asset.SerialNumber,
-            //    Alias = asset.Alias
-            //};
-            //queueCollector.Add(newAsset);
         }
 
         return assetValidationResult;
