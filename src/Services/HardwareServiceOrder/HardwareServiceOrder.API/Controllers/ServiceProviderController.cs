@@ -10,7 +10,7 @@ namespace HardwareServiceOrder.API.Controllers
     /// </summary>
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{version:apiVersion}/service-provider")]
     [Tags("Service-provider")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError)]
     public class ServiceProviderController : ControllerBase
