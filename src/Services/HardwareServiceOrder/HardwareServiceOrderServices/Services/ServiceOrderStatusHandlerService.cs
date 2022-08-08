@@ -36,13 +36,14 @@ namespace HardwareServiceOrderServices.Services
         /// kinds of business logic.
         /// </summary>
         /// <param name="hardwareServiceOrder">Order Identifier</param>
-        /// <param name="repairOrderDto">New status <see cref="ServiceStatusEnum"/></param>
+        /// <param name="repairOrderDto">Represents the repair-order details that is retrieved from the external service-provider.<see cref="ExternalRepairOrderDTO"/></param>
         /// <returns> The awaitable task. </returns>
         /// <exception cref="ArgumentException">Thrown if the latest status extracted from <paramref name="repairOrderDto"/>
         /// is invalid/unsupported.</exception>
         public virtual async Task HandleServiceOrderStatusAsync(HardwareServiceOrder hardwareServiceOrder, ExternalRepairOrderDTO repairOrderDto)
         {
             var lastOrderStatus = repairOrderDto.ExternalServiceEvents.OrderByDescending(m => m.Timestamp).FirstOrDefault()?.ServiceStatusId;
+            lastOrderStatus = lastOrderStatus ?? 0;
             var lastOrderStatusEnum = (ServiceStatusEnum)lastOrderStatus;
 
             // Checking Whether Service order status has changed or not

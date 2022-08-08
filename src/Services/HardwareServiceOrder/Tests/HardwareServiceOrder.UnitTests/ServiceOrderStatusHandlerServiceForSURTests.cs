@@ -14,11 +14,14 @@ using Xunit;
 
 namespace HardwareServiceOrder.UnitTests
 {
-    public class ServiceOrderStatusHandlerServiceTests
+    /// <summary>
+    /// Testing all the service-order status handler related functionalities for service-type "SUR". <see cref="ServiceOrderStatusHandlerServiceForSUR"/> 
+    /// </summary>
+    public class ServiceOrderStatusHandlerServiceForSURTests
     {
         private readonly IOptions<OrigoConfiguration> _options;
 
-        public ServiceOrderStatusHandlerServiceTests()
+        public ServiceOrderStatusHandlerServiceForSURTests()
         {
             _options = Options.Create(new OrigoConfiguration
             {
