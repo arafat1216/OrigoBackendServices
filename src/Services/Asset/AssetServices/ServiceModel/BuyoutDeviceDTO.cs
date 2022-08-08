@@ -8,7 +8,7 @@ namespace AssetServices.ServiceModel
         [Required]
         public Guid AssetLifeCycleId { get; set; }
         [EmailAddress]
-        public string PayrollContactEmail { get; set; } = string.Empty;
+        public string? PayrollContactEmail { get; set; } = null;
         public Guid CallerId { get; set; }
     }
 }

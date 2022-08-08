@@ -434,15 +434,30 @@ public class AssetLifecycle : Entity, IAggregateRoot
             throw new BuyoutDeviceRequestException($"Only Assets that have Transactionl Life cycle type can be bought out!!! asset Id: {ExternalId}", Guid.Parse("1462a412-af22-4d2f-94c4-082f658400d3"));
 
         if (_assetLifecycleStatus != AssetLifecycleStatus.ExpiresSoon)
-            throw new ReturnDeviceRequestException($"Asset is not Expiring Soon to do buyout!!! asset Id: {ExternalId}", Guid.Parse("2428fe7a-ec4d-440c-8e7b-79092ca3800e"));
+            throw new BuyoutDeviceRequestException($"Asset is not Expiring Soon to do buyout!!! asset Id: {ExternalId}", Guid.Parse("2428fe7a-ec4d-440c-8e7b-79092ca3800e"));
 
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         var previousLifecycleStatus = _assetLifecycleStatus;
-        AddDomainEvent(new BuyoutDeviceDomainEvent(this, callerId, previousLifecycleStatus));
+        AddDomainEvent(new BuyoutDeviceDomainEvent(this, callerId, BuyoutPrice, previousLifecycleStatus));
         _assetLifecycleStatus = AssetLifecycleStatus.BoughtByUser;
     }
 
+    /// <summary>
+    /// User has buought out this asset.. 
+    /// </summary>
+    /// <param name="callerId">The userid making this assignment</param>
+    public void ConfirmBuyoutDevice(Guid callerId)
+    {
+        if (_assetLifecycleStatus != AssetLifecycleStatus.PendingBuyout)
+            throw new BuyoutDeviceRequestException($"Asset is not pending to do buyout!!! asset Id: {ExternalId}", Guid.Parse("2428fe7a-ec4d-440c-8e7b-79092ca3800e"));
+
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        var previousLifecycleStatus = _assetLifecycleStatus;
+        AddDomainEvent(new BuyoutDeviceDomainEvent(this, callerId, OffboardBuyoutPrice, previousLifecycleStatus));
+        _assetLifecycleStatus = AssetLifecycleStatus.BoughtByUser;
+    }
     /// <summary>
     /// User has buought out this asset.. 
     /// </summary>

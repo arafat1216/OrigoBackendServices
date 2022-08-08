@@ -492,6 +492,16 @@ public class AssetsController : ControllerBase
         return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
     }
 
+    [Route("customers/{customerId:guid}/confirm-buyout")]
+    [HttpPost]
+    [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    public async Task<ActionResult> ConfirmPendingBuyoutDeviceAsync(Guid customerId, [FromBody] BuyoutDeviceDTO data)
+    {
+        var updatedAssets = await _assetServices.ConfirmBuyoutDeviceAsync(customerId, data);
+        return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
+    }
+
     [Route("customers/{customerId:guid}/report-device")]
     [HttpPost]
     [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]

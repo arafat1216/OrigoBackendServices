@@ -67,5 +67,6 @@ namespace AssetServices
         Task<AssetLifecycleDTO> PendingBuyoutDeviceAsync(Guid customerId, PendingBuyoutDeviceDTO data);
         Task CancelUserOffboarding(Guid customerId, Guid userId, Guid callerId);
         AssetValidationResult ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly);
+        Task<AssetLifecycleDTO> ConfirmBuyoutDeviceAsync(Guid customerId, BuyoutDeviceDTO data);
     }
 }

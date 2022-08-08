@@ -498,6 +498,34 @@ public class AssetServices : IAssetServices
         await _assetLifecycleRepository.SaveEntitiesAsync();
         return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
     }
+
+    public async Task<AssetLifecycleDTO> ConfirmBuyoutDeviceAsync(Guid customerId, BuyoutDeviceDTO data)
+    {
+        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null);
+        if (assetLifecycle == null)
+            throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("47308bc8-ceeb-4f79-8910-75224e65ab0d"));
+
+        assetLifecycle.ConfirmBuyoutDevice(data.CallerId);
+
+        // Email to Pay-roll responsible contact
+        if (!string.IsNullOrEmpty(data.PayrollContactEmail))
+        {
+            var emailData = new Email.Model.AssetBuyoutNotification()
+            {
+                UserName = assetLifecycle.ContractHolderUser!.Name,
+                AssetName = $"{assetLifecycle.Asset!.Brand} {assetLifecycle.Asset!.ProductName}",
+                AssetId = assetLifecycle.ExternalId.ToString(),
+                BuyoutDate = DateTime.UtcNow.ToString("dd MMMM, yyyy"),
+                BuyoutPrice = assetLifecycle.BuyoutPrice.ToString(),
+                Recipient = data.PayrollContactEmail
+            };
+            await _emailService.AssetBuyoutEmailAsync(emailData, "en");
+        }  
+
+        await _assetLifecycleRepository.SaveEntitiesAsync();
+        return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
+    }
+
     public async Task<AssetLifecycleDTO> ReportDeviceAsync(Guid customerId, ReportDeviceDTO data)
     {
         var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null);
