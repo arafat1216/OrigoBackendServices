@@ -15,7 +15,7 @@ namespace HardwareServiceOrderServices
         private readonly IMapper _mapper;
         private readonly IEmailService _emailService;
         private readonly IProviderFactory _providerFactory;
-        private readonly Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> _serviceOrderStatusHandlers;
+        private readonly IStatusHandlerFactory _statusHandlerFactory;
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
 
@@ -23,7 +23,7 @@ namespace HardwareServiceOrderServices
             IHardwareServiceOrderRepository hardwareServiceOrderRepository,
             IMapper mapper,
             IProviderFactory providerFactory,
-            Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> serviceOrderStatusHandlers,
+            IStatusHandlerFactory statusHandlerFactory,
             IEmailService emailService,
             IDataProtectionProvider dataProtectionProvider)
         {
@@ -31,7 +31,7 @@ namespace HardwareServiceOrderServices
             _mapper = mapper;
             _emailService = emailService;
             _providerFactory = providerFactory;
-            _serviceOrderStatusHandlers = serviceOrderStatusHandlers;
+            _statusHandlerFactory = statusHandlerFactory;
             _dataProtectionProvider = dataProtectionProvider;
         }
 
@@ -220,12 +220,9 @@ namespace HardwareServiceOrderServices
                     if (origoOrder == null || origoOrder.StatusId == lastOrderStatus)
                         continue;
 
-                    var lastOrderStatusEnum = (ServiceStatusEnum)lastOrderStatus;
-
-                    var statusHandler = _serviceOrderStatusHandlers.ContainsKey(lastOrderStatusEnum) ? _serviceOrderStatusHandlers[lastOrderStatusEnum] : _serviceOrderStatusHandlers[ServiceStatusEnum.Unknown];
-
                     // TODO: Fix the new imei list in the DTO
-                    await statusHandler.UpdateServiceOrderStatusAsync(origoOrder.ExternalId, lastOrderStatusEnum, new HashSet<string>() { order.ReturnedAsset?.Imei }, order.ReturnedAsset.SerialNumber);
+                    var statusHandler = _statusHandlerFactory.GetStatusHandler(ServiceTypeEnum.SUR);
+                    await statusHandler.HandleServiceOrderStatusAsync(origoOrder, order);
 
                     //Add events in the log
                     var serviceEvents = _mapper.Map<IEnumerable<ServiceEvent>>(order.ExternalServiceEvents);

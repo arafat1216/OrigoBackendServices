@@ -18,9 +18,9 @@ namespace HardwareServiceOrder.UnitTests
         private readonly IMapper? _mapper;
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
         private readonly HardwareServiceOrderContext _dbContext;
-        public HardwareServiceOrderServiceTests() : base(new DbContextOptionsBuilder<HardwareServiceOrderContext>()
-
-        .UseSqlite("Data Source=sqlitehardwareserviceorderservicetests.db").Options)
+        public HardwareServiceOrderServiceTests() : 
+            base(new DbContextOptionsBuilder<HardwareServiceOrderContext>()
+                .UseSqlite("Data Source=sqlitehardwareserviceorderservicetests.db").Options)
         {
             if (_mapper == null)
             {
@@ -62,14 +62,20 @@ namespace HardwareServiceOrder.UnitTests
 
             providerFactoryMock.Setup(m => m.GetRepairProviderAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(repairProviderMock.Object);
+            
+            // Status handler mock
+            var statusHandlerFactoryMock = new Mock<IStatusHandlerFactory>();
 
-            //Status handler mock
-            var statusHandlMock = new Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService>();
             var serviceOrderStatusHandlerServiceMock = new Mock<ServiceOrderStatusHandlerService>();
-            serviceOrderStatusHandlerServiceMock.Setup(m => m.UpdateServiceOrderStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<ISet<string>>(), It.IsAny<string>()));
-            statusHandlMock.Add(ServiceStatusEnum.Unknown, serviceOrderStatusHandlerServiceMock.Object);
 
-            _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository, _mapper, providerFactoryMock.Object, statusHandlMock, emailService.Object, new EphemeralDataProtectionProvider());
+            statusHandlerFactoryMock.Setup(m => m.GetStatusHandler(It.IsAny<ServiceTypeEnum>()))
+                .Returns(serviceOrderStatusHandlerServiceMock.Object);
+
+            serviceOrderStatusHandlerServiceMock
+                .Setup(m => 
+                    m.HandleServiceOrderStatusAsync(It.IsAny<HardwareServiceOrderServices.Models.HardwareServiceOrder>(), It.IsAny<ExternalRepairOrderDTO>()));
+
+            _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository, _mapper, providerFactoryMock.Object, statusHandlerFactoryMock.Object, emailService.Object, new EphemeralDataProtectionProvider());
 
         }
 

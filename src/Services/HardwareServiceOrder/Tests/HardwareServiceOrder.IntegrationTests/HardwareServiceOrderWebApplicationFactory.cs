@@ -6,7 +6,6 @@ using HardwareServiceOrderServices.ServiceModels;
 using HardwareServiceOrderServices.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
@@ -140,14 +139,18 @@ namespace HardwareServiceOrder.IntegrationTests
                 #endregion
 
                 #region Mock/setup for the ServiceOrderStatusHandlerService implementation
-                var statusHandlMock = new Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService>();
+                var statusHandlerFactoryMock = new Mock<IStatusHandlerFactory>();
 
                 var serviceOrderStatusHandlerServiceMock = new Mock<ServiceOrderStatusHandlerService>();
-                serviceOrderStatusHandlerServiceMock.Setup(m => m.UpdateServiceOrderStatusAsync(It.IsAny<Guid>(), It.IsAny<ServiceStatusEnum>(), It.IsAny<ISet<string>>(), It.IsAny<string>()));
 
-                statusHandlMock.Add(ServiceStatusEnum.Unknown, serviceOrderStatusHandlerServiceMock.Object);
+                statusHandlerFactoryMock.Setup(m => m.GetStatusHandler(It.IsAny<ServiceTypeEnum>()))
+                    .Returns(serviceOrderStatusHandlerServiceMock.Object);
 
-                services.AddScoped(s => statusHandlMock);
+                serviceOrderStatusHandlerServiceMock
+                    .Setup(m => 
+                        m.HandleServiceOrderStatusAsync(It.IsAny<HardwareServiceOrderServices.Models.HardwareServiceOrder>(), It.IsAny<ExternalRepairOrderDTO>()));
+
+                services.AddScoped(s => statusHandlerFactoryMock.Object);
                 #endregion
 
             });
