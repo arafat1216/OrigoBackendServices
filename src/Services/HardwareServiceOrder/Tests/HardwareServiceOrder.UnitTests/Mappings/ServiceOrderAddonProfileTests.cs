@@ -16,8 +16,8 @@ namespace HardwareServiceOrderServices.Mappings.Tests
         }
 
 
-        [Fact(DisplayName = "'ServiceOrderAddon' to 'ServiceOrderAddonDTO' remapping")]
-        public void ServiceOrderAddonProfileTest()
+        [Fact(DisplayName = "Validate 'ServiceOrderAddon' to 'ServiceOrderAddonDTO' remapping")]
+        public void ServiceOrderAddon_To_ServiceOrderAddonDTO_VerifyMappingTest()
         {
             // Arrange
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -28,7 +28,6 @@ namespace HardwareServiceOrderServices.Mappings.Tests
             var result = _mapper.Map<ServiceOrderAddonDTO>(serviceOrderAddon);
 
             // Assert
-
             Assert.Equal(serviceOrderAddon.Id, result.Id);
             Assert.Equal(serviceOrderAddon.ServiceProviderId, serviceOrderAddon.ServiceProviderId);
             Assert.Equal(serviceOrderAddon.ThirdPartyId, serviceOrderAddon.ThirdPartyId);

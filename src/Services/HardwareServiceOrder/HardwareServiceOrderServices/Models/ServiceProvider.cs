@@ -36,7 +36,6 @@ namespace HardwareServiceOrderServices.Models
         ///     This constructor should otherwise not be called directly in production code!
         /// </summary>
         /// <inheritdoc cref="EntityV2(Guid, DateTimeOffset, Guid?, DateTimeOffset?, Guid?, DateTimeOffset?, bool)"/>
-        [Obsolete("This is a reserved constructor, and should not be used for anything but unit-testing and data-seeding!")]
         public ServiceProvider(int id,
                                string name,
                                Guid organizationId,

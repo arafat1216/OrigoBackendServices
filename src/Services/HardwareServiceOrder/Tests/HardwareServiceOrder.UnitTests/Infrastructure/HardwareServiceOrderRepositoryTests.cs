@@ -19,9 +19,11 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
 
 
         /// <summary>
-        ///     Ensures that we are able to retrieve the 'ID = 1' item added in the data seeding, 
-        ///     along with at least one instance of all it's included elements.
+        ///     See if we were able to retrieve a service provider, and that it's requested properties were correctly included.
         /// </summary>
+        /// <remarks>
+        ///     We are doing all testing against 'ID = 1' that is added in the EF seeding data.
+        /// </remarks>
         /// <returns></returns>
         [Fact()]
         public async Task GetAllServiceProviders()
