@@ -269,7 +269,7 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc/>
         public async Task<IEnumerable<ServiceProviderDTO>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons)
         {
-            var serviceProviders = await _hardwareServiceOrderRepository.GetAllServiceProvidersAsync(true, true, true);
+            var serviceProviders = await _hardwareServiceOrderRepository.GetAllServiceProvidersAsync(includeSupportedServiceTypes, includeOfferedServiceOrderAddons, true);
             var serviceProviderDTOs = _mapper.Map<IEnumerable<ServiceProviderDTO>>(serviceProviders);
 
             return serviceProviderDTOs;
