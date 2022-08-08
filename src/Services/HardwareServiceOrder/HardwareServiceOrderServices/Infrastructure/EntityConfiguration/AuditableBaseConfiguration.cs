@@ -37,26 +37,33 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 
             if (_isSqlLite)
             {
-                builder.Property(e => e.DateCreated)
+                builder.Property(auditable => auditable.DateCreated)
                        .HasConversion(new DateTimeOffsetToBinaryConverter())
                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
                        .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
-                builder.Property(e => e.DateUpdated)
+                builder.Property(auditable => auditable.DateUpdated)
                        .HasConversion(new DateTimeOffsetToBinaryConverter());
 
-                builder.Property(e => e.DateDeleted)
+                builder.Property(auditable => auditable.DateDeleted)
                        .HasConversion(new DateTimeOffsetToBinaryConverter());
             }
             else
             {
-                builder.Property(e => e.DateCreated)
+                builder.Property(auditable => auditable.DateCreated)
                        .HasDefaultValueSql("SYSUTCDATETIME()")
                        .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             }
 
-            builder.Property(e => e.CreatedBy)
+            builder.Property(auditable => auditable.CreatedBy)
                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+
+
+            /*
+             * Global query filter
+             */
+
+            builder.HasQueryFilter(auditable => !auditable.IsDeleted);
         }
     }
 }
