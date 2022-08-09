@@ -1,8 +1,7 @@
 ﻿using FeatureCatalog.Infrastructure.Models.Database.Joins;
-using ProductCatalog.Infrastructure.Models.Database.Joins;
 using Microsoft.EntityFrameworkCore;
 using ProductCatalog.Infrastructure.Models.Database;
-using System.Xml.Linq;
+using ProductCatalog.Infrastructure.Models.Database.Joins;
 
 namespace ProductCatalog.Infrastructure.Infrastructure.Context
 {
