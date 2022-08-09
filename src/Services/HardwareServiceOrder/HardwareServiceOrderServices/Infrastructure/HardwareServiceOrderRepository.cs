@@ -3,6 +3,8 @@ using Common.Interfaces;
 using HardwareServiceOrderServices.Conmodo.ApiModels;
 using HardwareServiceOrderServices.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace HardwareServiceOrderServices.Infrastructure
 {
@@ -270,20 +272,53 @@ namespace HardwareServiceOrderServices.Infrastructure
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<ServiceProvider>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons, bool asNoTracking)
+        public async Task<IEnumerable<ServiceProvider>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes,
+                                                                                    bool includeOfferedServiceOrderAddons,
+                                                                                    bool asNoTracking)
         {
             IQueryable<ServiceProvider> query = _hardwareServiceOrderContext.ServiceProviders;
 
             if (includeSupportedServiceTypes)
-                query = query.Include(e => e.SupportedServiceTypes);
+                query = query.Include(serviceProvider => serviceProvider.SupportedServiceTypes);
 
             if (includeOfferedServiceOrderAddons)
-                query = query.Include(e => e.OfferedServiceOrderAddons);
+                query = query.Include(serviceProvider => serviceProvider.OfferedServiceOrderAddons);
 
             if (asNoTracking)
                 query = query.AsNoTracking();
 
             return await query.ToListAsync();
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<ServiceProvider>> GetAllServiceProvidersWithAddonFilterAsync(bool onlyCustomerTogglable,
+                                                                                                   bool onlyUserSelectable,
+                                                                                                   bool includeSupportedServiceTypes,
+                                                                                                   bool asNoTracking)
+        {
+            IQueryable<ServiceProvider> query = _hardwareServiceOrderContext.ServiceProviders;
+
+            // Include 'OfferedServiceOrderAddons' using conditional where filters that's determined by the parameters.
+            // This implementation is clunky, and should likely be revisited later.
+            if (onlyCustomerTogglable && onlyUserSelectable)
+                query = query.Include(e => e.OfferedServiceOrderAddons!.Where(e => e.IsCustomerTogglable && e.IsUserSelectable));
+            else if (onlyCustomerTogglable)
+                query = query.Include(e => e.OfferedServiceOrderAddons!.Where(e => e.IsCustomerTogglable));
+            else if (onlyUserSelectable)
+                query = query.Include(e => e.OfferedServiceOrderAddons!.Where(e => e.IsUserSelectable));
+            else
+                query = query.Include(e => e.OfferedServiceOrderAddons);
+
+            // Apply a conditional include for 'SupportedServiceTypes'
+            if (includeSupportedServiceTypes)
+                query = query.Include(serviceProvider => serviceProvider.SupportedServiceTypes);
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            var result = await query.ToListAsync();
+            return result;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Common.Interfaces;
+using System.Linq.Expressions;
 
 namespace HardwareServiceOrderServices.Models
 {
@@ -113,7 +114,33 @@ namespace HardwareServiceOrderServices.Models
         ///     To improve performance, this should be set to <see langword="true"/> for read-only operations.
         ///     However, if any write operations will occur, then this should always be set to <see langword="false"/>. </para>
         /// </param>
-        /// <returns> A collection containing all matching service-providers. </returns>
-        Task<IEnumerable<ServiceProvider>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons, bool asNoTracking);
+        /// <returns> A collection containing all matching items. </returns>
+        /// <seealso cref="GetAllServiceProvidersWithAddonFilterAsync(bool, bool, bool, bool)"/>
+        Task<IEnumerable<ServiceProvider>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes,
+                                                                       bool includeOfferedServiceOrderAddons,
+                                                                       bool asNoTracking);
+
+
+        /// <summary>
+        ///     Retrieves all service-providers that exist in the system, and applies a conditional include for their offered service-addons.
+        /// </summary>
+        /// <param name="onlyCustomerTogglable"> If <see langword="true"/>, the <see cref="ServiceProvider.OfferedServiceOrderAddons"/> list will be filtered to
+        ///     only contain items where "<c><see cref="ServiceOrderAddon.IsCustomerTogglable"/> == <see langword="true"/></c>". </param>
+        /// <param name="onlyUserSelectable"> If <see langword="true"/>, the <see cref="ServiceProvider.OfferedServiceOrderAddons"/> list will be filtered to
+        ///     only contain items where "<c><see cref="ServiceOrderAddon.IsUserSelectable"/> == <see langword="true"/></c>". </param>
+        /// <param name="includeSupportedServiceTypes"> Should <see cref="ServiceProvider.SupportedServiceTypes"/> be loaded and included in the result? </param>
+        /// <param name="asNoTracking"> 
+        ///     Should the query be run using '<c>AsNoTracking</c>'? 
+        ///     
+        ///     <para>
+        ///     To improve performance, this should be set to <see langword="true"/> for read-only operations.
+        ///     However, if any write operations will occur, then this should always be set to <see langword="false"/>. </para>
+        /// </param>
+        /// <returns> A collection containing all matching items. </returns>
+        /// <seealso cref="GetAllServiceProvidersAsync(bool, bool, bool)"/>
+        Task<IEnumerable<ServiceProvider>> GetAllServiceProvidersWithAddonFilterAsync(bool onlyCustomerTogglable,
+                                                                                      bool onlyUserSelectable,
+                                                                                      bool includeSupportedServiceTypes,
+                                                                                      bool asNoTracking);
     }
 }

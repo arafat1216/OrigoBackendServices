@@ -21,13 +21,29 @@ namespace HardwareServiceOrder.UnitTests
 
         private void Seed()
         {
+            // This test-ID may eventually need to be changed should it start to conflict with the seed data.
+            int serviceProviderId = 700;
+
             using var context = new HardwareServiceOrderContext(ContextOptions);
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
-            var deliveryAddress = new DeliveryAddress(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
-            var serviceType = new ServiceType() { Id = 400 };
-            var serviceProvider = new ServiceProvider("ServiceProviderName", CUSTOMER_ONE_ID);
+            DeliveryAddress deliveryAddress = new(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
+            ServiceType serviceType = new() { Id = 400 };
+            List<ServiceProviderServiceType> serviceProviderServiceTypes = new()
+            {
+                new(serviceProviderId, (int)ServiceTypeEnum.SUR)
+            };
+            List<ServiceOrderAddon> serviceProviderServiceAddons = new()
+            {
+                // These test-IDs may eventually need to be changed should it start to conflict with the seed data.
+                new ServiceOrderAddon(701, serviceProviderId, "[ThirdPartyId1]", false, false, Guid.NewGuid(), DateTimeOffset.Parse("2020-01-21")),
+                new ServiceOrderAddon(702, serviceProviderId, "[ThirdPartyId2]", false, true, Guid.NewGuid(), DateTimeOffset.Parse("2020-02-22")),
+                new ServiceOrderAddon(703, serviceProviderId, "[ThirdPartyId3]", true, false, Guid.NewGuid(), DateTimeOffset.Parse("2020-03-23")),
+                new ServiceOrderAddon(704, serviceProviderId, "[ThirdPartyId4]", true, true, Guid.NewGuid(), DateTimeOffset.Parse("2020-04-24")),
+            };
+
+            ServiceProvider serviceProvider = new(serviceProviderId, "[ServiceProviderName]", CUSTOMER_ONE_ID, serviceProviderServiceTypes, serviceProviderServiceAddons, CUSTOMER_ONE_ID, DateTimeOffset.Parse("2020-10-15"));
             AssetInfo assetInfo = new("[AssetBrand]", "[AssetModel]", new HashSet<string>() { "527127734377463" }, "[SerialNumber]", DateOnly.Parse("2020-01-01"), null);
 
             var order1 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_ONE_ID, Guid.NewGuid(), 1, assetInfo, "UserDescription", new ContactDetails(CUSTOMER_ONE_ID, "FirstName", "LastName", "test@test.com", "PhoneNumber"), deliveryAddress, (int)ServiceTypeEnum.SUR, (int)ServiceStatusEnum.Ongoing, (int)ServiceProviderEnum.ConmodoNo, "serviceProviderOrderId1", null, "externalLink", new List<ServiceEvent>());
