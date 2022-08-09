@@ -93,6 +93,7 @@ namespace OrigoApiGateway
             services.AddSingleton<IAssetServices, AssetServices>();
             services.AddSingleton<ICustomerServices, CustomerServices>();
             services.AddSingleton<IHardwareRepairService, HardwareRepairService>();
+            services.AddSingleton<IHardwareServiceOrderService, HardwareServiceOrderService>();
             services.AddSingleton<IPartnerServices, PartnerServices>();
             services.AddSingleton<IUserPermissionService, UserPermissionService>();
             services.AddSingleton<IFeatureFlagServices, FeatureFlagServices>();

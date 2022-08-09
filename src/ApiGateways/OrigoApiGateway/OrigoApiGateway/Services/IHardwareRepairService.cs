@@ -7,6 +7,7 @@ using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 
 namespace OrigoApiGateway.Services
 {
+    [Obsolete("This is superseded by the new 'Hardware Service' service-class. All new functionality should instead be placed in that one.")]
     public interface IHardwareRepairService
     {
         // Configuration

@@ -20,7 +20,9 @@ namespace OrigoApiGateway.Controllers
     [ApiVersion("1.0")]
     [Authorize]
     // Assets should only be available through a given customer
+    // TODO: This needs to be renamed, as it's not only for repairs!
     [Route("/origoapi/v{version:apiVersion}/hardware-repair")]
+    [Obsolete("This controller has been deprecated. Please use the hardware-service endpoints instead where possible. Existing functionality will gradually be migrated over to these.")]
     public class HardwareRepairController : ControllerBase
     {
         private readonly IHardwareRepairService _hardwareRepairService;
@@ -245,5 +247,27 @@ namespace OrigoApiGateway.Controllers
             return Ok(orders);
         }
 
+
+        /*
+         * Customer API endpoints:
+         * 
+         * These endpoints should not offer any additional functionality/data outside what's available in the user/customer-portal.
+         * If partner/system-admins, or the backoffice requires additional functionality/data/access, this should be added into a
+         * separate backoffice version of the endpoint.
+         */
+
+
+
+
+        /*
+         * Backoffice only API endpoints
+         */
+
+        [HttpGet]
+        [Route("provider/")]
+        public async Task<ActionResult> Tmp()
+        {
+            return Ok();
+        }
     }
 }

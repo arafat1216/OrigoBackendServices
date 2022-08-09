@@ -6,12 +6,14 @@ using OrigoApiGateway.Models.HardwareServiceOrder;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
+using System;
 using System.Security.Claims;
 
 #nullable enable
 
 namespace OrigoApiGateway.Services
 {
+    [Obsolete("This is superseded by the new 'Hardware Service' service-class. All new functionality should instead be placed in that one.")]
     public class HardwareRepairService : IHardwareRepairService
     {
         private readonly ILogger<HardwareRepairService> _logger;
@@ -87,6 +89,10 @@ namespace OrigoApiGateway.Services
             return await HttpClient.PostAsync(requestUri, content);
         }
 
+
+        /*
+         * Old HW Repair methods
+         */
 
         public async Task<CustomerSettings?> ConfigureLoanPhoneAsync(Guid customerId, LoanDevice loanDevice)
         {

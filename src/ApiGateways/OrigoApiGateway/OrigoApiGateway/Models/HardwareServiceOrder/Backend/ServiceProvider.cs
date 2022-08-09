@@ -33,12 +33,12 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend
         public Guid OrganizationId { get; set; }
 
         /// <summary>
-        ///     A list containing all service-addons that is offered by the service-provider.
-        /// </summary>
-        /// <value>
+        ///     A list containing all service-addons that is offered by the service-provider. 
+        ///     
+        ///     <para>
         ///     If <c><see langword="null"/></c>, then the has not been explicitly requested. 
-        ///     Otherwise, it will return a collection detailing the service-order addons that is offered by this service-provider.
-        /// </value>
+        ///     Otherwise, it will return a collection detailing the service-order addons that is offered by this service-provider. </para>
+        /// </summary>
         public ICollection<ServiceOrderAddon>? OfferedServiceOrderAddons { get; set; }
 
         /// <summary>
