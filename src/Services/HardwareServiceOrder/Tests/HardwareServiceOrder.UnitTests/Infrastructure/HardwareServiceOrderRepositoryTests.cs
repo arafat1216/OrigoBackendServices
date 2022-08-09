@@ -103,7 +103,7 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
             // Assert
 
             // The test-data item should only have two entries matching these conditions
-            Assert.True(serviceProvider?.OfferedServiceOrderAddons?.Count == 2, $"We expected 4 service-addons, but received {serviceProvider?.OfferedServiceOrderAddons?.Count}. Has the seeding-data changed?");
+            Assert.True(serviceProvider?.OfferedServiceOrderAddons?.Count == 2, $"We expected 2 service-addons, but received {serviceProvider?.OfferedServiceOrderAddons?.Count}. Has the seeding-data changed?");
         }
 
 
@@ -128,7 +128,7 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
             // Assert
 
             // The test-data item should only have two entries matching these conditions
-            Assert.True(serviceProvider?.OfferedServiceOrderAddons?.Count == 2, $"We expected 4 service-addons, but received {serviceProvider?.OfferedServiceOrderAddons?.Count}. Has the seeding-data changed?");
+            Assert.True(serviceProvider?.OfferedServiceOrderAddons?.Count == 2, $"We expected 2 service-addons, but received {serviceProvider?.OfferedServiceOrderAddons?.Count}. Has the seeding-data changed?");
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
             // Assert
 
             // The test-data item should only have one entry matching these conditions
-            Assert.True(serviceProvider?.OfferedServiceOrderAddons?.Count == 1, $"We expected 4 service-addons, but received {serviceProvider?.OfferedServiceOrderAddons?.Count}. Has the seeding-data changed?");
+            Assert.True(serviceProvider?.OfferedServiceOrderAddons?.Count == 1, $"We expected 1 service-addons, but received {serviceProvider?.OfferedServiceOrderAddons?.Count}. Has the seeding-data changed?");
         }
     }
 }
