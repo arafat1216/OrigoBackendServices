@@ -67,5 +67,12 @@ namespace CustomerServices.Email
             var variables = _flatDictionaryProvider.Execute(emailData);
             await SendAsync(emailData.Subject, template, emailData.Recipient , variables);
         }
+        public async Task OffboardingOverdueEmailToManagersAsync(OffboardingOverdueMail emailData, string languageCode)
+        {
+            var template = _resourceManager.GetString(OffboardingOverdueMail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var variables = _flatDictionaryProvider.Execute(emailData);
+            await SendAsync(emailData.Subject, template, emailData.Recipient , variables);
+        }
+
     }
 }

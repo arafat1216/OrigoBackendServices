@@ -158,6 +158,7 @@ namespace Customer.API.IntegrationTests.Helpers
                                 CALLER_ID);
 
             userTwo.OffboardingInitiated(DateTime.UtcNow.AddDays(60) ,CALLER_ID);
+            userTwo.AssignDepartment(subDepartment, CALLER_ID);
 
             var userThree = new User(organization,
                               USER_THREE_ID,

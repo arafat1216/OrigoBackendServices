@@ -419,6 +419,33 @@ public class UsersController : ControllerBase
         }
     }
 
+    [Route("{userId:Guid}/{callerId:Guid}/overdue-offboarding")]
+    [HttpPost]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<User>> OverdueOffboarding(Guid customerId, Guid userId, Guid callerId)
+    {
+        try
+        {
+            var user = await _userServices.OverdueOffboarding(customerId, userId, callerId);
+            return Ok(_mapper.Map<User>(user));
+        }
+        catch (UserNotFoundException exception)
+        {
+
+            return BadRequest(exception.Message);
+        }
+        catch (DepartmentNotFoundException exception)
+        {
+
+            return BadRequest(exception.Message);
+        }
+        catch (Exception)
+        {
+            return BadRequest();
+        }
+    }
+
     /// <summary>
     /// Only used by userpermission gateway to get info about user to be made a claim for
     /// Either userName or userId

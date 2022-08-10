@@ -61,6 +61,24 @@ namespace CustomerServices.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;br&gt;Hello!&lt;/br&gt;
+        ///&lt;/br&gt;
+        ///A user has been granted the status &quot;Offboarding Overdue&quot;.
+        ///&lt;/br&gt;
+        ///&lt;strong&gt;Name :&lt;/strong&gt; {{UserName}} 
+        ///&lt;strong&gt;Last WorkingDay :&lt;/strong&gt; {{LastWorkingDays}} 
+        ///&lt;/br&gt;
+        ///&lt;p&gt;The user has now lost access to Origo, and will no longer be able to complete task(s), Please enter Origo to complete task(s)&lt;br&gt;
+        ///&lt;/br&gt;
+        ///&lt;a href=&quot;https://origov2dev.mytos.no/en/my-business/{{CustomerId}}/users/{{UserId}}/view&quot;&gt;View User&lt;/a&gt;.
+        /// </summary>
+        internal static string OffboardingOverdued {
+            get {
+                return ResourceManager.GetString("OffboardingOverdued", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;h1&gt;Welcome to Origo!&lt;/h1&gt;
         ///
         ///&lt;br&gt;Hello {{FirstName}}!&lt;/br&gt;

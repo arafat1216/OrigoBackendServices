@@ -61,6 +61,7 @@ public class CustomerWebApplicationFactory<TProgram> : WebApplicationFactory<TPr
                     "An error occurred seeding the " + "database with test data. Error: {Message}", exception.Message);
             }
             var emailServiceMock = new Mock<IEmailService>();
+            emailServiceMock.Setup(m => m.OffboardingOverdueEmailToManagersAsync(new CustomerServices.Email.Models.OffboardingOverdueMail(), "en"));
 
             services.AddSingleton(s => emailServiceMock.Object);
         });

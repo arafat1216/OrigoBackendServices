@@ -16,5 +16,13 @@ namespace CustomerServices.Email
         /// <param name="languageCode">Code of the language to be used for sending email.</param>
         /// <returns></returns>
         Task InvitationEmailToUserAsync(InvitationMail emailData, string languageCode);
+        /// <summary>
+        /// Employee Offboard Overdue Email to the customers managers to Notify.
+        /// </summary>
+        /// <param name="emailData">Information that will be dynamically inserted into the email.</param>
+        /// <param name="languageCode">Code of the language to be used for sending email.</param>
+        /// <returns></returns>
+        Task OffboardingOverdueEmailToManagersAsync(OffboardingOverdueMail emailData, string languageCode);
+
     }
 }

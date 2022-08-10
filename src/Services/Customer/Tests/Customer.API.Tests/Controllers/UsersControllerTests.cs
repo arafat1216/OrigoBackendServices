@@ -1257,5 +1257,22 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Null(user!.LastWorkingDay);
         }
 
+        [Fact]
+        public async Task OverdueOffboarding()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userTwoId}/{_callerId}/overdue-offboarding";
+
+            // Act
+            var response = await httpClient.PostAsync(requestUri, null);
+            var user = await response.Content.ReadFromJsonAsync<User>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal((int)UserStatus.OffboardOverdue, user!.UserStatus);
+            Assert.NotNull(user!.LastWorkingDay);
+        }
+
     }
 }

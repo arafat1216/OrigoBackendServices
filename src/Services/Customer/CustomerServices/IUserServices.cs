@@ -30,5 +30,6 @@ namespace CustomerServices
         Task<UserInfo> GetUserInfoFromUserId(Guid userId);
         Task<UserDTO> InitiateOffboarding(Guid customerId, Guid userId, DateTime lastWorkingDay, Guid callerId);
         Task<UserDTO> CancelOffboarding(Guid customerId, Guid userId, Guid callerId);
+        Task<UserDTO> OverdueOffboarding(Guid customerId, Guid userId, Guid callerId);
     }
 }

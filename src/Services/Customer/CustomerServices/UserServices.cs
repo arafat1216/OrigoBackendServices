@@ -525,6 +525,34 @@ namespace CustomerServices
             return userDTO;
         }
 
+        public async Task<UserDTO> OverdueOffboarding(Guid customerId, Guid userId, Guid callerId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
+            if (user.UserStatus != UserStatus.OffboardInitiated) throw new UserNotFoundException($"Offboarding not initiated for User: {userId}");
+
+            user.OffboardingOverdued(callerId);
+            await _organizationRepository.SaveEntitiesAsync();
+
+            var department = await _organizationRepository.GetDepartmentAsync(customerId, user.Department!.ExternalDepartmentId);
+            if (department == null) throw new DepartmentNotFoundException($"Unable to find {user.Department!.ExternalDepartmentId}");
+
+            if (department.Managers.Any())
+            {
+                await _emailService.OffboardingOverdueEmailToManagersAsync(new Email.Models.OffboardingOverdueMail
+                {
+                    UserName = $"{user.FirstName} {user.LastName}",
+                    LastWorkingDays = user.LastWorkingDay!.Value,
+                    CustomerId = customerId,
+                    UserId = userId,
+                    Recipient = department.Managers.Select(x => x.Email).ToList()
+                }, "EN");
+            }          
+
+            var userDTO = _mapper.Map<UserDTO>(user);
+            return userDTO;
+        }
+
         public async Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
             var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
