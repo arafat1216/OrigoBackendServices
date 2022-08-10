@@ -18,6 +18,10 @@ namespace CustomerServices
         Task UpdatePermission(UserPermissions userPermission);
         Task<IList<UserPermissions>> GetCustomerAdminsAsync(Guid customerId);
         Task UpdateAccessListAsync(User user, List<Guid> accessList, Guid callerId);
+        /// <summary>
+        /// Only handles the change in user status from invited to onboardInitiated for the user.
+        /// </summary>
+        /// <param name="user">User object that should get user status onboardInitiated.</param>
         Task InitiateOnboarding(User user);
     }
 }

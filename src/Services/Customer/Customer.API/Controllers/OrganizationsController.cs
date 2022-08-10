@@ -484,10 +484,10 @@ namespace Customer.API.Controllers
             return Ok(deletedLocationView);
         }
         /// <summary>
-        /// Changes the customers onboarding status to started onboarding
+        /// Changes the customers status to StartedOnboardning.
         /// </summary>
-        /// <param name="organizationId"></param>
-        /// <returns>The organization that has started the onbarding process</returns>
+        /// <param name="organizationId">Organization identification for the organization that has started the onboarding process.</param>
+        /// <returns>The organization object that has started the onbarding process.</returns>
         [Route("{organizationId:Guid}/initiate-onboarding")]
         [HttpPost]
         [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.OK)]

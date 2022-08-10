@@ -108,6 +108,10 @@ namespace CustomerServices.Models
             get => new ReadOnlyCollection<Department>(_managesDepartments);
             protected set => _managesDepartments = value != null ? new List<Department>(value) : new List<Department>();
         }
+        /// <summary>
+        /// The user gets status OnboardInitiated when they log in for the first time. The call stams from get userpermission. 
+        /// Only allowed to change from the status Invited, and the user can not be set to invited more then once.
+        /// </summary>
         public void OnboardingInitiated()
         {
             if(_userStatus == UserStatus.Invited)

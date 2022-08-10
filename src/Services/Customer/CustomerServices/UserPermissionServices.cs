@@ -308,7 +308,10 @@ namespace CustomerServices
 
             return usersPermissions;
         }
-
+        /// <summary>
+        /// Handles change in user status for the user. Should get OnboardInitiated if the user have the status Invited.
+        /// </summary>
+        /// <param name="user">User object to get OnboardInitiated user status.</param>
         public async Task InitiateOnboarding(User user)
         {
             user.OnboardingInitiated();
