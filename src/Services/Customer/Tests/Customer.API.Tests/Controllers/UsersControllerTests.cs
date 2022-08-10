@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Common.Extensions;
 using Xunit;
 using Xunit.Abstractions;
+using CustomerServices.Exceptions;
 
 namespace Customer.API.IntegrationTests.Controllers
 {
@@ -1274,5 +1275,32 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.NotNull(user!.LastWorkingDay);
         }
 
+        [Fact]
+        public async Task OverdueOffboarding_UserNotExist()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{Guid.NewGuid}/{_callerId}/overdue-offboarding";
+
+            // Act
+            var response = await httpClient.PostAsync(requestUri, null);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task OverdueOffboarding_OffboardNotInitiated()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/{_callerId}/overdue-offboarding";
+
+            // Act
+            var response = await httpClient.PostAsync(requestUri, null);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
     }
 }
