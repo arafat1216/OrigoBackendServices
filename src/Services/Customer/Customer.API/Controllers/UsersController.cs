@@ -419,6 +419,13 @@ public class UsersController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Mostly will be used by the scheduler. It is called when Offboarding is overdued
+    /// </summary>
+    /// <param name="customerId">CustomerId of the user/param>
+    /// <param name="userId">ID of the user that is overdued</param>
+    /// <param name="callerId">ID of the caller/param>
+    /// <returns></returns>
     [Route("{userId:Guid}/{callerId:Guid}/overdue-offboarding")]
     [HttpPost]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
