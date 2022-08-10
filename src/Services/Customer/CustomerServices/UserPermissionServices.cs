@@ -308,5 +308,12 @@ namespace CustomerServices
 
             return usersPermissions;
         }
+
+        public async Task InitiateOnboarding(User user)
+        {
+            user.OnboardingInitiated();
+            await SaveEntitiesAsync();
+
+        }
     }
 }

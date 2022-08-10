@@ -493,9 +493,9 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> InitiateOnbardingAsync(Guid organizationId)
+        public async Task<ActionResult> InitiateOnboardingAsync(Guid organizationId)
         {
-            var organization = await _organizationServices.InitiateOnbardingAsync(organizationId);
+            var organization = await _organizationServices.InitiateOnboardingAsync(organizationId);
             return Ok(_mapper.Map<OrganizationDTO>(organization));
         }
 

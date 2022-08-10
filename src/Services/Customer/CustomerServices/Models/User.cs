@@ -108,7 +108,14 @@ namespace CustomerServices.Models
             get => new ReadOnlyCollection<Department>(_managesDepartments);
             protected set => _managesDepartments = value != null ? new List<Department>(value) : new List<Department>();
         }
-
+        public void OnboardingInitiated()
+        {
+            if(_userStatus == UserStatus.Invited)
+            { 
+                ChangeUserStatus(null, UserStatus.OnboardInitiated);
+                AddDomainEvent(new UserOnboardingInitiatedDomainEvent(this));
+            }
+        }
         public void OffboardingInitiated(DateTime lastWorkingDay, Guid callerId)
         {
             UpdatedBy = callerId;

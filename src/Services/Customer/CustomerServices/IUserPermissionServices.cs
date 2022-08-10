@@ -18,5 +18,6 @@ namespace CustomerServices
         Task UpdatePermission(UserPermissions userPermission);
         Task<IList<UserPermissions>> GetCustomerAdminsAsync(Guid customerId);
         Task UpdateAccessListAsync(User user, List<Guid> accessList, Guid callerId);
+        Task InitiateOnboarding(User user);
     }
 }

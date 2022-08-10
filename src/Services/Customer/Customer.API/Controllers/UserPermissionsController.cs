@@ -43,10 +43,9 @@ namespace Customer.API.Controllers
             var userPermissions = await _userPermissionServices.GetUserPermissionsAsync(userName);
             if (userPermissions == null) return NotFound();
             var returnedUserPermissions = new List<UserPermissions>();
-            var check = false;
             foreach (var userPermission in userPermissions)
             {
-                if (userPermission.User.UserStatus == UserStatus.Invited) check = true;
+                if (userPermission.User.UserStatus == UserStatus.Invited) await _userPermissionServices.InitiateOnboarding(userPermission.User);
 
                 var permissionNames = new List<string>();
                 foreach (var roleGrantedPermission in userPermission.Role.GrantedPermissions)

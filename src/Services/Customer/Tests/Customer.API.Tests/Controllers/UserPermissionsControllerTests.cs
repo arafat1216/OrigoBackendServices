@@ -271,5 +271,37 @@ namespace Customer.API.IntegrationTests.Controllers
             var response = await _httpClient.PutAsJsonAsync(requestUri, requestBody);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
+        [Fact]
+        public async Task GetUserPermission_ChangeUserStatusIfInvited()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            //Initiate onboarding process for customer - sends invitation for customers employees and changes user status to invited 
+            var requestOnBoarding = $"/api/v1/organizations/{_customerId}/initiate-onboarding";
+            var responseOnBoarding = await _httpClient.PostAsync(requestOnBoarding, null);
+            var organization = await responseOnBoarding.Content.ReadFromJsonAsync<OrganizationDTO>();
+            Assert.Equal(Common.Enums.CustomerStatus.StartedOnboardning, organization?.Status);
+            Assert.Equal("StartedOnboardning", organization?.StatusName);
+
+            //Get the permissions for user should also change status when status is invited
+            var requestPermissions = $"api/v1/organizations/users/{_userOneEmail}/permissions";
+            var responsePermissions = await httpClient.GetAsync(requestPermissions);
+            var readPermissions = await responsePermissions.Content.ReadFromJsonAsync<List<UserPermissions>>();
+
+            Assert.Equal(HttpStatusCode.OK, responsePermissions.StatusCode);
+            Assert.Equal(1, readPermissions?.Count);
+
+            var userId = readPermissions?[0].UserId;
+
+            //Check user object if status is changed
+            var requestUser = $"/api/v1/organizations/users/{userId}";
+            var responseUser = await _httpClient.GetAsync(requestUser);
+
+            var user = await responseUser.Content.ReadFromJsonAsync<User>();
+
+            Assert.Equal(HttpStatusCode.OK, responseUser.StatusCode);
+            Assert.NotNull(user);
+            Assert.Equal("OnboardInitiated", user?.UserStatusName);
+        }
     }
 }

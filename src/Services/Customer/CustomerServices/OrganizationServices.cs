@@ -817,7 +817,7 @@ namespace CustomerServices
             return true;
         }
 
-        public async Task<Organization> InitiateOnbardingAsync(Guid organizationId)
+        public async Task<Organization> InitiateOnboardingAsync(Guid organizationId)
         {
             var customer = await _organizationRepository.GetOrganizationAsync(organizationId);
             
@@ -843,13 +843,17 @@ namespace CustomerServices
             {
                 try
                 {
-                    await _emailService.InvitationEmailToUserAsync(new Email.Models.InvitationMail
+                    if (user.UserStatus == UserStatus.NotInvited)
                     {
-                        FirstName = user.FirstName,
-                        Recipient = new List<string> { user.Email }
-                    }, user.UserPreference != null ? user.UserPreference.Language : defaultLanguage);
 
-                    user.ChangeUserStatus(null, UserStatus.Invited);
+                        await _emailService.InvitationEmailToUserAsync(new Email.Models.InvitationMail
+                        {
+                            FirstName = user.FirstName,
+                            Recipient = new List<string> { user.Email }
+                        }, user.UserPreference != null ? user.UserPreference.Language : defaultLanguage);
+
+                        user.ChangeUserStatus(null, UserStatus.Invited);
+                    }
                 }
                 catch(Exception ex)
                 {

@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Common.Infrastructure;
 using Xunit;
 using CustomerServices.Email;
+using CustomerServices.Email.Models;
 
 namespace CustomerServices.UnitTests
 {
@@ -20,6 +21,7 @@ namespace CustomerServices.UnitTests
     {
         private readonly IMapper _mapper;
         private readonly OrganizationServices organizationServices;
+        private readonly Mock<IEmailService> _emailServiceMock;
 
         public OrganizationServicesTests()
             : base(
@@ -36,7 +38,9 @@ namespace CustomerServices.UnitTests
             apiRequesterServiceMock.Setup(r => r.AuthenticatedUserId).Returns(CALLER_ID);
             var context = new CustomerContext(ContextOptions, apiRequesterServiceMock.Object);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper, Mock.Of<IEmailService>());
+            var emailMock = new Mock<IEmailService>();
+            _emailServiceMock = emailMock;
+            organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper, emailMock.Object);
         }
 
         [Fact]
@@ -294,6 +298,17 @@ namespace CustomerServices.UnitTests
             Assert.Equal("Paavola", organization.ContactPerson.LastName);
             Assert.Equal("john.doe@example.com", organization.ContactPerson.Email);
             Assert.Equal("99999999", organization.ContactPerson.PhoneNumber);
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task InitiateOnboardingAsync_CallEmailOnlyOnUserStatusNotInvited()
+        {
+            // Act
+            var organization = await organizationServices.InitiateOnboardingAsync(CUSTOMER_ONE_ID);
+            // Arrange
+            _emailServiceMock.Verify(email => email.InvitationEmailToUserAsync(It.IsAny<InvitationMail>(), It.IsAny<string>()), Times.Exactly(2));
+
+
         }
     }
 }
