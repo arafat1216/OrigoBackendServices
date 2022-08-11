@@ -6,16 +6,14 @@ namespace CustomerServices.DomainEvents
 {
 #nullable enable
     /// <summary>
-    /// Domain event for when a user status change from Invited to onboarding status.
-    /// This will be called when the class method from User entity OnboardingInitiated changes the users status.
+    /// Domain event when user status change from Invited to onboarding status.
     /// </summary>
-    /// <inheritdoc cref="Common.Logging.BaseEvent" />
     public class UserOnboardingInitiatedDomainEvent : BaseEvent
     {
         /// <summary>
         /// Initializes a new instance of the UserOnboardingInitiatedDomainEvent
+        /// </summary>
         /// <param name="user">User object</param>
-        /// <param name="user.UserId">UserId is set by the parent</param>
         public UserOnboardingInitiatedDomainEvent(User user) : base(user.UserId)
         {
             User = user;
@@ -25,10 +23,7 @@ namespace CustomerServices.DomainEvents
         /// </summary>
         public User User { get; protected set; }
 
-        /// <summary>
-        /// Event message used by the auditlog.
-        /// </summary>
-        /// <inheritdoc cref="Common.Logging.BaseEvent" />
+        /// <inheritdoc/>
         public override string EventMessage()
         {
             return User.FirstName != null && User.LastName != null ?

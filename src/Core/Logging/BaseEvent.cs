@@ -15,6 +15,9 @@ namespace Common.Logging
 
         public Guid Id { get; protected set; }
         public DateTime CreationDate { get; }
+        /// <summary>
+        /// Event message used by the auditlog.
+        /// </summary>
         public virtual string EventMessage()
         {
             return $"Event for {Id}";
