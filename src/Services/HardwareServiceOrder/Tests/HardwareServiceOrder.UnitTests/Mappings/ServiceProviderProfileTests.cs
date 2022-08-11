@@ -32,7 +32,7 @@ namespace HardwareServiceOrderServices.Mappings.Tests
                 new(1, (int)ServiceProviderEnum.ConmodoNo, "3rd party id", true, true, Guid.NewGuid(), DateTimeOffset.Parse("2020-01-01")),
             };
 
-            ServiceProvider serviceProvider = new ServiceProvider(1, "ServiceProvider", Guid.NewGuid(), serviceProviderServiceTypes, serviceOrderAddons, Guid.NewGuid(), DateTimeOffset.Parse("2020-01-01"));
+            ServiceProvider serviceProvider = new ServiceProvider(1, "ServiceProvider", Guid.NewGuid(), true, true, serviceProviderServiceTypes, serviceOrderAddons, Guid.NewGuid(), DateTimeOffset.Parse("2020-01-01"));
 
             // Act
             var result = _mapper.Map<ServiceProviderDTO>(serviceProvider);

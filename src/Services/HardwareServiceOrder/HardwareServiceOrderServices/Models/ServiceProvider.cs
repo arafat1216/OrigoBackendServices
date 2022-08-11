@@ -24,7 +24,9 @@ namespace HardwareServiceOrderServices.Models
         /// </summary>
         /// <param name="organizationId"> The identifier that's used for the service-provider in it's organization-entity. </param>
         /// <param name="name"> The service provider's name. </param>
-        public ServiceProvider(string name, Guid organizationId) : base()
+        /// <param name="requiresApiUsername"> When customers are using this service-provider, do they need to add a <see cref="ApiCredential.ApiUsername">API username</see>? </param>
+        /// <param name="requiresApiPassword"> When customers are using this service-provider, do they need to add a <see cref="ApiCredential.ApiPassword">API password</see>? </param>
+        public ServiceProvider(string name, Guid organizationId, bool requiresApiUsername, bool requiresApiPassword) : base()
         {
             Name = name;
             OrganizationId = organizationId;
@@ -39,6 +41,8 @@ namespace HardwareServiceOrderServices.Models
         public ServiceProvider(int id,
                                string name,
                                Guid organizationId,
+                               bool requiresApiUsername, 
+                               bool requiresApiPassword,
                                ICollection<ServiceProviderServiceType>? supportedServiceTypes,
                                ICollection<ServiceOrderAddon>? offeredServiceOrderAddons,
                                Guid createdBy,
@@ -52,6 +56,8 @@ namespace HardwareServiceOrderServices.Models
             Id = id;
             Name = name;
             OrganizationId = organizationId;
+            RequiresApiUsername = requiresApiUsername;
+            RequiresApiPassword = requiresApiPassword;
             SupportedServiceTypes = supportedServiceTypes;
             OfferedServiceOrderAddons = offeredServiceOrderAddons;
         }
@@ -81,8 +87,27 @@ namespace HardwareServiceOrderServices.Models
         public Guid OrganizationId { get; set; }
 
 
+        /// <summary>
+        ///     When this service-provider is used in a <see cref="CustomerServiceProvider"/>, are the <see cref="ApiCredential.ApiUsername"/> relevant?
+        ///     
+        ///     <para>
+        ///     If <see langword="true"/>, the username should be provided. Otherwise it's not used and should be <see langword="null"/>. </para>
+        /// </summary>
+        /// <value>
+        ///     When customers are using this service-provider, do they need to add a <see cref="ApiCredential.ApiUsername">API username</see>?
+        /// </value>
+        public bool RequiresApiUsername { get; set; }
 
-        // TODO: Eventually, we will extend this to do something similar for supported countries and asset-categories.
+        /// <summary>
+        ///     When this service-provider is used in a <see cref="CustomerServiceProvider"/>, are the <see cref="ApiCredential.ApiPassword"/> relevant?
+        ///     
+        ///     <para>
+        ///     If <see langword="true"/>, the password should be provided. Otherwise it's not used and should be <see langword="null"/>. </para>
+        /// </summary>
+        /// <value>
+        ///     When customers are using this service-provider, do they need to add a <see cref="ApiCredential.ApiPassword">API password</see>?
+        /// </value>
+        public bool RequiresApiPassword { get; set; }
 
 
         /*

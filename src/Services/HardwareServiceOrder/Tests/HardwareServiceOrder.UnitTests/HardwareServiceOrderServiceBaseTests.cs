@@ -43,7 +43,7 @@ namespace HardwareServiceOrder.UnitTests
                 new ServiceOrderAddon(704, serviceProviderId, "[ThirdPartyId4]", true, true, Guid.NewGuid(), DateTimeOffset.Parse("2020-04-24")),
             };
 
-            ServiceProvider serviceProvider = new(serviceProviderId, "[ServiceProviderName]", CUSTOMER_ONE_ID, serviceProviderServiceTypes, serviceProviderServiceAddons, CUSTOMER_ONE_ID, DateTimeOffset.Parse("2020-10-15"));
+            ServiceProvider serviceProvider = new(serviceProviderId, "[ServiceProviderName]", CUSTOMER_ONE_ID, true, true, serviceProviderServiceTypes, serviceProviderServiceAddons, CUSTOMER_ONE_ID, DateTimeOffset.Parse("2020-10-15"));
             AssetInfo assetInfo = new("[AssetBrand]", "[AssetModel]", new HashSet<string>() { "527127734377463" }, "[SerialNumber]", DateOnly.Parse("2020-01-01"), null);
 
             var order1 = new HardwareServiceOrderServices.Models.HardwareServiceOrder(CUSTOMER_ONE_ID, Guid.NewGuid(), 1, assetInfo, "UserDescription", new ContactDetails(CUSTOMER_ONE_ID, "FirstName", "LastName", "test@test.com", "PhoneNumber"), deliveryAddress, (int)ServiceTypeEnum.SUR, (int)ServiceStatusEnum.Ongoing, (int)ServiceProviderEnum.ConmodoNo, "serviceProviderOrderId1", null, "externalLink", new List<ServiceEvent>());

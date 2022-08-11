@@ -55,7 +55,7 @@ namespace HardwareServiceOrderServices.SeedData
             builder.Entity<ServiceProvider>(entity =>
             {
                 // Conmodo Norway
-                entity.HasData(new { Id = (int)ServiceProviderEnum.ConmodoNo, Name = "Conmodo (NO)", OrganizationId = Guid.Empty, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
+                entity.HasData(new { Id = (int)ServiceProviderEnum.ConmodoNo, Name = "Conmodo (NO)", OrganizationId = Guid.Empty, RequiresApiUsername = true, RequiresApiPassword = false, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
             });
         }
 

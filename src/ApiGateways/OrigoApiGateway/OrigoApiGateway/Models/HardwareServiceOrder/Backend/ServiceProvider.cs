@@ -31,6 +31,20 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend
         public Guid OrganizationId { get; set; }
 
         /// <summary>
+        ///     When customers are configuring their settings for this service-provider, 
+        ///     should they add a API username when configuring their API credentials?
+        /// </summary>
+        [Required]
+        public bool RequiresApiUsername { get; set; }
+
+        /// <summary>
+        ///     When customers are configuring their settings for this service-provider, 
+        ///     should they add a API password when configuring their API credentials?
+        /// </summary>
+        [Required]
+        public bool RequiresApiPassword { get; set; }
+
+        /// <summary>
         ///     A list containing all service-addons that is offered by the service-provider. 
         ///     
         ///     <para>

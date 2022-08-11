@@ -21,11 +21,17 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// <inheritdoc cref="ServiceProvider.OrganizationId"/>
         public Guid OrganizationId { get; set; }
 
+        /// <inheritdoc cref="ServiceProvider.RequiresApiUsername"/>
+        public bool RequiresApiUsername { get; set; }
+
+        /// <inheritdoc cref="ServiceProvider.RequiresApiPassword"/>
+        public bool RequiresApiPassword { get; set; }
+
 
         /*
          * Entity Framework navigation properties
          */
-        
+
         /// <inheritdoc cref="ServiceProvider.SupportedServiceTypes"/>
         [JsonIgnore]
         public virtual ICollection<ServiceProviderServiceType>? SupportedServiceTypes { get; private set; }

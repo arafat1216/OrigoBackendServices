@@ -64,7 +64,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.Remarketing };
             var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Registered };
-            var serviceProvider = new ServiceProvider("ServiceProviderName", Guid.NewGuid());
+            var serviceProvider = new ServiceProvider("ServiceProviderName", Guid.NewGuid(), true, true);
 
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
                 Guid.NewGuid(),
@@ -102,7 +102,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.Recycle };
             var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Registered };
-            var serviceProvider = new ServiceProvider("ServiceProviderName", Guid.NewGuid());
+            var serviceProvider = new ServiceProvider("ServiceProviderName", Guid.NewGuid(), true, true);
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
                 Guid.NewGuid(),
                 contactDetails,
@@ -132,7 +132,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var serviceType = new ServiceType() { Id = (int)ServiceTypeEnum.Recycle };
             var serviceStatus = new ServiceStatus() { Id = (int)ServiceStatusEnum.Registered };
-            var serviceProvider = new ServiceProvider("ServiceProviderName", Guid.NewGuid());
+            var serviceProvider = new ServiceProvider("ServiceProviderName", Guid.NewGuid(), true, true);
             var order = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
                 Guid.NewGuid(),
                 contactDetails,
