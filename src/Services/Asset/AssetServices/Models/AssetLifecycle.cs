@@ -588,6 +588,8 @@ public class AssetLifecycle : Entity, IAggregateRoot
 
     private void UpdateAssetStatus(AssetLifecycleStatus lifecycleStatus, Guid callerId)
     {
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
         var previousLifecycleStatus = _assetLifecycleStatus;
         _assetLifecycleStatus = lifecycleStatus;
         AddDomainEvent(new UpdateAssetLifecycleStatusDomainEvent(this, previousLifecycleStatus));
