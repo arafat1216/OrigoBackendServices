@@ -175,12 +175,17 @@ public class AssetLifecycle : Entity, IAggregateRoot
         init => _assetLifecycleStatus = value;
     }
     private AssetLifecycleStatus _assetLifecycleStatus;
-
+    /// <summary>
+    /// Checks if the asset lifecycle status being passed is active state.
+    /// </summary>
+    /// <param name="assetLifecycleStatus">The asset lifecycle status to check if it is a active state.</param>
+    /// <returns></returns>
     public static bool HasActiveState(AssetLifecycleStatus assetLifecycleStatus)
     {
         return assetLifecycleStatus is AssetLifecycleStatus.InputRequired or AssetLifecycleStatus.InUse
             or AssetLifecycleStatus.Repair or AssetLifecycleStatus.PendingReturn or AssetLifecycleStatus.PendingBuyout
-            or AssetLifecycleStatus.Available or AssetLifecycleStatus.Active or AssetLifecycleStatus.ExpiresSoon;
+            or AssetLifecycleStatus.Available or AssetLifecycleStatus.Active or AssetLifecycleStatus.ExpiresSoon 
+            or AssetLifecycleStatus.PendingRecycle;
     }
 
     /// <summary>
@@ -268,7 +273,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
             var previousContractHolderUser = ContractHolderUser;
             IsPersonal = true;
 
-            if (_assetLifecycleStatus != AssetLifecycleStatus.InUse && _assetLifecycleType != LifecycleType.NoLifecycle) UpdateAssetStatus(AssetLifecycleStatus.InUse, callerId);
+            if (_assetLifecycleStatus != AssetLifecycleStatus.InUse && _assetLifecycleType != LifecycleType.NoLifecycle) UpdateAssetStatus(AssetLifecycleStatus.InUse);
 
             AddDomainEvent(new AssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, previousContractHolderUser));
             UpdatedBy = callerId;
@@ -291,7 +296,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
             IsPersonal = false;
 
             //Change state to in use if not no lifecycle
-            if(_assetLifecycleStatus != AssetLifecycleStatus.InUse && _assetLifecycleType != LifecycleType.NoLifecycle) UpdateAssetStatus(AssetLifecycleStatus.InUse, callerId);
+            if(_assetLifecycleStatus != AssetLifecycleStatus.InUse && _assetLifecycleType != LifecycleType.NoLifecycle) UpdateAssetStatus(AssetLifecycleStatus.InUse);
 
             AddDomainEvent(new AssignDepartmentAssetLifecycleDomainEvent(this, callerId, previousDepartmentId));
             UpdatedBy = callerId;
@@ -536,7 +541,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         AddDomainEvent(new ReactivatePendingAssetDomainEvent(this, callerId));
-        UpdateAssetStatus(AssetLifecycleStatus.Active, callerId);
+        UpdateAssetStatus(AssetLifecycleStatus.Active);
     }
 
     /// <summary>
@@ -564,16 +569,16 @@ public class AssetLifecycle : Entity, IAggregateRoot
         switch (lifecycleType)
         {
             case LifecycleType.Transactional when (IsPersonal && ContractHolderUser != null) || (!IsPersonal && (ManagedByDepartmentId != null && ManagedByDepartmentId != Guid.Empty)):
-                UpdateAssetStatus(AssetLifecycleStatus.InUse, callerId);
+                UpdateAssetStatus(AssetLifecycleStatus.InUse);
                 break;
             case LifecycleType.Transactional:
-                UpdateAssetStatus(AssetLifecycleStatus.InputRequired, callerId);
+                UpdateAssetStatus(AssetLifecycleStatus.InputRequired);
                 break;
             case LifecycleType.NoLifecycle:
-                UpdateAssetStatus(AssetLifecycleStatus.Active, callerId);
+                UpdateAssetStatus(AssetLifecycleStatus.Active);
                 break;
             default:
-                UpdateAssetStatus(AssetLifecycleStatus.Active, callerId);
+                UpdateAssetStatus(AssetLifecycleStatus.Active);
                 break;
         }
 
@@ -581,20 +586,18 @@ public class AssetLifecycle : Entity, IAggregateRoot
         AddDomainEvent(new AssignLifecycleTypeToAssetLifecycleDomainEvent(this, callerId, lifecycleType));
     }
 
-    private void UpdateAssetStatus(AssetLifecycleStatus lifecycleStatus, Guid callerId)
+    private void UpdateAssetStatus(AssetLifecycleStatus lifecycleStatus)
     {
-        UpdatedBy = callerId;
-        LastUpdatedDate = DateTime.UtcNow;
         var previousLifecycleStatus = _assetLifecycleStatus;
         _assetLifecycleStatus = lifecycleStatus;
-        AddDomainEvent(new UpdateAssetLifecycleStatusDomainEvent(this, callerId, previousLifecycleStatus));
+        AddDomainEvent(new UpdateAssetLifecycleStatusDomainEvent(this, previousLifecycleStatus));
     }
 
     public void HasBeenStolen(Guid callerId)
     {
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
-        UpdateAssetStatus(AssetLifecycleStatus.Stolen, callerId);
+        UpdateAssetStatus(AssetLifecycleStatus.Stolen);
         AddDomainEvent(new AssetHasBeenStolenDomainEvent(this, _assetLifecycleStatus, callerId));
     }
 
@@ -692,7 +695,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
 
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
-        UpdateAssetStatus(AssetLifecycleStatus.Repair, callerId);
+        UpdateAssetStatus(AssetLifecycleStatus.Repair);
         AddDomainEvent(new AssetSentToRepairDomainEvent(this, _assetLifecycleStatus, callerId));
     }
     public void RepairCompleted(Guid callerId, bool discarded)
@@ -706,26 +709,66 @@ public class AssetLifecycle : Entity, IAggregateRoot
 ;
         if (_assetLifecycleStatus == AssetLifecycleStatus.Repair)
         {
-            if (discarded) UpdateAssetStatus(AssetLifecycleStatus.Discarded, callerId);
-            else UpdateAssetStatus(AssetLifecycleStatus.InUse, callerId);
+            if (discarded) UpdateAssetStatus(AssetLifecycleStatus.Discarded);
+            else UpdateAssetStatus(AssetLifecycleStatus.InUse);
 
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
             AddDomainEvent(new AssetRepairCompletedDomainEvent(this, callerId, _assetLifecycleStatus));
         }
     }
-    public void SetActiveStatus(Guid callerId)
+    public void SetActiveStatus()
     {
         if (_assetLifecycleType == LifecycleType.NoLifecycle || _assetLifecycleType == LifecycleType.BYOD)
         {
-            UpdateAssetStatus(AssetLifecycleStatus.Active, callerId);
+            UpdateAssetStatus(AssetLifecycleStatus.Active);
         }
     }
-    public void SetInactiveStatus(Guid callerId)
+    public void SetInactiveStatus()
     {
         if (_assetLifecycleType == LifecycleType.NoLifecycle || _assetLifecycleType == LifecycleType.BYOD)
         {
-            UpdateAssetStatus(AssetLifecycleStatus.Inactive, callerId);
+            UpdateAssetStatus(AssetLifecycleStatus.Inactive);
+        }
+    }
+
+    /// <summary>
+    /// Sets the asset lifecycle to asset stauts recycled 
+    /// </summary>
+    public void SetRecycledStatus()
+    {
+        //Change status and add a domain event only if the status is changed
+        if (_assetLifecycleStatus != AssetLifecycleStatus.Recycled)
+        {
+            if(_assetLifecycleType != LifecycleType.Transactional) throw new InvalidAssetDataException($"Invalid asset lifecycle status: {_assetLifecycleStatus} to recycle the device.", Guid.Parse("d59598f5-e2bc-4e61-bc47-19b3eb1124ca"));
+
+            if (_assetLifecycleStatus == AssetLifecycleStatus.Lost ||
+            _assetLifecycleStatus == AssetLifecycleStatus.Stolen ||
+            _assetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
+            _assetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
+            _assetLifecycleStatus == AssetLifecycleStatus.Repair ||
+            _assetLifecycleStatus == AssetLifecycleStatus.Discarded) throw new InvalidAssetDataException($"Invalid asset lifecycle status: {_assetLifecycleStatus} to recycle the device.", Guid.Parse("e996c4e8-fbb0-4088-861d-380a591af474"));
+            
+            UpdateAssetStatus(AssetLifecycleStatus.Recycled);
+        }
+    }
+    /// <summary>
+    /// Sets the asset lifecycle to asset stauts pending recycle
+    /// </summary>
+    public void SetPendingRecycledStatus()
+    {
+        if (_assetLifecycleStatus != AssetLifecycleStatus.PendingRecycle)
+        {
+            if (_assetLifecycleType != LifecycleType.Transactional) throw new InvalidAssetDataException($"Invalid asset lifecycle status: {_assetLifecycleStatus} to recycle the device.", Guid.Parse("dbc2a756-3a66-455d-9f33-c0464c610602"));
+
+            if (_assetLifecycleStatus == AssetLifecycleStatus.Lost ||
+                _assetLifecycleStatus == AssetLifecycleStatus.Stolen ||
+                _assetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
+                _assetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
+                _assetLifecycleStatus == AssetLifecycleStatus.Repair ||
+                _assetLifecycleStatus == AssetLifecycleStatus.Discarded) throw new InvalidAssetDataException($"Invalid asset lifecycle status: {_assetLifecycleStatus} to set the device to pending recycle.", Guid.Parse("e996c4e8-fbb0-4088-861d-380a591af474"));
+
+            UpdateAssetStatus(AssetLifecycleStatus.PendingRecycle);
         }
     }
 }

@@ -771,4 +771,29 @@ public class AssetsController : ControllerBase
     {
         await _assetServices.CancelUserOffboarding(userEvent.CustomerId, userEvent.UserId, Guid.Empty.SystemUserId());
     }
+    /// <summary>
+    /// Responsible for updating the asset lifecycle based on the requirements for a recycle order.
+    /// Gets assets staus "Pending recycle" or "Recycled" based on the status being passed in the parameter. 
+    /// </summary>
+    /// <param name="assetLifecycleId">The id of the assetlifecycle to be updated.</param>
+    /// <param name="assetLifecycleStatus">The int value for the asset lifecycle status to change to.</param>
+    [Route("{assetLifecycleId:Guid}/recycle")]
+    [HttpPatch]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    public async Task<ActionResult> RecycleAssetLifecycle(Guid assetLifecycleId, [FromBody] int assetLifecycleStatus)
+    {
+        if (assetLifecycleId == Guid.Empty)
+        {
+            return BadRequest("RecycleAssetLifecycle assetLifecycleId is a empty Guid");
+        }
+        if (!Enum.IsDefined(typeof(AssetLifecycleStatus), assetLifecycleStatus))
+        {
+            return BadRequest($"RecycleAssetLifecycle failed because the enum value {assetLifecycleStatus} does not exist");
+        }
+
+        await _assetServices.RecycleAssetLifecycle(assetLifecycleId,assetLifecycleStatus);
+
+        return Ok();
+    }
 }

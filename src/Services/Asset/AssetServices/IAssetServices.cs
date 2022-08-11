@@ -68,5 +68,13 @@ namespace AssetServices
         Task CancelUserOffboarding(Guid customerId, Guid userId, Guid callerId);
         AssetValidationResult ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly);
         Task<AssetLifecycleDTO> ConfirmBuyoutDeviceAsync(Guid customerId, BuyoutDeviceDTO data);
+        /// <summary>
+        /// Makes change to asset status based on recycle order requirements. 
+        /// </summary>
+        /// <param name="assetLifecycleId">Asset lifecycle id.</param>
+        /// <param name="assetLifecycleStatus">The asset lifecycle status the asset is to be changed to.</param>
+        /// <returns></returns>
+        Task RecycleAssetLifecycle(Guid assetLifecycleId, int assetLifecycleStatus);
+
     }
 }

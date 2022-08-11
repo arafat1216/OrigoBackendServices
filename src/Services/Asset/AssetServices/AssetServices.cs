@@ -1079,7 +1079,7 @@ public class AssetServices : IAssetServices
 
         foreach (var assetLifecycle in assetLifecycles)
         {
-            assetLifecycle.SetActiveStatus(assetLifecyclesId.CallerId);
+            assetLifecycle.SetActiveStatus();
         }
 
         await _assetLifecycleRepository.SaveEntitiesAsync();
@@ -1096,7 +1096,7 @@ public class AssetServices : IAssetServices
 
         foreach (var assetLifecycle in assetLifecycles)
         {
-            assetLifecycle.SetInactiveStatus(assetLifecyclesId.CallerId);
+            assetLifecycle.SetInactiveStatus();
         }
 
         await _assetLifecycleRepository.SaveEntitiesAsync();
@@ -1117,5 +1117,31 @@ public class AssetServices : IAssetServices
         {
             assetLifecycle.AssignAssetLifecycleHolder(user, departmentId, callerId);
         }
+    }
+
+    /// <inheritdoc/>
+    public async Task RecycleAssetLifecycle(Guid assetLifecycleId, int assetLifecycleStatus)
+    {
+        var assetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(assetLifecycleId);
+
+        if (assetLifeCycle == null)
+        {
+            throw new ResourceNotFoundException($"Asset lifecycle with id {assetLifecycleId} not found", Guid.Parse("ba1bb151-7676-470a-a864-431a53ab756f"));
+        }
+
+        var changed = false;
+        if ((AssetLifecycleStatus)assetLifecycleStatus == AssetLifecycleStatus.Recycled)
+        {
+            assetLifeCycle.SetRecycledStatus();
+            changed = true;
+        }
+
+        if ((AssetLifecycleStatus)assetLifecycleStatus == AssetLifecycleStatus.PendingRecycle)
+        {
+            assetLifeCycle.SetPendingRecycledStatus();
+            changed = true;
+        }
+
+        if (changed) await _assetLifecycleRepository.SaveEntitiesAsync();
     }
 }

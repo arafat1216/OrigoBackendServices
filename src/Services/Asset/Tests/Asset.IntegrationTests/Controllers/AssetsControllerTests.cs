@@ -2566,4 +2566,31 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var response = await httpClient.GetAsync(url);
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
+    [Fact]
+    public async Task RecycleAssetLifecycle_ChangeAssetStatus_ReturnsOK()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+        var url = $"/api/v1/Assets/{_assetOne}/recycle";
+        var response = await _httpClient.PatchAsync(url, JsonContent.Create(10));
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetOne}/customers/{_customerId}";
+        var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+        Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+        var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+        Assert.NotNull(assetLifeCycle);
+        Assert.Equal(_assetOne, assetLifeCycle?.Id);
+        Assert.Equal(AssetLifecycleStatus.Recycled, assetLifeCycle?.AssetStatus);
+    }
+    [Fact]
+    public async Task RecycleAssetLifecycle_InvalidStatus_ReturnsBadRequest()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+        var url = $"/api/v1/Assets/{_assetOne}/recycle";
+        var response = await _httpClient.PatchAsync(url, JsonContent.Create(20));
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
 }

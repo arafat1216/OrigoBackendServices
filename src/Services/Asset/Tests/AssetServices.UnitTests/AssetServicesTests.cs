@@ -1405,7 +1405,7 @@ public class AssetServicesTests : AssetBaseTest
 
         //InActive
         var asset6 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_SIX_ID); 
-        asset6.SetInactiveStatus(callerId);
+        asset6.SetInactiveStatus();
         Assert.Equal(AssetLifecycleStatus.Inactive, asset6.AssetLifecycleStatus);
         asset6.IsSentToRepair(callerId);
         Assert.Equal(AssetLifecycleStatus.Repair, asset6.AssetLifecycleStatus);
@@ -1645,5 +1645,49 @@ public class AssetServicesTests : AssetBaseTest
         Assert.NotNull(assetList.Items[0].ContractHolderUser);
         Assert.Equal(ASSETHOLDER_TWO_ID, assetList.Items[0].ContractHolderUser.ExternalId);
         Assert.Equal("Atish", assetList.Items[0].ContractHolderUser.Name);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AssetLifcycle_SetPendingRecycledStatus()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+
+        //Act
+        var asset = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_TWO_ID);
+        Assert.Equal(AssetLifecycleStatus.InUse, asset.AssetLifecycleStatus);
+        asset.SetPendingRecycledStatus();
+        //Assert
+        Assert.Equal(AssetLifecycleStatus.PendingRecycle,asset.AssetLifecycleStatus);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AssetLifcycle_SetPendingRecycledStatus_LifecycleNotTransactional_ThrowsException()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        //Act
+        var asset = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_ONE_ID);
+        //Assert
+        Assert.Equal(AssetLifecycleStatus.Active, asset.AssetLifecycleStatus);
+        Assert.Throws<InvalidAssetDataException>(() => asset.SetPendingRecycledStatus());
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AssetLifcycle_SetRecycledStatus_NotValidAssetStatus_ThrowsException()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        //Act
+        var asset = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_SEVEN_ID);
+        //Assert
+        Assert.Equal(AssetLifecycleStatus.Repair, asset.AssetLifecycleStatus);
+        Assert.Throws<InvalidAssetDataException>(() => asset.SetRecycledStatus());
     }
 }
