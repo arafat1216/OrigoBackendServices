@@ -781,18 +781,18 @@ public class AssetsController : ControllerBase
     [HttpPatch]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> RecycleAssetLifecycle(Guid assetLifecycleId, [FromBody] int assetLifecycleStatus)
+    public async Task<ActionResult> RecycleAssetLifecycle(Guid assetLifecycleId, [FromBody] RecycleAssetLifecycle assetLifecycle)
     {
         if (assetLifecycleId == Guid.Empty)
         {
             return BadRequest("RecycleAssetLifecycle assetLifecycleId is a empty Guid");
         }
-        if (!Enum.IsDefined(typeof(AssetLifecycleStatus), assetLifecycleStatus))
+        if (!Enum.IsDefined(typeof(AssetLifecycleStatus), assetLifecycle.AssetLifecycleStatus))
         {
-            return BadRequest($"RecycleAssetLifecycle failed because the enum value {assetLifecycleStatus} does not exist");
+            return BadRequest($"RecycleAssetLifecycle failed because the enum value {assetLifecycle.AssetLifecycleStatus} does not exist");
         }
 
-        await _assetServices.RecycleAssetLifecycle(assetLifecycleId,assetLifecycleStatus);
+        await _assetServices.RecycleAssetLifecycle(assetLifecycleId, assetLifecycle.AssetLifecycleStatus, assetLifecycle.CallerId);
 
         return Ok();
     }

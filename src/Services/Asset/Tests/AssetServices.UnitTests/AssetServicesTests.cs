@@ -1405,7 +1405,7 @@ public class AssetServicesTests : AssetBaseTest
 
         //InActive
         var asset6 = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_SIX_ID); 
-        asset6.SetInactiveStatus();
+        asset6.SetInactiveStatus(CALLER_ID);
         Assert.Equal(AssetLifecycleStatus.Inactive, asset6.AssetLifecycleStatus);
         asset6.IsSentToRepair(callerId);
         Assert.Equal(AssetLifecycleStatus.Repair, asset6.AssetLifecycleStatus);
@@ -1658,7 +1658,7 @@ public class AssetServicesTests : AssetBaseTest
         //Act
         var asset = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_TWO_ID);
         Assert.Equal(AssetLifecycleStatus.InUse, asset.AssetLifecycleStatus);
-        asset.SetPendingRecycledStatus();
+        asset.SetPendingRecycledStatus(CALLER_ID);
         //Assert
         Assert.Equal(AssetLifecycleStatus.PendingRecycle,asset.AssetLifecycleStatus);
     }
@@ -1674,7 +1674,7 @@ public class AssetServicesTests : AssetBaseTest
         var asset = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_ONE_ID);
         //Assert
         Assert.Equal(AssetLifecycleStatus.Active, asset.AssetLifecycleStatus);
-        Assert.Throws<InvalidAssetDataException>(() => asset.SetPendingRecycledStatus());
+        Assert.Throws<InvalidAssetDataException>(() => asset.SetPendingRecycledStatus(CALLER_ID));
     }
     [Fact]
     [Trait("Category", "UnitTest")]
@@ -1688,6 +1688,6 @@ public class AssetServicesTests : AssetBaseTest
         var asset = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_SEVEN_ID);
         //Assert
         Assert.Equal(AssetLifecycleStatus.Repair, asset.AssetLifecycleStatus);
-        Assert.Throws<InvalidAssetDataException>(() => asset.SetRecycledStatus());
+        Assert.Throws<InvalidAssetDataException>(() => asset.SetRecycledStatus(CALLER_ID));
     }
 }

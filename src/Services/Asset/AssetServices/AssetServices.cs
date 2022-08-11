@@ -1079,7 +1079,7 @@ public class AssetServices : IAssetServices
 
         foreach (var assetLifecycle in assetLifecycles)
         {
-            assetLifecycle.SetActiveStatus();
+            assetLifecycle.SetActiveStatus(assetLifecyclesId.CallerId);
         }
 
         await _assetLifecycleRepository.SaveEntitiesAsync();
@@ -1096,7 +1096,7 @@ public class AssetServices : IAssetServices
 
         foreach (var assetLifecycle in assetLifecycles)
         {
-            assetLifecycle.SetInactiveStatus();
+            assetLifecycle.SetInactiveStatus(assetLifecyclesId.CallerId);
         }
 
         await _assetLifecycleRepository.SaveEntitiesAsync();
@@ -1120,7 +1120,7 @@ public class AssetServices : IAssetServices
     }
 
     /// <inheritdoc/>
-    public async Task RecycleAssetLifecycle(Guid assetLifecycleId, int assetLifecycleStatus)
+    public async Task RecycleAssetLifecycle(Guid assetLifecycleId, int assetLifecycleStatus, Guid callerId)
     {
         var assetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(assetLifecycleId);
 
@@ -1132,13 +1132,13 @@ public class AssetServices : IAssetServices
         var changed = false;
         if ((AssetLifecycleStatus)assetLifecycleStatus == AssetLifecycleStatus.Recycled)
         {
-            assetLifeCycle.SetRecycledStatus();
+            assetLifeCycle.SetRecycledStatus(callerId);
             changed = true;
         }
 
         if ((AssetLifecycleStatus)assetLifecycleStatus == AssetLifecycleStatus.PendingRecycle)
         {
-            assetLifeCycle.SetPendingRecycledStatus();
+            assetLifeCycle.SetPendingRecycledStatus(callerId);
             changed = true;
         }
 

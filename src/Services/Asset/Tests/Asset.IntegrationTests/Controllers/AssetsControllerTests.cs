@@ -2571,8 +2571,9 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     {
         var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
 
+        var recycleAssetLifecycle = new RecycleAssetLifecycle { AssetLifecycleStatus = 10, CallerId = _callerId};
         var url = $"/api/v1/Assets/{_assetOne}/recycle";
-        var response = await _httpClient.PatchAsync(url, JsonContent.Create(10));
+        var response = await _httpClient.PatchAsync(url, JsonContent.Create(recycleAssetLifecycle));
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetOne}/customers/{_customerId}";
@@ -2587,10 +2588,13 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     [Fact]
     public async Task RecycleAssetLifecycle_InvalidStatus_ReturnsBadRequest()
     {
+        //Arrange
         var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
-
+        var recycleAssetLifecycle = new RecycleAssetLifecycle { AssetLifecycleStatus = 20, CallerId = _callerId };
         var url = $"/api/v1/Assets/{_assetOne}/recycle";
-        var response = await _httpClient.PatchAsync(url, JsonContent.Create(20));
+        //Act
+        var response = await _httpClient.PatchAsync(url, JsonContent.Create(recycleAssetLifecycle));
+        //Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 }

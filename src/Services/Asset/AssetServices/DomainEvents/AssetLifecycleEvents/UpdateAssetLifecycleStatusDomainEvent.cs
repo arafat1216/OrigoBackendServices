@@ -31,6 +31,10 @@ namespace AssetServices.DomainEvents.AssetLifecycleEvents
         /// The previous status of the asset lifecycle.
         /// </summary>
         public AssetLifecycleStatus PreviousAssetLifecycleStatus { get; protected set; }
+        /// <summary>
+        /// Identification for the user making the change.
+        /// </summary>
+        public Guid CallerId { get; protected set; }
         /// <inheritdoc/>
         public override string EventMessage()
         {

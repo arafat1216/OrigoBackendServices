@@ -73,8 +73,9 @@ namespace AssetServices
         /// </summary>
         /// <param name="assetLifecycleId">Asset lifecycle id.</param>
         /// <param name="assetLifecycleStatus">The asset lifecycle status the asset is to be changed to.</param>
-        /// <returns></returns>
-        Task RecycleAssetLifecycle(Guid assetLifecycleId, int assetLifecycleStatus);
+        /// <param name="callerId">The identification for the caller who is makeing the request.</param>
+        /// <returns>Asynchronously task that returns no value.</returns>
+        Task RecycleAssetLifecycle(Guid assetLifecycleId, int assetLifecycleStatus, Guid callerId);
 
     }
 }
