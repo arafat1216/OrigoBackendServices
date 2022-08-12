@@ -592,7 +592,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         LastUpdatedDate = DateTime.UtcNow;
         var previousLifecycleStatus = _assetLifecycleStatus;
         _assetLifecycleStatus = lifecycleStatus;
-        AddDomainEvent(new UpdateAssetLifecycleStatusDomainEvent(this, previousLifecycleStatus));
+        AddDomainEvent(new UpdateAssetLifecycleStatusDomainEvent(this, previousLifecycleStatus,callerId));
     }
 
     public void HasBeenStolen(Guid callerId)

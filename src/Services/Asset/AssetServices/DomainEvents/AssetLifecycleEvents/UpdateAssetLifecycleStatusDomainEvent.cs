@@ -18,7 +18,8 @@ namespace AssetServices.DomainEvents.AssetLifecycleEvents
         /// </summary>
         /// <param name="assetLifecycle">Asset lifecycle object.</param>
         /// <param name="previousAssetLifecycleStatus">The status the asset lifecycle had before the change.</param>
-        public UpdateAssetLifecycleStatusDomainEvent(AssetLifecycle assetLifecycle, AssetLifecycleStatus previousAssetLifecycleStatus):base(assetLifecycle.ExternalId)
+        /// <param name="callerId">The identification of the user making the change.</param>
+        public UpdateAssetLifecycleStatusDomainEvent(AssetLifecycle assetLifecycle, AssetLifecycleStatus previousAssetLifecycleStatus, Guid callerId):base(assetLifecycle.ExternalId)
         {
             AssetLifecycle = assetLifecycle;
             PreviousAssetLifecycleStatus = previousAssetLifecycleStatus;
