@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Common.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -116,6 +118,11 @@ namespace OrigoApiGateway.Controllers
                     _logger.LogInformation("No email found in the token");
                     return BadRequest();
                 }
+
+                HttpContext.User.AddIdentity(new ClaimsIdentity(new List<Claim>()
+                {
+                    new Claim(ClaimTypes.Actor, Guid.Empty.SystemUserId().ToString())
+                }));
 
                 try
                 {
