@@ -22,6 +22,7 @@ namespace AssetServices.DomainEvents.AssetLifecycleEvents
         public UpdateAssetLifecycleStatusDomainEvent(AssetLifecycle assetLifecycle, AssetLifecycleStatus previousAssetLifecycleStatus, Guid callerId):base(assetLifecycle.ExternalId)
         {
             AssetLifecycle = assetLifecycle;
+            CallerId = callerId;
             PreviousAssetLifecycleStatus = previousAssetLifecycleStatus;
         }
         /// <summary>
