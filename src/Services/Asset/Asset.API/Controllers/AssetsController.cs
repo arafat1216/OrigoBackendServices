@@ -773,10 +773,10 @@ public class AssetsController : ControllerBase
     }
     /// <summary>
     /// Responsible for updating the asset lifecycle based on the requirements for a recycle order.
-    /// Gets assets staus "Pending recycle" or "Recycled" based on the status being passed in the parameter. 
+    /// Sets assets staus "Pending recycle" or "Recycled" based on the status being passed in the parameter. 
     /// </summary>
     /// <param name="assetLifecycleId">The id of the assetlifecycle to be updated.</param>
-    /// <param name="assetLifecycleStatus">The int value for the asset lifecycle status to change to.</param>
+    /// <param name="assetLifecycle">Request body details for recycling an asset lifecycle.</param>
     [Route("{assetLifecycleId:Guid}/recycle")]
     [HttpPatch]
     [ProducesResponseType((int)HttpStatusCode.OK)]
