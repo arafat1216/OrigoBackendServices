@@ -755,7 +755,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         }
     }
     /// <summary>
-    /// Sets the asset lifecycle to asset stauts pending recycle.
+    /// Sets the asset lifecycle to asset status pending recycle.
     /// </summary>
     public void SetPendingRecycledStatus(Guid callerId)
     {

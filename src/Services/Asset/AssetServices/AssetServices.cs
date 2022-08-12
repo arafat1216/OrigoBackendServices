@@ -1135,7 +1135,7 @@ public class AssetServices : IAssetServices
             assetLifeCycle.SetRecycledStatus(callerId);
             changed = true;
         }
-        else 
+        else if ((AssetLifecycleStatus)assetLifecycleStatus == AssetLifecycleStatus.PendingRecycle)
         { 
             assetLifeCycle.SetPendingRecycledStatus(callerId);
             changed = true;
