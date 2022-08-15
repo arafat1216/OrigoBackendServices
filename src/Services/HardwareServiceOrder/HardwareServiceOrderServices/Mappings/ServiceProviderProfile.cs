@@ -5,7 +5,7 @@ using HardwareServiceOrderServices.ServiceModels;
 namespace HardwareServiceOrderServices.Mappings
 {
     /// <summary>
-    ///     Configures 'AutoMapper' profiles for the <see cref="ServiceProviderDTO"/>-class.
+    ///     Configures 'AutoMapper' profiles to and from the <see cref="ServiceProvider"/>-class.
     /// </summary>
     public class ServiceProviderProfile : Profile
     {

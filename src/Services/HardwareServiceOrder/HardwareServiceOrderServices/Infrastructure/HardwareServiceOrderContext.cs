@@ -29,6 +29,7 @@ namespace HardwareServiceOrderServices.Infrastructure
         public DbSet<CustomerServiceProvider> CustomerServiceProviders { get; set; } = null!;
         public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
         public DbSet<ServiceOrderAddon> ServiceOrderAddons { get; set; } = null!;
+        public DbSet<ApiCredential> ApiCredentials { get; set; } = null!;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="HardwareServiceOrderContext"/>-class.
@@ -62,6 +63,7 @@ namespace HardwareServiceOrderServices.Infrastructure
             modelBuilder.ApplyConfiguration(new CustomerServiceProviderConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new ServiceProviderServiceTypeConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new ServiceOrderAddonConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new ApiCredentialConfiguration(_isSQLite));
 
 
             // Add mandatory (production ready) seeding-data
