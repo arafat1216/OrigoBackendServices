@@ -19,18 +19,30 @@ namespace HardwareServiceOrderServices.Models
         public int ServiceProviderId { get; set; }
 
         /// <summary>
+        ///     Contains the API credentials that's used with this customer-service-provider.
+        /// </summary>
+        /// <remarks>
+        ///     This is a EF navigation property, and will be <see langword="null"/> unless it's been explicitly included.
+        /// </remarks>
+        public virtual ICollection<ApiCredential>? ApiCredentials { get; set; }
+
+        /// <summary>
         ///     Username for accessing providers APIs
         /// </summary>
+        [Obsolete]
         public string? ApiUserName { get; set; }
 
         /// <summary>
         ///     Password for accessing providers APIs
         /// </summary>
+        [Obsolete]
         public string? ApiPassword { get; set; }
+
 
         /// <summary>
         ///     Retrieve updates that has been made after this timestamp. 
         /// </summary>
+        [Obsolete]
         public DateTimeOffset LastUpdateFetched { get; set; }
 
 

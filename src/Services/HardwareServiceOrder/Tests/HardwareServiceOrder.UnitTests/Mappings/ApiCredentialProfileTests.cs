@@ -13,7 +13,6 @@ namespace HardwareServiceOrderServices.Mappings.Tests
             _mapper = new MapperConfiguration(mc =>
             {
                 mc.AddProfile(new HardwareServiceOrderServices.Mappings.ApiCredentialProfile());
-                mc.AddProfile(new HardwareServiceOrder.API.Mappings.ApiCredentialProfile());
             }).CreateMapper();
         }
 
