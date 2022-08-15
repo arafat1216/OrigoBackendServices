@@ -347,4 +347,126 @@ public class AssetLifecycleTests
 
         Assert.Equal("Invalid asset lifecycle status: Stolen for sending asset lifecycle on repair.", exception.Message);
     }
+    [Fact]
+    public void CancelServiceOrder_AssetLifecycle_ReturnsBackToInUse()
+    {
+        // Arrange
+        Guid callerId = Guid.NewGuid();
+        var today = DateTime.UtcNow;
+
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional,
+            Runtime = 24,
+            PurchaseDate = today
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        //Act
+        assetLifecycle.AssignAssetLifecycleHolder(null, Guid.NewGuid(),callerId);
+        assetLifecycle.MakeAssetExpiresSoon(callerId);
+        assetLifecycle.MakeReturnRequest(callerId);
+        assetLifecycle.CancelReturn(callerId, today);
+
+        //Assert
+        Assert.Equal(AssetLifecycleStatus.InUse, assetLifecycle.AssetLifecycleStatus);
+    }
+    [Fact]
+    public void CancelServiceOrder_AssetLifecycleExpiresWithin30days_AssetLifecycleStatusExpiresSoon()
+    {
+        // Arrange
+        Guid callerId = Guid.NewGuid();
+        var today = new DateTime(2020, 07, 03);
+
+        //jksdjk
+        var runtime = 12;
+        var purchaseDate = today.AddMonths(-runtime);
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional,
+            Runtime = runtime,
+            PurchaseDate = purchaseDate
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        //Act
+        assetLifecycle.AssignAssetLifecycleHolder(null, Guid.NewGuid(), callerId);
+        assetLifecycle.MakeAssetExpiresSoon(callerId);
+        assetLifecycle.MakeReturnRequest(callerId);
+        assetLifecycle.CancelReturn(callerId, today);
+
+        //Assert
+        Assert.Equal(AssetLifecycleStatus.ExpiresSoon, assetLifecycle.AssetLifecycleStatus);
+    }
+    [Fact]
+    public void CancelServiceOrder_AssetLifecycleExpired()
+    {
+        // Arrange
+        Guid callerId = Guid.NewGuid();
+        var today = new DateTime(2021, 07, 30);
+
+        //Get the same date as today only 12 earlyer sow that the runtime gets expired
+        var runtime = 12;
+        var runtimePlussOneMonth = runtime + 1;
+        var purchaseDate = today.AddMonths(-runtimePlussOneMonth);
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional,
+            Runtime = runtime,
+            PurchaseDate = purchaseDate
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        //Act
+        assetLifecycle.AssignAssetLifecycleHolder(null, Guid.NewGuid(), callerId);
+        assetLifecycle.MakeAssetExpiresSoon(callerId);
+        assetLifecycle.MakeReturnRequest(callerId);
+        assetLifecycle.CancelReturn(callerId, today);
+
+        //Assert
+        Assert.Equal(AssetLifecycleStatus.Expired, assetLifecycle.AssetLifecycleStatus);
+    }
+    [Fact]
+    public void CancelServiceOrder_SameDayAsItExpired_AssetLifecycleExpired()
+    {
+        // Arrange
+        Guid callerId = Guid.NewGuid();
+        var today = new DateTime(2021, 07, 30);
+
+        //Get the same date as today only 12 earlyer sow that the runtime gets expired
+        var runtime = 12;
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional,
+            Runtime = runtime,
+            PurchaseDate = today
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        //Act
+        assetLifecycle.AssignAssetLifecycleHolder(null, Guid.NewGuid(), callerId);
+        assetLifecycle.MakeAssetExpiresSoon(callerId);
+        assetLifecycle.MakeReturnRequest(callerId);
+        assetLifecycle.CancelReturn(callerId, assetLifecycle.EndPeriod.Value);
+
+        //Assert
+        Assert.Equal(AssetLifecycleStatus.Expired, assetLifecycle.AssetLifecycleStatus);
+    }
+    [Fact]
+    public void CancelServiceOrder_NotValidAssetLifecycleStatus_ThrowsException()
+    {
+        // Arrange
+        Guid callerId = Guid.NewGuid();
+        var createAssetLifecycleDTO = new CreateAssetLifecycleDTO
+        {
+            LifecycleType = LifecycleType.Transactional
+        };
+        var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
+
+        //Act and Assert
+        var exception = Assert.Throws<InvalidAssetDataException>(
+            () => assetLifecycle.CancelReturn(callerId, DateTime.UtcNow));
+        Assert.Equal($"Invalid asset lifecycle status: {AssetLifecycleStatus.InputRequired.ToString()} for completing return.", exception.Message);
+    }
+
 }

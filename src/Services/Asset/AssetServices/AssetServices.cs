@@ -1118,6 +1118,20 @@ public class AssetServices : IAssetServices
             assetLifecycle.AssignAssetLifecycleHolder(user, departmentId, callerId);
         }
     }
+    /// <inheritdoc/>
+    public async Task CancelReturn(Guid assetLifecycleId, Guid callerId)
+    {
+        var assetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(assetLifecycleId);
+
+        if (assetLifeCycle == null)
+        {
+            throw new ResourceNotFoundException($"Asset lifecycle with id {assetLifecycleId} not found", Guid.Parse("d413ae4c-0cac-47b4-b9a3-afcdc030153c"));
+        }
+
+        assetLifeCycle.CancelReturn(callerId, DateTime.UtcNow);
+
+        await _assetLifecycleRepository.SaveEntitiesAsync();
+    }
 
     /// <inheritdoc/>
     public async Task RecycleAssetLifecycle(Guid assetLifecycleId, int assetLifecycleStatus, Guid callerId)

@@ -2597,4 +2597,78 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         //Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+    [Fact]
+    public async Task CancelReturn_AssetLifecycleHasExpired_ReturnsOKAndAssetLifecycleStatusExpired()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+        //Order a recycle status change
+        var recycleAssetLifecycle = new RecycleAssetLifecycle { AssetLifecycleStatus = 10, CallerId = _callerId };
+        var urlRecycleDevice = $"/api/v1/Assets/{_assetThree}/recycle";
+        var responseRecycleDevice = await _httpClient.PatchAsync(urlRecycleDevice, JsonContent.Create(recycleAssetLifecycle));
+        Assert.Equal(HttpStatusCode.OK, responseRecycleDevice.StatusCode);
+
+        //Check the end date and if the asset lifecycle has gotten the status recycled
+        var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetThree}/customers/{_customerId}";
+        var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+        Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+        var assetLifecycleRecycled = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+        Assert.Equal(DateTime.Now.Date, assetLifecycleRecycled?.EndPeriod.GetValueOrDefault().Date);
+        Assert.Equal(AssetLifecycleStatus.Recycled, assetLifecycleRecycled?.AssetStatus);
+
+        //Cancel the recycle
+        var url = $"/api/v1/Assets/{_assetThree}/cancel-return";
+        var response = await httpClient.PatchAsync(url, JsonContent.Create(_callerId));
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        //Check that the asset status is expired since the end date of the asset lifecycles runtime is today
+        var responseGetAssetLifeCycleAfter = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+        Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycleAfter.StatusCode);
+        var assetLifecycleRecycledAfter = await responseGetAssetLifeCycleAfter.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+        Assert.Equal(DateTime.Now.Date, assetLifecycleRecycledAfter?.EndPeriod.GetValueOrDefault().Date);
+        Assert.Equal(AssetLifecycleStatus.Expired, assetLifecycleRecycledAfter?.AssetStatus);
+    }
+    [Fact]
+    public async Task CancelReturn_TransactionalAssetLifecycleChangeToInUse_ReturnsOKAndAssetLifecycleStatusIsChangedToInUse()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+        //Order a recycle status change
+        var recycleAssetLifecycle = new RecycleAssetLifecycle { AssetLifecycleStatus = 10, CallerId = _callerId };
+        var urlRecycleDevice = $"/api/v1/Assets/{_assetTwo}/recycle";
+        var responseRecycleDevice = await _httpClient.PatchAsync(urlRecycleDevice, JsonContent.Create(recycleAssetLifecycle));
+        Assert.Equal(HttpStatusCode.OK, responseRecycleDevice.StatusCode);
+
+        //Check the end date and if the asset lifecycle has gotten the status recycled
+        var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetTwo}/customers/{_customerId}";
+        var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+        Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+        var assetLifecycleRecycled = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+        Assert.Equal(DateTime.UtcNow.AddMonths(2).Date, assetLifecycleRecycled?.EndPeriod.GetValueOrDefault().Date);
+        Assert.Equal(AssetLifecycleStatus.Recycled, assetLifecycleRecycled?.AssetStatus);
+
+        //Cancel the recycle
+        var url = $"/api/v1/Assets/{_assetTwo}/cancel-return";
+        var response = await httpClient.PatchAsync(url, JsonContent.Create(_callerId));
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        //Check that the asset status is expired since the end date of the asset lifecycles runtime is today
+        var responseGetAssetLifeCycleAfter = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+        Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycleAfter.StatusCode);
+        var assetLifecycleRecycledAfter = await responseGetAssetLifeCycleAfter.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+        Assert.Equal(DateTime.UtcNow.AddMonths(2).Date, assetLifecycleRecycled?.EndPeriod.GetValueOrDefault().Date);
+        Assert.Equal(AssetLifecycleStatus.InUse, assetLifecycleRecycledAfter?.AssetStatus);
+    }
+    [Fact]
+    public async Task CancelReturn_AssetLifecycleStatusIsNotValidForCancelingAReturn_ThrowsExceptionAndReturnsBadRequest()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+        //Cancel the an asset that is Available
+        var url = $"/api/v1/Assets/{_assetTwo}/cancel-return";
+        var response = await httpClient.PatchAsync(url, JsonContent.Create(_callerId));
+        var errorResponse = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal($"Invalid asset lifecycle status: Available for completing return.", errorResponse?.Message);
+    }
 }

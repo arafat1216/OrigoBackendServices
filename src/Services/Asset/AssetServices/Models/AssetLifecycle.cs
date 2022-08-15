@@ -737,6 +737,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <summary>
     /// Sets the asset lifecycle to asset status recycled. 
     /// </summary>
+    /// <param name="callerId">The id of the user making the request.</param>
     public void SetRecycledStatus(Guid callerId)
     {
         //Change status and add a domain event only if the status is changed
@@ -757,6 +758,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <summary>
     /// Sets the asset lifecycle to asset status pending recycle.
     /// </summary>
+    /// <param name="callerId">The id of the user making the request.</param>
     public void SetPendingRecycledStatus(Guid callerId)
     {
         if (_assetLifecycleStatus != AssetLifecycleStatus.PendingRecycle)
@@ -772,5 +774,34 @@ public class AssetLifecycle : Entity, IAggregateRoot
 
             UpdateAssetStatus(AssetLifecycleStatus.PendingRecycle,callerId);
         }
+    }
+    /// <summary>
+    /// Sets the asset lifecycle values to the right active state when a asset lifecycle order is cancelled.
+    /// Should only be usable if the asset lifecycle indicates a return/recycle is ongoing or has been completed.
+    /// It also checks if the asset lifecycle has gotten ExpiredSoon (30 days warning) or Expired during the time the order was processed.
+    /// </summary>
+    /// <param name="callerId">The id of the user making the request.</param>
+    /// <param name="today">Todays date and time.</param>
+    public void CancelReturn(Guid callerId, DateTime today)
+    {
+
+        if (_assetLifecycleStatus != AssetLifecycleStatus.PendingReturn &&
+            _assetLifecycleStatus != AssetLifecycleStatus.Returned &&
+            _assetLifecycleStatus != AssetLifecycleStatus.Recycled &&
+            _assetLifecycleStatus != AssetLifecycleStatus.PendingRecycle
+            )
+            throw new InvalidAssetDataException($"Invalid asset lifecycle status: {_assetLifecycleStatus} for completing return.", Guid.Parse("05f64b6e-5491-4088-9e7f-df824758aadf"));
+
+        AssetLifecycleStatus status = AssetLifecycleStatus.InUse;
+
+        if(_assetLifecycleType == LifecycleType.NoLifecycle || _assetLifecycleType == LifecycleType.BYOD) status = AssetLifecycleStatus.Active;
+         
+        if (EndPeriod != null) 
+        {
+            if ((EndPeriod - today).Value.TotalDays <= 30) status = AssetLifecycleStatus.ExpiresSoon;
+            if (EndPeriod <= today) status = AssetLifecycleStatus.Expired;
+        }
+
+        UpdateAssetStatus(status, callerId);
     }
 }

@@ -772,11 +772,35 @@ public class AssetsController : ControllerBase
         await _assetServices.CancelUserOffboarding(userEvent.CustomerId, userEvent.UserId, Guid.Empty.SystemUserId());
     }
     /// <summary>
+    /// Responsible for updating the asset lifecycle based on the requirements for when a return order gets cancelled.
+    /// Based on other assets lifecycle values the assets lifecycle status gets set to the right active state. Also checks if the asset lifecycle has expired or is expiring soon based on its end period. 
+    /// </summary>
+    /// <param name="assetLifecycleId">The id of the assetlifecycle to be updated.</param>
+    /// <param name="callerId">The id of the user making the request.</param>
+    /// <returns>Returns a ActionResult.The ActionResult types represent various HTTP status codes.</returns>
+    [Route("{assetLifecycleId:Guid}/cancel-return")]
+    [HttpPatch]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    public async Task<ActionResult> CancelReturn(Guid assetLifecycleId, [FromBody] Guid callerId)
+    {
+        if (assetLifecycleId == Guid.Empty)
+        {
+            return BadRequest("CancelReturn assetLifecycleId is a empty Guid");
+        }
+
+        await _assetServices.CancelReturn(assetLifecycleId, callerId);
+
+        return Ok();
+    }
+
+    /// <summary>
     /// Responsible for updating the asset lifecycle based on the requirements for a recycle order.
     /// Sets assets staus "Pending recycle" or "Recycled" based on the status being passed in the parameter. 
     /// </summary>
     /// <param name="assetLifecycleId">The id of the assetlifecycle to be updated.</param>
     /// <param name="assetLifecycle">Additional information to be able to recycle a asset lifecycle. Need the status that the asset lifecycle should be changed to and the caller id.</param>
+    /// <returns>Returns a ActionResult.The ActionResult types represent various HTTP status codes.</returns>
     [Route("{assetLifecycleId:Guid}/recycle")]
     [HttpPatch]
     [ProducesResponseType((int)HttpStatusCode.OK)]

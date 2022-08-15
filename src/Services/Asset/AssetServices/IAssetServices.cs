@@ -69,6 +69,15 @@ namespace AssetServices
         AssetValidationResult ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly);
         Task<AssetLifecycleDTO> ConfirmBuyoutDeviceAsync(Guid customerId, BuyoutDeviceDTO data);
         /// <summary>
+        /// Updates the asset lifecycle to an active state when a order to cancel a return is made.
+        /// Also calculates if the asset lifecycle has expired or is expiring soon based on the assets end date. 
+        /// </summary>
+        /// <param name="assetLifecycleId">Asset lifecycle id.</param>
+        /// <param name="callerId">The id of the user making the request.</param>
+        /// <returns>Asynchronously task that returns no value.</returns>
+        Task CancelReturn(Guid assetLifecycleId, Guid callerId);
+
+        /// <summary>
         /// Makes change to asset status based on recycle order requirements. 
         /// </summary>
         /// <param name="assetLifecycleId">Asset lifecycle id.</param>

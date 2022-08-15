@@ -79,7 +79,8 @@ internal static class AssetTestDataSeedingForDatabase
             CustomerId = COMPANY_ID,
             Alias = "alias_1",
             AssetLifecycleStatus = AssetLifecycleStatus.Available,
-            AssetLifecycleType = LifecycleType.Transactional
+            AssetLifecycleType = LifecycleType.Transactional,
+            EndPeriod = DateTime.UtcNow.AddMonths(2)
         };
         assetLifecycleTwo.AssignAsset(assetTwo, CALLER_ID);
 
