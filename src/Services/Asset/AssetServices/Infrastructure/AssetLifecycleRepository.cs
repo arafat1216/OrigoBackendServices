@@ -102,7 +102,7 @@ namespace AssetServices.Infrastructure
         }
 
         public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
-           Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string search, int page, int limit, CancellationToken cancellationToken)
+           Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string? search, int page, int limit, CancellationToken cancellationToken)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
             query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
