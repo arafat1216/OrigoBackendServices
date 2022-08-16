@@ -20,4 +20,5 @@ public enum OrigoErrorCodes
     InvalidLifecycleType = 20009,
     //
     ResourceNotFound = 20010,
+    EmailError = 20011
 }

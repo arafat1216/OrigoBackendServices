@@ -332,7 +332,8 @@ public class AssetServices : IAssetServices
         var updatedAssetLifeCycle = await _assetLifecycleRepository.MakeAssetAvailableAsync(customerId, data.CallerId, data.AssetLifeCycleId);
         if (updatedAssetLifeCycle == null)
             throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("fc64478-8011-4900-afb8-06b4b624aaeb"));
-        if (data.PreviousUser != null)
+        
+        if (data.PreviousUser != null && (!string.IsNullOrEmpty(data.PreviousUser?.Email) && !string.IsNullOrEmpty(data.PreviousUser?.Name)))
         {
             await _emailService.UnassignedFromUserEmailAsync(new Email.Model.UnassignedFromUserNotification()
             {
@@ -340,7 +341,7 @@ public class AssetServices : IAssetServices
                 Recipient = data.PreviousUser.Email
             }, string.IsNullOrEmpty(data.PreviousUser.PreferedLanguage) ? "en" : data.PreviousUser.PreferedLanguage);
         }
-                
+
         return _mapper.Map<AssetLifecycleDTO>(updatedAssetLifeCycle);
     }
 

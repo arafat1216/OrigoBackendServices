@@ -650,6 +650,87 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.True(updatedAsset.AssetHolderId == null || updatedAsset.AssetHolderId == Guid.Empty);
         Assert.True(updatedAsset.Labels == null || !updatedAsset.Labels.Any());
     }
+    [Fact]
+    public async Task MakeAssetAvailableAsync_PreviousOwner_ShouldSendMail()
+    {
+        var postData = new MakeAssetAvailable
+        {
+            AssetLifeCycleId = _assetFour,
+            CallerId = _callerId,
+            PreviousUser = new EmailPersonAttribute
+            {
+                Email = "test@test.com",
+                Name = "Test",
+                PreferedLanguage = "no"
+            }
+        };
+
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/make-available";
+        _testOutputHelper.WriteLine(requestUri);
+        var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+        Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+    }
+    [Fact]
+    public async Task MakeAssetAvailableAsync_PreviousOwnerEmptyStrings_ShouldNotSendMail()
+    {
+        var postData = new MakeAssetAvailable
+        {
+            AssetLifeCycleId = _assetFour,
+            CallerId = _callerId,
+            PreviousUser = new EmailPersonAttribute
+            {
+                Email = "",
+                Name = "",
+                PreferedLanguage = "no"
+            }
+        };
+
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/make-available";
+        _testOutputHelper.WriteLine(requestUri);
+        var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+        Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+    }
+    [Fact]
+    public async Task MakeAssetAvailableAsync_PreviousOwner_PreferencesDefault()
+    {
+        var postData = new MakeAssetAvailable
+        {
+            AssetLifeCycleId = _assetFour,
+            CallerId = _callerId,
+            PreviousUser = new EmailPersonAttribute
+            {
+                Email = "mail@test.com",
+                Name = "Test"
+            }
+        };
+
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/make-available";
+        _testOutputHelper.WriteLine(requestUri);
+        var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+        Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+    }
+    [Fact]
+    public async Task MakeAssetAvailableAsync_PreviousOwner_NoMailAndNameValue() 
+    {
+        var postData = new MakeAssetAvailable
+        {
+            AssetLifeCycleId = _assetFour,
+            CallerId = _callerId,
+            PreviousUser = new EmailPersonAttribute
+            {
+                PreferedLanguage = "no"
+            }
+        };
+
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/make-available";
+        _testOutputHelper.WriteLine(requestUri);
+        var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+        Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+    }
 
     [Fact]
     public async Task MakeAssetExpireAsync_AssetNotFound()

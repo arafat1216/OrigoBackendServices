@@ -1098,6 +1098,72 @@ public class AssetServicesTests : AssetBaseTest
         Assert.True(updatedAssetsLifecycles.Labels == null || !updatedAssetsLifecycles.Labels.Any());
         Assert.Equal(AssetLifecycleStatus.Available, updatedAssetsLifecycles.AssetLifecycleStatus);
     }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task MakeAssetAvailableAsync_EmailServiceCalled()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var emailServiceMock = new Mock<IEmailService>();
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, emailServiceMock.Object);
+
+        // Act
+        var body = new MakeAssetAvailableDTO
+        {
+            AssetLifeCycleId = ASSETLIFECYCLE_TWO_ID,
+            CallerId = CALLER_ID,
+            PreviousUser = new EmailPersonAttributeDTO { Email = "test@test.com", Name = "Test", PreferedLanguage = "no"}
+        };
+
+        var makeAvailable = await assetService.MakeAssetAvailableAsync(COMPANY_ID, body);
+        emailServiceMock.Verify(e => e.UnassignedFromUserEmailAsync(It.IsAny<Email.Model.UnassignedFromUserNotification>(),It.IsAny<string>()), Times.Once);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task MakeAssetAvailableAsync_EmailServiceNotCalled()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var emailServiceMock = new Mock<IEmailService>();
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, emailServiceMock.Object);
+
+        // Act
+        var body = new MakeAssetAvailableDTO
+        {
+            AssetLifeCycleId = ASSETLIFECYCLE_TWO_ID,
+            CallerId = CALLER_ID,
+            PreviousUser = new EmailPersonAttributeDTO { Email = "", Name = "Test", PreferedLanguage = "no" }
+        };
+
+        var makeAvailable = await assetService.MakeAssetAvailableAsync(COMPANY_ID, body);
+        emailServiceMock.Verify(e => e.UnassignedFromUserEmailAsync(It.IsAny<Email.Model.UnassignedFromUserNotification>(), It.IsAny<string>()), Times.Never);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task MakeAssetAvailableAsync_EmailServiceCalled_WithDefaultPreferences()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var emailServiceMock = new Mock<IEmailService>();
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, emailServiceMock.Object);
+
+        // Act
+        var body = new MakeAssetAvailableDTO
+        {
+            AssetLifeCycleId = ASSETLIFECYCLE_TWO_ID,
+            CallerId = CALLER_ID,
+            PreviousUser = new EmailPersonAttributeDTO { Email = "test@test.com", Name = "Test" }
+        };
+
+        var makeAvailable = await assetService.MakeAssetAvailableAsync(COMPANY_ID, body);
+        emailServiceMock.Verify(e => e.UnassignedFromUserEmailAsync(It.IsAny<Email.Model.UnassignedFromUserNotification>(), It.IsAny<string>()), Times.Once);
+    }
 
     [Fact]
     [Trait("Category", "UnitTest")]
@@ -1682,4 +1748,5 @@ public class AssetServicesTests : AssetBaseTest
         Assert.Equal(AssetLifecycleStatus.Repair, asset!.AssetLifecycleStatus);
         Assert.Throws<InvalidAssetDataException>(() => asset.SetRecycledStatus(CALLER_ID));
     }
+    
 }

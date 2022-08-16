@@ -1,4 +1,5 @@
 ﻿using AssetServices.Email.Model;
+using AssetServices.Exceptions;
 using Common.Configuration;
 using Common.Utilities;
 using Microsoft.Extensions.Options;
@@ -56,9 +57,9 @@ namespace AssetServices.Email
 
                 response.EnsureSuccessStatusCode();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new HttpRequestException($"Email failed for AssetService, with Sub: {subject ?? _emailConfiguration.Subject} to Recipient: {string.Join(',',to)}");
+                throw new EmailException($"Email failed for AssetService, with Sub: {subject ?? _emailConfiguration.Subject} to Recipient: {string.Join(',', to)}", Guid.Parse("5441179c-97f0-4e84-8b9c-b5bec10a7448"), ex);
             }
         }
         public async Task UnassignedFromUserEmailAsync(UnassignedFromUserNotification emailData, string languageCode)
