@@ -59,12 +59,12 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                     new ProductTypeTranslation { ProductTypeId = 1, Language = "nb", Name = "Ukjent", Description = "Typen er ikke satt, eller er en ugyldig verdi!", UpdatedBy = systemUserId },
                 });
 
-                // Module
+                // Product (previously "Module")
                 entity.HasData(new ProductType { Id = 2, UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new List<ProductTypeTranslation>()
                 {
-                    new ProductTypeTranslation { ProductTypeId = 2, Language = "en", Name = "Module", Description = "A base-module. These types of products are stand-alone product offerings, and is typically considered a 'base' or 'core' product.", UpdatedBy = systemUserId },
-                    new ProductTypeTranslation { ProductTypeId = 2, Language = "nb", Name = "Modul", Description = "En basis-modul. Dette er frittstående produkter, og er normalt ett basis- eller kjerne-produkt.", UpdatedBy = systemUserId },
+                    new ProductTypeTranslation { ProductTypeId = 2, Language = "en", Name = "Product", Description = "A base-module. These types of products are stand-alone product offerings, and is typically considered a 'base' or 'core' product.", UpdatedBy = systemUserId },
+                    new ProductTypeTranslation { ProductTypeId = 2, Language = "nb", Name = "Produkt", Description = "En basis-modul. Dette er frittstående produkter, og er normalt ett basis- eller kjerne-produkt.", UpdatedBy = systemUserId },
                 });
 
                 // Options
