@@ -42,6 +42,7 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response
         /// <example> demo@user.com </example>
         [Required]
         [MaxLength(320)]
+        [EmailAddress]
         public string Email { get; set; }
 
         /// <summary>

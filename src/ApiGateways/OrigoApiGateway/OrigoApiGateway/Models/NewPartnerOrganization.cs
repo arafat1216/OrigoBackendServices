@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 #nullable enable
 
@@ -23,6 +22,7 @@ namespace OrigoApiGateway.Models
         // This is deprecated and not actually used. Will be removed when it's removed from 'NewOrganization'
         [JsonIgnore]
         [Obsolete("This is not used..")]
+        [EmailAddress]
         public new string? ContactEmail { get; private set; } = null;
 
         // Partner's can't have another partner.

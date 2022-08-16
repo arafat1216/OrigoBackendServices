@@ -1,6 +1,4 @@
-﻿
-
-#nullable enable
+﻿#nullable enable
 
 namespace OrigoApiGateway.Models.HardwareServiceOrder
 {
@@ -9,8 +7,12 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder
     /// </summary>
     public class LoanDevice
     {
+        [Phone]
         public string PhoneNumber { get; set; }
+
+        [EmailAddress]
         public string Email { get; set; }
+
         /// <summary>
         /// This property ensures whether a customer provides loan device
         /// </summary>

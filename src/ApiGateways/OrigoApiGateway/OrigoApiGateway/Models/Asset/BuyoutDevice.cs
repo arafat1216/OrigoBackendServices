@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-
-namespace OrigoApiGateway.Models.Asset
+﻿namespace OrigoApiGateway.Models.Asset
 {
     /// <summary>
     /// A Assets ID (Guid), that will be bought.
@@ -10,6 +7,7 @@ namespace OrigoApiGateway.Models.Asset
     {
         [Required]
         public Guid AssetId { get; set; }
+
         [EmailAddress]
         public string PayrollContactEmail { get; set; } = string.Empty;
     }

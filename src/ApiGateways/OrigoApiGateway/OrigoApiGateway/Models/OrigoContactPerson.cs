@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace OrigoApiGateway.Models
+﻿namespace OrigoApiGateway.Models
 {
     /// <summary>
     /// Request and response object
@@ -14,6 +12,7 @@ namespace OrigoApiGateway.Models
         [EmailAddress]
         public string Email { get; init; }
 
+        [Phone]
         public string PhoneNumber { get; init; }
     }
 }

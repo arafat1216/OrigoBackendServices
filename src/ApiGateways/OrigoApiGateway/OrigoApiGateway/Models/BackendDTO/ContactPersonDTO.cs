@@ -6,8 +6,10 @@
 
         public string LastName { get; init; }
 
+        [EmailAddress]
         public string Email { get; init; }
 
+        [Phone]
         public string PhoneNumber { get; init; }
     }
 }
