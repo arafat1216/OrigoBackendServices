@@ -89,6 +89,59 @@ namespace Customer.API.IntegrationTests.Controllers
             // Check asserts
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
+        [Fact]
+        public async Task CreateOrganization_OrganizationNumberAlreadyExists_ReturnedErrorMessage()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            // Setup
+            var requestUri = $"/api/v1/organizations";
+            _testOutputHelper.WriteLine(requestUri);
+
+            var newOrganization = new NewOrganizationDTO
+            {
+                Name = "Techstep",
+                OrganizationNumber = "ORGNUM12345",
+                Address = new AddressDTO
+                {
+                    City = "OSLO",
+                    Country = "NO",
+                    PostCode = "0319",
+                    Street = "Billingstadseletta 19"
+                },
+                ContactPerson = new ContactPersonDTO
+                {
+                    Email = "atest@atest.no",
+                    FirstName = "Testing",
+                    LastName = "Testing",
+                    PhoneNumber = "+4790909090"
+                },
+                Location = new LocationDTO
+                {
+                    Name = "Location one",
+                    Description = null,
+                    Address1 = "Billingstadseletta 19",
+                    Address2 = null,
+                    City = "OSLO",
+                    PostalCode = "0319",
+                    Country = "NO"
+                },
+                PrimaryLocation = null,
+                ParentId = null,
+                InternalNotes = null,
+                IsCustomer = true,
+                Preferences = null
+            };
+
+            // Do the request
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(newOrganization));
+            var response = await httpClient.PostAsJsonAsync(requestUri, newOrganization);
+            var responseMessage = await response.Content.ReadAsStringAsync();
+
+            // Check asserts
+            Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+            Assert.Equal("An organization with the provided organization-number already exists.", responseMessage);
+        }
 
         [Fact()]
         public async Task CreateOrganization_CheckAddUsersToOkta_ReturnedCorrectly()

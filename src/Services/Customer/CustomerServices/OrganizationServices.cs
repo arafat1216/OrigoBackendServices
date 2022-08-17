@@ -204,7 +204,7 @@ namespace CustomerServices
 
             // Make sure we don't add an already existing organization-number.
             if (await GetOrganizationByOrganizationNumberAsync(newOrganization.OrganizationNumber) != null)
-                throw new DuplicateException($"A organization with the provided organization-number already exist.");
+                throw new DuplicateException($"An organization with the provided organization-number already exists.");
 
             var address = new Address(newOrganization.Address.Street, newOrganization.Address.PostCode, newOrganization.Address.City, newOrganization.Address.Country);
             var contactPerson = new ContactPerson(newOrganization.ContactPerson.FirstName, newOrganization.ContactPerson.LastName, newOrganization.ContactPerson.Email, newOrganization.ContactPerson.PhoneNumber);
