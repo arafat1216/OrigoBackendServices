@@ -426,11 +426,11 @@ public class UsersController : ControllerBase
     /// <param name="userId">ID of the user that is overdued</param>
     /// <param name="callerId">ID of the caller/param>
     /// <returns></returns>
-    [Route("{userId:Guid}/{callerId:Guid}/overdue-offboarding")]
+    [Route("{userId:Guid}/overdue-offboarding")]
     [HttpPost]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<User>> OverdueOffboarding(Guid customerId, Guid userId, Guid callerId)
+    public async Task<ActionResult<User>> OverdueOffboarding(Guid customerId, Guid userId, [FromBody] Guid callerId)
     {
         try
         {

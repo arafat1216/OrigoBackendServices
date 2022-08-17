@@ -1263,10 +1263,10 @@ namespace Customer.API.IntegrationTests.Controllers
         {
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
-            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userTwoId}/{_callerId}/overdue-offboarding";
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userTwoId}/overdue-offboarding";
 
             // Act
-            var response = await httpClient.PostAsync(requestUri, null);
+            var response = await httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
             var user = await response.Content.ReadFromJsonAsync<User>();
 
             // Assert
@@ -1280,13 +1280,13 @@ namespace Customer.API.IntegrationTests.Controllers
         {
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
-            var requestUri = $"/api/v1/organizations/{_customerId}/users/{Guid.NewGuid}/{_callerId}/overdue-offboarding";
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{Guid.NewGuid()}/overdue-offboarding";
 
             // Act
-            var response = await httpClient.PostAsync(requestUri, null);
+            var response = await httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
 
             // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
@@ -1294,10 +1294,10 @@ namespace Customer.API.IntegrationTests.Controllers
         {
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
-            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/{_callerId}/overdue-offboarding";
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/overdue-offboarding";
 
             // Act
-            var response = await httpClient.PostAsync(requestUri, null);
+            var response = await httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
