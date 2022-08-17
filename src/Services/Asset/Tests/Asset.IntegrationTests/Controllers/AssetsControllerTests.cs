@@ -1760,6 +1760,14 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var setting = await _httpClient.GetFromJsonAsync<DisposeSetting>(requestUri);
         Assert.True(setting != null);
     }
+    [Fact]
+    public async Task GetDisposeSetting_ReturnNull()
+    {
+        var requestUri = $"/api/v1/Assets/customers/{Guid.NewGuid()}/dispose-setting";
+        _testOutputHelper.WriteLine(requestUri);
+        var setting = await _httpClient.GetFromJsonAsync<DisposeSetting>(requestUri);
+        Assert.NotNull(setting);
+    }
 
     [Fact]
     public async Task CreateDisposeSetting()

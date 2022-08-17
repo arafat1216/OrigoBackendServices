@@ -325,7 +325,7 @@ public class AssetsController : ControllerBase
         var setting = await _assetServices.GetDisposeSettingByCustomer(customerId);
         if (setting == null)
         {
-            return Ok(null);
+            return Ok(new DisposeSetting());
         }
 
         return Ok(_mapper.Map<DisposeSetting>(setting));
