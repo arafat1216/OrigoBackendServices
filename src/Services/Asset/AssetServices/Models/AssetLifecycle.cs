@@ -64,7 +64,12 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// <summary>
     /// A comment related to the asset lifecycle.
     /// </summary>
-    public string Note { get; init; } = string.Empty;
+    public string Note
+    {
+        get => _note;
+        init => _note = value;
+    }
+    private string _note = string.Empty;
     /// <summary>
     /// A description of this asset lifecycle.
     /// </summary>
@@ -320,6 +325,20 @@ public class AssetLifecycle : Entity, IAggregateRoot
         var previousPurchaseDate = PurchaseDate;
         _purchaseDate = purchaseDate;
         AddDomainEvent(new ChangedPurchaseDateDomainEvent(this, callerId, previousPurchaseDate));
+    }
+    
+    /// <summary>
+    /// Update or Creating a Note/Comment for an asset lifecycle
+    /// </summary>
+    /// <param name="note">The Updated note/comment made for the asset lifecycle<see cref="Note"/></param>
+    /// <param name="callerId">The userid making this assignment</param>
+    public void UpdateNote(string note, Guid callerId)
+    {
+        UpdatedBy = callerId;
+        LastUpdatedDate = DateTime.UtcNow;
+        var previousNote = Note;
+        _note = note;
+        AddDomainEvent(new ChangedNoteDomainEvent(this, callerId, previousNote));
     }
 
     /// <summary>

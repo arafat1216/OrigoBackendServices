@@ -46,36 +46,6 @@ namespace AssetServices.Models
             LastUpdatedDate = DateTime.UtcNow;
         }
 
-        public virtual void ChangePurchaseDate(DateTime purchaseDate, Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate = DateTime.UtcNow;
-        }
-
-        public virtual void AssignAssetToUser(Guid? userId, Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate = DateTime.UtcNow;
-        }
-
-        public virtual void UpdateNote(string note, Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate = DateTime.UtcNow;
-        }
-
-        public virtual void UpdateDescription(string description, Guid callerId)
-        {
-            UpdatedBy = callerId;
-            LastUpdatedDate = DateTime.UtcNow;
-        }
-
-        public virtual void UpdateTag(string tag, Guid callerId)
-        {   
-            UpdatedBy = callerId;
-            LastUpdatedDate = DateTime.UtcNow;
-        }
-
         /// <summary>
         /// List of error messages set when ValidateAsset runs
         /// </summary>

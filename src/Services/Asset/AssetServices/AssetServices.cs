@@ -607,6 +607,11 @@ public class AssetServices : IAssetServices
         {
             assetLifecycle.UpdatePurchaseDate(purchaseDate.Value, callerId);
         }
+        if (note != null && assetLifecycle.Note != note)
+        {
+            assetLifecycle.UpdateNote(note, callerId);
+        }
+        
         if (!asset.ValidateAsset())
         {
             var exceptionMsg = new StringBuilder();
