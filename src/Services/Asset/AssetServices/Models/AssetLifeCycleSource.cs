@@ -3,7 +3,7 @@
 public enum AssetLifeCycleSource
 {
     Unknown,
-    ManuelRegistration,
+    ManualRegistration,
     FileImport,
     Webshop
 }
