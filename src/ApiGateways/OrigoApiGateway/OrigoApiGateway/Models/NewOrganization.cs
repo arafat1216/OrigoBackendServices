@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace OrigoApiGateway.Models
+﻿namespace OrigoApiGateway.Models
 {
     /// <summary>
     /// Request object
