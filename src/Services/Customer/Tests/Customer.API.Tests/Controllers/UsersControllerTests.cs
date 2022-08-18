@@ -903,6 +903,64 @@ namespace Customer.API.IntegrationTests.Controllers
 
         }
         [Fact]
+        public async Task CreateUserForCustomer_EmailExists_ErrorGetsThrownAndUserIsNotSaved()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var body = new NewUser
+            {
+                CallerId = _callerId,
+                Email = "ola@normann.no",  //a user already added with this mail
+                FirstName = "test",
+                LastName = "user",
+                EmployeeId = "123",
+                MobileNumber = "+479898645",
+                UserPreference = new UserPreference { Language = "en" }
+            };
+            var request = $"/api/v1/organizations/{_customerId}/users";
+            var response = await httpClient.PostAsJsonAsync(request, body);
+            Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+
+            //Get all users
+            var search = "";
+            var page = 1;
+            var limit = 100;
+
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}&filterOptions={"{}"}";
+            var responseUsers = await httpClient.GetAsync(requestUri);
+            var pagedUserList = await responseUsers.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
+
+            Assert.Equal(HttpStatusCode.OK, responseUsers.StatusCode);
+            Assert.Equal(5, pagedUserList?.TotalItems);
+            Assert.Collection(pagedUserList?.Items,
+                item => Assert.Equal("atish@normann.no", item.Email),
+                item => Assert.Equal("kari@normann.no", item.Email),
+                item => Assert.Equal("ola@normann.no", item.Email),
+                item => Assert.Equal("ole@brum.no", item.Email),
+                item => Assert.Equal("petter@pan.no", item.Email));
+        }
+        [Fact]
+        public async Task CreateUserForCustomer_InvalidEmail_ReturnBadRequest()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var body = new NewUser
+            {
+                CallerId = _callerId,
+                Email = "olanormann",  
+                FirstName = "test",
+                LastName = "user",
+                EmployeeId = "123",
+                MobileNumber = "+479898645",
+                UserPreference = new UserPreference { Language = "en" }
+            };
+            var request = $"/api/v1/organizations/{_customerId}/users";
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
         public async Task GetUsersCount_OnlyCountActivatedUsers()
         {
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);

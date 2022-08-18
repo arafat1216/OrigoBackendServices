@@ -19,6 +19,8 @@ using Common.Interfaces;
 using Common.Enums;
 using Common.Infrastructure;
 using CustomerServices.Email;
+using System.Linq.Expressions;
+using System.Threading;
 
 namespace CustomerServices.UnitTests
 {
@@ -420,7 +422,7 @@ namespace CustomerServices.UnitTests
         }
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async Task AddUserForCustomerAsync_WithExistingMail_ShouldThrowInvalidEmailException()
+        public async Task AddUserForCustomerAsync_WithExistingMail_ShouldThrowUserNameIsInUseException()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions);
@@ -433,7 +435,38 @@ namespace CustomerServices.UnitTests
 
             // Assert
             await Assert.ThrowsAsync<UserNameIsInUseException>(() => userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", EMAIL_THAT_EXIST, "+479000000", "43435435", userPref, EMPTY_CALLER_ID, "Role"));
+        }
+       
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task AddUserForCustomerAsync_AddingUserWithExistingMail_ShouldThrowExceptionAndSaveChangesShouldNotBeCalled()
+        {
+            // Arrange
+            var mockRepository = new Mock<IOrganizationRepository>();
 
+            var organizationId = Guid.NewGuid();
+            var preferences = new OrganizationPreferences(organizationId, Guid.Empty, null, null, null, false, "", 1);
+            var organization = new Organization(organizationId, null, "C1", "1", new Address(),
+            new ContactPerson(), preferences, new Location("A", "D", "A1", "A2", "P", "C", "CO", RecipientType.Organization), null, true, 1, "", false);
+
+            mockRepository.Setup(o => o.GetOrganizationAsync(organizationId, It.IsAny<Expression<Func<Organization, bool>>?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(organization);
+            mockRepository.Setup(o=> o.GetOrganizationPreferencesAsync(organizationId)).ReturnsAsync(preferences);
+
+            const string EMAIL_THAT_EXIST = "john@doe.com";
+            const string MOBILE_NUMBER_THAT_EXIST = "+4798888811";
+            var existingUser = new User(organization,Guid.NewGuid(),"John","Doe", EMAIL_THAT_EXIST, MOBILE_NUMBER_THAT_EXIST,"emp123",new UserPreference("no",CALLER_ID),CALLER_ID);
+            
+            mockRepository.Setup(u => u.GetUserByUserName(EMAIL_THAT_EXIST)).ReturnsAsync(existingUser);
+            mockRepository.Setup(u => u.GetUserByMobileNumber(MOBILE_NUMBER_THAT_EXIST)).ReturnsAsync(existingUser);
+
+
+            var userPermissionServices = Mock.Of<IUserPermissionServices>();
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), mockRepository.Object, Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
+            var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
+
+            // Act and assert
+            await Assert.ThrowsAsync<UserNameIsInUseException>(() => userServices.AddUserForCustomerAsync(organizationId, "Test Firstname", "Testlastname", EMAIL_THAT_EXIST, "+479000000", "43435435", userPref, EMPTY_CALLER_ID, "Role"));
+            mockRepository.Verify(r => r.SaveEntitiesAsync(CancellationToken.None), Times.Exactly(0));
         }
 
         [Fact]
