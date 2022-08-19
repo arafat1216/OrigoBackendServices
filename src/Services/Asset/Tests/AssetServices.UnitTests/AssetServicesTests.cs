@@ -67,7 +67,7 @@ public class AssetServicesTests : AssetBaseTest
         var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, null);
 
             // Assert
-            Assert.Equal(7, assetsFromCompany);
+            Assert.Equal(11, assetsFromCompany);
         }
 
         [Fact]
@@ -83,7 +83,7 @@ public class AssetServicesTests : AssetBaseTest
             var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, null, departmentId: DEPARTMENT_ID);
 
             // Assert
-            Assert.Equal(3, assetsFromCompany);
+            Assert.Equal(7, assetsFromCompany);
         }
 
         [Fact]
@@ -130,11 +130,11 @@ public class AssetServicesTests : AssetBaseTest
 
         // Act
         var assetsFromUser =
-            await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID,null, null, null, null, null, null, null , null, null, string.Empty, 1, 10,
+            await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID,null, null, null, null, null, null, null , null, null, string.Empty, 1, 15,
                 new CancellationToken());
 
         // Assert
-        Assert.Equal(8, assetsFromUser.Items.Count);
+        Assert.Equal(13, assetsFromUser.Items.Count);
 
 
         //filter by UserId
@@ -142,7 +142,7 @@ public class AssetServicesTests : AssetBaseTest
         string userId = "6d16a4cb-4733-44de-b23b-0eb9e8ae6590";
 
 
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, userId, null, null, null, null, null, null, null,null, null, 1, 10,
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, userId, null, null, null, null, null, null, null,null, null, 1, 15,
              new CancellationToken());
 
         Assert.Equal(1, assetsFromUser.Items.Count);
@@ -155,10 +155,10 @@ public class AssetServicesTests : AssetBaseTest
         int[] category = new[] { 1 };
 
 
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, category, null, null, null, null,null, null, 1, 10,
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, category, null, null, null, null,null, null, 1, 15,
              new CancellationToken());
 
-        Assert.Equal(7, assetsFromUser.Items.Count);
+        Assert.Equal(12, assetsFromUser.Items.Count);
 
 
 
@@ -166,9 +166,9 @@ public class AssetServicesTests : AssetBaseTest
 
         IList<Guid?> departments = new List<Guid?> { new Guid("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72") };
 
-        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, departments, null, null, null, null, null,null, null, 1, 10, new CancellationToken());
+        assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, departments, null, null, null, null, null,null, null, 1, 15, new CancellationToken());
 
-        Assert.Equal(3, assetsFromUser.Items.Count);
+        Assert.Equal(8, assetsFromUser.Items.Count);
 
 
         //filter data only status
@@ -180,7 +180,7 @@ public class AssetServicesTests : AssetBaseTest
             new CancellationToken());
 
 
-        Assert.Equal(2, assetsFromUser.Items.Count);
+        Assert.Equal(3, assetsFromUser.Items.Count);
 
         //filter data only endPeriodMonth
 
@@ -1748,5 +1748,107 @@ public class AssetServicesTests : AssetBaseTest
         Assert.Equal(AssetLifecycleStatus.Repair, asset!.AssetLifecycleStatus);
         Assert.Throws<InvalidAssetDataException>(() => asset.SetRecycledStatus(CALLER_ID));
     }
-    
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetAssetLifecycleCountForCustomerAsync_ForAllAssetLifecyclesWithActiveStates()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+
+        //All the active states at this time
+        var statusesInActiveState = new List<AssetLifecycleStatus> {
+            AssetLifecycleStatus.Active,
+            AssetLifecycleStatus.Repair,
+            AssetLifecycleStatus.InUse,
+            AssetLifecycleStatus.Available,
+            AssetLifecycleStatus.InputRequired,
+            AssetLifecycleStatus.ExpiresSoon,     // Not in counter
+            AssetLifecycleStatus.PendingReturn,  // Not in counter
+            AssetLifecycleStatus.PendingRecycle,// Not in counter
+            AssetLifecycleStatus.Expired};
+
+        //Act
+        var assetsCounter = await assetRepository.GetAssetLifecycleCountForCustomerAsync(COMPANY_ID, null, statusesInActiveState);
+
+        //Assert
+        Assert.Equal(0, assetsCounter.UsersPersonalAssets);
+        Assert.Equal(COMPANY_ID, assetsCounter.OrganizationId);
+
+        Assert.Equal(1, assetsCounter?.NonPersonal?.InUse);
+        Assert.Equal(2, assetsCounter?.NonPersonal?.Active);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.InputRequired);
+        Assert.Equal(0, assetsCounter?.NonPersonal?.Available);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.Expired);
+
+        Assert.Equal(1, assetsCounter?.NonPersonal?.ExpiresSoon);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.PendingReturn);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.PendingRecycle);
+
+        Assert.Equal(1, assetsCounter?.Personal?.InUse);
+        Assert.Equal(0, assetsCounter?.Personal?.Active);
+        Assert.Equal(0, assetsCounter?.Personal?.InputRequired);
+        Assert.Equal(1, assetsCounter?.Personal?.Available);
+        Assert.Equal(0, assetsCounter?.Personal?.Expired);
+        Assert.Equal(0, assetsCounter?.Personal?.Repair);
+
+        Assert.Equal(0, assetsCounter?.Personal?.ExpiresSoon);
+        Assert.Equal(0, assetsCounter?.Personal?.PendingReturn);
+        Assert.Equal(0, assetsCounter?.Personal?.PendingRecycle);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetAssetCountForDepartmentAsync_ForAllAssetLifecyclesWithActiveStates()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+
+        //All the active states at this time
+        var statusesInActiveState = new List<AssetLifecycleStatus> {
+            AssetLifecycleStatus.Active,
+            AssetLifecycleStatus.Repair,
+            AssetLifecycleStatus.InUse,
+            AssetLifecycleStatus.Available,
+            AssetLifecycleStatus.InputRequired,
+            AssetLifecycleStatus.ExpiresSoon,     // Not in counter
+            AssetLifecycleStatus.PendingReturn,  // Not in counter
+            AssetLifecycleStatus.PendingRecycle,// Not in counter
+            AssetLifecycleStatus.Expired};
+
+        //Act
+        var assetsCounter = await assetRepository.GetAssetCountForDepartmentAsync(COMPANY_ID, null, statusesInActiveState, departments: new List<Guid?> { DEPARTMENT_ID});
+
+        //Assert
+        Assert.Equal(0, assetsCounter.UsersPersonalAssets);
+        Assert.Equal(COMPANY_ID, assetsCounter.OrganizationId);
+        Assert.Equal(DEPARTMENT_ID, assetsCounter?.Departments[0]?.DepartmentId);
+
+
+        Assert.Equal(1, assetsCounter?.Departments[0]?.NonPersonal?.InUse);
+        Assert.Equal(1, assetsCounter?.Departments[0]?.NonPersonal?.Active);
+        Assert.Equal(0, assetsCounter?.Departments[0]?.NonPersonal?.InputRequired);
+        Assert.Equal(0, assetsCounter?.Departments[0]?.NonPersonal?.Available);
+        Assert.Equal(1, assetsCounter?.Departments[0]?.NonPersonal?.Expired);
+
+        Assert.Equal(1, assetsCounter?.Departments[0]?.NonPersonal?.ExpiresSoon);
+        Assert.Equal(1, assetsCounter?.Departments[0]?.NonPersonal?.PendingReturn);
+        Assert.Equal(1, assetsCounter?.Departments[0]?.NonPersonal?.PendingRecycle);
+
+        Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.PendingRecycle);
+        Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.PendingReturn);
+        Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.ExpiresSoon);
+
+        Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.InUse);
+        Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Active);
+        Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.InputRequired);
+        Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Available);
+        Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Expired);
+        Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Repair);
+
+
+    }
+
 }

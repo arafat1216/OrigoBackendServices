@@ -21,6 +21,12 @@ namespace AssetServices.UnitTests
         protected readonly Guid ASSETLIFECYCLE_FIVE_ID = new("4315bba8-698f-4ddd-aee2-82554c91721f");
         protected readonly Guid ASSETLIFECYCLE_SIX_ID = new("4515bba8-698f-4ddd-aee2-82554c91721f");
         protected readonly Guid ASSETLIFECYCLE_SEVEN_ID = new("1dee1675-0a94-4571-be24-d87ce0fb986a");
+        
+        protected readonly Guid ASSETLIFECYCLE_EIGHT_ID = new("b6afee47-f4a7-4cc7-b890-4eaf2b36acd4");
+        protected readonly Guid ASSETLIFECYCLE_NINE_ID = new("a729805b-e341-4c45-97cf-3ea76722d026");
+        protected readonly Guid ASSETLIFECYCLE_TEN_ID = new("370911d5-8545-41a3-af83-3ae376a88775");
+        protected readonly Guid ASSETLIFECYCLE_ELEVEN_ID = new("6c7d1ca7-8c3a-4dda-b47c-eb539fdaa6ba");
+        protected readonly Guid ASSETLIFECYCLE_TWELVE_ID = new("35ce5192-dbf9-458b-a0ec-c72875a227b7");
 
         protected readonly Guid COMPANY_ID = new("cab4bb77-3471-4ab3-ae5e-2d4fce450f36");
         protected readonly Guid DEPARTMENT_ID = new("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72");
@@ -114,6 +120,40 @@ namespace AssetServices.UnitTests
             assetLifecycleEight.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
             assetLifecycleEight.IsSentToRepair(CALLER_ID);
 
+            //Pending recycle
+            var assetLifecycleNine = new AssetLifecycle(ASSETLIFECYCLE_EIGHT_ID) { CustomerId = COMPANY_ID, Alias = "alias_8", AssetLifecycleStatus = AssetLifecycleStatus.InUse, AssetLifecycleType = LifecycleType.Transactional };
+            assetLifecycleNine.AssignAsset(assetSeven, CALLER_ID);
+            assetLifecycleNine.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
+            assetLifecycleNine.SetPendingRecycledStatus(CALLER_ID);
+
+            //Recycled 
+            var assetLifecycleTen = new AssetLifecycle(ASSETLIFECYCLE_NINE_ID) { CustomerId = COMPANY_ID, Alias = "alias_9", AssetLifecycleStatus = AssetLifecycleStatus.InUse, AssetLifecycleType = LifecycleType.Transactional };
+            assetLifecycleTen.AssignAsset(assetSeven, CALLER_ID);
+            assetLifecycleTen.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
+            assetLifecycleTen.SetPendingRecycledStatus(CALLER_ID);
+            assetLifecycleTen.SetRecycledStatus(CALLER_ID);
+
+            //Expired soon
+            var assetLifecycleEleven = new AssetLifecycle(ASSETLIFECYCLE_TEN_ID) { CustomerId = COMPANY_ID, Alias = "alias_10", AssetLifecycleStatus = AssetLifecycleStatus.InUse, AssetLifecycleType = LifecycleType.Transactional };
+            assetLifecycleEleven.AssignAsset(assetSeven, CALLER_ID);
+            assetLifecycleEleven.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
+            assetLifecycleEleven.MakeAssetExpiresSoon(CALLER_ID);
+
+            //Expired 
+            var assetLifecycleTwelve = new AssetLifecycle(ASSETLIFECYCLE_ELEVEN_ID) { CustomerId = COMPANY_ID, Alias = "alias_11", AssetLifecycleStatus = AssetLifecycleStatus.InUse, AssetLifecycleType = LifecycleType.Transactional };
+            assetLifecycleTwelve.AssignAsset(assetSeven, CALLER_ID);
+            assetLifecycleTwelve.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
+            assetLifecycleTwelve.MakeAssetExpiresSoon(CALLER_ID);
+            assetLifecycleTwelve.MakeAssetExpired(CALLER_ID);
+
+            //Pending Return
+            var assetLifecycleThirteen = new AssetLifecycle(ASSETLIFECYCLE_TWELVE_ID) { CustomerId = COMPANY_ID, Alias = "alias_12", AssetLifecycleStatus = AssetLifecycleStatus.InUse, AssetLifecycleType = LifecycleType.Transactional };
+            assetLifecycleThirteen.AssignAsset(assetSeven, CALLER_ID);
+            assetLifecycleThirteen.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
+            assetLifecycleThirteen.MakeAssetExpiresSoon(CALLER_ID);
+            assetLifecycleThirteen.MakeReturnRequest(CALLER_ID);
+
+
             var lifeCycleSetting = new LifeCycleSetting(1, true, 500M, 24, Guid.Empty);
             var customerSetting = new CustomerSettings(COMPANY_ID, new List<LifeCycleSetting>() { lifeCycleSetting });
 
@@ -123,7 +163,8 @@ namespace AssetServices.UnitTests
             context.Users.AddRange(userOne, userTwo);
             context.Assets.AddRange(assetOne, assetTwo, assetThree, assetFour, assetFive, assetSix, assetOther);
             context.CustomerLabels.AddRange(labelOne, labelTwo, labelThree);
-            context.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree, assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleOther, assetLifecycleEight);
+            context.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree, assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleOther, assetLifecycleEight,
+                assetLifecycleNine, assetLifecycleTen, assetLifecycleEleven, assetLifecycleTwelve, assetLifecycleThirteen);
             context.CustomerSettings.AddRange(customerSetting);
             context.SaveChanges();
         }

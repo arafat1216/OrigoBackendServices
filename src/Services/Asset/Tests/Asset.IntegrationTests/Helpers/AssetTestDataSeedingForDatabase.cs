@@ -27,7 +27,11 @@ internal static class AssetTestDataSeedingForDatabase
     public static readonly Guid ASSETLIFECYCLE_NINE_ID = new("b1378497-87f5-4204-bd8a-ab1be0b3536c");
     public static readonly Guid ASSETLIFECYCLE_TEN_ID = new("1b16d251-8bdf-4577-addb-691ac0a04bcb");
 
-    
+    public static readonly Guid ASSETLIFECYCLE_ELEVEN_ID = new("1b16d251-8bdf-4577-addb-691ac0a04bcb");
+    public static readonly Guid ASSETLIFECYCLE_TVELVE_ID = new("1b16d251-8bdf-4577-addb-691ac0a04bcb");
+    public static readonly Guid ASSETLIFECYCLE_THIRTEEN_ID = new("1b16d251-8bdf-4577-addb-691ac0a04bcb");
+    public static readonly Guid ASSETLIFECYCLE_FOURTEEN_ID = new("1b16d251-8bdf-4577-addb-691ac0a04bcb");
+
     public static readonly Guid LABEL_ONE_ID = new("D4535FA6-9EBB-4DCF-AB62-21BE01001345");
     public static readonly Guid LABEL_TWO_ID = new("6031CDA2-C1CC-4593-A450-9EE6F47951D0");
   
@@ -173,6 +177,61 @@ internal static class AssetTestDataSeedingForDatabase
         assetLifecycleTen.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
         assetLifecycleTen.IsSentToRepair(CALLER_ID);
 
+        //Expired
+        var assetLifecycleEleven = new AssetLifecycle(ASSETLIFECYCLE_ELEVEN_ID)
+        {
+            CustomerId = COMPANY_ID,
+            Alias = "alias_11",
+            AssetLifecycleType = LifecycleType.Transactional,
+            StartPeriod = DateTime.UtcNow.AddMonths(-12),
+            EndPeriod = DateTime.UtcNow.AddDays(-1)
+        };
+        assetLifecycleEleven.AssignAsset(assetTwo,CALLER_ID);
+        assetLifecycleEleven.AssignAssetLifecycleHolder(null,DEPARTMENT_ID,CALLER_ID);
+        assetLifecycleEleven.MakeAssetExpiresSoon(CALLER_ID);
+        assetLifecycleEleven.MakeAssetExpired(CALLER_ID);
+        //ExpiresSoon
+        var assetLifecycleTwelve = new AssetLifecycle(ASSETLIFECYCLE_TVELVE_ID)
+        {
+            CustomerId = COMPANY_ID,
+            Alias = "alias_12",
+            AssetLifecycleStatus = AssetLifecycleStatus.ExpiresSoon,
+            AssetLifecycleType = LifecycleType.Transactional,
+            StartPeriod = DateTime.UtcNow.AddMonths(-12),
+            EndPeriod = DateTime.UtcNow.AddDays(-30)
+        };
+        assetLifecycleTwelve.AssignAsset(assetTwo, CALLER_ID);
+        assetLifecycleTwelve.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
+        assetLifecycleTwelve.MakeAssetExpiresSoon(CALLER_ID);
+
+        //PendingResycled
+        var assetLifecycleThirteen = new AssetLifecycle(ASSETLIFECYCLE_THIRTEEN_ID)
+        {
+            CustomerId = COMPANY_ID,
+            Alias = "alias_13",
+            AssetLifecycleStatus = AssetLifecycleStatus.InUse,
+            AssetLifecycleType = LifecycleType.Transactional,
+            StartPeriod = DateTime.UtcNow.AddMonths(-12),
+            EndPeriod = DateTime.UtcNow
+        };
+        assetLifecycleThirteen.AssignAsset(assetTwo, CALLER_ID);
+        assetLifecycleThirteen.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
+        assetLifecycleThirteen.SetPendingRecycledStatus(CALLER_ID);
+        //PendingReturn
+        var assetLifecycleFourteen = new AssetLifecycle(ASSETLIFECYCLE_FOURTEEN_ID)
+        {
+            CustomerId = COMPANY_ID,
+            Alias = "alias_14",
+            AssetLifecycleStatus = AssetLifecycleStatus.InUse,
+            AssetLifecycleType = LifecycleType.Transactional,
+            StartPeriod = DateTime.UtcNow.AddMonths(-12),
+            EndPeriod = DateTime.UtcNow.AddDays(-30)
+        };
+        assetLifecycleFourteen.AssignAsset(assetTwo, CALLER_ID);
+        assetLifecycleFourteen.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
+        assetLifecycleFourteen.MakeAssetExpiresSoon(CALLER_ID);
+        assetLifecycleFourteen.MakeReturnRequest(CALLER_ID);
+
 
         var disposeSetting = new DisposeSetting(Guid.Empty);
         var returnLocation = new ReturnLocation("Return Location","Return to Mr. on 3rd Floor",Guid.NewGuid());
@@ -187,7 +246,7 @@ internal static class AssetTestDataSeedingForDatabase
         dbContext.Users.AddRange(userOne);
         dbContext.Assets.AddRange(assetOne, assetTwo, assetThree,assetFour ,assetFive);
         dbContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree,
-            assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleEight, assetLifecycleNine, assetLifecycleTen);
+            assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleEight, assetLifecycleNine, assetLifecycleTen, assetLifecycleEleven, assetLifecycleTwelve, assetLifecycleThirteen, assetLifecycleFourteen);
         dbContext.CustomerSettings.AddRange(customerSettingOne, customerSettingTwo);
 
         var label = new CustomerLabel(COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));

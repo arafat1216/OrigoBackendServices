@@ -190,7 +190,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         return assetLifecycleStatus is AssetLifecycleStatus.InputRequired or AssetLifecycleStatus.InUse
             or AssetLifecycleStatus.Repair or AssetLifecycleStatus.PendingReturn or AssetLifecycleStatus.PendingBuyout
             or AssetLifecycleStatus.Available or AssetLifecycleStatus.Active or AssetLifecycleStatus.ExpiresSoon 
-            or AssetLifecycleStatus.PendingRecycle;
+            or AssetLifecycleStatus.PendingRecycle or AssetLifecycleStatus.Expired or AssetLifecycleStatus.ExpiresSoon;
     }
 
     /// <summary>

@@ -149,7 +149,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/count";
         _testOutputHelper.WriteLine(requestUri);
         var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
-        Assert.Equal(8, count);
+        Assert.Equal(12, count);
     }
 
     [Fact]
@@ -158,7 +158,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/count?departmentId={_departmentId}";
         _testOutputHelper.WriteLine(requestUri);
         var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
-        Assert.Equal(5, count);
+        Assert.Equal(9, count);
     }
 
     [Fact]
@@ -566,8 +566,12 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
                 $"/api/v1/Assets/customers/{customerId}?filterOptions={json}");
 
         Assert.NotNull(pagedAssetList);
-        Assert.Equal(9, pagedAssetList!.TotalItems);
+        Assert.Equal(13, pagedAssetList!.TotalItems);
         Assert.Collection(pagedAssetList.Items, item => Assert.Equal(data.DepartmentId, item.ManagedByDepartmentId),
+            item => Assert.Equal(data.DepartmentId, item.ManagedByDepartmentId),
+            item => Assert.Equal(data.DepartmentId, item.ManagedByDepartmentId),
+            item => Assert.Equal(data.DepartmentId, item.ManagedByDepartmentId),
+            item => Assert.Equal(data.DepartmentId, item.ManagedByDepartmentId),
             item => Assert.Null(item.ManagedByDepartmentId),
             item => Assert.Equal(data.DepartmentId, item.ManagedByDepartmentId),
             item => Assert.Equal(data.DepartmentId, item.ManagedByDepartmentId),
@@ -630,11 +634,58 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         _testOutputHelper.WriteLine(requestUri);
         var pagedAsset = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
 
-        Assert.True(pagedAsset!.TotalItems == 9);
-        Assert.True(pagedAsset.Items.Count == 9);
+        Assert.True(pagedAsset!.TotalItems == 13);
+        Assert.True(pagedAsset.Items.Count == 13);
         Assert.True(pagedAsset.Items.Count(x => x.AssetStatus == AssetLifecycleStatus.InUse) == 4);
     }
+    
+    [Fact]
+    public async Task Get_AssetsInActiveState_CompairAssetCountEndpointAndGetAssetEndpoint()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
 
+        var options = new FilterOptionsForAsset
+        {
+            IsActiveState = true
+        };
+        var json = JsonSerializer.Serialize(options);
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}?page=1&limit=25&filterOptions={json}";
+        _testOutputHelper.WriteLine(requestUri);
+        var pagedAsset = await httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+
+        Assert.True(pagedAsset!.TotalItems == 12);
+        Assert.True(pagedAsset.Items.Count == 12);
+
+        var requestGet = $"/api/v1/Assets/customers/{_customerId}/assets-counter";
+        var responseGet = await httpClient.GetAsync(requestGet);
+
+        var assetsCounter = await responseGet.Content.ReadFromJsonAsync<CustomerAssetsCounter>();
+
+        Assert.NotNull(assetsCounter);
+        Assert.Equal(_customerId, assetsCounter?.OrganizationId);
+        Assert.Equal(2, assetsCounter?.NonPersonal?.InUse);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.Active);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.InputRequired);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.Available);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.Expired);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.Repair);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.PendingReturn);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.PendingRecycle);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.ExpiresSoon);
+
+        Assert.Equal(2, assetsCounter?.Personal?.InUse);
+        Assert.Equal(0, assetsCounter?.Personal?.Active);
+        Assert.Equal(0, assetsCounter?.Personal?.InputRequired);
+        Assert.Equal(0, assetsCounter?.Personal?.Available);
+        Assert.Equal(0, assetsCounter?.Personal?.Expired);
+        Assert.Equal(0, assetsCounter?.Personal?.Repair);
+        Assert.Equal(0, assetsCounter?.Personal?.PendingRecycle);
+        Assert.Equal(0, assetsCounter?.Personal?.PendingRecycle);
+        Assert.Equal(0, assetsCounter?.Personal?.ExpiresSoon);
+
+        Assert.Equal(0, assetsCounter?.UsersPersonalAssets);
+        Assert.Empty(assetsCounter?.Departments);
+    }
     [Fact]
     public async Task MakeAssetAvailableAsync()
     {
@@ -790,7 +841,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
 
         Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.Expired);
-        Assert.True(!updatedAsset!.IsActiveState);
+        Assert.True(updatedAsset!.IsActiveState);
     }
 
     [Fact]
@@ -1223,7 +1274,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var filterOptions = JsonSerializer.Serialize(filterOptionsForAsset);
         var requestAllAssets = $"/api/v1/Assets/customers/{_customerId}?filterOptions={filterOptions}";
         var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestAllAssets);
-        Assert.Equal(9, pagedAssetList!.Items.Count);
+        Assert.Equal(13, pagedAssetList!.Items.Count);
         var assetOneFromResponse = pagedAssetList.Items.FirstOrDefault(i => i.Id == _assetOne);
         Assert.Equal(_assetOne, assetOneFromResponse!.Id);
         Assert.Equal(2, assetOneFromResponse.Labels.Count);
@@ -1914,8 +1965,12 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.Equal(1, assetsCounter?.NonPersonal?.Active);
         Assert.Equal(1, assetsCounter?.NonPersonal?.InputRequired);
         Assert.Equal(1, assetsCounter?.NonPersonal?.Available);
-        Assert.Equal(0, assetsCounter?.NonPersonal?.Expired);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.Expired);
         Assert.Equal(1, assetsCounter?.NonPersonal?.Repair);
+
+        Assert.Equal(1, assetsCounter?.NonPersonal?.ExpiresSoon);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.PendingRecycle);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.PendingReturn);
 
         Assert.Equal(2, assetsCounter?.Personal?.InUse);
         Assert.Equal(0, assetsCounter?.Personal?.Active);
@@ -1923,6 +1978,10 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.Equal(0, assetsCounter?.Personal?.Available);
         Assert.Equal(0, assetsCounter?.Personal?.Expired);
         Assert.Equal(0, assetsCounter?.Personal?.Repair);
+
+        Assert.Equal(0, assetsCounter?.Personal?.ExpiresSoon);
+        Assert.Equal(0, assetsCounter?.Personal?.PendingRecycle);
+        Assert.Equal(0, assetsCounter?.Personal?.PendingRecycle);
         Assert.Equal(0, assetsCounter?.UsersPersonalAssets);
 
         Assert.Empty(assetsCounter?.Departments);
@@ -2055,8 +2114,12 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.Equal(1, assetsCounter?.NonPersonal?.Active);
         Assert.Equal(1, assetsCounter?.NonPersonal?.InputRequired);
         Assert.Equal(1, assetsCounter?.NonPersonal?.Available);
-        Assert.Equal(0, assetsCounter?.NonPersonal?.Expired);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.Expired);
         Assert.Equal(1, assetsCounter?.NonPersonal?.Repair);
+
+        Assert.Equal(1, assetsCounter?.NonPersonal?.ExpiresSoon);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.PendingRecycle);
+        Assert.Equal(1, assetsCounter?.NonPersonal?.PendingReturn);
 
         Assert.Equal(2, assetsCounter?.Personal?.InUse);
         Assert.Equal(0, assetsCounter?.Personal?.Active);
@@ -2064,6 +2127,11 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.Equal(0, assetsCounter?.Personal?.Available);
         Assert.Equal(0, assetsCounter?.Personal?.Expired);
         Assert.Equal(0, assetsCounter?.Personal?.Repair);
+
+        Assert.Equal(0, assetsCounter?.Personal?.ExpiresSoon);
+        Assert.Equal(0, assetsCounter?.Personal?.PendingRecycle);
+        Assert.Equal(0, assetsCounter?.Personal?.PendingReturn);
+
         Assert.Equal(0, assetsCounter?.UsersPersonalAssets);
         Assert.Empty(assetsCounter?.Departments);
     }
@@ -2424,7 +2492,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var pagedAssetList = await httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
 
         // Assert
-        Assert.Equal(8, pagedAssetList!.Items.Count);
+        Assert.Equal(12, pagedAssetList!.Items.Count);
     }
 
     [Fact]

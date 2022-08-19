@@ -171,15 +171,16 @@ namespace AssetServices.Infrastructure
                                       al.AssetLifecycleStatus == AssetLifecycleStatus.Repair ||
                                       al.AssetLifecycleStatus == AssetLifecycleStatus.Available ||
                                       al.AssetLifecycleStatus == AssetLifecycleStatus.Active ||
-                                      al.AssetLifecycleStatus == AssetLifecycleStatus.ExpiresSoon);
+                                      al.AssetLifecycleStatus == AssetLifecycleStatus.ExpiresSoon ||
+                                      al.AssetLifecycleStatus == AssetLifecycleStatus.PendingRecycle ||
+                                      al.AssetLifecycleStatus == AssetLifecycleStatus.Expired);
 
                 else query = query.Where(al => al.AssetLifecycleStatus == AssetLifecycleStatus.Lost ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Stolen ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Recycled ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Discarded ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Returned ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Expired);
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Returned);
 
             }
             if (endPeriodMonth.HasValue)
@@ -249,6 +250,21 @@ namespace AssetServices.Infrastructure
                         case AssetLifecycleStatus.Repair:
                             if (g.isPersonal) personal.Repair = g.value;
                             else nonPersonal.Repair = g.value;
+                            break;
+
+                        case AssetLifecycleStatus.ExpiresSoon:
+                            if (g.isPersonal) personal.ExpiresSoon = g.value;
+                            else nonPersonal.ExpiresSoon = g.value;
+                            break;
+
+                        case AssetLifecycleStatus.PendingReturn:
+                            if (g.isPersonal) personal.PendingReturn = g.value;
+                            else nonPersonal.PendingReturn = g.value;
+                            break;
+
+                        case AssetLifecycleStatus.PendingRecycle:
+                            if (g.isPersonal) personal.PendingRecycle = g.value;
+                            else nonPersonal.PendingRecycle = g.value;
                             break;
 
                         default:
@@ -323,6 +339,21 @@ namespace AssetServices.Infrastructure
                                 else departmentCounter.NonPersonal.Repair = g.value;
                                 break;
 
+                            case AssetLifecycleStatus.ExpiresSoon:
+                                if (g.isPersonal) departmentCounter.Personal.ExpiresSoon = g.value;
+                                else departmentCounter.NonPersonal.ExpiresSoon = g.value;
+                                break;
+
+                            case AssetLifecycleStatus.PendingReturn:
+                                if (g.isPersonal) departmentCounter.Personal.PendingReturn = g.value;
+                                else departmentCounter.NonPersonal.PendingReturn = g.value;
+                                break;
+
+                            case AssetLifecycleStatus.PendingRecycle:
+                                if (g.isPersonal) departmentCounter.Personal.PendingRecycle = g.value;
+                                else departmentCounter.NonPersonal.PendingRecycle = g.value;
+                                break;
+
                             default:
                                 break;
 
@@ -335,6 +366,7 @@ namespace AssetServices.Infrastructure
             }
 
             baseAssetCounter.Departments = assetCounterDepartmentList;
+            baseAssetCounter.OrganizationId = customerId;
 
 
             return baseAssetCounter;
