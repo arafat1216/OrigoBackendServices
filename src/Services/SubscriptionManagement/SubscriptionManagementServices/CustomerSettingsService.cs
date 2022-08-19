@@ -190,11 +190,10 @@ public class CustomerSettingsService : ICustomerSettingsService
         return operatorSubscriptionProducts;
     }
 
-    public async Task<CustomerStandardPrivateSubscriptionProductDTO> PostStandardPrivateSubscriptionProductsAsync(Guid organizationId, NewCustomerStandardPrivateSubscriptionProduct standardProduct)
+    public async Task<CustomerStandardPrivateSubscriptionProductDTO> CreateStandardPrivateSubscriptionProductsAsync(Guid organizationId, NewCustomerStandardPrivateSubscriptionProduct standardProduct)
     {
         var @operator = await _operatorRepository.GetOperatorAsync(standardProduct.OperatorId);
         if (@operator == null) throw new InvalidOperatorIdInputDataException(standardProduct.OperatorId, Guid.Parse("d1f782a4-248d-4d14-9a17-af96106e5c91"));
-
 
         var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
 
@@ -204,10 +203,11 @@ public class CustomerSettingsService : ICustomerSettingsService
         
         await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSetting);
 
-        var mapping =  _mapper.Map<CustomerStandardPrivateSubscriptionProductDTO>(customerStandardProduct);
-        mapping.OperatorName = @operator.OperatorName;
+        var standardPrivateSubscriptionProductDTO =  _mapper.Map<CustomerStandardPrivateSubscriptionProductDTO>(customerStandardProduct);
+        standardPrivateSubscriptionProductDTO.OperatorId = standardProduct.OperatorId;
+        standardPrivateSubscriptionProductDTO.OperatorName = @operator.OperatorName;
 
-        return mapping;
+        return standardPrivateSubscriptionProductDTO;
     }
 
     public async Task<IList<CustomerStandardPrivateSubscriptionProductDTO>> GetStandardPrivateSubscriptionProductsAsync(Guid organizationId)

@@ -440,7 +440,7 @@ namespace SubscriptionManagement.API.Controllers
         [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
         public async Task<ActionResult<CustomerStandardPrivateSubscriptionProductDTO>> PostStandardPrivateSubscriptionProducts(Guid organizationId, NewCustomerStandardPrivateSubscriptionProduct standardProduct)
         {
-            var subscriptionProducts = await _customerSettingsService.PostStandardPrivateSubscriptionProductsAsync(organizationId, standardProduct);
+            var subscriptionProducts = await _customerSettingsService.CreateStandardPrivateSubscriptionProductsAsync(organizationId, standardProduct);
 
             return CreatedAtAction(nameof(PostStandardPrivateSubscriptionProducts), subscriptionProducts);
         }
