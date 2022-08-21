@@ -1,4 +1,5 @@
 ﻿using Common.Enums;
+using System.Numerics;
 using System.Text.RegularExpressions;
 
 namespace SubscriptionManagementServices.Utilities
@@ -23,6 +24,7 @@ namespace SubscriptionManagementServices.Utilities
             string firstTwoDigits = simNumberTrimmed.Substring(0, 2);
             if (firstTwoDigits != "89") return false;
 
+            if (!BigInteger.TryParse(simNumberTrimmed, out BigInteger result)) return false;
 
             return LuhnAlgorithm(simNumberTrimmed);
         }

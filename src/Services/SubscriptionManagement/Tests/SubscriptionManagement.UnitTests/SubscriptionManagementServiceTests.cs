@@ -948,6 +948,17 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
     }
 
     [Theory]
+    [InlineData("8947000010003122703F", false)]
+    [InlineData("8947000010003122703*", false)]
+    [Trait("Category", "UnitTest")]
+    public void ValidateSim_CheckDigitsOnly(string value, bool expected)
+    {
+        var result = SIMCardValidation.ValidateSim(value);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
     [InlineData("00470000131227032275", false)]
     [InlineData("89722020101228153578", true)]
     [Trait("Category", "UnitTest")]
