@@ -1748,6 +1748,44 @@ public class AssetServicesTests : AssetBaseTest
         Assert.Equal(AssetLifecycleStatus.Repair, asset!.AssetLifecycleStatus);
         Assert.Throws<InvalidAssetDataException>(() => asset.SetRecycledStatus(CALLER_ID));
     }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task FindTechstepProductsAsync_CheckWithSearchStrings()
+    {
+        // Arrange
+        var techstepCoreProductsRepositoryMock = new Mock<ITechstepCoreProductsRepository>();
+        const string PRODUCT_SEARCH_STRING = "S20";
+        techstepCoreProductsRepositoryMock.Setup(p => p.GetPartNumbersAsync(PRODUCT_SEARCH_STRING)).ReturnsAsync(new List<TechstepProduct>
+        {
+            new() { Description = "SAMSUNG S20 BLUE", TechstepPartNumber = "3030303" },
+            new() { Description = "SAMSUNG S20 BLACK", TechstepPartNumber = "3030304" }
+        });
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), Mock.Of<IAssetLifecycleRepository>(), _mapper, new Mock<IEmailService>().Object, techstepCoreProductsRepositoryMock.Object);
+
+        // Act
+        var techstepProductMatches = await assetService.FindTechstepProductsAsync(PRODUCT_SEARCH_STRING);
+        
+        // Assert
+        Assert.Equal(2, techstepProductMatches.Count);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task FindTechstepProductsAsync_TechstepRepositoryNotInitialized_ThrowsException()
+    {
+        // Arrange
+        const string PRODUCT_SEARCH_STRING = "S20";
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), Mock.Of<IAssetLifecycleRepository>(), _mapper, new Mock<IEmailService>().Object);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<TechstepRepositorySetupException>(async () => await assetService.FindTechstepProductsAsync(PRODUCT_SEARCH_STRING));
+    }
+
+    //[Fact]
+    //[Trait("Category", "UnitTest")]
+    //public Task FindTechstep()
+
     [Fact]
     [Trait("Category", "UnitTest")]
     public async Task GetAssetLifecycleCountForCustomerAsync_ForAllAssetLifecyclesWithActiveStates()

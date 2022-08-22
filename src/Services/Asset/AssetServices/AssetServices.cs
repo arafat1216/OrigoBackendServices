@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using AssetServices.ServiceModel;
 using AutoMapper;
 using AssetServices.Email;
+using AssetServices.Infrastructure;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Http;
@@ -31,16 +32,19 @@ public class AssetServices : IAssetServices
     private readonly IMapper _mapper;
     private readonly ILogger<AssetServices> _logger;
     private readonly IEmailService _emailService;
+    private readonly ITechstepCoreProductsRepository? _techstepCoreProductsRepository;
 
     public AssetServices(ILogger<AssetServices> logger, 
         IAssetLifecycleRepository assetLifecycleRepository, 
         IMapper mapper,
-        IEmailService emailService)
+        IEmailService emailService,
+        ITechstepCoreProductsRepository? techstepCoreProductsRepository = null)
     {
         _logger = logger;
         _assetLifecycleRepository = assetLifecycleRepository;
         _mapper = mapper;
         _emailService = emailService;
+        _techstepCoreProductsRepository = techstepCoreProductsRepository;
     }
 
     public async Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync()
@@ -1168,5 +1172,14 @@ public class AssetServices : IAssetServices
         }
 
         if (changed) await _assetLifecycleRepository.SaveEntitiesAsync();
+    }
+
+    public async Task<IList<TechstepProduct>> FindTechstepProductsAsync(string productSearchString)
+    {
+        if (_techstepCoreProductsRepository == null)
+        {
+            throw new TechstepRepositorySetupException($"Techstep Core repository not properly configured", Guid.Parse("fc499152-01e4-408d-97a2-a07818e15755"));
+        }
+        return await _techstepCoreProductsRepository.GetPartNumbersAsync(productSearchString);
     }
 }
