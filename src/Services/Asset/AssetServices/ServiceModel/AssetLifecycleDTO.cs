@@ -13,6 +13,7 @@ public record AssetLifecycleDTO
     public DateTime StartPeriod { get; init; }
     public DateTime EndPeriod { get; init; }
     public DateTime PurchaseDate { get; init; }
+    public string PurchasedBy { get; init; } = string.Empty;
     public decimal OffboardBuyoutPrice { get; init; }
     public string Note { get; init; } = string.Empty;
     public string Description { get; init; } = string.Empty;

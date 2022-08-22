@@ -34,7 +34,8 @@ public class PagedAssetProfile : Profile
             .ForMember(dest => dest.Labels, opts => opts.MapFrom(src => src.Labels))
             .ForMember(dest => dest.StartPeriod, opts => opts.MapFrom(src => src.StartPeriod))
             .ForMember(dest => dest.EndPeriod, opts => opts.MapFrom(src => src.EndPeriod))
-            .ForMember(dest => dest.OffboardBuyoutPrice, opts => opts.MapFrom(src => src.OffboardBuyoutPrice));
+            .ForMember(dest => dest.OffboardBuyoutPrice, opts => opts.MapFrom(src => src.OffboardBuyoutPrice))
+            .ForMember(dest => dest.PurchasedBy, opts => opts.MapFrom(src => src.PurchasedBy));
 
         CreateMap<LifeCycleSettingDTO, LifeCycleSetting>()
             .ForMember(dest => dest.Id, opts => opts.MapFrom(src => src.ExternalId));

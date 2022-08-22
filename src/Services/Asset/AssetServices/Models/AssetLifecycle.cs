@@ -75,6 +75,11 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// </summary>
     public string Description { get; init; } = string.Empty;
     /// <summary>
+    /// Person who purchased this Asset.
+    /// </summary>
+    public string PurchasedBy { get; init; } = string.Empty;
+
+    /// <summary>
     /// The Currency code related to this asset lifecycle.
     /// </summary>
     public CurrencyCode CurrencyCode { get; init; }
@@ -645,6 +650,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
             InvoiceNumber = assetLifecycleDTO.InvoiceNumber ?? string.Empty,
             TransactionId = assetLifecycleDTO.TransactionId ?? string.Empty,
             Source = assetLifecycleDTO.Source,
+            PurchasedBy = assetLifecycleDTO.PurchasedBy ?? string.Empty,
             IsPersonal = assetLifecycleDTO.IsPersonal ?? assetLifecycleDTO.LifecycleType == LifecycleType.Transactional // Default is true only for transactional assets
         };
     }

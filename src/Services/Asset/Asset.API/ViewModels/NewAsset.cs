@@ -40,6 +40,11 @@ public record NewAsset
     ///     The date the asset was purchased.
     /// </summary>
     public DateTime PurchaseDate { get; set; }
+    /// <summary>
+    /// Person who purchased this Asset.
+    /// </summary>
+    public string? PurchasedBy { get; set; }
+
 
     /// <summary>
     ///     The department or cost center this asset is assigned to.

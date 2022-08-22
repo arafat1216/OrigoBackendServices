@@ -59,6 +59,10 @@ namespace OrigoApiGateway.Models.Asset
         /// A description of the asset.
         /// </summary>
         public string? Description { get; set; }
+        /// <summary>
+        /// Person who purhcased the Asset
+        /// </summary>
+        public string? PurchasedBy { get; set; }
 
         /// <summary>
         /// Tags associated with this asset.

@@ -202,8 +202,8 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                 entity.HasData(new Product { Id = 4, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = (int)ProductTypeSeedDataValue.Option, UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new List<ProductTranslation>()
                 {
-                    new ProductTranslation { ProductId = 4, Language = "en", Name = "Book Value and Purchase Price", Description = "Allow book value and Purchase Price.", UpdatedBy = systemUserId },
-                    new ProductTranslation { ProductId = 4, Language = "nb", Name = "Bokført verdi og kjøpspris", Description = "Tilgjengeliggjør bokført verdi og kjøpspris.", UpdatedBy = systemUserId },
+                    new ProductTranslation { ProductId = 4, Language = "en", Name = "Book Value", Description = "Allow book value.", UpdatedBy = systemUserId },
+                    new ProductTranslation { ProductId = 4, Language = "nb", Name = "Bokført verdi", Description = "Tilgjengeliggjør bokført verdi.", UpdatedBy = systemUserId },
                 });
 
                 // Recycle & Wipe

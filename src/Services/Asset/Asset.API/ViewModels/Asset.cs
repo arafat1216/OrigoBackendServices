@@ -84,7 +84,10 @@ public record Asset
     /// </summary>
     public decimal BuyoutPrice { get; init; }
 
-
+    /// <summary>
+    ///     Person who purchased the Asset.
+    /// </summary>
+    public string PurchasedBy { get; init; }
     /// <summary>
     ///     The date the asset was purchased.
     /// </summary>

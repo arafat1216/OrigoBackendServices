@@ -1533,6 +1533,8 @@ namespace OrigoApiGateway.Services
             defaultAttributes.Add(new AssetCategoryAttribute { Name = "productName", Required = true });
             defaultAttributes.Add(new AssetCategoryAttribute { Name = "lifecycleType", Required = true });
             defaultAttributes.Add(new AssetCategoryAttribute { Name = "purchaseDate", Required = true });
+            defaultAttributes.Add(new AssetCategoryAttribute { Name = "purchaseDate", Required = true });
+            defaultAttributes.Add(new AssetCategoryAttribute { Name = "purchasedBy", Required = false });
             defaultAttributes.Add(new AssetCategoryAttribute { Name = "managedByDepartmentId", Required = false });
             defaultAttributes.Add(new AssetCategoryAttribute { Name = "assetHolderId", Required = false });
             defaultAttributes.Add(new AssetCategoryAttribute { Name = "createdDate", Required = false });

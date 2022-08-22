@@ -37,6 +37,10 @@ namespace OrigoApiGateway.Models
         /// A description of the asset.
         /// </summary>
         public string Description { get; init; }
+        /// <summary>
+        /// Person who purhcased the Asset
+        /// </summary>
+        public string PurchasedBy { get; init; }
 
         /// <summary>
         /// The payment amount by company for the asset. For mobile phones and other devices

@@ -60,6 +60,10 @@ namespace AssetServices.ServiceModel
         /// A description of the asset.
         /// </summary>
         public string? Description { get; set; }
+        /// <summary>
+        /// Person who purchased this Asset.
+        /// </summary>
+        public string? PurchasedBy { get; set; }
 
         /// <summary>
         /// The payment amount by company for the asset. For mobile phones and other devices
