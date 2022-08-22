@@ -380,6 +380,21 @@ public class
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
+    [Fact]
+    public async Task PostCancelSubscription_ShouldReturnCreate()
+    {
+        var cancelSubscriptionOrder = new NewCancelSubscriptionOrder()
+        {
+            MobileNumber = "+4791111111",
+            DateOfTermination = _mockDateTime.GetNow().AddDays(3),
+            OperatorId = _operatorId,
+            CallerId = Guid.NewGuid()
+        };
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(cancelSubscriptionOrder));
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-cancel", cancelSubscriptionOrder);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
 
     [Fact]
     public async Task PostOrderSim_ReturnsCreated()
@@ -1034,6 +1049,40 @@ public class
         Assert.Contains(
          $"Invalid transfer date. 2 workday ahead or more is allowed.",
         response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task CancelSubscription_dateOfTermination_CantBeAweekendDayException()
+    {
+        var cancel = new NewCancelSubscriptionOrder
+        {
+            OperatorId = 1,
+            MobileNumber = "+4741454546",
+            CallerId = new Guid(),
+            DateOfTermination = _mockDateTime.GetNow().AddMonths(2)
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-cancel", cancel);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains(
+                $"Transfer date can not be a Saturday.",
+               response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task CancelSubscription_dateOfTermination_Within30DaysException()
+    {
+        var cancel = new NewCancelSubscriptionOrder
+        {
+            OperatorId = 1,
+            MobileNumber = "+4741454546",
+            CallerId = new Guid(),
+            DateOfTermination = _mockDateTime.GetNow().AddMonths(2).AddDays(2)
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-cancel", cancel);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains(
+                $"Invalid date. Needs to be within 30 business days.",
+               response.Content.ReadAsStringAsync().Result);
     }
     [Fact]
     public async Task GetDetailViewSubscriptionOrderLog_ReturnOK()

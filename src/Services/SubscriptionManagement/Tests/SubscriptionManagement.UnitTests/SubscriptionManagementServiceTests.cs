@@ -92,7 +92,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async Task TransferSubscription_Same_Operator_InvalidDate()
+    public async Task TransferSubscription_SameOperator_NeedsToBe2OrMoreBuisinessDaysFromToday()
     {
         var exception = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
@@ -113,12 +113,17 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.NotNull(exception);
         Assert.IsType<ArgumentException>(exception);
         Assert.Equal("Invalid transfer date. 2 workday ahead or more is allowed.", exception.Message);
+    }
 
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_SameOperator_NeedsToBefore30BuisinessDaysFromToday()
+    {
         var exceptionThirtyDay = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = _todayDateMock.AddDays(31),
+                    OrderExecutionDate = _todayDateMock.AddDays(52),
                     OperatorAccountId = 1,
                     PrivateSubscription = new PrivateSubscriptionDTO
                     {
@@ -132,12 +137,12 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         Assert.NotNull(exceptionThirtyDay);
         Assert.IsType<ArgumentException>(exceptionThirtyDay);
-        Assert.Equal("Invalid transfer date. 2 workday ahead or more is allowed.", exceptionThirtyDay.Message);
+        Assert.Equal("Invalid date. Needs to be within 30 business days.", exceptionThirtyDay.Message);
     }
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async Task TransferSubscription_Diff_Operator_InvalidDate()
+    public async Task TransferSubscription_DifferentOperator_InvalidDateTransferDate_NeedsToBe10OrMoreBuisinessDaysFromToday()
     {
         var exception = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
@@ -172,12 +177,16 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.NotNull(exception);
         Assert.IsType<ArgumentException>(exception);
         Assert.Equal("Invalid transfer date. 10 workdays ahead or more is allowed.", exception.Message);
-
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_DifferentOperator_InvalidDateTransferDate_30BusinessDaysMaxLimit()
+    {
         var exceptionThirtyDay = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = _todayDateMock.AddDays(31),
+                    OrderExecutionDate = _todayDateMock.AddDays(39),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 11, // Op2
@@ -204,8 +213,8 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 ));
 
         Assert.NotNull(exceptionThirtyDay);
+        Assert.Equal("Transfer date can not be a Saturday.", exceptionThirtyDay.Message);
         Assert.IsType<ArgumentException>(exceptionThirtyDay);
-        Assert.Equal("Invalid transfer date. 10 workdays ahead or more is allowed.", exceptionThirtyDay.Message);
     }
     [Fact]
     [Trait("Category", "UnitTest")]
@@ -238,7 +247,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async Task TransferSubscription_Diff_Operator_No_SIM_InvalidDate()
+    public async Task TransferSubscription_DifferentOperatorAndNoSIM_LimitedToTransfer10DaysAhead()
     {
         var exception = await Record.ExceptionAsync(() =>
              _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
@@ -274,12 +283,16 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.NotNull(exception);
         Assert.IsType<ArgumentException>(exception);
         Assert.Equal("Invalid transfer date. 10 workdays ahead or more is allowed.", exception.Message);
-
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task TransferSubscription_DifferentOperatorAndNoSIM_LimitedToTransferBefore30BuisniessDays()
+    {
         var exceptionThirtyDay = await Record.ExceptionAsync(() =>
             _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = _todayDateMock.AddDays(31),
+                    OrderExecutionDate = _todayDateMock.AddDays(39),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 11, // Op2
@@ -308,7 +321,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         Assert.NotNull(exceptionThirtyDay);
         Assert.IsType<ArgumentException>(exceptionThirtyDay);
-        Assert.Equal("Invalid transfer date. 10 workdays ahead or more is allowed.", exceptionThirtyDay.Message);
+        Assert.Equal("Transfer date can not be a Saturday.", exceptionThirtyDay.Message);
     }
     [Fact]
     [Trait("Category", "UnitTest")]
@@ -388,7 +401,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var order = await _subscriptionManagementService.TransferPrivateToBusinessSubscriptionOrderAsync(ORGANIZATION_ONE_ID,
                 new TransferToBusinessSubscriptionOrderDTO
                 {
-                    OrderExecutionDate = _todayDateMock.AddDays(6),
+                    OrderExecutionDate = _todayDateMock.AddDays(8),
                     NewOperatorAccount = new NewOperatorAccountRequestedDTO
                     {
                         OperatorId = 10, // Op1
@@ -934,6 +947,37 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.IsType<CustomerSettingsException>(exception);
         Assert.Equal("Customer don't have settings for operator with id 0", exception.Message);
     }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task CancelSubscriptionOrder()
+    {
+        using var context = new SubscriptionManagementContext(ContextOptions);
+        var subscriptionManagementRepository = new SubscriptionManagementRepository<ISubscriptionOrder>(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var operatorRepository = new OperatorRepository(context);
+
+        var mockDateTimeNow = new Mock<IDateTimeProvider>();
+        mockDateTimeNow.Setup(x => x.GetNow()).Returns(new DateTime(2022, 08, 12));
+
+        var subscriptionManagementService = new SubscriptionManagementService(subscriptionManagementRepository,
+          new Mock<ICustomerSettingsRepository>().Object,
+          operatorRepository,
+          Options.Create(new TransferSubscriptionDateConfiguration
+          {
+              MinDaysForNewOperatorWithSIM = 10,
+              MinDaysForNewOperator = 4,
+              MaxDaysForAll = 30,
+              MinDaysForCurrentOperator = 2
+          }), _mapper, new Mock<IEmailService>().Object, mockDateTimeNow.Object);
+
+        var cancelSubscriptionOrder = new NewCancelSubscriptionOrder()
+        {
+            MobileNumber = "+4791111111",
+            DateOfTermination = new DateTime(2022, 09, 14),
+            OperatorId = 1,
+            CallerId = Guid.NewGuid()
+        };
+        var cancelSub = await subscriptionManagementService.CancelSubscriptionOrder(ORGANIZATION_ONE_ID, cancelSubscriptionOrder);
+    }
 
     [Theory]
     [InlineData("89470000100031227032275", false)]
@@ -1058,16 +1102,10 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         var subscriptionProduct = _customerSettingsService.AddOperatorSubscriptionProductForCustomerAsync(ORGANIZATION_ONE_ID, 1, "GP1", new List<string> { "5 GB" }, CALLER_ONE_ID);
         Assert.NotNull(subscriptionProduct);
     }
-
     [Theory]
-    [InlineData("2022-03-01T00:00:00.000Z", 2, false)]
     [InlineData("2022-03-02T00:00:00.000Z", 2, false)]
-    [InlineData("2022-03-03T00:00:00.000Z", 2, true)]
-    [InlineData("2022-04-04T00:00:00.000Z", 2, false)]
-    [InlineData("2022-03-04T00:00:00.000Z", 2, true)]
-    [InlineData("2022-05-05T00:00:00.000Z", 2, false)]
-    [InlineData("2022-04-01T00:00:00.000Z", 2, false)]
-    public void ValidDate_Keep(string transfer, int limit, bool excpected)
+    [InlineData("2022-03-01T00:00:00.000Z", 2, false)]
+    public void ValidDate_False(string transfer, int limit, bool excpected)
     {
         var transferDate = DateTime.Parse(transfer);
         //_todayDateMock = 01.03.22
@@ -1078,30 +1116,37 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
 
         Assert.Equal(result, excpected);
     }
+
+
     [Theory]
-    [InlineData("2022-04-03T00:00:00.000Z", 4, false)]
+    [InlineData("2022-04-03T00:00:00.000Z", 4)]
+    [InlineData("2022-04-10T10:46:05.944Z", 4)]
+    [InlineData("2022-03-05T10:46:05.944Z", 4)]
+    [InlineData("2022-05-03T00:00:00.000Z", 10)]
+    [InlineData("2022-04-10T00:00:00.000Z", 2)]
+    [InlineData("2022-05-05T00:00:00.000Z", 2)]
+    [InlineData("2022-04-09T00:00:00.000Z", 2)]
+    public void ValidDate_ThrowException(string transfer, int limit)
+    {
+        var transferDate = DateTime.Parse(transfer);
+        //_todayDateMock = 01.03.22
+        var todayDateOnly = DateOnly.FromDateTime(_todayDateMock);
+        var transferDateOnly = DateOnly.FromDateTime(transferDate);
+
+        Assert.Throws<ArgumentException>(() => DateValidator.ValidDateForAction(transferDateOnly, todayDateOnly, limit));
+    }
+    
+    
+    [Theory]
+    [InlineData("2022-03-15T00:00:00.000Z", 10, true)]
+    [InlineData("2022-03-17T00:00:00.000Z", 10, true)]
+    [InlineData("2022-03-31T00:00:00.000Z", 10, true)]
     [InlineData("2022-03-31T00:00:00.000Z", 4, true)]
     [InlineData("2022-03-17T00:00:00.000Z", 4, true)]
     [InlineData("2022-03-11T10:46:05.944Z", 4, true)]
-    [InlineData("2022-04-10T10:46:05.944Z", 4, false)]
-    [InlineData("2022-03-05T10:46:05.944Z", 4, false)]
-    public void ValidDate_New(string transfer, int limit, bool excpected)
-    {
-        var transferDate = DateTime.Parse(transfer);
-        //_todayDateMock = 01.03.22
-        var todayDateOnly = DateOnly.FromDateTime(_todayDateMock);
-        var transferDateOnly = DateOnly.FromDateTime(transferDate);
-
-        var result = DateValidator.ValidDateForAction(transferDateOnly, todayDateOnly, limit);
-
-        Assert.Equal(result, excpected);
-    }
-    [Theory]
-    [InlineData("2022-03-15T00:00:00.000Z", 10, true)]
-    [InlineData("2022-03-11T00:00:00.000Z", 10, false)]
-    [InlineData("2022-05-03T00:00:00.000Z", 10, false)]
-    [InlineData("2022-03-31T00:00:00.000Z", 10, true)]
-    public void ValidDate_Order(string transfer, int limit, bool excpected)
+    [InlineData("2022-03-03T00:00:00.000Z", 2, true)]
+    [InlineData("2022-03-04T00:00:00.000Z", 2, true)]
+    public void ValidDate_True(string transfer, int limit, bool excpected)
     {
         var transferDate = DateTime.Parse(transfer);
         //_todayDateMock = 01.03.22
@@ -1113,10 +1158,41 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.Equal(result, excpected);
     }
     [Fact]
-    public void CountBusinessDays_TwoWeeks_ShouldBe4BuisnessDays()
+    public void ValidDate_LatestPossibleDateADayToMuch_InValid()
     {
-        var result = DateValidator.CountBusinessDays(DateOnly.FromDateTime(_todayDateMock), DateOnly.FromDateTime(_todayDateMock.AddDays(14)));
+        var transferDate = DateTime.Parse("2022-09-13T00:00:00.000Z");
+        var todayDateOnly = DateOnly.Parse("2022-08-01");
+        var transferDateOnly = DateOnly.FromDateTime(transferDate);
+      
+        Assert.Throws<ArgumentException>(() => DateValidator.ValidDateForAction(transferDateOnly, todayDateOnly, 2));
 
-        Assert.Equal(4,result);
+    }
+    [Theory]
+    [InlineData("2022-08-15T00:00:00.000Z", "2022-08-01", 10)]  //Monday
+    [InlineData("2022-08-16T00:00:00.000Z", "2022-08-02", 10)]  //Tuesday
+    [InlineData("2022-08-17T00:00:00.000Z", "2022-08-03", 10)]  //Wednesday
+    [InlineData("2022-08-18T00:00:00.000Z", "2022-08-04", 10)]  //Thursday
+    [InlineData("2022-08-19T00:00:00.000Z", "2022-08-05", 10)]  //Friday
+    [InlineData("2022-08-22T00:00:00.000Z", "2022-08-06", 10)]  //Saturday
+    [InlineData("2022-08-22T00:00:00.000Z", "2022-08-07", 10)]  //Sunday
+    public void ValidDate_10DaysLimit_EveryDayOfTheWeek(string transfer, string todaysDate, int limit)
+    {
+        var transferDate = DateTime.Parse(transfer);
+        var todayDateOnly = DateOnly.Parse(todaysDate);
+        var transferDateOnly = DateOnly.FromDateTime(transferDate);
+
+        var result = DateValidator.ValidDateForAction(transferDateOnly, todayDateOnly, limit);
+
+        Assert.True(result);
+    }
+    [Fact]
+    public void GetDateAfter()
+    {
+        var result = DateValidator.GetDateAfter(10, DateOnly.Parse("2022-08-07"));
+
+        var excpected = new DateOnly(2022, 08, 22);
+       
+
+        Assert.Equal(excpected, result);
     }
 }
