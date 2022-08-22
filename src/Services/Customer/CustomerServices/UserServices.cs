@@ -284,33 +284,52 @@ namespace CustomerServices
                 return userDTO;
             }
 
-            if (string.IsNullOrEmpty(user.OktaUserId)) 
-            {
-                //Ensure that user with no okta id is set to deactivated
-                if (user.UserStatus == UserStatus.Activated) user.ChangeUserStatus(null, UserStatus.Deactivated);
-                throw new UserNotFoundException("User does not have Okta id and can not be activated.");
-            }
-
-
-            var userExistsInOkta = await _oktaServices.UserExistsInOktaAsync(user.OktaUserId);
-
-            if (userExistsInOkta)
+            if (string.IsNullOrEmpty(user.OktaUserId))
             {
                 if (isActive)
                 {
-                    // set active, but reuse the userId set on creation of user : (This may change in future)
-                    await _oktaServices.AddUserToGroup(user.OktaUserId);
-                    user.ChangeUserStatus(user.OktaUserId, UserStatus.Activated);
+                    var oktaUserId = await _oktaServices.AddOktaUserAsync(user.UserId, user.FirstName, user.LastName,
+                        user.Email, user.MobileNumber, true);
+                    user.ChangeUserStatus(oktaUserId, UserStatus.Activated);
                 }
                 else
                 {
-                    await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
-                    user.ChangeUserStatus(null,UserStatus.Deactivated);
+                    //Ensure that user with no okta id is set to deactivated
+                    if (user.UserStatus == UserStatus.Activated) user.ChangeUserStatus(null, UserStatus.Deactivated);
+                    throw new UserNotFoundException("User does not have Okta id and can not be activated.");
                 }
             }
             else
             {
-                throw new UserNotFoundException("User does not exist in Okta.");
+                var userExistsInOkta = await _oktaServices.UserExistsInOktaAsync(user.OktaUserId);
+
+                if (userExistsInOkta)
+                {
+                    if (isActive)
+                    {
+                        // set active, but reuse the userId set on creation of user : (This may change in future)
+                        await _oktaServices.AddUserToGroup(user.OktaUserId);
+                        user.ChangeUserStatus(user.OktaUserId, UserStatus.Activated);
+                    }
+                    else
+                    {
+                        await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
+                        user.ChangeUserStatus(null,UserStatus.Deactivated);
+                    }
+                }
+                else if (isActive)
+                {
+                    // User does not exist in Okta, but need to activate the User. Therefore re-creating the user in Okta and updating the User status.
+                    // There could be some users whose "OktaUserId" in DB is not null but at the same time do not exist in Okta. They will fall under this condition.
+                    var oktaUserId = await _oktaServices.AddOktaUserAsync(user.UserId, user.FirstName, user.LastName,
+                        user.Email, user.MobileNumber, true);
+                    user.ChangeUserStatus(oktaUserId, UserStatus.Activated);
+                }
+                else
+                {
+                    // User does not exist in Okta, therefore can not be deactivated.
+                    throw new UserNotFoundException("User does not exist in Okta.");
+                }
             }
 
             userDTO = _mapper.Map<UserDTO>(user);

@@ -320,7 +320,10 @@ namespace CustomerServices.UnitTests
             var user = await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, true, EMPTY_CALLER_ID);
 
             // Assert
-            oktaMock.Verify(mock => mock.AddUserToGroup(It.IsAny<string>()), Times.Once());
+            oktaMock.Verify(mock => 
+                mock.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), 
+                    It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()),
+                Times.Once());
             Assert.Equal("Activated", user.UserStatusName);
         }
 

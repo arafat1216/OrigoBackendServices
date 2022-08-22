@@ -80,7 +80,7 @@ namespace CustomerServices.Models
         public void ChangeUserStatus(string? oktaUserId, UserStatus newStatus)
         {
             LastUpdatedDate = DateTime.UtcNow;
-            if(oktaUserId != null) OktaUserId = oktaUserId;
+            OktaUserId = oktaUserId;
             var oldStatus = _userStatus;
             _userStatus = newStatus;
             AddDomainEvent(new UserStatusChangedDomainEvent(this, oldStatus));

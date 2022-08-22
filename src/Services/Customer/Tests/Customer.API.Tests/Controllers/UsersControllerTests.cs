@@ -1195,7 +1195,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var response = await _httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             var read =  await response.Content.ReadAsStringAsync();
-            Assert.Equal("User does not have Okta id and can not be activated.", read);
+            Assert.Equal("Unable to change user status.", read);
 
         }
         [Fact]
